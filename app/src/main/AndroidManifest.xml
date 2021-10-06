@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.clover.studio.exampleapp">
 
+    <!-- TODO add required permissions -->
+
     <application
         android:name=".MainApplication"
         android:allowBackup="true"
