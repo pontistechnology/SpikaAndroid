@@ -11,7 +11,6 @@ import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
@@ -67,6 +66,26 @@ object AppModule {
     @Singleton
     @Provides
     fun provideModelDao(database: AppDatabase) = database.modelDao()
+
+    @Singleton
+    @Provides
+    fun provideChatDao(database: AppDatabase) = database.chatDao()
+
+    @Singleton
+    @Provides
+    fun provideMessageDao(database: AppDatabase) = database.messageDao()
+
+    @Singleton
+    @Provides
+    fun provideReactionDao(database: AppDatabase) = database.reactionDao()
+
+    @Singleton
+    @Provides
+    fun provideUserDao(database: AppDatabase) = database.userDao()
+
+    @Singleton
+    @Provides
+    fun provideChatUserDao(database: AppDatabase) = database.chatUserDao()
 
     @Singleton
     @Provides
