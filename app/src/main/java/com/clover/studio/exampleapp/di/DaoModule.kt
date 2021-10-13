@@ -30,5 +30,4 @@ object DaoModule {
     @Singleton
     @Provides
     fun provideChatUserDao(database: AppDatabase) = database.chatUserDao()
-
 }
