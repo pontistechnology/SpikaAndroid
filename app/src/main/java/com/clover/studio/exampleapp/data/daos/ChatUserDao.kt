@@ -9,6 +9,6 @@ import com.clover.studio.exampleapp.data.models.ChatUser
 interface ChatUserDao {
 
     @Transaction
-    @Query("SELECT * from chat")
-    suspend fun getChatAndUsers(): List<ChatUser>
+    @Query("SELECT * from chat WHERE id = :chatID")
+    suspend fun getChatAndUsers(chatID: String): ChatUser
 }
