@@ -6,16 +6,18 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.clover.studio.exampleapp.data.AppDatabase.Companion.DATABASE_VERSION
 import com.clover.studio.exampleapp.data.daos.*
-import com.clover.studio.exampleapp.data.models.*
+import com.clover.studio.exampleapp.data.models.Chat
+import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.Reaction
+import com.clover.studio.exampleapp.data.models.User
 
 @Database(
-    entities = [Model::class, User::class, Reaction::class, Chat::class, Message::class],
+    entities = [User::class, Reaction::class, Chat::class, Message::class],
     version = DATABASE_VERSION,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun modelDao(): ModelDao
     abstract fun chatDao(): ChatDao
     abstract fun messageDao(): MessageDao
     abstract fun reactionDao(): ReactionDao

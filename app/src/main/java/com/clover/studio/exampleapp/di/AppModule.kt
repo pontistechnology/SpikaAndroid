@@ -3,8 +3,11 @@ package com.clover.studio.exampleapp.di
 import android.content.Context
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.data.AppDatabase
-import com.clover.studio.exampleapp.data.daos.ModelDao
-import com.clover.studio.exampleapp.data.repositories.ModelRepository
+import com.clover.studio.exampleapp.data.daos.*
+import com.clover.studio.exampleapp.data.repositories.ChatRepository
+import com.clover.studio.exampleapp.data.repositories.MessageRepository
+import com.clover.studio.exampleapp.data.repositories.ReactionRepository
+import com.clover.studio.exampleapp.data.repositories.UserRepository
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -65,10 +68,6 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideModelDao(database: AppDatabase) = database.modelDao()
-
-    @Singleton
-    @Provides
     fun provideChatDao(database: AppDatabase) = database.chatDao()
 
     @Singleton
@@ -89,6 +88,25 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideModelRepository(retrofitService: RetrofitService, modelDao: ModelDao) =
-        ModelRepository(retrofitService, modelDao)
+    fun provideChatRepository(
+        retrofitService: RetrofitService,
+        chatDao: ChatDao,
+        chatUserDao: ChatUserDao
+    ) =
+        ChatRepository(retrofitService, chatDao, chatUserDao)
+
+    @Singleton
+    @Provides
+    fun provideMessageRepository(retrofitService: RetrofitService, messageDao: MessageDao) =
+        MessageRepository(retrofitService, messageDao)
+
+    @Singleton
+    @Provides
+    fun provideReactionRepository(retrofitService: RetrofitService, reactionDao: ReactionDao) =
+        ReactionRepository(retrofitService, reactionDao)
+
+    @Singleton
+    @Provides
+    fun provideUserService(retrofitService: RetrofitService, userDao: UserDao) =
+        UserRepository(retrofitService, userDao)
 }

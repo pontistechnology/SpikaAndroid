@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeObservers() {
-        viewModel.getLocalModels().observe(this) {
+        viewModel.getLocalUsers().observe(this) {
             // TODO add logic for local data UI handle
         }
     }
