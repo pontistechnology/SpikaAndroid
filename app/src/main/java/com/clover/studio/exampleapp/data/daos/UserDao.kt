@@ -21,4 +21,6 @@ interface UserDao {
 
     @Query("DELETE FROM user")
     suspend fun removeUsers()
+
+    // TODO add getMe() method for our user object
 }
