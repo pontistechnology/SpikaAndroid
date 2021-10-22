@@ -1,10 +1,10 @@
 package com.clover.studio.exampleapp.di
 
 import com.clover.studio.exampleapp.data.daos.*
-import com.clover.studio.exampleapp.data.repositories.ChatRepository
-import com.clover.studio.exampleapp.data.repositories.MessageRepository
-import com.clover.studio.exampleapp.data.repositories.ReactionRepository
-import com.clover.studio.exampleapp.data.repositories.UserRepository
+import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
+import com.clover.studio.exampleapp.data.repositories.MessageRepositoryImpl
+import com.clover.studio.exampleapp.data.repositories.ReactionRepositoryImpl
+import com.clover.studio.exampleapp.data.repositories.UserRepositoryImpl
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import dagger.Module
 import dagger.Provides
@@ -23,20 +23,20 @@ object RepositoryModule {
         chatDao: ChatDao,
         chatUserDao: ChatUserDao
     ) =
-        ChatRepository(retrofitService, chatDao, chatUserDao)
+        ChatRepositoryImpl(retrofitService, chatDao, chatUserDao)
 
     @Singleton
     @Provides
     fun provideMessageRepository(retrofitService: RetrofitService, messageDao: MessageDao) =
-        MessageRepository(retrofitService, messageDao)
+        MessageRepositoryImpl(retrofitService, messageDao)
 
     @Singleton
     @Provides
     fun provideReactionRepository(retrofitService: RetrofitService, reactionDao: ReactionDao) =
-        ReactionRepository(retrofitService, reactionDao)
+        ReactionRepositoryImpl(retrofitService, reactionDao)
 
     @Singleton
     @Provides
     fun provideUserRepository(retrofitService: RetrofitService, userDao: UserDao) =
-        UserRepository(retrofitService, userDao)
+        UserRepositoryImpl(retrofitService, userDao)
 }
