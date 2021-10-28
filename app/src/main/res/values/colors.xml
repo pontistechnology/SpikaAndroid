@@ -7,4 +7,21 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- TODO finish custom color naming convention and separate into categories -->
+    <color name="color1">#131940</color>
+    <color name="color2">#F2F2F2</color>
+    <color name="color3">#2B3053</color>
+    <color name="style_red">#FF4133</color>
+    <color name="green">#23B528</color>
+    <color name="primary_color">#4696F0</color>
+    <color name="secondary_color">#F3B74C</color>
+    <color name="navigation">#9BB4CF</color>
+    <color name="light_blue">#E6F4FF</color>
+    <color name="border">#C9C9CA</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#141414</color>
+    <color name="text_secondary">#4A4A4A</color>
+    <color name="text_tertiary">#9AA0A6</color>
 </resources>

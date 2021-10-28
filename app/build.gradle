@@ -28,15 +28,40 @@ android {
 
             debuggable true
 
-            resValue "string", "APP_NAME", "Example App"
+            resValue "string", "APP_NAME", "Example App Debug"
             buildConfigField("String", "SERVER_URL", "\"http://fake_url.com\"")
 
             signingConfig signingConfigs.debug
         }
 
-        release {
+        dev {
+            applicationIdSuffix ".dev"
+            versionNameSuffix "_dev"
+
+            debuggable true
+
+            resValue "string", "APP_NAME", "Example App Dev"
+            buildConfigField("String", "SERVER_URL", "\"http://fake_url.com\"")
+
+            signingConfig signingConfigs.debug
+        }
+
+        releaseDebug {
+            debuggable true
             minifyEnabled false
+
+            resValue "string", "APP_NAME", "Example App"
+            buildConfigField("String", "SERVER_URL", "\"http://fake_url.com\"")
+        }
+
+        release {
+            debuggable false
+            minifyEnabled false
+
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            resValue "string", "APP_NAME", "Example App"
+            buildConfigField("String", "SERVER_URL", "\"http://fake_url.com\"")
         }
     }
     compileOptions {
