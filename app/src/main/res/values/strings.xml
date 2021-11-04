@@ -1,3 +1,12 @@
 <resources>
 
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="spika">Spika</string>
+    <string name="enter_number_to_use">Enter your phone number to start using Spika</string>
+    <string name="phone_number">Phone number</string>
+    <string name="country_code_placeholder">+385</string>
+    <string name="number_example">Eg. 98726546</string>
+    <string name="next">Next</string>
 </resources>

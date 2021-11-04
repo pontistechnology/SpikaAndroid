@@ -13,6 +13,10 @@
         <entry key="app/src/main/res/drawable/img_phone_filled.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_settings_filled.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.45" />
+        <entry key="app/src/main/res/layout/activity_onboarding.xml" value="0.25416666666666665" />
+        <entry key="app/src/main/res/layout/activity_splash.xml" value="0.25416666666666665" />
+        <entry key="app/src/main/res/layout/fragment_register_number.xml" value="0.25416666666666665" />
+        <entry key="app/src/main/res/layout/fragment_splash.xml" value="0.23697916666666666" />
       </map>
     </option>
   </component>
