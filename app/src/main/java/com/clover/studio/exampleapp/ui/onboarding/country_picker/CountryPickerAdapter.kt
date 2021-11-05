@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.data.models.CountryCode
 import com.clover.studio.exampleapp.databinding.ItemCountryCodeBinding
 
-class CountryPickerAdapter(private val onItemClick: ((position: Int, item: CountryCode) -> Unit)) :
+class CountryPickerAdapter(private val onItemClick: ((item: CountryCode) -> Unit)) :
     ListAdapter<CountryCode, CountryPickerAdapter.CountryPickerViewHolder>(CountryDiffCallback()) {
 
     inner class CountryPickerViewHolder(val binding: ItemCountryCodeBinding) :
@@ -23,12 +23,12 @@ class CountryPickerAdapter(private val onItemClick: ((position: Int, item: Count
     override fun onBindViewHolder(holder: CountryPickerViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { countryItem ->
-                binding.tvCountryName.text = countryItem.countryName
-                binding.tvCountryCode.text = countryItem.countryCode
+                binding.tvCountryName.text = countryItem.name
+                binding.tvCountryCode.text = countryItem.dial_code
 
                 itemView.setOnClickListener {
                     countryItem.let {
-                        onItemClick.invoke(adapterPosition, it)
+                        onItemClick.invoke(it)
                     }
                 }
             }
@@ -38,7 +38,7 @@ class CountryPickerAdapter(private val onItemClick: ((position: Int, item: Count
     private class CountryDiffCallback : DiffUtil.ItemCallback<CountryCode>() {
 
         override fun areItemsTheSame(oldItem: CountryCode, newItem: CountryCode) =
-            oldItem.countryName == newItem.countryName
+            oldItem.name == newItem.name
 
         override fun areContentsTheSame(oldItem: CountryCode, newItem: CountryCode) =
             oldItem == newItem

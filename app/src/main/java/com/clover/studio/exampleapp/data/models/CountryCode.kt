@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.data.models
 
 data class CountryCode(
-    val countryName: String,
-    val countryCode: String
+    val name: String,
+    val dial_code: String,
+    val code: String
 )

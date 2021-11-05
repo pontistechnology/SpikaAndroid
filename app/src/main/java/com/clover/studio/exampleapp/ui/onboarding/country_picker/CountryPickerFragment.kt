@@ -6,19 +6,21 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.CountryCode
 import com.clover.studio.exampleapp.databinding.FragmentCountryPickerBinding
-import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
+import com.google.gson.Gson
+import timber.log.Timber
+
 
 class CountryPickerFragment : Fragment() {
-    private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var countryPickerAdapter: CountryPickerAdapter
+    private lateinit var countryList: List<CountryCode>
+    private var filteredList: MutableList<CountryCode> = ArrayList()
 
     private var bindingSetup: FragmentCountryPickerBinding? = null
 
@@ -34,6 +36,12 @@ class CountryPickerFragment : Fragment() {
         setupSearchView()
         setupAdapter()
 
+        binding.tvCancel.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_countryPickerFragment_to_splashFragment
+            )
+        }
+
         return binding.root
     }
 
@@ -43,9 +51,9 @@ class CountryPickerFragment : Fragment() {
     }
 
     private fun setupAdapter() {
-        countryPickerAdapter = CountryPickerAdapter { position, item ->
+        countryPickerAdapter = CountryPickerAdapter {
             val bundle = bundleOf(
-                Const.Navigation.COUNTRY_CODE to item.countryCode
+                Const.Navigation.COUNTRY_CODE to it.dial_code
             )
             findNavController().navigate(
                 R.id.action_countryPickerFragment_to_splashFragment,
@@ -56,9 +64,15 @@ class CountryPickerFragment : Fragment() {
         binding.rvCountryCodes.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
-        // Mock item
-        val itemList = listOf<CountryCode>(CountryCode("Croatia", "+41"))
-        countryPickerAdapter.submitList(itemList)
+        // Load local json list
+        val list =
+            resources.openRawResource(R.raw.country_codes).bufferedReader().use { it.readText() }
+
+        val gson = Gson()
+        countryList = gson.fromJson(list, Array<CountryCode>::class.java).toList()
+        countryPickerAdapter.submitList(
+            countryList
+        )
     }
 
     private fun setupSearchView() {
@@ -67,20 +81,34 @@ class CountryPickerFragment : Fragment() {
         binding.svCountrySearch.setOnQueryTextListener(object :
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                // TODO filter list and submit
+                if (query != null) {
+                    Timber.d("Query: $query")
+                    for (country in countryList) {
+                        if (country.name.contains(query, ignoreCase = true)) {
+                            filteredList.add(country)
+                        }
+                    }
+                    Timber.d("Filtered List: $filteredList")
+                    countryPickerAdapter.submitList(ArrayList(filteredList))
+                    filteredList.clear()
+                }
                 return true
             }
 
             override fun onQueryTextChange(query: String?): Boolean {
-                // TODO filter list and submit
+                if (query != null) {
+                    Timber.d("Query: $query")
+                    for (country in countryList) {
+                        if (country.name.contains(query, ignoreCase = true)) {
+                            filteredList.add(country)
+                        }
+                    }
+                    Timber.d("Filtered List: $filteredList")
+                    countryPickerAdapter.submitList(ArrayList(filteredList))
+                    filteredList.clear()
+                }
                 return true
             }
-
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // TODO fetch list and populate adapter
     }
 }

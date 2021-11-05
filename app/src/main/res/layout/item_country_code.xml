@@ -6,13 +6,15 @@
 
     <TextView
         android:id="@+id/tv_country_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:fontFamily="@font/montserrat"
         android:text="@string/country_placeholder"
         android:textColor="@color/text_primary"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tv_country_code"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
