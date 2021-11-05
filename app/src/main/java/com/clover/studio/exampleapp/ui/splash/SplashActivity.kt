@@ -27,7 +27,7 @@ class SplashActivity : AppCompatActivity() {
         goToOnboarding()
     }
 
-    fun goToOnboarding() {
+    private fun goToOnboarding() {
         val timer = object : CountDownTimer(5000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 Timber.d("Timer tick $millisUntilFinished")
