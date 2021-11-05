@@ -7,13 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
+import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
 
 class RegisterNumberFragment : Fragment() {
-
+    private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var countryCode: String
 
     private var bindingSetup: FragmentRegisterNumberBinding? = null

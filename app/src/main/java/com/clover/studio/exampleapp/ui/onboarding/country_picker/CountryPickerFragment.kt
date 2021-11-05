@@ -6,15 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.CountryCode
 import com.clover.studio.exampleapp.databinding.FragmentCountryPickerBinding
+import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
 
 class CountryPickerFragment : Fragment() {
+    private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var countryPickerAdapter: CountryPickerAdapter
 
     private var bindingSetup: FragmentCountryPickerBinding? = null
