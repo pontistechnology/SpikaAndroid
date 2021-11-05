@@ -1,4 +1,4 @@
-package com.clover.studio.exampleapp.ui.onboarding
+package com.clover.studio.exampleapp.ui.onboarding.number_registration
 
 import android.os.Bundle
 import android.text.Editable
@@ -7,13 +7,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
+import com.clover.studio.exampleapp.utils.Const
 
 class RegisterNumberFragment : Fragment() {
+
+    private lateinit var countryCode: String
 
     private var bindingSetup: FragmentRegisterNumberBinding? = null
 
     private val binding get() = bindingSetup!!
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        countryCode = if (arguments?.getString(Const.Navigation.COUNTRY_CODE).isNullOrEmpty())
+            ""
+        else
+            requireArguments().getString(Const.Navigation.COUNTRY_CODE).toString()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -23,6 +37,12 @@ class RegisterNumberFragment : Fragment() {
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
 
         setTextListener()
+
+        if (countryCode != "") {
+            binding.tvCountryCode.text = countryCode
+        }
+
+        binding.tvCountryCode.setOnClickListener { findNavController().navigate(R.id.action_splashFragment_to_countryPickerFragment) }
         return binding.root
 
     }
@@ -37,9 +57,11 @@ class RegisterNumberFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
                 // ignore
             }
+
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 // ignore
             }
+
             override fun afterTextChanged(s: Editable) {
                 binding.btnNext.isEnabled = s.isNotEmpty()
             }

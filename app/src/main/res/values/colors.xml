@@ -19,6 +19,8 @@
     <color name="navigation">#9BB4CF</color>
     <color name="light_blue">#E6F4FF</color>
     <color name="border">#C9C9CA</color>
+    <color name="dark_background">#1C1C1C</color>
+    <color name="dark_background_2">#3D3D3D</color>
 
     <!-- Text Colors -->
     <color name="text_primary">#141414</color>

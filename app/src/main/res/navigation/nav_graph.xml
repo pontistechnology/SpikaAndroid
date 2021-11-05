@@ -7,7 +7,20 @@
 
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.clover.studio.exampleapp.ui.onboarding.RegisterNumberFragment"
+        android:name="com.clover.studio.exampleapp.ui.onboarding.number_registration.RegisterNumberFragment"
         android:label="fragment_splash"
-        tools:layout="@layout/fragment_register_number" />
+        tools:layout="@layout/fragment_register_number" >
+        <action
+            android:id="@+id/action_splashFragment_to_countryPickerFragment"
+            app:destination="@id/countryPickerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/countryPickerFragment"
+        android:name="com.clover.studio.exampleapp.ui.onboarding.country_picker.CountryPickerFragment"
+        android:label="fragment_country_picker"
+        tools:layout="@layout/fragment_country_picker" >
+        <action
+            android:id="@+id/action_countryPickerFragment_to_splashFragment"
+            app:destination="@id/splashFragment" />
+    </fragment>
 </navigation>
