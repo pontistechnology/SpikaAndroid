@@ -44,7 +44,17 @@ class RegisterNumberFragment : Fragment() {
             binding.tvCountryCode.text = countryCode
         }
 
-        binding.tvCountryCode.setOnClickListener { findNavController().navigate(R.id.action_splashFragment_to_countryPickerFragment) }
+        binding.tvCountryCode.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_splashFragment_to_countryPickerFragment
+            )
+        }
+
+        binding.btnNext.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_splashFragment_to_verificationFragment
+            )
+        }
         return binding.root
 
     }

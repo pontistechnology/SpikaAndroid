@@ -13,4 +13,5 @@
     <string name="search">Search</string>
     <string name="all_countries">All Countries</string>
     <string name="country_placeholder">Country Placeholder</string>
+    <string name="verification_code_sent">We sent you a verification code on %s!</string>
 </resources>
