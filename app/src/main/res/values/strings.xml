@@ -17,4 +17,5 @@
     <string name="incorrect_code">The code is incorrect!</string>
     <string name="time_placeholder">02:00</string>
     <string name="resend_code">Resend code</string>
+    <string name="placeholder_number">1</string>
 </resources>

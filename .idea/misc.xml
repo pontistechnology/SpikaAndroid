@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable/bg_btn_blue.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/bg_btn_white.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/bg_button_blue_border.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_account_filled.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_chat_default.xml" value="0.27447916666666666" />
@@ -11,6 +12,7 @@
         <entry key="app/src/main/res/drawable/img_phone.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_phone_default.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_phone_filled.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/img_selector_background.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_settings_filled.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.45" />
         <entry key="app/src/main/res/layout/activity_onboarding.xml" value="0.25416666666666665" />
