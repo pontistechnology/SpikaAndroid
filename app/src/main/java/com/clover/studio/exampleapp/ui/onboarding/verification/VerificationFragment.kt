@@ -8,21 +8,29 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentVerificationBinding
-import androidx.core.content.ContextCompat.getSystemService
-
-import android.view.inputmethod.InputMethodManager
-import androidx.core.content.ContextCompat
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.SmsListener
 import com.clover.studio.exampleapp.utils.SmsReceiver
+import timber.log.Timber
 
 
 class VerificationFragment : Fragment() {
+    private lateinit var phoneNumber: String
+
     private var bindingSetup: FragmentVerificationBinding? = null
 
     private val binding get() = bindingSetup!!
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        phoneNumber = requireArguments().getString(Const.Navigation.PHONE_NUMBER).toString()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,6 +38,7 @@ class VerificationFragment : Fragment() {
     ): View {
         bindingSetup = FragmentVerificationBinding.inflate(inflater, container, false)
 
+        binding.tvEnterNumber.text = getString(R.string.verification_code_sent, phoneNumber)
         //GenericTextWatcher here works only for moving to next EditText when a number is entered
         //first parameter is the current EditText and second parameter is next EditText
         binding.etInputOne.addTextChangedListener(
@@ -96,6 +105,7 @@ class VerificationFragment : Fragment() {
         SmsReceiver.bindListener(object : SmsListener {
             override fun messageReceived(messageText: String?) {
                 // TODO set message text to fields
+                Timber.d("SmsReceiver message $messageText")
             }
         })
         return binding.root
@@ -132,7 +142,8 @@ class VerificationFragment : Fragment() {
                 binding.etInputFour.id -> if (text.length == 1) nextView!!.requestFocus()
                 binding.etInputFive.id -> if (text.length == 1) nextView!!.requestFocus()
                 binding.etInputSix.id -> if (text.length == 1) {
-                    val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    val imm =
+                        activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.hideSoftInputFromWindow(binding.etInputSix.windowToken, 0)
                 }
             }

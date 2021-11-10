@@ -18,11 +18,12 @@
 
     <TextView
         android:id="@+id/tv_enter_number"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:fontFamily="@font/montserrat"
         android:text="@string/verification_code_sent"
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_spika_logo" />

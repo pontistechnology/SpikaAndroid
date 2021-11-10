@@ -1,10 +1,7 @@
 package com.clover.studio.exampleapp.di
 
 import com.clover.studio.exampleapp.data.daos.*
-import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
-import com.clover.studio.exampleapp.data.repositories.MessageRepositoryImpl
-import com.clover.studio.exampleapp.data.repositories.ReactionRepositoryImpl
-import com.clover.studio.exampleapp.data.repositories.UserRepositoryImpl
+import com.clover.studio.exampleapp.data.repositories.*
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import dagger.Module
 import dagger.Provides
@@ -39,4 +36,9 @@ object RepositoryModule {
     @Provides
     fun provideUserRepository(retrofitService: RetrofitService, userDao: UserDao) =
         UserRepositoryImpl(retrofitService, userDao)
+
+    @Singleton
+    @Provides
+    fun provideOnboardingRepository(retrofitService: RetrofitService) =
+        OnboardingRepositoryImpl(retrofitService)
 }
