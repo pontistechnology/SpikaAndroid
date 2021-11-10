@@ -11,8 +11,10 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentVerificationBinding
+import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.SmsListener
 import com.clover.studio.exampleapp.utils.SmsReceiver
@@ -20,7 +22,9 @@ import timber.log.Timber
 
 
 class VerificationFragment : Fragment() {
+    private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var phoneNumber: String
+    private lateinit var deviceId: String
 
     private var bindingSetup: FragmentVerificationBinding? = null
 
@@ -30,6 +34,7 @@ class VerificationFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         phoneNumber = requireArguments().getString(Const.Navigation.PHONE_NUMBER).toString()
+        deviceId = requireArguments().getString(Const.Navigation.DEVICE_ID).toString()
     }
 
     override fun onCreateView(
@@ -39,6 +44,23 @@ class VerificationFragment : Fragment() {
         bindingSetup = FragmentVerificationBinding.inflate(inflater, container, false)
 
         binding.tvEnterNumber.text = getString(R.string.verification_code_sent, phoneNumber)
+
+        setupTextWatchers()
+
+        binding.btnNext.setOnClickListener {
+            viewModel.sendCodeVerification(getVerificationCode(), deviceId)
+        }
+
+        SmsReceiver.bindListener(object : SmsListener {
+            override fun messageReceived(messageText: String?) {
+                // TODO set message text to fields
+                Timber.d("SmsReceiver message $messageText")
+            }
+        })
+        return binding.root
+    }
+
+    private fun setupTextWatchers() {
         //GenericTextWatcher here works only for moving to next EditText when a number is entered
         //first parameter is the current EditText and second parameter is next EditText
         binding.etInputOne.addTextChangedListener(
@@ -101,15 +123,14 @@ class VerificationFragment : Fragment() {
                 binding.etInputFive
             )
         )
-
-        SmsReceiver.bindListener(object : SmsListener {
-            override fun messageReceived(messageText: String?) {
-                // TODO set message text to fields
-                Timber.d("SmsReceiver message $messageText")
-            }
-        })
-        return binding.root
     }
+
+    private fun getVerificationCode(): String = binding.etInputOne.text.toString() +
+            binding.etInputTwo.text.toString() +
+            binding.etInputThree.text.toString() +
+            binding.etInputFour.text.toString() +
+            binding.etInputFive.text.toString() +
+            binding.etInputSix.text.toString()
 
     inner class GenericKeyEvent internal constructor(
         private val currentView: EditText,

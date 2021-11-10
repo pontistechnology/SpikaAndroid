@@ -69,7 +69,11 @@ class RegisterNumberFragment : Fragment() {
             )
 
             val bundle = bundleOf(
-                Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString()
+                Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString(),
+                Const.Navigation.DEVICE_ID to Settings.Secure.getString(
+                    context?.contentResolver,
+                    Settings.Secure.ANDROID_ID
+                )
             )
 
             findNavController().navigate(
