@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.ui.onboarding.verification
 
 import android.content.Context
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.KeyEvent
@@ -14,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentVerificationBinding
+import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.SmsListener
@@ -57,7 +59,39 @@ class VerificationFragment : Fragment() {
                 Timber.d("SmsReceiver message $messageText")
             }
         })
+
+        viewModel.codeVerificationListener.observe(viewLifecycleOwner, {
+            when (it) {
+                OnboardingStates.VERIFYING -> {
+                    binding.clInputUi.visibility = View.GONE
+                    binding.ivSpikaVerify.visibility = View.VISIBLE
+                }
+                OnboardingStates.CODE_VERIFIED -> {
+                    binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_checkmark)
+                    goToAccountCreation()
+                }
+                OnboardingStates.CODE_ERROR -> {
+                    binding.ivSpikaVerify.visibility = View.GONE
+                    binding.clInputUi.visibility = View.VISIBLE
+                    binding.tvIncorrectCode.visibility = View.VISIBLE
+                }
+                else -> Timber.d("Something went wrong")
+            }
+        })
         return binding.root
+    }
+
+    private fun goToAccountCreation() {
+        val timer = object : CountDownTimer(2000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                Timber.d("Timer tick $millisUntilFinished")
+            }
+
+            override fun onFinish() {
+                // TODO add nav controller
+            }
+        }
+        timer.start()
     }
 
     private fun setupTextWatchers() {
