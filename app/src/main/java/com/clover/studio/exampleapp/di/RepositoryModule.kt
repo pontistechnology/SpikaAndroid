@@ -1,17 +1,25 @@
 package com.clover.studio.exampleapp.di
 
+import android.content.Context
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.repositories.*
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
+
+    @Singleton
+    @Provides
+    fun provideSharedPreferencesRepository(
+        @ApplicationContext context: Context
+    ): SharedPreferencesRepository = SharedPreferencesRepositoryImpl(context)
 
     @Singleton
     @Provides
@@ -39,6 +47,9 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideOnboardingRepository(retrofitService: RetrofitService) =
-        OnboardingRepositoryImpl(retrofitService)
+    fun provideOnboardingRepository(
+        retrofitService: RetrofitService,
+        sharedPrefs: SharedPreferencesRepository
+    ) =
+        OnboardingRepositoryImpl(retrofitService, sharedPrefs)
 }

@@ -16,4 +16,11 @@ class Const {
             const val API_VERIFY_CODE = "api/messenger/auth/verify"
         }
     }
+
+    class PrefsData {
+        companion object {
+            const val SHARED_PREFS_NAME = "app_general_prefs"
+            const val TOKEN = "token"
+        }
+    }
 }

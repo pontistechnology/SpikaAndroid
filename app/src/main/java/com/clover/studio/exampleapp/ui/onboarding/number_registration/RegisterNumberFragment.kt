@@ -80,6 +80,8 @@ class RegisterNumberFragment : Fragment() {
                 R.id.action_splashFragment_to_verificationFragment, bundle
             )
         }
+
+        viewModel.readToken()
         return binding.root
 
     }
