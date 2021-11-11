@@ -18,4 +18,7 @@
     <string name="time_placeholder">02:00</string>
     <string name="resend_code">Resend code</string>
     <string name="placeholder_number">1</string>
+    <string name="username">Username</string>
+    <string name="enter_username">Enter username</string>
+    <string name="select_photo_my_profile">Select a photo for your profile</string>
 </resources>

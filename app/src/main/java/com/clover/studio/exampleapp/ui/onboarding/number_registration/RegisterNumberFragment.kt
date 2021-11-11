@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
+import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
 import dagger.hilt.android.AndroidEntryPoint
@@ -67,19 +68,31 @@ class RegisterNumberFragment : Fragment() {
                     Settings.Secure.ANDROID_ID
                 )
             )
-
-            val bundle = bundleOf(
-                Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString(),
-                Const.Navigation.DEVICE_ID to Settings.Secure.getString(
-                    context?.contentResolver,
-                    Settings.Secure.ANDROID_ID
-                )
-            )
-
-            findNavController().navigate(
-                R.id.action_splashFragment_to_verificationFragment, bundle
-            )
         }
+
+        viewModel.registrationListener.observe(viewLifecycleOwner, {
+            when (it) {
+                OnboardingStates.REGISTERING_SUCCESS -> {
+                    val bundle = bundleOf(
+                        Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString(),
+                        Const.Navigation.PHONE_NUMBER_HASHED to hashString(
+                            countryCode + binding.etPhoneNumber.text.toString()
+                        ),
+                        Const.Navigation.COUNTRY_CODE to countryCode.substring(1),
+                        Const.Navigation.DEVICE_ID to Settings.Secure.getString(
+                            context?.contentResolver,
+                            Settings.Secure.ANDROID_ID
+                        )
+                    )
+
+                    findNavController().navigate(
+                        R.id.action_splashFragment_to_verificationFragment, bundle
+                    )
+                }
+                OnboardingStates.REGISTERING_ERROR -> TODO()
+                else -> TODO()
+            }
+        })
 
         viewModel.readToken()
         return binding.root

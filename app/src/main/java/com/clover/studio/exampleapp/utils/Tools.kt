@@ -13,4 +13,23 @@ object Tools {
             else -> Timber.d("UnknownError: ${ex.message}")
         }
     }
+
+    // TODO make temporary file Uri for camera picture taken
+//    fun makeTempFile(activity: Activity): File? {
+//        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+//        val imageFileName = "JPEG_" + timeStamp + "_"
+//        val storageDir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+//        var photoFile: File? = null
+//        try {
+//            photoFile = File.createTempFile(
+//                imageFileName,  /* prefix */
+//                ".jpg",  /* suffix */
+//                storageDir /* directory */
+//            )
+//        } catch (e: IOException) {
+//            e.printStackTrace()
+//            Timber.d("IOException")
+//        }
+//        return photoFile
+//    }
 }

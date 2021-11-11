@@ -19,6 +19,7 @@ class OnboardingViewModel @Inject constructor(
 ) : ViewModel() {
 
     var codeVerificationListener = MutableLiveData<OnboardingStates>()
+    var registrationListener = MutableLiveData<OnboardingStates>()
 
     fun sendNewUserData(
         phoneNumber: String,
@@ -30,8 +31,11 @@ class OnboardingViewModel @Inject constructor(
             onboardingRepository.sendUserData(phoneNumber, phoneNumberHashed, countryCode, deviceId)
         } catch (ex: Exception) {
             Tools.checkError(ex)
+            registrationListener.postValue(OnboardingStates.REGISTERING_ERROR)
             return@launch
         }
+
+        registrationListener.postValue(OnboardingStates.REGISTERING_SUCCESS)
     }
 
     fun sendCodeVerification(
@@ -60,4 +64,4 @@ class OnboardingViewModel @Inject constructor(
     }
 }
 
-enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR }
+enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR }

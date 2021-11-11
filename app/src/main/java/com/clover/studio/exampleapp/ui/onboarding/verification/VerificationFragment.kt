@@ -13,6 +13,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentVerificationBinding
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
@@ -26,6 +27,8 @@ import timber.log.Timber
 class VerificationFragment : Fragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var phoneNumber: String
+    private lateinit var phoneNumberHashed: String
+    private lateinit var countryCode: String
     private lateinit var deviceId: String
 
     private var bindingSetup: FragmentVerificationBinding? = null
@@ -36,6 +39,9 @@ class VerificationFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         phoneNumber = requireArguments().getString(Const.Navigation.PHONE_NUMBER).toString()
+        phoneNumberHashed =
+            requireArguments().getString(Const.Navigation.PHONE_NUMBER_HASHED).toString()
+        countryCode = requireArguments().getString(Const.Navigation.COUNTRY_CODE).toString()
         deviceId = requireArguments().getString(Const.Navigation.DEVICE_ID).toString()
     }
 
@@ -51,6 +57,10 @@ class VerificationFragment : Fragment() {
 
         binding.btnNext.setOnClickListener {
             viewModel.sendCodeVerification(getVerificationCode(), deviceId)
+        }
+
+        binding.tvResendCode.setOnClickListener {
+            viewModel.sendNewUserData(phoneNumber, phoneNumberHashed, countryCode, deviceId)
         }
 
         SmsReceiver.bindListener(object : SmsListener {
@@ -88,7 +98,7 @@ class VerificationFragment : Fragment() {
             }
 
             override fun onFinish() {
-                // TODO add nav controller
+                findNavController().navigate(R.id.action_verificationFragment_to_accountCreationFragment)
             }
         }
         timer.start()
