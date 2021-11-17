@@ -14,18 +14,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val onboardingRepository: OnboardingRepositoryImpl,
-    private val sharedPrefs: SharedPreferencesRepository
+        private val onboardingRepository: OnboardingRepositoryImpl,
+        private val sharedPrefs: SharedPreferencesRepository
 ) : ViewModel() {
 
     var codeVerificationListener = MutableLiveData<OnboardingStates>()
     var registrationListener = MutableLiveData<OnboardingStates>()
 
     fun sendNewUserData(
-        phoneNumber: String,
-        phoneNumberHashed: String,
-        countryCode: String,
-        deviceId: String
+            phoneNumber: String,
+            phoneNumberHashed: String,
+            countryCode: String,
+            deviceId: String
     ) = viewModelScope.launch {
         try {
             onboardingRepository.sendUserData(phoneNumber, phoneNumberHashed, countryCode, deviceId)
@@ -39,8 +39,8 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun sendCodeVerification(
-        code: String,
-        deviceId: String
+            code: String,
+            deviceId: String
     ) = viewModelScope.launch {
         codeVerificationListener.postValue(OnboardingStates.VERIFYING)
         val authResponse: AuthResponse
@@ -62,6 +62,18 @@ class OnboardingViewModel @Inject constructor(
             Timber.d("Token ${sharedPrefs.readToken()}")
         }
     }
+
+    fun sendContacts(contacts: List<String>) = viewModelScope.launch {
+        try {
+            onboardingRepository.sendUserContacts(contacts)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            registrationListener.postValue(OnboardingStates.CONTACTS_ERROR)
+            return@launch
+        }
+
+        registrationListener.postValue(OnboardingStates.CONTACTS_SENT)
+    }
 }
 
-enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR }
+enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR }

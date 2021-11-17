@@ -126,4 +126,7 @@ dependencies {
 
     //Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
+
+    // LibPhoneNumber
+    implementation 'com.googlecode.libphonenumber:libphonenumber:8.12.11'
 }

@@ -14,6 +14,7 @@ class Const {
         companion object {
             const val API_AUTH = "api/messenger/auth"
             const val API_VERIFY_CODE = "api/messenger/auth/verify"
+            const val API_CONTACTS = "api/messenger/contacts"
         }
     }
 

@@ -1,12 +1,20 @@
 package com.clover.studio.exampleapp.ui.onboarding.number_registration
 
+import android.database.Cursor
+import android.database.DatabaseUtils
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.provider.Settings
+import android.telephony.PhoneNumberUtils
+import android.telephony.TelephonyManager
 import android.text.Editable
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.collection.ArraySet
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -17,7 +25,9 @@ import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.security.MessageDigest
+
 
 @AndroidEntryPoint
 class RegisterNumberFragment : Fragment() {
@@ -38,8 +48,8 @@ class RegisterNumberFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
@@ -52,21 +62,21 @@ class RegisterNumberFragment : Fragment() {
 
         binding.tvCountryCode.setOnClickListener {
             findNavController().navigate(
-                R.id.action_splashFragment_to_countryPickerFragment
+                    R.id.action_splashFragment_to_countryPickerFragment
             )
         }
 
         binding.btnNext.setOnClickListener {
             viewModel.sendNewUserData(
-                countryCode + binding.etPhoneNumber.text.toString(),
-                hashString(
-                    countryCode + binding.etPhoneNumber.text.toString()
-                ),
-                countryCode.substring(1),
-                Settings.Secure.getString(
-                    context?.contentResolver,
-                    Settings.Secure.ANDROID_ID
-                )
+                    countryCode + binding.etPhoneNumber.text.toString(),
+                    hashString(
+                            countryCode + binding.etPhoneNumber.text.toString()
+                    ),
+                    countryCode.substring(1),
+                    Settings.Secure.getString(
+                            context?.contentResolver,
+                            Settings.Secure.ANDROID_ID
+                    )
             )
         }
 
@@ -74,26 +84,29 @@ class RegisterNumberFragment : Fragment() {
             when (it) {
                 OnboardingStates.REGISTERING_SUCCESS -> {
                     val bundle = bundleOf(
-                        Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString(),
-                        Const.Navigation.PHONE_NUMBER_HASHED to hashString(
-                            countryCode + binding.etPhoneNumber.text.toString()
-                        ),
-                        Const.Navigation.COUNTRY_CODE to countryCode.substring(1),
-                        Const.Navigation.DEVICE_ID to Settings.Secure.getString(
-                            context?.contentResolver,
-                            Settings.Secure.ANDROID_ID
-                        )
+                            Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString(),
+                            Const.Navigation.PHONE_NUMBER_HASHED to hashString(
+                                    countryCode + binding.etPhoneNumber.text.toString()
+                            ),
+                            Const.Navigation.COUNTRY_CODE to countryCode.substring(1),
+                            Const.Navigation.DEVICE_ID to Settings.Secure.getString(
+                                    context?.contentResolver,
+                                    Settings.Secure.ANDROID_ID
+                            )
                     )
 
                     findNavController().navigate(
-                        R.id.action_splashFragment_to_verificationFragment, bundle
+                            R.id.action_splashFragment_to_verificationFragment, bundle
                     )
                 }
                 OnboardingStates.REGISTERING_ERROR -> TODO()
+                OnboardingStates.CONTACTS_ERROR -> Timber.d("Contacts Error")
+                OnboardingStates.CONTACTS_SENT -> Timber.d("Contacts Sent")
                 else -> TODO()
             }
         })
 
+        fetchAllUserContacts()
         viewModel.readToken()
         return binding.root
 
@@ -123,8 +136,8 @@ class RegisterNumberFragment : Fragment() {
     private fun hashString(input: String): String {
         val hexChars = "0123456789ABCDEF"
         val bytes = MessageDigest
-            .getInstance("SHA-256")
-            .digest(input.toByteArray())
+                .getInstance("SHA-256")
+                .digest(input.toByteArray())
         val result = StringBuilder(bytes.size * 2)
 
         bytes.forEach {
@@ -134,5 +147,49 @@ class RegisterNumberFragment : Fragment() {
         }
 
         return result.toString()
+    }
+
+    private fun fetchAllUserContacts() {
+        val phoneUserSet: MutableSet<String> = ArraySet()
+        val phones: Cursor? = requireActivity().contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        )
+        while (phones?.moveToNext()!!) {
+            val name =
+                    phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+            val phoneNumber =
+                    phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+
+            val phoneUser = PhoneUser(name, formatE164Number(countryCode, phoneNumber).toString())
+            phoneUserSet.add(hashString(formatE164Number(countryCode, phoneNumber).toString()))
+            Timber.d("Adding phone user: ${phoneUser.name} ${phoneUser.number}")
+        }
+        DatabaseUtils.dumpCursor(phones)
+        phoneUserSet.forEach { Timber.d("Phone number $it") }
+
+        viewModel.sendContacts(phoneUserSet.toList())
+    }
+
+    internal data class PhoneUser(
+            val name: String,
+            val number: String
+    )
+
+    private fun formatE164Number(countryCode: String?, phNum: String?): String? {
+        val e164Number: String? = if (TextUtils.isEmpty(countryCode)) {
+            phNum
+        } else {
+
+            val telephonyManager = getSystemService(requireContext(), TelephonyManager::class.java)
+            val isoCode = telephonyManager?.simCountryIso
+
+            Timber.d("Country code: ${isoCode?.uppercase()}")
+            PhoneNumberUtils.formatNumberToE164(phNum, isoCode?.uppercase())
+        }
+        return e164Number
     }
 }

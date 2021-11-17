@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.ui.splash
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -23,6 +24,8 @@ class SplashActivity : AppCompatActivity() {
         bindingSetup = ActivitySplashBinding.inflate(layoutInflater)
         val view = bindingSetup.root
         setContentView(view)
+
+        requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 1)
 
         goToOnboarding()
     }
