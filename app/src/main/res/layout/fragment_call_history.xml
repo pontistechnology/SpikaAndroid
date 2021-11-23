@@ -13,7 +13,6 @@
         android:layout_margin="20dp"
         android:fontFamily="@font/montserrat"
         android:text="@string/call_history"
-        android:textColor="@color/text_primary"
         android:textSize="28sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

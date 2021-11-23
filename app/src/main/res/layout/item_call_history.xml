@@ -33,7 +33,6 @@
         android:layout_margin="20dp"
         android:fontFamily="@font/montserrat"
         android:text="@string/enter_username"
-        android:textColor="@color/text_primary"
         android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@id/cv_photo_picker"
         app:layout_constraintTop_toTopOf="parent" />
@@ -67,7 +66,6 @@
         android:layout_margin="20dp"
         android:fontFamily="@font/montserrat"
         android:text="@string/time_placeholder"
-        android:textColor="@color/text_primary"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/cv_return_call"

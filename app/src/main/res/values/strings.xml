@@ -25,4 +25,7 @@
     <string name="call_history">Call history</string>
     <string name="call_history_search_hint">Search for contact, message, file...</string>
     <string name="outgoing">Outgoing</string>
+    <string name="chat">Chat</string>
+    <string name="contacts">Contacts</string>
+    <string name="settings">Settings</string>
 </resources>
