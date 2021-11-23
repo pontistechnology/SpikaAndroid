@@ -21,4 +21,8 @@
     <string name="username">Username</string>
     <string name="enter_username">Enter username</string>
     <string name="select_photo_my_profile">Select a photo for your profile</string>
+    <string name="no_calls_yet">No calls yet.</string>
+    <string name="call_history">Call history</string>
+    <string name="call_history_search_hint">Search for contact, message, file...</string>
+    <string name="outgoing">Outgoing</string>
 </resources>

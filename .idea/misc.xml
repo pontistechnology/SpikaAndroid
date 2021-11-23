@@ -55,6 +55,7 @@
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.23796296296296296" />
         <entry key="app/src/main/res/layout/fragment_splash.xml" value="0.23697916666666666" />
         <entry key="app/src/main/res/layout/fragment_verification.xml" value="0.23697916666666666" />
+        <entry key="app/src/main/res/layout/item_call_history.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/item_country_code.xml" value="0.25416666666666665" />
       </map>
     </option>
