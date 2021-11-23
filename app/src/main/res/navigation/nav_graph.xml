@@ -24,6 +24,9 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_splashFragment_to_mainActivity"
+            app:destination="@id/mainActivity" />
     </fragment>
     <fragment
         android:id="@+id/countryPickerFragment"
@@ -54,5 +57,14 @@
         android:id="@+id/accountCreationFragment"
         android:name="com.clover.studio.exampleapp.ui.onboarding.account_creation.AccountCreationFragment"
         android:label="fragment_account_creation"
-        tools:layout="@layout/fragment_account_creation" />
+        tools:layout="@layout/fragment_account_creation" >
+        <action
+            android:id="@+id/action_accountCreationFragment_to_mainActivity"
+            app:destination="@id/mainActivity" />
+    </fragment>
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.clover.studio.exampleapp.ui.main.MainActivity"
+        android:label="activity_main"
+        tools:layout="@layout/activity_main" />
 </navigation>

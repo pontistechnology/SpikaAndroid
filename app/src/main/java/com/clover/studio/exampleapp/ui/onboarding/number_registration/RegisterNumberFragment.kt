@@ -24,12 +24,9 @@ import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
-import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.security.MessageDigest
 
-
-@AndroidEntryPoint
 class RegisterNumberFragment : Fragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var countryCode: String
@@ -48,8 +45,8 @@ class RegisterNumberFragment : Fragment() {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
@@ -62,21 +59,21 @@ class RegisterNumberFragment : Fragment() {
 
         binding.tvCountryCode.setOnClickListener {
             findNavController().navigate(
-                    R.id.action_splashFragment_to_countryPickerFragment
+                R.id.action_splashFragment_to_countryPickerFragment
             )
         }
 
         binding.btnNext.setOnClickListener {
             viewModel.sendNewUserData(
-                    countryCode + binding.etPhoneNumber.text.toString(),
-                    hashString(
-                            countryCode + binding.etPhoneNumber.text.toString()
-                    ),
-                    countryCode.substring(1),
-                    Settings.Secure.getString(
-                            context?.contentResolver,
-                            Settings.Secure.ANDROID_ID
-                    )
+                countryCode + binding.etPhoneNumber.text.toString(),
+                hashString(
+                    countryCode + binding.etPhoneNumber.text.toString()
+                ),
+                countryCode.substring(1),
+                Settings.Secure.getString(
+                    context?.contentResolver,
+                    Settings.Secure.ANDROID_ID
+                )
             )
         }
 
@@ -84,19 +81,19 @@ class RegisterNumberFragment : Fragment() {
             when (it) {
                 OnboardingStates.REGISTERING_SUCCESS -> {
                     val bundle = bundleOf(
-                            Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString(),
-                            Const.Navigation.PHONE_NUMBER_HASHED to hashString(
-                                    countryCode + binding.etPhoneNumber.text.toString()
-                            ),
-                            Const.Navigation.COUNTRY_CODE to countryCode.substring(1),
-                            Const.Navigation.DEVICE_ID to Settings.Secure.getString(
-                                    context?.contentResolver,
-                                    Settings.Secure.ANDROID_ID
-                            )
+                        Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString(),
+                        Const.Navigation.PHONE_NUMBER_HASHED to hashString(
+                            countryCode + binding.etPhoneNumber.text.toString()
+                        ),
+                        Const.Navigation.COUNTRY_CODE to countryCode.substring(1),
+                        Const.Navigation.DEVICE_ID to Settings.Secure.getString(
+                            context?.contentResolver,
+                            Settings.Secure.ANDROID_ID
+                        )
                     )
 
                     findNavController().navigate(
-                            R.id.action_splashFragment_to_verificationFragment, bundle
+                        R.id.action_splashFragment_to_verificationFragment, bundle
                     )
                 }
                 OnboardingStates.REGISTERING_ERROR -> TODO()
@@ -136,8 +133,8 @@ class RegisterNumberFragment : Fragment() {
     private fun hashString(input: String): String {
         val hexChars = "0123456789ABCDEF"
         val bytes = MessageDigest
-                .getInstance("SHA-256")
-                .digest(input.toByteArray())
+            .getInstance("SHA-256")
+            .digest(input.toByteArray())
         val result = StringBuilder(bytes.size * 2)
 
         bytes.forEach {
@@ -152,17 +149,17 @@ class RegisterNumberFragment : Fragment() {
     private fun fetchAllUserContacts() {
         val phoneUserSet: MutableSet<String> = ArraySet()
         val phones: Cursor? = requireActivity().contentResolver.query(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                null,
-                null,
-                null,
-                null
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
         )
         while (phones?.moveToNext()!!) {
             val name =
-                    phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
             val phoneNumber =
-                    phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
 
             val phoneUser = PhoneUser(name, formatE164Number(countryCode, phoneNumber).toString())
             phoneUserSet.add(hashString(formatE164Number(countryCode, phoneNumber).toString()))
@@ -175,8 +172,8 @@ class RegisterNumberFragment : Fragment() {
     }
 
     internal data class PhoneUser(
-            val name: String,
-            val number: String
+        val name: String,
+        val number: String
     )
 
     private fun formatE164Number(countryCode: String?, phNum: String?): String? {

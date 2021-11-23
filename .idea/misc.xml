@@ -7,16 +7,20 @@
         <entry key="app/src/main/res/drawable/bg_btn_white.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/bg_button_blue_border.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/bg_circle_image.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/button_contact_states.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_account_default.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_account_filled.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_add.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_arrow_back.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_arrow_forward.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/img_call_history_selected.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_camera.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_chat_default.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_chat_filled.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/img_chat_selected.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_chat_shortcut.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_close.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/img_contacts_selected.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_forward_arrow.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_logo_checkmark.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_microphone.xml" value="0.27447916666666666" />
@@ -29,16 +33,26 @@
         <entry key="app/src/main/res/drawable/img_send.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_settings_default.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_settings_filled.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/img_settings_selected.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_smiley.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_spika_logo.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_vertical_line.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_video.xml" value="0.27447916666666666" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.45" />
+        <entry key="app/src/main/res/drawable/nav_call_history_states.xml" value="0.36822916666666666" />
+        <entry key="app/src/main/res/drawable/nav_chat_states.xml" value="0.36822916666666666" />
+        <entry key="app/src/main/res/drawable/nav_contact_states.xml" value="0.36822916666666666" />
+        <entry key="app/src/main/res/drawable/nav_settings_states.xml" value="0.36822916666666666" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_onboarding.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.25416666666666665" />
+        <entry key="app/src/main/res/layout/custom_tab_layout.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_account_creation.xml" value="0.24923391215526047" />
+        <entry key="app/src/main/res/layout/fragment_call_history.xml" value="0.23796296296296296" />
+        <entry key="app/src/main/res/layout/fragment_chat.xml" value="0.2323799795709908" />
+        <entry key="app/src/main/res/layout/fragment_contacts.xml" value="0.23796296296296296" />
         <entry key="app/src/main/res/layout/fragment_country_picker.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/fragment_register_number.xml" value="0.25416666666666665" />
+        <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.23796296296296296" />
         <entry key="app/src/main/res/layout/fragment_splash.xml" value="0.23697916666666666" />
         <entry key="app/src/main/res/layout/fragment_verification.xml" value="0.23697916666666666" />
         <entry key="app/src/main/res/layout/item_country_code.xml" value="0.25416666666666665" />

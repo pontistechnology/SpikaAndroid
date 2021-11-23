@@ -1,4 +1,4 @@
-package com.clover.studio.exampleapp.ui
+package com.clover.studio.exampleapp.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
