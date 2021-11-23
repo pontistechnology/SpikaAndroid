@@ -33,6 +33,6 @@ interface RetrofitService {
     @FormUrlEncoded
     @POST(value = Const.Networking.API_CONTACTS)
     suspend fun sendContacts(
-            @Field("contacts") contacts: List<String>
+            @Field("contacts[]") contacts: List<String>
     ): AuthResponse
 }
