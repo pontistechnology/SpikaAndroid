@@ -28,7 +28,7 @@ class SplashActivity : AppCompatActivity() {
 
         requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 1)
 
-        goToMainActivity()
+        goToOnboarding()
     }
 
     private fun goToOnboarding() {

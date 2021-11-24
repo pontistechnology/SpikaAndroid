@@ -131,7 +131,7 @@ class RegisterNumberFragment : Fragment() {
     }
 
     private fun hashString(input: String): String {
-        val hexChars = "0123456789ABCDEF"
+        val hexChars = "0123456789abcdef"
         val bytes = MessageDigest
             .getInstance("SHA-256")
             .digest(input.toByteArray())
