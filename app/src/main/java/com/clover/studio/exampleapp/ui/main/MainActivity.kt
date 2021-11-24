@@ -33,26 +33,7 @@ class MainActivity : AppCompatActivity() {
         val view = bindingSetup.root
         setContentView(view)
 
-        initializePager()
         initializeObservers()
-    }
-
-    private fun initializePager() {
-        val fragmentList = arrayListOf(
-            ContactsFragment(),
-            CallHistoryFragment(),
-            ChatFragment(),
-            SettingsFragment()
-        )
-        val pagerAdapter =
-            MainPagerAdapter(baseContext, fragmentList, supportFragmentManager, lifecycle)
-
-        bindingSetup.viewPager.adapter = pagerAdapter
-
-        TabLayoutMediator(bindingSetup.tabLayout, bindingSetup.viewPager) { tab, position ->
-            val customTabView: View = pagerAdapter.getTabView(position)
-            tab.customView = customTabView
-        }.attach()
     }
 
     private fun initializeObservers() {

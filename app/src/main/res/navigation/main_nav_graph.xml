@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/mainFragment">
+
+    <fragment
+        android:id="@+id/chatSettingsFragment2"
+        android:name="com.clover.studio.exampleapp.ui.main.settings.screens.ChatSettingsFragment"
+        android:label="ChatSettingsFragment" />
+    <fragment
+        android:id="@+id/downloadSettingsFragment2"
+        android:name="com.clover.studio.exampleapp.ui.main.settings.screens.DownloadSettingsFragment"
+        android:label="DownloadSettingsFragment" />
+    <fragment
+        android:id="@+id/notificationSettingsFragment2"
+        android:name="com.clover.studio.exampleapp.ui.main.settings.screens.NotificationSettingsFragment"
+        android:label="NotificationSettingsFragment" />
+    <fragment
+        android:id="@+id/privacySettingsFragment2"
+        android:name="com.clover.studio.exampleapp.ui.main.settings.screens.PrivacySettingsFragment"
+        android:label="fragment_download_settings"
+        tools:layout="@layout/fragment_download_settings" />
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_privacySettingsFragment22"
+            app:destination="@id/privacySettingsFragment2"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_mainFragment_to_chatSettingsFragment22"
+            app:destination="@id/chatSettingsFragment2"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_mainFragment_to_notificationSettingsFragment22"
+            app:destination="@id/notificationSettingsFragment2"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_mainFragment_to_downloadSettingsFragment2"
+            app:destination="@id/downloadSettingsFragment2"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+</navigation>
