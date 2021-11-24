@@ -11,9 +11,12 @@
         <entry key="app/src/main/res/drawable/img_account_default.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_account_filled.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_add.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/img_alert.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_arrow_back.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_arrow_forward.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_call_history_selected.xml" value="0.36822916666666666" />
+        <entry key="app/src/main/res/drawable/img_call_made.xml" value="0.36822916666666666" />
+        <entry key="app/src/main/res/drawable/img_call_received.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_camera.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_chat_default.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_chat_filled.xml" value="0.27447916666666666" />
