@@ -4,6 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Const.PrefsData.Companion.SHARED_PREFS_NAME
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
+
 
 class SharedPreferencesRepositoryImpl(
     private val context: Context
@@ -17,6 +21,26 @@ class SharedPreferencesRepositoryImpl(
 
     override suspend fun readToken(): String? = getPrefs().getString(Const.PrefsData.TOKEN, null)
 
+    override suspend fun writeContacts(contacts: List<String>) {
+        with(getPrefs().edit()) {
+            val gson = Gson()
+            putString(Const.PrefsData.USER_CONTACTS, gson.toJson(contacts))
+            commit()
+        }
+    }
+
+    override suspend fun readContacts(): List<String>? {
+        val serializedObject: String? = getPrefs().getString(Const.PrefsData.USER_CONTACTS, null)
+        return if (serializedObject != null) {
+            val gson = Gson()
+            val type: Type = object : TypeToken<List<String?>?>() {}.type
+            gson.fromJson<List<String>>(serializedObject, type)
+        } else {
+            null
+        }
+    }
+
+
     private fun getPrefs(): SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
 }
@@ -24,4 +48,6 @@ class SharedPreferencesRepositoryImpl(
 interface SharedPreferencesRepository {
     suspend fun writeToken(token: String)
     suspend fun readToken(): String?
+    suspend fun writeContacts(contacts: List<String>)
+    suspend fun readContacts(): List<String>?
 }

@@ -97,8 +97,6 @@ class RegisterNumberFragment : Fragment() {
                     )
                 }
                 OnboardingStates.REGISTERING_ERROR -> TODO()
-                OnboardingStates.CONTACTS_ERROR -> Timber.d("Contacts Error")
-                OnboardingStates.CONTACTS_SENT -> Timber.d("Contacts Sent")
                 else -> TODO()
             }
         })
@@ -133,7 +131,7 @@ class RegisterNumberFragment : Fragment() {
     private fun hashString(input: String): String {
         val hexChars = "0123456789abcdef"
         val bytes = MessageDigest
-            .getInstance("SHA-256")
+            .getInstance("SHA-1")
             .digest(input.toByteArray())
         val result = StringBuilder(bytes.size * 2)
 
@@ -168,7 +166,7 @@ class RegisterNumberFragment : Fragment() {
         DatabaseUtils.dumpCursor(phones)
         phoneUserSet.forEach { Timber.d("Phone number $it") }
 
-        viewModel.sendContacts(phoneUserSet.toList())
+        viewModel.writeContactsToSharedPref(phoneUserSet.toList())
     }
 
     internal data class PhoneUser(

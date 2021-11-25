@@ -27,8 +27,10 @@ interface RetrofitService {
         @Field("deviceId") deviceId: String
     ): AuthResponse
 
+    @FormUrlEncoded
     @POST(value = Const.Networking.API_CONTACTS)
     suspend fun sendContacts(
-        @Body contacts: List<String>
+        @Header("accesstoken") token: String,
+        @Field("contacts") contacts: List<String>
     ): AuthResponse
 }

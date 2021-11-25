@@ -22,6 +22,7 @@ class Const {
         companion object {
             const val SHARED_PREFS_NAME = "app_general_prefs"
             const val TOKEN = "token"
+            const val USER_CONTACTS = "user_contacts"
         }
     }
 }

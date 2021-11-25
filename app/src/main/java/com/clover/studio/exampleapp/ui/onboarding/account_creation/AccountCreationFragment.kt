@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
+import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import timber.log.Timber
 
@@ -72,6 +73,16 @@ class AccountCreationFragment : Fragment() {
         binding.cvPhotoPicker.setOnClickListener {
             choosePhoto()
         }
+
+        viewModel.accountCreationListener.observe(viewLifecycleOwner, {
+            when (it) {
+                OnboardingStates.CONTACTS_SENT -> Timber.d("Contacts sent successfully")
+                OnboardingStates.CONTACTS_ERROR -> Timber.d("Failed to send contacts")
+                else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.sendContacts()
         return binding.root
     }
 

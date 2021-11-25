@@ -14,18 +14,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-        private val onboardingRepository: OnboardingRepositoryImpl,
-        private val sharedPrefs: SharedPreferencesRepository
+    private val onboardingRepository: OnboardingRepositoryImpl,
+    private val sharedPrefs: SharedPreferencesRepository
 ) : ViewModel() {
 
     var codeVerificationListener = MutableLiveData<OnboardingStates>()
     var registrationListener = MutableLiveData<OnboardingStates>()
+    var accountCreationListener = MutableLiveData<OnboardingStates>()
 
     fun sendNewUserData(
-            phoneNumber: String,
-            phoneNumberHashed: String,
-            countryCode: String,
-            deviceId: String
+        phoneNumber: String,
+        phoneNumberHashed: String,
+        countryCode: String,
+        deviceId: String
     ) = viewModelScope.launch {
         try {
             onboardingRepository.sendUserData(phoneNumber, phoneNumberHashed, countryCode, deviceId)
@@ -39,8 +40,8 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun sendCodeVerification(
-            code: String,
-            deviceId: String
+        code: String,
+        deviceId: String
     ) = viewModelScope.launch {
         codeVerificationListener.postValue(OnboardingStates.VERIFYING)
         val authResponse: AuthResponse
@@ -63,16 +64,34 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    fun sendContacts(contacts: List<String>) = viewModelScope.launch {
+    fun sendContacts() = viewModelScope.launch {
+
+        val contacts: List<String>?
         try {
-            onboardingRepository.sendUserContacts(contacts)
+            contacts = sharedPrefs.readContacts()
         } catch (ex: Exception) {
             Tools.checkError(ex)
-            registrationListener.postValue(OnboardingStates.CONTACTS_ERROR)
+            accountCreationListener.postValue(OnboardingStates.CONTACTS_ERROR)
             return@launch
         }
 
-        registrationListener.postValue(OnboardingStates.CONTACTS_SENT)
+        Timber.d("$contacts")
+
+        try {
+            contacts?.let { onboardingRepository.sendUserContacts(sharedPrefs.readToken()!!, it) }
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            accountCreationListener.postValue(OnboardingStates.CONTACTS_ERROR)
+            return@launch
+        }
+
+        accountCreationListener.postValue(OnboardingStates.CONTACTS_SENT)
+    }
+
+    fun writeContactsToSharedPref(contacts: List<String>) {
+        viewModelScope.launch {
+            sharedPrefs.writeContacts(contacts)
+        }
     }
 }
 
