@@ -4,13 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.FragmentContactsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
+import com.clover.studio.exampleapp.utils.Const
 import timber.log.Timber
 
 class ContactsFragment : Fragment() {
@@ -84,7 +88,9 @@ class ContactsFragment : Fragment() {
 
     private fun setupAdapter() {
         contactsAdapter = ContactsAdapter(requireContext()) {
-            // TODO handle navigation when item clicked
+            val bundle = bundleOf(Const.Navigation.USER_PROFILE to it)
+
+            findNavController().navigate(R.id.action_mainFragment_to_contactDetailsFragment, bundle)
         }
 
         binding.rvContacts.adapter = contactsAdapter

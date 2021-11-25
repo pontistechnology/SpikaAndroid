@@ -7,6 +7,7 @@ class Const {
             const val PHONE_NUMBER: String = "phone_number"
             const val DEVICE_ID: String = "device_id"
             const val PHONE_NUMBER_HASHED = "phone_number_hashed"
+            const val USER_PROFILE = "user_profile"
         }
     }
 
