@@ -29,13 +29,10 @@ class MainPagerAdapter constructor(
         val view: View = LayoutInflater.from(context).inflate(R.layout.custom_tab_layout, null)
         val imageView = view.findViewById<ImageView>(R.id.iv_custom_tab)
 
-        imageView.setImageDrawable(
-            ResourcesCompat.getDrawable(
-                context.resources,
-                imageResources[position],
-                null
-            )
+        imageView.setImageResource(
+            imageResources[position]
         )
+
         return view
     }
 

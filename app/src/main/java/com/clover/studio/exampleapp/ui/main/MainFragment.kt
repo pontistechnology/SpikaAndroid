@@ -35,8 +35,14 @@ class MainFragment : Fragment() {
             ChatFragment(),
             SettingsFragment()
         )
+
         val pagerAdapter =
-            MainPagerAdapter(requireContext(), fragmentList, requireActivity().supportFragmentManager, lifecycle)
+            MainPagerAdapter(
+                requireContext(),
+                fragmentList,
+                requireActivity().supportFragmentManager,
+                lifecycle
+            )
 
         binding.viewPager.adapter = pagerAdapter
 
