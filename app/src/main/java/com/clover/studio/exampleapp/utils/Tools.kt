@@ -14,6 +14,17 @@ object Tools {
         }
     }
 
+    fun getRandomImageUrl(randomNumber: Int): String {
+        return when (randomNumber) {
+            0 -> "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Owner_Mr_Paul_G_Jacobs.svg/1024px-Owner_Mr_Paul_G_Jacobs.svg.png"
+            1 -> "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Aurthur_A_Collins.jpg/1280px-Aurthur_A_Collins.jpg"
+            2 -> "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Algérie_-_Arménie_-_20140531_-_Mauro_Guevgeozian.jpg/1024px-Algérie_-_Arménie_-_20140531_-_Mauro_Guevgeozian.jpg"
+            3 -> "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Iran_location_map.svg/1920px-Iran_location_map.svg.png"
+            4 -> "https://upload.wikimedia.org/wikipedia/commons/d/db/Matudaira_Yoritoshi.jpg"
+            else -> "https://upload.wikimedia.org/wikipedia/commons/d/db/Matudaira_Yoritoshi.jpg"
+        }
+    }
+
     // TODO make temporary file Uri for camera picture taken
 //    fun makeTempFile(activity: Activity): File? {
 //        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())

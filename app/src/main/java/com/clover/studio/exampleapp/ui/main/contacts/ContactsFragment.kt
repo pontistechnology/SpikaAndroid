@@ -17,7 +17,9 @@ import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.UsersError
 import com.clover.studio.exampleapp.ui.main.UsersFetched
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.Tools
 import timber.log.Timber
+import kotlin.random.Random
 
 class ContactsFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -44,7 +46,7 @@ class ContactsFragment : Fragment() {
                 "somehash",
                 "+385",
                 "Matom",
-                "someUrl",
+                Tools.getRandomImageUrl(Random.nextInt(5)),
                 "Time",
                 "time"
             ),
@@ -56,7 +58,7 @@ class ContactsFragment : Fragment() {
                 "somehash",
                 "+041",
                 "Markan",
-                "someUrl",
+                Tools.getRandomImageUrl(Random.nextInt(5)),
                 "Time",
                 "time"
             ),
@@ -68,7 +70,7 @@ class ContactsFragment : Fragment() {
                 "somehash",
                 "+024",
                 "Ivankovic",
-                "someUrl",
+                Tools.getRandomImageUrl(Random.nextInt(5)),
                 "Time",
                 "time"
             ),
@@ -80,7 +82,7 @@ class ContactsFragment : Fragment() {
                 "somehash",
                 "+234",
                 "Zdravkic",
-                "someUrl",
+                Tools.getRandomImageUrl(Random.nextInt(5)),
                 "Time",
                 "time"
             )

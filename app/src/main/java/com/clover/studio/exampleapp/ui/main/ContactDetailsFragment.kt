@@ -9,6 +9,8 @@ import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.FragmentContactDetailsBinding
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.Tools
+import kotlin.random.Random
 
 class ContactDetailsFragment : Fragment() {
     private lateinit var user: User
@@ -28,7 +30,7 @@ class ContactDetailsFragment : Fragment() {
                 "somehash",
                 "+385",
                 "Matom",
-                "someUrl",
+                Tools.getRandomImageUrl(Random.nextInt(5)),
                 "Time",
                 "time"
             )

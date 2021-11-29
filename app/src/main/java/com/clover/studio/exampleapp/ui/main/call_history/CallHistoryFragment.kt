@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.FragmentCallHistoryBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
+import com.clover.studio.exampleapp.utils.Tools
 import timber.log.Timber
+import kotlin.random.Random
 
 class CallHistoryFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -38,7 +40,7 @@ class CallHistoryFragment : Fragment() {
                 "somehash",
                 "+385",
                 "Matom",
-                "someUrl",
+                Tools.getRandomImageUrl(Random.nextInt(5)),
                 "Time",
                 "time"
             ),
@@ -50,7 +52,7 @@ class CallHistoryFragment : Fragment() {
                 "somehash",
                 "+041",
                 "Markan",
-                "someUrl",
+                Tools.getRandomImageUrl(Random.nextInt(5)),
                 "Time",
                 "time"
             )
