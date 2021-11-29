@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.di
 import android.content.Context
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.repositories.*
+import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import dagger.Module
 import dagger.Provides
@@ -48,7 +49,7 @@ object RepositoryModule {
     @Singleton
     @Provides
     fun provideOnboardingRepository(
-        retrofitService: RetrofitService,
+        retrofitService: OnboardingService,
         sharedPrefs: SharedPreferencesRepository
     ) =
         OnboardingRepositoryImpl(retrofitService, sharedPrefs)

@@ -1,11 +1,11 @@
 package com.clover.studio.exampleapp.data.repositories
 
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
-import com.clover.studio.exampleapp.data.services.RetrofitService
+import com.clover.studio.exampleapp.data.services.OnboardingService
 import javax.inject.Inject
 
 class OnboardingRepositoryImpl @Inject constructor(
-    private val retrofitService: RetrofitService,
+    private val retrofitService: OnboardingService,
     private val sharedPrefs: SharedPreferencesRepository
 ) : OnboardingRepository {
     override suspend fun sendUserData(

@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.di
 import android.content.Context
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.data.AppDatabase
+import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -55,6 +56,11 @@ object AppModule {
     @Provides
     fun provideRetrofitService(retrofit: Retrofit.Builder): RetrofitService =
         retrofit.build().create(RetrofitService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideOnboardingService(retrofit: Retrofit.Builder): OnboardingService =
+        retrofit.build().create(OnboardingService::class.java)
 
     @Singleton
     @Provides

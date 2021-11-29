@@ -10,27 +10,4 @@ interface RetrofitService {
     // implement calls to API
     @GET
     suspend fun getUsers(): Response<List<User>>
-
-    @FormUrlEncoded
-    @POST(value = Const.Networking.API_AUTH)
-    suspend fun sendUserData(
-        @Field("telephoneNumber") phoneNumber: String,
-        @Field("telephoneNumberHashed") phoneNumberHashed: String,
-        @Field("countryCode") countryCode: String,
-        @Field("deviceId") deviceId: String
-    ): AuthResponse
-
-    @FormUrlEncoded
-    @POST(value = Const.Networking.API_VERIFY_CODE)
-    suspend fun verifyUserCode(
-        @Field("code") code: String,
-        @Field("deviceId") deviceId: String
-    ): AuthResponse
-
-    @FormUrlEncoded
-    @POST(value = Const.Networking.API_CONTACTS)
-    suspend fun sendContacts(
-        @Header("accesstoken") token: String,
-        @Field("contacts") contacts: List<String>
-    ): AuthResponse
 }
