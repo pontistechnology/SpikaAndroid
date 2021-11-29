@@ -32,25 +32,27 @@ class CallHistoryFragment : Fragment() {
         // TODO get user list and check state
         userList = mutableListOf(
             User(
-                "1",
-                "Matko T.",
-                "MaTom",
+                1,
+                "mojemail@lol.com",
+                "+384945556666",
+                "somehash",
+                "+385",
+                "Matom",
                 "someUrl",
-                "localname",
-                false,
                 "Time",
-                "Time"
+                "time"
             ),
 
             User(
-                "2",
-                "Marko M.",
-                "Marko",
+                2,
+                "drugimai@aol.com",
+                "+384945556666",
+                "somehash",
+                "+041",
+                "Markan",
                 "someUrl",
-                "localname",
-                false,
                 "Time",
-                "Time"
+                "time"
             )
         )
 
@@ -90,7 +92,7 @@ class CallHistoryFragment : Fragment() {
                 if (query != null) {
                     Timber.d("Query: $query")
                     for (user in userList) {
-                        if (user.nickname.contains(query, ignoreCase = true)) {
+                        if (user.displayName?.contains(query, ignoreCase = true) == true) {
                             filteredList.add(user)
                         }
                     }
@@ -105,7 +107,7 @@ class CallHistoryFragment : Fragment() {
                 if (query != null) {
                     Timber.d("Query: $query")
                     for (user in userList) {
-                        if (user.nickname.contains(query, ignoreCase = true)) {
+                        if (user.displayName?.contains(query, ignoreCase = true) == true) {
                             filteredList.add(user)
                         }
                     }

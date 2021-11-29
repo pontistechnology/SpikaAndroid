@@ -1,7 +1,7 @@
 package com.clover.studio.exampleapp.data.repositories
 
 import com.clover.studio.exampleapp.data.daos.UserDao
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.networking.ContactResponse
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import javax.inject.Inject
 
@@ -11,11 +11,10 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
     fun getUserLocal() = userDao.getUsers()
 
-    override suspend fun getUser(): User {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getUsers(token: String, page: Int): ContactResponse =
+        retrofitService.getUsers(token, page)
 }
 
 interface UserRepository {
-    suspend fun getUser(): User
+    suspend fun getUsers(token: String, page: Int): ContactResponse
 }

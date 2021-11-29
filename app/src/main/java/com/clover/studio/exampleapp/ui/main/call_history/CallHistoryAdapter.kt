@@ -28,7 +28,7 @@ class CallHistoryAdapter(
     override fun onBindViewHolder(holder: CallHistoryViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { userItem ->
-                binding.tvUsername.text = userItem.nickname
+                binding.tvUsername.text = userItem.displayName
 //                binding.tvCallDirection = // TODO set direction text
 //                binding.ivCallIcon.setImageDrawable() // TODO set image for call icon
 //                binding.tvCallTime.text = // TODO set call time
@@ -48,7 +48,7 @@ class CallHistoryAdapter(
     private class HistoryDiffCallback : DiffUtil.ItemCallback<User>() {
 
         override fun areItemsTheSame(oldItem: User, newItem: User) =
-            oldItem.loginName == newItem.loginName
+            oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: User, newItem: User) =
             oldItem == newItem

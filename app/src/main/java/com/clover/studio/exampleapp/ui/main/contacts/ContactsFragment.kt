@@ -14,6 +14,8 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.FragmentContactsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
+import com.clover.studio.exampleapp.ui.main.UsersError
+import com.clover.studio.exampleapp.ui.main.UsersFetched
 import com.clover.studio.exampleapp.utils.Const
 import timber.log.Timber
 
@@ -36,54 +38,70 @@ class ContactsFragment : Fragment() {
         // TODO get user list and check state
         userList = mutableListOf(
             User(
-                "1",
-                "Matko T.",
-                "MaTom",
+                1,
+                "mojemail@lol.com",
+                "+384945556666",
+                "somehash",
+                "+385",
+                "Matom",
                 "someUrl",
-                "localname",
-                false,
                 "Time",
-                "Time"
+                "time"
             ),
 
             User(
-                "2",
-                "Marko M.",
-                "Marko",
+                2,
+                "drugimai@aol.com",
+                "+384945556666",
+                "somehash",
+                "+041",
+                "Markan",
                 "someUrl",
-                "localname",
-                false,
                 "Time",
-                "Time"
+                "time"
             ),
 
             User(
-                "3",
-                "Ivan L.",
+                3,
+                "novimail@yahoo.com",
+                "+024945556666",
+                "somehash",
+                "+024",
                 "Ivankovic",
                 "someUrl",
-                "localname",
-                false,
                 "Time",
-                "Time"
+                "time"
             ),
 
             User(
-                "4",
-                "Zdravko M.",
+                4,
+                "madaj@google.com",
+                "+234945556666",
+                "somehash",
+                "+234",
                 "Zdravkic",
                 "someUrl",
-                "localname",
-                false,
                 "Time",
-                "Time"
+                "time"
             )
         )
 
         setupAdapter()
         setupSearchView()
+        initializeObservers()
 
         return binding.root
+    }
+
+    private fun initializeObservers() {
+        viewModel.usersListener.observe(viewLifecycleOwner, {
+            when (it) {
+                UsersError -> Timber.d("Users error")
+                is UsersFetched -> Timber.d("Users fetched: ${it.userData}")
+            }
+        })
+
+        viewModel.getContacts(1)
     }
 
     private fun setupAdapter() {
@@ -111,7 +129,7 @@ class ContactsFragment : Fragment() {
                 if (query != null) {
                     Timber.d("Query: $query")
                     for (user in userList) {
-                        if (user.nickname.contains(query, ignoreCase = true)) {
+                        if (user.displayName?.contains(query, ignoreCase = true) == true) {
                             filteredList.add(user)
                         }
                     }
@@ -126,7 +144,7 @@ class ContactsFragment : Fragment() {
                 if (query != null) {
                     Timber.d("Query: $query")
                     for (user in userList) {
-                        if (user.nickname.contains(query, ignoreCase = true)) {
+                        if (user.displayName?.contains(query, ignoreCase = true) == true) {
                             filteredList.add(user)
                         }
                     }

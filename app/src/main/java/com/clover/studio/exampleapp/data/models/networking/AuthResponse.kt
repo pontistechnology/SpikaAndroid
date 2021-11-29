@@ -1,19 +1,11 @@
 package com.clover.studio.exampleapp.data.models.networking
 
+import com.clover.studio.exampleapp.data.models.User
+
 data class AuthResponse(
     val newUser: Boolean,
     val user: User,
     val device: Device
-)
-
-data class User(
-    val id: Int,
-    val displayName: String?,
-    val avatarUrl: String?,
-    val telephoneNumber: String?,
-    val emailAddress: String?,
-    val createdAt: String?,
-    val modifiedAt: String?
 )
 
 data class Device(

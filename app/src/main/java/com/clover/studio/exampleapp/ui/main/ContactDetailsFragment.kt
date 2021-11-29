@@ -22,14 +22,15 @@ class ContactDetailsFragment : Fragment() {
 
         user = if (requireArguments().getParcelable<User>(Const.Navigation.USER_PROFILE) == null) {
             User(
-                "1",
-                "Matko T.",
-                "MaTom",
+                1,
+                "mojemail@lol.com",
+                "+384945556666",
+                "somehash",
+                "+385",
+                "Matom",
                 "someUrl",
-                "localname",
-                false,
                 "Time",
-                "Time"
+                "time"
             )
         } else {
             requireArguments().getParcelable(Const.Navigation.USER_PROFILE)!!
@@ -43,7 +44,7 @@ class ContactDetailsFragment : Fragment() {
     ): View {
         bindingSetup = FragmentContactDetailsBinding.inflate(inflater, container, false)
 
-        binding.tvUsername.text = user.nickname
+        binding.tvUsername.text = user.displayName
 
         Glide.with(this).load(user.avatarUrl).into(binding.ivPickAvatar)
 
