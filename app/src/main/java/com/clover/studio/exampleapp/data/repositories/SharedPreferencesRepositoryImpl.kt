@@ -40,6 +40,14 @@ class SharedPreferencesRepositoryImpl(
         }
     }
 
+    override suspend fun writeUserId(id: Int) {
+        with(getPrefs().edit()) {
+            putInt(Const.PrefsData.USER_ID, id)
+            commit()
+        }
+    }
+
+    override suspend fun readUserId(): Int = getPrefs().getInt(Const.PrefsData.USER_ID, 0)
 
     private fun getPrefs(): SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
@@ -50,4 +58,6 @@ interface SharedPreferencesRepository {
     suspend fun readToken(): String?
     suspend fun writeContacts(contacts: List<String>)
     suspend fun readContacts(): List<String>?
+    suspend fun writeUserId(id: Int)
+    suspend fun readUserId(): Int?
 }

@@ -31,6 +31,16 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun getLocalUser() = liveData {
+        val localUserId = sharedPrefsRepo.readUserId()
+
+        if (localUserId != 0) {
+            emitSource(repository.getUserByID(localUserId!!))
+        } else {
+            return@liveData
+        }
+    }
+
     fun getLocalUsers() = liveData {
         emitSource(repository.getUserLocal())
     }

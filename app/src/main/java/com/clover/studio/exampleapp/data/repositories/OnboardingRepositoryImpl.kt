@@ -26,6 +26,7 @@ class OnboardingRepositoryImpl @Inject constructor(
         val data = retrofitService.verifyUserCode(code, deviceId)
 
         userDao.insert(data.user)
+        sharedPrefs.writeUserId(data.user.id)
 
         return data
     }
