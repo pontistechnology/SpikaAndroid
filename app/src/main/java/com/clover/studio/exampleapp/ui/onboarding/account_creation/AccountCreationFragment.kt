@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
+import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import timber.log.Timber
@@ -91,7 +92,7 @@ class AccountCreationFragment : Fragment() {
             binding.btnNext.isEnabled = false
             binding.clUsernameError.visibility = View.VISIBLE
         } else {
-            // TODO navigate forward
+            startMainActivity(requireActivity())
         }
     }
 

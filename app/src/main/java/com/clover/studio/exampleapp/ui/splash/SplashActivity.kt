@@ -28,7 +28,19 @@ class SplashActivity : AppCompatActivity() {
 
         requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 1)
 
-        goToMainActivity()
+        checkLoginInformation()
+    }
+
+    private fun checkLoginInformation() {
+        viewModel.splashTokenListener.observe(this, {
+            when (it) {
+                SplashStates.NAVIGATE_ONBOARDING -> goToOnboarding()
+                SplashStates.NAVIGATE_MAIN -> goToMainActivity()
+                else -> Timber.d("Unknown error, should never happen")
+            }
+        })
+
+        viewModel.checkToken()
     }
 
     private fun goToOnboarding() {

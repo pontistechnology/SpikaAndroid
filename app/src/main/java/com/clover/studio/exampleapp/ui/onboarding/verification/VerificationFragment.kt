@@ -77,7 +77,8 @@ class VerificationFragment : Fragment() {
                     binding.ivSpikaVerify.visibility = View.VISIBLE
                 }
                 OnboardingStates.CODE_VERIFIED -> {
-                    binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_checkmark)
+                    binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
+                    binding.ivCheckmark.visibility = View.VISIBLE
                     goToAccountCreation()
                 }
                 OnboardingStates.CODE_ERROR -> {
