@@ -16,6 +16,7 @@ class Const {
             const val API_AUTH = "api/messenger/auth"
             const val API_VERIFY_CODE = "api/messenger/auth/verify"
             const val API_CONTACTS = "api/messenger/contacts"
+            const val API_UPDATE_USER = "api/messenger/me"
         }
     }
 
@@ -25,6 +26,16 @@ class Const {
             const val TOKEN = "token"
             const val USER_CONTACTS = "user_contacts"
             const val USER_ID = "user_id"
+        }
+    }
+
+    class UserData {
+        companion object {
+            const val TELEPHONE_NUMBER: String = "telephoneNumber"
+            const val TELEPHONE_NUMBER_HASHED: String = "telephoneNumberHashed"
+            const val EMAIL_ADDRESS: String = "emailAddress"
+            const val DISPLAY_NAME: String = "displayName"
+            const val AVATAR_URL: String = "avatarUrl"
         }
     }
 }

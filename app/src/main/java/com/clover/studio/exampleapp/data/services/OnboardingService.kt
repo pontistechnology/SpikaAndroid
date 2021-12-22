@@ -2,10 +2,8 @@ package com.clover.studio.exampleapp.data.services
 
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
 import com.clover.studio.exampleapp.utils.Const
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.Header
-import retrofit2.http.POST
+import com.google.gson.JsonObject
+import retrofit2.http.*
 
 interface OnboardingService {
     @FormUrlEncoded
@@ -29,5 +27,12 @@ interface OnboardingService {
     suspend fun sendContacts(
         @Header("accesstoken") token: String,
         @Field("contacts") contacts: List<String>
+    ): AuthResponse
+
+    @FormUrlEncoded
+    @PUT(value = Const.Networking.API_UPDATE_USER)
+    suspend fun updateUser(
+        @Header("accesstoken") token: String,
+        @FieldMap userMap: Map<String, String>
     ): AuthResponse
 }

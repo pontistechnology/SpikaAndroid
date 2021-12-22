@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.data.repositories
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
 import com.clover.studio.exampleapp.data.services.OnboardingService
+import com.google.gson.JsonObject
 import javax.inject.Inject
 
 class OnboardingRepositoryImpl @Inject constructor(
@@ -36,6 +37,17 @@ class OnboardingRepositoryImpl @Inject constructor(
         contacts: List<String>
     ): AuthResponse = retrofitService.sendContacts(token, contacts)
 
+    override suspend fun updateUser(
+        token: String,
+        userMap: Map<String, String>
+    ): AuthResponse {
+        val responseData = retrofitService.updateUser(token, userMap)
+
+        userDao.insert(responseData.data.user)
+        sharedPrefs.writeUserId(responseData.data.user.id)
+
+        return responseData
+    }
 }
 
 interface OnboardingRepository {
@@ -54,5 +66,10 @@ interface OnboardingRepository {
     suspend fun sendUserContacts(
         token: String,
         contacts: List<String>
+    ): AuthResponse
+
+    suspend fun updateUser(
+        token: String,
+        userMap: Map<String, String>
     ): AuthResponse
 }

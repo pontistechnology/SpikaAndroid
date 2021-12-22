@@ -15,6 +15,7 @@ import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
+import com.clover.studio.exampleapp.utils.Const
 import timber.log.Timber
 
 class AccountCreationFragment : Fragment() {
@@ -83,6 +84,14 @@ class AccountCreationFragment : Fragment() {
             }
         })
 
+        viewModel.userUpdateListener.observe(viewLifecycleOwner, {
+            when (it) {
+                OnboardingStates.USER_UPDATED -> startMainActivity(requireActivity())
+                OnboardingStates.USER_UPDATE_ERROR -> Timber.d("Error updating user")
+                else -> Timber.d("Other error")
+            }
+        })
+
         viewModel.sendContacts()
         return binding.root
     }
@@ -92,7 +101,7 @@ class AccountCreationFragment : Fragment() {
             binding.btnNext.isEnabled = false
             binding.clUsernameError.visibility = View.VISIBLE
         } else {
-            startMainActivity(requireActivity())
+            viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
         }
     }
 

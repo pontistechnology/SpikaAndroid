@@ -21,6 +21,7 @@ class OnboardingViewModel @Inject constructor(
     var codeVerificationListener = MutableLiveData<OnboardingStates>()
     var registrationListener = MutableLiveData<OnboardingStates>()
     var accountCreationListener = MutableLiveData<OnboardingStates>()
+    var userUpdateListener = MutableLiveData<OnboardingStates>()
 
     fun sendNewUserData(
         phoneNumber: String,
@@ -93,6 +94,18 @@ class OnboardingViewModel @Inject constructor(
             sharedPrefs.writeContacts(contacts)
         }
     }
+
+    fun updateUserData(userMap: Map<String, String>) = viewModelScope.launch {
+        try {
+            onboardingRepository.updateUser(sharedPrefs.readToken()!!, userMap)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            userUpdateListener.postValue(OnboardingStates.USER_UPDATE_ERROR)
+            return@launch
+        }
+
+        userUpdateListener.postValue(OnboardingStates.USER_UPDATED)
+    }
 }
 
-enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR }
+enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR }
