@@ -15,8 +15,11 @@ data class User(
     @ColumnInfo(name = AppDatabase.TablesInfo.ID)
     val id: Int,
 
-    @ColumnInfo(name = "email_address")
-    val emailAddress: String?,
+    @ColumnInfo(name = "display_name")
+    val displayName: String?,
+
+    @ColumnInfo(name = "avatar_url")
+    val avatarUrl: String?,
 
     @ColumnInfo(name = "telephone_number")
     val telephoneNumber: String?,
@@ -24,18 +27,9 @@ data class User(
     @ColumnInfo(name = "telephone_number_hashed")
     val telephoneNumberHashed: String?,
 
-    @ColumnInfo(name = "country_code")
-    val countryCode: String?,
-
-    @ColumnInfo(name = "display_name")
-    val displayName: String?,
-
-    @ColumnInfo(name = "avatar_url")
-    val avatarUrl: String?,
+    @ColumnInfo(name = "email_address")
+    val emailAddress: String?,
 
     @ColumnInfo(name = "created_at")
     val createdAt: String?,
-
-    @ColumnInfo(name = "modified_at")
-    val modifiedAt: String?
 ) : Parcelable

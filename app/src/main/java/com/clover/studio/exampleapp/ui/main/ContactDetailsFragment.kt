@@ -25,14 +25,12 @@ class ContactDetailsFragment : Fragment() {
         user = if (requireArguments().getParcelable<User>(Const.Navigation.USER_PROFILE) == null) {
             User(
                 1,
-                "mojemail@lol.com",
-                "+384945556666",
-                "somehash",
-                "+385",
                 "Matom",
                 Tools.getRandomImageUrl(Random.nextInt(5)),
-                "Time",
-                "time"
+                "+384945556666",
+                "someHash",
+                "mojemail@lol.com",
+                "Time"
             )
         } else {
             requireArguments().getParcelable(Const.Navigation.USER_PROFILE)!!

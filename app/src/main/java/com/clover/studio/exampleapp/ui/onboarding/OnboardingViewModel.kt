@@ -53,8 +53,8 @@ class OnboardingViewModel @Inject constructor(
             return@launch
         }
 
-        Timber.d("Token ${authResponse.device.token}")
-        authResponse.device.token?.let { sharedPrefs.writeToken(it) }
+        Timber.d("Token ${authResponse.data.device.token}")
+        authResponse.data.device.token?.let { sharedPrefs.writeToken(it) }
         codeVerificationListener.postValue(OnboardingStates.CODE_VERIFIED)
     }
 

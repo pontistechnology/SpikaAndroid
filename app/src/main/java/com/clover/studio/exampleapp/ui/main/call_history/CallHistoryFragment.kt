@@ -35,25 +35,21 @@ class CallHistoryFragment : Fragment() {
         userList = mutableListOf(
             User(
                 1,
-                "mojemail@lol.com",
-                "+384945556666",
-                "somehash",
-                "+385",
                 "Matom",
                 Tools.getRandomImageUrl(Random.nextInt(5)),
-                "Time",
-                "time"
+                "+384945556666",
+                "someHash",
+                "mojemail@lol.com",
+                "Time"
             ),
 
             User(
                 2,
-                "drugimai@aol.com",
-                "+384945556666",
-                "somehash",
-                "+041",
                 "Markan",
                 Tools.getRandomImageUrl(Random.nextInt(5)),
-                "Time",
+                "+384945556666",
+                "someHash",
+                "drugimai@aol.com",
                 "time"
             )
         )

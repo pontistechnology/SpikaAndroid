@@ -23,12 +23,12 @@ class OnboardingRepositoryImpl @Inject constructor(
         code: String,
         deviceId: String
     ): AuthResponse {
-        val data = retrofitService.verifyUserCode(code, deviceId)
+        val responseData = retrofitService.verifyUserCode(code, deviceId)
 
-        userDao.insert(data.user)
-        sharedPrefs.writeUserId(data.user.id)
+        userDao.insert(responseData.data.user)
+        sharedPrefs.writeUserId(responseData.data.user.id)
 
-        return data
+        return responseData
     }
 
     override suspend fun sendUserContacts(
