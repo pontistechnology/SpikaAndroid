@@ -26,6 +26,7 @@ import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools.formatE164Number
 import com.clover.studio.exampleapp.utils.Tools.hashString
 import timber.log.Timber
@@ -63,6 +64,8 @@ class RegisterNumberFragment : Fragment() {
         setTextListener()
         setClickListeners()
         setObservers()
+
+        // Log check if token is present in shared prefs
         viewModel.readToken()
 
         return binding.root
@@ -74,7 +77,7 @@ class RegisterNumberFragment : Fragment() {
     }
 
     private fun setObservers() {
-        viewModel.registrationListener.observe(viewLifecycleOwner, {
+        viewModel.registrationListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 OnboardingStates.REGISTERING_SUCCESS -> {
                     val bundle = bundleOf(
@@ -192,7 +195,9 @@ class RegisterNumberFragment : Fragment() {
                     Manifest.permission.READ_CONTACTS
                 )
             } == PackageManager.PERMISSION_GRANTED -> {
-                fetchAllUserContacts()
+               if (!viewModel.areUsersFetched()) {
+                  fetchAllUserContacts()
+               }
             }
 
             shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {

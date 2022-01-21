@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.clover.studio.exampleapp.databinding.ActivitySplashBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
+import com.clover.studio.exampleapp.utils.EventObserver
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -29,7 +30,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun checkLoginInformation() {
-        viewModel.splashTokenListener.observe(this, {
+        viewModel.splashTokenListener.observe(this, EventObserver {
             when (it) {
                 SplashStates.NAVIGATE_ONBOARDING -> goToOnboarding()
                 SplashStates.NAVIGATE_MAIN -> goToMainActivity()

@@ -17,6 +17,7 @@ import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.UsersError
 import com.clover.studio.exampleapp.ui.main.UsersFetched
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools
 import timber.log.Timber
 import kotlin.random.Random
@@ -88,7 +89,7 @@ class ContactsFragment : Fragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.usersListener.observe(viewLifecycleOwner, {
+        viewModel.usersListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 UsersError -> Timber.d("Users error")
                 is UsersFetched -> Timber.d("Users fetched: ${it.userData}")

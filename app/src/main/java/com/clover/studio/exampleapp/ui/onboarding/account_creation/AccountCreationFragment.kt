@@ -16,6 +16,7 @@ import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
 import timber.log.Timber
 
 class AccountCreationFragment : Fragment() {
@@ -76,7 +77,7 @@ class AccountCreationFragment : Fragment() {
             choosePhoto()
         }
 
-        viewModel.accountCreationListener.observe(viewLifecycleOwner, {
+        viewModel.accountCreationListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 OnboardingStates.CONTACTS_SENT -> Timber.d("Contacts sent successfully")
                 OnboardingStates.CONTACTS_ERROR -> Timber.d("Failed to send contacts")
@@ -84,7 +85,7 @@ class AccountCreationFragment : Fragment() {
             }
         })
 
-        viewModel.userUpdateListener.observe(viewLifecycleOwner, {
+        viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 OnboardingStates.USER_UPDATED -> startMainActivity(requireActivity())
                 OnboardingStates.USER_UPDATE_ERROR -> Timber.d("Error updating user")

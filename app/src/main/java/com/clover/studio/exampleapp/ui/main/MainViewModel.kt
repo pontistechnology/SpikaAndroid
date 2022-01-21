@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.UserRepositoryImpl
+import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.Tools
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -18,15 +19,15 @@ class MainViewModel @Inject constructor(
     private val sharedPrefsRepo: SharedPreferencesRepository
 ) : ViewModel() {
 
-    val usersListener = MutableLiveData<MainStates>()
+    val usersListener = MutableLiveData<Event<MainStates>>()
 
     fun getContacts(page: Int) = viewModelScope.launch {
         try {
             val users = repository.getUsers(sharedPrefsRepo.readToken()!!, page).data?.list
-            usersListener.value = UsersFetched(users!!)
+            usersListener.postValue(Event(UsersFetched(users!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
-            usersListener.postValue(UsersError)
+            usersListener.postValue(Event(UsersError))
             return@launch
         }
     }

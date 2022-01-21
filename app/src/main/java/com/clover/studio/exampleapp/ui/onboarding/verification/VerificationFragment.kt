@@ -19,6 +19,7 @@ import com.clover.studio.exampleapp.databinding.FragmentVerificationBinding
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.SmsListener
 import com.clover.studio.exampleapp.utils.SmsReceiver
 import timber.log.Timber
@@ -70,7 +71,7 @@ class VerificationFragment : Fragment() {
             }
         })
 
-        viewModel.codeVerificationListener.observe(viewLifecycleOwner, {
+        viewModel.codeVerificationListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 OnboardingStates.VERIFYING -> {
                     binding.clInputUi.visibility = View.GONE

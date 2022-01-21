@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
+import com.clover.studio.exampleapp.utils.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -13,13 +14,13 @@ class SplashViewModel @Inject constructor(
     private val sharedPrefsRepo: SharedPreferencesRepository
 ) : ViewModel() {
 
-    var splashTokenListener = MutableLiveData<SplashStates>()
+    var splashTokenListener = MutableLiveData<Event<SplashStates>>()
 
     fun checkToken() = viewModelScope.launch {
         if (sharedPrefsRepo.readToken().isNullOrEmpty()) {
-            splashTokenListener.postValue(SplashStates.NAVIGATE_ONBOARDING)
+            splashTokenListener.postValue(Event(SplashStates.NAVIGATE_ONBOARDING))
         } else {
-            splashTokenListener.postValue(SplashStates.NAVIGATE_MAIN)
+            splashTokenListener.postValue(Event(SplashStates.NAVIGATE_MAIN))
         }
     }
 }
