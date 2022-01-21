@@ -49,6 +49,16 @@ class SharedPreferencesRepositoryImpl(
 
     override suspend fun readUserId(): Int = getPrefs().getInt(Const.PrefsData.USER_ID, 0)
 
+    override suspend fun isAccountCreated(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.ACCOUNT_CREATED, false)
+
+    override suspend fun accountCreated(created: Boolean) {
+        with(getPrefs().edit()) {
+            putBoolean(Const.PrefsData.ACCOUNT_CREATED, created)
+            commit()
+        }
+    }
+
     private fun getPrefs(): SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
 }
@@ -60,4 +70,6 @@ interface SharedPreferencesRepository {
     suspend fun readContacts(): List<String>?
     suspend fun writeUserId(id: Int)
     suspend fun readUserId(): Int?
+    suspend fun isAccountCreated(): Boolean
+    suspend fun accountCreated(created: Boolean)
 }

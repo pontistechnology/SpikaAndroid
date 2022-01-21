@@ -1,8 +1,14 @@
 package com.clover.studio.exampleapp.utils
 
+import android.content.Context
+import android.telephony.PhoneNumberUtils
+import android.telephony.TelephonyManager
+import android.text.TextUtils
+import androidx.core.content.ContextCompat
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.IOException
+import java.security.MessageDigest
 
 object Tools {
     fun checkError(ex: Exception) {
@@ -23,6 +29,37 @@ object Tools {
             4 -> "https://upload.wikimedia.org/wikipedia/commons/d/db/Matudaira_Yoritoshi.jpg"
             else -> "https://upload.wikimedia.org/wikipedia/commons/d/db/Matudaira_Yoritoshi.jpg"
         }
+    }
+
+    fun formatE164Number(context: Context, countryCode: String?, phNum: String?): String? {
+        val e164Number: String? = if (TextUtils.isEmpty(countryCode)) {
+            phNum
+        } else {
+
+            val telephonyManager =
+                ContextCompat.getSystemService(context, TelephonyManager::class.java)
+            val isoCode = telephonyManager?.simCountryIso
+
+            Timber.d("Country code: ${isoCode?.uppercase()}")
+            PhoneNumberUtils.formatNumberToE164(phNum, isoCode?.uppercase())
+        }
+        return e164Number
+    }
+
+    fun hashString(input: String): String {
+        val hexChars = "0123456789abcdef"
+        val bytes = MessageDigest
+            .getInstance("SHA-1")
+            .digest(input.toByteArray())
+        val result = StringBuilder(bytes.size * 2)
+
+        bytes.forEach {
+            val i = it.toInt()
+            result.append(hexChars[i shr 4 and 0x0f])
+            result.append(hexChars[i and 0x0f])
+        }
+
+        return result.toString()
     }
 
     // TODO make temporary file Uri for camera picture taken

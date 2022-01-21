@@ -1,20 +1,22 @@
 package com.clover.studio.exampleapp.ui.onboarding.number_registration
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.database.DatabaseUtils
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.Settings
-import android.telephony.PhoneNumberUtils
-import android.telephony.TelephonyManager
 import android.text.Editable
-import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.collection.ArraySet
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -24,12 +26,14 @@ import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.Tools.formatE164Number
+import com.clover.studio.exampleapp.utils.Tools.hashString
 import timber.log.Timber
-import java.security.MessageDigest
 
 class RegisterNumberFragment : Fragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var countryCode: String
+    private lateinit var contactsPermission: ActivityResultLauncher<String>
 
     private var bindingSetup: FragmentRegisterNumberBinding? = null
 
@@ -51,32 +55,25 @@ class RegisterNumberFragment : Fragment() {
         // Inflate the layout for this fragment
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
 
-        setTextListener()
-
         if (countryCode != "") {
             binding.tvCountryCode.text = countryCode
         }
 
-        binding.tvCountryCode.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_splashFragment_to_countryPickerFragment
-            )
-        }
+        checkContactsPermission()
+        setTextListener()
+        setClickListeners()
+        setObservers()
+        viewModel.readToken()
 
-        binding.btnNext.setOnClickListener {
-            viewModel.sendNewUserData(
-                countryCode + binding.etPhoneNumber.text.toString(),
-                hashString(
-                    countryCode + binding.etPhoneNumber.text.toString()
-                ),
-                countryCode.substring(1),
-                Settings.Secure.getString(
-                    context?.contentResolver,
-                    Settings.Secure.ANDROID_ID
-                )
-            )
-        }
+        return binding.root
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        bindingSetup = null
+    }
+
+    private fun setObservers() {
         viewModel.registrationListener.observe(viewLifecycleOwner, {
             when (it) {
                 OnboardingStates.REGISTERING_SUCCESS -> {
@@ -100,16 +97,28 @@ class RegisterNumberFragment : Fragment() {
                 else -> TODO()
             }
         })
-
-        fetchAllUserContacts()
-        viewModel.readToken()
-        return binding.root
-
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        bindingSetup = null
+    private fun setClickListeners() {
+        binding.tvCountryCode.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_splashFragment_to_countryPickerFragment
+            )
+        }
+
+        binding.btnNext.setOnClickListener {
+            viewModel.sendNewUserData(
+                countryCode + binding.etPhoneNumber.text.toString(),
+                hashString(
+                    countryCode + binding.etPhoneNumber.text.toString()
+                ),
+                countryCode.substring(1),
+                Settings.Secure.getString(
+                    context?.contentResolver,
+                    Settings.Secure.ANDROID_ID
+                )
+            )
+        }
     }
 
     private fun setTextListener() {
@@ -128,22 +137,12 @@ class RegisterNumberFragment : Fragment() {
         })
     }
 
-    private fun hashString(input: String): String {
-        val hexChars = "0123456789abcdef"
-        val bytes = MessageDigest
-            .getInstance("SHA-1")
-            .digest(input.toByteArray())
-        val result = StringBuilder(bytes.size * 2)
+    internal data class PhoneUser(
+        val name: String,
+        val number: String
+    )
 
-        bytes.forEach {
-            val i = it.toInt()
-            result.append(hexChars[i shr 4 and 0x0f])
-            result.append(hexChars[i and 0x0f])
-        }
-
-        return result.toString()
-    }
-
+    @SuppressLint("Range")
     private fun fetchAllUserContacts() {
         val phoneUserSet: MutableSet<String> = ArraySet()
         val phones: Cursor? = requireActivity().contentResolver.query(
@@ -159,8 +158,15 @@ class RegisterNumberFragment : Fragment() {
             val phoneNumber =
                 phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
 
-            val phoneUser = PhoneUser(name, formatE164Number(countryCode, phoneNumber).toString())
-            phoneUserSet.add(hashString(formatE164Number(countryCode, phoneNumber).toString()))
+            val phoneUser = PhoneUser(
+                name,
+                formatE164Number(requireContext(), countryCode, phoneNumber).toString()
+            )
+            phoneUserSet.add(
+                hashString(
+                    formatE164Number(requireContext(), countryCode, phoneNumber).toString()
+                )
+            )
             Timber.d("Adding phone user: ${phoneUser.name} ${phoneUser.number}")
         }
         DatabaseUtils.dumpCursor(phones)
@@ -169,22 +175,31 @@ class RegisterNumberFragment : Fragment() {
         viewModel.writeContactsToSharedPref(phoneUserSet.toList())
     }
 
-    internal data class PhoneUser(
-        val name: String,
-        val number: String
-    )
+    private fun checkContactsPermission() {
+        contactsPermission =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                if (it) {
+                    fetchAllUserContacts()
+                } else {
+                    Timber.d("Couldn't send contacts. No permission granted.")
+                }
+            }
 
-    private fun formatE164Number(countryCode: String?, phNum: String?): String? {
-        val e164Number: String? = if (TextUtils.isEmpty(countryCode)) {
-            phNum
-        } else {
+        when {
+            context?.let {
+                ContextCompat.checkSelfPermission(
+                    it,
+                    Manifest.permission.READ_CONTACTS
+                )
+            } == PackageManager.PERMISSION_GRANTED -> {
+                fetchAllUserContacts()
+            }
 
-            val telephonyManager = getSystemService(requireContext(), TelephonyManager::class.java)
-            val isoCode = telephonyManager?.simCountryIso
+            shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {
+                // TODO show why permission is needed
+            }
 
-            Timber.d("Country code: ${isoCode?.uppercase()}")
-            PhoneNumberUtils.formatNumberToE164(phNum, isoCode?.uppercase())
+            else -> contactsPermission.launch(Manifest.permission.READ_CONTACTS)
         }
-        return e164Number
     }
 }

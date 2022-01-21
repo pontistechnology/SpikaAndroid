@@ -26,6 +26,7 @@ class Const {
             const val TOKEN = "token"
             const val USER_CONTACTS = "user_contacts"
             const val USER_ID = "user_id"
+            const val ACCOUNT_CREATED = "account_created"
         }
     }
 

@@ -98,6 +98,7 @@ class OnboardingViewModel @Inject constructor(
     fun updateUserData(userMap: Map<String, String>) = viewModelScope.launch {
         try {
             onboardingRepository.updateUser(sharedPrefs.readToken()!!, userMap)
+            sharedPrefs.accountCreated(true)
         } catch (ex: Exception) {
             Tools.checkError(ex)
             userUpdateListener.postValue(OnboardingStates.USER_UPDATE_ERROR)
