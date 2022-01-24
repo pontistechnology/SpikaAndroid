@@ -5,6 +5,20 @@ apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: "kotlin-parcelize"
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('/Users/matkotom/release-keystore')
+            storePassword 'spika1234'
+            keyAlias 'release'
+            keyPassword 'spika1234'
+        }
+        release {
+            storeFile file('/Users/matkotom/release-keystore')
+            storePassword 'spika1234'
+            keyAlias 'release'
+            keyPassword 'spika1234'
+        }
+    }
     compileSdk 31
 
     buildFeatures {
@@ -53,6 +67,8 @@ android {
 
             resValue "string", "APP_NAME", "Example App"
             buildConfigField("String", "SERVER_URL", "\"https://spika3dev.spika.chat/\"")
+
+            signingConfig signingConfigs.release
         }
 
         release {
@@ -63,6 +79,8 @@ android {
 
             resValue "string", "APP_NAME", "Example App"
             buildConfigField("String", "SERVER_URL", "\"https://spika3dev.spika.chat/\"")
+
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -130,4 +148,8 @@ dependencies {
 
     // LibPhoneNumber
     implementation 'com.googlecode.libphonenumber:libphonenumber:8.12.11'
+
+    // SmsVerificationAPI
+    implementation 'com.google.android.gms:play-services-auth:20.0.1'
+    implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
 }

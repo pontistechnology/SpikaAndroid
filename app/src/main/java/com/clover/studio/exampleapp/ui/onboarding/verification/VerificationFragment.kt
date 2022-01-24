@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.ui.onboarding.verification
 
 import android.content.Context
+import android.content.IntentFilter
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.text.Editable
@@ -22,6 +23,7 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.SmsListener
 import com.clover.studio.exampleapp.utils.SmsReceiver
+import com.google.android.gms.auth.api.phone.SmsRetriever
 import timber.log.Timber
 
 
@@ -31,6 +33,8 @@ class VerificationFragment : Fragment() {
     private lateinit var phoneNumberHashed: String
     private lateinit var countryCode: String
     private lateinit var deviceId: String
+    private var intentFilter: IntentFilter? = null
+    private var smsReceiver: SmsReceiver? = null
 
     private var bindingSetup: FragmentVerificationBinding? = null
 
@@ -55,6 +59,8 @@ class VerificationFragment : Fragment() {
         binding.tvEnterNumber.text = getString(R.string.verification_code_sent, phoneNumber)
 
         setupTextWatchers()
+        getVerificationSMS()
+        initBroadCast()
 
         binding.btnNext.setOnClickListener {
             viewModel.sendCodeVerification(getVerificationCode(), deviceId)
@@ -63,13 +69,6 @@ class VerificationFragment : Fragment() {
         binding.tvResendCode.setOnClickListener {
             viewModel.sendNewUserData(phoneNumber, phoneNumberHashed, countryCode, deviceId)
         }
-
-        SmsReceiver.bindListener(object : SmsListener {
-            override fun messageReceived(messageText: String?) {
-                // TODO set message text to fields
-                Timber.d("SmsReceiver message $messageText")
-            }
-        })
 
         viewModel.codeVerificationListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
@@ -91,6 +90,27 @@ class VerificationFragment : Fragment() {
             }
         })
         return binding.root
+    }
+
+    private fun initBroadCast() {
+        intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
+        smsReceiver = SmsReceiver()
+        smsReceiver?.bindListener(object : SmsListener {
+            override fun messageReceived(messageText: String?) {
+                Timber.d("MESSAGE received $messageText")
+            }
+
+        })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requireActivity().registerReceiver(smsReceiver, intentFilter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().unregisterReceiver(smsReceiver)
     }
 
     private fun goToAccountCreation() {
@@ -169,6 +189,29 @@ class VerificationFragment : Fragment() {
                 binding.etInputFive
             )
         )
+    }
+
+    private fun getVerificationSMS() {
+        // Get an instance of SmsRetrieverClient, used to start listening for a matching
+        // SMS message.
+        val client = SmsRetriever.getClient(requireActivity())
+
+        // Starts SmsRetriever, which waits for ONE matching SMS message until timeout
+        // (5 minutes). The matching SMS message will be sent via a Broadcast Intent with
+        // action SmsRetriever#SMS_RETRIEVED_ACTION.
+        val task = client.startSmsRetriever()
+
+        // Listen for success/failure of the start Task. If in a background thread, this
+        // can be made blocking using Tasks.await(task, [timeout]);
+        task.addOnSuccessListener {
+            // Successfully started retriever, expect broadcast intent
+            Timber.d("MESSAGE success")
+        }
+
+        task.addOnFailureListener {
+            // Failed to start retriever, inspect Exception for more details
+            Timber.d("MESSAGE failed ${it.message}")
+        }
     }
 
     private fun getVerificationCode(): String = binding.etInputOne.text.toString() +
