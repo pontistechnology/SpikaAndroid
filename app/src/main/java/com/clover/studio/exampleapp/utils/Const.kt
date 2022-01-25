@@ -30,7 +30,7 @@ class Const {
             const val LANGUAGE = "lang"
 
             // Field values
-            const val ANDROID = "Android"
+            const val ANDROID = "android"
         }
     }
 
