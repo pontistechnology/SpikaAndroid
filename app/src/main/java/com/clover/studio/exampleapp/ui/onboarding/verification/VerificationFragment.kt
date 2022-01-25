@@ -33,8 +33,8 @@ class VerificationFragment : Fragment() {
     private lateinit var phoneNumberHashed: String
     private lateinit var countryCode: String
     private lateinit var deviceId: String
-    private var intentFilter: IntentFilter? = null
-    private var smsReceiver: SmsReceiver? = null
+    private lateinit var intentFilter: IntentFilter
+    private lateinit var smsReceiver: SmsReceiver
 
     private var bindingSetup: FragmentVerificationBinding? = null
 
