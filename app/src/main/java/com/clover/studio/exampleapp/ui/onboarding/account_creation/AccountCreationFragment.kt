@@ -25,8 +25,10 @@ class AccountCreationFragment : Fragment() {
 
     private val choosePhotoContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
-            Glide.with(this).load(it).into(binding.ivPickPhoto)
-            binding.clSmallCameraPicker.visibility = View.VISIBLE
+            if (it != null) {
+                Glide.with(this).load(it).into(binding.ivPickPhoto)
+                binding.clSmallCameraPicker.visibility = View.VISIBLE
+            }
         }
 
     private val takePhotoContract =
@@ -49,6 +51,43 @@ class AccountCreationFragment : Fragment() {
         // Inflate the layout for this fragment
         bindingSetup = FragmentAccountCreationBinding.inflate(inflater, container, false)
 
+        addTextListeners()
+        addClickListeners()
+        addObservers()
+
+        viewModel.sendContacts()
+        return binding.root
+    }
+
+    private fun addObservers() {
+        viewModel.accountCreationListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                OnboardingStates.CONTACTS_SENT -> Timber.d("Contacts sent successfully")
+                OnboardingStates.CONTACTS_ERROR -> Timber.d("Failed to send contacts")
+                else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                OnboardingStates.USER_UPDATED -> startMainActivity(requireActivity())
+                OnboardingStates.USER_UPDATE_ERROR -> Timber.d("Error updating user")
+                else -> Timber.d("Other error")
+            }
+        })
+    }
+
+    private fun addClickListeners() {
+        binding.btnNext.setOnClickListener {
+            checkUsername()
+        }
+
+        binding.cvPhotoPicker.setOnClickListener {
+            choosePhoto()
+        }
+    }
+
+    private fun addTextListeners() {
         binding.etEnterUsername.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 // ignore
@@ -68,33 +107,6 @@ class AccountCreationFragment : Fragment() {
                 }
             }
         })
-
-        binding.btnNext.setOnClickListener {
-            checkUsername()
-        }
-
-        binding.cvPhotoPicker.setOnClickListener {
-            choosePhoto()
-        }
-
-        viewModel.accountCreationListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                OnboardingStates.CONTACTS_SENT -> Timber.d("Contacts sent successfully")
-                OnboardingStates.CONTACTS_ERROR -> Timber.d("Failed to send contacts")
-                else -> Timber.d("Other error")
-            }
-        })
-
-        viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                OnboardingStates.USER_UPDATED -> startMainActivity(requireActivity())
-                OnboardingStates.USER_UPDATE_ERROR -> Timber.d("Error updating user")
-                else -> Timber.d("Other error")
-            }
-        })
-
-        viewModel.sendContacts()
-        return binding.root
     }
 
     private fun checkUsername() {

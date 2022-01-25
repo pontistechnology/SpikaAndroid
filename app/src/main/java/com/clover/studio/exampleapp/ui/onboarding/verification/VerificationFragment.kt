@@ -59,17 +59,25 @@ class VerificationFragment : Fragment() {
         binding.tvEnterNumber.text = getString(R.string.verification_code_sent, phoneNumber)
 
         setupTextWatchers()
-        getVerificationSMS()
+        startSmsRetriever()
         initBroadCast()
+        setClickListeners()
+        setObservers()
 
-        binding.btnNext.setOnClickListener {
-            viewModel.sendCodeVerification(getVerificationCode(), deviceId)
-        }
+        return binding.root
+    }
 
-        binding.tvResendCode.setOnClickListener {
-            viewModel.sendNewUserData(phoneNumber, phoneNumberHashed, countryCode, deviceId)
-        }
+    override fun onResume() {
+        super.onResume()
+        requireActivity().registerReceiver(smsReceiver, intentFilter)
+    }
 
+    override fun onPause() {
+        super.onPause()
+        requireActivity().unregisterReceiver(smsReceiver)
+    }
+
+    private fun setObservers() {
         viewModel.codeVerificationListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 OnboardingStates.VERIFYING -> {
@@ -89,7 +97,16 @@ class VerificationFragment : Fragment() {
                 else -> Timber.d("Something went wrong")
             }
         })
-        return binding.root
+    }
+
+    private fun setClickListeners() {
+        binding.btnNext.setOnClickListener {
+            viewModel.sendCodeVerification(getVerificationCode(), deviceId)
+        }
+
+        binding.tvResendCode.setOnClickListener {
+            viewModel.sendNewUserData(phoneNumber, phoneNumberHashed, countryCode, deviceId)
+        }
     }
 
     private fun initBroadCast() {
@@ -101,16 +118,6 @@ class VerificationFragment : Fragment() {
             }
 
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        requireActivity().registerReceiver(smsReceiver, intentFilter)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        requireActivity().unregisterReceiver(smsReceiver)
     }
 
     private fun goToAccountCreation() {
@@ -191,7 +198,7 @@ class VerificationFragment : Fragment() {
         )
     }
 
-    private fun getVerificationSMS() {
+    private fun startSmsRetriever() {
         // Get an instance of SmsRetrieverClient, used to start listening for a matching
         // SMS message.
         val client = SmsRetriever.getClient(requireActivity())
@@ -234,8 +241,6 @@ class VerificationFragment : Fragment() {
             }
             return false
         }
-
-
     }
 
     inner class GenericTextWatcher internal constructor(
