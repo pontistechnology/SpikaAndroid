@@ -115,6 +115,7 @@ class VerificationFragment : Fragment() {
         smsReceiver?.bindListener(object : SmsListener {
             override fun messageReceived(messageText: String?) {
                 Timber.d("MESSAGE received $messageText")
+                // TODO set code to edit text fields
             }
 
         })
@@ -260,6 +261,7 @@ class VerificationFragment : Fragment() {
                     val imm =
                         activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.hideSoftInputFromWindow(binding.etInputSix.windowToken, 0)
+                    viewModel.sendCodeVerification(getVerificationCode(), deviceId)
                 }
             }
         }

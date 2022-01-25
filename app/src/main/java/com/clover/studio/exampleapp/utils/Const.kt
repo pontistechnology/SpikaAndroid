@@ -20,6 +20,20 @@ class Const {
         }
     }
 
+    class Headers {
+        companion object {
+            const val ACCESS_TOKEN = "accesstoken"
+            const val OS_NAME = "os-name"
+            const val OS_VERSION = "os-version"
+            const val DEVICE_NAME = "device-name"
+            const val APP_VERSION = "app-version"
+            const val LANGUAGE = "lang"
+
+            // Field values
+            const val ANDROID = "Android"
+        }
+    }
+
     class PrefsData {
         companion object {
             const val SHARED_PREFS_NAME = "app_general_prefs"

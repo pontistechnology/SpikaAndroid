@@ -8,6 +8,7 @@ import com.clover.studio.exampleapp.data.repositories.OnboardingRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -80,7 +81,12 @@ class OnboardingViewModel @Inject constructor(
         Timber.d("$contacts")
 
         try {
-            contacts?.let { onboardingRepository.sendUserContacts(sharedPrefs.readToken()!!, it) }
+            contacts?.let {
+                onboardingRepository.sendUserContacts(
+                    getHeaderMap(sharedPrefs.readToken()!!),
+                    it
+                )
+            }
         } catch (ex: Exception) {
             Tools.checkError(ex)
             accountCreationListener.postValue(Event(OnboardingStates.CONTACTS_ERROR))
@@ -110,7 +116,7 @@ class OnboardingViewModel @Inject constructor(
 
     fun updateUserData(userMap: Map<String, String>) = viewModelScope.launch {
         try {
-            onboardingRepository.updateUser(sharedPrefs.readToken()!!, userMap)
+            onboardingRepository.updateUser(getHeaderMap(sharedPrefs.readToken()!!), userMap)
             sharedPrefs.accountCreated(true)
         } catch (ex: Exception) {
             Tools.checkError(ex)

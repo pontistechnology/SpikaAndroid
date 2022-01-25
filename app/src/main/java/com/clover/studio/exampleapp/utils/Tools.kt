@@ -1,14 +1,17 @@
 package com.clover.studio.exampleapp.utils
 
 import android.content.Context
+import android.os.Build
 import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.text.TextUtils
 import androidx.core.content.ContextCompat
+import com.clover.studio.exampleapp.BuildConfig
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.IOException
 import java.security.MessageDigest
+import java.util.*
 
 object Tools {
     fun checkError(ex: Exception) {
@@ -60,6 +63,17 @@ object Tools {
         }
 
         return result.toString()
+    }
+
+    fun getHeaderMap(token: String): Map<String, String> {
+        return mutableMapOf(
+            Const.Headers.ACCESS_TOKEN to token,
+            Const.Headers.OS_NAME to Const.Headers.ANDROID,
+            Const.Headers.OS_VERSION to Build.VERSION.SDK_INT.toString(),
+            Const.Headers.DEVICE_NAME to Build.MODEL,
+            Const.Headers.APP_VERSION to BuildConfig.VERSION_NAME,
+            Const.Headers.LANGUAGE to Locale.getDefault().language
+        )
     }
 
     // TODO make temporary file Uri for camera picture taken
