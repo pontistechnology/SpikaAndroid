@@ -45,6 +45,10 @@ class ContactDetailsFragment : Fragment() {
         bindingSetup = FragmentContactDetailsBinding.inflate(inflater, container, false)
 
         binding.tvUsername.text = user.displayName
+        binding.tvPageName.text = user.displayName
+        binding.ivBack.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
 
         Glide.with(this).load(user.avatarUrl).into(binding.ivPickAvatar)
 

@@ -112,7 +112,7 @@ class VerificationFragment : Fragment() {
     private fun initBroadCast() {
         intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
         smsReceiver = SmsReceiver()
-        smsReceiver?.bindListener(object : SmsListener {
+        smsReceiver.bindListener(object : SmsListener {
             override fun messageReceived(messageText: String?) {
                 Timber.d("MESSAGE received $messageText")
                 // TODO set code to edit text fields
