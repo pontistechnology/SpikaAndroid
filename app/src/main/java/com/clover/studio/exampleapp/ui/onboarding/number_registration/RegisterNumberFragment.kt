@@ -195,9 +195,9 @@ class RegisterNumberFragment : Fragment() {
                     Manifest.permission.READ_CONTACTS
                 )
             } == PackageManager.PERMISSION_GRANTED -> {
-               if (!viewModel.areUsersFetched()) {
-                  fetchAllUserContacts()
-               }
+                if (!viewModel.areUsersFetched()) {
+                    fetchAllUserContacts()
+                }
             }
 
             shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {

@@ -117,7 +117,6 @@ class VerificationFragment : Fragment() {
                 Timber.d("MESSAGE received $messageText")
                 // TODO set code to edit text fields
             }
-
         })
     }
 

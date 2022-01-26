@@ -23,7 +23,9 @@ class SmsReceiver : BroadcastReceiver() {
             when (status!!.statusCode) {
                 CommonStatusCodes.SUCCESS -> { // Get SMS message contents
                     val message: String? = extras[SmsRetriever.EXTRA_SMS_MESSAGE] as String?
-                    mListener?.messageReceived(message)
+                    val formattedMessage: String = message!!.substring(0, message.indexOf("\n"))
+                        .replace("[^0-9]".toRegex(), "")
+                    mListener?.messageReceived(formattedMessage)
                     Timber.d("MESSAGE $message")
                 }
                 CommonStatusCodes.TIMEOUT -> {
