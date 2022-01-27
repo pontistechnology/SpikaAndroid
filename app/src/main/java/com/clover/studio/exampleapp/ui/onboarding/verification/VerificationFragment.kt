@@ -115,7 +115,12 @@ class VerificationFragment : Fragment() {
         smsReceiver.bindListener(object : SmsListener {
             override fun messageReceived(messageText: String?) {
                 Timber.d("MESSAGE received $messageText")
-                // TODO set code to edit text fields
+                binding.etInputOne.setText(messageText?.get(0).toString())
+                binding.etInputTwo.setText(messageText?.get(1).toString())
+                binding.etInputThree.setText(messageText?.get(2).toString())
+                binding.etInputFour.setText(messageText?.get(3).toString())
+                binding.etInputFive.setText(messageText?.get(4).toString())
+                binding.etInputSix.setText(messageText?.get(5).toString())
             }
         })
     }
