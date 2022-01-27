@@ -65,15 +65,18 @@ object Tools {
         return result.toString()
     }
 
-    fun getHeaderMap(token: String): Map<String, String> {
-        return mutableMapOf(
-            Const.Headers.ACCESS_TOKEN to token,
-            Const.Headers.OS_NAME to Const.Headers.ANDROID,
-            Const.Headers.OS_VERSION to Build.VERSION.SDK_INT.toString(),
-            Const.Headers.DEVICE_NAME to Build.MODEL,
-            Const.Headers.APP_VERSION to BuildConfig.VERSION_NAME,
-            Const.Headers.LANGUAGE to Locale.getDefault().language
-        )
+    fun getHeaderMap(token: String?): Map<String, String?> {
+        val map = mutableMapOf<String, String?>()
+        if (!token.isNullOrEmpty()) {
+            map[Const.Headers.ACCESS_TOKEN] = token
+        }
+        map[Const.Headers.OS_NAME] = Const.Headers.ANDROID
+        map[Const.Headers.OS_VERSION] = Build.VERSION.SDK_INT.toString()
+        map[Const.Headers.DEVICE_NAME] = Build.MODEL
+        map[Const.Headers.APP_VERSION] = BuildConfig.VERSION_NAME
+        map[Const.Headers.LANGUAGE] = Locale.getDefault().language
+
+        return map
     }
 
     // TODO make temporary file Uri for camera picture taken

@@ -82,10 +82,7 @@ class OnboardingViewModel @Inject constructor(
 
         try {
             contacts?.let {
-                onboardingRepository.sendUserContacts(
-                    getHeaderMap(sharedPrefs.readToken()!!),
-                    it
-                )
+                onboardingRepository.sendUserContacts(it)
             }
         } catch (ex: Exception) {
             Tools.checkError(ex)
@@ -116,7 +113,7 @@ class OnboardingViewModel @Inject constructor(
 
     fun updateUserData(userMap: Map<String, String>) = viewModelScope.launch {
         try {
-            onboardingRepository.updateUser(getHeaderMap(sharedPrefs.readToken()!!), userMap)
+            onboardingRepository.updateUser(userMap)
             sharedPrefs.accountCreated(true)
         } catch (ex: Exception) {
             Tools.checkError(ex)

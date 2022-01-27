@@ -265,7 +265,17 @@ class VerificationFragment : Fragment() {
                     val imm =
                         activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.hideSoftInputFromWindow(binding.etInputSix.windowToken, 0)
-                    viewModel.sendCodeVerification(getVerificationCode(), deviceId)
+
+                    val timer = object : CountDownTimer(500, 100) {
+                        override fun onTick(millisUntilFinished: Long) {
+                            Timber.d("Timer tick $millisUntilFinished")
+                        }
+
+                        override fun onFinish() {
+                            viewModel.sendCodeVerification(getVerificationCode(), deviceId)
+                        }
+                    }
+                    timer.start()
                 }
             }
         }

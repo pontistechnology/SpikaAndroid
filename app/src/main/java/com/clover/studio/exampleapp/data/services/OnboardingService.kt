@@ -8,6 +8,7 @@ interface OnboardingService {
     @FormUrlEncoded
     @POST(value = Const.Networking.API_AUTH)
     suspend fun sendUserData(
+        @HeaderMap headers: Map<String, String?>,
         @Field("telephoneNumber") phoneNumber: String,
         @Field("telephoneNumberHashed") phoneNumberHashed: String,
         @Field("countryCode") countryCode: String,
@@ -17,6 +18,7 @@ interface OnboardingService {
     @FormUrlEncoded
     @POST(value = Const.Networking.API_VERIFY_CODE)
     suspend fun verifyUserCode(
+        @HeaderMap headers: Map<String, String?>,
         @Field("code") code: String,
         @Field("deviceId") deviceId: String
     ): AuthResponse
@@ -24,14 +26,14 @@ interface OnboardingService {
     @FormUrlEncoded
     @POST(value = Const.Networking.API_CONTACTS)
     suspend fun sendContacts(
-        @HeaderMap headers: Map<String, String>,
+        @HeaderMap headers: Map<String, String?>,
         @Field("contacts") contacts: List<String>
     ): AuthResponse
 
     @FormUrlEncoded
     @PUT(value = Const.Networking.API_UPDATE_USER)
     suspend fun updateUser(
-        @HeaderMap headers: Map<String, String>,
+        @HeaderMap headers: Map<String, String?>,
         @FieldMap userMap: Map<String, String>
     ): AuthResponse
 }
