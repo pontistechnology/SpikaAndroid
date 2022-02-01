@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.data.repositories
 
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
+import com.clover.studio.exampleapp.data.models.networking.FileChunk
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import javax.inject.Inject
@@ -47,13 +48,29 @@ class OnboardingRepositoryImpl @Inject constructor(
         userMap: Map<String, String>
     ): AuthResponse {
         val responseData =
-            retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()!!), userMap)
+            retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), userMap)
 
         userDao.insert(responseData.data.user)
         sharedPrefs.writeUserId(responseData.data.user.id)
 
         return responseData
     }
+
+    override suspend fun uploadFiles(
+        fileChunk: FileChunk
+    ) = retrofitService.uploadFiles(
+        getHeaderMap(sharedPrefs.readToken()),
+        fileChunk.chunk,
+        fileChunk.offset,
+        fileChunk.total,
+        fileChunk.size,
+        fileChunk.mimeType,
+        fileChunk.fileName,
+        fileChunk.type,
+        fileChunk.fileHash,
+        fileChunk.relationId,
+        fileChunk.clientId
+    )
 }
 
 interface OnboardingRepository {
@@ -76,4 +93,8 @@ interface OnboardingRepository {
     suspend fun updateUser(
         userMap: Map<String, String>
     ): AuthResponse
+
+    suspend fun uploadFiles(
+        fileChunk: FileChunk
+    )
 }

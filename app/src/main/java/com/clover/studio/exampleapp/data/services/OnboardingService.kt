@@ -36,4 +36,20 @@ interface OnboardingService {
         @HeaderMap headers: Map<String, String?>,
         @FieldMap userMap: Map<String, String>
     ): AuthResponse
+
+    @FormUrlEncoded
+    @POST(value = Const.Networking.API_UPLOAD_FILE)
+    suspend fun uploadFiles(
+        @HeaderMap headers: Map<String, String?>,
+        @Field("chunk") chunk: String,
+        @Field("offset") offset: Long,
+        @Field("total") total: Long,
+        @Field("size") size: Long,
+        @Field("mimeType") mimeType: String,
+        @Field("fileName") fileName: String,
+        @Field("type") type: String?,
+        @Field("fileHash") fileHash: String?,
+        @Field("relationId") relationId: Int?,
+        @Field("clientId") clientId: String?
+    )
 }

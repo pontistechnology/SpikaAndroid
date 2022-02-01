@@ -4,11 +4,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
+import com.clover.studio.exampleapp.data.models.networking.FileChunk
 import com.clover.studio.exampleapp.data.repositories.OnboardingRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.Tools
-import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -122,6 +122,18 @@ class OnboardingViewModel @Inject constructor(
         }
 
         userUpdateListener.postValue(Event(OnboardingStates.USER_UPDATED))
+    }
+
+    fun uploadFile(fileChunk: FileChunk) = viewModelScope.launch {
+        try {
+            onboardingRepository.uploadFiles(fileChunk)
+            Timber.d("Sending file chunk")
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            Timber.d("File send error")
+        }
+
+        Timber.d("Completed sending file chunk")
     }
 }
 

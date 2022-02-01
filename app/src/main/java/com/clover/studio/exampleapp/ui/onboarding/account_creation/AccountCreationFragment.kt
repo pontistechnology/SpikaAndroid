@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,13 +12,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.data.models.networking.FileChunk
 import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
-import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import timber.log.Timber
+import java.io.*
+
+
+const val chunkSize = 32000
 
 class AccountCreationFragment : Fragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
@@ -28,6 +33,7 @@ class AccountCreationFragment : Fragment() {
             if (it != null) {
                 Glide.with(this).load(it).into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
+                currentPhotoLocation = it
             }
         }
 
@@ -114,12 +120,62 @@ class AccountCreationFragment : Fragment() {
             binding.btnNext.isEnabled = false
             binding.clUsernameError.visibility = View.VISIBLE
         } else {
-            viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
+            val inputStream =
+                requireActivity().contentResolver.openInputStream(currentPhotoLocation)
+            uploadFile(copyStreamToFile(inputStream!!))
+//            viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
         }
     }
 
     private fun choosePhoto() {
         choosePhotoContract.launch("image/*")
+    }
+
+    private fun uploadFile(file: File) {
+        Timber.d("${file.length()}")
+        val pieces = file.length() / chunkSize
+
+        val stream = BufferedInputStream(FileInputStream(file))
+        val buffer = ByteArray(chunkSize)
+
+        for (i in 0 until pieces) {
+            if (stream.read(buffer) == -1) break
+
+//            val fileBytes = stream.readBytes()
+            val base64 = Base64.encodeToString(buffer, Base64.DEFAULT)
+
+            val fileChunk = FileChunk(
+                base64,
+                i,
+                pieces,
+                file.length(),
+                "image/*",
+                file.name.toString(),
+                "SomeId",
+                null,
+                null,
+                null
+            )
+
+            viewModel.uploadFile(fileChunk)
+        }
+    }
+
+    private fun copyStreamToFile(inputStream: InputStream): File {
+        val outputFile = File(requireActivity().cacheDir, "tempFile.jpeg")
+        inputStream.use { input ->
+            val outputStream = FileOutputStream(outputFile)
+            outputStream.use { output ->
+                val buffer = ByteArray(4 * 1024) // buffer size
+                while (true) {
+                    val byteCount = input.read(buffer)
+                    if (byteCount < 0) break
+                    output.write(buffer, 0, byteCount)
+                }
+                output.flush()
+            }
+        }
+        return outputFile
     }
 
     // TODO take photo from camera logic

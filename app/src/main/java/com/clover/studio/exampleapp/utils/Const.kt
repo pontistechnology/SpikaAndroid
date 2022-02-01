@@ -17,6 +17,7 @@ class Const {
             const val API_VERIFY_CODE = "api/messenger/auth/verify"
             const val API_CONTACTS = "api/messenger/contacts"
             const val API_UPDATE_USER = "api/messenger/me"
+            const val API_UPLOAD_FILE = "api/upload/files"
         }
     }
 
