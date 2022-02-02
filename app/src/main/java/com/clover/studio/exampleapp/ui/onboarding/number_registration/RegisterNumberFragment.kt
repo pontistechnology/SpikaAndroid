@@ -29,6 +29,7 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools.formatE164Number
 import com.clover.studio.exampleapp.utils.Tools.hashString
+import com.google.gson.JsonObject
 import timber.log.Timber
 
 class RegisterNumberFragment : Fragment() {
@@ -110,17 +111,7 @@ class RegisterNumberFragment : Fragment() {
         }
 
         binding.btnNext.setOnClickListener {
-            viewModel.sendNewUserData(
-                countryCode + binding.etPhoneNumber.text.toString(),
-                hashString(
-                    countryCode + binding.etPhoneNumber.text.toString()
-                ),
-                countryCode.substring(1),
-                Settings.Secure.getString(
-                    context?.contentResolver,
-                    Settings.Secure.ANDROID_ID
-                )
-            )
+            viewModel.sendNewUserData(getJsonObject())
         }
     }
 
@@ -138,6 +129,29 @@ class RegisterNumberFragment : Fragment() {
                 binding.btnNext.isEnabled = s.isNotEmpty()
             }
         })
+    }
+
+    private fun getJsonObject(): JsonObject {
+        val jsonObject = JsonObject()
+
+        jsonObject.addProperty(
+            Const.JsonFields.TELEPHONE_NUMBER,
+            countryCode + binding.etPhoneNumber.text.toString()
+        )
+        jsonObject.addProperty(
+            Const.JsonFields.TELEPHONE_NUMBER_HASHED, hashString(
+                countryCode + binding.etPhoneNumber.text.toString()
+            )
+        )
+        jsonObject.addProperty(Const.JsonFields.COUNTRY_CODE, countryCode.substring(1))
+        jsonObject.addProperty(
+            Const.JsonFields.DEVICE_ID, Settings.Secure.getString(
+                context?.contentResolver,
+                Settings.Secure.ANDROID_ID
+            )
+        )
+
+        return jsonObject
     }
 
     internal data class PhoneUser(

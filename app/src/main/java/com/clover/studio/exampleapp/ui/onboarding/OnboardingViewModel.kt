@@ -4,11 +4,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
-import com.clover.studio.exampleapp.data.models.networking.FileChunk
 import com.clover.studio.exampleapp.data.repositories.OnboardingRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.Tools
+import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -26,13 +26,10 @@ class OnboardingViewModel @Inject constructor(
     var userUpdateListener = MutableLiveData<Event<OnboardingStates>>()
 
     fun sendNewUserData(
-        phoneNumber: String,
-        phoneNumberHashed: String,
-        countryCode: String,
-        deviceId: String
+        jsonObject: JsonObject
     ) = viewModelScope.launch {
         try {
-            onboardingRepository.sendUserData(phoneNumber, phoneNumberHashed, countryCode, deviceId)
+            onboardingRepository.sendUserData(jsonObject)
         } catch (ex: Exception) {
             Tools.checkError(ex)
             registrationListener.postValue(Event(OnboardingStates.REGISTERING_ERROR))
@@ -43,13 +40,12 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun sendCodeVerification(
-        code: String,
-        deviceId: String
+        jsonObject: JsonObject
     ) = viewModelScope.launch {
         codeVerificationListener.postValue(Event(OnboardingStates.VERIFYING))
         val authResponse: AuthResponse
         try {
-            authResponse = onboardingRepository.verifyUserCode(code, deviceId)
+            authResponse = onboardingRepository.verifyUserCode(jsonObject)
         } catch (ex: Exception) {
             Tools.checkError(ex)
             codeVerificationListener.postValue(Event(OnboardingStates.CODE_ERROR))
@@ -124,9 +120,9 @@ class OnboardingViewModel @Inject constructor(
         userUpdateListener.postValue(Event(OnboardingStates.USER_UPDATED))
     }
 
-    fun uploadFile(fileChunk: FileChunk) = viewModelScope.launch {
+    fun uploadFile(jsonObject: JsonObject) = viewModelScope.launch {
         try {
-            onboardingRepository.uploadFiles(fileChunk)
+            onboardingRepository.uploadFiles(jsonObject)
             Timber.d("Sending file chunk")
         } catch (ex: Exception) {
             Tools.checkError(ex)

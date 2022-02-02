@@ -20,6 +20,9 @@ import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.EventObserver
 import timber.log.Timber
 import java.io.*
+import java.math.BigInteger
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 
 
 const val chunkSize = 32000
@@ -27,6 +30,7 @@ const val chunkSize = 32000
 class AccountCreationFragment : Fragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var currentPhotoLocation: Uri
+    private var md5FileHash: String? = "";
 
     private val choosePhotoContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -34,6 +38,9 @@ class AccountCreationFragment : Fragment() {
                 Glide.with(this).load(it).into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = it
+                val inputStream =
+                    requireActivity().contentResolver.openInputStream(currentPhotoLocation)
+                md5FileHash = calculateMD5(copyStreamToFile(inputStream!!))
             }
         }
 
@@ -152,12 +159,12 @@ class AccountCreationFragment : Fragment() {
                 "image/*",
                 file.name.toString(),
                 "SomeId",
-                null,
-                null,
+                md5FileHash,
+                "avatar",
                 null
             )
 
-            viewModel.uploadFile(fileChunk)
+            viewModel.uploadFile(fileChunk.chunkToJson())
         }
     }
 
@@ -176,6 +183,42 @@ class AccountCreationFragment : Fragment() {
             }
         }
         return outputFile
+    }
+
+    private fun calculateMD5(updateFile: File?): String? {
+        val digest: MessageDigest = try {
+            MessageDigest.getInstance("MD5")
+        } catch (e: NoSuchAlgorithmException) {
+            Timber.d("Exception while getting digest", e)
+            return null
+        }
+        val inputStream: InputStream = try {
+            FileInputStream(updateFile)
+        } catch (e: FileNotFoundException) {
+            Timber.d("Exception while getting FileInputStream", e)
+            return null
+        }
+        val buffer = ByteArray(8192)
+        var read: Int
+        return try {
+            while (inputStream.read(buffer).also { read = it } > 0) {
+                digest.update(buffer, 0, read)
+            }
+            val md5sum: ByteArray = digest.digest()
+            val bigInt = BigInteger(1, md5sum)
+            var output: String = bigInt.toString(16)
+            // Fill to 32 chars
+            output = String.format("%32s", output).replace(' ', '0')
+            output
+        } catch (e: IOException) {
+            throw RuntimeException("Unable to process file for MD5", e)
+        } finally {
+            try {
+                inputStream.close()
+            } catch (e: IOException) {
+                Timber.d("Exception on closing MD5 input stream", e)
+            }
+        }
     }
 
     // TODO take photo from camera logic

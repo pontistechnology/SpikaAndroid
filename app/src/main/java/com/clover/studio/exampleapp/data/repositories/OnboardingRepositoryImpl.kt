@@ -2,9 +2,9 @@ package com.clover.studio.exampleapp.data.repositories
 
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
-import com.clover.studio.exampleapp.data.models.networking.FileChunk
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
+import com.google.gson.JsonObject
 import javax.inject.Inject
 
 class OnboardingRepositoryImpl @Inject constructor(
@@ -13,26 +13,18 @@ class OnboardingRepositoryImpl @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository
 ) : OnboardingRepository {
     override suspend fun sendUserData(
-        phoneNumber: String,
-        phoneNumberHashed: String,
-        countryCode: String,
-        deviceId: String
+        jsonObject: JsonObject
     ) {
         retrofitService.sendUserData(
-            getHeaderMap(sharedPrefs.readToken()),
-            phoneNumber,
-            phoneNumberHashed,
-            countryCode,
-            deviceId
+            getHeaderMap(sharedPrefs.readToken()), jsonObject
         )
     }
 
     override suspend fun verifyUserCode(
-        code: String,
-        deviceId: String
+        jsonObject: JsonObject
     ): AuthResponse {
         val responseData =
-            retrofitService.verifyUserCode(getHeaderMap(sharedPrefs.readToken()), code, deviceId)
+            retrofitService.verifyUserCode(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
         userDao.insert(responseData.data.user)
         sharedPrefs.writeUserId(responseData.data.user.id)
@@ -57,33 +49,17 @@ class OnboardingRepositoryImpl @Inject constructor(
     }
 
     override suspend fun uploadFiles(
-        fileChunk: FileChunk
-    ) = retrofitService.uploadFiles(
-        getHeaderMap(sharedPrefs.readToken()),
-        fileChunk.chunk,
-        fileChunk.offset,
-        fileChunk.total,
-        fileChunk.size,
-        fileChunk.mimeType,
-        fileChunk.fileName,
-        fileChunk.type,
-        fileChunk.fileHash,
-        fileChunk.relationId,
-        fileChunk.clientId
-    )
+        jsonObject: JsonObject
+    ) = retrofitService.uploadFiles(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 }
 
 interface OnboardingRepository {
     suspend fun sendUserData(
-        phoneNumber: String,
-        phoneNumberHashed: String,
-        countryCode: String,
-        deviceId: String
+        jsonObject: JsonObject
     )
 
     suspend fun verifyUserCode(
-        code: String,
-        deviceId: String
+        jsonObject: JsonObject
     ): AuthResponse
 
     suspend fun sendUserContacts(
@@ -95,6 +71,6 @@ interface OnboardingRepository {
     ): AuthResponse
 
     suspend fun uploadFiles(
-        fileChunk: FileChunk
+        jsonObject: JsonObject
     )
 }

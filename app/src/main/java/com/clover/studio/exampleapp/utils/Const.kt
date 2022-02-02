@@ -11,6 +11,29 @@ class Const {
         }
     }
 
+    class JsonFields {
+        companion object {
+            const val CODE: String = "code"
+            const val DEVICE_ID = "deviceId"
+            const val TELEPHONE_NUMBER = "telephoneNumber"
+            const val TELEPHONE_NUMBER_HASHED = "telephoneNumberHashed"
+            const val COUNTRY_CODE = "countryCode"
+            const val CONTACTS = "contacts"
+
+            // File upload
+            const val CHUNK = "chunk"
+            const val OFFSET = "offset"
+            const val TOTAL = "total"
+            const val SIZE = "size"
+            const val MIME_TYPE = "mimeType"
+            const val FILE_NAME = "fileName"
+            const val TYPE = "type"
+            const val FILE_HASH = "fileHash"
+            const val RELATION_ID = "relationId"
+            const val CLIENT_ID = "clientId"
+        }
+    }
+
     class Networking {
         companion object {
             const val API_AUTH = "api/messenger/auth"

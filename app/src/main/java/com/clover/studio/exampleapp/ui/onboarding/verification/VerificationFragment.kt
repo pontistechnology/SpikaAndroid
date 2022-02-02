@@ -24,6 +24,7 @@ import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.SmsListener
 import com.clover.studio.exampleapp.utils.SmsReceiver
 import com.google.android.gms.auth.api.phone.SmsRetriever
+import com.google.gson.JsonObject
 import timber.log.Timber
 
 
@@ -101,12 +102,32 @@ class VerificationFragment : Fragment() {
 
     private fun setClickListeners() {
         binding.btnNext.setOnClickListener {
-            viewModel.sendCodeVerification(getVerificationCode(), deviceId)
+            viewModel.sendCodeVerification(getVerificationJsonObject())
         }
 
         binding.tvResendCode.setOnClickListener {
-            viewModel.sendNewUserData(phoneNumber, phoneNumberHashed, countryCode, deviceId)
+            viewModel.sendNewUserData(getPhoneJsonObject())
         }
+    }
+
+    private fun getVerificationJsonObject(): JsonObject {
+        val jsonObject = JsonObject()
+
+        jsonObject.addProperty(Const.JsonFields.CODE, getVerificationCode())
+        jsonObject.addProperty(Const.JsonFields.DEVICE_ID, deviceId)
+
+        return jsonObject
+    }
+
+    private fun getPhoneJsonObject(): JsonObject {
+        val jsonObject = JsonObject()
+
+        jsonObject.addProperty(Const.JsonFields.TELEPHONE_NUMBER, phoneNumber)
+        jsonObject.addProperty(Const.JsonFields.TELEPHONE_NUMBER_HASHED, phoneNumberHashed)
+        jsonObject.addProperty(Const.JsonFields.COUNTRY_CODE, countryCode)
+        jsonObject.addProperty(Const.JsonFields.DEVICE_ID, deviceId)
+
+        return jsonObject
     }
 
     private fun initBroadCast() {
@@ -272,7 +293,7 @@ class VerificationFragment : Fragment() {
                         }
 
                         override fun onFinish() {
-                            viewModel.sendCodeVerification(getVerificationCode(), deviceId)
+                            viewModel.sendCodeVerification(getVerificationJsonObject())
                         }
                     }
                     timer.start()
