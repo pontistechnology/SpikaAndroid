@@ -145,4 +145,5 @@
     <string name="report">Report</string>
     <string name="gallery">Gallery</string>
     <string name="photo">Photo</string>
+    <string name="type_here">Type here...</string>
 </resources>

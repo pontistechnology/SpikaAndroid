@@ -50,6 +50,7 @@
         <entry key="app/src/main/res/drawable/sw_custom_switch.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/sw_states.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/sw_track.xml" value="0.36822916666666666" />
+        <entry key="app/src/main/res/layout/activity_chat_screen.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_onboarding.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.25416666666666665" />

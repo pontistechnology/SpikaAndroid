@@ -19,6 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ExampleApp">
         <activity
+            android:name=".ui.main.chat.ChatScreenActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.splash.SplashActivity"
             android:exported="true"
             android:screenOrientation="portrait">

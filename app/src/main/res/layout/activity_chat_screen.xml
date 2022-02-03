@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.main.chat.ChatScreenActivity">
+
+    <ImageView
+        android:id="@+id/iv_arrow_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:src="@drawable/img_arrow_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_user_image"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_margin="20dp"
+        android:background="@drawable/img_selector_background"
+        android:backgroundTint="@color/light_blue"
+        android:elevation="0dp"
+        app:cardCornerRadius="50dp"
+        app:cardPreventCornerOverlap="false"
+        app:layout_constraintBottom_toBottomOf="@id/iv_arrow_back"
+        app:layout_constraintStart_toEndOf="@id/iv_arrow_back"
+        app:layout_constraintTop_toTopOf="@id/iv_arrow_back">
+
+        <ImageView
+            android:id="@+id/iv_user_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="center"
+            android:src="@drawable/img_camera" />
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/tv_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:fontFamily="@font/montserrat"
+        android:text="@string/enter_username"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@id/cv_user_image"
+        app:layout_constraintTop_toTopOf="@id/cv_user_image" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:fontFamily="@font/montserrat"
+        android:text="@string/enter_username"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@id/cv_user_image"
+        app:layout_constraintTop_toBottomOf="@id/tv_username" />
+
+    <ImageView
+        android:id="@+id/iv_call_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:src="@drawable/img_phone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_video_call"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/img_video"
+        app:layout_constraintBottom_toBottomOf="@id/iv_call_user"
+        app:layout_constraintEnd_toStartOf="@id/iv_call_user"
+        app:layout_constraintTop_toTopOf="@id/iv_call_user" />
+
+    <ImageView
+        android:id="@+id/iv_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:src="@drawable/img_add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_chat"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/iv_add"
+        app:layout_constraintTop_toBottomOf="@id/iv_arrow_back" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_typing"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_text_field"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="@id/iv_add"
+        app:layout_constraintEnd_toStartOf="@id/iv_camera"
+        app:layout_constraintStart_toEndOf="@id/iv_add"
+        app:layout_constraintTop_toTopOf="@id/iv_add">
+
+        <EditText
+            android:id="@+id/et_phone_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:background="@null"
+            android:fontFamily="@font/montserrat"
+            android:hint="@string/type_here"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.434" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/img_smiley"
+        app:layout_constraintBottom_toBottomOf="@id/cl_typing"
+        app:layout_constraintEnd_toEndOf="@id/cl_typing"
+        app:layout_constraintTop_toTopOf="@id/cl_typing" />
+
+    <ImageView
+        android:id="@+id/iv_microphone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:src="@drawable/img_microphone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/img_camera"
+        app:layout_constraintBottom_toBottomOf="@id/iv_microphone"
+        app:layout_constraintEnd_toStartOf="@id/iv_microphone"
+        app:layout_constraintStart_toEndOf="@id/cl_typing"
+        app:layout_constraintTop_toTopOf="@id/iv_microphone" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
