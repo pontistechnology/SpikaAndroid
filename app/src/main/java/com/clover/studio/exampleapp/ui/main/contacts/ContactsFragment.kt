@@ -38,48 +38,48 @@ class ContactsFragment : Fragment() {
     ): View {
         bindingSetup = FragmentContactsBinding.inflate(inflater, container, false)
 
-        // TODO get user list and check state
-        userList = mutableListOf(
-            User(
-                1,
-                "Matom",
-                Tools.getRandomImageUrl(Random.nextInt(5)),
-                "+384945556666",
-                "someHash",
-                "mojemail@lol.com",
-                "Time"
-            ),
-
-            User(
-                2,
-                "Markan",
-                Tools.getRandomImageUrl(Random.nextInt(5)),
-                "+384945556666",
-                "someHash",
-                "drugimai@aol.com",
-                "time"
-            ),
-
-            User(
-                3,
-                "Ivankovic",
-                Tools.getRandomImageUrl(Random.nextInt(5)),
-                "+024945556666",
-                "someHash",
-                "novimail@yahoo.com",
-                "time"
-            ),
-
-            User(
-                4,
-                "Zdravkic",
-                Tools.getRandomImageUrl(Random.nextInt(5)),
-                "+234945556666",
-                "someHash",
-                "madaj@google.com",
-                "time"
-            )
-        )
+//        // TODO get user list and check state
+//        userList = mutableListOf(
+//            User(
+//                1,
+//                "Matom",
+//                Tools.getRandomImageUrl(Random.nextInt(5)),
+//                "+384945556666",
+//                "someHash",
+//                "mojemail@lol.com",
+//                "Time"
+//            ),
+//
+//            User(
+//                2,
+//                "Markan",
+//                Tools.getRandomImageUrl(Random.nextInt(5)),
+//                "+384945556666",
+//                "someHash",
+//                "drugimai@aol.com",
+//                "time"
+//            ),
+//
+//            User(
+//                3,
+//                "Ivankovic",
+//                Tools.getRandomImageUrl(Random.nextInt(5)),
+//                "+024945556666",
+//                "someHash",
+//                "novimail@yahoo.com",
+//                "time"
+//            ),
+//
+//            User(
+//                4,
+//                "Zdravkic",
+//                Tools.getRandomImageUrl(Random.nextInt(5)),
+//                "+234945556666",
+//                "someHash",
+//                "madaj@google.com",
+//                "time"
+//            )
+//        )
 
         setupAdapter()
         setupSearchView()
@@ -92,7 +92,11 @@ class ContactsFragment : Fragment() {
         viewModel.usersListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 UsersError -> Timber.d("Users error")
-                is UsersFetched -> Timber.d("Users fetched: ${it.userData}")
+                is UsersFetched -> {
+                    Timber.d("Users fetched: ${it.userData}")
+                    userList = it.userData
+                    contactsAdapter.submitList(userList)
+                }
             }
         })
 
@@ -109,10 +113,6 @@ class ContactsFragment : Fragment() {
         binding.rvContacts.adapter = contactsAdapter
         binding.rvContacts.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-
-        contactsAdapter.submitList(
-            userList
-        )
     }
 
     private fun setupSearchView() {
