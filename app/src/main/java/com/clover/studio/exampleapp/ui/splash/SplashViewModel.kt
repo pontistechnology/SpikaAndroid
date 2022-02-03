@@ -17,7 +17,9 @@ class SplashViewModel @Inject constructor(
     var splashTokenListener = MutableLiveData<Event<SplashStates>>()
 
     fun checkToken() = viewModelScope.launch {
-        if (sharedPrefsRepo.readToken().isNullOrEmpty()) {
+        if (sharedPrefsRepo.readToken().isNullOrEmpty()
+            || !sharedPrefsRepo.isAccountCreated()
+        ) {
             splashTokenListener.postValue(Event(SplashStates.NAVIGATE_ONBOARDING))
         } else {
             splashTokenListener.postValue(Event(SplashStates.NAVIGATE_MAIN))

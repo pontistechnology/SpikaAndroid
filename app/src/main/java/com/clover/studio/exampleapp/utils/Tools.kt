@@ -1,7 +1,9 @@
 package com.clover.studio.exampleapp.utils
 
+import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.os.Environment
 import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.text.TextUtils
@@ -9,8 +11,11 @@ import androidx.core.content.ContextCompat
 import com.clover.studio.exampleapp.BuildConfig
 import retrofit2.HttpException
 import timber.log.Timber
-import java.io.IOException
+import java.io.*
+import java.math.BigInteger
 import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
+import java.text.SimpleDateFormat
 import java.util.*
 
 object Tools {
@@ -79,22 +84,68 @@ object Tools {
         return map
     }
 
-    // TODO make temporary file Uri for camera picture taken
-//    fun makeTempFile(activity: Activity): File? {
-//        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-//        val imageFileName = "JPEG_" + timeStamp + "_"
-//        val storageDir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-//        var photoFile: File? = null
-//        try {
-//            photoFile = File.createTempFile(
-//                imageFileName,  /* prefix */
-//                ".jpg",  /* suffix */
-//                storageDir /* directory */
-//            )
-//        } catch (e: IOException) {
-//            e.printStackTrace()
-//            Timber.d("IOException")
-//        }
-//        return photoFile
-//    }
+    fun copyStreamToFile(activity: Activity, inputStream: InputStream): File {
+        val outputFile = File(activity.cacheDir, "tempFile.jpeg")
+        inputStream.use { input ->
+            val outputStream = FileOutputStream(outputFile)
+            outputStream.use { output ->
+                val buffer = ByteArray(4 * 1024) // buffer size
+                while (true) {
+                    val byteCount = input.read(buffer)
+                    if (byteCount < 0) break
+                    output.write(buffer, 0, byteCount)
+                }
+                output.flush()
+            }
+        }
+        return outputFile
+    }
+
+    @Throws(IOException::class)
+    fun createImageFile(activity: Activity?): File {
+        // Create an image file name
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val storageDir: File = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
+        return File.createTempFile(
+            "JPEG_${timeStamp}_", /* prefix */
+            ".jpg", /* suffix */
+            storageDir /* directory */
+        )
+    }
+
+    fun calculateMD5(updateFile: File?): String? {
+        val digest: MessageDigest = try {
+            MessageDigest.getInstance("MD5")
+        } catch (e: NoSuchAlgorithmException) {
+            Timber.d("Exception while getting digest", e)
+            return null
+        }
+        val inputStream: InputStream = try {
+            FileInputStream(updateFile)
+        } catch (e: FileNotFoundException) {
+            Timber.d("Exception while getting FileInputStream", e)
+            return null
+        }
+        val buffer = ByteArray(8192)
+        var read: Int
+        return try {
+            while (inputStream.read(buffer).also { read = it } > 0) {
+                digest.update(buffer, 0, read)
+            }
+            val md5sum: ByteArray = digest.digest()
+            val bigInt = BigInteger(1, md5sum)
+            var output: String = bigInt.toString(16)
+            // Fill to 32 chars
+            output = String.format("%32s", output).replace(' ', '0')
+            output
+        } catch (e: IOException) {
+            throw RuntimeException("Unable to process file for MD5", e)
+        } finally {
+            try {
+                inputStream.close()
+            } catch (e: IOException) {
+                Timber.d("Exception on closing MD5 input stream", e)
+            }
+        }
+    }
 }

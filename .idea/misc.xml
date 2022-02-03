@@ -54,6 +54,7 @@
         <entry key="app/src/main/res/layout/activity_onboarding.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/custom_tab_layout.xml" value="0.34791666666666665" />
+        <entry key="app/src/main/res/layout/dialog_chooser.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_account_creation.xml" value="0.24923391215526047" />
         <entry key="app/src/main/res/layout/fragment_call_history.xml" value="0.23796296296296296" />
         <entry key="app/src/main/res/layout/fragment_chat.xml" value="0.2323799795709908" />
@@ -73,6 +74,7 @@
         <entry key="app/src/main/res/layout/item_call_history.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/item_contact.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/item_country_code.xml" value="0.25416666666666665" />
+        <entry key="app/src/main/res/xml/file_paths.xml" value="0.34791666666666665" />
       </map>
     </option>
   </component>

@@ -20,6 +20,12 @@ class Const {
             const val COUNTRY_CODE = "countryCode"
             const val CONTACTS = "contacts"
 
+            // Mime types
+            const val IMAGE = "image/*"
+
+            // File types
+            const val AVATAR = "avatar"
+
             // File upload
             const val CHUNK = "chunk"
             const val OFFSET = "offset"

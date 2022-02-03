@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
@@ -17,12 +18,15 @@ import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
+import com.clover.studio.exampleapp.utils.ChooserDialog
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.Tools
 import timber.log.Timber
-import java.io.*
-import java.math.BigInteger
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
+import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileInputStream
+import java.util.*
 
 
 const val chunkSize = 32000
@@ -30,7 +34,7 @@ const val chunkSize = 32000
 class AccountCreationFragment : Fragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var currentPhotoLocation: Uri
-    private var md5FileHash: String? = "";
+    private var md5FileHash: String? = ""
 
     private val choosePhotoContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -38,9 +42,9 @@ class AccountCreationFragment : Fragment() {
                 Glide.with(this).load(it).into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = it
-                val inputStream =
-                    requireActivity().contentResolver.openInputStream(currentPhotoLocation)
-                md5FileHash = calculateMD5(copyStreamToFile(inputStream!!))
+                calculateMd5Hash()
+            } else {
+                Timber.d("Gallery error")
             }
         }
 
@@ -48,6 +52,7 @@ class AccountCreationFragment : Fragment() {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 Glide.with(this).load(currentPhotoLocation).into(binding.ivPickPhoto)
+                calculateMd5Hash()
             } else {
                 Timber.d("Photo error")
             }
@@ -96,7 +101,15 @@ class AccountCreationFragment : Fragment() {
         }
 
         binding.cvPhotoPicker.setOnClickListener {
-            choosePhoto()
+            ChooserDialog.getInstance(requireContext(), object : ChooserDialog.DialogInteraction {
+                override fun onPhotoClicked() {
+                    takePhoto()
+                }
+
+                override fun onGalleryClicked() {
+                    choosePhoto()
+                }
+            })
         }
     }
 
@@ -129,13 +142,29 @@ class AccountCreationFragment : Fragment() {
         } else {
             val inputStream =
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
-            uploadFile(copyStreamToFile(inputStream!!))
-//            viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
+            uploadFile(Tools.copyStreamToFile(requireActivity(), inputStream!!))
+            viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
         }
     }
 
+    private fun calculateMd5Hash() {
+        val inputStream =
+            requireActivity().contentResolver.openInputStream(currentPhotoLocation)
+        md5FileHash =
+            Tools.calculateMD5(Tools.copyStreamToFile(requireActivity(), inputStream!!))
+    }
+
     private fun choosePhoto() {
-        choosePhotoContract.launch("image/*")
+        choosePhotoContract.launch(Const.JsonFields.IMAGE)
+    }
+
+    private fun takePhoto() {
+        currentPhotoLocation = FileProvider.getUriForFile(
+            requireActivity(),
+            "com.clover.studio.exampleapp.fileprovider",
+            Tools.createImageFile(requireActivity())
+        )
+        takePhotoContract.launch(currentPhotoLocation)
     }
 
     private fun uploadFile(file: File) {
@@ -144,90 +173,27 @@ class AccountCreationFragment : Fragment() {
 
         val stream = BufferedInputStream(FileInputStream(file))
         val buffer = ByteArray(chunkSize)
+        val randomId = UUID.randomUUID().toString().substring(0, 7)
 
-        for (i in 0 until pieces) {
+        for (piece in 0 until pieces) {
             if (stream.read(buffer) == -1) break
 
-//            val fileBytes = stream.readBytes()
             val base64 = Base64.encodeToString(buffer, Base64.DEFAULT)
 
             val fileChunk = FileChunk(
                 base64,
-                i,
+                piece,
                 pieces,
                 file.length(),
-                "image/*",
+                Const.JsonFields.IMAGE,
                 file.name.toString(),
-                "SomeId",
+                randomId,
                 md5FileHash,
-                "avatar",
-                null
+                Const.JsonFields.AVATAR,
+                1
             )
 
             viewModel.uploadFile(fileChunk.chunkToJson())
         }
     }
-
-    private fun copyStreamToFile(inputStream: InputStream): File {
-        val outputFile = File(requireActivity().cacheDir, "tempFile.jpeg")
-        inputStream.use { input ->
-            val outputStream = FileOutputStream(outputFile)
-            outputStream.use { output ->
-                val buffer = ByteArray(4 * 1024) // buffer size
-                while (true) {
-                    val byteCount = input.read(buffer)
-                    if (byteCount < 0) break
-                    output.write(buffer, 0, byteCount)
-                }
-                output.flush()
-            }
-        }
-        return outputFile
-    }
-
-    private fun calculateMD5(updateFile: File?): String? {
-        val digest: MessageDigest = try {
-            MessageDigest.getInstance("MD5")
-        } catch (e: NoSuchAlgorithmException) {
-            Timber.d("Exception while getting digest", e)
-            return null
-        }
-        val inputStream: InputStream = try {
-            FileInputStream(updateFile)
-        } catch (e: FileNotFoundException) {
-            Timber.d("Exception while getting FileInputStream", e)
-            return null
-        }
-        val buffer = ByteArray(8192)
-        var read: Int
-        return try {
-            while (inputStream.read(buffer).also { read = it } > 0) {
-                digest.update(buffer, 0, read)
-            }
-            val md5sum: ByteArray = digest.digest()
-            val bigInt = BigInteger(1, md5sum)
-            var output: String = bigInt.toString(16)
-            // Fill to 32 chars
-            output = String.format("%32s", output).replace(' ', '0')
-            output
-        } catch (e: IOException) {
-            throw RuntimeException("Unable to process file for MD5", e)
-        } finally {
-            try {
-                inputStream.close()
-            } catch (e: IOException) {
-                Timber.d("Exception on closing MD5 input stream", e)
-            }
-        }
-    }
-
-    // TODO take photo from camera logic
-//    private fun takePhotoWithCamera() {
-//        val tempPhoto: File? = Tools.makeTempFile(requireActivity())
-//        if (tempPhoto != null) {
-//            val currentPhotoPath = "file:${tempPhoto.absolutePath}"
-//            takePhotoContract.launch(currentPhotoPath.toUri())
-//            currentPhotoLocation = currentPhotoPath.toUri()
-//        }
-//    }
 }
