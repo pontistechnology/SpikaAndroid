@@ -146,4 +146,6 @@
     <string name="gallery">Gallery</string>
     <string name="photo">Photo</string>
     <string name="type_here">Type here...</string>
+    <string name="no_messages_yet">No messages yet.</string>
+    <string name="some_message">Some message</string>
 </resources>

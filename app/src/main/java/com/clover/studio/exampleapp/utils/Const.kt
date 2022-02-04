@@ -47,6 +47,7 @@ class Const {
             const val API_CONTACTS = "api/messenger/contacts"
             const val API_UPDATE_USER = "api/messenger/me"
             const val API_UPLOAD_FILE = "api/upload/files"
+            const val API_GET_MESSAGES = "api/messenger/messages"
         }
     }
 

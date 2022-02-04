@@ -43,8 +43,12 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideUserRepository(retrofitService: RetrofitService, userDao: UserDao) =
-        UserRepositoryImpl(retrofitService, userDao)
+    fun provideUserRepository(
+        retrofitService: RetrofitService,
+        userDao: UserDao,
+        sharedPrefs: SharedPreferencesRepository
+    ) =
+        UserRepositoryImpl(retrofitService, userDao, sharedPrefs)
 
     @Singleton
     @Provides

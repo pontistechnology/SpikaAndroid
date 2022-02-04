@@ -90,8 +90,20 @@
         android:id="@+id/rv_chat"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/iv_add"
         app:layout_constraintTop_toBottomOf="@id/iv_arrow_back" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/iv_arrow_back"
+        app:layout_constraintBottom_toTopOf="@id/iv_add"
+        android:text="@string/no_messages_yet"
+        android:textSize="16sp"
+        android:fontFamily="@font/montserrat"
+        android:textColor="@color/text_tertiary"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_typing"
