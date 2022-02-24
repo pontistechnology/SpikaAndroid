@@ -33,7 +33,7 @@ const val chunkSize = 32000
 
 class AccountCreationFragment : Fragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
-    private lateinit var currentPhotoLocation: Uri
+    private var currentPhotoLocation: Uri = Uri.EMPTY
     private var md5FileHash: String? = ""
 
     private val choosePhotoContract =
@@ -140,9 +140,11 @@ class AccountCreationFragment : Fragment() {
             binding.btnNext.isEnabled = false
             binding.clUsernameError.visibility = View.VISIBLE
         } else {
-            val inputStream =
-                requireActivity().contentResolver.openInputStream(currentPhotoLocation)
-            uploadFile(Tools.copyStreamToFile(requireActivity(), inputStream!!))
+            if (currentPhotoLocation != Uri.EMPTY) {
+                val inputStream =
+                    requireActivity().contentResolver.openInputStream(currentPhotoLocation)
+                uploadFile(Tools.copyStreamToFile(requireActivity(), inputStream!!))
+            }
             viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
         }
     }

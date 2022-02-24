@@ -57,7 +57,7 @@ object Tools {
     fun hashString(input: String): String {
         val hexChars = "0123456789abcdef"
         val bytes = MessageDigest
-            .getInstance("SHA-1")
+            .getInstance("SHA-256")
             .digest(input.toByteArray())
         val result = StringBuilder(bytes.size * 2)
 

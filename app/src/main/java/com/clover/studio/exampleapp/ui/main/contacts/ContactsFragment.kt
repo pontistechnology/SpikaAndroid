@@ -100,7 +100,7 @@ class ContactsFragment : Fragment() {
             }
         })
 
-        viewModel.getContacts(1)
+        viewModel.getContacts()
     }
 
     private fun setupAdapter() {

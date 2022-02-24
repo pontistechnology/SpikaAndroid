@@ -16,8 +16,8 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
     fun getUserLocal() = userDao.getUsers()
 
-    override suspend fun getUsers(token: String, page: Int): ContactResponse =
-        retrofitService.getUsers(token, page)
+    override suspend fun getUsers(token: String): ContactResponse =
+        retrofitService.getUsers(token)
 
     override fun getUserByID(id: Int) =
         userDao.getUserById(id)
@@ -27,7 +27,7 @@ class UserRepositoryImpl @Inject constructor(
 }
 
 interface UserRepository {
-    suspend fun getUsers(token: String, page: Int): ContactResponse
+    suspend fun getUsers(token: String): ContactResponse
     fun getUserByID(id: Int): LiveData<User>
     suspend fun getMessages(timestamp: Int): List<Message>
 }

@@ -12,7 +12,6 @@ interface RetrofitService {
     @GET(Const.Networking.API_CONTACTS)
     suspend fun getUsers(
         @Header("accesstoken") token: String,
-        @Query("page") page: Int
     ): ContactResponse
 
     @GET(Const.Networking.API_GET_MESSAGES)

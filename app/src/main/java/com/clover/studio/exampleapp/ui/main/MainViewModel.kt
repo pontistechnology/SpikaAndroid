@@ -21,9 +21,9 @@ class MainViewModel @Inject constructor(
 
     val usersListener = MutableLiveData<Event<MainStates>>()
 
-    fun getContacts(page: Int) = viewModelScope.launch {
+    fun getContacts() = viewModelScope.launch {
         try {
-            val users = repository.getUsers(sharedPrefsRepo.readToken()!!, page).data?.list
+            val users = repository.getUsers(sharedPrefsRepo.readToken()!!).data?.list
             usersListener.postValue(Event(UsersFetched(users!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
