@@ -113,9 +113,9 @@ object Tools {
         )
     }
 
-    fun calculateMD5(updateFile: File?): String? {
+    fun calculateSHA256FileHash(updateFile: File?): String? {
         val digest: MessageDigest = try {
-            MessageDigest.getInstance("MD5")
+            MessageDigest.getInstance("SHA-256")
         } catch (e: NoSuchAlgorithmException) {
             Timber.d("Exception while getting digest", e)
             return null
@@ -132,19 +132,19 @@ object Tools {
             while (inputStream.read(buffer).also { read = it } > 0) {
                 digest.update(buffer, 0, read)
             }
-            val md5sum: ByteArray = digest.digest()
-            val bigInt = BigInteger(1, md5sum)
+            val sha256sum: ByteArray = digest.digest()
+            val bigInt = BigInteger(1, sha256sum)
             var output: String = bigInt.toString(16)
             // Fill to 32 chars
             output = String.format("%32s", output).replace(' ', '0')
             output
         } catch (e: IOException) {
-            throw RuntimeException("Unable to process file for MD5", e)
+            throw RuntimeException("Unable to process file for SHA-256", e)
         } finally {
             try {
                 inputStream.close()
             } catch (e: IOException) {
-                Timber.d("Exception on closing MD5 input stream", e)
+                Timber.d("Exception on closing SHA-256 input stream", e)
             }
         }
     }

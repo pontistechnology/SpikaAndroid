@@ -22,7 +22,7 @@ data class FileChunk(
     // clientId: The random String to identify upload
     val clientId: String,
 
-    // fileHash: md5 hash of the file
+    // fileHash: SHA-256 hash of the file
     var fileHash: String?,
 
     // type: The name of the other model to which the file refers to(avatar, message, group)

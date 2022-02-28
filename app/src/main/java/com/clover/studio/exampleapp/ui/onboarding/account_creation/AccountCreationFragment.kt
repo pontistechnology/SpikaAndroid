@@ -34,7 +34,7 @@ const val chunkSize = 32000
 class AccountCreationFragment : Fragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private var currentPhotoLocation: Uri = Uri.EMPTY
-    private var md5FileHash: String? = ""
+    private var sha256FileHash: String? = ""
 
     private val choosePhotoContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -42,7 +42,7 @@ class AccountCreationFragment : Fragment() {
                 Glide.with(this).load(it).into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = it
-                calculateMd5Hash()
+                calculateSha256Hash()
             } else {
                 Timber.d("Gallery error")
             }
@@ -52,7 +52,7 @@ class AccountCreationFragment : Fragment() {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 Glide.with(this).load(currentPhotoLocation).into(binding.ivPickPhoto)
-                calculateMd5Hash()
+                calculateSha256Hash()
             } else {
                 Timber.d("Photo error")
             }
@@ -143,17 +143,18 @@ class AccountCreationFragment : Fragment() {
             if (currentPhotoLocation != Uri.EMPTY) {
                 val inputStream =
                     requireActivity().contentResolver.openInputStream(currentPhotoLocation)
+                Timber.d("File upload start")
                 uploadFile(Tools.copyStreamToFile(requireActivity(), inputStream!!))
             }
             viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
         }
     }
 
-    private fun calculateMd5Hash() {
+    private fun calculateSha256Hash() {
         val inputStream =
             requireActivity().contentResolver.openInputStream(currentPhotoLocation)
-        md5FileHash =
-            Tools.calculateMD5(Tools.copyStreamToFile(requireActivity(), inputStream!!))
+        sha256FileHash =
+            Tools.calculateSHA256FileHash(Tools.copyStreamToFile(requireActivity(), inputStream!!))
     }
 
     private fun choosePhoto() {
@@ -171,13 +172,20 @@ class AccountCreationFragment : Fragment() {
 
     private fun uploadFile(file: File) {
         Timber.d("${file.length()}")
-        val pieces = file.length() / chunkSize
+        val pieces: Long =
+            if ((file.length() % chunkSize).toInt() != 0)
+                file.length() / chunkSize + 1
+            else file.length() / chunkSize
 
         val stream = BufferedInputStream(FileInputStream(file))
-        val buffer = ByteArray(chunkSize)
+        var buffer = ByteArray(chunkSize)
         val randomId = UUID.randomUUID().toString().substring(0, 7)
 
         for (piece in 0 until pieces) {
+            Timber.d("File upload process")
+            if (piece == pieces - 1) {
+                buffer = ByteArray((file.length() % chunkSize).toInt())
+            }
             if (stream.read(buffer) == -1) break
 
             val base64 = Base64.encodeToString(buffer, Base64.DEFAULT)
@@ -190,7 +198,7 @@ class AccountCreationFragment : Fragment() {
                 Const.JsonFields.IMAGE,
                 file.name.toString(),
                 randomId,
-                md5FileHash,
+                sha256FileHash,
                 Const.JsonFields.AVATAR,
                 1
             )
