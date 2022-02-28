@@ -1,0 +1,20 @@
+package com.clover.studio.exampleapp.data.services
+
+import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.utils.Const
+import com.google.gson.JsonObject
+import retrofit2.http.*
+
+interface ChatService {
+    @POST(Const.Networking.API_POST_MESSAGE)
+    suspend fun sendMessage(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject
+    ): Message
+
+    @GET(Const.Networking.API_GET_MESSAGES)
+    suspend fun getMessages(
+        @HeaderMap headers: Map<String, String?>,
+        @Query(Const.Networking.ROOM_ID) roomId: String
+    ): List<Message>
+}

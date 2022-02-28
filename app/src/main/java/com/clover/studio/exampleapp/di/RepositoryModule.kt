@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.di
 import android.content.Context
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.repositories.*
+import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import dagger.Module
@@ -25,11 +26,12 @@ object RepositoryModule {
     @Singleton
     @Provides
     fun provideChatRepository(
-        retrofitService: RetrofitService,
+        chatService: ChatService,
         chatDao: ChatDao,
-        chatUserDao: ChatUserDao
+        chatUserDao: ChatUserDao,
+        sharedPrefs: SharedPreferencesRepository
     ) =
-        ChatRepositoryImpl(retrofitService, chatDao, chatUserDao)
+        ChatRepositoryImpl(chatService, chatDao, chatUserDao, sharedPrefs)
 
     @Singleton
     @Provides

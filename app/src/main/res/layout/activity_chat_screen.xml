@@ -90,20 +90,21 @@
         android:id="@+id/rv_chat"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@id/iv_add"
         app:layout_constraintTop_toBottomOf="@id/iv_arrow_back" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/iv_arrow_back"
-        app:layout_constraintBottom_toTopOf="@id/iv_add"
-        android:text="@string/no_messages_yet"
-        android:textSize="16sp"
         android:fontFamily="@font/montserrat"
-        android:textColor="@color/text_tertiary"/>
+        android:gravity="center"
+        android:text="@string/no_messages_yet"
+        android:textColor="@color/text_tertiary"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/iv_add"
+        app:layout_constraintTop_toBottomOf="@id/iv_arrow_back" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_typing"
@@ -117,13 +118,14 @@
         app:layout_constraintTop_toTopOf="@id/iv_add">
 
         <EditText
-            android:id="@+id/et_phone_number"
+            android:id="@+id/et_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:background="@null"
             android:fontFamily="@font/montserrat"
             android:hint="@string/type_here"
+            android:maxLines="5"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

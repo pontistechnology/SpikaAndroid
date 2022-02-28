@@ -22,7 +22,7 @@ interface OnboardingService {
     @POST(value = Const.Networking.API_CONTACTS)
     suspend fun sendContacts(
         @HeaderMap headers: Map<String, String?>,
-        @Field("contacts") contacts: List<String>
+        @Field(Const.Networking.CONTACTS) contacts: List<String>
     ): AuthResponse
 
     @FormUrlEncoded

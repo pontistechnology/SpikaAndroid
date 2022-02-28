@@ -2,7 +2,6 @@ package com.clover.studio.exampleapp.data.repositories
 
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.daos.UserDao
-import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.networking.ContactResponse
 import com.clover.studio.exampleapp.data.services.RetrofitService
@@ -16,18 +15,14 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
     fun getUserLocal() = userDao.getUsers()
 
-    override suspend fun getUsers(token: String): ContactResponse =
-        retrofitService.getUsers(token)
+    override suspend fun getUsers(): ContactResponse =
+        retrofitService.getUsers(getHeaderMap(sharedPrefs.readToken()!!))
 
     override fun getUserByID(id: Int) =
         userDao.getUserById(id)
-
-    override suspend fun getMessages(timestamp: Int) =
-        retrofitService.getMessages(getHeaderMap(sharedPrefs.readToken()), timestamp)
 }
 
 interface UserRepository {
-    suspend fun getUsers(token: String): ContactResponse
+    suspend fun getUsers(): ContactResponse
     fun getUserByID(id: Int): LiveData<User>
-    suspend fun getMessages(timestamp: Int): List<Message>
 }

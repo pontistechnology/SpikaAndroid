@@ -4,23 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.FragmentContactsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.UsersError
 import com.clover.studio.exampleapp.ui.main.UsersFetched
-import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.Tools
+import com.google.gson.Gson
 import timber.log.Timber
-import kotlin.random.Random
 
 class ContactsFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -105,9 +101,11 @@ class ContactsFragment : Fragment() {
 
     private fun setupAdapter() {
         contactsAdapter = ContactsAdapter(requireContext()) {
-            val bundle = bundleOf(Const.Navigation.USER_PROFILE to it)
+            val gson = Gson()
+            val userData = gson.toJson(it)
+            startChatScreenActivity(requireActivity(), userData)
 
-            findNavController().navigate(R.id.action_mainFragment_to_contactDetailsFragment, bundle)
+//             findNavController().navigate(R.id.action_mainFragment_to_contactDetailsFragment, bundle)
         }
 
         binding.rvContacts.adapter = contactsAdapter

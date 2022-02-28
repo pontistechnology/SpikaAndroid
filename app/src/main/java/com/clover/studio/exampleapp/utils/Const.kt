@@ -37,6 +37,11 @@ class Const {
             const val FILE_HASH = "fileHash"
             const val RELATION_ID = "relationId"
             const val CLIENT_ID = "clientId"
+
+            // Chat
+            const val ROOM_ID = "roomId"
+            const val TEXT = "text"
+            const val MESSAGE = "message"
         }
     }
 
@@ -47,7 +52,14 @@ class Const {
             const val API_CONTACTS = "api/messenger/contacts"
             const val API_UPDATE_USER = "api/messenger/me"
             const val API_UPLOAD_FILE = "api/upload/files"
-            const val API_GET_MESSAGES = "api/messenger/messages"
+            const val API_POST_MESSAGE= "api/messenger/messages"
+            const val API_GET_MESSAGES = "api/messenger/messages/roomId"
+            const val API_GET_MESSAGES_TIMESTAMP = "api/messenger/messages"
+
+            // Queries
+            const val TIMESTAMP = "timestamp"
+            const val ROOM_ID = "roomId"
+            const val CONTACTS = "contacts"
         }
     }
 

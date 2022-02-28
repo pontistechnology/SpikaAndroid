@@ -23,7 +23,7 @@ class MainViewModel @Inject constructor(
 
     fun getContacts() = viewModelScope.launch {
         try {
-            val users = repository.getUsers(sharedPrefsRepo.readToken()!!).data?.list
+            val users = repository.getUsers().data?.list
             usersListener.postValue(Event(UsersFetched(users!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
