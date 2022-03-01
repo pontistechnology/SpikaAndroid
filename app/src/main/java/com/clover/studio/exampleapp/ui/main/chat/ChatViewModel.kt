@@ -18,6 +18,9 @@ class ChatViewModel @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository
 ) : ViewModel() {
     val messageSendListener = MutableLiveData<Event<ChatStates>>()
+    val getMessagesListener = MutableLiveData<Event<ChatStates>>()
+    val getMessagesTimestampListener = MutableLiveData<Event<ChatStates>>()
+    val sendMessageDeliveredListener = MutableLiveData<Event<ChatStates>>()
 
     fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
         try {
@@ -29,6 +32,39 @@ class ChatViewModel @Inject constructor(
 
         messageSendListener.postValue(Event(ChatStates.MESSAGE_SENT))
     }
+
+    fun getMessages(roomId: String) = viewModelScope.launch {
+        try {
+            repository.getMessages(roomId)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            getMessagesListener.postValue(Event(ChatStates.MESSAGES_FETCH_FAIL))
+        }
+
+        getMessagesListener.postValue(Event(ChatStates.MESSAGES_FETCHED))
+    }
+
+    fun getMessagesTimestamp(timestamp: Int) = viewModelScope.launch {
+        try {
+            repository.getMessagesTimestamp(timestamp)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            getMessagesTimestampListener.postValue(Event(ChatStates.MESSAGES_TIMESTAMP_FETCH_FAIL))
+        }
+
+        getMessagesTimestampListener.postValue(Event(ChatStates.MESSAGES_TIMESTAMP_FETCHED))
+    }
+
+    fun sendMessageDelivered(jsonObject: JsonObject) = viewModelScope.launch {
+        try {
+            repository.sendMessageDelivered(jsonObject)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            sendMessageDeliveredListener.postValue(Event(ChatStates.MESSAGE_DELIVER_FAIL))
+        }
+
+        sendMessageDeliveredListener.postValue(Event(ChatStates.MESSAGE_DELIVERED))
+    }
 }
 
-enum class ChatStates { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGES_FETCHED, MESSAGE_FETCH_FAIL }
+enum class ChatStates { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGES_FETCHED, MESSAGES_FETCH_FAIL, MESSAGES_TIMESTAMP_FETCHED, MESSAGES_TIMESTAMP_FETCH_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }

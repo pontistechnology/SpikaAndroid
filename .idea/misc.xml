@@ -16,6 +16,7 @@
         <entry key="app/src/main/res/drawable/img_alert.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_arrow_back.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_arrow_forward.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/img_button_send.xml" value="0.205" />
         <entry key="app/src/main/res/drawable/img_call_history_selected.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_call_made.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_call_received.xml" value="0.36822916666666666" />

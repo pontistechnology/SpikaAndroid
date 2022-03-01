@@ -55,6 +55,7 @@ class Const {
             const val API_POST_MESSAGE= "api/messenger/messages"
             const val API_GET_MESSAGES = "api/messenger/messages/roomId"
             const val API_GET_MESSAGES_TIMESTAMP = "api/messenger/messages"
+            const val API_MESSAGE_DELIVERED = "api/messenger/messages/delivered"
 
             // Queries
             const val TIMESTAMP = "timestamp"

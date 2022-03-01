@@ -19,9 +19,17 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun getMessages(roomId: String): List<Message> =
         chatService.getMessages(getHeaderMap(sharedPrefsRepo.readToken()!!), roomId)
+
+    override suspend fun getMessagesTimestamp(timestamp: Int): List<Message> =
+        chatService.getMessagesTimestamp(getHeaderMap(sharedPrefsRepo.readToken()!!), timestamp)
+
+    override suspend fun sendMessageDelivered(jsonObject: JsonObject) =
+        chatService.sendMessageDelivered(getHeaderMap(sharedPrefsRepo.readToken()!!), jsonObject)
 }
 
 interface ChatRepository {
     suspend fun sendMessage(jsonObject: JsonObject): Message
     suspend fun getMessages(roomId: String): List<Message>
+    suspend fun getMessagesTimestamp(timestamp: Int): List<Message>
+    suspend fun sendMessageDelivered(jsonObject: JsonObject)
 }

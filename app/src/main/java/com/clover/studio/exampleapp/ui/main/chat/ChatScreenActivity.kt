@@ -4,8 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.updateLayoutParams
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -23,6 +27,9 @@ fun startChatScreenActivity(fromActivity: Activity, userData: String) = fromActi
     intent.putExtra(Const.Navigation.USER_PROFILE, userData)
     startActivity(intent)
 }
+
+private const val ROTATION_ON = 45f
+private const val ROTATION_OFF = 0f
 
 @AndroidEntryPoint
 class ChatScreenActivity : AppCompatActivity() {
@@ -52,8 +59,35 @@ class ChatScreenActivity : AppCompatActivity() {
     private fun initializeObservers() {
         viewModel.messageSendListener.observe(this, EventObserver {
             when (it) {
-                ChatStates.MESSAGE_SENT -> Timber.d("Message sent successfully")
+                ChatStates.MESSAGE_SENT -> {
+                    Timber.d("Message sent successfully")
+                    bindingSetup.etMessage.setText("")
+                }
                 ChatStates.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
+                else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.getMessagesListener.observe(this, EventObserver {
+            when (it) {
+                ChatStates.MESSAGES_FETCHED -> Timber.d("Messages fetched")
+                ChatStates.MESSAGES_FETCH_FAIL -> Timber.d("Failed to fetch messages")
+                else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.getMessagesTimestampListener.observe(this, EventObserver {
+            when (it) {
+                ChatStates.MESSAGES_TIMESTAMP_FETCHED -> Timber.d("Messages timestamp fetched")
+                ChatStates.MESSAGES_TIMESTAMP_FETCH_FAIL -> Timber.d("Failed to fetch messages timestamp")
+                else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.sendMessageDeliveredListener.observe(this, EventObserver {
+            when (it) {
+                ChatStates.MESSAGE_DELIVERED -> Timber.d("Messages delivered")
+                ChatStates.MESSAGE_DELIVER_FAIL -> Timber.d("Failed to deliver messages")
                 else -> Timber.d("Other error")
             }
         })
@@ -76,14 +110,37 @@ class ChatScreenActivity : AppCompatActivity() {
             finish()
         }
 
+        bindingSetup.etMessage.addTextChangedListener {
+            if (it!!.isNotEmpty()) {
+                bindingSetup.ivCamera.visibility = View.GONE
+                bindingSetup.ivMicrophone.visibility = View.GONE
+                bindingSetup.ivButtonSend.visibility = View.VISIBLE
+                bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                    endToStart = bindingSetup.ivButtonSend.id
+                }
+                bindingSetup.ivAdd.rotation = ROTATION_ON
+            } else {
+                bindingSetup.ivCamera.visibility = View.VISIBLE
+                bindingSetup.ivMicrophone.visibility = View.VISIBLE
+                bindingSetup.ivButtonSend.visibility = View.GONE
+                bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                    endToStart = bindingSetup.ivCamera.id
+                }
+                bindingSetup.ivAdd.rotation = ROTATION_OFF
+            }
+        }
+
         // TODO add send message button and handle UI when message is being entered
         // Change required field after work has been done
         bindingSetup.tvUsername.text = user.displayName
         Glide.with(this).load(user.avatarUrl).into(bindingSetup.ivUserImage)
-        bindingSetup.ivMicrophone.setOnClickListener {
+        bindingSetup.ivButtonSend.setOnClickListener {
             val jsonObject = JsonObject()
             val innerObject = JsonObject()
-            innerObject.addProperty(Const.JsonFields.TEXT, bindingSetup.etMessage.text.toString())
+            innerObject.addProperty(
+                Const.JsonFields.TEXT,
+                bindingSetup.etMessage.text.toString()
+            )
             innerObject.addProperty(Const.JsonFields.TYPE, "text")
 
             jsonObject.addProperty(Const.JsonFields.ROOM_ID, 1)

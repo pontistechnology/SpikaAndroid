@@ -17,4 +17,16 @@ interface ChatService {
         @HeaderMap headers: Map<String, String?>,
         @Query(Const.Networking.ROOM_ID) roomId: String
     ): List<Message>
+
+    @GET(Const.Networking.API_GET_MESSAGES_TIMESTAMP)
+    suspend fun getMessagesTimestamp(
+        @HeaderMap headers: Map<String, String?>,
+        @Query(Const.Networking.TIMESTAMP) timestamp: Int
+    ): List<Message>
+
+    @POST(Const.Networking.API_MESSAGE_DELIVERED)
+    suspend fun sendMessageDelivered(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject
+    )
 }
