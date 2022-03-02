@@ -10,9 +10,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.utils.Const
@@ -21,6 +23,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
+
 
 fun startChatScreenActivity(fromActivity: Activity, userData: String) = fromActivity.apply {
     val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
@@ -37,6 +40,7 @@ class ChatScreenActivity : AppCompatActivity() {
     private lateinit var user: User
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private lateinit var chatAdapter: ChatAdapter
+    private lateinit var messages: List<Message>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,35 +63,43 @@ class ChatScreenActivity : AppCompatActivity() {
     private fun initializeObservers() {
         viewModel.messageSendListener.observe(this, EventObserver {
             when (it) {
-                ChatStates.MESSAGE_SENT -> {
+                ChatStatesEnum.MESSAGE_SENT -> {
                     Timber.d("Message sent successfully")
                     bindingSetup.etMessage.setText("")
                 }
-                ChatStates.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
+                ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
             }
         })
 
         viewModel.getMessagesListener.observe(this, EventObserver {
             when (it) {
-                ChatStates.MESSAGES_FETCHED -> Timber.d("Messages fetched")
-                ChatStates.MESSAGES_FETCH_FAIL -> Timber.d("Failed to fetch messages")
+                is MessagesFetched -> {
+                    Timber.d("Messages fetched ${it.messages}")
+                    messages = it.messages
+                    chatAdapter.submitList(it.messages)
+                }
+                is MessageFetchFail -> Timber.d("Failed to fetch messages")
                 else -> Timber.d("Other error")
             }
         })
 
         viewModel.getMessagesTimestampListener.observe(this, EventObserver {
             when (it) {
-                ChatStates.MESSAGES_TIMESTAMP_FETCHED -> Timber.d("Messages timestamp fetched")
-                ChatStates.MESSAGES_TIMESTAMP_FETCH_FAIL -> Timber.d("Failed to fetch messages timestamp")
+                is MessagesTimestampFetched -> {
+                    Timber.d("Messages timestamp fetched")
+                    messages = it.messages
+                    chatAdapter.submitList(it.messages)
+                }
+                is MessageTimestampFetchFail -> Timber.d("Failed to fetch messages timestamp")
                 else -> Timber.d("Other error")
             }
         })
 
         viewModel.sendMessageDeliveredListener.observe(this, EventObserver {
             when (it) {
-                ChatStates.MESSAGE_DELIVERED -> Timber.d("Messages delivered")
-                ChatStates.MESSAGE_DELIVER_FAIL -> Timber.d("Failed to deliver messages")
+                ChatStatesEnum.MESSAGE_DELIVERED -> Timber.d("Messages delivered")
+                ChatStatesEnum.MESSAGE_DELIVER_FAIL -> Timber.d("Failed to deliver messages")
                 else -> Timber.d("Other error")
             }
         })
@@ -100,9 +112,37 @@ class ChatScreenActivity : AppCompatActivity() {
 
         bindingSetup.rvChat.adapter = chatAdapter
         bindingSetup.rvChat.layoutManager =
-            LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+            LinearLayoutManager(this, RecyclerView.VERTICAL, true)
 
-        // TODO send fetched list of messages to adapter
+        // Add callback for item swipe handling
+        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
+            ItemTouchHelper.SimpleCallback(
+                0,
+                ItemTouchHelper.RIGHT
+            ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                // ignore
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+                // Get swiped message text and add to message EditText
+                // After that, return item to correct position
+                val position = viewHolder.adapterPosition
+                bindingSetup.etMessage.setText(messages[position].message)
+                chatAdapter.notifyItemChanged(position)
+            }
+        }
+
+        val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
+        itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
+
+        // Get user messages
+        viewModel.getMessages("1")
     }
 
     private fun initViews() {

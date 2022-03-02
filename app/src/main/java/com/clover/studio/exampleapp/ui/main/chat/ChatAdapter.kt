@@ -50,15 +50,13 @@ class ChatAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         // TODO display data in separate view holders
-//        with(holder) {
-//            getItem(position).let { userItem ->
-//                if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
-//                    (holder as SentMessageHolder).binding.clMessage
-//                } else {
-//                    (holder as ReceivedMessageHolder).binding.ivUserImage.setImageBitmap()
-//                }
-//            }
-//        }
+        getItem(position).let {
+            if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
+                (holder as SentMessageHolder).binding.tvMessage.text = it.message
+            } else {
+                (holder as ReceivedMessageHolder).binding.tvMessage.text = it.message
+            }
+        }
     }
 
     private class MessageDiffCallback : DiffUtil.ItemCallback<Message>() {

@@ -8,6 +8,9 @@
         <entry key="app/src/main/res/drawable/bg_btn_white.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/bg_button_blue_border.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/bg_circle_image.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/bg_message_received.xml" value="0.205" />
+        <entry key="app/src/main/res/drawable/bg_message_user.xml" value="0.205" />
+        <entry key="app/src/main/res/drawable/bg_search_field.xml" value="0.2635" />
         <entry key="app/src/main/res/drawable/button_contact_states.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/ic_toggle_off.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_account_default.xml" value="0.27447916666666666" />
