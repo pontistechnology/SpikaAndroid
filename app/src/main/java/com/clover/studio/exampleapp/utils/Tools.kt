@@ -2,12 +2,15 @@ package com.clover.studio.exampleapp.utils
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.text.TextUtils
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.clover.studio.exampleapp.BuildConfig
 import retrofit2.HttpException
 import timber.log.Timber
@@ -17,6 +20,7 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 object Tools {
     fun checkError(ex: Exception) {
@@ -110,6 +114,25 @@ object Tools {
             "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
+        )
+    }
+
+    fun convertBitmapToUri(activity: Activity, bitmap: Bitmap): Uri {
+        val file = createImageFile(activity)
+
+        val bos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 0 /*ignored for PNG*/, bos);
+        val bitmapdata = bos.toByteArray();
+
+        val fos = FileOutputStream(file)
+        fos.write(bitmapdata)
+        fos.flush()
+        fos.close()
+
+        return FileProvider.getUriForFile(
+            activity,
+            "com.clover.studio.exampleapp.fileprovider",
+            file
         )
     }
 

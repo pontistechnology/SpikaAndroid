@@ -1,5 +1,7 @@
 package com.clover.studio.exampleapp.ui.onboarding.account_creation
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -22,26 +24,38 @@ import com.clover.studio.exampleapp.utils.ChooserDialog
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.Tools.convertBitmapToUri
 import timber.log.Timber
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.InputStream
 import java.util.*
 
 
-const val chunkSize = 32000
+const val CHUNK_SIZE = 32000
+const val BITMAP_WIDTH = 512
+const val BITMAP_HEIGHT = 512
 
 class AccountCreationFragment : Fragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var sha256FileHash: String? = ""
 
-    private val choosePhotoContract =
+    private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
             if (it != null) {
-                Glide.with(this).load(it).into(binding.ivPickPhoto)
+                val imageStream: InputStream? =
+                    requireActivity().contentResolver.openInputStream(it)
+                val selectedImage = BitmapFactory.decodeStream(imageStream)
+                val bitmap =
+                    Bitmap.createScaledBitmap(selectedImage, BITMAP_WIDTH, BITMAP_HEIGHT, true)
+
+                val bitmapUri = convertBitmapToUri(requireActivity(), bitmap)
+
+                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
-                currentPhotoLocation = it
+                currentPhotoLocation = bitmapUri
                 calculateSha256Hash()
             } else {
                 Timber.d("Gallery error")
@@ -51,7 +65,16 @@ class AccountCreationFragment : Fragment() {
     private val takePhotoContract =
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
-                Glide.with(this).load(currentPhotoLocation).into(binding.ivPickPhoto)
+                val imageStream: InputStream? =
+                    requireActivity().contentResolver.openInputStream(currentPhotoLocation)
+                val selectedImage = BitmapFactory.decodeStream(imageStream)
+                val bitmap =
+                    Bitmap.createScaledBitmap(selectedImage, BITMAP_WIDTH, BITMAP_HEIGHT, true)
+
+                val bitmapUri = convertBitmapToUri(requireActivity(), bitmap)
+
+                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
+                currentPhotoLocation = bitmapUri
                 calculateSha256Hash()
             } else {
                 Timber.d("Photo error")
@@ -146,7 +169,7 @@ class AccountCreationFragment : Fragment() {
                 Timber.d("File upload start")
                 uploadFile(Tools.copyStreamToFile(requireActivity(), inputStream!!))
             }
-            viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
+//            viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
         }
     }
 
@@ -158,7 +181,7 @@ class AccountCreationFragment : Fragment() {
     }
 
     private fun choosePhoto() {
-        choosePhotoContract.launch(Const.JsonFields.IMAGE)
+        chooseImageContract.launch(Const.JsonFields.IMAGE)
     }
 
     private fun takePhoto() {
@@ -167,43 +190,46 @@ class AccountCreationFragment : Fragment() {
             "com.clover.studio.exampleapp.fileprovider",
             Tools.createImageFile(requireActivity())
         )
+        Timber.d("$currentPhotoLocation")
         takePhotoContract.launch(currentPhotoLocation)
     }
 
     private fun uploadFile(file: File) {
         Timber.d("${file.length()}")
         val pieces: Long =
-            if ((file.length() % chunkSize).toInt() != 0)
-                file.length() / chunkSize + 1
-            else file.length() / chunkSize
+            if ((file.length() % CHUNK_SIZE).toInt() != 0)
+                file.length() / CHUNK_SIZE + 1
+            else file.length() / CHUNK_SIZE
 
-        val stream = BufferedInputStream(FileInputStream(file))
-        var buffer = ByteArray(chunkSize)
-        val randomId = UUID.randomUUID().toString().substring(0, 7)
+        BufferedInputStream(FileInputStream(file)).use { bis ->
+            var len: Int
+            var piece = 0L
+            val temp = ByteArray(CHUNK_SIZE)
+            val randomId = UUID.randomUUID().toString().substring(0, 7)
+            while (bis.read(temp).also { len = it } > 0) {
+                val fileChunk = FileChunk(
+                    Base64.encodeToString(
+                        temp,
+                        0,
+                        len,
+                        0
+                    ),
+                    piece,
+                    pieces,
+                    file.length(),
+                    Const.JsonFields.IMAGE,
+                    file.name.toString(),
+                    randomId,
+                    sha256FileHash,
+                    Const.JsonFields.AVATAR,
+                    1
+                )
 
-        for (piece in 0 until pieces) {
-            Timber.d("File upload process")
-            if (piece == pieces - 1) {
-                buffer = ByteArray((file.length() % chunkSize).toInt())
+                viewModel.uploadFile(fileChunk.chunkToJson())
+
+                Timber.d("$fileChunk")
+                piece++
             }
-            if (stream.read(buffer) == -1) break
-
-            val base64 = Base64.encodeToString(buffer, Base64.DEFAULT)
-
-            val fileChunk = FileChunk(
-                base64,
-                piece,
-                pieces,
-                file.length(),
-                Const.JsonFields.IMAGE,
-                file.name.toString(),
-                randomId,
-                sha256FileHash,
-                Const.JsonFields.AVATAR,
-                1
-            )
-
-            viewModel.uploadFile(fileChunk.chunkToJson())
         }
     }
 }
