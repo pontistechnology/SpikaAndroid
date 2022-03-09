@@ -1,7 +1,5 @@
 package com.clover.studio.exampleapp.ui.onboarding.account_creation
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -29,13 +27,10 @@ import timber.log.Timber
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
-import java.io.InputStream
 import java.util.*
 
 
 const val CHUNK_SIZE = 32000
-const val BITMAP_WIDTH = 512
-const val BITMAP_HEIGHT = 512
 
 class AccountCreationFragment : Fragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
@@ -45,13 +40,9 @@ class AccountCreationFragment : Fragment() {
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
             if (it != null) {
-                val imageStream: InputStream? =
-                    requireActivity().contentResolver.openInputStream(it)
-                val selectedImage = BitmapFactory.decodeStream(imageStream)
                 val bitmap =
-                    Bitmap.createScaledBitmap(selectedImage, BITMAP_WIDTH, BITMAP_HEIGHT, true)
-
-                val bitmapUri = convertBitmapToUri(requireActivity(), bitmap)
+                    Tools.handleSamplingAndRotationBitmap(requireActivity(), it)
+                val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
@@ -65,15 +56,12 @@ class AccountCreationFragment : Fragment() {
     private val takePhotoContract =
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
-                val imageStream: InputStream? =
-                    requireActivity().contentResolver.openInputStream(currentPhotoLocation)
-                val selectedImage = BitmapFactory.decodeStream(imageStream)
                 val bitmap =
-                    Bitmap.createScaledBitmap(selectedImage, BITMAP_WIDTH, BITMAP_HEIGHT, true)
-
-                val bitmapUri = convertBitmapToUri(requireActivity(), bitmap)
+                    Tools.handleSamplingAndRotationBitmap(requireActivity(), currentPhotoLocation)
+                val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
+                binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
                 calculateSha256Hash()
             } else {

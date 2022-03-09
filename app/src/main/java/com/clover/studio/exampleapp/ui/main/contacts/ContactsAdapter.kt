@@ -36,10 +36,8 @@ class ContactsAdapter(
                 Glide.with(context).load(userItem.avatarUrl).into(binding.ivUserImage)
 
                 // if not first item, check if item above has the same header
-                if (position > 0 && getItem(position - 1).displayName?.substring(
-                        0,
-                        1
-                    ) == userItem.displayName?.substring(0, 1)
+                if (position > 0 && getItem(position - 1).displayName?.substring(0, 1)
+                    == userItem.displayName?.substring(0, 1)
                 ) {
                     binding.tvHeader.visibility = View.GONE
                 } else {
