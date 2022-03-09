@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
@@ -19,6 +18,7 @@ import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,7 +35,7 @@ private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
 
 @AndroidEntryPoint
-class ChatScreenActivity : AppCompatActivity() {
+class ChatScreenActivity : BaseActivity() {
     private val viewModel: ChatViewModel by viewModels()
     private lateinit var user: User
     private lateinit var bindingSetup: ActivityChatScreenBinding

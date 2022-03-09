@@ -9,10 +9,11 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 
 class MainPagerAdapter constructor(
     private val context: Context,
-    private val fragments: ArrayList<Fragment>,
+    private val fragments: ArrayList<BaseFragment>,
     fragmentManager: FragmentManager,
     lifecycle: Lifecycle
 ) : FragmentStateAdapter(fragmentManager, lifecycle) {

@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.data.models.networking.FileChunk
@@ -23,6 +22,7 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.convertBitmapToUri
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import timber.log.Timber
 import java.io.BufferedInputStream
 import java.io.File
@@ -32,7 +32,7 @@ import java.util.*
 
 const val CHUNK_SIZE = 32000
 
-class AccountCreationFragment : Fragment() {
+class AccountCreationFragment : BaseFragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var sha256FileHash: String? = ""
@@ -104,6 +104,14 @@ class AccountCreationFragment : Fragment() {
                 else -> Timber.d("Other error")
             }
         })
+
+        viewModel.uploadStateListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                OnboardingStates.UPLOAD_SUCCESS -> viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
+                OnboardingStates.UPLOAD_ERROR -> binding.clProgressScreen.visibility = View.GONE
+                else -> Timber.d("Other error")
+            }
+        })
     }
 
     private fun addClickListeners() {
@@ -156,8 +164,8 @@ class AccountCreationFragment : Fragment() {
                     requireActivity().contentResolver.openInputStream(currentPhotoLocation)
                 Timber.d("File upload start")
                 uploadFile(Tools.copyStreamToFile(requireActivity(), inputStream!!))
+                binding.clProgressScreen.visibility = View.VISIBLE
             }
-//            viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
         }
     }
 
@@ -213,7 +221,7 @@ class AccountCreationFragment : Fragment() {
                     1
                 )
 
-                viewModel.uploadFile(fileChunk.chunkToJson())
+                viewModel.uploadFile(fileChunk.chunkToJson(), pieces)
 
                 Timber.d("$fileChunk")
                 piece++

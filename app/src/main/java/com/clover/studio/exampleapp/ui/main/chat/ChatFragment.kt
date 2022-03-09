@@ -6,8 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.clover.studio.exampleapp.databinding.FragmentChatBinding
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 
-class ChatFragment : Fragment() {
+class ChatFragment : BaseFragment() {
     private var bindingSetup: FragmentChatBinding? = null
 
     private val binding get() = bindingSetup!!

@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
@@ -23,12 +22,13 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.SmsListener
 import com.clover.studio.exampleapp.utils.SmsReceiver
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.gson.JsonObject
 import timber.log.Timber
 
 
-class VerificationFragment : Fragment() {
+class VerificationFragment : BaseFragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var phoneNumber: String
     private lateinit var phoneNumberHashed: String

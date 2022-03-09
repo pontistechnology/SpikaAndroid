@@ -4,15 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
-import com.clover.studio.exampleapp.ui.main.call_history.CallHistoryFragment
-import com.clover.studio.exampleapp.ui.main.chat.ChatFragment
-import com.clover.studio.exampleapp.ui.main.contacts.ContactsFragment
-import com.clover.studio.exampleapp.ui.main.settings.SettingsFragment
-import com.google.android.material.tabs.TabLayoutMediator
+import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 fun startMainActivity(fromActivity: Activity) = fromActivity.apply {
@@ -21,7 +15,7 @@ fun startMainActivity(fromActivity: Activity) = fromActivity.apply {
 }
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 

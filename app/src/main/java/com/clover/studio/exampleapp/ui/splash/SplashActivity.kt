@@ -4,17 +4,17 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.clover.studio.exampleapp.databinding.ActivitySplashBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : BaseActivity() {
 
     private val viewModel: SplashViewModel by viewModels()
 

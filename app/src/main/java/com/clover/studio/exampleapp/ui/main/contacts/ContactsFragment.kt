@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,10 +14,11 @@ import com.clover.studio.exampleapp.ui.main.UsersError
 import com.clover.studio.exampleapp.ui.main.UsersFetched
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.gson.Gson
 import timber.log.Timber
 
-class ContactsFragment : Fragment() {
+class ContactsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var contactsAdapter: ContactsAdapter
     private lateinit var userList: List<User>

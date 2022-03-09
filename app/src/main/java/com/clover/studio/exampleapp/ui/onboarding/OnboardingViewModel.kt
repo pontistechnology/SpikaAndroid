@@ -24,6 +24,8 @@ class OnboardingViewModel @Inject constructor(
     var registrationListener = MutableLiveData<Event<OnboardingStates>>()
     var accountCreationListener = MutableLiveData<Event<OnboardingStates>>()
     var userUpdateListener = MutableLiveData<Event<OnboardingStates>>()
+    var uploadStateListener = MutableLiveData<Event<OnboardingStates>>()
+    var chunkCount = 1L
 
     fun sendNewUserData(
         jsonObject: JsonObject
@@ -120,17 +122,26 @@ class OnboardingViewModel @Inject constructor(
         userUpdateListener.postValue(Event(OnboardingStates.USER_UPDATED))
     }
 
-    fun uploadFile(jsonObject: JsonObject) = viewModelScope.launch {
+    fun uploadFile(jsonObject: JsonObject, chunks: Long) = viewModelScope.launch {
         try {
             onboardingRepository.uploadFiles(jsonObject)
             Timber.d("Sending file chunk")
         } catch (ex: Exception) {
             Tools.checkError(ex)
             Timber.d("File send error")
+            uploadStateListener.postValue(Event(OnboardingStates.UPLOAD_ERROR))
+            chunkCount = 1
+            return@launch
         }
 
         Timber.d("Completed sending file chunk")
+        chunkCount++
+
+        if (chunkCount == chunks) {
+            uploadStateListener.postValue(Event(OnboardingStates.UPLOAD_SUCCESS))
+            chunkCount = 1
+        }
     }
 }
 
-enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR }
+enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR, UPLOAD_ERROR, UPLOAD_SUCCESS }

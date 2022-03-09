@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.clover.studio.exampleapp.databinding.ActivityOnboardingBinding
+import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 fun startOnboardingActivity(fromActivity: Activity) = fromActivity.apply {
@@ -15,7 +15,7 @@ fun startOnboardingActivity(fromActivity: Activity) = fromActivity.apply {
 }
 
 @AndroidEntryPoint
-class OnboardingActivity : AppCompatActivity() {
+class OnboardingActivity : BaseActivity() {
 
     private val viewModel: OnboardingViewModel by viewModels()
 

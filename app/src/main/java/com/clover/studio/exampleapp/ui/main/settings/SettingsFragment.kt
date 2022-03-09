@@ -4,15 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentSettingsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 
-class SettingsFragment : Fragment() {
+class SettingsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var bindingSetup: FragmentSettingsBinding? = null
 
@@ -31,12 +31,12 @@ class SettingsFragment : Fragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.getLocalUser().observe(viewLifecycleOwner, {
+        viewModel.getLocalUser().observe(viewLifecycleOwner) {
             binding.tvUsername.text = it.displayName ?: "No Username"
             binding.tvPhoneNumber.text = it.telephoneNumber
 
             Glide.with(requireActivity()).load(it.avatarUrl).into(binding.ivPickPhoto)
-        })
+        }
     }
 
     private fun setupClickListeners() {

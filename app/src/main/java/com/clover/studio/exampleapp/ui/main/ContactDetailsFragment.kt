@@ -4,15 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.FragmentContactDetailsBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import kotlin.random.Random
 
-class ContactDetailsFragment : Fragment() {
+class ContactDetailsFragment : BaseFragment() {
     private lateinit var user: User
 
     private var bindingSetup: FragmentContactDetailsBinding? = null

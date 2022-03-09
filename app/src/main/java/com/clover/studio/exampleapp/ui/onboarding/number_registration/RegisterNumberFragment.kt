@@ -18,7 +18,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.collection.ArraySet
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
@@ -29,10 +28,11 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools.formatE164Number
 import com.clover.studio.exampleapp.utils.Tools.hashString
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.gson.JsonObject
 import timber.log.Timber
 
-class RegisterNumberFragment : Fragment() {
+class RegisterNumberFragment : BaseFragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var countryCode: String
     private lateinit var contactsPermission: ActivityResultLauncher<String>

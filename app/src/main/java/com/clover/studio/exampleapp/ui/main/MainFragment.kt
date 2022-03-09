@@ -10,9 +10,10 @@ import com.clover.studio.exampleapp.ui.main.call_history.CallHistoryFragment
 import com.clover.studio.exampleapp.ui.main.chat.ChatFragment
 import com.clover.studio.exampleapp.ui.main.contacts.ContactsFragment
 import com.clover.studio.exampleapp.ui.main.settings.SettingsFragment
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.android.material.tabs.TabLayoutMediator
 
-class MainFragment : Fragment() {
+class MainFragment : BaseFragment() {
     private var bindingSetup: FragmentMainBinding? = null
 
     private val binding get() = bindingSetup!!
