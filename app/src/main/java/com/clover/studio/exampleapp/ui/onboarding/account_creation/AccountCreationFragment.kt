@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.ui.onboarding.account_creation
 
+import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -8,10 +9,13 @@ import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.networking.FileChunk
 import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
@@ -23,6 +27,7 @@ import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.convertBitmapToUri
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.google.android.material.snackbar.Snackbar
 import timber.log.Timber
 import java.io.BufferedInputStream
 import java.io.File
@@ -108,7 +113,24 @@ class AccountCreationFragment : BaseFragment() {
         viewModel.uploadStateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 OnboardingStates.UPLOAD_SUCCESS -> viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
-                OnboardingStates.UPLOAD_ERROR -> binding.clProgressScreen.visibility = View.GONE
+                OnboardingStates.UPLOAD_ERROR -> {
+                    // TODO remove snackbar and add custom error dialog when finished
+                    Snackbar.make(
+                        binding.clParentLayout,
+                        getString(R.string.picture_upload_failed),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    binding.clProgressScreen.visibility = View.GONE
+                    currentPhotoLocation = Uri.EMPTY
+                    Glide.with(this).clear(binding.ivPickPhoto)
+                    binding.ivPickPhoto.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            requireContext(),
+                            R.drawable.img_camera
+                        )
+                    )
+                    binding.clSmallCameraPicker.visibility = View.GONE
+                }
                 else -> Timber.d("Other error")
             }
         })
@@ -116,6 +138,11 @@ class AccountCreationFragment : BaseFragment() {
 
     private fun addClickListeners() {
         binding.btnNext.setOnClickListener {
+            activity?.currentFocus?.let { view ->
+                val imm =
+                    requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(view.windowToken, 0)
+            }
             checkUsername()
         }
 
@@ -165,6 +192,8 @@ class AccountCreationFragment : BaseFragment() {
                 Timber.d("File upload start")
                 uploadFile(Tools.copyStreamToFile(requireActivity(), inputStream!!))
                 binding.clProgressScreen.visibility = View.VISIBLE
+            } else {
+                viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
             }
         }
     }
