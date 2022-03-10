@@ -31,7 +31,7 @@ class ContactsAdapter(
             getItem(position).let { userItem ->
                 binding.tvHeader.text = userItem.displayName?.substring(0, 1)
                 binding.tvUsername.text = userItem.displayName
-                // TODO add user title
+                binding.tvTitle.text = userItem.telephoneNumber
 
                 Glide.with(context).load(userItem.avatarUrl).into(binding.ivUserImage)
 
