@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
-import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.UserRepositoryImpl
 import com.clover.studio.exampleapp.utils.Event
@@ -23,8 +22,8 @@ class MainViewModel @Inject constructor(
 
     fun getContacts() = viewModelScope.launch {
         try {
-            val users = repository.getUsers().data?.list
-            usersListener.postValue(Event(UsersFetched(users!!)))
+            repository.getUsers()
+            usersListener.postValue(Event(UsersFetched))
         } catch (ex: Exception) {
             Tools.checkError(ex)
             usersListener.postValue(Event(UsersError))
@@ -43,10 +42,10 @@ class MainViewModel @Inject constructor(
     }
 
     fun getLocalUsers() = liveData {
-        emitSource(repository.getUserLocal())
+        emitSource(repository.getUserLiveData())
     }
 }
 
 sealed class MainStates
-data class UsersFetched(val userData: List<User>) : MainStates()
+object UsersFetched : MainStates()
 object UsersError : MainStates()

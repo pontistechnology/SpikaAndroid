@@ -104,7 +104,9 @@ class AccountCreationFragment : BaseFragment() {
 
         viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
-                OnboardingStates.USER_UPDATED -> startMainActivity(requireActivity())
+                OnboardingStates.USER_UPDATED -> {
+                    startMainActivity(requireActivity())
+                }
                 OnboardingStates.USER_UPDATE_ERROR -> Timber.d("Error updating user")
                 else -> Timber.d("Other error")
             }
@@ -112,7 +114,9 @@ class AccountCreationFragment : BaseFragment() {
 
         viewModel.uploadStateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
-                OnboardingStates.UPLOAD_SUCCESS -> viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
+                OnboardingStates.UPLOAD_SUCCESS -> {
+                    viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
+                }
                 OnboardingStates.UPLOAD_ERROR -> {
                     // TODO remove snackbar and add custom error dialog when finished
                     Snackbar.make(

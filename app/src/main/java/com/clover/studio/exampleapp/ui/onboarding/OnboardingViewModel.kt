@@ -25,7 +25,7 @@ class OnboardingViewModel @Inject constructor(
     var accountCreationListener = MutableLiveData<Event<OnboardingStates>>()
     var userUpdateListener = MutableLiveData<Event<OnboardingStates>>()
     var uploadStateListener = MutableLiveData<Event<OnboardingStates>>()
-    var chunkCount = 1L
+    var chunkCount = 0L
 
     fun sendNewUserData(
         jsonObject: JsonObject

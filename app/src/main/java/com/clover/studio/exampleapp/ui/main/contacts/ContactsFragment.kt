@@ -89,14 +89,17 @@ class ContactsFragment : BaseFragment() {
             when (it) {
                 UsersError -> Timber.d("Users error")
                 is UsersFetched -> {
-                    Timber.d("Users fetched: ${it.userData}")
-                    userList = it.userData
-                    contactsAdapter.submitList(userList)
+                    Timber.d("Users fetched")
                 }
             }
         })
 
-        viewModel.getContacts()
+        viewModel.getLocalUsers().observe(viewLifecycleOwner) {
+            if (it.isNotEmpty()) {
+                userList = it
+                contactsAdapter.submitList(it)
+            }
+        }
     }
 
     private fun setupAdapter() {
@@ -148,5 +151,10 @@ class ContactsFragment : BaseFragment() {
                 return true
             }
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getContacts()
     }
 }
