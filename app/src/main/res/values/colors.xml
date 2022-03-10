@@ -24,6 +24,7 @@
     <color name="dark_background_2">#3D3D3D</color>
     <color name="error_background">#FFECEC</color>
     <color name="message_me">#C8EBFE</color>
+    <color name="guideline">#E6E6E6</color>
 
     <!-- Text Colors -->
     <color name="text_primary">#141414</color>

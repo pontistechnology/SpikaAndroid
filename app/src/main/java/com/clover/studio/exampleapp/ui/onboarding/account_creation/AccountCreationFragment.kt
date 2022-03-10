@@ -151,15 +151,20 @@ class AccountCreationFragment : BaseFragment() {
         }
 
         binding.cvPhotoPicker.setOnClickListener {
-            ChooserDialog.getInstance(requireContext(), object : ChooserDialog.DialogInteraction {
-                override fun onPhotoClicked() {
-                    takePhoto()
-                }
+            ChooserDialog.getInstance(requireContext(),
+                getString(R.string.placeholder_title),
+                null,
+                getString(R.string.choose_from_gallery),
+                getString(R.string.take_photo),
+                object : ChooserDialog.DialogInteraction {
+                    override fun onFirstOptionClicked() {
+                        chooseImage()
+                    }
 
-                override fun onGalleryClicked() {
-                    choosePhoto()
-                }
-            })
+                    override fun onSecondOptionClicked() {
+                        takePhoto()
+                    }
+                })
         }
     }
 
@@ -209,7 +214,7 @@ class AccountCreationFragment : BaseFragment() {
             Tools.calculateSHA256FileHash(Tools.copyStreamToFile(requireActivity(), inputStream!!))
     }
 
-    private fun choosePhoto() {
+    private fun chooseImage() {
         chooseImageContract.launch(Const.JsonFields.IMAGE)
     }
 

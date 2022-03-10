@@ -149,4 +149,8 @@
     <string name="no_messages_yet">No messages yet.</string>
     <string name="some_message">Some message</string>
     <string name="picture_upload_failed">Picture upload failed.</string>
+    <string name="placeholder_title">Placeholder Title</string>
+    <string name="placeholder_description">Placeholder description</string>
+    <string name="choose_from_gallery">Choose from gallery</string>
+    <string name="take_photo">Take Photo</string>
 </resources>
