@@ -30,7 +30,7 @@ import java.io.FileInputStream
 import java.util.*
 
 
-const val CHUNK_SIZE = 500000
+const val CHUNK_SIZE = 64000
 
 class AccountCreationFragment : BaseFragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
