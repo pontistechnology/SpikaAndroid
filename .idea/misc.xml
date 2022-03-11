@@ -12,6 +12,7 @@
         <entry key="app/src/main/res/drawable/bg_message_user.xml" value="0.205" />
         <entry key="app/src/main/res/drawable/bg_search_field.xml" value="0.2635" />
         <entry key="app/src/main/res/drawable/button_contact_states.xml" value="0.36822916666666666" />
+        <entry key="app/src/main/res/drawable/custom_circular_progress.xml" value="0.254" />
         <entry key="app/src/main/res/drawable/ic_toggle_off.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_account_default.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_account_filled.xml" value="0.27447916666666666" />
@@ -59,6 +60,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_onboarding.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.25416666666666665" />
+        <entry key="app/src/main/res/layout/custom_circular_progress.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/custom_tab_layout.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/dialog_chooser.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/dialog_error.xml" value="0.34791666666666665" />

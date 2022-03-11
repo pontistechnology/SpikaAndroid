@@ -125,6 +125,7 @@ class OnboardingViewModel @Inject constructor(
     fun uploadFile(jsonObject: JsonObject, chunks: Long) = viewModelScope.launch {
         try {
             onboardingRepository.uploadFiles(jsonObject)
+            uploadStateListener.postValue(Event(OnboardingStates.UPLOAD_PIECE))
             Timber.d("Sending file chunk")
         } catch (ex: Exception) {
             Tools.checkError(ex)
@@ -144,4 +145,4 @@ class OnboardingViewModel @Inject constructor(
     }
 }
 
-enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR, UPLOAD_ERROR, UPLOAD_SUCCESS }
+enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR, UPLOAD_PIECE, UPLOAD_ERROR, UPLOAD_SUCCESS }

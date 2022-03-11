@@ -42,6 +42,8 @@ class AccountCreationFragment : BaseFragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var sha256FileHash: String? = ""
+    private var uploadPieces: Long = 0L
+    private var progress: Long = 1L
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -115,7 +117,15 @@ class AccountCreationFragment : BaseFragment() {
 
         viewModel.uploadStateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
+                OnboardingStates.UPLOAD_PIECE -> {
+                    Timber.d("PROGRESS $progress, $uploadPieces, ${binding.progressBar.max}")
+                    if (progress <= uploadPieces) {
+                        binding.progressBar.secondaryProgress = progress.toInt()
+                        progress++
+                    } else progress = 0
+                }
                 OnboardingStates.UPLOAD_SUCCESS -> {
+                    binding.progressBar.secondaryProgress = uploadPieces.toInt()
                     viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
                 }
                 OnboardingStates.UPLOAD_ERROR -> {
@@ -134,6 +144,7 @@ class AccountCreationFragment : BaseFragment() {
                             }
                         })
                     binding.clProgressScreen.visibility = View.GONE
+                    binding.progressBar.secondaryProgress = 0
                     currentPhotoLocation = Uri.EMPTY
                     Glide.with(this).clear(binding.ivPickPhoto)
                     binding.ivPickPhoto.setImageDrawable(
@@ -239,10 +250,12 @@ class AccountCreationFragment : BaseFragment() {
 
     private fun uploadFile(file: File) {
         Timber.d("${file.length()}")
-        val pieces: Long =
+        uploadPieces =
             if ((file.length() % CHUNK_SIZE).toInt() != 0)
                 file.length() / CHUNK_SIZE + 1
             else file.length() / CHUNK_SIZE
+
+        binding.progressBar.max = uploadPieces.toInt()
 
         BufferedInputStream(FileInputStream(file)).use { bis ->
             var len: Int
@@ -258,7 +271,7 @@ class AccountCreationFragment : BaseFragment() {
                         0
                     ),
                     piece,
-                    pieces,
+                    uploadPieces,
                     file.length(),
                     Const.JsonFields.IMAGE,
                     file.name.toString(),
@@ -268,7 +281,7 @@ class AccountCreationFragment : BaseFragment() {
                     1
                 )
 
-                viewModel.uploadFile(fileChunk.chunkToJson(), pieces)
+                viewModel.uploadFile(fileChunk.chunkToJson(), uploadPieces)
 
                 Timber.d("$fileChunk")
                 piece++
