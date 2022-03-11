@@ -1,10 +1,15 @@
-package com.clover.studio.exampleapp.utils
+package com.clover.studio.exampleapp.utils.dialog
 
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
 import com.clover.studio.exampleapp.databinding.DialogChooserBinding
+
+interface DialogInteraction {
+    fun onFirstOptionClicked()
+    fun onSecondOptionClicked()
+}
 
 class ChooserDialog(
     context: Context?,
@@ -44,11 +49,6 @@ class ChooserDialog(
             }
     }
 
-    interface DialogInteraction {
-        fun onFirstOptionClicked()
-        fun onSecondOptionClicked()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bindingSetup = DialogChooserBinding.inflate(layoutInflater)
@@ -60,9 +60,12 @@ class ChooserDialog(
 
     private fun initViews() {
         binding.tvTextTitle.text = title
-        if (description != null && description.isNotEmpty()) {
+
+        if (description != null && description.isNotEmpty())
             binding.tvTextDescription.text = description
-        } else binding.tvTextDescription.visibility = View.GONE
+        else
+            binding.tvTextDescription.visibility = View.GONE
+
         binding.btnFirstOption.text = firstOption
         binding.btnSecondOption.text = secondOption
 

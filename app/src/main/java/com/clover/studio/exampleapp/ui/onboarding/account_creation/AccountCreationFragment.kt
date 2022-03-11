@@ -21,13 +21,14 @@ import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
-import com.clover.studio.exampleapp.utils.ChooserDialog
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.convertBitmapToUri
+import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
+import com.clover.studio.exampleapp.utils.dialog.DialogError
+import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
-import com.google.android.material.snackbar.Snackbar
 import timber.log.Timber
 import java.io.BufferedInputStream
 import java.io.File
@@ -118,12 +119,20 @@ class AccountCreationFragment : BaseFragment() {
                     viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
                 }
                 OnboardingStates.UPLOAD_ERROR -> {
-                    // TODO remove snackbar and add custom error dialog when finished
-                    Snackbar.make(
-                        binding.clParentLayout,
-                        getString(R.string.picture_upload_failed),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
+                    DialogError.getInstance(requireActivity(),
+                        getString(R.string.error),
+                        getString(R.string.image_failed_upload),
+                        null,
+                        getString(R.string.ok),
+                        object : DialogInteraction {
+                            override fun onFirstOptionClicked() {
+                                // ignore
+                            }
+
+                            override fun onSecondOptionClicked() {
+                                // ignore
+                            }
+                        })
                     binding.clProgressScreen.visibility = View.GONE
                     currentPhotoLocation = Uri.EMPTY
                     Glide.with(this).clear(binding.ivPickPhoto)
@@ -156,7 +165,7 @@ class AccountCreationFragment : BaseFragment() {
                 null,
                 getString(R.string.choose_from_gallery),
                 getString(R.string.take_photo),
-                object : ChooserDialog.DialogInteraction {
+                object : DialogInteraction {
                     override fun onFirstOptionClicked() {
                         chooseImage()
                     }

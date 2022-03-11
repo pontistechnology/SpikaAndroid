@@ -153,4 +153,8 @@
     <string name="placeholder_description">Placeholder description</string>
     <string name="choose_from_gallery">Choose from gallery</string>
     <string name="take_photo">Take Photo</string>
+    <string name="action">Action</string>
+    <string name="error">Error</string>
+    <string name="image_failed_upload">Image could not be uploaded. Try again or continue without image.</string>
+    <string name="ok">Ok</string>
 </resources>
