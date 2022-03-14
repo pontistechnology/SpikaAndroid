@@ -55,6 +55,35 @@
                 android:src="@drawable/img_camera" />
         </androidx.cardview.widget.CardView>
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_progress_screen"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:elevation="5dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@id/cv_avatar"
+            app:layout_constraintEnd_toEndOf="@id/cv_avatar"
+            app:layout_constraintStart_toStartOf="@id/cv_avatar"
+            app:layout_constraintTop_toTopOf="@id/cv_avatar">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/img_selector_background"
+                android:backgroundTint="@color/dark_background_transp" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:indeterminateOnly="true"
+                android:indeterminateTint="@color/primary_color"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <TextView
             android:id="@+id/tv_username"
             android:layout_width="wrap_content"

@@ -157,4 +157,6 @@
     <string name="error">Error</string>
     <string name="image_failed_upload">Image could not be uploaded. Try again or continue without image.</string>
     <string name="ok">Ok</string>
+    <string name="failed_user_data">Failed to load user data.</string>
+    <string name="failed_user_image">Failed to load user image.</string>
 </resources>
