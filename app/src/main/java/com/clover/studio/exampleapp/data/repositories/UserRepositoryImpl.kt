@@ -5,6 +5,7 @@ import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
+import com.google.gson.JsonObject
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -28,10 +29,18 @@ class UserRepositoryImpl @Inject constructor(
     override fun getUserLiveData(): LiveData<List<User>> =
         userDao.getUsers()
 
+    override suspend fun getRoomById(userId: Int) =
+        retrofitService.getRoomById(getHeaderMap(sharedPrefs.readToken()), userId)
+
+    override suspend fun createNewRoom(jsonObject: JsonObject) =
+        retrofitService.createNewRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+
 }
 
 interface UserRepository {
     suspend fun getUsers()
     fun getUserByID(id: Int): LiveData<User>
     fun getUserLiveData(): LiveData<List<User>>
+    suspend fun getRoomById(userId: Int)
+    suspend fun createNewRoom(jsonObject: JsonObject)
 }

@@ -42,6 +42,10 @@ class Const {
             const val ROOM_ID = "roomId"
             const val TEXT = "text"
             const val MESSAGE = "message"
+            const val NAME = "name"
+            const val AVATAR_URL = "avatarUrl"
+            const val USER_IDS = "userIds"
+            const val ADMIN_USER_IDS = "adminUserIds"
         }
     }
 
@@ -56,11 +60,14 @@ class Const {
             const val API_GET_MESSAGES = "api/messenger/messages/roomId"
             const val API_GET_MESSAGES_TIMESTAMP = "api/messenger/messages"
             const val API_MESSAGE_DELIVERED = "api/messenger/messages/delivered"
+            const val API_GET_ROOM_BY_ID = "api/messenger/rooms/users/{userId}"
+            const val API_POST_NEW_ROOM = "api/messenger/rooms"
 
             // Queries
             const val TIMESTAMP = "timestamp"
             const val ROOM_ID = "roomId"
             const val CONTACTS = "contacts"
+            const val USER_ID = "userId"
         }
     }
 

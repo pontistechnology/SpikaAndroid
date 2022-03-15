@@ -29,6 +29,7 @@ class ChatViewModel @Inject constructor(
         } catch (ex: Exception) {
             Tools.checkError(ex)
             messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SEND_FAIL))
+            return@launch
         }
 
         messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SENT))
@@ -66,6 +67,7 @@ class ChatViewModel @Inject constructor(
         } catch (ex: Exception) {
             Tools.checkError(ex)
             sendMessageDeliveredListener.postValue(Event(ChatStatesEnum.MESSAGE_DELIVER_FAIL))
+            return@launch
         }
 
         sendMessageDeliveredListener.postValue(Event(ChatStatesEnum.MESSAGE_DELIVERED))

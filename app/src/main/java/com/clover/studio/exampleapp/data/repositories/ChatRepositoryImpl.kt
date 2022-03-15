@@ -15,16 +15,16 @@ class ChatRepositoryImpl @Inject constructor(
     private val sharedPrefsRepo: SharedPreferencesRepository
 ) : ChatRepository {
     override suspend fun sendMessage(jsonObject: JsonObject): Message =
-        chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()!!), jsonObject)
+        chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
 
     override suspend fun getMessages(roomId: String): List<Message> =
-        chatService.getMessages(getHeaderMap(sharedPrefsRepo.readToken()!!), roomId)
+        chatService.getMessages(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
     override suspend fun getMessagesTimestamp(timestamp: Int): List<Message> =
-        chatService.getMessagesTimestamp(getHeaderMap(sharedPrefsRepo.readToken()!!), timestamp)
+        chatService.getMessagesTimestamp(getHeaderMap(sharedPrefsRepo.readToken()), timestamp)
 
     override suspend fun sendMessageDelivered(jsonObject: JsonObject) =
-        chatService.sendMessageDelivered(getHeaderMap(sharedPrefsRepo.readToken()!!), jsonObject)
+        chatService.sendMessageDelivered(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
 }
 
 interface ChatRepository {

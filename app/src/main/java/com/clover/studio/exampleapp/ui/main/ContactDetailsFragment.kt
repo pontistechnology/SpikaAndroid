@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -15,13 +16,18 @@ import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.FragmentContactDetailsBinding
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import timber.log.Timber
 
 class ContactDetailsFragment : BaseFragment() {
+    private val viewModel: MainViewModel by activityViewModels()
+
     private var user: User? = null
 
     private var bindingSetup: FragmentContactDetailsBinding? = null
@@ -60,7 +66,55 @@ class ContactDetailsFragment : BaseFragment() {
         bindingSetup = FragmentContactDetailsBinding.inflate(inflater, container, false)
 
         initializeViews()
+        initializeObservers()
         return binding.root
+    }
+
+    private fun initializeObservers() {
+        viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                MainStatesEnum.ROOM_EXISTS -> {
+                    Timber.d("Room already exists")
+                    val gson = Gson()
+                    val userData = gson.toJson(user)
+                    startChatScreenActivity(requireActivity(), userData)
+                }
+                MainStatesEnum.ROOM_NOT_FOUND -> {
+                    Timber.d("Room not found, creating new one")
+                    val jsonObject = JsonObject()
+
+//                    val avatarUrlArray = JsonArray()
+//                    avatarUrlArray.add("fakeUrl")
+//
+                    val userIdsArray = JsonArray()
+                    userIdsArray.add(user?.id)
+                    userIdsArray.add(5)
+//
+//                    val adminUserIds = JsonArray()
+//                    adminUserIds.add(3)
+
+                    jsonObject.addProperty(Const.JsonFields.NAME, user?.displayName)
+                    jsonObject.addProperty(Const.JsonFields.AVATAR_URL, user?.avatarUrl)
+                    jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
+//                    jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
+                    jsonObject.addProperty(Const.JsonFields.TYPE, "private")
+
+                    viewModel.createNewRoom(jsonObject)
+                }
+            }
+        })
+
+        viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is RoomCreated -> {
+                    val gson = Gson()
+                    val userData = gson.toJson(user)
+                    startChatScreenActivity(requireActivity(), userData)
+                }
+                is RoomFailed -> Timber.d("Failed to create room")
+                else -> Timber.d("Other error")
+            }
+        })
     }
 
     private fun initializeViews() {
@@ -69,9 +123,7 @@ class ContactDetailsFragment : BaseFragment() {
             binding.tvPageName.text = user?.displayName
 
             binding.ivChat.setOnClickListener {
-                val gson = Gson()
-                val userData = gson.toJson(user)
-                startChatScreenActivity(requireActivity(), userData)
+                viewModel.checkIfRoomExists(user!!.id)
             }
 
             Glide.with(this).load(user?.avatarUrl)
