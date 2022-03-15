@@ -24,7 +24,7 @@ class OnboardingViewModel @Inject constructor(
     var registrationListener = MutableLiveData<Event<OnboardingStates>>()
     var accountCreationListener = MutableLiveData<Event<OnboardingStates>>()
     var userUpdateListener = MutableLiveData<Event<OnboardingStates>>()
-    var uploadStateListener = MutableLiveData<Event<OnboardingStates>>()
+    var uploadStateListener = MutableLiveData<Event<OnboardingFileStates>>()
     var chunkCount = 0L
 
     fun sendNewUserData(
@@ -123,14 +123,15 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun uploadFile(jsonObject: JsonObject, chunks: Long) = viewModelScope.launch {
+        var fileId: Int? = null
         try {
-            onboardingRepository.uploadFiles(jsonObject)
-            uploadStateListener.postValue(Event(OnboardingStates.UPLOAD_PIECE))
+            fileId = onboardingRepository.uploadFiles(jsonObject).data?.file?.id
+            uploadStateListener.postValue(Event(UploadPiece))
             Timber.d("Sending file chunk")
         } catch (ex: Exception) {
             Tools.checkError(ex)
             Timber.d("File send error")
-            uploadStateListener.postValue(Event(OnboardingStates.UPLOAD_ERROR))
+            uploadStateListener.postValue(Event(UploadError))
             chunkCount = 1
             return@launch
         }
@@ -139,10 +140,14 @@ class OnboardingViewModel @Inject constructor(
         chunkCount++
 
         if (chunkCount == chunks) {
-            uploadStateListener.postValue(Event(OnboardingStates.UPLOAD_SUCCESS))
+            uploadStateListener.postValue(Event(UploadSuccess(fileId!!)))
             chunkCount = 1
         }
     }
 }
 
 enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR, UPLOAD_PIECE, UPLOAD_ERROR, UPLOAD_SUCCESS }
+sealed class OnboardingFileStates
+class UploadSuccess(val fileId: Int) : OnboardingFileStates()
+object UploadPiece : OnboardingFileStates()
+object UploadError : OnboardingFileStates()

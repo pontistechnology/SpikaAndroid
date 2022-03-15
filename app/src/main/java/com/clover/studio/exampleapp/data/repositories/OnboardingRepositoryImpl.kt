@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.data.repositories
 
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
+import com.clover.studio.exampleapp.data.models.networking.FileResponse
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
@@ -72,5 +73,5 @@ interface OnboardingRepository {
 
     suspend fun uploadFiles(
         jsonObject: JsonObject
-    )
+    ): FileResponse
 }
