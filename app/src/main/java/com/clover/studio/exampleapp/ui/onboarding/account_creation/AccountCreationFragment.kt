@@ -15,12 +15,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.networking.FileChunk
 import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
-import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
-import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
+import com.clover.studio.exampleapp.ui.onboarding.*
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools
@@ -117,18 +117,22 @@ class AccountCreationFragment : BaseFragment() {
 
         viewModel.uploadStateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
-                OnboardingStates.UPLOAD_PIECE -> {
+                is UploadPiece -> {
                     Timber.d("PROGRESS $progress, $uploadPieces, ${binding.progressBar.max}")
                     if (progress <= uploadPieces) {
                         binding.progressBar.secondaryProgress = progress.toInt()
                         progress++
                     } else progress = 0
                 }
-                OnboardingStates.UPLOAD_SUCCESS -> {
+                is UploadSuccess -> {
                     binding.progressBar.secondaryProgress = uploadPieces.toInt()
-                    viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
+                    val userData = hashMapOf(
+                        Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString(),
+                        Const.UserData.AVATAR_URL to BuildConfig.SERVER_URL + Const.Networking.API_UPLOAD_FILE + "/${it.fileId}"
+                    )
+                    viewModel.updateUserData(userData)
                 }
-                OnboardingStates.UPLOAD_ERROR -> {
+                UploadError -> {
                     DialogError.getInstance(requireActivity(),
                         getString(R.string.error),
                         getString(R.string.image_failed_upload),
