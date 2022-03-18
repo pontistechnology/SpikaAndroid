@@ -46,6 +46,8 @@ class Const {
             const val AVATAR_URL = "avatarUrl"
             const val USER_IDS = "userIds"
             const val ADMIN_USER_IDS = "adminUserIds"
+            const val PRIVATE = "private"
+            const val GROUP = "group"
         }
     }
 

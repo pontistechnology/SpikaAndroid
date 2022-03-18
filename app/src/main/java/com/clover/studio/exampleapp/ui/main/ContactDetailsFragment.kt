@@ -88,7 +88,7 @@ class ContactDetailsFragment : BaseFragment() {
 //
                     val userIdsArray = JsonArray()
                     userIdsArray.add(user?.id)
-                    userIdsArray.add(5)
+//                    userIdsArray.add(5)
 //
 //                    val adminUserIds = JsonArray()
 //                    adminUserIds.add(3)
@@ -97,7 +97,7 @@ class ContactDetailsFragment : BaseFragment() {
                     jsonObject.addProperty(Const.JsonFields.AVATAR_URL, user?.avatarUrl)
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
 //                    jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
-                    jsonObject.addProperty(Const.JsonFields.TYPE, "private")
+                    jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
 
                     viewModel.createNewRoom(jsonObject)
                 }
