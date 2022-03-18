@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.data.repositories
 import com.clover.studio.exampleapp.data.daos.ChatDao
 import com.clover.studio.exampleapp.data.daos.ChatUserDao
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
@@ -17,10 +18,10 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun sendMessage(jsonObject: JsonObject): Message =
         chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
 
-    override suspend fun getMessages(roomId: String): List<Message> =
+    override suspend fun getMessages(roomId: String): MessageResponse =
         chatService.getMessages(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
-    override suspend fun getMessagesTimestamp(timestamp: Int): List<Message> =
+    override suspend fun getMessagesTimestamp(timestamp: Int): MessageResponse =
         chatService.getMessagesTimestamp(getHeaderMap(sharedPrefsRepo.readToken()), timestamp)
 
     override suspend fun sendMessageDelivered(jsonObject: JsonObject) =
@@ -29,7 +30,7 @@ class ChatRepositoryImpl @Inject constructor(
 
 interface ChatRepository {
     suspend fun sendMessage(jsonObject: JsonObject): Message
-    suspend fun getMessages(roomId: String): List<Message>
-    suspend fun getMessagesTimestamp(timestamp: Int): List<Message>
+    suspend fun getMessages(roomId: String): MessageResponse
+    suspend fun getMessagesTimestamp(timestamp: Int): MessageResponse
     suspend fun sendMessageDelivered(jsonObject: JsonObject)
 }

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.networking.Room
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
@@ -25,11 +26,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
 
-fun startChatScreenActivity(fromActivity: Activity, userData: String) = fromActivity.apply {
-    val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
-    intent.putExtra(Const.Navigation.USER_PROFILE, userData)
-    startActivity(intent)
-}
+fun startChatScreenActivity(fromActivity: Activity, userData: String, roomData: String) =
+    fromActivity.apply {
+        val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
+        intent.putExtra(Const.Navigation.USER_PROFILE, userData)
+        intent.putExtra(Const.Navigation.ROOM_DATA, roomData)
+        startActivity(intent)
+    }
 
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
@@ -38,6 +41,7 @@ private const val ROTATION_OFF = 0f
 class ChatScreenActivity : BaseActivity() {
     private val viewModel: ChatViewModel by viewModels()
     private lateinit var user: User
+    private lateinit var room: Room
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var messages: List<Message>
@@ -55,6 +59,12 @@ class ChatScreenActivity : BaseActivity() {
             User::class.java
         )
 
+        // Fetch room data sent from previous activity
+        room = gson.fromJson(
+            intent.getStringExtra(Const.Navigation.ROOM_DATA),
+            Room::class.java
+        )
+
         initViews()
         setUpAdapter()
         initializeObservers()
@@ -64,8 +74,8 @@ class ChatScreenActivity : BaseActivity() {
         viewModel.messageSendListener.observe(this, EventObserver {
             when (it) {
                 ChatStatesEnum.MESSAGE_SENT -> {
-                    Timber.d("Message sent successfully")
                     bindingSetup.etMessage.setText("")
+                    viewModel.getMessages(room.id!!)
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
@@ -133,7 +143,7 @@ class ChatScreenActivity : BaseActivity() {
                 // Get swiped message text and add to message EditText
                 // After that, return item to correct position
                 val position = viewHolder.adapterPosition
-                bindingSetup.etMessage.setText(messages[position].message)
+                bindingSetup.etMessage.setText(messages[position].messageBody.text)
                 chatAdapter.notifyItemChanged(position)
             }
         }
@@ -142,7 +152,7 @@ class ChatScreenActivity : BaseActivity() {
         itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
 
         // Get user messages
-        viewModel.getMessages("1")
+        viewModel.getMessages(room.id!!)
     }
 
     private fun initViews() {
@@ -183,7 +193,7 @@ class ChatScreenActivity : BaseActivity() {
             )
             innerObject.addProperty(Const.JsonFields.TYPE, "text")
 
-            jsonObject.addProperty(Const.JsonFields.ROOM_ID, 1)
+            jsonObject.addProperty(Const.JsonFields.ROOM_ID, room.id)
             jsonObject.addProperty(Const.JsonFields.TYPE, "text")
             jsonObject.add(Const.JsonFields.MESSAGE, innerObject)
 

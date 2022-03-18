@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.data.services
 
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
 import retrofit2.http.*
@@ -15,14 +16,14 @@ interface ChatService {
     @GET(Const.Networking.API_GET_MESSAGES)
     suspend fun getMessages(
         @HeaderMap headers: Map<String, String?>,
-        @Query(Const.Networking.ROOM_ID) roomId: String
-    ): List<Message>
+        @Path(Const.Networking.ROOM_ID) roomId: String
+    ): MessageResponse
 
     @GET(Const.Networking.API_GET_MESSAGES_TIMESTAMP)
     suspend fun getMessagesTimestamp(
         @HeaderMap headers: Map<String, String?>,
         @Query(Const.Networking.TIMESTAMP) timestamp: Int
-    ): List<Message>
+    ): MessageResponse
 
     @POST(Const.Networking.API_MESSAGE_DELIVERED)
     suspend fun sendMessageDelivered(

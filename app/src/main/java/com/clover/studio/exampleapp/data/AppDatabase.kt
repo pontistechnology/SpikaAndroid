@@ -4,18 +4,21 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.clover.studio.exampleapp.data.AppDatabase.Companion.DATABASE_VERSION
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.models.Chat
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.Reaction
 import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.utils.helpers.TypeConverter
 
 @Database(
     entities = [User::class, Reaction::class, Chat::class, Message::class],
     version = DATABASE_VERSION,
     exportSchema = false
 )
+@TypeConverters(TypeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun chatDao(): ChatDao

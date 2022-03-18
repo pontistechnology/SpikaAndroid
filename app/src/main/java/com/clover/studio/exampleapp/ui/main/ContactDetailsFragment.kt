@@ -73,13 +73,14 @@ class ContactDetailsFragment : BaseFragment() {
     private fun initializeObservers() {
         viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
-                MainStatesEnum.ROOM_EXISTS -> {
+                is RoomExists -> {
                     Timber.d("Room already exists")
                     val gson = Gson()
                     val userData = gson.toJson(user)
-                    startChatScreenActivity(requireActivity(), userData)
+                    val roomData = gson.toJson(it.roomData)
+                    startChatScreenActivity(requireActivity(), userData, roomData)
                 }
-                MainStatesEnum.ROOM_NOT_FOUND -> {
+                is RoomNotFound -> {
                     Timber.d("Room not found, creating new one")
                     val jsonObject = JsonObject()
 
@@ -101,6 +102,7 @@ class ContactDetailsFragment : BaseFragment() {
 
                     viewModel.createNewRoom(jsonObject)
                 }
+                else -> Timber.d("Other error")
             }
         })
 
@@ -109,7 +111,8 @@ class ContactDetailsFragment : BaseFragment() {
                 is RoomCreated -> {
                     val gson = Gson()
                     val userData = gson.toJson(user)
-                    startChatScreenActivity(requireActivity(), userData)
+                    val roomData = gson.toJson(it.roomData)
+                    startChatScreenActivity(requireActivity(), userData, roomData)
                 }
                 is RoomFailed -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")

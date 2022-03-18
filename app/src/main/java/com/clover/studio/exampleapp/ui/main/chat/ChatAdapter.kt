@@ -52,9 +52,9 @@ class ChatAdapter(
         // TODO display data in separate view holders
         getItem(position).let {
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
-                (holder as SentMessageHolder).binding.tvMessage.text = it.message
+                (holder as SentMessageHolder).binding.tvMessage.text = it.messageBody.text
             } else {
-                (holder as ReceivedMessageHolder).binding.tvMessage.text = it.message
+                (holder as ReceivedMessageHolder).binding.tvMessage.text = it.messageBody.text
             }
         }
     }

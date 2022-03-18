@@ -35,15 +35,10 @@ class ChatViewModel @Inject constructor(
         messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SENT))
     }
 
-    fun getMessages(roomId: String) = viewModelScope.launch {
+    fun getMessages(roomId: Int) = viewModelScope.launch {
         try {
-            // TODO remove fake messages
-//            val messages = repository.getMessages(roomId)
-            val messages = arrayListOf(
-                Message(1, 22, 23, 1, 1, 1, 1, 2, "my text message"),
-                Message(2, 21, 22, 1, 1, 1, 1, 2, "other user message")
-            )
-            getMessagesListener.postValue(Event(MessagesFetched(messages)))
+            val messages = repository.getMessages(roomId.toString()).data?.list
+            getMessagesListener.postValue(Event(MessagesFetched(messages!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
             getMessagesListener.postValue(Event(MessageFetchFail))
@@ -53,8 +48,8 @@ class ChatViewModel @Inject constructor(
 
     fun getMessagesTimestamp(timestamp: Int) = viewModelScope.launch {
         try {
-            val messages = repository.getMessagesTimestamp(timestamp)
-            getMessagesTimestampListener.postValue(Event(MessagesTimestampFetched(messages)))
+            val messages = repository.getMessagesTimestamp(timestamp).data?.list
+            getMessagesTimestampListener.postValue(Event(MessagesTimestampFetched(messages!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
             getMessagesTimestampListener.postValue(Event(MessageTimestampFetchFail))

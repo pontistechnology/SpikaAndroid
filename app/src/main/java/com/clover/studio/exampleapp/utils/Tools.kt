@@ -31,7 +31,7 @@ const val BITMAP_HEIGHT = 512
 object Tools {
     fun checkError(ex: Exception) {
         when (ex) {
-            is IllegalArgumentException -> Timber.d("IllegalArgumentException")
+            is IllegalArgumentException -> Timber.d("IllegalArgumentException ${ex.message}")
             is IOException -> Timber.d("IOException")
             is HttpException -> Timber.d("HttpException: ${ex.code()} ${ex.message}")
             else -> Timber.d("UnknownError: ${ex.message}")

@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.clover.studio.exampleapp.data.models.networking.Room
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.UserRepositoryImpl
 import com.clover.studio.exampleapp.utils.Event
@@ -20,7 +21,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     val usersListener = MutableLiveData<Event<MainStates>>()
-    val checkRoomExistsListener = MutableLiveData<Event<MainStatesEnum>>()
+    val checkRoomExistsListener = MutableLiveData<Event<MainStates>>()
     val createRoomListener = MutableLiveData<Event<MainStates>>()
 
     fun getContacts() = viewModelScope.launch {
@@ -50,33 +51,31 @@ class MainViewModel @Inject constructor(
 
     fun checkIfRoomExists(userId: Int) = viewModelScope.launch {
         try {
-            repository.getRoomById(userId)
+            val roomData = repository.getRoomById(userId).data?.room
+            checkRoomExistsListener.postValue(Event(RoomExists(roomData!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
-            checkRoomExistsListener.postValue(Event(MainStatesEnum.ROOM_NOT_FOUND))
+            checkRoomExistsListener.postValue(Event(RoomNotFound))
             return@launch
         }
-
-        checkRoomExistsListener.postValue(Event(MainStatesEnum.ROOM_EXISTS))
     }
 
     fun createNewRoom(jsonObject: JsonObject) = viewModelScope.launch {
         try {
-            repository.createNewRoom(jsonObject)
+            val roomData = repository.createNewRoom(jsonObject).data?.room
+            createRoomListener.postValue(Event(RoomCreated(roomData!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
             createRoomListener.postValue(Event(RoomFailed))
             return@launch
         }
-
-        createRoomListener.postValue(Event(RoomCreated))
     }
 }
 
 sealed class MainStates
 object UsersFetched : MainStates()
 object UsersError : MainStates()
-object RoomCreated : MainStates()
+class RoomCreated(val roomData: Room) : MainStates()
 object RoomFailed : MainStates()
-
-enum class MainStatesEnum { ROOM_EXISTS, ROOM_NOT_FOUND }
+class RoomExists(val roomData: Room) : MainStates()
+object RoomNotFound : MainStates()

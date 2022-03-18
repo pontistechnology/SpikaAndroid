@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.data.repositories
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.networking.RoomResponse
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
@@ -41,6 +42,6 @@ interface UserRepository {
     suspend fun getUsers()
     fun getUserByID(id: Int): LiveData<User>
     fun getUserLiveData(): LiveData<List<User>>
-    suspend fun getRoomById(userId: Int)
-    suspend fun createNewRoom(jsonObject: JsonObject)
+    suspend fun getRoomById(userId: Int): RoomResponse
+    suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
 }

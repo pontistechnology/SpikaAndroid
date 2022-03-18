@@ -1,8 +1,6 @@
 package com.clover.studio.exampleapp.data.models
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.google.gson.annotations.SerializedName
 
@@ -21,9 +19,9 @@ data class Message(
     @ColumnInfo(name = "from_device_id")
     val fromDeviceId: Int,
 
-    @SerializedName("sentCount")
-    @ColumnInfo(name = "sent_count")
-    val sentCount: Int,
+    @SerializedName("totalDeviceCount")
+    @ColumnInfo(name = "total_device_count")
+    val totalDeviceCount: Int,
 
     @SerializedName("receivedCount")
     @ColumnInfo(name = "received_count")
@@ -37,11 +35,21 @@ data class Message(
     @ColumnInfo(name = "room_id")
     val roomId: Int,
 
-    @SerializedName("messageType")
-    @ColumnInfo(name = "message_type")
-    val messageType: Int,
+    @SerializedName("type")
+    @ColumnInfo(name = "type")
+    val type: String,
 
-    @SerializedName("message")
-    @ColumnInfo(name = "message")
-    val message: String
+    @SerializedName("messageBody")
+    @ColumnInfo(name = "message_body")
+    @TypeConverters(TypeConverter::class)
+    val messageBody: MessageBody,
+
+    @SerializedName("createdAt")
+    @ColumnInfo(name = "created_at")
+    val createdAt: Long
+)
+
+data class MessageBody(
+    val text: String,
+    val type: String
 )
