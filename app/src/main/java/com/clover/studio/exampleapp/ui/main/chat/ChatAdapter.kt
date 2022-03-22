@@ -3,9 +3,11 @@ package com.clover.studio.exampleapp.ui.main.chat
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
@@ -15,6 +17,7 @@ private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 
 class ChatAdapter(
     private val context: Context,
+    private val myUserId: Int,
     private val onItemClick: ((item: Message) -> Unit)
 ) :
     ListAdapter<Message, RecyclerView.ViewHolder>(MessageDiffCallback()) {
@@ -40,8 +43,7 @@ class ChatAdapter(
     override fun getItemViewType(position: Int): Int {
         val message = getItem(position)
 
-        // TODO check if message is from user or not
-        return if (message.id == 1) {
+        return if (message.fromUserId == myUserId) {
             VIEW_TYPE_MESSAGE_SENT
         } else {
             VIEW_TYPE_MESSAGE_RECEIVED
@@ -49,10 +51,19 @@ class ChatAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        // TODO display data in separate view holders
         getItem(position).let {
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 (holder as SentMessageHolder).binding.tvMessage.text = it.messageBody.text
+
+                // TODO Handle image below user sent message. Handle sent, delivered, seen states
+                if (it.id != 0) {
+                    holder.binding.ivMessageStatus.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            context,
+                            R.drawable.img_done
+                        )
+                    )
+                }
             } else {
                 (holder as ReceivedMessageHolder).binding.tvMessage.text = it.messageBody.text
             }

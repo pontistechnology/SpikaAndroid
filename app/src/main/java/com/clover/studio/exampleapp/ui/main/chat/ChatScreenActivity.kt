@@ -44,7 +44,7 @@ class ChatScreenActivity : BaseActivity() {
     private lateinit var room: Room
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private lateinit var chatAdapter: ChatAdapter
-    private lateinit var messages: List<Message>
+    private lateinit var messages: MutableList<Message>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,8 +86,12 @@ class ChatScreenActivity : BaseActivity() {
             when (it) {
                 is MessagesFetched -> {
                     Timber.d("Messages fetched ${it.messages}")
-                    messages = it.messages
-                    chatAdapter.submitList(it.messages)
+                    messages = it.messages as MutableList<Message>
+
+                    // After submitting new list, scroll to the bottom of the message list.
+                    chatAdapter.submitList(it.messages) {
+                        bindingSetup.rvChat.scrollToPosition(0)
+                    }
                 }
                 is MessageFetchFail -> Timber.d("Failed to fetch messages")
                 else -> Timber.d("Other error")
@@ -98,7 +102,7 @@ class ChatScreenActivity : BaseActivity() {
             when (it) {
                 is MessagesTimestampFetched -> {
                     Timber.d("Messages timestamp fetched")
-                    messages = it.messages
+                    messages = it.messages as MutableList<Message>
                     chatAdapter.submitList(it.messages)
                 }
                 is MessageTimestampFetchFail -> Timber.d("Failed to fetch messages timestamp")
@@ -116,7 +120,7 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun setUpAdapter() {
-        chatAdapter = ChatAdapter(this) {
+        chatAdapter = ChatAdapter(this, viewModel.getLocalUserId()!!) {
             // TODO set up on click function
         }
 
@@ -185,6 +189,24 @@ class ChatScreenActivity : BaseActivity() {
         bindingSetup.tvUsername.text = user.displayName
         Glide.with(this).load(user.avatarUrl).into(bindingSetup.ivUserImage)
         bindingSetup.ivButtonSend.setOnClickListener {
+            // TODO implement a temporary message which need to be sent to the server. Handle
+            // TODO success and fail states.
+//            val tempMessage = Message(
+//                0,
+//                viewModel.getLocalUserId()!!,
+//                0,
+//                0,
+//                0,
+//                0,
+//                room.id!!,
+//                "text",
+//                MessageBody(bindingSetup.etMessage.text.toString(), "text"),
+//                0
+//            )
+//
+//            messages.add(tempMessage)
+//            chatAdapter.submitList(messages)
+
             val jsonObject = JsonObject()
             val innerObject = JsonObject()
             innerObject.addProperty(
