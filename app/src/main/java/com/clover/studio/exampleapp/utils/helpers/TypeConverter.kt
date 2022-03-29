@@ -20,10 +20,12 @@ object TypeConverter {
     }
 
     @TypeConverter
-    fun stringToMessages(json: String?): MessageBody {
+    fun stringToMessages(json: String?): MessageBody? {
         val gson = Gson()
-        val type: Type = object : TypeToken<MessageBody?>() {}.type
-        return gson.fromJson(json, type)
+        return if (json != null) {
+            val type: Type = object : TypeToken<MessageBody?>() {}.type
+            gson.fromJson(json, type)
+        } else null
     }
 
     @TypeConverter

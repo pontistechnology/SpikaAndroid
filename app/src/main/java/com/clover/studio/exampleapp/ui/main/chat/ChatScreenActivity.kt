@@ -84,15 +84,7 @@ class ChatScreenActivity : BaseActivity() {
 
         viewModel.getMessagesListener.observe(this, EventObserver {
             when (it) {
-                is MessagesFetched -> {
-                    Timber.d("Messages fetched ${it.messages}")
-                    messages = it.messages as MutableList<Message>
-
-                    // After submitting new list, scroll to the bottom of the message list.
-                    chatAdapter.submitList(it.messages) {
-                        bindingSetup.rvChat.scrollToPosition(0)
-                    }
-                }
+                is MessagesFetched -> Timber.d("Messages fetched")
                 is MessageFetchFail -> Timber.d("Failed to fetch messages")
                 else -> Timber.d("Other error")
             }
@@ -117,6 +109,15 @@ class ChatScreenActivity : BaseActivity() {
                 else -> Timber.d("Other error")
             }
         })
+
+        viewModel.getLocalMessages(room.id!!).observe(this) {
+            if (it.isNotEmpty()) {
+                messages = it as MutableList<Message>
+                chatAdapter.submitList(it) {
+                    bindingSetup.rvChat.scrollToPosition(0)
+                }
+            }
+        }
     }
 
     private fun setUpAdapter() {
@@ -147,7 +148,7 @@ class ChatScreenActivity : BaseActivity() {
                 // Get swiped message text and add to message EditText
                 // After that, return item to correct position
                 val position = viewHolder.adapterPosition
-                bindingSetup.etMessage.setText(messages[position].messageBody.text)
+                bindingSetup.etMessage.setText(messages[position].body?.text)
                 chatAdapter.notifyItemChanged(position)
             }
         }

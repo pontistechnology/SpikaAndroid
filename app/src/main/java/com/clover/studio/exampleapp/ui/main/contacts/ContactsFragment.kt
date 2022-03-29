@@ -15,11 +15,9 @@ import com.clover.studio.exampleapp.databinding.FragmentContactsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.UsersError
 import com.clover.studio.exampleapp.ui.main.UsersFetched
-import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
-import com.google.gson.Gson
 import timber.log.Timber
 
 class ContactsFragment : BaseFragment() {
@@ -125,14 +123,16 @@ class ContactsFragment : BaseFragment() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
                     Timber.d("Query: $query")
-                    for (user in userList) {
-                        if (user.displayName?.contains(query, ignoreCase = true) == true) {
-                            filteredList.add(user)
+                    if (::userList.isInitialized) {
+                        for (user in userList) {
+                            if (user.displayName?.contains(query, ignoreCase = true) == true) {
+                                filteredList.add(user)
+                            }
                         }
+                        Timber.d("Filtered List: $filteredList")
+                        contactsAdapter.submitList(ArrayList(filteredList))
+                        filteredList.clear()
                     }
-                    Timber.d("Filtered List: $filteredList")
-                    contactsAdapter.submitList(ArrayList(filteredList))
-                    filteredList.clear()
                 }
                 return true
             }
@@ -140,14 +140,16 @@ class ContactsFragment : BaseFragment() {
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
                     Timber.d("Query: $query")
-                    for (user in userList) {
-                        if (user.displayName?.contains(query, ignoreCase = true) == true) {
-                            filteredList.add(user)
+                    if (::userList.isInitialized) {
+                        for (user in userList) {
+                            if (user.displayName?.contains(query, ignoreCase = true) == true) {
+                                filteredList.add(user)
+                            }
                         }
+                        Timber.d("Filtered List: $filteredList")
+                        contactsAdapter.submitList(ArrayList(filteredList))
+                        filteredList.clear()
                     }
-                    Timber.d("Filtered List: $filteredList")
-                    contactsAdapter.submitList(ArrayList(filteredList))
-                    filteredList.clear()
                 }
                 return true
             }

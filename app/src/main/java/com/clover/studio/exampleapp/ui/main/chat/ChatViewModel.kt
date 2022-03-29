@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.ui.main.chat
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
@@ -36,15 +37,15 @@ class ChatViewModel @Inject constructor(
     }
 
     fun getMessages(roomId: Int) = viewModelScope.launch {
-        // TODO Write this to return live data, save message data from response to local db
         try {
-            val messages = repository.getMessages(roomId.toString()).data?.list
-            getMessagesListener.postValue(Event(MessagesFetched(messages!!)))
+            repository.getMessages(roomId.toString())
         } catch (ex: Exception) {
             Tools.checkError(ex)
             getMessagesListener.postValue(Event(MessageFetchFail))
             return@launch
         }
+
+        getMessagesListener.postValue(Event(MessagesFetched))
     }
 
     fun getMessagesTimestamp(timestamp: Int) = viewModelScope.launch {
@@ -69,6 +70,10 @@ class ChatViewModel @Inject constructor(
         sendMessageDeliveredListener.postValue(Event(ChatStatesEnum.MESSAGE_DELIVERED))
     }
 
+    fun getLocalMessages(roomId: Int) = liveData {
+        emitSource(repository.getMessagesLiveData(roomId))
+    }
+
     fun getLocalUserId(): Int? {
         var userId: Int? = null
 
@@ -80,7 +85,7 @@ class ChatViewModel @Inject constructor(
 }
 
 sealed class ChatStates
-data class MessagesFetched(val messages: List<Message>) : ChatStates()
+object MessagesFetched : ChatStates()
 data class MessagesTimestampFetched(val messages: List<Message>) : ChatStates()
 object MessageFetchFail : ChatStates()
 object MessageTimestampFetchFail : ChatStates()

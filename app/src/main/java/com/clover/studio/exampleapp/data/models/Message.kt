@@ -13,43 +13,43 @@ data class Message(
 
     @SerializedName("fromUserId")
     @ColumnInfo(name = "from_user_id")
-    val fromUserId: Int,
+    val fromUserId: Int?,
 
     @SerializedName("fromDeviceId")
     @ColumnInfo(name = "from_device_id")
-    val fromDeviceId: Int,
+    val fromDeviceId: Int?,
 
     @SerializedName("totalDeviceCount")
     @ColumnInfo(name = "total_device_count")
-    val totalDeviceCount: Int,
+    val totalDeviceCount: Int?,
 
     @SerializedName("receivedCount")
     @ColumnInfo(name = "received_count")
-    val receivedCount: Int,
+    val receivedCount: Int?,
 
     @SerializedName("seenCount")
     @ColumnInfo(name = "seen_count")
-    val seenCount: Int,
+    val seenCount: Int?,
 
     @SerializedName("roomId")
     @ColumnInfo(name = "room_id")
-    val roomId: Int,
+    val roomId: Int?,
 
     @SerializedName("type")
     @ColumnInfo(name = "type")
-    val type: String,
+    val type: String?,
 
-    @SerializedName("messageBody")
-    @ColumnInfo(name = "message_body")
+    @SerializedName("body")
+    @ColumnInfo(name = "body")
     @TypeConverters(TypeConverter::class)
-    val messageBody: MessageBody,
+    val body: MessageBody?,
 
     @SerializedName("createdAt")
     @ColumnInfo(name = "created_at")
-    val createdAt: Long
+    val createdAt: Long?
 )
 
 data class MessageBody(
-    val text: String,
-    val type: String
+    val text: String?,
+    val type: String?
 )
