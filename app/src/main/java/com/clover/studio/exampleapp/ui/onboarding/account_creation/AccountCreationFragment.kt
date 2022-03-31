@@ -17,7 +17,7 @@ import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.networking.FileChunk
+import com.clover.studio.exampleapp.data.models.UploadFile
 import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.*
@@ -44,6 +44,7 @@ class AccountCreationFragment : BaseFragment() {
     private var sha256FileHash: String? = ""
     private var uploadPieces: Long = 0L
     private var progress: Long = 1L
+    private var uploadFile: UploadFile? = null
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -117,14 +118,15 @@ class AccountCreationFragment : BaseFragment() {
 
         viewModel.uploadStateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
-                is UploadPiece -> {
+                UploadPiece -> {
                     Timber.d("PROGRESS $progress, $uploadPieces, ${binding.progressBar.max}")
                     if (progress <= uploadPieces) {
                         binding.progressBar.secondaryProgress = progress.toInt()
                         progress++
                     } else progress = 0
                 }
-                is UploadSuccess -> {
+                UploadSuccess -> viewModel.verifyUploadedFile(uploadFile!!.fileToJson())
+                is UploadVerified -> {
                     binding.progressBar.secondaryProgress = uploadPieces.toInt()
                     val userData = hashMapOf(
                         Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString(),
@@ -132,34 +134,8 @@ class AccountCreationFragment : BaseFragment() {
                     )
                     viewModel.updateUserData(userData)
                 }
-                UploadError -> {
-                    DialogError.getInstance(requireActivity(),
-                        getString(R.string.error),
-                        getString(R.string.image_failed_upload),
-                        null,
-                        getString(R.string.ok),
-                        object : DialogInteraction {
-                            override fun onFirstOptionClicked() {
-                                // ignore
-                            }
-
-                            override fun onSecondOptionClicked() {
-                                // ignore
-                            }
-                        })
-                    binding.clProgressScreen.visibility = View.GONE
-                    binding.progressBar.secondaryProgress = 0
-                    currentPhotoLocation = Uri.EMPTY
-                    Glide.with(this).clear(binding.ivPickPhoto)
-                    binding.ivPickPhoto.setImageDrawable(
-                        ContextCompat.getDrawable(
-                            requireContext(),
-                            R.drawable.img_camera
-                        )
-                    )
-                    binding.clSmallCameraPicker.visibility = View.GONE
-                }
-                else -> Timber.d("Other error")
+                UploadVerificationFailed -> showUploadError()
+                UploadError -> showUploadError()
             }
         })
     }
@@ -212,6 +188,34 @@ class AccountCreationFragment : BaseFragment() {
                 }
             }
         })
+    }
+
+    private fun showUploadError() {
+        DialogError.getInstance(requireActivity(),
+            getString(R.string.error),
+            getString(R.string.image_failed_upload),
+            null,
+            getString(R.string.ok),
+            object : DialogInteraction {
+                override fun onFirstOptionClicked() {
+                    // ignore
+                }
+
+                override fun onSecondOptionClicked() {
+                    // ignore
+                }
+            })
+        binding.clProgressScreen.visibility = View.GONE
+        binding.progressBar.secondaryProgress = 0
+        currentPhotoLocation = Uri.EMPTY
+        Glide.with(this).clear(binding.ivPickPhoto)
+        binding.ivPickPhoto.setImageDrawable(
+            ContextCompat.getDrawable(
+                requireContext(),
+                R.drawable.img_camera
+            )
+        )
+        binding.clSmallCameraPicker.visibility = View.GONE
     }
 
     private fun checkUsername() {
@@ -267,7 +271,7 @@ class AccountCreationFragment : BaseFragment() {
             val temp = ByteArray(CHUNK_SIZE)
             val randomId = UUID.randomUUID().toString().substring(0, 7)
             while (bis.read(temp).also { len = it } > 0) {
-                val fileChunk = FileChunk(
+                uploadFile = UploadFile(
                     Base64.encodeToString(
                         temp,
                         0,
@@ -285,9 +289,9 @@ class AccountCreationFragment : BaseFragment() {
                     1
                 )
 
-                viewModel.uploadFile(fileChunk.chunkToJson(), uploadPieces)
+                viewModel.uploadFile(uploadFile!!.chunkToJson(), uploadPieces)
 
-                Timber.d("$fileChunk")
+                Timber.d("$uploadFile")
                 piece++
             }
         }

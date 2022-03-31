@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.networking.Room
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
@@ -45,6 +46,7 @@ class ChatScreenActivity : BaseActivity() {
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var messages: MutableList<Message>
+    private var unsentMessages: MutableList<Message> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +86,10 @@ class ChatScreenActivity : BaseActivity() {
 
         viewModel.getMessagesListener.observe(this, EventObserver {
             when (it) {
-                is MessagesFetched -> Timber.d("Messages fetched")
+                is MessagesFetched -> {
+                    viewModel.deleteLocalMessages(unsentMessages)
+                    unsentMessages.clear()
+                }
                 is MessageFetchFail -> Timber.d("Failed to fetch messages")
                 else -> Timber.d("Other error")
             }
@@ -113,7 +118,8 @@ class ChatScreenActivity : BaseActivity() {
         viewModel.getLocalMessages(room.id!!).observe(this) {
             if (it.isNotEmpty()) {
                 messages = it as MutableList<Message>
-                chatAdapter.submitList(it) {
+                messages.sortByDescending { message -> message.createdAt }
+                chatAdapter.submitList(messages) {
                     bindingSetup.rvChat.scrollToPosition(0)
                 }
             }
@@ -192,21 +198,22 @@ class ChatScreenActivity : BaseActivity() {
         bindingSetup.ivButtonSend.setOnClickListener {
             // TODO implement a temporary message which need to be sent to the server. Handle
             // TODO success and fail states.
-//            val tempMessage = Message(
-//                0,
-//                viewModel.getLocalUserId()!!,
-//                0,
-//                0,
-//                0,
-//                0,
-//                room.id!!,
-//                "text",
-//                MessageBody(bindingSetup.etMessage.text.toString(), "text"),
-//                0
-//            )
-//
-//            messages.add(tempMessage)
-//            chatAdapter.submitList(messages)
+            val tempMessage = Message(
+                0,
+                viewModel.getLocalUserId()!!,
+                0,
+                0,
+                0,
+                -1,
+                0,
+                room.id!!,
+                "text",
+                MessageBody(bindingSetup.etMessage.text.toString(), "text"),
+                System.currentTimeMillis()
+            )
+
+            unsentMessages.add(tempMessage)
+            viewModel.storeMessageLocally(tempMessage)
 
             val jsonObject = JsonObject()
             val innerObject = JsonObject()

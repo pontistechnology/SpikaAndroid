@@ -31,5 +31,5 @@ data class User(
     val emailAddress: String?,
 
     @ColumnInfo(name = "created_at")
-    val createdAt: String?,
+    val createdAt: String?
 ) : Parcelable

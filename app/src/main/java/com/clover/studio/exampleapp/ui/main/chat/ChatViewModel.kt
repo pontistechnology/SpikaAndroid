@@ -24,6 +24,15 @@ class ChatViewModel @Inject constructor(
     val getMessagesTimestampListener = MutableLiveData<Event<ChatStates>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
 
+    fun storeMessageLocally(message: Message) = viewModelScope.launch {
+        try {
+            repository.storeMessageLocally(message)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            return@launch
+        }
+    }
+
     fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
         try {
             repository.sendMessage(jsonObject)
@@ -81,6 +90,15 @@ class ChatViewModel @Inject constructor(
             userId = sharedPrefs.readUserId()!!
         }
         return userId
+    }
+
+    fun deleteLocalMessages(messages: List<Message>) = viewModelScope.launch {
+        try {
+            repository.deleteLocalMessages(messages)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            return@launch
+        }
     }
 }
 

@@ -38,4 +38,10 @@ interface OnboardingService {
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
     ): FileResponse
+
+    @POST(value = Const.Networking.API_VERIFY_FILE)
+    suspend fun verifyFile(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject
+    ): FileResponse
 }

@@ -123,9 +123,8 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun uploadFile(jsonObject: JsonObject, chunks: Long) = viewModelScope.launch {
-        var fileId: Int? = null
         try {
-            fileId = onboardingRepository.uploadFiles(jsonObject).data?.file?.id
+            onboardingRepository.uploadFiles(jsonObject).data?.file?.id
             uploadStateListener.postValue(Event(UploadPiece))
             Timber.d("Sending file chunk")
         } catch (ex: Exception) {
@@ -140,14 +139,27 @@ class OnboardingViewModel @Inject constructor(
         chunkCount++
 
         if (chunkCount == chunks) {
-            uploadStateListener.postValue(Event(UploadSuccess(fileId!!)))
+            uploadStateListener.postValue(Event(UploadSuccess))
             chunkCount = 1
+        }
+    }
+
+    fun verifyUploadedFile(jsonObject: JsonObject) = viewModelScope.launch {
+        try {
+            val fileId = onboardingRepository.verifyFile(jsonObject).data?.file?.id
+            uploadStateListener.postValue(Event(UploadVerified(fileId!!)))
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            uploadStateListener.postValue(Event(UploadVerificationFailed))
+            return@launch
         }
     }
 }
 
 enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR, UPLOAD_PIECE, UPLOAD_ERROR, UPLOAD_SUCCESS }
 sealed class OnboardingFileStates
-class UploadSuccess(val fileId: Int) : OnboardingFileStates()
+class UploadVerified(val fileId: Int) : OnboardingFileStates()
+object UploadVerificationFailed : OnboardingFileStates()
+object UploadSuccess : OnboardingFileStates()
 object UploadPiece : OnboardingFileStates()
 object UploadError : OnboardingFileStates()

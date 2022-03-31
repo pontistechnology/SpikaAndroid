@@ -52,6 +52,9 @@ class OnboardingRepositoryImpl @Inject constructor(
     override suspend fun uploadFiles(
         jsonObject: JsonObject
     ) = retrofitService.uploadFiles(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+
+    override suspend fun verifyFile(jsonObject: JsonObject): FileResponse =
+        retrofitService.verifyFile(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 }
 
 interface OnboardingRepository {
@@ -72,6 +75,10 @@ interface OnboardingRepository {
     ): AuthResponse
 
     suspend fun uploadFiles(
+        jsonObject: JsonObject
+    ): FileResponse
+
+    suspend fun verifyFile(
         jsonObject: JsonObject
     ): FileResponse
 }

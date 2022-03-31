@@ -54,15 +54,39 @@ class ChatAdapter(
         getItem(position).let {
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 (holder as SentMessageHolder).binding.tvMessage.text = it.body?.text
-
-                // TODO Handle image below user sent message. Handle sent, delivered, seen states
-                if (it.id != 0) {
-                    holder.binding.ivMessageStatus.setImageDrawable(
-                        ContextCompat.getDrawable(
-                            context,
-                            R.drawable.img_done
+                when {
+                    it.seenCount!! > 0 -> {
+                        holder.binding.ivMessageStatus.setImageDrawable(
+                            ContextCompat.getDrawable(
+                                context,
+                                R.drawable.img_seen
+                            )
                         )
-                    )
+                    }
+                    it.totalUserCount == it.deliveredCount -> {
+                        holder.binding.ivMessageStatus.setImageDrawable(
+                            ContextCompat.getDrawable(
+                                context,
+                                R.drawable.img_done
+                            )
+                        )
+                    }
+                    it.deliveredCount!! > 0 -> {
+                        holder.binding.ivMessageStatus.setImageDrawable(
+                            ContextCompat.getDrawable(
+                                context,
+                                R.drawable.img_sent
+                            )
+                        )
+                    }
+                    else -> {
+                        holder.binding.ivMessageStatus.setImageDrawable(
+                            ContextCompat.getDrawable(
+                                context,
+                                R.drawable.img_clock
+                            )
+                        )
+                    }
                 }
             } else {
                 (holder as ReceivedMessageHolder).binding.tvMessage.text = it.body?.text

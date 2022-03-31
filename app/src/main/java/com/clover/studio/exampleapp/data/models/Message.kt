@@ -23,9 +23,13 @@ data class Message(
     @ColumnInfo(name = "total_device_count")
     val totalDeviceCount: Int?,
 
-    @SerializedName("receivedCount")
-    @ColumnInfo(name = "received_count")
-    val receivedCount: Int?,
+    @SerializedName("totalUserCount")
+    @ColumnInfo(name = "total_user_count")
+    val totalUserCount: Int?,
+
+    @SerializedName("deliveredCount")
+    @ColumnInfo(name = "delivered_count")
+    val deliveredCount: Int?,
 
     @SerializedName("seenCount")
     @ColumnInfo(name = "seen_count")

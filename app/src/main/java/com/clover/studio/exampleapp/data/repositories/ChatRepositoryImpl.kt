@@ -35,6 +35,18 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun sendMessageDelivered(jsonObject: JsonObject) =
         chatService.sendMessageDelivered(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
+
+    override suspend fun storeMessageLocally(message: Message) {
+        messageDao.insert(message)
+    }
+
+    override suspend fun deleteLocalMessages(messages: List<Message>) {
+        if (messages.isNotEmpty()) {
+            for (message in messages) {
+                messageDao.deleteMessage(message)
+            }
+        }
+    }
 }
 
 interface ChatRepository {
@@ -43,4 +55,6 @@ interface ChatRepository {
     suspend fun getMessagesLiveData(roomId: Int): LiveData<List<Message>>
     suspend fun getMessagesTimestamp(timestamp: Int): MessageResponse
     suspend fun sendMessageDelivered(jsonObject: JsonObject)
+    suspend fun storeMessageLocally(message: Message)
+    suspend fun deleteLocalMessages(messages: List<Message>)
 }

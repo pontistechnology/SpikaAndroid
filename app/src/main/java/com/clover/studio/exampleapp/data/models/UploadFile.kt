@@ -1,9 +1,9 @@
-package com.clover.studio.exampleapp.data.models.networking
+package com.clover.studio.exampleapp.data.models
 
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
 
-data class FileChunk(
+data class UploadFile(
     // chunk: Base64 encoded text of chunk
     val chunk: String,
 
@@ -31,11 +31,9 @@ data class FileChunk(
     // relationId: The id of the model the file refers to
     var relationId: Int?
 ) {
-    fun chunkToJson(): JsonObject {
+    fun fileToJson(): JsonObject {
         val jsonObject = JsonObject()
 
-        jsonObject.addProperty(Const.JsonFields.CHUNK, chunk)
-        jsonObject.addProperty(Const.JsonFields.OFFSET, offset)
         jsonObject.addProperty(Const.JsonFields.TOTAL, total)
         jsonObject.addProperty(Const.JsonFields.SIZE, size)
         jsonObject.addProperty(Const.JsonFields.MIME_TYPE, mimeType)
@@ -44,6 +42,16 @@ data class FileChunk(
         jsonObject.addProperty(Const.JsonFields.FILE_HASH, fileHash)
         jsonObject.addProperty(Const.JsonFields.TYPE, type)
         jsonObject.addProperty(Const.JsonFields.RELATION_ID, relationId)
+
+        return jsonObject
+    }
+
+    fun chunkToJson(): JsonObject {
+        val jsonObject = JsonObject()
+
+        jsonObject.addProperty(Const.JsonFields.CHUNK, chunk)
+        jsonObject.addProperty(Const.JsonFields.OFFSET, offset)
+        jsonObject.addProperty(Const.JsonFields.CLIENT_ID, clientId)
 
         return jsonObject
     }
