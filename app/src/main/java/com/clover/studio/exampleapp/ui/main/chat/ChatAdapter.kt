@@ -71,7 +71,7 @@ class ChatAdapter(
                             )
                         )
                     }
-                    it.deliveredCount!! > 0 -> {
+                    it.deliveredCount!! >= 0 -> {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,

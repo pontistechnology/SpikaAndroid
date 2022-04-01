@@ -66,12 +66,14 @@ class Const {
             const val API_MESSAGE_DELIVERED = "api/messenger/messages/delivered"
             const val API_GET_ROOM_BY_ID = "api/messenger/rooms/users/{userId}"
             const val API_POST_NEW_ROOM = "api/messenger/rooms"
+            const val API_SSE_STREAM = "api/sse/{deviceId}"
 
             // Queries
             const val TIMESTAMP = "timestamp"
             const val ROOM_ID = "roomId"
             const val CONTACTS = "contacts"
             const val USER_ID = "userId"
+            const val DEVICE_ID = "deviceId"
         }
     }
 

@@ -47,6 +47,9 @@ class ChatRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun getPushNotificationStream(deviceId: Int) =
+        chatService.getPushNotification(deviceId, sharedPrefsRepo.readToken()!!)
 }
 
 interface ChatRepository {
@@ -57,4 +60,5 @@ interface ChatRepository {
     suspend fun sendMessageDelivered(jsonObject: JsonObject)
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
+    suspend fun getPushNotificationStream(deviceId: Int): Message
 }

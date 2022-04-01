@@ -30,4 +30,12 @@ interface ChatService {
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
     )
+
+
+    @GET(Const.Networking.API_SSE_STREAM)
+    @Streaming
+    suspend fun getPushNotification(
+        @Path(Const.Networking.DEVICE_ID) deviceId: Int,
+        @Query(Const.Headers.ACCESS_TOKEN) token: String
+    ): Message
 }

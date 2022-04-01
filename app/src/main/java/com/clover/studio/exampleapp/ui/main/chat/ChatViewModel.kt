@@ -11,7 +11,10 @@ import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,6 +26,7 @@ class ChatViewModel @Inject constructor(
     val getMessagesListener = MutableLiveData<Event<ChatStates>>()
     val getMessagesTimestampListener = MutableLiveData<Event<ChatStates>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
+    val socketStateListener = MutableLiveData<Event<ChatStates>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
         try {
@@ -100,6 +104,22 @@ class ChatViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun getPushNotificationStream(deviceId: Int): Flow<Message> = flow {
+        viewModelScope.launch {
+            try {
+                val message = repository.getPushNotificationStream(deviceId)
+                Timber.d("Message $message")
+            } catch (ex: Exception) {
+                // If exception is timeout, try and restart the connection
+                if (ex is java.io.IOException) {
+                    socketStateListener.postValue(Event(SocketTimeout))
+                }
+                Tools.checkError(ex)
+                return@launch
+            }
+        }
+    }
 }
 
 sealed class ChatStates
@@ -107,5 +127,6 @@ object MessagesFetched : ChatStates()
 data class MessagesTimestampFetched(val messages: List<Message>) : ChatStates()
 object MessageFetchFail : ChatStates()
 object MessageTimestampFetchFail : ChatStates()
+object SocketTimeout : ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }

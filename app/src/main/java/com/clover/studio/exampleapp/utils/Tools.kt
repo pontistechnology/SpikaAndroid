@@ -32,7 +32,7 @@ object Tools {
     fun checkError(ex: Exception) {
         when (ex) {
             is IllegalArgumentException -> Timber.d("IllegalArgumentException ${ex.message}")
-            is IOException -> Timber.d("IOException")
+            is IOException -> Timber.d("IOException ${ex.message}")
             is HttpException -> Timber.d("HttpException: ${ex.code()} ${ex.message}")
             else -> Timber.d("UnknownError: ${ex.message}")
         }

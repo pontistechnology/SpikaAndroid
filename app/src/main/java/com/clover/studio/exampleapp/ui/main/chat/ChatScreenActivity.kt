@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.asLiveData
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,6 +25,7 @@ import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 
 
@@ -124,6 +126,20 @@ class ChatScreenActivity : BaseActivity() {
                 }
             }
         }
+
+        viewModel.getPushNotificationStream(32).asLiveData(Dispatchers.IO).observe(this) {
+            Timber.d("Message $it")
+        }
+
+        viewModel.socketStateListener.observe(this, EventObserver {
+            when (it) {
+                is SocketTimeout -> viewModel.getPushNotificationStream(32)
+                    .asLiveData(Dispatchers.IO).observe(this) {
+                    Timber.d("Message ${it.body}")
+                }
+                else -> Timber.d("Some error")
+            }
+        })
     }
 
     private fun setUpAdapter() {
