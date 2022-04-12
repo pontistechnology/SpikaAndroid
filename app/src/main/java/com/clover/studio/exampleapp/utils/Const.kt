@@ -66,7 +66,7 @@ class Const {
             const val API_MESSAGE_DELIVERED = "api/messenger/messages/delivered"
             const val API_GET_ROOM_BY_ID = "api/messenger/rooms/users/{userId}"
             const val API_POST_NEW_ROOM = "api/messenger/rooms"
-            const val API_SSE_STREAM = "api/sse/{deviceId}"
+            const val API_SSE_STREAM = "api/sse"
 
             // Queries
             const val TIMESTAMP = "timestamp"

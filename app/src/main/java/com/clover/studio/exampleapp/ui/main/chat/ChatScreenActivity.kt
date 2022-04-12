@@ -127,13 +127,13 @@ class ChatScreenActivity : BaseActivity() {
             }
         }
 
-        viewModel.getPushNotificationStream(32).asLiveData(Dispatchers.IO).observe(this) {
+        viewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
             Timber.d("Message $it")
         }
 
         viewModel.socketStateListener.observe(this, EventObserver {
             when (it) {
-                is SocketTimeout -> viewModel.getPushNotificationStream(32)
+                is SocketTimeout -> viewModel.getPushNotificationStream()
                     .asLiveData(Dispatchers.IO).observe(this) {
                     Timber.d("Message ${it.body}")
                 }

@@ -4,17 +4,24 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.net.HttpURLConnection
+import java.net.URL
 import javax.inject.Inject
 
 @HiltViewModel
@@ -105,16 +112,11 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun getPushNotificationStream(deviceId: Int): Flow<Message> = flow {
+    fun getPushNotificationStream(): Flow<Message> = flow {
         viewModelScope.launch {
             try {
-                val message = repository.getPushNotificationStream(deviceId)
-                Timber.d("Message $message")
+                repository.getPushNotificationStream()
             } catch (ex: Exception) {
-                // If exception is timeout, try and restart the connection
-                if (ex is java.io.IOException) {
-                    socketStateListener.postValue(Event(SocketTimeout))
-                }
                 Tools.checkError(ex)
                 return@launch
             }
