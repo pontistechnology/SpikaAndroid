@@ -21,6 +21,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.data.models.PhoneUser
 import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
@@ -154,14 +155,10 @@ class RegisterNumberFragment : BaseFragment() {
         return jsonObject
     }
 
-    internal data class PhoneUser(
-        val name: String,
-        val number: String
-    )
-
     @SuppressLint("Range")
     private fun fetchAllUserContacts() {
         val phoneUserSet: MutableSet<String> = ArraySet()
+        val phoneUsers: MutableList<PhoneUser> = ArrayList()
         val phones: Cursor? = requireActivity().contentResolver.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
             null,
@@ -179,6 +176,7 @@ class RegisterNumberFragment : BaseFragment() {
                 name,
                 formatE164Number(requireContext(), countryCode, phoneNumber).toString()
             )
+            phoneUsers.add(phoneUser)
             phoneUserSet.add(
                 hashString(
                     formatE164Number(requireContext(), countryCode, phoneNumber).toString()
@@ -187,8 +185,8 @@ class RegisterNumberFragment : BaseFragment() {
             Timber.d("Adding phone user: ${phoneUser.name} ${phoneUser.number}")
         }
         DatabaseUtils.dumpCursor(phones)
-        phoneUserSet.forEach { Timber.d("Phone number $it") }
 
+        viewModel.writePhoneUsers(phoneUsers)
         viewModel.writeContactsToSharedPref(phoneUserSet.toList())
     }
 

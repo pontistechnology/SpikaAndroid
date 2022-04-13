@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.data.daos
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 
 @Dao
 interface UserDao {
@@ -21,6 +22,10 @@ interface UserDao {
 
     @Query("DELETE FROM user")
     suspend fun removeUsers()
+
+    @Transaction
+    @Query("SELECT * FROM user")
+    fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>
 
     // TODO add getMe() method for our user object
 }

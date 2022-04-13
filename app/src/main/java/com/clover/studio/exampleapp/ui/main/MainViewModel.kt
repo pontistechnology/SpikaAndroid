@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.networking.Room
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.UserRepositoryImpl
@@ -23,6 +24,7 @@ class MainViewModel @Inject constructor(
     val usersListener = MutableLiveData<Event<MainStates>>()
     val checkRoomExistsListener = MutableLiveData<Event<MainStates>>()
     val createRoomListener = MutableLiveData<Event<MainStates>>()
+    val userPhoneUserListener = MutableLiveData<Event<MainStates>>()
 
     fun getContacts() = viewModelScope.launch {
         try {
@@ -69,6 +71,10 @@ class MainViewModel @Inject constructor(
             createRoomListener.postValue(Event(RoomFailed))
             return@launch
         }
+    }
+
+    fun getUserAndPhoneUser() = liveData {
+        emitSource(repository.getUserAndPhoneUser())
     }
 }
 

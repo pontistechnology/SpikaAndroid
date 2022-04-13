@@ -56,7 +56,8 @@ object RepositoryModule {
     fun provideOnboardingRepository(
         retrofitService: OnboardingService,
         userDao: UserDao,
+        phoneUserDao: PhoneUserDao,
         sharedPrefs: SharedPreferencesRepository
     ) =
-        OnboardingRepositoryImpl(retrofitService, userDao, sharedPrefs)
+        OnboardingRepositoryImpl(retrofitService, userDao, phoneUserDao, sharedPrefs)
 }

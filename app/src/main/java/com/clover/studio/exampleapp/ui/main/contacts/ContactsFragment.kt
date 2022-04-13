@@ -10,7 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.databinding.FragmentContactsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.UsersError
@@ -23,8 +23,8 @@ import timber.log.Timber
 class ContactsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var contactsAdapter: ContactsAdapter
-    private lateinit var userList: List<User>
-    private var filteredList: MutableList<User> = ArrayList()
+    private lateinit var userList: List<UserAndPhoneUser>
+    private var filteredList: MutableList<UserAndPhoneUser> = ArrayList()
 
     private var bindingSetup: FragmentContactsBinding? = null
 
@@ -96,7 +96,14 @@ class ContactsFragment : BaseFragment() {
             }
         })
 
-        viewModel.getLocalUsers().observe(viewLifecycleOwner) {
+//        viewModel.getLocalUsers().observe(viewLifecycleOwner) {
+//            if (it.isNotEmpty()) {
+//                userList = it
+//                contactsAdapter.submitList(it)
+//            }
+//        }
+
+        viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 userList = it
                 val users = userList.toMutableList().sortedBy { user -> user.displayName }
@@ -126,7 +133,7 @@ class ContactsFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
-                            if (user.displayName?.contains(query, ignoreCase = true) == true) {
+                            if (user.phoneUser.name.contains(query, ignoreCase = true)) {
                                 filteredList.add(user)
                             }
                         }
@@ -144,7 +151,7 @@ class ContactsFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
-                            if (user.displayName?.contains(query, ignoreCase = true) == true) {
+                            if (user.phoneUser.name.contains(query, ignoreCase = true)) {
                                 filteredList.add(user)
                             }
                         }
