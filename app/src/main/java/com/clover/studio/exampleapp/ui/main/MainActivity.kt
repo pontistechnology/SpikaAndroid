@@ -5,9 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.lifecycle.asLiveData
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import timber.log.Timber
 
 fun startMainActivity(fromActivity: Activity) = fromActivity.apply {
     startActivity(Intent(fromActivity as Context, MainActivity::class.java))
@@ -27,12 +30,9 @@ class MainActivity : BaseActivity() {
         val view = bindingSetup.root
         setContentView(view)
 
-        initializeObservers()
-    }
-
-    private fun initializeObservers() {
-        viewModel.getLocalUsers().observe(this) {
-            // TODO add logic for local data UI handle
+//        initializeObservers()
+        viewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
+            Timber.d("Message $it")
         }
     }
 }

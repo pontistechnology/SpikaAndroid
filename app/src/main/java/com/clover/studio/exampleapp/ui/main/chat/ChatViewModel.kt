@@ -4,24 +4,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
-import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
-import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import timber.log.Timber
-import java.net.HttpURLConnection
-import java.net.URL
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,7 +23,6 @@ class ChatViewModel @Inject constructor(
     val getMessagesListener = MutableLiveData<Event<ChatStates>>()
     val getMessagesTimestampListener = MutableLiveData<Event<ChatStates>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
-    val socketStateListener = MutableLiveData<Event<ChatStates>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
         try {
@@ -111,17 +100,6 @@ class ChatViewModel @Inject constructor(
             return@launch
         }
     }
-
-    fun getPushNotificationStream(): Flow<Message> = flow {
-        viewModelScope.launch {
-            try {
-                repository.getPushNotificationStream()
-            } catch (ex: Exception) {
-                Tools.checkError(ex)
-                return@launch
-            }
-        }
-    }
 }
 
 sealed class ChatStates
@@ -129,6 +107,5 @@ object MessagesFetched : ChatStates()
 data class MessagesTimestampFetched(val messages: List<Message>) : ChatStates()
 object MessageFetchFail : ChatStates()
 object MessageTimestampFetchFail : ChatStates()
-object SocketTimeout : ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }

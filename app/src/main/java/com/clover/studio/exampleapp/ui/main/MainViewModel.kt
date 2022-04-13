@@ -4,21 +4,26 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.networking.Room
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.UserRepositoryImpl
 import com.clover.studio.exampleapp.utils.Event
+import com.clover.studio.exampleapp.utils.SSEManager
 import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: UserRepositoryImpl,
-    private val sharedPrefsRepo: SharedPreferencesRepository
+    private val sharedPrefsRepo: SharedPreferencesRepository,
+    private val sseManager: SSEManager
 ) : ViewModel() {
 
     val usersListener = MutableLiveData<Event<MainStates>>()
@@ -70,6 +75,17 @@ class MainViewModel @Inject constructor(
             Tools.checkError(ex)
             createRoomListener.postValue(Event(RoomFailed))
             return@launch
+        }
+    }
+
+    fun getPushNotificationStream(): Flow<Message> = flow {
+        viewModelScope.launch {
+            try {
+                sseManager.startSSEStream()
+            } catch (ex: Exception) {
+                Tools.checkError(ex)
+                return@launch
+            }
         }
     }
 

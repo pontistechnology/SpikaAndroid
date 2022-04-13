@@ -1,11 +1,14 @@
 package com.clover.studio.exampleapp.di
 
 import android.content.Context
-import com.clover.studio.exampleapp.data.daos.*
+import com.clover.studio.exampleapp.data.daos.MessageDao
+import com.clover.studio.exampleapp.data.daos.ReactionDao
+import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.repositories.*
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
+import com.clover.studio.exampleapp.utils.SSEManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -60,4 +63,12 @@ object RepositoryModule {
         sharedPrefs: SharedPreferencesRepository
     ) =
         OnboardingRepositoryImpl(retrofitService, userDao, phoneUserDao, sharedPrefs)
+
+    @Singleton
+    @Provides
+    fun provideSSEManager(
+        sharedPrefs: SharedPreferencesRepository,
+        messageDao: MessageDao
+    ) =
+        SSEManager(sharedPrefs, messageDao)
 }
