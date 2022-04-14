@@ -29,6 +29,7 @@ class ContactsAdapter(
     override fun onBindViewHolder(holder: ContactsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { userItem ->
+                // TODO if phone name is null, use display name
                 binding.tvHeader.text = userItem.phoneUser.name.substring(0, 1)
                 binding.tvUsername.text = userItem.phoneUser.name
                 binding.tvTitle.text = userItem.user.telephoneNumber
