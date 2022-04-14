@@ -50,6 +50,20 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <service
+            android:name=".utils.MyFirebaseMessagingService"
+            android:exported="false">
+            <meta-data
+                android:name="com.google.firebase.messaging.default_notification_icon"
+                android:resource="@drawable/img_spika_logo" />
+            <meta-data
+                android:name="com.google.firebase.messaging.default_notification_color"
+                android:resource="@color/primary_color" />
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".utils.SmsReceiver"
             android:enabled="true"
