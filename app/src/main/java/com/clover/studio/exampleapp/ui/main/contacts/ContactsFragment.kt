@@ -99,7 +99,8 @@ class ContactsFragment : BaseFragment() {
         viewModel.getLocalUsers().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 userList = it
-                contactsAdapter.submitList(it)
+                val users = userList.toMutableList().sortedBy { user -> user.displayName }
+                contactsAdapter.submitList(users)
             }
         }
     }
@@ -130,7 +131,8 @@ class ContactsFragment : BaseFragment() {
                             }
                         }
                         Timber.d("Filtered List: $filteredList")
-                        contactsAdapter.submitList(ArrayList(filteredList))
+                        val users = filteredList.sortedBy { it.displayName }
+                        contactsAdapter.submitList(ArrayList(users))
                         filteredList.clear()
                     }
                 }
@@ -147,7 +149,8 @@ class ContactsFragment : BaseFragment() {
                             }
                         }
                         Timber.d("Filtered List: $filteredList")
-                        contactsAdapter.submitList(ArrayList(filteredList))
+                        val users = filteredList.sortedBy { it.displayName }
+                        contactsAdapter.submitList(ArrayList(users))
                         filteredList.clear()
                     }
                 }
