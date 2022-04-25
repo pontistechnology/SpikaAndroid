@@ -39,14 +39,14 @@ class ContactsAdapter(
 
                 // if not first item, check if item above has the same header
                 if (position > 0) {
-                    val item1 = getItem(position - 1).phoneUser?.name?.lowercase()?.substring(0, 1)
+                    val previousItem = getItem(position - 1).phoneUser?.name?.lowercase()?.substring(0, 1)
                         ?: getItem(position - 1).user.displayName?.lowercase()?.substring(0, 1)
 
-                    val item2 = userItem.phoneUser?.name?.lowercase()?.substring(0, 1)
+                    val currentItem = userItem.phoneUser?.name?.lowercase()?.substring(0, 1)
                         ?: userItem.user.displayName?.lowercase()?.substring(0, 1)
-                    Timber.d("Items : $item1, $item2 ${item1 == item2}")
+                    Timber.d("Items : $previousItem, $currentItem ${previousItem == currentItem}")
 
-                    if (item1 == item2) {
+                    if (previousItem == currentItem) {
                         binding.tvHeader.visibility = View.GONE
                     } else {
                         binding.tvHeader.visibility = View.VISIBLE
