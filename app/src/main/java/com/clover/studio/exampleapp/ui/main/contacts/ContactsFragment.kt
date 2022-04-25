@@ -106,7 +106,9 @@ class ContactsFragment : BaseFragment() {
         viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 userList = it
-                val users = userList.toMutableList().sortedBy { user -> user.displayName }
+                val users = userList.toMutableList().sortedBy { user ->
+                    user.phoneUser?.name?.lowercase() ?: user.user.displayName?.lowercase()
+                }
                 contactsAdapter.submitList(users)
             }
         }
@@ -133,12 +135,19 @@ class ContactsFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
-                            if (user.phoneUser.name.contains(query, ignoreCase = true)) {
+                            if (user.phoneUser?.name?.lowercase()?.contains(
+                                    query,
+                                    ignoreCase = true
+                                ) ?: user.user.displayName?.lowercase()
+                                    ?.contains(query, ignoreCase = true) == true
+                            ) {
                                 filteredList.add(user)
                             }
                         }
                         Timber.d("Filtered List: $filteredList")
-                        val users = filteredList.sortedBy { it.displayName }
+                        val users = filteredList.sortedBy {
+                            it.phoneUser?.name?.lowercase() ?: it.user.displayName?.lowercase()
+                        }
                         contactsAdapter.submitList(ArrayList(users))
                         filteredList.clear()
                     }
@@ -151,12 +160,19 @@ class ContactsFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
-                            if (user.phoneUser.name.contains(query, ignoreCase = true)) {
+                            if (user.phoneUser?.name?.lowercase()?.contains(
+                                    query,
+                                    ignoreCase = true
+                                ) ?: user.user.displayName?.lowercase()
+                                    ?.contains(query, ignoreCase = true) == true
+                            ) {
                                 filteredList.add(user)
                             }
                         }
                         Timber.d("Filtered List: $filteredList")
-                        val users = filteredList.sortedBy { it.displayName }
+                        val users = filteredList.sortedBy {
+                            it.phoneUser?.name?.lowercase() ?: it.user.displayName?.lowercase()
+                        }
                         contactsAdapter.submitList(ArrayList(users))
                         filteredList.clear()
                     }
