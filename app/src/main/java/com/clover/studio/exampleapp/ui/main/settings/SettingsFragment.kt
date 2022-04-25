@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentSettingsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
@@ -35,7 +36,7 @@ class SettingsFragment : BaseFragment() {
             binding.tvUsername.text = it.displayName ?: "No Username"
             binding.tvPhoneNumber.text = it.telephoneNumber
 
-            Glide.with(requireActivity()).load(it.avatarUrl).into(binding.ivPickPhoto)
+            Glide.with(requireActivity()).load(BuildConfig.SERVER_URL + it.avatarUrl?.substring(1)).into(binding.ivPickPhoto)
         }
     }
 

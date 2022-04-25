@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.User
@@ -208,7 +209,7 @@ class ChatScreenActivity : BaseActivity() {
         // TODO add send message button and handle UI when message is being entered
         // Change required field after work has been done
         bindingSetup.tvUsername.text = user.displayName
-        Glide.with(this).load(user.avatarUrl).into(bindingSetup.ivUserImage)
+        Glide.with(this).load(BuildConfig.SERVER_URL + user.avatarUrl?.substring(1)).into(bindingSetup.ivUserImage)
         bindingSetup.ivButtonSend.setOnClickListener {
             // TODO implement a temporary message which need to be sent to the server. Handle
             // TODO success and fail states.

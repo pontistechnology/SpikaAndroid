@@ -11,6 +11,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.FragmentContactDetailsBinding
@@ -129,7 +130,7 @@ class ContactDetailsFragment : BaseFragment() {
                 viewModel.checkIfRoomExists(user!!.id)
             }
 
-            Glide.with(this).load(user?.avatarUrl)
+            Glide.with(this).load(BuildConfig.SERVER_URL + user?.avatarUrl?.substring(1))
                 .listener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(
                         e: GlideException?,

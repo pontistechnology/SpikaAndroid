@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ItemCallHistoryBinding
 
@@ -34,7 +35,7 @@ class CallHistoryAdapter(
 //                binding.tvCallTime.text = // TODO set call time
 //                binding.ivCallType.setImageDrawable() // TODO set image for call type
 
-                Glide.with(context).load(userItem.avatarUrl).into(binding.ivPickPhoto)
+                Glide.with(context).load(BuildConfig.SERVER_URL + userItem.avatarUrl?.substring(1)).into(binding.ivPickPhoto)
 
                 itemView.setOnClickListener {
                     userItem.let {
