@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.data.repositories
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.networking.RoomResponse
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -36,6 +37,9 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun createNewRoom(jsonObject: JsonObject) =
         retrofitService.createNewRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
+    override suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>> =
+        userDao.getUserAndPhoneUser()
+
 }
 
 interface UserRepository {
@@ -44,4 +48,5 @@ interface UserRepository {
     fun getUserLiveData(): LiveData<List<User>>
     suspend fun getRoomById(userId: Int): RoomResponse
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
+    suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>
 }

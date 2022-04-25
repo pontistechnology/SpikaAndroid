@@ -1,6 +1,8 @@
 package com.clover.studio.exampleapp.data.repositories
 
+import com.clover.studio.exampleapp.data.daos.PhoneUserDao
 import com.clover.studio.exampleapp.data.daos.UserDao
+import com.clover.studio.exampleapp.data.models.PhoneUser
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
 import com.clover.studio.exampleapp.data.models.networking.FileResponse
 import com.clover.studio.exampleapp.data.services.OnboardingService
@@ -11,6 +13,7 @@ import javax.inject.Inject
 class OnboardingRepositoryImpl @Inject constructor(
     private val retrofitService: OnboardingService,
     private val userDao: UserDao,
+    private val phoneUserDao: PhoneUserDao,
     private val sharedPrefs: SharedPreferencesRepository
 ) : OnboardingRepository {
     override suspend fun sendUserData(
@@ -36,6 +39,12 @@ class OnboardingRepositoryImpl @Inject constructor(
     override suspend fun sendUserContacts(
         contacts: List<String>
     ): AuthResponse = retrofitService.sendContacts(getHeaderMap(sharedPrefs.readToken()), contacts)
+
+    override suspend fun writePhoneUsers(phoneUsers: List<PhoneUser>) {
+        for (user in phoneUsers) {
+            phoneUserDao.insert(user)
+        }
+    }
 
     override suspend fun updateUser(
         userMap: Map<String, String>
@@ -69,6 +78,10 @@ interface OnboardingRepository {
     suspend fun sendUserContacts(
         contacts: List<String>
     ): AuthResponse
+
+    suspend fun writePhoneUsers(
+        phoneUsers: List<PhoneUser>
+    )
 
     suspend fun updateUser(
         userMap: Map<String, String>
