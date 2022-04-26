@@ -60,14 +60,18 @@ class SSEManager @Inject constructor(
                         line.startsWith("data:") -> { // get data
                             Timber.d("Copy data event $line")
                             Timber.d("Copy data event ${line.startsWith("data:")}")
-                            val jsonObject = JSONObject("{$line}")
-                            val gson = Gson()
-                            val message =
-                                gson.fromJson(
-                                    jsonObject.toString(),
-                                    StreamingResponse::class.java
-                                )
-                            messageDao.insert(message.data?.message!!)
+                            try {
+                                val jsonObject = JSONObject("{$line}")
+                                val gson = Gson()
+                                val message =
+                                    gson.fromJson(
+                                        jsonObject.toString(),
+                                        StreamingResponse::class.java
+                                    )
+                                messageDao.insert(message.data?.message!!)
+                            } catch (ex: Exception) {
+                               Tools.checkError(ex)
+                            }
                         }
                         line.isEmpty() -> { // empty line, finished block. Emit the event
                             Timber.d("Emitting event")

@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.di
 
 import android.content.Context
 import com.clover.studio.exampleapp.data.daos.MessageDao
+import com.clover.studio.exampleapp.data.daos.PhoneUserDao
 import com.clover.studio.exampleapp.data.daos.ReactionDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.repositories.*
