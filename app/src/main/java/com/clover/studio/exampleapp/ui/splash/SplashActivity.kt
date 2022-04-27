@@ -34,7 +34,6 @@ class SplashActivity : BaseActivity() {
             when (it) {
                 SplashStates.NAVIGATE_ONBOARDING -> goToOnboarding()
                 SplashStates.NAVIGATE_MAIN -> goToMainActivity()
-                else -> Timber.d("Unknown error, should never happen")
             }
         })
 

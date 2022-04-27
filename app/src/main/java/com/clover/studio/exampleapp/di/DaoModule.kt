@@ -13,10 +13,6 @@ object DaoModule {
 
     @Singleton
     @Provides
-    fun provideChatDao(database: AppDatabase) = database.chatDao()
-
-    @Singleton
-    @Provides
     fun provideMessageDao(database: AppDatabase) = database.messageDao()
 
     @Singleton
@@ -26,10 +22,6 @@ object DaoModule {
     @Singleton
     @Provides
     fun provideUserDao(database: AppDatabase) = database.userDao()
-
-    @Singleton
-    @Provides
-    fun provideChatUserDao(database: AppDatabase) = database.chatUserDao()
 
     @Singleton
     @Provides

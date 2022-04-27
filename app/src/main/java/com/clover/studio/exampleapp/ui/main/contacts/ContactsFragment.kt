@@ -93,6 +93,7 @@ class ContactsFragment : BaseFragment() {
                 is UsersFetched -> {
                     Timber.d("Users fetched")
                 }
+                else -> Timber.d("Other error")
             }
         })
 
