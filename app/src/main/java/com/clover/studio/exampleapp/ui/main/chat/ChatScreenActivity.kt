@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.User
@@ -21,6 +20,7 @@ import com.clover.studio.exampleapp.data.models.networking.Room
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -209,7 +209,8 @@ class ChatScreenActivity : BaseActivity() {
         // TODO add send message button and handle UI when message is being entered
         // Change required field after work has been done
         bindingSetup.tvUsername.text = user.displayName
-        Glide.with(this).load(BuildConfig.SERVER_URL + user.avatarUrl?.substring(1)).into(bindingSetup.ivUserImage)
+        Glide.with(this).load(user.avatarUrl?.let { getAvatarUrl(it) })
+            .into(bindingSetup.ivUserImage)
         bindingSetup.ivButtonSend.setOnClickListener {
             // TODO implement a temporary message which need to be sent to the server. Handle
             // TODO success and fail states.

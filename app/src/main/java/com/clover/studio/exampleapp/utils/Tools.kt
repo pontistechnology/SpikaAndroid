@@ -246,4 +246,12 @@ object Tools {
             else -> img
         }
     }
+
+    fun getAvatarUrl(url: String): String {
+        return when {
+            url.startsWith(BuildConfig.SERVER_URL) -> url
+            url.startsWith("/") -> BuildConfig.SERVER_URL + url.substring(1)
+            else -> BuildConfig.SERVER_URL + "/" + url
+        }
+    }
 }
