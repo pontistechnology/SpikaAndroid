@@ -23,4 +23,9 @@ interface RetrofitService {
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
     ): RoomResponse
+
+    @GET
+    suspend fun getRooms(
+        @HeaderMap headers: Map<String, String?>
+    ): RoomResponse
 }

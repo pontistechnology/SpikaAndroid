@@ -4,9 +4,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
-import com.clover.studio.exampleapp.data.models.networking.Room
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.UserRepositoryImpl
 import com.clover.studio.exampleapp.utils.Event
@@ -27,6 +26,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     val usersListener = MutableLiveData<Event<MainStates>>()
+    val roomsListener = MutableLiveData<Event<MainStates>>()
     val checkRoomExistsListener = MutableLiveData<Event<MainStates>>()
     val createRoomListener = MutableLiveData<Event<MainStates>>()
     val userPhoneUserListener = MutableLiveData<Event<MainStates>>()
@@ -58,7 +58,7 @@ class MainViewModel @Inject constructor(
 
     fun checkIfRoomExists(userId: Int) = viewModelScope.launch {
         try {
-            val roomData = repository.getRoomById(userId).data?.room
+            val roomData = repository.getRoomById(userId).data?.chatRoom
             checkRoomExistsListener.postValue(Event(RoomExists(roomData!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
@@ -69,11 +69,22 @@ class MainViewModel @Inject constructor(
 
     fun createNewRoom(jsonObject: JsonObject) = viewModelScope.launch {
         try {
-            val roomData = repository.createNewRoom(jsonObject).data?.room
+            val roomData = repository.createNewRoom(jsonObject).data?.chatRoom
             createRoomListener.postValue(Event(RoomCreated(roomData!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
             createRoomListener.postValue(Event(RoomFailed))
+            return@launch
+        }
+    }
+
+    fun getRoomsRemote() = viewModelScope.launch {
+        try {
+            repository.getRooms()
+            roomsListener.postValue(Event(RoomsFetched))
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            roomsListener.postValue(Event(RoomFetchFail))
             return@launch
         }
     }
@@ -92,12 +103,18 @@ class MainViewModel @Inject constructor(
     fun getUserAndPhoneUser() = liveData {
         emitSource(repository.getUserAndPhoneUser())
     }
+
+    fun getRooms() = liveData {
+        emitSource(repository.getRoomsLiveData())
+    }
 }
 
 sealed class MainStates
 object UsersFetched : MainStates()
 object UsersError : MainStates()
-class RoomCreated(val roomData: Room) : MainStates()
+object RoomsFetched : MainStates()
+object RoomFetchFail : MainStates()
+class RoomCreated(val roomData: ChatRoom) : MainStates()
 object RoomFailed : MainStates()
-class RoomExists(val roomData: Room) : MainStates()
+class RoomExists(val roomData: ChatRoom) : MainStates()
 object RoomNotFound : MainStates()

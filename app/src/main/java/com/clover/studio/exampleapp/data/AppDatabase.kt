@@ -6,18 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.clover.studio.exampleapp.data.AppDatabase.Companion.DATABASE_VERSION
-import com.clover.studio.exampleapp.data.daos.MessageDao
-import com.clover.studio.exampleapp.data.daos.PhoneUserDao
-import com.clover.studio.exampleapp.data.daos.ReactionDao
-import com.clover.studio.exampleapp.data.daos.UserDao
-import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.PhoneUser
-import com.clover.studio.exampleapp.data.models.Reaction
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.daos.*
+import com.clover.studio.exampleapp.data.models.*
 import com.clover.studio.exampleapp.utils.helpers.TypeConverter
 
 @Database(
-    entities = [User::class, Reaction::class, Message::class, PhoneUser::class],
+    entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class],
     version = DATABASE_VERSION,
     exportSchema = false
 )
@@ -28,6 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun reactionDao(): ReactionDao
     abstract fun userDao(): UserDao
     abstract fun phoneUserDao(): PhoneUserDao
+    abstract fun chatRoomDao(): ChatRoomDao
 
     class TablesInfo {
         companion object {
@@ -36,6 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
             const val TABLE_REACTION = "reaction"
             const val TABLE_MESSAGE = "message"
             const val TABLE_PHONE_USER = "phone_user"
+            const val TABLE_CHAT_ROOM = "room"
 
             // general field names
             const val ID = "id"

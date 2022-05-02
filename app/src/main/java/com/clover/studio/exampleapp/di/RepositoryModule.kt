@@ -1,10 +1,7 @@
 package com.clover.studio.exampleapp.di
 
 import android.content.Context
-import com.clover.studio.exampleapp.data.daos.MessageDao
-import com.clover.studio.exampleapp.data.daos.PhoneUserDao
-import com.clover.studio.exampleapp.data.daos.ReactionDao
-import com.clover.studio.exampleapp.data.daos.UserDao
+import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.repositories.*
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.data.services.OnboardingService
@@ -51,9 +48,10 @@ object RepositoryModule {
     fun provideUserRepository(
         retrofitService: RetrofitService,
         userDao: UserDao,
+        chatRoomDao: ChatRoomDao,
         sharedPrefs: SharedPreferencesRepository
     ) =
-        UserRepositoryImpl(retrofitService, userDao, sharedPrefs)
+        UserRepositoryImpl(retrofitService, userDao, chatRoomDao, sharedPrefs)
 
     @Singleton
     @Provides

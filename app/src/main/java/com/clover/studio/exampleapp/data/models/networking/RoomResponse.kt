@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.data.models.networking
 
+import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.User
 
 data class RoomResponse(
@@ -8,16 +9,8 @@ data class RoomResponse(
 )
 
 data class RoomData(
-    val room: Room?,
-)
-
-data class Room(
-    val id: Int?,
-    val name: String?,
-    val users: List<RoomUsers>?,
-    val avatarUrl: String?,
-    val type: String?,
-    val createdAt: Long?
+    val list: List<ChatRoom>?,
+    val chatRoom: ChatRoom?,
 )
 
 data class RoomUsers(
