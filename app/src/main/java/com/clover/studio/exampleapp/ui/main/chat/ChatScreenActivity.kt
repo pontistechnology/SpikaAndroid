@@ -13,10 +13,10 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.User
-import com.clover.studio.exampleapp.data.models.networking.Room
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
@@ -43,7 +43,7 @@ private const val ROTATION_OFF = 0f
 class ChatScreenActivity : BaseActivity() {
     private val viewModel: ChatViewModel by viewModels()
     private lateinit var user: User
-    private lateinit var room: Room
+    private lateinit var room: ChatRoom
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var messages: MutableList<Message>
@@ -65,7 +65,7 @@ class ChatScreenActivity : BaseActivity() {
         // Fetch room data sent from previous activity
         room = gson.fromJson(
             intent.getStringExtra(Const.Navigation.ROOM_DATA),
-            Room::class.java
+            ChatRoom::class.java
         )
 
         initViews()
@@ -78,7 +78,7 @@ class ChatScreenActivity : BaseActivity() {
             when (it) {
                 ChatStatesEnum.MESSAGE_SENT -> {
                     bindingSetup.etMessage.setText("")
-                    viewModel.getMessages(room.id!!)
+                    viewModel.getMessages(room.id)
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
@@ -116,7 +116,7 @@ class ChatScreenActivity : BaseActivity() {
             }
         })
 
-        viewModel.getLocalMessages(room.id!!).observe(this) {
+        viewModel.getLocalMessages(room.id).observe(this) {
             if (it.isNotEmpty()) {
                 messages = it as MutableList<Message>
                 messages.sortByDescending { message -> message.createdAt }
@@ -178,7 +178,7 @@ class ChatScreenActivity : BaseActivity() {
         itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
 
         // Get user messages
-        viewModel.getMessages(room.id!!)
+        viewModel.getMessages(room.id)
     }
 
     private fun initViews() {
@@ -222,7 +222,7 @@ class ChatScreenActivity : BaseActivity() {
                 0,
                 -1,
                 0,
-                room.id!!,
+                room.id,
                 "text",
                 MessageBody(bindingSetup.etMessage.text.toString(), "text"),
                 System.currentTimeMillis()

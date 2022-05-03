@@ -24,7 +24,7 @@ interface RetrofitService {
         @Body jsonObject: JsonObject
     ): RoomResponse
 
-    @GET
+    @GET(Const.Networking.API_POST_NEW_ROOM)
     suspend fun getRooms(
         @HeaderMap headers: Map<String, String?>
     ): RoomResponse

@@ -82,6 +82,7 @@
         <entry key="app/src/main/res/layout/fragment_splash.xml" value="0.23697916666666666" />
         <entry key="app/src/main/res/layout/fragment_verification.xml" value="0.23697916666666666" />
         <entry key="app/src/main/res/layout/item_call_history.xml" value="0.25416666666666665" />
+        <entry key="app/src/main/res/layout/item_chat_room.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/item_contact.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/item_country_code.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/item_message_me.xml" value="0.34791666666666665" />

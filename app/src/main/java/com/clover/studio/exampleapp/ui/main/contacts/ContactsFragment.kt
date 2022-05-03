@@ -36,49 +36,6 @@ class ContactsFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentContactsBinding.inflate(inflater, container, false)
 
-//        // TODO get user list and check state
-//        userList = mutableListOf(
-//            User(
-//                1,
-//                "Matom",
-//                Tools.getRandomImageUrl(Random.nextInt(5)),
-//                "+384945556666",
-//                "someHash",
-//                "mojemail@lol.com",
-//                "Time"
-//            ),
-//
-//            User(
-//                2,
-//                "Markan",
-//                Tools.getRandomImageUrl(Random.nextInt(5)),
-//                "+384945556666",
-//                "someHash",
-//                "drugimai@aol.com",
-//                "time"
-//            ),
-//
-//            User(
-//                3,
-//                "Ivankovic",
-//                Tools.getRandomImageUrl(Random.nextInt(5)),
-//                "+024945556666",
-//                "someHash",
-//                "novimail@yahoo.com",
-//                "time"
-//            ),
-//
-//            User(
-//                4,
-//                "Zdravkic",
-//                Tools.getRandomImageUrl(Random.nextInt(5)),
-//                "+234945556666",
-//                "someHash",
-//                "madaj@google.com",
-//                "time"
-//            )
-//        )
-
         setupAdapter()
         setupSearchView()
         initializeObservers()

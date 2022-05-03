@@ -23,7 +23,7 @@
     <string name="select_photo_my_profile">Select a photo for your profile</string>
     <string name="no_calls_yet">No calls yet.</string>
     <string name="call_history">Call history</string>
-    <string name="call_history_search_hint">Search for contact, message, file...</string>
+    <string name="call_history_search_hint">Search for contact, message, file…</string>
     <string name="outgoing">Outgoing</string>
     <string name="chat">Chat</string>
     <string name="contacts">Contacts</string>
@@ -159,4 +159,5 @@
     <string name="ok">Ok</string>
     <string name="failed_user_data">Failed to load user data.</string>
     <string name="failed_user_image">Failed to load user image.</string>
+    <string name="placeholder_time">2 min ago</string>
 </resources>

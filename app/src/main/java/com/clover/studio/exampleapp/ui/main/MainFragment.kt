@@ -4,10 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import com.clover.studio.exampleapp.databinding.FragmentMainBinding
 import com.clover.studio.exampleapp.ui.main.call_history.CallHistoryFragment
-import com.clover.studio.exampleapp.ui.main.chat.ChatFragment
+import com.clover.studio.exampleapp.ui.main.rooms.ChatFragment
 import com.clover.studio.exampleapp.ui.main.contacts.ContactsFragment
 import com.clover.studio.exampleapp.ui.main.settings.SettingsFragment
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
