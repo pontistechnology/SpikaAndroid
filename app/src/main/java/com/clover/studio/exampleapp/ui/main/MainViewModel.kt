@@ -52,13 +52,22 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun getLocalUserId(): Int? {
+        var userId: Int? = null
+
+        viewModelScope.launch {
+            userId = sharedPrefsRepo.readUserId()!!
+        }
+        return userId
+    }
+
     fun getLocalUsers() = liveData {
         emitSource(repository.getUserLiveData())
     }
 
     fun checkIfRoomExists(userId: Int) = viewModelScope.launch {
         try {
-            val roomData = repository.getRoomById(userId).data?.chatRoom
+            val roomData = repository.getRoomById(userId).data?.room
             checkRoomExistsListener.postValue(Event(RoomExists(roomData!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
@@ -69,7 +78,7 @@ class MainViewModel @Inject constructor(
 
     fun createNewRoom(jsonObject: JsonObject) = viewModelScope.launch {
         try {
-            val roomData = repository.createNewRoom(jsonObject).data?.chatRoom
+            val roomData = repository.createNewRoom(jsonObject).data?.room
             createRoomListener.postValue(Event(RoomCreated(roomData!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)

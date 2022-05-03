@@ -1,13 +1,9 @@
 package com.clover.studio.exampleapp.data.models
 
-import android.os.Parcelable
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
-import kotlinx.parcelize.Parcelize
+import com.clover.studio.exampleapp.data.models.networking.RoomUsers
 
-@Parcelize
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_CHAT_ROOM)
 data class ChatRoom(
 
@@ -18,8 +14,9 @@ data class ChatRoom(
     @ColumnInfo(name = "name")
     val name: String?,
 
-//    @ColumnInfo(name = "users")
-//    val users: List<RoomUsers>?,
+    @ColumnInfo(name = "users")
+    @TypeConverters(TypeConverter::class)
+    val users: ArrayList<RoomUsers>? = ArrayList(),
 
     @ColumnInfo(name = "avatar_url")
     val avatarUrl: String?,
@@ -29,4 +26,4 @@ data class ChatRoom(
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long?
-) : Parcelable
+)

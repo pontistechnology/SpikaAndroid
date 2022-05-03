@@ -104,8 +104,9 @@ class ChatFragment : BaseFragment() {
     }
 
     private fun setupAdapter() {
-        roomsAdapter = RoomsAdapter(requireContext()) {
-            val bundle = bundleOf(Const.Navigation.ROOM_DATA to it)
+        roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
+//            val bundle = bundleOf(Const.Navigation.ROOM_DATA to it)
+//            startChatScreenActivity(activity, )
             // TODO navigate to room
 //            findNavController().navigate(R.id.action_mainFragment_to_contactDetailsFragment, bundle)
         }

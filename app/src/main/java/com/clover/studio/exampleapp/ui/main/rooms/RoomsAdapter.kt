@@ -9,10 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
 
 class RoomsAdapter(
     private val context: Context,
+    private val myUserId: String,
     private val onItemClick: ((item: ChatRoom) -> Unit)
 ) : ListAdapter<ChatRoom, RoomsAdapter.RoomsViewHolder>(RoomsDiffCallback()) {
     inner class RoomsViewHolder(val binding: ItemChatRoomBinding) :
@@ -27,7 +29,22 @@ class RoomsAdapter(
     override fun onBindViewHolder(holder: RoomsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { roomItem ->
-                binding.tvRoomName.text = roomItem.name
+                if (Const.JsonFields.PRIVATE == roomItem.type) {
+                    roomItem.users?.forEach { roomUser ->
+                        if (myUserId != roomUser.userId.toString()) {
+                            binding.tvRoomName.text = roomUser.user?.displayName
+                            Glide.with(context)
+                                .load(roomUser.user?.avatarUrl?.let { getAvatarUrl(it) })
+                                .into(binding.ivRoomImage)
+                        }
+                    }
+                } else {
+                    binding.tvRoomName.text = roomItem.name
+                    Glide.with(context)
+                        .load(roomItem.avatarUrl?.let { getAvatarUrl(it) })
+                        .into(binding.ivRoomImage)
+                }
+
                 Glide.with(context).load(roomItem.avatarUrl?.let { getAvatarUrl(it) })
                     .into(binding.ivRoomImage)
 
