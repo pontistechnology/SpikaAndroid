@@ -16,7 +16,6 @@ import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageBody
-import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
@@ -28,10 +27,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
 
-fun startChatScreenActivity(fromActivity: Activity, userData: String, roomData: String) =
+fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
-        intent.putExtra(Const.Navigation.USER_PROFILE, userData)
         intent.putExtra(Const.Navigation.ROOM_DATA, roomData)
         startActivity(intent)
     }
@@ -42,7 +40,6 @@ private const val ROTATION_OFF = 0f
 @AndroidEntryPoint
 class ChatScreenActivity : BaseActivity() {
     private val viewModel: ChatViewModel by viewModels()
-    private lateinit var user: User
     private lateinit var room: ChatRoom
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private lateinit var chatAdapter: ChatAdapter
@@ -55,13 +52,7 @@ class ChatScreenActivity : BaseActivity() {
         val view = bindingSetup.root
         setContentView(view)
 
-        // Fetch user data sent from previous activity
         val gson = Gson()
-        user = gson.fromJson(
-            intent.getStringExtra(Const.Navigation.USER_PROFILE),
-            User::class.java
-        )
-
         // Fetch room data sent from previous activity
         room = gson.fromJson(
             intent.getStringExtra(Const.Navigation.ROOM_DATA),
@@ -125,20 +116,6 @@ class ChatScreenActivity : BaseActivity() {
                 }
             }
         }
-
-//        viewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
-//            Timber.d("Message $it")
-//        }
-//
-//        viewModel.socketStateListener.observe(this, EventObserver {
-//            when (it) {
-//                is SocketTimeout -> viewModel.getPushNotificationStream()
-//                    .asLiveData(Dispatchers.IO).observe(this) {
-//                    Timber.d("Message ${it.body}")
-//                }
-//                else -> Timber.d("Some error")
-//            }
-//        })
     }
 
     private fun setUpAdapter() {
@@ -208,11 +185,23 @@ class ChatScreenActivity : BaseActivity() {
 
         // TODO add send message button and handle UI when message is being entered
         // Change required field after work has been done
-        bindingSetup.tvUsername.text = user.displayName
-        Glide.with(this).load(user.avatarUrl?.let { getAvatarUrl(it) })
-            .into(bindingSetup.ivUserImage)
+
+        if (room.name.isNullOrEmpty()) {
+            room.users?.forEach { roomUser ->
+                if (viewModel.getLocalUserId().toString() != roomUser.userId.toString()) {
+                    bindingSetup.tvChatName.text = roomUser.user?.displayName
+                    Glide.with(this)
+                        .load(roomUser.user?.avatarUrl?.let { getAvatarUrl(it) })
+                        .into(bindingSetup.ivUserImage)
+                }
+            }
+        } else {
+            bindingSetup.tvChatName.text = room.name
+            Glide.with(this).load(room.avatarUrl?.let { getAvatarUrl(it) })
+                .into(bindingSetup.ivUserImage)
+        }
+
         bindingSetup.ivButtonSend.setOnClickListener {
-            // TODO implement a temporary message which need to be sent to the server. Handle
             // TODO success and fail states.
             val tempMessage = Message(
                 0,

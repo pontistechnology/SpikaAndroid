@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,9 +12,10 @@ import com.clover.studio.exampleapp.databinding.FragmentChatBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomFetchFail
 import com.clover.studio.exampleapp.ui.main.RoomsFetched
-import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.google.gson.Gson
 import timber.log.Timber
 
 class ChatFragment : BaseFragment() {
@@ -105,10 +105,9 @@ class ChatFragment : BaseFragment() {
 
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
-//            val bundle = bundleOf(Const.Navigation.ROOM_DATA to it)
-//            startChatScreenActivity(activity, )
-            // TODO navigate to room
-//            findNavController().navigate(R.id.action_mainFragment_to_contactDetailsFragment, bundle)
+            val gson = Gson()
+            val roomData = gson.toJson(it)
+            activity?.let { parent -> startChatScreenActivity(parent, roomData) }
         }
 
         binding.rvRooms.adapter = roomsAdapter

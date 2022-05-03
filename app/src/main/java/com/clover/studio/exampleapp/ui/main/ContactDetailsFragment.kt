@@ -77,9 +77,8 @@ class ContactDetailsFragment : BaseFragment() {
                 is RoomExists -> {
                     Timber.d("Room already exists")
                     val gson = Gson()
-                    val userData = gson.toJson(user)
                     val roomData = gson.toJson(it.roomData)
-                    startChatScreenActivity(requireActivity(), userData, roomData)
+                    startChatScreenActivity(requireActivity(), roomData)
                 }
                 is RoomNotFound -> {
                     Timber.d("Room not found, creating new one")
@@ -111,9 +110,8 @@ class ContactDetailsFragment : BaseFragment() {
             when (it) {
                 is RoomCreated -> {
                     val gson = Gson()
-                    val userData = gson.toJson(user)
                     val roomData = gson.toJson(it.roomData)
-                    startChatScreenActivity(requireActivity(), userData, roomData)
+                    startChatScreenActivity(requireActivity(), roomData)
                 }
                 is RoomFailed -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")
