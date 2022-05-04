@@ -11,6 +11,7 @@ import com.clover.studio.exampleapp.data.models.ChatRoomAndMessage
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
+import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
 
 class RoomsAdapter(
     private val context: Context,
@@ -48,12 +49,16 @@ class RoomsAdapter(
                 if (!roomItem.message.isNullOrEmpty()) {
                     val sortedList = roomItem.message.sortedBy { it.createdAt }
                     binding.tvLastMessage.text = sortedList.last().body?.text.toString()
+
+                    binding.tvMessageTime.text = roomItem.message.last().createdAt?.let {
+                        getRelativeTimeSpan(it)
+                    }
                 }
 
                 Glide.with(context).load(roomItem.chatRoom.avatarUrl?.let { getAvatarUrl(it) })
                     .into(binding.ivRoomImage)
 
-                // TODO add last message, new message bubble and time ago text
+                // TODO add new message bubble
 
                 itemView.setOnClickListener {
                     roomItem.let {

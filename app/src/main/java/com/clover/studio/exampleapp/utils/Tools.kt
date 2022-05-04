@@ -10,6 +10,7 @@ import android.os.Environment
 import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.text.TextUtils
+import android.text.format.DateUtils
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
@@ -253,5 +254,11 @@ object Tools {
             url.startsWith("/") -> BuildConfig.SERVER_URL + url.substring(1)
             else -> BuildConfig.SERVER_URL + "/" + url
         }
+    }
+
+    fun getRelativeTimeSpan(startDate: Long): CharSequence? {
+       return DateUtils.getRelativeTimeSpanString(
+            startDate, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS
+        )
     }
 }
