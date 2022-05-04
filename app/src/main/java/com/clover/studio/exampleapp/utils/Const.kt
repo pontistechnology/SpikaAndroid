@@ -49,6 +49,7 @@ class Const {
             const val ADMIN_USER_IDS = "adminUserIds"
             const val PRIVATE = "private"
             const val GROUP = "group"
+            const val BODY = "body"
         }
     }
 

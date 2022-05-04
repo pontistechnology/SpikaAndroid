@@ -45,8 +45,8 @@ class MainViewModel @Inject constructor(
     fun getLocalUser() = liveData {
         val localUserId = sharedPrefsRepo.readUserId()
 
-        if (localUserId != 0) {
-            emitSource(repository.getUserByID(localUserId!!))
+        if (localUserId != null && localUserId != 0) {
+            emitSource(repository.getUserByID(localUserId))
         } else {
             return@liveData
         }
@@ -56,7 +56,7 @@ class MainViewModel @Inject constructor(
         var userId: Int? = null
 
         viewModelScope.launch {
-            userId = sharedPrefsRepo.readUserId()!!
+            userId = sharedPrefsRepo.readUserId()
         }
         return userId
     }

@@ -87,7 +87,7 @@ class ChatViewModel @Inject constructor(
         var userId: Int? = null
 
         viewModelScope.launch {
-            userId = sharedPrefs.readUserId()!!
+            userId = sharedPrefs.readUserId()
         }
         return userId
     }

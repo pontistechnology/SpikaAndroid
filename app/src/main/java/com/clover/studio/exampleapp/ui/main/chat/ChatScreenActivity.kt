@@ -164,7 +164,7 @@ class ChatScreenActivity : BaseActivity() {
         }
 
         bindingSetup.etMessage.addTextChangedListener {
-            if (it!!.isNotEmpty()) {
+            if (it?.isNotEmpty() == true) {
                 bindingSetup.ivCamera.visibility = View.GONE
                 bindingSetup.ivMicrophone.visibility = View.GONE
                 bindingSetup.ivButtonSend.visibility = View.VISIBLE
@@ -186,7 +186,7 @@ class ChatScreenActivity : BaseActivity() {
         // TODO add send message button and handle UI when message is being entered
         // Change required field after work has been done
 
-        if (room.name.isNullOrEmpty()) {
+        if (Const.JsonFields.PRIVATE == room.type) {
             room.users?.forEach { roomUser ->
                 if (viewModel.getLocalUserId().toString() != roomUser.userId.toString()) {
                     bindingSetup.tvChatName.text = roomUser.user?.displayName
@@ -205,7 +205,7 @@ class ChatScreenActivity : BaseActivity() {
             // TODO success and fail states.
             val tempMessage = Message(
                 0,
-                viewModel.getLocalUserId()!!,
+                viewModel.getLocalUserId(),
                 0,
                 0,
                 0,
@@ -230,7 +230,7 @@ class ChatScreenActivity : BaseActivity() {
 
             jsonObject.addProperty(Const.JsonFields.ROOM_ID, room.id)
             jsonObject.addProperty(Const.JsonFields.TYPE, "text")
-            jsonObject.add(Const.JsonFields.MESSAGE, innerObject)
+            jsonObject.add(Const.JsonFields.BODY, innerObject)
 
             viewModel.sendMessage(jsonObject)
         }

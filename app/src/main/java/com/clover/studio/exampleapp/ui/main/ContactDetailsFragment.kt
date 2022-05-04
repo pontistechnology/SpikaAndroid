@@ -55,7 +55,7 @@ class ContactDetailsFragment : BaseFragment() {
                 })
             Timber.d("Failed to fetch user data")
         } else {
-            user = requireArguments().getParcelable(Const.Navigation.USER_PROFILE)!!
+            user = requireArguments().getParcelable(Const.Navigation.USER_PROFILE)
         }
     }
 
@@ -78,7 +78,7 @@ class ContactDetailsFragment : BaseFragment() {
                     Timber.d("Room already exists")
                     val gson = Gson()
                     val roomData = gson.toJson(it.roomData)
-                    startChatScreenActivity(requireActivity(), roomData)
+                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
                 }
                 is RoomNotFound -> {
                     Timber.d("Room not found, creating new one")
@@ -111,7 +111,7 @@ class ContactDetailsFragment : BaseFragment() {
                 is RoomCreated -> {
                     val gson = Gson()
                     val roomData = gson.toJson(it.roomData)
-                    startChatScreenActivity(requireActivity(), roomData)
+                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
                 }
                 is RoomFailed -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")
@@ -125,7 +125,7 @@ class ContactDetailsFragment : BaseFragment() {
             binding.tvPageName.text = user?.displayName
 
             binding.ivChat.setOnClickListener {
-                viewModel.checkIfRoomExists(user!!.id)
+                user?.id?.let { id -> viewModel.checkIfRoomExists(id) }
             }
 
             Glide.with(this).load(user?.avatarUrl?.let { getAvatarUrl(it) })

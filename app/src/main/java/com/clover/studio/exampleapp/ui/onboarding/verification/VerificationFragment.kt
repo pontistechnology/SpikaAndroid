@@ -259,10 +259,10 @@ class VerificationFragment : BaseFragment() {
         private val previousView: EditText?
     ) : View.OnKeyListener {
         override fun onKey(p0: View?, keyCode: Int, event: KeyEvent?): Boolean {
-            if (event!!.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DEL && currentView.id != binding.etInputOne.id && currentView.text.isEmpty()) {
+            if (event?.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DEL && currentView.id != binding.etInputOne.id && currentView.text.isEmpty()) {
                 //If current is empty then previous EditText's number will also be deleted
-                previousView!!.text = null
-                previousView.requestFocus()
+                previousView?.text = null
+                previousView?.requestFocus()
                 return true
             }
             return false
