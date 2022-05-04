@@ -8,6 +8,7 @@ import com.google.gson.annotations.SerializedName
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_CHAT_ROOM)
 data class ChatRoom(
 
+    @PrimaryKey
     @SerializedName("id")
     @ColumnInfo(name = "room_id")
     val roomId: Int,
@@ -27,9 +28,4 @@ data class ChatRoom(
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long?
-) {
-    @Transient
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = AppDatabase.TablesInfo.ID)
-    var id: Int = 0
-}
+)

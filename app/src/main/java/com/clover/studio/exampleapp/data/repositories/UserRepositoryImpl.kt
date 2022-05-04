@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.ChatRoom
+import com.clover.studio.exampleapp.data.models.ChatRoomAndMessage
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.networking.RoomResponse
@@ -58,6 +59,10 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>> =
         userDao.getUserAndPhoneUser()
 
+    override suspend fun getChatRoomAndMessage(): LiveData<List<ChatRoomAndMessage>> =
+        chatRoomDao.getChatRoomAndMessage()
+
+
 }
 
 interface UserRepository {
@@ -69,4 +74,5 @@ interface UserRepository {
     suspend fun getRoomsLiveData(): LiveData<List<ChatRoom>>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
     suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>
+    suspend fun getChatRoomAndMessage(): LiveData<List<ChatRoomAndMessage>>
 }

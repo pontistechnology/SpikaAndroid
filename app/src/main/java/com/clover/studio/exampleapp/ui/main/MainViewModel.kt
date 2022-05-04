@@ -113,6 +113,10 @@ class MainViewModel @Inject constructor(
         emitSource(repository.getUserAndPhoneUser())
     }
 
+    fun getChatRoomAndMessage() = liveData {
+        emitSource(repository.getChatRoomAndMessage())
+    }
+
     fun getRooms() = liveData {
         emitSource(repository.getRoomsLiveData())
     }

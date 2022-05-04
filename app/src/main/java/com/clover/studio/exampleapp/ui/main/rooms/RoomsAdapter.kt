@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.clover.studio.exampleapp.data.models.ChatRoom
+import com.clover.studio.exampleapp.data.models.ChatRoomAndMessage
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
@@ -15,8 +15,8 @@ import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
 class RoomsAdapter(
     private val context: Context,
     private val myUserId: String,
-    private val onItemClick: ((item: ChatRoom) -> Unit)
-) : ListAdapter<ChatRoom, RoomsAdapter.RoomsViewHolder>(RoomsDiffCallback()) {
+    private val onItemClick: ((item: ChatRoomAndMessage) -> Unit)
+) : ListAdapter<ChatRoomAndMessage, RoomsAdapter.RoomsViewHolder>(RoomsDiffCallback()) {
     inner class RoomsViewHolder(val binding: ItemChatRoomBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -29,8 +29,8 @@ class RoomsAdapter(
     override fun onBindViewHolder(holder: RoomsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { roomItem ->
-                if (Const.JsonFields.PRIVATE == roomItem.type) {
-                    roomItem.users?.forEach { roomUser ->
+                if (Const.JsonFields.PRIVATE == roomItem.chatRoom.type) {
+                    roomItem.chatRoom.users?.forEach { roomUser ->
                         if (myUserId != roomUser.userId.toString()) {
                             binding.tvRoomName.text = roomUser.user?.displayName
                             Glide.with(context)
@@ -39,13 +39,18 @@ class RoomsAdapter(
                         }
                     }
                 } else {
-                    binding.tvRoomName.text = roomItem.name
+                    binding.tvRoomName.text = roomItem.chatRoom.name
                     Glide.with(context)
-                        .load(roomItem.avatarUrl?.let { getAvatarUrl(it) })
+                        .load(roomItem.chatRoom.avatarUrl?.let { getAvatarUrl(it) })
                         .into(binding.ivRoomImage)
                 }
 
-                Glide.with(context).load(roomItem.avatarUrl?.let { getAvatarUrl(it) })
+                if (!roomItem.message.isNullOrEmpty()) {
+                    val sortedList = roomItem.message.sortedBy { it.createdAt }
+                    binding.tvLastMessage.text = sortedList.last().body?.text.toString()
+                }
+
+                Glide.with(context).load(roomItem.chatRoom.avatarUrl?.let { getAvatarUrl(it) })
                     .into(binding.ivRoomImage)
 
                 // TODO add last message, new message bubble and time ago text
@@ -59,12 +64,12 @@ class RoomsAdapter(
         }
     }
 
-    private class RoomsDiffCallback : DiffUtil.ItemCallback<ChatRoom>() {
+    private class RoomsDiffCallback : DiffUtil.ItemCallback<ChatRoomAndMessage>() {
 
-        override fun areItemsTheSame(oldItem: ChatRoom, newItem: ChatRoom) =
-            oldItem.id == newItem.id
+        override fun areItemsTheSame(oldItem: ChatRoomAndMessage, newItem: ChatRoomAndMessage) =
+            oldItem.chatRoom.roomId == newItem.chatRoom.roomId
 
-        override fun areContentsTheSame(oldItem: ChatRoom, newItem: ChatRoom) =
+        override fun areContentsTheSame(oldItem: ChatRoomAndMessage, newItem: ChatRoomAndMessage) =
             oldItem == newItem
     }
 }

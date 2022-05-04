@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.exampleapp.data.models.ChatRoom
+import com.clover.studio.exampleapp.data.models.ChatRoomAndMessage
 import com.clover.studio.exampleapp.databinding.FragmentChatBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomFetchFail
@@ -21,8 +21,8 @@ import timber.log.Timber
 class ChatFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var roomsAdapter: RoomsAdapter
-    private lateinit var roomList: List<ChatRoom>
-    private var filteredList: MutableList<ChatRoom> = ArrayList()
+    private lateinit var roomList: List<ChatRoomAndMessage>
+    private var filteredList: MutableList<ChatRoomAndMessage> = ArrayList()
 
     private var bindingSetup: FragmentChatBinding? = null
 
@@ -51,7 +51,7 @@ class ChatFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::roomList.isInitialized) {
                         for (room in roomList) {
-                            if (room.name?.lowercase()
+                            if (room.chatRoom.name?.lowercase()
                                     ?.contains(query, ignoreCase = true) == true
                             ) {
                                 filteredList.add(room)
@@ -69,7 +69,7 @@ class ChatFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::roomList.isInitialized) {
                         for (room in roomList) {
-                            if (room.name?.lowercase()
+                            if (room.chatRoom.name?.lowercase()
                                     ?.contains(query, ignoreCase = true) == true
                             ) {
                                 filteredList.add(room)
@@ -94,9 +94,20 @@ class ChatFragment : BaseFragment() {
             }
         })
 
-        viewModel.getRooms().observe(viewLifecycleOwner) {
+//        viewModel.getRooms().observe(viewLifecycleOwner) {
+//            if (it.isNotEmpty()) {
+//                binding.tvNoChats.visibility = View.GONE
+//                roomList = it
+//                roomsAdapter.submitList(it)
+//            }
+//        }
+
+        viewModel.getChatRoomAndMessage().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 binding.tvNoChats.visibility = View.GONE
+                for (roomData in it) {
+                    Timber.d("RoomData ${roomData.chatRoom.roomId}")
+                }
                 roomList = it
                 roomsAdapter.submitList(it)
             }
@@ -106,7 +117,7 @@ class ChatFragment : BaseFragment() {
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
             val gson = Gson()
-            val roomData = gson.toJson(it)
+            val roomData = gson.toJson(it.chatRoom)
             activity?.let { parent -> startChatScreenActivity(parent, roomData) }
         }
 

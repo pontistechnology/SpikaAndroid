@@ -69,7 +69,7 @@ class ChatScreenActivity : BaseActivity() {
             when (it) {
                 ChatStatesEnum.MESSAGE_SENT -> {
                     bindingSetup.etMessage.setText("")
-                    viewModel.getMessages(room.id)
+                    viewModel.getMessages(room.roomId)
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
@@ -107,7 +107,7 @@ class ChatScreenActivity : BaseActivity() {
             }
         })
 
-        viewModel.getLocalMessages(room.id).observe(this) {
+        viewModel.getLocalMessages(room.roomId).observe(this) {
             if (it.isNotEmpty()) {
                 messages = it as MutableList<Message>
                 messages.sortByDescending { message -> message.createdAt }
@@ -155,7 +155,7 @@ class ChatScreenActivity : BaseActivity() {
         itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
 
         // Get user messages
-        viewModel.getMessages(room.id)
+        viewModel.getMessages(room.roomId)
     }
 
     private fun initViews() {
@@ -211,7 +211,7 @@ class ChatScreenActivity : BaseActivity() {
                 0,
                 -1,
                 0,
-                room.id,
+                room.roomId,
                 "text",
                 MessageBody(bindingSetup.etMessage.text.toString(), "text"),
                 System.currentTimeMillis()
@@ -228,7 +228,7 @@ class ChatScreenActivity : BaseActivity() {
             )
             innerObject.addProperty(Const.JsonFields.TYPE, "text")
 
-            jsonObject.addProperty(Const.JsonFields.ROOM_ID, room.id)
+            jsonObject.addProperty(Const.JsonFields.ROOM_ID, room.roomId)
             jsonObject.addProperty(Const.JsonFields.TYPE, "text")
             jsonObject.add(Const.JsonFields.BODY, innerObject)
 
