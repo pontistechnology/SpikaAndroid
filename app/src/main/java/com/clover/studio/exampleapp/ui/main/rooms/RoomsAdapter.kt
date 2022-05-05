@@ -55,9 +55,6 @@ class RoomsAdapter(
                     }
                 }
 
-                Glide.with(context).load(roomItem.chatRoom.avatarUrl?.let { getAvatarUrl(it) })
-                    .into(binding.ivRoomImage)
-
                 // TODO add new message bubble
 
                 itemView.setOnClickListener {
