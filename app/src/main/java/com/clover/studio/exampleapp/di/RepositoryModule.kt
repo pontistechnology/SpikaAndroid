@@ -51,7 +51,7 @@ object RepositoryModule {
         chatRoomDao: ChatRoomDao,
         sharedPrefs: SharedPreferencesRepository
     ) =
-        UserRepositoryImpl(retrofitService, userDao, chatRoomDao, sharedPrefs)
+        MainRepositoryImpl(retrofitService, userDao, chatRoomDao, sharedPrefs)
 
     @Singleton
     @Provides

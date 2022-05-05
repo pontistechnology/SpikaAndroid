@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
-import com.clover.studio.exampleapp.data.repositories.UserRepositoryImpl
+import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.SSEManager
 import com.clover.studio.exampleapp.utils.Tools
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: UserRepositoryImpl,
+    private val repository: MainRepositoryImpl,
     private val sharedPrefsRepo: SharedPreferencesRepository,
     private val sseManager: SSEManager
 ) : ViewModel() {

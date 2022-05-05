@@ -13,12 +13,12 @@ import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
 import javax.inject.Inject
 
-class UserRepositoryImpl @Inject constructor(
+class MainRepositoryImpl @Inject constructor(
     private val retrofitService: RetrofitService,
     private val userDao: UserDao,
     private val chatRoomDao: ChatRoomDao,
     private val sharedPrefs: SharedPreferencesRepository
-) : UserRepository {
+) : MainRepository {
     override suspend fun getUsers() {
         val userData = retrofitService.getUsers(getHeaderMap(sharedPrefs.readToken()))
 
@@ -61,11 +61,9 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getChatRoomAndMessage(): LiveData<List<ChatRoomAndMessage>> =
         chatRoomDao.getChatRoomAndMessage()
-
-
 }
 
-interface UserRepository {
+interface MainRepository {
     suspend fun getUsers()
     fun getUserByID(id: Int): LiveData<User>
     fun getUserLiveData(): LiveData<List<User>>
