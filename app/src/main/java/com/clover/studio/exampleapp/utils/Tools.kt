@@ -116,7 +116,7 @@ object Tools {
     fun createImageFile(activity: Activity?): File {
         // Create an image file name
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
+        val storageDir: File? = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(
             "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
@@ -129,10 +129,10 @@ object Tools {
 
         val bos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100 /*ignored for PNG*/, bos);
-        val bitmapdata = bos.toByteArray();
+        val bitmapData = bos.toByteArray();
 
         val fos = FileOutputStream(file)
-        fos.write(bitmapdata)
+        fos.write(bitmapData)
         fos.flush()
         fos.close()
 
@@ -186,7 +186,7 @@ object Tools {
         options.inJustDecodeBounds = true
         var imageStream = context.contentResolver.openInputStream(selectedImage!!)
         BitmapFactory.decodeStream(imageStream, null, options)
-        imageStream!!.close()
+        imageStream?.close()
 
         // Calculate inSampleSize
         options.inSampleSize = calculateInSampleSize(options)
@@ -195,7 +195,7 @@ object Tools {
         options.inJustDecodeBounds = false
         imageStream = context.contentResolver.openInputStream(selectedImage)
         var img = BitmapFactory.decodeStream(imageStream, null, options)
-        img = rotateImageIfRequired(context, img!!, selectedImage)
+        img = img?.let { rotateImageIfRequired(context, it, selectedImage) }
         return img
     }
 
@@ -236,8 +236,8 @@ object Tools {
     private fun rotateImageIfRequired(context: Context, img: Bitmap, selectedImage: Uri): Bitmap? {
         val input = context.contentResolver.openInputStream(selectedImage)
         val ei =
-            ExifInterface(input!!)
-        return when (ei.getAttributeInt(
+            input?.let { ExifInterface(it) }
+        return when (ei?.getAttributeInt(
             ExifInterface.TAG_ORIENTATION,
             ExifInterface.ORIENTATION_NORMAL
         )) {
