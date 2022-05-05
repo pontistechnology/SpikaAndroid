@@ -13,6 +13,7 @@ import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomFetchFail
 import com.clover.studio.exampleapp.ui.main.RoomsFetched
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.gson.Gson
@@ -51,13 +52,32 @@ class ChatFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::roomList.isInitialized) {
                         for (room in roomList) {
-                            if (room.chatRoom.name?.lowercase()
-                                    ?.contains(query, ignoreCase = true) == true
-                            ) {
-                                filteredList.add(room)
+                            if (Const.JsonFields.PRIVATE == room.chatRoom.type) {
+                                room.chatRoom.users?.forEach { roomUser ->
+                                    if (viewModel.getLocalUserId()
+                                            .toString() != roomUser.userId.toString()
+                                    ) {
+                                        if (roomUser.user?.displayName?.lowercase()
+                                                ?.contains(query, ignoreCase = true) == true
+                                        ) {
+                                            filteredList.add(room)
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (room.chatRoom.name?.lowercase()
+                                        ?.contains(query, ignoreCase = true) == true
+                                ) {
+                                    filteredList.add(room)
+                                }
                             }
                         }
-                        roomsAdapter.submitList(ArrayList(filteredList))
+                        val sortedList =
+                            filteredList.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
+                                .sortedByDescending { roomItem ->
+                                    roomItem.message?.first { message -> message.createdAt != null }?.createdAt
+                                }
+                        roomsAdapter.submitList(ArrayList(sortedList))
                         filteredList.clear()
                     }
                 }
@@ -69,14 +89,33 @@ class ChatFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::roomList.isInitialized) {
                         for (room in roomList) {
-                            if (room.chatRoom.name?.lowercase()
-                                    ?.contains(query, ignoreCase = true) == true
-                            ) {
-                                filteredList.add(room)
+                            if (Const.JsonFields.PRIVATE == room.chatRoom.type) {
+                                room.chatRoom.users?.forEach { roomUser ->
+                                    if (viewModel.getLocalUserId()
+                                            .toString() != roomUser.userId.toString()
+                                    ) {
+                                        if (roomUser.user?.displayName?.lowercase()
+                                                ?.contains(query, ignoreCase = true) == true
+                                        ) {
+                                            filteredList.add(room)
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (room.chatRoom.name?.lowercase()
+                                        ?.contains(query, ignoreCase = true) == true
+                                ) {
+                                    filteredList.add(room)
+                                }
                             }
                         }
                         Timber.d("Filtered List: $filteredList")
-                        roomsAdapter.submitList(ArrayList(filteredList))
+                        val sortedList =
+                            filteredList.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
+                                .sortedByDescending { roomItem ->
+                                    roomItem.message?.first { message -> message.createdAt != null }?.createdAt
+                                }
+                        roomsAdapter.submitList(ArrayList(sortedList))
                         filteredList.clear()
                     }
                 }
@@ -109,7 +148,11 @@ class ChatFragment : BaseFragment() {
                     Timber.d("RoomData ${roomData.chatRoom.roomId}")
                 }
                 roomList = it
-                roomsAdapter.submitList(it)
+                val sortedList = it.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
+                    .sortedByDescending { roomItem ->
+                        roomItem.message?.first { message -> message.createdAt != null }?.createdAt
+                    }
+                roomsAdapter.submitList(sortedList)
             }
         }
     }
