@@ -119,7 +119,7 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun setUpAdapter() {
-        chatAdapter = ChatAdapter(this, viewModel.getLocalUserId()!!) {
+        chatAdapter = ChatAdapter(this, viewModel.getLocalUserId()!!, room.users!!) {
             // TODO set up on click function
         }
 

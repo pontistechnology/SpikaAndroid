@@ -6,10 +6,13 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_message"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.934"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -18,14 +21,17 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:layout_marginStart="10dp"
+            android:layout_marginTop="24dp"
             android:background="@drawable/bg_message_user"
             android:backgroundTint="@color/message_me"
             android:fontFamily="@font/montserrat"
-            android:gravity="center|start"
             android:padding="10dp"
             android:text="@string/some_message"
             android:textSize="14sp"
+            app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

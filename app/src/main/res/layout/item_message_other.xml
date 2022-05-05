@@ -11,6 +11,7 @@
         android:layout_margin="10dp"
         android:fontFamily="@font/montserrat"
         android:text="@string/username"
+        app:layout_constrainedWidth="true"
         android:textColor="@color/text_tertiary"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@id/tv_message"
@@ -27,21 +28,32 @@
         android:padding="10dp"
         android:text="@string/some_message"
         android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@id/cv_chat_image"
         app:layout_constraintEnd_toStartOf="@id/iv_emoticons"
-        app:layout_constraintBottom_toBottomOf="@id/iv_user_image"
-        app:layout_constraintStart_toEndOf="@id/iv_user_image"
-        app:layout_constraintTop_toTopOf="@id/iv_user_image" />
+        app:layout_constraintStart_toEndOf="@id/cv_chat_image"
+        app:layout_constraintTop_toTopOf="@id/cv_chat_image" />
 
-    <ImageView
-        android:id="@+id/iv_user_image"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_chat_image"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_margin="20dp"
-        android:scaleType="center"
-        android:src="@drawable/img_camera"
+        android:background="@drawable/img_selector_background"
+        android:backgroundTint="@color/light_blue"
+        android:elevation="0dp"
+        app:cardCornerRadius="50dp"
+        app:cardPreventCornerOverlap="false"
         app:layout_constraintEnd_toStartOf="@id/tv_message"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_username" />
+        app:layout_constraintTop_toBottomOf="@id/tv_username">
+
+        <ImageView
+            android:id="@+id/iv_user_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="center"
+            android:src="@drawable/img_camera" />
+    </androidx.cardview.widget.CardView>
 
     <ImageView
         android:id="@+id/iv_emoticons"

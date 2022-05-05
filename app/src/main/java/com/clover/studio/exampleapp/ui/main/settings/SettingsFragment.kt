@@ -33,7 +33,7 @@ class SettingsFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
-            binding.tvUsername.text = it.displayName ?: "No Username"
+            binding.tvUsername.text = it.displayName ?: getString(R.string.no_username)
             binding.tvPhoneNumber.text = it.telephoneNumber
 
             Glide.with(requireActivity()).load(it.avatarUrl?.let { url -> getAvatarUrl(url) })

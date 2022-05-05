@@ -147,8 +147,8 @@ class OnboardingViewModel @Inject constructor(
 
     fun verifyUploadedFile(jsonObject: JsonObject) = viewModelScope.launch {
         try {
-            val fileId = onboardingRepository.verifyFile(jsonObject).data?.file?.id
-            uploadStateListener.postValue(Event(UploadVerified(fileId!!)))
+            val filePath = onboardingRepository.verifyFile(jsonObject).data?.file?.path
+            uploadStateListener.postValue(Event(UploadVerified(filePath!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
             uploadStateListener.postValue(Event(UploadVerificationFailed))
@@ -168,7 +168,7 @@ class OnboardingViewModel @Inject constructor(
 
 enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR, UPLOAD_PIECE, UPLOAD_ERROR, UPLOAD_SUCCESS }
 sealed class OnboardingFileStates
-class UploadVerified(val fileId: Int) : OnboardingFileStates()
+class UploadVerified(val path: String) : OnboardingFileStates()
 object UploadVerificationFailed : OnboardingFileStates()
 object UploadSuccess : OnboardingFileStates()
 object UploadPiece : OnboardingFileStates()

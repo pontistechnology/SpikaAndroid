@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
-import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.UploadFile
 import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
@@ -130,7 +129,7 @@ class AccountCreationFragment : BaseFragment() {
                     binding.progressBar.secondaryProgress = uploadPieces.toInt()
                     val userData = hashMapOf(
                         Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString(),
-                        Const.UserData.AVATAR_URL to BuildConfig.SERVER_URL + Const.Networking.API_UPLOAD_FILE + "/${it.fileId}"
+                        Const.UserData.AVATAR_URL to it.path
                     )
                     viewModel.updateUserData(userData)
                 }
