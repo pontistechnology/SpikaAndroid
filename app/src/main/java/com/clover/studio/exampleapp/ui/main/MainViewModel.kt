@@ -30,6 +30,7 @@ class MainViewModel @Inject constructor(
     val checkRoomExistsListener = MutableLiveData<Event<MainStates>>()
     val createRoomListener = MutableLiveData<Event<MainStates>>()
     val userPhoneUserListener = MutableLiveData<Event<MainStates>>()
+    val messagesListener = MutableLiveData<Event<MainStates>>()
 
     fun getContacts() = viewModelScope.launch {
         try {
@@ -98,6 +99,17 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun getMessagesRemote() = viewModelScope.launch {
+        try {
+            repository.getMessages()
+            messagesListener.postValue(Event(MessagesFetched))
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            messagesListener.postValue(Event(MessagesFetchFail))
+            return@launch
+        }
+    }
+
     fun getPushNotificationStream(): Flow<Message> = flow {
         viewModelScope.launch {
             try {
@@ -131,3 +143,5 @@ class RoomCreated(val roomData: ChatRoom) : MainStates()
 object RoomFailed : MainStates()
 class RoomExists(val roomData: ChatRoom) : MainStates()
 object RoomNotFound : MainStates()
+object MessagesFetched : MainStates()
+object MessagesFetchFail : MainStates()

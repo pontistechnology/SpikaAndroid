@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.data.services
 
 import com.clover.studio.exampleapp.data.models.networking.ContactResponse
+import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.data.models.networking.RoomResponse
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
@@ -28,4 +29,10 @@ interface RetrofitService {
     suspend fun getRooms(
         @HeaderMap headers: Map<String, String?>
     ): RoomResponse
+
+    @GET(Const.Networking.API_GET_MESSAGES)
+    suspend fun getMessages(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: String
+    ): MessageResponse
 }

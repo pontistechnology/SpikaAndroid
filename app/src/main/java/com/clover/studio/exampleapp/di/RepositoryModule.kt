@@ -48,10 +48,11 @@ object RepositoryModule {
     fun provideUserRepository(
         retrofitService: RetrofitService,
         userDao: UserDao,
+        messageDao: MessageDao,
         chatRoomDao: ChatRoomDao,
         sharedPrefs: SharedPreferencesRepository
     ) =
-        MainRepositoryImpl(retrofitService, userDao, chatRoomDao, sharedPrefs)
+        MainRepositoryImpl(retrofitService, userDao, messageDao, chatRoomDao, sharedPrefs)
 
     @Singleton
     @Provides

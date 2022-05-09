@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.data.repositories
 
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
+import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.ChatRoomAndMessage
@@ -11,11 +12,15 @@ import com.clover.studio.exampleapp.data.models.networking.RoomResponse
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
+import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
     private val retrofitService: RetrofitService,
     private val userDao: UserDao,
+    private val messageDao: MessageDao,
     private val chatRoomDao: ChatRoomDao,
     private val sharedPrefs: SharedPreferencesRepository
 ) : MainRepository {
@@ -46,7 +51,28 @@ class MainRepositoryImpl @Inject constructor(
                 chatRoomDao.insert(room)
             }
         }
-        retrofitService.getRooms(getHeaderMap(sharedPrefs.readToken()))
+    }
+
+    override suspend fun getMessages() {
+        val roomIds: MutableList<Int> = ArrayList()
+        withContext(Dispatchers.IO) {
+            chatRoomDao.getRoomsLocally().forEach { roomIds.add(it.roomId) }
+        }
+
+        if (roomIds.isNotEmpty()) {
+            for (id in roomIds) {
+                val messageData = retrofitService.getMessages(
+                    getHeaderMap(sharedPrefs.readToken()),
+                    id.toString()
+                )
+
+                if (messageData.data?.list != null) {
+                    for (message in messageData.data.list) {
+                        messageDao.insert(message)
+                    }
+                }
+            }
+        }
     }
 
     override suspend fun getRoomsLiveData(): LiveData<List<ChatRoom>> =
@@ -69,6 +95,7 @@ interface MainRepository {
     fun getUserLiveData(): LiveData<List<User>>
     suspend fun getRoomById(userId: Int): RoomResponse
     suspend fun getRooms()
+    suspend fun getMessages()
     suspend fun getRoomsLiveData(): LiveData<List<ChatRoom>>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
     suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>

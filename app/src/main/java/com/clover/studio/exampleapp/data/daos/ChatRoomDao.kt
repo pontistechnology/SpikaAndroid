@@ -14,6 +14,9 @@ interface ChatRoomDao {
     @Query("SELECT * FROM room")
     fun getRooms(): LiveData<List<ChatRoom>>
 
+    @Query("SELECT * FROM room")
+    fun getRoomsLocally(): List<ChatRoom>
+
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     fun getRoomById(roomId: Int): LiveData<ChatRoom>
 

@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
+import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -34,5 +35,23 @@ class MainActivity : BaseActivity() {
         viewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
             Timber.d("Message $it")
         }
+
+        viewModel.getRoomsRemote()
+
+        viewModel.roomsListener.observe(this, EventObserver {
+            when (it) {
+                is RoomsFetched -> viewModel.getMessagesRemote()
+                is RoomFetchFail -> Timber.d("Failed to fetch rooms")
+                else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.messagesListener.observe(this, EventObserver {
+            when (it) {
+                is MessagesFetched -> Timber.d("Successfully fetched messages")
+                is MessagesFetchFail -> Timber.d("Failed to fetch messages")
+                else -> Timber.d("Other error")
+            }
+        })
     }
 }
