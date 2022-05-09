@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.ui.main.chat
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -14,6 +15,7 @@ import com.clover.studio.exampleapp.data.models.networking.RoomUsers
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
 import com.clover.studio.exampleapp.utils.Tools
+import timber.log.Timber
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
@@ -106,6 +108,25 @@ class ChatAdapter(
                             .into(holder.binding.ivUserImage)
                         break
                     }
+                }
+                if (position > 0) {
+                    try {
+                        val nextItem = getItem(position + 1).fromUserId
+
+                        val currentItem = it.fromUserId
+                        Timber.d("Items : $nextItem, $currentItem ${nextItem == currentItem}")
+
+                        if (nextItem == currentItem) {
+                            holder.binding.tvUsername.visibility = View.GONE
+                        } else {
+                            holder.binding.tvUsername.visibility = View.VISIBLE
+                        }
+                    } catch (ex: IndexOutOfBoundsException) {
+                        Tools.checkError(ex)
+                        holder.binding.tvUsername.visibility = View.VISIBLE
+                    }
+                } else {
+                    holder.binding.tvUsername.visibility = View.VISIBLE
                 }
             }
         }
