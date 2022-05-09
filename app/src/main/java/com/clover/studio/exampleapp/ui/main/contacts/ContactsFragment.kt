@@ -93,11 +93,11 @@ class ContactsFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
-                            if (user.phoneUser?.name?.lowercase()?.contains(
+                            if ((user.phoneUser?.name?.lowercase()?.contains(
                                     query,
                                     ignoreCase = true
                                 ) ?: user.user.displayName?.lowercase()
-                                    ?.contains(query, ignoreCase = true) == true
+                                    ?.contains(query, ignoreCase = true)) == true
                             ) {
                                 filteredList.add(user)
                             }
@@ -118,11 +118,11 @@ class ContactsFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
-                            if (user.phoneUser?.name?.lowercase()?.contains(
+                            if ((user.phoneUser?.name?.lowercase()?.contains(
                                     query,
                                     ignoreCase = true
                                 ) ?: user.user.displayName?.lowercase()
-                                    ?.contains(query, ignoreCase = true) == true
+                                    ?.contains(query, ignoreCase = true)) == true
                             ) {
                                 filteredList.add(user)
                             }
