@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
@@ -8,6 +9,8 @@ import timber.log.Timber
 class MainApplication : Application() {
 
     override fun onCreate() {
+        //         Force light mode when app starts
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate()
         if (BuildConfig.BUILD_TYPE == "debug" || BuildConfig.BUILD_TYPE == "dev" || BuildConfig.BUILD_TYPE == "releaseDebug") {
             Timber.plant(Timber.DebugTree())

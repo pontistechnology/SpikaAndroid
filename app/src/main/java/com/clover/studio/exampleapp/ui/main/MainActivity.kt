@@ -31,12 +31,15 @@ class MainActivity : BaseActivity() {
         val view = bindingSetup.root
         setContentView(view)
 
-//        initializeObservers()
+        initializeObservers()
+
+        viewModel.getRoomsRemote()
+    }
+
+    private fun initializeObservers() {
         viewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
             Timber.d("Message $it")
         }
-
-        viewModel.getRoomsRemote()
 
         viewModel.roomsListener.observe(this, EventObserver {
             when (it) {

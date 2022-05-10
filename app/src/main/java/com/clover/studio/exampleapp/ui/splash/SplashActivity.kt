@@ -25,9 +25,6 @@ class SplashActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         bindingSetup = ActivitySplashBinding.inflate(layoutInflater)
         val view = bindingSetup.root
-
-        // Force light mode when app starts
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         setContentView(view)
 
         checkLoginInformation()

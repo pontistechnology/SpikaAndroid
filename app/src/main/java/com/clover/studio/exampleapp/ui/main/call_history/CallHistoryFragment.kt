@@ -4,17 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.FragmentCallHistoryBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
-import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import timber.log.Timber
-import kotlin.random.Random
 
 class CallHistoryFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -32,33 +29,10 @@ class CallHistoryFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentCallHistoryBinding.inflate(inflater, container, false)
 
-        // TODO get user list and check state
-        userList = mutableListOf(
-            User(
-                1,
-                "Matom",
-                Tools.getRandomImageUrl(Random.nextInt(5)),
-                "+384945556666",
-                "someHash",
-                "mojemail@lol.com",
-                "Time"
-            ),
-
-            User(
-                2,
-                "Markan",
-                Tools.getRandomImageUrl(Random.nextInt(5)),
-                "+384945556666",
-                "someHash",
-                "drugimai@aol.com",
-                "time"
-            )
-        )
-
         setupAdapter()
         setupSearchView()
 
-        if (userList.isEmpty()) {
+        if (!this::userList.isInitialized || userList.isEmpty()) {
             binding.svHistorySearch.visibility = View.GONE
             binding.rvCallHistory.visibility = View.GONE
         } else {
@@ -77,9 +51,11 @@ class CallHistoryFragment : BaseFragment() {
         binding.rvCallHistory.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
-        callHistoryAdapter.submitList(
-            userList
-        )
+        if (this::userList.isInitialized && userList.isNotEmpty()) {
+            callHistoryAdapter.submitList(
+                userList
+            )
+        }
     }
 
     private fun setupSearchView() {
