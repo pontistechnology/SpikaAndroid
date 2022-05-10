@@ -34,33 +34,33 @@ class SplashActivity : BaseActivity() {
             when (it) {
                 SplashStates.NAVIGATE_ONBOARDING -> goToOnboarding()
                 SplashStates.NAVIGATE_MAIN -> goToMainActivity()
+                SplashStates.NAVIGATE_ACCOUNT_CREATION -> goToAccountCreation()
             }
         })
 
         viewModel.checkToken()
     }
 
-    private fun goToOnboarding() {
-        val timer = object : CountDownTimer(5000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                Timber.d("Timer tick $millisUntilFinished")
-            }
+    private fun goToAccountCreation() {
+        startTimerAndNavigate { startOnboardingActivity(this@SplashActivity, true) }
+    }
 
-            override fun onFinish() {
-                startOnboardingActivity(this@SplashActivity)
-            }
-        }
-        timer.start()
+    private fun goToOnboarding() {
+        startTimerAndNavigate { startOnboardingActivity(this@SplashActivity, false) }
     }
 
     private fun goToMainActivity() {
+        startTimerAndNavigate { startMainActivity(this@SplashActivity) }
+    }
+
+    private fun startTimerAndNavigate(location: () -> Unit) {
         val timer = object : CountDownTimer(5000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 Timber.d("Timer tick $millisUntilFinished")
             }
 
             override fun onFinish() {
-                startMainActivity(this@SplashActivity)
+                location()
             }
         }
         timer.start()

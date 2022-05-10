@@ -18,13 +18,17 @@ class SplashViewModel @Inject constructor(
 
     fun checkToken() = viewModelScope.launch {
         if (sharedPrefsRepo.readToken().isNullOrEmpty()
-            || !sharedPrefsRepo.isAccountCreated()
+            && !sharedPrefsRepo.isAccountCreated()
         ) {
             splashTokenListener.postValue(Event(SplashStates.NAVIGATE_ONBOARDING))
+        } else if (!sharedPrefsRepo.readToken().isNullOrEmpty()
+            && !sharedPrefsRepo.isAccountCreated()
+        ) {
+            splashTokenListener.postValue(Event(SplashStates.NAVIGATE_ACCOUNT_CREATION))
         } else {
             splashTokenListener.postValue(Event(SplashStates.NAVIGATE_MAIN))
         }
     }
 }
 
-enum class SplashStates { NAVIGATE_ONBOARDING, NAVIGATE_MAIN }
+enum class SplashStates { NAVIGATE_ONBOARDING, NAVIGATE_MAIN, NAVIGATE_ACCOUNT_CREATION }

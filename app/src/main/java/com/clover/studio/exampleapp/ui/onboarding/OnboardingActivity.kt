@@ -5,19 +5,26 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.navigation.findNavController
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.ActivityOnboardingBinding
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
-fun startOnboardingActivity(fromActivity: Activity) = fromActivity.apply {
-    startActivity(Intent(fromActivity as Context, OnboardingActivity::class.java))
-    finish()
-}
+fun startOnboardingActivity(fromActivity: Activity, goAccountCreation: Boolean) =
+    fromActivity.apply {
+        val intent = Intent(fromActivity as Context, OnboardingActivity::class.java)
+        intent.putExtra(Const.Navigation.GO_ACCOUNT_CREATION, goAccountCreation)
+        startActivity(intent)
+        finish()
+    }
 
 @AndroidEntryPoint
 class OnboardingActivity : BaseActivity() {
 
     private val viewModel: OnboardingViewModel by viewModels()
+    private var goToAccountCreation: Boolean = false
 
     private lateinit var bindingSetup: ActivityOnboardingBinding
 
@@ -26,5 +33,11 @@ class OnboardingActivity : BaseActivity() {
         bindingSetup = ActivityOnboardingBinding.inflate(layoutInflater)
         val view = bindingSetup.root
         setContentView(view)
+
+        goToAccountCreation = intent.getBooleanExtra(Const.Navigation.GO_ACCOUNT_CREATION, false)
+
+        if (goToAccountCreation) {
+            findNavController(R.id.container).navigate(R.id.action_splashFragment_to_accountCreationFragment)
+        }
     }
 }

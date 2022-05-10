@@ -9,6 +9,7 @@ class Const {
             const val PHONE_NUMBER_HASHED = "phone_number_hashed"
             const val USER_PROFILE = "user_profile"
             const val ROOM_DATA = "room_data"
+            const val GO_ACCOUNT_CREATION = "go_account_creation"
         }
     }
 
