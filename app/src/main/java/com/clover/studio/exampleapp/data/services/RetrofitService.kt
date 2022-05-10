@@ -35,4 +35,10 @@ interface RetrofitService {
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: String
     ): MessageResponse
+
+    @PUT(Const.Networking.API_UPDATE_TOKEN)
+    suspend fun updatePushToken(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject
+    )
 }

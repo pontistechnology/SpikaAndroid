@@ -4,11 +4,16 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
@@ -32,6 +37,7 @@ class MainActivity : BaseActivity() {
         setContentView(view)
 
         initializeObservers()
+        sendPushTokenToServer()
 
         viewModel.getRoomsRemote()
     }
@@ -55,6 +61,23 @@ class MainActivity : BaseActivity() {
                 is MessagesFetchFail -> Timber.d("Failed to fetch messages")
                 else -> Timber.d("Other error")
             }
+        })
+    }
+
+    private fun sendPushTokenToServer() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                return@OnCompleteListener
+            }
+
+            // Get new FCM registration token
+            val token = task.result
+            val jsonObject = JsonObject()
+
+            jsonObject.addProperty(Const.JsonFields.PUSH_TOKEN, token)
+
+            viewModel.updatePushToken(jsonObject)
+            Timber.d("Token: $token")
         })
     }
 }

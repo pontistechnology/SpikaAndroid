@@ -21,6 +21,7 @@ class Const {
             const val TELEPHONE_NUMBER_HASHED = "telephoneNumberHashed"
             const val COUNTRY_CODE = "countryCode"
             const val CONTACTS = "contacts"
+            const val PUSH_TOKEN = "pushToken"
 
             // Mime types
             const val IMAGE = "image/*"
@@ -69,6 +70,7 @@ class Const {
             const val API_GET_ROOM_BY_ID = "api/messenger/rooms/users/{userId}"
             const val API_POST_NEW_ROOM = "api/messenger/rooms"
             const val API_SSE_STREAM = "api/sse"
+            const val API_UPDATE_TOKEN = "api/messenger/device"
 
             // Queries
             const val TIMESTAMP = "timestamp"
@@ -100,6 +102,7 @@ class Const {
             const val USER_CONTACTS = "user_contacts"
             const val USER_ID = "user_id"
             const val ACCOUNT_CREATED = "account_created"
+            const val PUSH_TOKEN = "pushToken"
         }
     }
 

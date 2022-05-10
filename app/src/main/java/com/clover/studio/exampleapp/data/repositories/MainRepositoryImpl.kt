@@ -87,6 +87,9 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun getChatRoomAndMessage(): LiveData<List<ChatRoomAndMessage>> =
         chatRoomDao.getChatRoomAndMessage()
+
+    override suspend fun updatePushToken(jsonObject: JsonObject) =
+        retrofitService.updatePushToken(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 }
 
 interface MainRepository {
@@ -100,4 +103,5 @@ interface MainRepository {
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
     suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>
     suspend fun getChatRoomAndMessage(): LiveData<List<ChatRoomAndMessage>>
+    suspend fun updatePushToken(jsonObject: JsonObject)
 }

@@ -161,4 +161,5 @@
     <string name="failed_user_image">Failed to load user image.</string>
     <string name="placeholder_time">2 min ago</string>
     <string name="no_username">No Username</string>
+    <string name="channel_description">Spika App</string>
 </resources>

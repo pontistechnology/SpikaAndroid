@@ -132,6 +132,15 @@ class MainViewModel @Inject constructor(
     fun getRooms() = liveData {
         emitSource(repository.getRoomsLiveData())
     }
+
+    fun updatePushToken(jsonObject: JsonObject) = viewModelScope.launch {
+        try {
+            repository.updatePushToken(jsonObject)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            return@launch
+        }
+    }
 }
 
 sealed class MainStates
