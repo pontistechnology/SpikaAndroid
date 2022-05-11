@@ -27,6 +27,7 @@ import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.gson.JsonObject
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 
 class VerificationFragment : BaseFragment() {
@@ -65,8 +66,33 @@ class VerificationFragment : BaseFragment() {
         initBroadCast()
         setClickListeners()
         setObservers()
+        initCountdownTimer()
 
         return binding.root
+    }
+
+    private fun initCountdownTimer() {
+        val timer = object : CountDownTimer(120000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                var timeInMinutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished).toString()
+                var timeInSeconds =
+                    (TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) % 60).toString()
+
+                if (timeInMinutes.length < 2) {
+                    timeInMinutes = "0$timeInMinutes"
+                }
+
+                if (timeInSeconds.length < 2) {
+                    timeInSeconds = "0$timeInSeconds"
+                }
+                binding.tvTimer.text = "$timeInMinutes:$timeInSeconds"
+            }
+
+            override fun onFinish() {
+                binding.tvTimer.text = getString(R.string.timeout)
+            }
+        }
+        timer.start()
     }
 
     override fun onResume() {
