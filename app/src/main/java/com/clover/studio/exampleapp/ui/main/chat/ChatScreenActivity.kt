@@ -201,6 +201,8 @@ class ChatScreenActivity : BaseActivity() {
                 .into(bindingSetup.ivUserImage)
         }
 
+        bindingSetup.tvTitle.text = room.type
+
         bindingSetup.ivButtonSend.setOnClickListener {
             // TODO success and fail states.
             val tempMessage = Message(

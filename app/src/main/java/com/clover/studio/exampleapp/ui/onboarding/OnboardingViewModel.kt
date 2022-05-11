@@ -60,8 +60,10 @@ class OnboardingViewModel @Inject constructor(
 
         if (sharedPrefs.isNewUser())
             codeVerificationListener.postValue(Event((OnboardingStates.CODE_VERIFIED_NEW_USER)))
-        else
+        else {
+            sharedPrefs.accountCreated(true)
             codeVerificationListener.postValue(Event(OnboardingStates.CODE_VERIFIED))
+        }
     }
 
     fun readToken() {
