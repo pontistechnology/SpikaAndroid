@@ -83,9 +83,10 @@ class RegisterNumberFragment : BaseFragment() {
             when (it) {
                 OnboardingStates.REGISTERING_SUCCESS -> {
                     val bundle = bundleOf(
-                        Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString(),
+                        Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString()
+                            .toInt(),
                         Const.Navigation.PHONE_NUMBER_HASHED to hashString(
-                            countryCode + binding.etPhoneNumber.text.toString()
+                            countryCode + binding.etPhoneNumber.text.toString().toInt()
                         ),
                         Const.Navigation.COUNTRY_CODE to countryCode.substring(1),
                         Const.Navigation.DEVICE_ID to Settings.Secure.getString(
@@ -137,11 +138,11 @@ class RegisterNumberFragment : BaseFragment() {
 
         jsonObject.addProperty(
             Const.JsonFields.TELEPHONE_NUMBER,
-            countryCode + binding.etPhoneNumber.text.toString()
+            countryCode + binding.etPhoneNumber.text.toString().toInt()
         )
         jsonObject.addProperty(
             Const.JsonFields.TELEPHONE_NUMBER_HASHED, hashString(
-                countryCode + binding.etPhoneNumber.text.toString()
+                countryCode + binding.etPhoneNumber.text.toString().toInt()
             )
         )
         jsonObject.addProperty(Const.JsonFields.COUNTRY_CODE, countryCode.substring(1))

@@ -69,6 +69,16 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun readPushToken(): String? =
         getPrefs().getString(Const.PrefsData.PUSH_TOKEN, null)
 
+    override suspend fun isNewUser(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.NEW_USER, false)
+
+    override suspend fun setNewUser(newUser: Boolean) {
+        with(getPrefs().edit()) {
+            putBoolean(Const.PrefsData.NEW_USER, newUser)
+            commit()
+        }
+    }
+
     private fun getPrefs(): SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
 }
@@ -84,4 +94,6 @@ interface SharedPreferencesRepository {
     suspend fun accountCreated(created: Boolean)
     suspend fun writePushToken(token: String)
     suspend fun readPushToken(): String?
+    suspend fun isNewUser(): Boolean
+    suspend fun setNewUser(newUser: Boolean)
 }

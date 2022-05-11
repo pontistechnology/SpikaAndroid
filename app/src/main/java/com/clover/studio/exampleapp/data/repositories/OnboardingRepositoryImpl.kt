@@ -19,9 +19,11 @@ class OnboardingRepositoryImpl @Inject constructor(
     override suspend fun sendUserData(
         jsonObject: JsonObject
     ) {
-        retrofitService.sendUserData(
+        val responseData = retrofitService.sendUserData(
             getHeaderMap(sharedPrefs.readToken()), jsonObject
         )
+
+        sharedPrefs.setNewUser(responseData.data.isNewUser)
     }
 
     override suspend fun verifyUserCode(

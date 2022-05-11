@@ -103,6 +103,7 @@ class Const {
             const val USER_ID = "user_id"
             const val ACCOUNT_CREATED = "account_created"
             const val PUSH_TOKEN = "pushToken"
+            const val NEW_USER = "newUser"
         }
     }
 

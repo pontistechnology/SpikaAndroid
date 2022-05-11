@@ -16,6 +16,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentVerificationBinding
+import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
@@ -88,6 +89,11 @@ class VerificationFragment : BaseFragment() {
                 OnboardingStates.CODE_VERIFIED -> {
                     binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
                     binding.ivCheckmark.visibility = View.VISIBLE
+                    goToMainActivity()
+                }
+                OnboardingStates.CODE_VERIFIED_NEW_USER -> {
+                    binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
+                    binding.ivCheckmark.visibility = View.VISIBLE
                     goToAccountCreation()
                 }
                 OnboardingStates.CODE_ERROR -> {
@@ -144,6 +150,19 @@ class VerificationFragment : BaseFragment() {
                 binding.etInputSix.setText(messageText?.get(5).toString())
             }
         })
+    }
+
+    private fun goToMainActivity() {
+        val timer = object : CountDownTimer(2000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                Timber.d("Timer tick $millisUntilFinished")
+            }
+
+            override fun onFinish() {
+                startMainActivity(requireActivity())
+            }
+        }
+        timer.start()
     }
 
     private fun goToAccountCreation() {
