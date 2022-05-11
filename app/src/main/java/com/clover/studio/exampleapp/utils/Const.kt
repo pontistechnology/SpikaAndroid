@@ -71,6 +71,7 @@ class Const {
             const val API_POST_NEW_ROOM = "api/messenger/rooms"
             const val API_SSE_STREAM = "api/sse"
             const val API_UPDATE_TOKEN = "api/messenger/device"
+            const val API_GET_MESSAGE_RECORDS = "api/messenger/messages/{messageId}/message-records"
 
             // Queries
             const val TIMESTAMP = "timestamp"
@@ -78,6 +79,7 @@ class Const {
             const val CONTACTS = "contacts"
             const val USER_ID = "userId"
             const val DEVICE_ID = "deviceId"
+            const val MESSAGE_ID = "messageId"
         }
     }
 

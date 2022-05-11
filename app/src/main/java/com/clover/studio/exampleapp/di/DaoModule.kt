@@ -30,4 +30,8 @@ object DaoModule {
     @Singleton
     @Provides
     fun provideChatRoomDao(database: AppDatabase) = database.chatRoomDao()
+
+    @Singleton
+    @Provides
+    fun provideMessageRecordsDao(database: AppDatabase) = database.messageRecordsDao()
 }

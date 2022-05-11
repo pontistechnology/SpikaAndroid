@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.data.repositories
 
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.daos.MessageDao
+import com.clover.studio.exampleapp.data.daos.MessageRecordsDao
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.data.services.ChatService
@@ -12,6 +13,7 @@ import javax.inject.Inject
 class ChatRepositoryImpl @Inject constructor(
     private val chatService: ChatService,
     private val messageDao: MessageDao,
+    private val messageRecordsDao: MessageRecordsDao,
     private val sharedPrefsRepo: SharedPreferencesRepository
 ) : ChatRepository {
     override suspend fun sendMessage(jsonObject: JsonObject): Message =
@@ -23,6 +25,17 @@ class ChatRepositoryImpl @Inject constructor(
         if (response.data?.list != null) {
             for (message in response.data.list) {
                 messageDao.insert(message)
+
+                val recordResponse = chatService.getMessageRecords(
+                    getHeaderMap(sharedPrefsRepo.readToken()),
+                    message.id.toString()
+                )
+
+                if (recordResponse.data.messageRecords.isNotEmpty()) {
+                    for (record in recordResponse.data.messageRecords) {
+                        messageRecordsDao.insert(record)
+                    }
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.data.services
 
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
 import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
@@ -31,6 +32,11 @@ interface ChatService {
         @Body jsonObject: JsonObject
     )
 
+    @GET(Const.Networking.API_GET_MESSAGE_RECORDS)
+    suspend fun getMessageRecords(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.MESSAGE_ID) messageId: String
+    ): MessageRecordsResponse
 
     @GET(Const.Networking.API_SSE_STREAM)
     @Streaming
