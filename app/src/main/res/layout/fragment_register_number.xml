@@ -80,6 +80,7 @@
             android:background="@null"
             android:fontFamily="@font/montserrat"
             android:hint="@string/number_example"
+            android:inputType="phone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
