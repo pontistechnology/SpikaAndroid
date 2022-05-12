@@ -35,6 +35,7 @@ class MainViewModel @Inject constructor(
     val messagesListener = MutableLiveData<Event<MainStates>>()
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
     var uploadStateListener = MutableLiveData<Event<OnboardingFileStates>>()
+    val messageRecordsListener = MutableLiveData<Event<MainStates>>()
     var chunkCount = 0L
 
     fun getContacts() = viewModelScope.launch {
@@ -111,6 +112,17 @@ class MainViewModel @Inject constructor(
         } catch (ex: Exception) {
             Tools.checkError(ex)
             messagesListener.postValue(Event(MessagesFetchFail))
+            return@launch
+        }
+    }
+
+    fun getMessageRecords() = viewModelScope.launch {
+        try {
+            repository.getMessageRecords()
+            messageRecordsListener.postValue(Event(MessageRecordsFetched))
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            messageRecordsListener.postValue(Event(MessageRecordsFailed))
             return@launch
         }
     }
@@ -207,3 +219,5 @@ object MessagesFetched : MainStates()
 object MessagesFetchFail : MainStates()
 object UserUpdated : MainStates()
 object UserUpdateFailed : MainStates()
+object MessageRecordsFetched : MainStates()
+object MessageRecordsFailed : MainStates()

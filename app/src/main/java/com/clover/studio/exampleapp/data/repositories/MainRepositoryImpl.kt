@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.data.repositories
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
+import com.clover.studio.exampleapp.data.daos.MessageRecordsDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.ChatRoomAndMessage
@@ -22,6 +23,7 @@ class MainRepositoryImpl @Inject constructor(
     private val retrofitService: RetrofitService,
     private val userDao: UserDao,
     private val messageDao: MessageDao,
+    private val messageRecordsDao: MessageRecordsDao,
     private val chatRoomDao: ChatRoomDao,
     private val sharedPrefs: SharedPreferencesRepository
 ) : MainRepository {
@@ -108,6 +110,28 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun verifyFile(jsonObject: JsonObject): FileResponse =
         retrofitService.verifyFile(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+
+    override suspend fun getMessageRecords() {
+        val messageIds: MutableList<Int> = ArrayList()
+        withContext(Dispatchers.IO) {
+            messageDao.getMessagesLocally().forEach { messageIds.add(it.id) }
+        }
+
+        if (messageIds.isNotEmpty()) {
+            for (messageId in messageIds) {
+                val recordsData = retrofitService.getMessageRecords(
+                    getHeaderMap(sharedPrefs.readToken()),
+                    messageId.toString()
+                )
+
+                if (recordsData.data.messageRecords.isNotEmpty()) {
+                    for (messageRecord in recordsData.data.messageRecords) {
+                        messageRecordsDao.insert(messageRecord)
+                    }
+                }
+            }
+        }
+    }
 }
 
 interface MainRepository {
@@ -124,6 +148,6 @@ interface MainRepository {
     suspend fun updatePushToken(jsonObject: JsonObject)
     suspend fun updateUserData(data: Map<String, String>): AuthResponse
     suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
-
     suspend fun verifyFile(jsonObject: JsonObject): FileResponse
+    suspend fun getMessageRecords()
 }

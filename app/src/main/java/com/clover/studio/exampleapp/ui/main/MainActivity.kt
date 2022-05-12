@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
@@ -57,7 +56,7 @@ class MainActivity : BaseActivity() {
 
         viewModel.messagesListener.observe(this, EventObserver {
             when (it) {
-                is MessagesFetched -> Timber.d("Successfully fetched messages")
+                is MessagesFetched -> viewModel.getMessageRecords()
                 is MessagesFetchFail -> Timber.d("Failed to fetch messages")
                 else -> Timber.d("Other error")
             }
