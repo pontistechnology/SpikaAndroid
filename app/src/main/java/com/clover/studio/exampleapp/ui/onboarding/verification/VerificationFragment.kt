@@ -33,6 +33,7 @@ class VerificationFragment : BaseFragment() {
     private lateinit var deviceId: String
     private lateinit var intentFilter: IntentFilter
     private lateinit var smsReceiver: SmsReceiver
+    private lateinit var timer: CountDownTimer
 
     private var bindingSetup: FragmentVerificationBinding? = null
 
@@ -67,7 +68,7 @@ class VerificationFragment : BaseFragment() {
     }
 
     private fun initCountdownTimer() {
-        val timer = object : CountDownTimer(120000, 1000) {
+        timer = object : CountDownTimer(120000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 var timeInMinutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished).toString()
                 var timeInSeconds =
@@ -402,5 +403,10 @@ class VerificationFragment : BaseFragment() {
             arg3: Int
         ) { // TODO Auto-generated method stub
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        timer.cancel()
     }
 }

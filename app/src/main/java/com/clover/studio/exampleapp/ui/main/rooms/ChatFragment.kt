@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.exampleapp.data.models.ChatRoomAndMessage
+import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.FragmentChatBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomFetchFail
@@ -23,8 +23,8 @@ import timber.log.Timber
 class ChatFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var roomsAdapter: RoomsAdapter
-    private lateinit var roomList: List<ChatRoomAndMessage>
-    private var filteredList: MutableList<ChatRoomAndMessage> = ArrayList()
+    private lateinit var roomList: List<RoomAndMessageAndRecords>
+    private var filteredList: MutableList<RoomAndMessageAndRecords> = ArrayList()
 
     private var bindingSetup: FragmentChatBinding? = null
 
@@ -53,8 +53,8 @@ class ChatFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::roomList.isInitialized) {
                         for (room in roomList) {
-                            if (Const.JsonFields.PRIVATE == room.chatRoom.type) {
-                                room.chatRoom.users?.forEach { roomUser ->
+                            if (Const.JsonFields.PRIVATE == room.room.type) {
+                                room.room.users?.forEach { roomUser ->
                                     if (viewModel.getLocalUserId()
                                             .toString() != roomUser.userId.toString()
                                     ) {
@@ -66,7 +66,7 @@ class ChatFragment : BaseFragment() {
                                     }
                                 }
                             } else {
-                                if (room.chatRoom.name?.lowercase()
+                                if (room.room.name?.lowercase()
                                         ?.contains(query, ignoreCase = true) == true
                                 ) {
                                     filteredList.add(room)
@@ -76,7 +76,7 @@ class ChatFragment : BaseFragment() {
                         val sortedList =
                             filteredList.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
                                 .sortedByDescending { roomItem ->
-                                    roomItem.message?.first { message -> message.createdAt != null }?.createdAt
+                                    roomItem.message?.first { message -> message.message.createdAt != null }?.message?.createdAt
                                 }
                         roomsAdapter.submitList(ArrayList(sortedList))
                         filteredList.clear()
@@ -90,8 +90,8 @@ class ChatFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::roomList.isInitialized) {
                         for (room in roomList) {
-                            if (Const.JsonFields.PRIVATE == room.chatRoom.type) {
-                                room.chatRoom.users?.forEach { roomUser ->
+                            if (Const.JsonFields.PRIVATE == room.room.type) {
+                                room.room.users?.forEach { roomUser ->
                                     if (viewModel.getLocalUserId()
                                             .toString() != roomUser.userId.toString()
                                     ) {
@@ -103,7 +103,7 @@ class ChatFragment : BaseFragment() {
                                     }
                                 }
                             } else {
-                                if (room.chatRoom.name?.lowercase()
+                                if (room.room.name?.lowercase()
                                         ?.contains(query, ignoreCase = true) == true
                                 ) {
                                     filteredList.add(room)
@@ -114,7 +114,7 @@ class ChatFragment : BaseFragment() {
                         val sortedList =
                             filteredList.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
                                 .sortedByDescending { roomItem ->
-                                    roomItem.message?.first { message -> message.createdAt != null }?.createdAt
+                                    roomItem.message?.first { message -> message.message.createdAt != null }?.message?.createdAt
                                 }
                         roomsAdapter.submitList(ArrayList(sortedList))
                         filteredList.clear()
@@ -150,16 +150,16 @@ class ChatFragment : BaseFragment() {
 //            }
 //        }
 
-        viewModel.getChatRoomAndMessage().observe(viewLifecycleOwner) {
+        viewModel.getChatRoomAndMessageAndRecords().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 binding.tvNoChats.visibility = View.GONE
                 for (roomData in it) {
-                    Timber.d("RoomData ${roomData.chatRoom.roomId}")
+                    Timber.d("RoomData ${roomData.room.roomId}")
                 }
                 roomList = it
                 val sortedList = it.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
                     .sortedByDescending { roomItem ->
-                        roomItem.message?.first { message -> message.createdAt != null }?.createdAt
+                        roomItem.message?.first { message -> message.message.createdAt != null }?.message?.createdAt
                     }
                 roomsAdapter.submitList(sortedList)
             }
@@ -169,7 +169,7 @@ class ChatFragment : BaseFragment() {
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
             val gson = Gson()
-            val roomData = gson.toJson(it.chatRoom)
+            val roomData = gson.toJson(it.room)
             activity?.let { parent -> startChatScreenActivity(parent, roomData) }
         }
 

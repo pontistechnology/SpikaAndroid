@@ -2,12 +2,13 @@ package com.clover.studio.exampleapp.ui.main.rooms
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.clover.studio.exampleapp.data.models.ChatRoomAndMessage
+import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
@@ -16,8 +17,8 @@ import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
 class RoomsAdapter(
     private val context: Context,
     private val myUserId: String,
-    private val onItemClick: ((item: ChatRoomAndMessage) -> Unit)
-) : ListAdapter<ChatRoomAndMessage, RoomsAdapter.RoomsViewHolder>(RoomsDiffCallback()) {
+    private val onItemClick: ((item: RoomAndMessageAndRecords) -> Unit)
+) : ListAdapter<RoomAndMessageAndRecords, RoomsAdapter.RoomsViewHolder>(RoomsDiffCallback()) {
     inner class RoomsViewHolder(val binding: ItemChatRoomBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -30,8 +31,8 @@ class RoomsAdapter(
     override fun onBindViewHolder(holder: RoomsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { roomItem ->
-                if (Const.JsonFields.PRIVATE == roomItem.chatRoom.type) {
-                    roomItem.chatRoom.users?.forEach { roomUser ->
+                if (Const.JsonFields.PRIVATE == roomItem.room.type) {
+                    roomItem.room.users?.forEach { roomUser ->
                         if (myUserId != roomUser.userId.toString()) {
                             binding.tvRoomName.text = roomUser.user?.displayName
                             Glide.with(context)
@@ -40,22 +41,27 @@ class RoomsAdapter(
                         }
                     }
                 } else {
-                    binding.tvRoomName.text = roomItem.chatRoom.name
+                    binding.tvRoomName.text = roomItem.room.name
                     Glide.with(context)
-                        .load(roomItem.chatRoom.avatarUrl?.let { getAvatarUrl(it) })
+                        .load(roomItem.room.avatarUrl?.let { getAvatarUrl(it) })
                         .into(binding.ivRoomImage)
                 }
 
                 if (!roomItem.message.isNullOrEmpty()) {
-                    val sortedList = roomItem.message.sortedBy { it.createdAt }
-                    binding.tvLastMessage.text = sortedList.last().body?.text.toString()
+                    val sortedList = roomItem.message.sortedBy { it.message.createdAt }
+                    binding.tvLastMessage.text = sortedList.last().message.body?.text.toString()
 
-                    binding.tvMessageTime.text = roomItem.message.last().createdAt?.let {
+                    binding.tvMessageTime.text = roomItem.message.last().message.createdAt?.let {
                         getRelativeTimeSpan(it)
                     }
-                }
 
-                // TODO add new message bubble
+                    val lastMessage =
+                        roomItem.message.last { message -> message.message.id.toString() != myUserId }
+                    if (lastMessage.records?.stream()?.anyMatch { o -> o.type == "seen" } != true) {
+                        binding.tvNewMessages.visibility = View.VISIBLE
+                    }
+
+                }
 
                 itemView.setOnClickListener {
                     roomItem.let {
@@ -66,12 +72,18 @@ class RoomsAdapter(
         }
     }
 
-    private class RoomsDiffCallback : DiffUtil.ItemCallback<ChatRoomAndMessage>() {
+    private class RoomsDiffCallback : DiffUtil.ItemCallback<RoomAndMessageAndRecords>() {
 
-        override fun areItemsTheSame(oldItem: ChatRoomAndMessage, newItem: ChatRoomAndMessage) =
-            oldItem.chatRoom.roomId == newItem.chatRoom.roomId
+        override fun areItemsTheSame(
+            oldItem: RoomAndMessageAndRecords,
+            newItem: RoomAndMessageAndRecords
+        ) =
+            oldItem.room.roomId == newItem.room.roomId
 
-        override fun areContentsTheSame(oldItem: ChatRoomAndMessage, newItem: ChatRoomAndMessage) =
+        override fun areContentsTheSame(
+            oldItem: RoomAndMessageAndRecords,
+            newItem: RoomAndMessageAndRecords
+        ) =
             oldItem == newItem
     }
 }
