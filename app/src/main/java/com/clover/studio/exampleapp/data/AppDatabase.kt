@@ -11,7 +11,7 @@ import com.clover.studio.exampleapp.data.models.*
 import com.clover.studio.exampleapp.utils.helpers.TypeConverter
 
 @Database(
-    entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class, MessageAndRecordsCrossRef::class],
+    entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class],
     version = DATABASE_VERSION,
     exportSchema = false
 )

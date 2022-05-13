@@ -58,11 +58,3 @@ data class MessageBody(
     val type: String?
 )
 
-@Entity(primaryKeys = ["id", "message_id"])
-data class MessageAndRecordsCrossRef(
-    val id: Int,
-
-    @ColumnInfo(name = "message_id")
-    val messageId: Int
-)
-
