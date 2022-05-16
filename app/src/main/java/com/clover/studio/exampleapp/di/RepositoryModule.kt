@@ -6,6 +6,7 @@ import com.clover.studio.exampleapp.data.repositories.*
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
+import com.clover.studio.exampleapp.data.services.SSEService
 import com.clover.studio.exampleapp.utils.SSEManager
 import dagger.Module
 import dagger.Provides
@@ -77,7 +78,11 @@ object RepositoryModule {
     @Provides
     fun provideSSEManager(
         sharedPrefs: SharedPreferencesRepository,
-        messageDao: MessageDao
+        sseService: SSEService,
+        messageDao: MessageDao,
+        messageRecordsDao: MessageRecordsDao,
+        chatRoomDao: ChatRoomDao,
+        userDao: UserDao
     ) =
-        SSEManager(sharedPrefs, messageDao)
+        SSEManager(sharedPrefs, sseService, messageDao, messageRecordsDao, chatRoomDao, userDao)
 }

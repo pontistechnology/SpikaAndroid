@@ -32,11 +32,11 @@ interface ChatService {
         @Body jsonObject: JsonObject
     )
 
-    @GET(Const.Networking.API_GET_MESSAGE_RECORDS)
-    suspend fun getMessageRecords(
-        @HeaderMap headers: Map<String, String?>,
-        @Path(Const.Networking.MESSAGE_ID) messageId: String
-    ): MessageRecordsResponse
+//    @GET(Const.Networking.API_GET_MESSAGE_RECORDS)
+//    suspend fun getMessageRecords(
+//        @HeaderMap headers: Map<String, String?>,
+//        @Path(Const.Networking.MESSAGE_ID) messageId: String
+//    ): MessageRecordsResponse
 
     @GET(Const.Networking.API_SSE_STREAM)
     @Streaming

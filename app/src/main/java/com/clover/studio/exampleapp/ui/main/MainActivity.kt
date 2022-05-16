@@ -38,7 +38,7 @@ class MainActivity : BaseActivity() {
         initializeObservers()
         sendPushTokenToServer()
 
-        viewModel.getRoomsRemote()
+//        viewModel.getRoomsRemote()
     }
 
     private fun initializeObservers() {
@@ -46,21 +46,21 @@ class MainActivity : BaseActivity() {
             Timber.d("Message $it")
         }
 
-        viewModel.roomsListener.observe(this, EventObserver {
-            when (it) {
-                is RoomsFetched -> viewModel.getMessagesRemote()
-                is RoomFetchFail -> Timber.d("Failed to fetch rooms")
-                else -> Timber.d("Other error")
-            }
-        })
-
-        viewModel.messagesListener.observe(this, EventObserver {
-            when (it) {
-                is MessagesFetched -> viewModel.getMessageRecords()
-                is MessagesFetchFail -> Timber.d("Failed to fetch messages")
-                else -> Timber.d("Other error")
-            }
-        })
+//        viewModel.roomsListener.observe(this, EventObserver {
+//            when (it) {
+//                is RoomsFetched -> viewModel.getMessagesRemote()
+//                is RoomFetchFail -> Timber.d("Failed to fetch rooms")
+//                else -> Timber.d("Other error")
+//            }
+//        })
+//
+//        viewModel.messagesListener.observe(this, EventObserver {
+//            when (it) {
+//                is MessagesFetched -> viewModel.getMessageRecords()
+//                is MessagesFetchFail -> Timber.d("Failed to fetch messages")
+//                else -> Timber.d("Other error")
+//            }
+//        })
     }
 
     private fun sendPushTokenToServer() {

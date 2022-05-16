@@ -6,6 +6,7 @@ import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
+import com.clover.studio.exampleapp.data.services.SSEService
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -67,6 +68,11 @@ object AppModule {
     @Provides
     fun provideChatService(retrofit: Retrofit.Builder): ChatService =
         retrofit.build().create(ChatService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideSSEService(retrofit: Retrofit.Builder): SSEService =
+        retrofit.build().create(SSEService::class.java)
 
     @Singleton
     @Provides

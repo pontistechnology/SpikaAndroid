@@ -1,9 +1,14 @@
 package com.clover.studio.exampleapp.utils
 
 import com.clover.studio.exampleapp.BuildConfig
+import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
+import com.clover.studio.exampleapp.data.daos.MessageRecordsDao
+import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.networking.StreamingResponse
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
+import com.clover.studio.exampleapp.data.services.SSEService
+import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.Gson
 import kotlinx.coroutines.*
 import okio.IOException
@@ -15,7 +20,11 @@ import javax.inject.Inject
 
 class SSEManager @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository,
-    private val messageDao: MessageDao
+    private val sseService: SSEService,
+    private val messageDao: MessageDao,
+    private val messageRecordsDao: MessageRecordsDao,
+    private val chatRoomDao: ChatRoomDao,
+    private val userDao: UserDao
 ) {
     private var job: Job? = null
 
@@ -44,7 +53,30 @@ class SSEManager @Inject constructor(
                     it.doInput = true // enable inputStream
                 }
 
+                // Fetch local timestamps for syncing later. This will handle potential missing data
+                // in between calls. After this, open the connection to the SSE
+                var messageRecordsTimestamp = 0L
+                var messageTimestamp = 0L
+                var userTimestamp = 0L
+
+                if (messageRecordsDao.getMessageRecordsLocally().isNotEmpty()) {
+                    messageRecordsTimestamp =
+                        messageRecordsDao.getMessageRecordsLocally().last().createdAt
+                }
+
+                if (messageDao.getMessagesLocally().isNotEmpty()) {
+                    messageTimestamp = messageDao.getMessagesLocally().last().createdAt!!
+                }
+
+                if (userDao.getUsersLocally().isNotEmpty()) {
+                    userTimestamp = userDao.getUsersLocally().last().createdAt?.toLong()!!
+                }
+
                 conn.connect() // Blocking function. Should run in background
+
+                syncMessageRecords(messageRecordsTimestamp)
+                syncMessages(messageTimestamp)
+                syncUsers(userTimestamp)
 
                 val inputReader = conn.inputStream.bufferedReader()
 
@@ -59,18 +91,27 @@ class SSEManager @Inject constructor(
                         }
                         line.startsWith("data:") -> { // get data
                             Timber.d("Copy data event $line")
-                            Timber.d("Copy data event ${line.startsWith("data:")}")
+
+                            var response: StreamingResponse? = null
                             try {
                                 val jsonObject = JSONObject("{$line}")
                                 val gson = Gson()
-                                val message =
+                                response =
                                     gson.fromJson(
                                         jsonObject.toString(),
                                         StreamingResponse::class.java
                                     )
-                                messageDao.insert(message.data?.message!!)
                             } catch (ex: Exception) {
-                               Tools.checkError(ex)
+                                Tools.checkError(ex)
+                            }
+
+                            if (response != null) {
+                                Timber.d("Response type: ${response.data?.type}")
+                                if (response.data?.type == Const.JsonFields.NEW_MESSAGE) {
+                                    response.data?.message?.let { messageDao.insert(it) }
+                                } else if (response.data?.type == Const.JsonFields.NEW_MESSAGE_RECORD) {
+                                    response.data?.messageRecord?.let { messageRecordsDao.insert(it) }
+                                }
                             }
                         }
                         line.isEmpty() -> { // empty line, finished block. Emit the event
@@ -84,6 +125,42 @@ class SSEManager @Inject constructor(
                     openConnectionAndFetchEvents(url)
                 }
                 Tools.checkError(ex)
+            }
+        }
+    }
+
+    private suspend fun syncMessageRecords(timestamp: Long) {
+        val response =
+            sseService.syncMessageRecords(getHeaderMap(sharedPrefs.readToken()), timestamp)
+
+        for (record in response.data.messageRecords)
+            messageRecordsDao.insert(record)
+    }
+
+    private suspend fun syncMessages(timestamp: Long) {
+        val response =
+            sseService.syncMessages(
+                getHeaderMap(sharedPrefs.readToken()),
+                timestamp
+            )
+
+        if (response.data?.list?.isNotEmpty() == true) {
+            for (message in response.data.list) {
+                messageDao.insert(message)
+            }
+        }
+    }
+
+    private suspend fun syncUsers(timestamp: Long) {
+        val response =
+            sseService.syncUsers(
+                getHeaderMap(sharedPrefs.readToken()),
+                timestamp
+            )
+
+        if (response.data?.list?.isNotEmpty() == true) {
+            for (user in response.data.list) {
+                userDao.insert(user)
             }
         }
     }

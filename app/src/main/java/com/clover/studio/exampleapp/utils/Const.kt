@@ -23,6 +23,10 @@ class Const {
             const val CONTACTS = "contacts"
             const val PUSH_TOKEN = "pushToken"
 
+            // SSE
+            const val NEW_MESSAGE = "NEW_MESSAGE"
+            const val NEW_MESSAGE_RECORD = "NEW_MESSAGE_RECORD"
+
             // Mime types
             const val IMAGE = "image/*"
 
@@ -57,6 +61,11 @@ class Const {
 
     class Networking {
         companion object {
+            // Sync Data
+            const val API_SYNC_MESSAGES = "api/messenger/messages/{timestamp}"
+            const val API_SYNC_MESSAGE_RECORDS = "api/messenger/message-records/sync/{lastUpdate}"
+            const val API_SYNC_USERS = "api/messenger/users/sync/{timestamp}"
+
             const val API_AUTH = "api/messenger/auth"
             const val API_VERIFY_CODE = "api/messenger/auth/verify"
             const val API_CONTACTS = "api/messenger/contacts"
@@ -80,6 +89,7 @@ class Const {
             const val USER_ID = "userId"
             const val DEVICE_ID = "deviceId"
             const val MESSAGE_ID = "messageId"
+            const val LAST_UPDATE = "lastUpdate"
         }
     }
 

@@ -26,16 +26,16 @@ class ChatRepositoryImpl @Inject constructor(
             for (message in response.data.list) {
                 messageDao.insert(message)
 
-                val recordResponse = chatService.getMessageRecords(
-                    getHeaderMap(sharedPrefsRepo.readToken()),
-                    message.id.toString()
-                )
-
-                if (recordResponse.data.messageRecords.isNotEmpty()) {
-                    for (record in recordResponse.data.messageRecords) {
-                        messageRecordsDao.insert(record)
-                    }
-                }
+//                val recordResponse = chatService.getMessageRecords(
+//                    getHeaderMap(sharedPrefsRepo.readToken()),
+//                    message.id.toString()
+//                )
+//
+//                if (recordResponse.data.messageRecords.isNotEmpty()) {
+//                    for (record in recordResponse.data.messageRecords) {
+//                        messageRecordsDao.insert(record)
+//                    }
+//                }
             }
         }
     }
