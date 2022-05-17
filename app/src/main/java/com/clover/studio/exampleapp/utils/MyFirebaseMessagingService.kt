@@ -6,6 +6,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.models.networking.FirebaseResponse
+import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepositoryImpl
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -24,6 +25,9 @@ val CHANNEL_ID: String = "Spika App ID"
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     @Inject
     lateinit var messageDao: MessageDao
+
+    @Inject
+    lateinit var sharedPrefs: SharedPreferencesRepository
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -58,19 +62,22 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 )
             CoroutineScope(Dispatchers.IO).launch {
                 messageDao.insert(response.message)
+
+                // Filter message if its from my user, don't show notification for it
+                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId) {
+                    val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
+                        .setSmallIcon(R.drawable.img_spika_logo)
+                        .setContentTitle(notificationTitle)
+                        .setContentText(notificationDescription)
+                        .setPriority(NotificationCompat.PRIORITY_MAX)
+                    with(NotificationManagerCompat.from(baseContext)) {
+                        // notificationId is a unique int for each notification that you must define
+                        notify(1511, builder.build())
+                    }
+                }
             }
         } catch (ex: Exception) {
             Tools.checkError(ex)
-        }
-
-        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.img_spika_logo)
-            .setContentTitle(notificationTitle)
-            .setContentText(notificationDescription)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-        with(NotificationManagerCompat.from(this)) {
-            // notificationId is a unique int for each notification that you must define
-            notify(1511, builder.build())
         }
     }
 
