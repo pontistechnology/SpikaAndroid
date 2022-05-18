@@ -29,7 +29,10 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools.formatE164Number
 import com.clover.studio.exampleapp.utils.Tools.hashString
+import com.clover.studio.exampleapp.utils.dialog.DialogError
+import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.google.android.gms.common.ErrorDialogFragment
 import com.google.gson.JsonObject
 import timber.log.Timber
 
@@ -99,8 +102,20 @@ class RegisterNumberFragment : BaseFragment() {
                         R.id.action_splashFragment_to_verificationFragment, bundle
                     )
                 }
-                OnboardingStates.REGISTERING_ERROR -> TODO()
-                else -> TODO()
+                OnboardingStates.REGISTERING_ERROR -> DialogError.getInstance(requireContext(),
+                "Registration error",
+                "There was an error while registering to the app.",
+                null, getString(R.string.ok), object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            // ignore
+                        }
+
+                        override fun onSecondOptionClicked() {
+                            // ignore
+                        }
+
+                    })
+                else -> Timber.d("Other error")
             }
         })
     }

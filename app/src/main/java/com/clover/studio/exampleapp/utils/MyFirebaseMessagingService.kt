@@ -67,8 +67,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId) {
                     val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                         .setSmallIcon(R.drawable.img_spika_logo)
-                        .setContentTitle(notificationTitle)
-                        .setContentText(notificationDescription)
+                        .setContentTitle(getString(R.string.new_message))
+                        .setContentText(response.message.body?.text)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                     with(NotificationManagerCompat.from(baseContext)) {
                         // notificationId is a unique int for each notification that you must define
