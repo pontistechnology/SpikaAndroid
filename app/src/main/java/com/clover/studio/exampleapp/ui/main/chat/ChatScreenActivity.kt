@@ -156,6 +156,7 @@ class ChatScreenActivity : BaseActivity() {
 
         // Get user messages
         viewModel.getMessages(room.roomId)
+        viewModel.sendMessagesSeen(room.roomId)
     }
 
     private fun initViews() {

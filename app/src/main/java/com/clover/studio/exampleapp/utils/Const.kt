@@ -82,6 +82,7 @@ class Const {
             const val API_SSE_STREAM = "api/sse"
             const val API_UPDATE_TOKEN = "api/messenger/device"
             const val API_GET_MESSAGE_RECORDS = "api/messenger/messages/{messageId}/message-records"
+            const val API_MESSAGES_SEEN = "api/messenger/messages/{roomId}/seen"
 
             // Queries
             const val TIMESTAMP = "timestamp"

@@ -100,6 +100,16 @@ class ChatViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun sendMessagesSeen(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.sendMessagesSeen(roomId)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            return@launch
+        }
+    }
+
 }
 
 sealed class ChatStates

@@ -61,6 +61,10 @@ class ChatRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun sendMessagesSeen(roomId: Int) =
+        chatService.sendMessagesSeen(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+
 }
 
 interface ChatRepository {
@@ -71,4 +75,5 @@ interface ChatRepository {
     suspend fun sendMessageDelivered(jsonObject: JsonObject): MessageRecordsResponse
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
+    suspend fun sendMessagesSeen(roomId: Int)
 }
