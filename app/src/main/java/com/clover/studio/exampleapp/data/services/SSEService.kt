@@ -4,9 +4,8 @@ import com.clover.studio.exampleapp.data.models.networking.ContactResponse
 import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
 import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.utils.Const
-import retrofit2.http.GET
-import retrofit2.http.HeaderMap
-import retrofit2.http.Path
+import com.google.gson.JsonObject
+import retrofit2.http.*
 
 interface SSEService {
     @GET(Const.Networking.API_SYNC_MESSAGES)
@@ -26,4 +25,10 @@ interface SSEService {
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.TIMESTAMP) timestamp: Long
     ): ContactResponse
+
+    @POST(Const.Networking.API_MESSAGE_DELIVERED)
+    suspend fun sendMessageDelivered(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject
+    ): MessageRecordsResponse
 }

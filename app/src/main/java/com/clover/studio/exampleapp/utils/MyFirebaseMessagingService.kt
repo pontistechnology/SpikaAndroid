@@ -4,13 +4,15 @@ import android.text.TextUtils
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.models.networking.FirebaseResponse
+import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepositoryImpl
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +26,7 @@ val CHANNEL_ID: String = "Spika App ID"
 @AndroidEntryPoint
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     @Inject
-    lateinit var messageDao: MessageDao
+    lateinit var chatRepo: ChatRepositoryImpl
 
     @Inject
     lateinit var sharedPrefs: SharedPreferencesRepository
@@ -61,7 +63,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     FirebaseResponse::class.java
                 )
             CoroutineScope(Dispatchers.IO).launch {
-                messageDao.insert(response.message)
+                chatRepo.storeMessageLocally(response.message)
+
+                val messageObject = JsonObject()
+                val messageArray = JsonArray()
+                messageArray.add(response.message.id)
+                messageObject.add(Const.JsonFields.MESSAGE_IDS, messageArray)
+                chatRepo.sendMessageDelivered(messageObject)
 
                 // Filter message if its from my user, don't show notification for it
                 if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId) {

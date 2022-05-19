@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.daos.MessageRecordsDao
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
 import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -67,7 +68,7 @@ interface ChatRepository {
     suspend fun getMessages(roomId: String)
     suspend fun getMessagesLiveData(roomId: Int): LiveData<List<Message>>
     suspend fun getMessagesTimestamp(timestamp: Int): MessageResponse
-    suspend fun sendMessageDelivered(jsonObject: JsonObject)
+    suspend fun sendMessageDelivered(jsonObject: JsonObject): MessageRecordsResponse
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
 }

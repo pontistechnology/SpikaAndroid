@@ -76,13 +76,27 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideSSEManager(
+    fun provideSSERepository(
         sharedPrefs: SharedPreferencesRepository,
         sseService: SSEService,
         messageDao: MessageDao,
         messageRecordsDao: MessageRecordsDao,
         chatRoomDao: ChatRoomDao,
         userDao: UserDao
+    ) = SSERepositoryImpl(
+        sharedPrefs,
+        sseService,
+        messageDao,
+        messageRecordsDao,
+        chatRoomDao,
+        userDao
+    )
+
+    @Singleton
+    @Provides
+    fun provideSSEManager(
+        sseRepo: SSERepositoryImpl,
+        sharedPrefs: SharedPreferencesRepository
     ) =
-        SSEManager(sharedPrefs, sseService, messageDao, messageRecordsDao, chatRoomDao, userDao)
+        SSEManager(sseRepo, sharedPrefs)
 }
