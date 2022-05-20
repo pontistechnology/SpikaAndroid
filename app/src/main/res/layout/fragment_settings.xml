@@ -17,6 +17,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/tv_done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:fontFamily="@font/montserrat"
+        android:padding="20dp"
+        android:text="@string/done"
+        android:textColor="@color/primary_color"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/tv_screen_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_screen_name" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_photo_picker"
         android:layout_width="100dp"
@@ -41,6 +55,37 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_progress_screen"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:elevation="5dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/cv_photo_picker"
+        app:layout_constraintEnd_toEndOf="@id/cv_photo_picker"
+        app:layout_constraintStart_toStartOf="@id/cv_photo_picker"
+        app:layout_constraintTop_toTopOf="@id/cv_photo_picker">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/img_selector_background"
+            android:backgroundTint="@color/dark_background_transp" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:indeterminate="false"
+            android:progress="0"
+            android:progressDrawable="@drawable/custom_circular_progress"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_small_camera_picker"
         android:layout_width="28dp"
         android:layout_height="28dp"
@@ -59,6 +104,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <EditText
+        android:id="@+id/et_enter_username"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/bg_text_field"
+        android:fontFamily="@font/montserrat"
+        android:hint="@string/enter_username"
+        android:padding="10dp"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/cl_privacy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_photo_picker" />
 
     <TextView
         android:id="@+id/tv_username"
@@ -227,5 +291,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

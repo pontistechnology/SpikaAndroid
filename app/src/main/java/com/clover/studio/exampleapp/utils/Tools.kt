@@ -248,6 +248,16 @@ object Tools {
         }
     }
 
+    fun sha256HashFromUri(activity: Activity, currentPhotoLocation: Uri): String? {
+        var sha256FileHash: String? = ""
+        val inputStream =
+            activity.contentResolver.openInputStream(currentPhotoLocation)
+        sha256FileHash =
+            calculateSHA256FileHash(copyStreamToFile(activity, inputStream!!))
+
+        return sha256FileHash
+    }
+
     fun getAvatarUrl(url: String): String {
         return when {
             url.startsWith(BuildConfig.SERVER_URL) -> url

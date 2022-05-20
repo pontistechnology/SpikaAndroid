@@ -164,4 +164,5 @@
     <string name="channel_description">Spika App</string>
     <string name="timeout">00:00</string>
     <string name="new_message">New message</string>
+    <string name="done">Done</string>
 </resources>

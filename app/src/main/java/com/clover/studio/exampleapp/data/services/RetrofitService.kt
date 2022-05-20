@@ -1,8 +1,6 @@
 package com.clover.studio.exampleapp.data.services
 
-import com.clover.studio.exampleapp.data.models.networking.ContactResponse
-import com.clover.studio.exampleapp.data.models.networking.MessageResponse
-import com.clover.studio.exampleapp.data.models.networking.RoomResponse
+import com.clover.studio.exampleapp.data.models.networking.*
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
 import retrofit2.http.*
@@ -41,4 +39,23 @@ interface RetrofitService {
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
     )
+
+    @FormUrlEncoded
+    @PUT(value = Const.Networking.API_UPDATE_USER)
+    suspend fun updateUser(
+        @HeaderMap headers: Map<String, String?>,
+        @FieldMap userMap: Map<String, String>
+    ): AuthResponse
+
+    @POST(value = Const.Networking.API_UPLOAD_FILE)
+    suspend fun uploadFiles(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject
+    ): FileResponse
+
+    @POST(value = Const.Networking.API_VERIFY_FILE)
+    suspend fun verifyFile(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject
+    ): FileResponse
 }

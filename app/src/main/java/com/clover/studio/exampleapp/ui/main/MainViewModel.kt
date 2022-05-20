@@ -6,8 +6,9 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
+import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
+import com.clover.studio.exampleapp.ui.onboarding.*
 import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.SSEManager
 import com.clover.studio.exampleapp.utils.Tools
@@ -16,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,6 +33,9 @@ class MainViewModel @Inject constructor(
     val createRoomListener = MutableLiveData<Event<MainStates>>()
     val userPhoneUserListener = MutableLiveData<Event<MainStates>>()
     val messagesListener = MutableLiveData<Event<MainStates>>()
+    val userUpdateListener = MutableLiveData<Event<MainStates>>()
+    var uploadStateListener = MutableLiveData<Event<OnboardingFileStates>>()
+    var chunkCount = 0L
 
     fun getContacts() = viewModelScope.launch {
         try {
@@ -141,6 +146,52 @@ class MainViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun updateUserData(userMap: Map<String, String>) = viewModelScope.launch {
+        try {
+            repository.updateUserData(userMap)
+            sharedPrefsRepo.accountCreated(true)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            userUpdateListener.postValue(Event(UserUpdateFailed))
+            return@launch
+        }
+
+        userUpdateListener.postValue(Event(UserUpdated))
+    }
+
+    fun uploadFile(jsonObject: JsonObject, chunks: Long) = viewModelScope.launch {
+        try {
+            repository.uploadFiles(jsonObject).data?.file?.id
+            uploadStateListener.postValue(Event(UploadPiece))
+            Timber.d("Sending file chunk")
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            Timber.d("File send error")
+            uploadStateListener.postValue(Event(UploadError))
+            chunkCount = 1
+            return@launch
+        }
+
+        Timber.d("Completed sending file chunk")
+        chunkCount++
+
+        if (chunkCount == chunks) {
+            uploadStateListener.postValue(Event(UploadSuccess))
+            chunkCount = 1
+        }
+    }
+
+    fun verifyUploadedFile(jsonObject: JsonObject) = viewModelScope.launch {
+        try {
+            val filePath = repository.verifyFile(jsonObject).data?.file?.path
+            uploadStateListener.postValue(Event(UploadVerified(filePath!!)))
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            uploadStateListener.postValue(Event(UploadVerificationFailed))
+            return@launch
+        }
+    }
 }
 
 sealed class MainStates
@@ -154,3 +205,5 @@ class RoomExists(val roomData: ChatRoom) : MainStates()
 object RoomNotFound : MainStates()
 object MessagesFetched : MainStates()
 object MessagesFetchFail : MainStates()
+object UserUpdated : MainStates()
+object UserUpdateFailed : MainStates()

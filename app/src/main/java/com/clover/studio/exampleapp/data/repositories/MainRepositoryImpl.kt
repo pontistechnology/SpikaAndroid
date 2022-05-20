@@ -8,11 +8,12 @@ import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.ChatRoomAndMessage
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
+import com.clover.studio.exampleapp.data.models.networking.AuthResponse
+import com.clover.studio.exampleapp.data.models.networking.FileResponse
 import com.clover.studio.exampleapp.data.models.networking.RoomResponse
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
-import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -90,6 +91,23 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun updatePushToken(jsonObject: JsonObject) =
         retrofitService.updatePushToken(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+
+    override suspend fun updateUserData(data: Map<String, String>): AuthResponse {
+        val responseData =
+            retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), data)
+
+        userDao.insert(responseData.data.user)
+        sharedPrefs.writeUserId(responseData.data.user.id)
+
+        return responseData
+    }
+
+    override suspend fun uploadFiles(
+        jsonObject: JsonObject
+    ) = retrofitService.uploadFiles(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+
+    override suspend fun verifyFile(jsonObject: JsonObject): FileResponse =
+        retrofitService.verifyFile(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 }
 
 interface MainRepository {
@@ -104,4 +122,8 @@ interface MainRepository {
     suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>
     suspend fun getChatRoomAndMessage(): LiveData<List<ChatRoomAndMessage>>
     suspend fun updatePushToken(jsonObject: JsonObject)
+    suspend fun updateUserData(data: Map<String, String>): AuthResponse
+    suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
+
+    suspend fun verifyFile(jsonObject: JsonObject): FileResponse
 }

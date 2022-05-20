@@ -24,6 +24,7 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.convertBitmapToUri
+import com.clover.studio.exampleapp.utils.Tools.sha256HashFromUri
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
@@ -40,7 +41,6 @@ const val CHUNK_SIZE = 64000
 class AccountCreationFragment : BaseFragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private var currentPhotoLocation: Uri = Uri.EMPTY
-    private var sha256FileHash: String? = ""
     private var uploadPieces: Long = 0L
     private var progress: Long = 1L
     private var uploadFile: UploadFile? = null
@@ -55,7 +55,6 @@ class AccountCreationFragment : BaseFragment() {
                 Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
-                calculateSha256Hash()
             } else {
                 Timber.d("Gallery error")
             }
@@ -71,7 +70,6 @@ class AccountCreationFragment : BaseFragment() {
                 Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
-                calculateSha256Hash()
             } else {
                 Timber.d("Photo error")
             }
@@ -234,13 +232,6 @@ class AccountCreationFragment : BaseFragment() {
         }
     }
 
-    private fun calculateSha256Hash() {
-        val inputStream =
-            requireActivity().contentResolver.openInputStream(currentPhotoLocation)
-        sha256FileHash =
-            Tools.calculateSHA256FileHash(Tools.copyStreamToFile(requireActivity(), inputStream!!))
-    }
-
     private fun chooseImage() {
         chooseImageContract.launch(Const.JsonFields.IMAGE)
     }
@@ -283,7 +274,7 @@ class AccountCreationFragment : BaseFragment() {
                     Const.JsonFields.IMAGE,
                     file.name.toString(),
                     randomId,
-                    sha256FileHash,
+                    sha256HashFromUri(requireActivity(), currentPhotoLocation),
                     Const.JsonFields.AVATAR,
                     1
                 )
