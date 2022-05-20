@@ -11,7 +11,9 @@ import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.text.TextUtils
 import android.text.format.DateUtils
-import androidx.core.content.ContextCompat
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
@@ -25,6 +27,7 @@ import java.security.NoSuchAlgorithmException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
+
 
 const val BITMAP_WIDTH = 512
 const val BITMAP_HEIGHT = 512
@@ -56,7 +59,7 @@ object Tools {
         } else {
 
             val telephonyManager =
-                ContextCompat.getSystemService(context, TelephonyManager::class.java)
+                getSystemService(context, TelephonyManager::class.java)
             val isoCode = telephonyManager?.simCountryIso
 
             Timber.d("Country code: ${isoCode?.uppercase()}")
@@ -267,8 +270,14 @@ object Tools {
     }
 
     fun getRelativeTimeSpan(startDate: Long): CharSequence? {
-       return DateUtils.getRelativeTimeSpanString(
+        return DateUtils.getRelativeTimeSpanString(
             startDate, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS
         )
+    }
+
+    fun hideKeyboard(activity: Activity, view: View) {
+        val inputMethodManager: InputMethodManager =
+            activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }

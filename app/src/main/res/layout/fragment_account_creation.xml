@@ -5,6 +5,8 @@
     android:id="@+id/cl_parent_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusableInTouchMode="true"
     tools:context=".ui.onboarding.account_creation.AccountCreationFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout

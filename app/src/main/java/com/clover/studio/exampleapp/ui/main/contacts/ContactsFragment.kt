@@ -17,6 +17,7 @@ import com.clover.studio.exampleapp.ui.main.UsersError
 import com.clover.studio.exampleapp.ui.main.UsersFetched
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import timber.log.Timber
 
@@ -138,6 +139,14 @@ class ContactsFragment : BaseFragment() {
                 return true
             }
         })
+
+        binding.svContactsSearch.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
     }
 
     override fun onResume() {

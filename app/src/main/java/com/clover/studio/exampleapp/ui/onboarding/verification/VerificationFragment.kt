@@ -1,6 +1,5 @@
 package com.clover.studio.exampleapp.ui.onboarding.verification
 
-import android.content.Context
 import android.content.IntentFilter
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -10,7 +9,6 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -19,10 +17,7 @@ import com.clover.studio.exampleapp.databinding.FragmentVerificationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
-import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.SmsListener
-import com.clover.studio.exampleapp.utils.SmsReceiver
+import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.gson.JsonObject
@@ -267,6 +262,54 @@ class VerificationFragment : BaseFragment() {
                 binding.etInputFive
             )
         )
+
+        binding.etInputOne.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
+
+        binding.etInputTwo.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
+
+        binding.etInputThree.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
+
+        binding.etInputFour.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
+
+        binding.etInputFive.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
+
+        binding.etInputSix.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
     }
 
     private fun startSmsRetriever() {
@@ -328,10 +371,8 @@ class VerificationFragment : BaseFragment() {
                 binding.etInputFour.id -> if (text.length == 1) nextView!!.requestFocus()
                 binding.etInputFive.id -> if (text.length == 1) nextView!!.requestFocus()
                 binding.etInputSix.id -> if (text.length == 1) {
-                    val imm =
-                        activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(binding.etInputSix.windowToken, 0)
 
+                    Tools.hideKeyboard(requireActivity(), binding.etInputSix)
                     val timer = object : CountDownTimer(500, 100) {
                         override fun onTick(millisUntilFinished: Long) {
                             Timber.d("Timer tick $millisUntilFinished")

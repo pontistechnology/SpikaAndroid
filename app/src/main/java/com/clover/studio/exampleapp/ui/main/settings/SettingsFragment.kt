@@ -109,6 +109,14 @@ class SettingsFragment : BaseFragment() {
                 }
             }
         })
+
+        binding.etEnterUsername.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
     }
 
     private fun initializeObservers() {

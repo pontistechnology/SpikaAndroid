@@ -15,6 +15,7 @@ import com.clover.studio.exampleapp.ui.main.RoomsFetched
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.gson.Gson
 import timber.log.Timber
@@ -122,6 +123,14 @@ class ChatFragment : BaseFragment() {
                 return true
             }
         })
+        binding.svRoomsSearch.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                view.clearFocus()
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
     }
 
     private fun initializeObservers() {
