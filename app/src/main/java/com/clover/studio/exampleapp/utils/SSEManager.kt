@@ -81,10 +81,16 @@ class SSEManager @Inject constructor(
 
                             if (response != null) {
                                 Timber.d("Response type: ${response.data?.type}")
-                                if (response.data?.type == Const.JsonFields.NEW_MESSAGE) {
-                                    response.data?.message?.let { repo.writeMessages(it) }
-                                } else if (response.data?.type == Const.JsonFields.NEW_MESSAGE_RECORD) {
-                                    response.data?.messageRecord?.let { repo.writeMessageRecord(it) }
+                                when (response.data?.type) {
+                                    Const.JsonFields.NEW_MESSAGE -> {
+                                        response.data?.message?.let { repo.writeMessages(it) }
+                                    }
+                                    Const.JsonFields.NEW_MESSAGE_RECORD -> {
+                                        response.data?.messageRecord?.let { repo.writeMessageRecord(it) }
+                                    }
+                                    Const.JsonFields.USER_UPDATE -> {
+                                        response.data?.user?.let { repo.writeUser(it) }
+                                    }
                                 }
 
                                 response.data?.message?.id?.let { repo.sendMessageDelivered(it) }

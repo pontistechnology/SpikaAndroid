@@ -6,6 +6,7 @@ import com.clover.studio.exampleapp.data.daos.MessageRecordsDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageRecords
+import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.services.SSEService
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
@@ -98,6 +99,10 @@ class SSERepositoryImpl @Inject constructor(
     override suspend fun writeMessageRecord(messageRecords: MessageRecords) {
         messageRecordsDao.insert(messageRecords)
     }
+
+    override suspend fun writeUser(user: User) {
+        userDao.insert(user)
+    }
 }
 
 interface SSERepository {
@@ -107,6 +112,7 @@ interface SSERepository {
     suspend fun sendMessageDelivered(messageId: Int)
     suspend fun writeMessages(message: Message)
     suspend fun writeMessageRecord(messageRecords: MessageRecords)
+    suspend fun writeUser(user: User)
 }
 
 private fun getMessageIdJson(messageIds: List<Int?>): JsonObject {

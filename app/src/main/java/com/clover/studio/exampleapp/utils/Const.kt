@@ -26,6 +26,7 @@ class Const {
             // SSE
             const val NEW_MESSAGE = "NEW_MESSAGE"
             const val NEW_MESSAGE_RECORD = "NEW_MESSAGE_RECORD"
+            const val USER_UPDATE = "USER_UPDATE"
 
             // Mime types
             const val IMAGE = "image/*"
