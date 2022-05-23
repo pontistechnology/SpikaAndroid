@@ -1,9 +1,12 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
 import android.content.Context
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -15,7 +18,9 @@ import com.clover.studio.exampleapp.data.models.networking.RoomUsers
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
 import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
 import timber.log.Timber
+import java.util.*
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
@@ -56,10 +61,18 @@ class ChatAdapter(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         getItem(position).let {
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = it.createdAt!!
+            val date = calendar.get(Calendar.DAY_OF_MONTH)
+
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 (holder as SentMessageHolder).binding.tvMessage.text = it.body?.text
+
+                showDateHeader(position, calendar, date, holder.binding.tvSectionHeader, it)
+
                 when {
                     it.seenCount!! > 0 -> {
                         holder.binding.ivMessageStatus.setImageDrawable(
@@ -109,6 +122,9 @@ class ChatAdapter(
                         break
                     }
                 }
+
+                showDateHeader(position, calendar, date, holder.binding.tvSectionHeader, it)
+
                 if (position > 0) {
                     try {
                         val nextItem = getItem(position + 1).fromUserId
@@ -139,5 +155,32 @@ class ChatAdapter(
 
         override fun areContentsTheSame(oldItem: Message, newItem: Message) =
             oldItem == newItem
+    }
+
+    private fun showDateHeader(
+        position: Int,
+        calendar: Calendar,
+        date: Int,
+        view: TextView,
+        message: Message
+    ) {
+        if (position > 1) {
+            calendar.timeInMillis = getItem(position - 1).createdAt!!
+            val previousDate = calendar.get(Calendar.DAY_OF_MONTH)
+
+            if (date != previousDate) {
+                view.visibility = View.VISIBLE
+            } else view.visibility = View.GONE
+
+            view.text = message.createdAt?.let {
+                getRelativeTimeSpan(
+                    it
+                )
+            }
+        } else {
+            view.visibility = View.VISIBLE
+            view.text =
+                message.createdAt?.let { getRelativeTimeSpan(it) }
+        }
     }
 }
