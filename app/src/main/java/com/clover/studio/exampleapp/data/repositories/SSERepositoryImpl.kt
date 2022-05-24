@@ -40,16 +40,10 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncMessages() {
-        var messageTimestamp = 0L
-        if (messageDao.getMessagesLocally().isNotEmpty()) {
-            messageTimestamp = messageDao.getMessagesLocally().last().createdAt!!
-        }
-
         val messageIds = ArrayList<Int>()
         val response =
             sseService.syncMessages(
-                Tools.getHeaderMap(sharedPrefs.readToken()),
-                messageTimestamp
+                Tools.getHeaderMap(sharedPrefs.readToken())
             )
 
         if (response.data?.list?.isNotEmpty() == true) {
@@ -78,9 +72,39 @@ class SSERepositoryImpl @Inject constructor(
                 userTimestamp
             )
 
-        if (response.data?.list?.isNotEmpty() == true) {
-            for (user in response.data.list) {
+        if (response.data?.users?.isNotEmpty() == true) {
+            for (user in response.data.users) {
                 userDao.insert(user)
+            }
+        }
+    }
+
+    override suspend fun syncRooms() {
+        var roomTimestamp = 0L
+
+        if (chatRoomDao.getRoomsLocally().isNotEmpty()) {
+            roomTimestamp = chatRoomDao.getRoomsLocally().last().createdAt!!
+        }
+
+        val response = sseService.syncRooms(
+            Tools.getHeaderMap(sharedPrefs.readToken()),
+            roomTimestamp
+        )
+
+        if (response.data?.rooms?.isNotEmpty() == true) {
+            for (room in response.data.rooms) {
+                chatRoomDao.insert(room)
+
+                val messages = sseService.getMessagesForRooms(
+                    Tools.getHeaderMap(sharedPrefs.readToken()),
+                    room.roomId.toString()
+                )
+
+                if (messages.data?.list?.isNotEmpty() == true) {
+                    for (message in messages.data.list) {
+                        messageDao.insert(message)
+                    }
+                }
             }
         }
     }
@@ -109,6 +133,7 @@ interface SSERepository {
     suspend fun syncMessageRecords()
     suspend fun syncMessages()
     suspend fun syncUsers()
+    suspend fun syncRooms()
     suspend fun sendMessageDelivered(messageId: Int)
     suspend fun writeMessages(message: Message)
     suspend fun writeMessageRecord(messageRecords: MessageRecords)

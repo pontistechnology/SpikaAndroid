@@ -9,6 +9,7 @@ data class ContactResponse(
 
 data class Data(
     val list: List<User>?,
+    val users: List<User>?,
     val count: Int?,
     val limit: Int?
 )

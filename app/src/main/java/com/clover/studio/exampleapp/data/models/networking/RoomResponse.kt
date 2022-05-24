@@ -10,6 +10,7 @@ data class RoomResponse(
 
 data class RoomData(
     val list: List<ChatRoom>?,
+    val rooms: List<ChatRoom>?,
     val room: ChatRoom?,
 )
 

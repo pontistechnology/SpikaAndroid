@@ -165,7 +165,9 @@ class ChatAdapter(
         message: Message
     ) {
         if (position > 1) {
-            calendar.timeInMillis = getItem(position - 1).createdAt!!
+            calendar.timeInMillis.let {
+                getItem(position - 1).createdAt
+            }
             val previousDate = calendar.get(Calendar.DAY_OF_MONTH)
 
             if (date != previousDate) {

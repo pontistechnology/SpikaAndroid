@@ -51,6 +51,7 @@ class SSEManager @Inject constructor(
                 repo.syncMessageRecords()
                 repo.syncMessages()
                 repo.syncUsers()
+                repo.syncRooms()
 
                 val inputReader = conn.inputStream.bufferedReader()
 
