@@ -159,7 +159,7 @@ class ChatFragment : BaseFragment() {
                 roomList = it
                 val sortedList = it.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
                     .sortedByDescending { roomItem ->
-                        roomItem.message?.first { message -> message.message.createdAt != null }?.message?.createdAt
+                        roomItem.message?.last { message -> message.message.createdAt != null }?.message?.createdAt
                     }
                 roomsAdapter.submitList(sortedList)
             }
@@ -176,10 +176,5 @@ class ChatFragment : BaseFragment() {
         binding.rvRooms.adapter = roomsAdapter
         binding.rvRooms.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.getRoomsRemote()
     }
 }

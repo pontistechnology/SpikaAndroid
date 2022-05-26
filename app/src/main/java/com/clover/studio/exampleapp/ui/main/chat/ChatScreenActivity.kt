@@ -244,6 +244,9 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     override fun onBackPressed() {
+        // Update room visited
+        room.visitedRoom = System.currentTimeMillis()
+        viewModel.updateRoomVisitedTimestamp(room)
         finish()
     }
 }
