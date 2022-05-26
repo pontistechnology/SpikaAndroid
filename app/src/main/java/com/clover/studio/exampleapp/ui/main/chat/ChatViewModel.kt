@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
@@ -104,6 +105,15 @@ class ChatViewModel @Inject constructor(
     fun sendMessagesSeen(roomId: Int) = viewModelScope.launch {
         try {
             repository.sendMessagesSeen(roomId)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            return@launch
+        }
+    }
+
+    fun updateRoomVisitedTimestamp(chatRoom: ChatRoom) = viewModelScope.launch {
+        try {
+            repository.updatedRoomVisitedTimestamp(chatRoom)
         } catch (ex: Exception) {
             Tools.checkError(ex)
             return@launch

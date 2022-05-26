@@ -51,7 +51,10 @@ class MainRepositoryImpl @Inject constructor(
 
         if (roomData.data?.list != null) {
             for (room in roomData.data.list) {
-                chatRoomDao.insert(room)
+                withContext(Dispatchers.IO) {
+                    val oldData = chatRoomDao.getRoomById(room.roomId)
+                    chatRoomDao.updateRoomTable(oldData, room)
+                }
             }
         }
     }

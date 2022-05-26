@@ -157,6 +157,10 @@ class ChatScreenActivity : BaseActivity() {
         // Get user messages
         viewModel.getMessages(room.roomId)
         viewModel.sendMessagesSeen(room.roomId)
+
+        // Update room visited
+        room.visitedRoom = System.currentTimeMillis()
+        viewModel.updateRoomVisitedTimestamp(room)
     }
 
     private fun initViews() {

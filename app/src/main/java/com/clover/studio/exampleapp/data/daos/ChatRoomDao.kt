@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
+import timber.log.Timber
 
 @Dao
 interface ChatRoomDao {
@@ -18,13 +19,22 @@ interface ChatRoomDao {
     fun getRoomsLocally(): List<ChatRoom>
 
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
-    fun getRoomById(roomId: Int): LiveData<ChatRoom>
+    fun getRoomById(roomId: Int): ChatRoom
 
     @Delete
     suspend fun deleteRoom(chatRoom: ChatRoom)
 
     @Query("DELETE FROM room")
     suspend fun removeRooms()
+
+    // This method copies locally added fields to the database if present
+    @Transaction
+    suspend fun updateRoomTable(oldData: ChatRoom?, newData: ChatRoom) {
+        if (oldData?.visitedRoom != null && newData.visitedRoom == null) {
+            newData.visitedRoom = oldData.visitedRoom
+        }
+        insert(newData)
+    }
 
     @Transaction
     @Query("SELECT * FROM room")

@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.data.models.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
@@ -55,12 +56,21 @@ class RoomsAdapter(
                         getRelativeTimeSpan(it)
                     }
 
-                    val lastMessage =
-                        roomItem.message.last { message -> message.message.id.toString() != myUserId }
-                    if (lastMessage.records?.stream()?.anyMatch { o -> o.type == "seen" } != true) {
-                        binding.tvNewMessages.visibility = View.VISIBLE
+                    val unreadMessages = ArrayList<MessageAndRecords>()
+                    for (messages in sortedList) {
+                        if (roomItem.room.visitedRoom == null) {
+                            unreadMessages.add(messages)
+                        } else {
+                            if (messages.message.createdAt!! >= roomItem.room.visitedRoom!!) {
+                                unreadMessages.add(messages)
+                            }
+                        }
                     }
 
+                    if (unreadMessages.isNotEmpty()) {
+                        binding.tvNewMessages.text = unreadMessages.size.toString()
+                        binding.tvNewMessages.visibility = View.VISIBLE
+                    } else binding.tvNewMessages.visibility = View.GONE
                 }
 
                 itemView.setOnClickListener {

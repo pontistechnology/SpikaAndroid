@@ -27,5 +27,8 @@ data class ChatRoom(
     val type: String?,
 
     @ColumnInfo(name = "created_at")
-    val createdAt: Long?
+    val createdAt: Long?,
+
+    @ColumnInfo(name = "visited_room")
+    var visitedRoom: Long?
 )
