@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.ui.main.chat
 
 import android.content.Context
 import android.os.Build
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -71,7 +72,7 @@ class ChatAdapter(
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 (holder as SentMessageHolder).binding.tvMessage.text = it.body?.text
 
-                showDateHeader(position, calendar, date, holder.binding.tvSectionHeader, it)
+                showDateHeader(position, date, holder.binding.tvSectionHeader, it)
 
                 when {
                     it.seenCount!! > 0 -> {
@@ -123,7 +124,7 @@ class ChatAdapter(
                     }
                 }
 
-                showDateHeader(position, calendar, date, holder.binding.tvSectionHeader, it)
+                showDateHeader(position, date, holder.binding.tvSectionHeader, it)
 
                 if (position > 0) {
                     try {
@@ -159,15 +160,13 @@ class ChatAdapter(
 
     private fun showDateHeader(
         position: Int,
-        calendar: Calendar,
         date: Int,
         view: TextView,
         message: Message
     ) {
-        if (position > 1) {
-            calendar.timeInMillis.let {
-                getItem(position - 1).createdAt
-            }
+        if (position >= 0 && currentList.size - 1 > position) {
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = getItem(position + 1).createdAt!!
             val previousDate = calendar.get(Calendar.DAY_OF_MONTH)
 
             if (date != previousDate) {
@@ -175,8 +174,8 @@ class ChatAdapter(
             } else view.visibility = View.GONE
 
             view.text = message.createdAt?.let {
-                getRelativeTimeSpan(
-                    it
+                DateUtils.getRelativeTimeSpanString(
+                    it, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS
                 )
             }
         } else {
