@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.clover.studio.exampleapp.databinding.FragmentMainBinding
 import com.clover.studio.exampleapp.ui.main.call_history.CallHistoryFragment
-import com.clover.studio.exampleapp.ui.main.rooms.ChatFragment
+import com.clover.studio.exampleapp.ui.main.rooms.RoomsFragment
 import com.clover.studio.exampleapp.ui.main.contacts.ContactsFragment
 import com.clover.studio.exampleapp.ui.main.settings.SettingsFragment
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
@@ -32,7 +32,7 @@ class MainFragment : BaseFragment() {
         val fragmentList = arrayListOf(
             ContactsFragment(),
             CallHistoryFragment(),
-            ChatFragment(),
+            RoomsFragment(),
             SettingsFragment()
         )
 

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusableInTouchMode="true"
-    tools:context=".ui.main.rooms.ChatFragment">
+    tools:context=".ui.main.rooms.RoomsFragment">
 
     <TextView
         android:id="@+id/tv_screen_name"

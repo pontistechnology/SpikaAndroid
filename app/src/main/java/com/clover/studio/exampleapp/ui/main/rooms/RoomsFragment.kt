@@ -20,7 +20,7 @@ import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.gson.Gson
 import timber.log.Timber
 
-class ChatFragment : BaseFragment() {
+class RoomsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var roomsAdapter: RoomsAdapter
     private lateinit var roomList: List<RoomAndMessageAndRecords>
@@ -176,5 +176,12 @@ class ChatFragment : BaseFragment() {
         binding.rvRooms.adapter = roomsAdapter
         binding.rvRooms.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // This updates the elapsed time displayed when user return to the screen.
+        roomsAdapter.notifyDataSetChanged()
     }
 }
