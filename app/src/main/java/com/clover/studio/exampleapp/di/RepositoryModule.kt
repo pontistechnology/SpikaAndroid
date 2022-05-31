@@ -8,6 +8,7 @@ import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.data.services.SSEService
 import com.clover.studio.exampleapp.utils.SSEManager
+import com.clover.studio.exampleapp.utils.UploadDownloadManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -100,4 +101,10 @@ object RepositoryModule {
         sharedPrefs: SharedPreferencesRepository
     ) =
         SSEManager(sseRepo, sharedPrefs)
+
+    @Singleton
+    @Provides
+    fun provideUploadDownloadManager(
+        repository: MainRepositoryImpl
+    ) = UploadDownloadManager(repository)
 }

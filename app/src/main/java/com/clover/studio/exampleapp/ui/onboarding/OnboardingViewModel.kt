@@ -25,8 +25,6 @@ class OnboardingViewModel @Inject constructor(
     var registrationListener = MutableLiveData<Event<OnboardingStates>>()
     var accountCreationListener = MutableLiveData<Event<OnboardingStates>>()
     var userUpdateListener = MutableLiveData<Event<OnboardingStates>>()
-    var uploadStateListener = MutableLiveData<Event<OnboardingFileStates>>()
-    var chunkCount = 0L
 
     fun sendNewUserData(
         jsonObject: JsonObject
@@ -129,39 +127,6 @@ class OnboardingViewModel @Inject constructor(
         userUpdateListener.postValue(Event(OnboardingStates.USER_UPDATED))
     }
 
-    fun uploadFile(jsonObject: JsonObject, chunks: Long) = viewModelScope.launch {
-        try {
-            onboardingRepository.uploadFiles(jsonObject).data?.file?.id
-            uploadStateListener.postValue(Event(UploadPiece))
-            Timber.d("Sending file chunk")
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            Timber.d("File send error")
-            uploadStateListener.postValue(Event(UploadError))
-            chunkCount = 1
-            return@launch
-        }
-
-        Timber.d("Completed sending file chunk")
-        chunkCount++
-
-        if (chunkCount == chunks) {
-            uploadStateListener.postValue(Event(UploadSuccess))
-            chunkCount = 1
-        }
-    }
-
-    fun verifyUploadedFile(jsonObject: JsonObject) = viewModelScope.launch {
-        try {
-            val filePath = onboardingRepository.verifyFile(jsonObject).data?.file?.path
-            uploadStateListener.postValue(Event(UploadVerified(filePath!!)))
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            uploadStateListener.postValue(Event(UploadVerificationFailed))
-            return@launch
-        }
-    }
-
     fun writePhoneUsers(phoneUsers: List<PhoneUser>) = viewModelScope.launch {
         try {
             onboardingRepository.writePhoneUsers(phoneUsers)
@@ -172,10 +137,4 @@ class OnboardingViewModel @Inject constructor(
     }
 }
 
-enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_VERIFIED_NEW_USER, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR, UPLOAD_PIECE, UPLOAD_ERROR, UPLOAD_SUCCESS }
-sealed class OnboardingFileStates
-class UploadVerified(val path: String) : OnboardingFileStates()
-object UploadVerificationFailed : OnboardingFileStates()
-object UploadSuccess : OnboardingFileStates()
-object UploadPiece : OnboardingFileStates()
-object UploadError : OnboardingFileStates()
+enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_VERIFIED_NEW_USER, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR }

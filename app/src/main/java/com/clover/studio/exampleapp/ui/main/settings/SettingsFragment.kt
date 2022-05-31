@@ -4,7 +4,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,34 +14,32 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.UploadFile
 import com.clover.studio.exampleapp.databinding.FragmentSettingsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.UserUpdateFailed
 import com.clover.studio.exampleapp.ui.main.UserUpdated
-import com.clover.studio.exampleapp.ui.onboarding.*
-import com.clover.studio.exampleapp.ui.onboarding.account_creation.CHUNK_SIZE
-import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileInputStream
-import java.util.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SettingsFragment : BaseFragment() {
+    @Inject
+    lateinit var uploadDownloadManager: UploadDownloadManager
+
     private val viewModel: MainViewModel by activityViewModels()
     private var bindingSetup: FragmentSettingsBinding? = null
     private var currentPhotoLocation: Uri = Uri.EMPTY
-    private var uploadPieces: Long = 0L
     private var progress: Long = 1L
-    private var uploadFile: UploadFile? = null
 
     private val binding get() = bindingSetup!!
 
@@ -140,29 +137,6 @@ class SettingsFragment : BaseFragment() {
                 else -> Timber.d("Other error")
             }
         })
-
-        viewModel.uploadStateListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                UploadPiece -> {
-                    Timber.d("PROGRESS $progress, $uploadPieces, ${binding.progressBar.max}")
-                    if (progress <= uploadPieces) {
-                        binding.progressBar.secondaryProgress = progress.toInt()
-                        progress++
-                    } else progress = 0
-                }
-                UploadSuccess -> viewModel.verifyUploadedFile(uploadFile!!.fileToJson())
-                is UploadVerified -> {
-                    binding.progressBar.secondaryProgress = uploadPieces.toInt()
-                    val userData = hashMapOf(
-                        Const.UserData.AVATAR_URL to it.path
-                    )
-                    binding.clProgressScreen.visibility = View.GONE
-                    viewModel.updateUserData(userData)
-                }
-                UploadVerificationFailed -> showUploadError()
-                UploadError -> showUploadError()
-            }
-        })
     }
 
     private fun setupClickListeners() {
@@ -216,8 +190,51 @@ class SettingsFragment : BaseFragment() {
         if (currentPhotoLocation != Uri.EMPTY) {
             val inputStream =
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
+
+            val fileStream = Tools.copyStreamToFile(requireActivity(), inputStream!!)
+            val uploadPieces =
+                if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
+                    fileStream.length() / CHUNK_SIZE + 1
+                else fileStream.length() / CHUNK_SIZE
+
+            binding.progressBar.max = uploadPieces.toInt()
             Timber.d("File upload start")
-            uploadFile(Tools.copyStreamToFile(requireActivity(), inputStream!!))
+            CoroutineScope(Dispatchers.IO).launch {
+                uploadDownloadManager.uploadFile(
+                    requireActivity(),
+                    currentPhotoLocation,
+                    Const.JsonFields.IMAGE,
+                    Const.JsonFields.AVATAR,
+                    uploadPieces,
+                    fileStream,
+                    object :
+                        FileUploadListener {
+                        override fun filePieceUploaded() {
+                            if (progress <= uploadPieces) {
+                                binding.progressBar.secondaryProgress = progress.toInt()
+                                progress++
+                            } else progress = 0
+                        }
+
+                        override fun fileUploadError() {
+                            Timber.d("Upload Error")
+                            showUploadError()
+                        }
+
+                        override fun fileUploadVerified(path: String) {
+                            Timber.d("Upload verified")
+                            requireActivity().runOnUiThread {
+                                binding.clProgressScreen.visibility = View.GONE
+                            }
+
+                            val userData = hashMapOf(
+                                Const.UserData.AVATAR_URL to path
+                            )
+                            viewModel.updateUserData(userData)
+                        }
+
+                    })
+            }
             binding.clProgressScreen.visibility = View.VISIBLE
         }
     }
@@ -249,47 +266,6 @@ class SettingsFragment : BaseFragment() {
         )
         Timber.d("$currentPhotoLocation")
         takePhotoContract.launch(currentPhotoLocation)
-    }
-
-    private fun uploadFile(file: File) {
-        Timber.d("${file.length()}")
-        uploadPieces =
-            if ((file.length() % CHUNK_SIZE).toInt() != 0)
-                file.length() / CHUNK_SIZE + 1
-            else file.length() / CHUNK_SIZE
-
-        binding.progressBar.max = uploadPieces.toInt()
-
-        BufferedInputStream(FileInputStream(file)).use { bis ->
-            var len: Int
-            var piece = 0L
-            val temp = ByteArray(CHUNK_SIZE)
-            val randomId = UUID.randomUUID().toString().substring(0, 7)
-            while (bis.read(temp).also { len = it } > 0) {
-                uploadFile = UploadFile(
-                    Base64.encodeToString(
-                        temp,
-                        0,
-                        len,
-                        0
-                    ),
-                    piece,
-                    uploadPieces,
-                    file.length(),
-                    Const.JsonFields.IMAGE,
-                    file.name.toString(),
-                    randomId,
-                    Tools.sha256HashFromUri(requireActivity(), currentPhotoLocation),
-                    Const.JsonFields.AVATAR,
-                    1
-                )
-
-                viewModel.uploadFile(uploadFile!!.chunkToJson(), uploadPieces)
-
-                Timber.d("$uploadFile")
-                piece++
-            }
-        }
     }
 
     private fun showUploadError() {
