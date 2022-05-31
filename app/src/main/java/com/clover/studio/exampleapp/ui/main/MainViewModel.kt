@@ -29,9 +29,7 @@ class MainViewModel @Inject constructor(
     val roomsListener = MutableLiveData<Event<MainStates>>()
     val checkRoomExistsListener = MutableLiveData<Event<MainStates>>()
     val createRoomListener = MutableLiveData<Event<MainStates>>()
-    val messagesListener = MutableLiveData<Event<MainStates>>()
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
-    val messageRecordsListener = MutableLiveData<Event<MainStates>>()
 
     fun getContacts() = viewModelScope.launch {
         try {
@@ -136,9 +134,5 @@ class RoomCreated(val roomData: ChatRoom) : MainStates()
 object RoomFailed : MainStates()
 class RoomExists(val roomData: ChatRoom) : MainStates()
 object RoomNotFound : MainStates()
-object MessagesFetched : MainStates()
-object MessagesFetchFail : MainStates()
 object UserUpdated : MainStates()
 object UserUpdateFailed : MainStates()
-object MessageRecordsFetched : MainStates()
-object MessageRecordsFailed : MainStates()
