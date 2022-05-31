@@ -29,8 +29,7 @@ private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 class ChatAdapter(
     private val context: Context,
     private val myUserId: Int,
-    private val users: List<RoomUsers>,
-    private val onItemClick: ((item: Message) -> Unit)
+    private val users: List<RoomUsers>
 ) :
     ListAdapter<Message, RecyclerView.ViewHolder>(MessageDiffCallback()) {
 

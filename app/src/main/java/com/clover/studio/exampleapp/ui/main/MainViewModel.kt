@@ -29,7 +29,6 @@ class MainViewModel @Inject constructor(
     val roomsListener = MutableLiveData<Event<MainStates>>()
     val checkRoomExistsListener = MutableLiveData<Event<MainStates>>()
     val createRoomListener = MutableLiveData<Event<MainStates>>()
-    val userPhoneUserListener = MutableLiveData<Event<MainStates>>()
     val messagesListener = MutableLiveData<Event<MainStates>>()
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
     val messageRecordsListener = MutableLiveData<Event<MainStates>>()
@@ -64,10 +63,6 @@ class MainViewModel @Inject constructor(
         return userId
     }
 
-    fun getLocalUsers() = liveData {
-        emitSource(repository.getUserLiveData())
-    }
-
     fun checkIfRoomExists(userId: Int) = viewModelScope.launch {
         try {
             val roomData = repository.getRoomById(userId).data?.room
@@ -90,39 +85,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getRoomsRemote() = viewModelScope.launch {
-        try {
-            repository.getRooms()
-            roomsListener.postValue(Event(RoomsFetched))
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            roomsListener.postValue(Event(RoomFetchFail))
-            return@launch
-        }
-    }
-
-    fun getMessagesRemote() = viewModelScope.launch {
-        try {
-            repository.getMessages()
-            messagesListener.postValue(Event(MessagesFetched))
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            messagesListener.postValue(Event(MessagesFetchFail))
-            return@launch
-        }
-    }
-
-    fun getMessageRecords() = viewModelScope.launch {
-        try {
-            repository.getMessageRecords()
-            messageRecordsListener.postValue(Event(MessageRecordsFetched))
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            messageRecordsListener.postValue(Event(MessageRecordsFailed))
-            return@launch
-        }
-    }
-
     fun getPushNotificationStream(): Flow<Message> = flow {
         viewModelScope.launch {
             try {
@@ -140,10 +102,6 @@ class MainViewModel @Inject constructor(
 
     fun getChatRoomAndMessageAndRecords() = liveData {
         emitSource(repository.getChatRoomAndMessageAndRecords())
-    }
-
-    fun getRooms() = liveData {
-        emitSource(repository.getRoomsLiveData())
     }
 
     fun updatePushToken(jsonObject: JsonObject) = viewModelScope.launch {

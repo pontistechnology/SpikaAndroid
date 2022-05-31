@@ -11,7 +11,7 @@ open class BaseActivity : AppCompatActivity() {
     fun showProgress(isCancelable: Boolean = true) {
         try {
             if (progress == null || !progress!!.isShowing) {
-                progress = ProgressDialog.ShowProgressDialog(this, isCancelable)
+                progress = ProgressDialog.showProgressDialog(this, isCancelable)
                 progress!!.show()
             }
         } catch (ex: Exception) {

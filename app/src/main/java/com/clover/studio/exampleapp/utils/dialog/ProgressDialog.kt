@@ -12,7 +12,7 @@ class ProgressDialog(context: Context?) : BaseDialog(context, R.style.Theme_Dial
     }
 
     companion object {
-        fun ShowProgressDialog(context: Context?, isCancelable: Boolean): ProgressDialog {
+        fun showProgressDialog(context: Context?, isCancelable: Boolean): ProgressDialog {
             val progressDialog = ProgressDialog(context)
             progressDialog.setCancelable(isCancelable)
             if (progressDialog.window != null) {

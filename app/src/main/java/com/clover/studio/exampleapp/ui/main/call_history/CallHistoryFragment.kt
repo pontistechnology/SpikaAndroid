@@ -15,7 +15,6 @@ import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import timber.log.Timber
 
 class CallHistoryFragment : BaseFragment() {
-    private val viewModel: MainViewModel by activityViewModels()
     private lateinit var callHistoryAdapter: CallHistoryAdapter
     private lateinit var userList: List<User>
     private var filteredList: MutableList<User> = ArrayList()

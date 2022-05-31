@@ -21,7 +21,7 @@ import org.json.JSONObject
 import timber.log.Timber
 import javax.inject.Inject
 
-val CHANNEL_ID: String = "Spika App ID"
+const val CHANNEL_ID: String = "Spika App ID"
 
 @AndroidEntryPoint
 class MyFirebaseMessagingService : FirebaseMessagingService() {
@@ -89,7 +89,4 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    override fun onDeletedMessages() {
-        super.onDeletedMessages()
-    }
 }

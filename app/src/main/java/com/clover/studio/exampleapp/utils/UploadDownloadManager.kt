@@ -1,3 +1,5 @@
+@file:Suppress("BlockingMethodInNonBlockingContext")
+
 package com.clover.studio.exampleapp.utils
 
 import android.app.Activity

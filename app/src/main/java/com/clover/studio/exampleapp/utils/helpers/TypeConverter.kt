@@ -8,17 +8,6 @@ import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
 
 object TypeConverter {
-    @TypeConverter
-    fun fromString(value: String?): ArrayList<String> {
-        val listType: Type = object : TypeToken<ArrayList<String?>?>() {}.type
-        return Gson().fromJson(value, listType)
-    }
-
-    @TypeConverter
-    fun fromArrayList(list: ArrayList<String?>?): String {
-        val gson = Gson()
-        return gson.toJson(list)
-    }
 
     @TypeConverter
     fun stringToMessages(json: String?): MessageBody? {
@@ -50,16 +39,4 @@ object TypeConverter {
         return gson.toJson(roomUsers, type)
     }
 
-    @TypeConverter
-    fun stringToMap(value: String?): Map<String, String> {
-        val gson = Gson()
-        val type: Type = object : TypeToken<Map<String?, String?>?>() {}.type
-        return gson.fromJson(value, type)
-    }
-
-    @TypeConverter
-    fun mapToString(value: Map<String?, String?>?): String {
-        val gson = Gson()
-        return gson.toJson(value)
-    }
 }

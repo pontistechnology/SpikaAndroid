@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
-import timber.log.Timber
 
 @Dao
 interface ChatRoomDao {

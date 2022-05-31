@@ -20,12 +20,15 @@ class Const {
             const val TELEPHONE_NUMBER = "telephoneNumber"
             const val TELEPHONE_NUMBER_HASHED = "telephoneNumberHashed"
             const val COUNTRY_CODE = "countryCode"
-            const val CONTACTS = "contacts"
             const val PUSH_TOKEN = "pushToken"
 
             // SSE
             const val NEW_MESSAGE = "NEW_MESSAGE"
             const val NEW_MESSAGE_RECORD = "NEW_MESSAGE_RECORD"
+            const val DELETED_MESSAGE_RECORD = "DELETED_MESSAGE_RECORD"
+            const val NEW_ROOM = "NEW_ROOM"
+            const val UPDATE_ROOM = "UPDATE_ROOM"
+            const val DELETE_ROOM = "DELETE_ROOM"
             const val USER_UPDATE = "USER_UPDATE"
 
             // Mime types
@@ -49,13 +52,10 @@ class Const {
             // Chat
             const val ROOM_ID = "roomId"
             const val TEXT = "text"
-            const val MESSAGE = "message"
             const val NAME = "name"
             const val AVATAR_URL = "avatarUrl"
             const val USER_IDS = "userIds"
-            const val ADMIN_USER_IDS = "adminUserIds"
             const val PRIVATE = "private"
-            const val GROUP = "group"
             const val BODY = "body"
             const val MESSAGE_IDS = "messagesIds"
         }
@@ -125,9 +125,6 @@ class Const {
 
     class UserData {
         companion object {
-            const val TELEPHONE_NUMBER: String = "telephoneNumber"
-            const val TELEPHONE_NUMBER_HASHED: String = "telephoneNumberHashed"
-            const val EMAIL_ADDRESS: String = "emailAddress"
             const val DISPLAY_NAME: String = "displayName"
             const val AVATAR_URL: String = "avatarUrl"
         }

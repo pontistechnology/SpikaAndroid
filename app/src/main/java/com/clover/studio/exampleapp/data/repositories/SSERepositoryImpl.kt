@@ -4,6 +4,7 @@ import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.daos.MessageRecordsDao
 import com.clover.studio.exampleapp.data.daos.UserDao
+import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageRecords
 import com.clover.studio.exampleapp.data.models.User
@@ -132,6 +133,21 @@ class SSERepositoryImpl @Inject constructor(
     override suspend fun writeUser(user: User) {
         userDao.insert(user)
     }
+
+    override suspend fun writeRoom(room: ChatRoom) {
+        withContext(Dispatchers.IO) {
+            val oldRoom = chatRoomDao.getRoomById(room.roomId)
+            chatRoomDao.updateRoomTable(oldRoom, room)
+        }
+    }
+
+    override suspend fun deleteMessageRecord(messageRecords: MessageRecords) {
+        messageRecordsDao.deleteMessageRecord(messageRecords)
+    }
+
+    override suspend fun deleteRoom(room: ChatRoom) {
+        chatRoomDao.deleteRoom(room)
+    }
 }
 
 interface SSERepository {
@@ -143,6 +159,9 @@ interface SSERepository {
     suspend fun writeMessages(message: Message)
     suspend fun writeMessageRecord(messageRecords: MessageRecords)
     suspend fun writeUser(user: User)
+    suspend fun writeRoom(room: ChatRoom)
+    suspend fun deleteMessageRecord(messageRecords: MessageRecords)
+    suspend fun deleteRoom(room: ChatRoom)
 }
 
 private fun getMessageIdJson(messageIds: List<Int?>): JsonObject {

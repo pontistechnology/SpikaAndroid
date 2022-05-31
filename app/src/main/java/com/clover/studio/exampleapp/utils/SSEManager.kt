@@ -1,3 +1,5 @@
+@file:Suppress("BlockingMethodInNonBlockingContext")
+
 package com.clover.studio.exampleapp.utils
 
 import com.clover.studio.exampleapp.BuildConfig
@@ -85,16 +87,39 @@ class SSEManager @Inject constructor(
                                 when (response.data?.type) {
                                     Const.JsonFields.NEW_MESSAGE -> {
                                         response.data?.message?.let { repo.writeMessages(it) }
+                                        response.data?.message?.id?.let {
+                                            repo.sendMessageDelivered(
+                                                it
+                                            )
+                                        }
                                     }
                                     Const.JsonFields.NEW_MESSAGE_RECORD -> {
-                                        response.data?.messageRecord?.let { repo.writeMessageRecord(it) }
+                                        response.data?.messageRecord?.let {
+                                            repo.writeMessageRecord(
+                                                it
+                                            )
+                                        }
+                                    }
+                                    Const.JsonFields.DELETED_MESSAGE_RECORD -> {
+                                        response.data?.messageRecord?.let {
+                                            repo.deleteMessageRecord(
+                                                it
+                                            )
+                                        }
                                     }
                                     Const.JsonFields.USER_UPDATE -> {
                                         response.data?.user?.let { repo.writeUser(it) }
                                     }
+                                    Const.JsonFields.NEW_ROOM -> {
+                                        response.data?.room?.let { repo.writeRoom(it) }
+                                    }
+                                    Const.JsonFields.UPDATE_ROOM -> {
+                                        response.data?.room?.let { repo.writeRoom(it) }
+                                    }
+                                    Const.JsonFields.DELETE_ROOM -> {
+                                        response.data?.room?.let { repo.deleteRoom(it) }
+                                    }
                                 }
-
-                                response.data?.message?.id?.let { repo.sendMessageDelivered(it) }
                             }
                         }
                         line.isEmpty() -> { // empty line, finished block. Emit the event

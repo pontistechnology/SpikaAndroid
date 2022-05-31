@@ -23,7 +23,6 @@ fun startOnboardingActivity(fromActivity: Activity, goAccountCreation: Boolean) 
 @AndroidEntryPoint
 class OnboardingActivity : BaseActivity() {
 
-    private val viewModel: OnboardingViewModel by viewModels()
     private var goToAccountCreation: Boolean = false
 
     private lateinit var bindingSetup: ActivityOnboardingBinding

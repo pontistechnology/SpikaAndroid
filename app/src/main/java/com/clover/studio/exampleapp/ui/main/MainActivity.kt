@@ -8,7 +8,6 @@ import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
 import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging

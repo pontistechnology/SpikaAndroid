@@ -32,20 +32,9 @@ object RepositoryModule {
         chatService: ChatService,
         chatRoomDao: ChatRoomDao,
         messageDao: MessageDao,
-        messageRecordsDao: MessageRecordsDao,
         sharedPrefs: SharedPreferencesRepository
     ) =
-        ChatRepositoryImpl(chatService, chatRoomDao, messageDao, messageRecordsDao, sharedPrefs)
-
-    @Singleton
-    @Provides
-    fun provideMessageRepository(retrofitService: RetrofitService, messageDao: MessageDao) =
-        MessageRepositoryImpl(retrofitService, messageDao)
-
-    @Singleton
-    @Provides
-    fun provideReactionRepository(retrofitService: RetrofitService, reactionDao: ReactionDao) =
-        ReactionRepositoryImpl(retrofitService, reactionDao)
+        ChatRepositoryImpl(chatService, chatRoomDao, messageDao, sharedPrefs)
 
     @Singleton
     @Provides

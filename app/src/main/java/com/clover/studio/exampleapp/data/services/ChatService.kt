@@ -38,13 +38,6 @@ interface ChatService {
 //        @Path(Const.Networking.MESSAGE_ID) messageId: String
 //    ): MessageRecordsResponse
 
-    @GET(Const.Networking.API_SSE_STREAM)
-    @Streaming
-    suspend fun getPushNotification(
-        @Path(Const.Networking.DEVICE_ID) deviceId: Int,
-        @Query(Const.Headers.ACCESS_TOKEN) token: String
-    ): Message
-
     @POST(Const.Networking.API_MESSAGES_SEEN)
     suspend fun sendMessagesSeen(
         @HeaderMap headers: Map<String, String?>,

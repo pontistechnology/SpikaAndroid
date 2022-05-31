@@ -58,28 +58,6 @@ class ChatViewModel @Inject constructor(
         getMessagesListener.postValue(Event(MessagesFetched))
     }
 
-    fun getMessagesTimestamp(timestamp: Int) = viewModelScope.launch {
-        try {
-            val messages = repository.getMessagesTimestamp(timestamp).data?.list
-            getMessagesTimestampListener.postValue(Event(MessagesTimestampFetched(messages!!)))
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            getMessagesTimestampListener.postValue(Event(MessageTimestampFetchFail))
-        }
-    }
-
-    fun sendMessageDelivered(jsonObject: JsonObject) = viewModelScope.launch {
-        try {
-            repository.sendMessageDelivered(jsonObject)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            sendMessageDeliveredListener.postValue(Event(ChatStatesEnum.MESSAGE_DELIVER_FAIL))
-            return@launch
-        }
-
-        sendMessageDeliveredListener.postValue(Event(ChatStatesEnum.MESSAGE_DELIVERED))
-    }
-
     fun getLocalMessages(roomId: Int) = liveData {
         emitSource(repository.getMessagesLiveData(roomId))
     }

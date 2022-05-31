@@ -42,17 +42,6 @@ object Tools {
         }
     }
 
-    fun getRandomImageUrl(randomNumber: Int): String {
-        return when (randomNumber) {
-            0 -> "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Owner_Mr_Paul_G_Jacobs.svg/1024px-Owner_Mr_Paul_G_Jacobs.svg.png"
-            1 -> "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Aurthur_A_Collins.jpg/1280px-Aurthur_A_Collins.jpg"
-            2 -> "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Algérie_-_Arménie_-_20140531_-_Mauro_Guevgeozian.jpg/1024px-Algérie_-_Arménie_-_20140531_-_Mauro_Guevgeozian.jpg"
-            3 -> "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Iran_location_map.svg/1920px-Iran_location_map.svg.png"
-            4 -> "https://upload.wikimedia.org/wikipedia/commons/d/db/Matudaira_Yoritoshi.jpg"
-            else -> "https://upload.wikimedia.org/wikipedia/commons/d/db/Matudaira_Yoritoshi.jpg"
-        }
-    }
-
     fun formatE164Number(context: Context, countryCode: String?, phNum: String?): String? {
         val e164Number: String? = if (TextUtils.isEmpty(countryCode)) {
             phNum
@@ -131,8 +120,8 @@ object Tools {
         val file = createImageFile(activity)
 
         val bos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100 /*ignored for PNG*/, bos);
-        val bitmapData = bos.toByteArray();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100 /*ignored for PNG*/, bos)
+        val bitmapData = bos.toByteArray()
 
         val fos = FileOutputStream(file)
         fos.write(bitmapData)
@@ -146,7 +135,7 @@ object Tools {
         )
     }
 
-    fun calculateSHA256FileHash(updateFile: File?): String? {
+    private fun calculateSHA256FileHash(updateFile: File?): String? {
         val digest: MessageDigest = try {
             MessageDigest.getInstance("SHA-256")
         } catch (e: NoSuchAlgorithmException) {
@@ -252,7 +241,7 @@ object Tools {
     }
 
     fun sha256HashFromUri(activity: Activity, currentPhotoLocation: Uri): String? {
-        var sha256FileHash: String? = ""
+        val sha256FileHash: String?
         val inputStream =
             activity.contentResolver.openInputStream(currentPhotoLocation)
         sha256FileHash =
