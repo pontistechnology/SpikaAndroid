@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:545730644006:android:bb162b653804f1000d3ee7",
         "android_client_info": {
-          "package_name": "com.clover.studio.exampleapp.debug"
+          "package_name": "com.clover.studio.exampleapp"
         }
       },
       "oauth_client": [
