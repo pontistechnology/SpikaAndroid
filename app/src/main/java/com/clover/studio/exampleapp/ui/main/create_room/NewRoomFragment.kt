@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.R
@@ -55,14 +57,14 @@ class NewRoomFragment : BaseFragment() {
         binding.svContactsSearch.setIconifiedByDefault(false)
 
         binding.tvNext.setOnClickListener {
-            if (binding.tvCancel.text == getString(R.string.cancel)) {
-                requireActivity().onBackPressed()
-            } else {
-                // TODO go to next fragment, upload avatar and group name
-            }
+            val bundle = bundleOf(Const.Navigation.SELECTED_USERS to selectedUsers)
+            findNavController().navigate(
+                R.id.action_newRoomFragment_to_groupInformationFragment,
+                bundle
+            )
         }
 
-        binding.tvCancel.setOnClickListener {
+        binding.ivCancel.setOnClickListener {
             requireActivity().onBackPressed()
         }
 
@@ -70,14 +72,8 @@ class NewRoomFragment : BaseFragment() {
             binding.clSelectedContacts.visibility = View.VISIBLE
             binding.tvSelectedNumber.text = getString(R.string.users_selected, selectedUsers.size)
             binding.tvNewGroupChat.visibility = View.GONE
-            binding.tvCancel.visibility = View.VISIBLE
-            binding.tvNext.text = getString(R.string.next)
-            binding.tvNext.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.text_tertiary
-                )
-            )
+            binding.tvNext.visibility = View.VISIBLE
+            binding.tvTitle.text = getString(R.string.select_members)
         }
     }
 
@@ -95,6 +91,8 @@ class NewRoomFragment : BaseFragment() {
                     selectedContactsAdapter.submitList(selectedUsers)
                     selectedContactsAdapter.notifyDataSetChanged()
                 }
+
+                handleNextTextView()
             } else {
                 user = it.user
                 it.user.id.let { id -> viewModel.checkIfRoomExists(id) }
@@ -114,11 +112,30 @@ class NewRoomFragment : BaseFragment() {
                     getString(R.string.users_selected, selectedUsers.size)
                 selectedContactsAdapter.notifyDataSetChanged()
             }
+
+            handleNextTextView()
         }
 
         binding.rvSelected.adapter = selectedContactsAdapter
         binding.rvSelected.layoutManager =
             LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
+    }
+
+    private fun handleNextTextView() {
+        if (selectedUsers.size > 0) {
+            binding.tvNext.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.primary_color
+                )
+            )
+            binding.tvNext.isClickable = true
+        } else binding.tvNext.setTextColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.text_tertiary
+            )
+        )
     }
 
     private fun initializeObservers() {

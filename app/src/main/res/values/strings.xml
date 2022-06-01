@@ -79,4 +79,10 @@
     <string name="new_group">New group</string>
     <string name="new_group_chat">New group chat</string>
     <string name="users_selected">%s/100 selected</string>
+    <string name="create">Create</string>
+    <string name="new_chat">New chat</string>
+    <string name="select_members">Select members</string>
+    <string name="name_the_group">Name the group</string>
+    <string name="s_people_selected">%s people selected</string>
+    <string name="group_name">Group name…</string>
 </resources>
