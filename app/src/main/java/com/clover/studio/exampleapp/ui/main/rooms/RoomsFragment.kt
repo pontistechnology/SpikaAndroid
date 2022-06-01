@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.FragmentChatBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
@@ -39,6 +41,10 @@ class RoomsFragment : BaseFragment() {
         setupAdapter()
         initializeObservers()
         setupSearchView()
+
+        binding.ivCreateRoom.setOnClickListener {
+            findNavController().navigate(R.id.action_mainFragment_to_newRoomFragment)
+        }
 
         return binding.root
     }

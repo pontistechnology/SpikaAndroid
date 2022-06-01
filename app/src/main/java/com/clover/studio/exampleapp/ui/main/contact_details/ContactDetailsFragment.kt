@@ -1,4 +1,4 @@
-package com.clover.studio.exampleapp.ui.main
+package com.clover.studio.exampleapp.ui.main.contact_details
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -14,6 +14,7 @@ import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.FragmentContactDetailsBinding
+import com.clover.studio.exampleapp.ui.main.*
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
