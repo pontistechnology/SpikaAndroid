@@ -86,6 +86,8 @@ class NewRoomFragment : BaseFragment() {
             if (binding.tvNewGroupChat.visibility == View.GONE) {
                 if (selectedUsers.contains(it)) {
                     selectedUsers.remove(it)
+                    binding.tvSelectedNumber.text =
+                        getString(R.string.users_selected, selectedUsers.size)
                 } else {
                     selectedUsers.add(it)
                     binding.tvSelectedNumber.text =

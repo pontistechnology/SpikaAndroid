@@ -199,6 +199,10 @@ class GroupInformationFragment : Fragment() {
                     }
                 })
         }
+
+        binding.ivCancel.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun initializeObservers() {
