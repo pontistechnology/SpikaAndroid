@@ -145,12 +145,15 @@ class NewRoomFragment : BaseFragment() {
                 )
             )
             binding.tvNext.isClickable = true
-        } else binding.tvNext.setTextColor(
-            ContextCompat.getColor(
-                requireContext(),
-                R.color.text_tertiary
+        } else {
+            binding.tvNext.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.text_tertiary
+                )
             )
-        )
+            binding.tvNext.isClickable = false
+        }
     }
 
     private fun initializeObservers() {
