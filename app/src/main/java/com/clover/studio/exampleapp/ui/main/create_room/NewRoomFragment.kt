@@ -47,7 +47,7 @@ class NewRoomFragment : BaseFragment() {
 
         initializeObservers()
         initializeViews()
-        setupAdapter()
+        setupAdapter(false)
 
         return binding.root
     }
@@ -74,25 +74,28 @@ class NewRoomFragment : BaseFragment() {
             binding.tvNewGroupChat.visibility = View.GONE
             binding.tvNext.visibility = View.VISIBLE
             binding.tvTitle.text = getString(R.string.select_members)
+
+            setupAdapter(true)
+            initializeObservers()
         }
     }
 
-    private fun setupAdapter() {
+    private fun setupAdapter(isGroupCreation: Boolean) {
         // Contacts Adapter
-        contactsAdapter = ContactsAdapter(requireContext()) {
+        contactsAdapter = ContactsAdapter(requireContext(), isGroupCreation) {
             if (binding.tvNewGroupChat.visibility == View.GONE) {
-                // TODO add checkmark in adapter if user is in the selected list
                 if (selectedUsers.contains(it)) {
                     selectedUsers.remove(it)
                 } else {
                     selectedUsers.add(it)
                     binding.tvSelectedNumber.text =
                         getString(R.string.users_selected, selectedUsers.size)
-                    selectedContactsAdapter.submitList(selectedUsers)
-                    selectedContactsAdapter.notifyDataSetChanged()
                 }
+                selectedContactsAdapter.submitList(selectedUsers)
+                selectedContactsAdapter.notifyDataSetChanged()
 
                 handleNextTextView()
+                handleSelectedUserList(it)
             } else {
                 user = it.user
                 it.user.id.let { id -> viewModel.checkIfRoomExists(id) }
@@ -114,11 +117,23 @@ class NewRoomFragment : BaseFragment() {
             }
 
             handleNextTextView()
+            handleSelectedUserList(it)
         }
 
         binding.rvSelected.adapter = selectedContactsAdapter
         binding.rvSelected.layoutManager =
             LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
+    }
+
+    private fun handleSelectedUserList(userItem: UserAndPhoneUser) {
+        for (user in userList) {
+            if (user == userItem) {
+                user.user.selected = !user.user.selected
+            }
+        }
+
+        contactsAdapter.submitList(userList)
+        contactsAdapter.notifyDataSetChanged()
     }
 
     private fun handleNextTextView() {
@@ -145,6 +160,7 @@ class NewRoomFragment : BaseFragment() {
                 val users = userList.toMutableList().sortedBy { user ->
                     user.phoneUser?.name?.lowercase() ?: user.user.displayName?.lowercase()
                 }
+                userList = users
                 contactsAdapter.submitList(users)
             }
         }

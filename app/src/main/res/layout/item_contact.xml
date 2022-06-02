@@ -61,15 +61,17 @@
         app:layout_constraintStart_toEndOf="@id/cv_user_image"
         app:layout_constraintTop_toBottomOf="@id/tv_username" />
 
-    <ImageView
+    <CheckBox
+        android:id="@+id/cb_user_selected"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:src="@drawable/img_close"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/tv_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_username"
-        app:tint="@color/text_primary" />
+        app:layout_constraintTop_toTopOf="@id/tv_username" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -15,6 +15,7 @@ import timber.log.Timber
 
 class ContactsAdapter(
     private val context: Context,
+    private val isGroupCreation: Boolean,
     private val onItemClick: ((item: UserAndPhoneUser) -> Unit)
 ) :
     ListAdapter<UserAndPhoneUser, ContactsAdapter.ContactsViewHolder>(ContactsDiffCallback()) {
@@ -31,18 +32,26 @@ class ContactsAdapter(
     override fun onBindViewHolder(holder: ContactsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { userItem ->
+                if (isGroupCreation) {
+                    binding.cbUserSelected.visibility = View.VISIBLE
+
+                    binding.cbUserSelected.isChecked = userItem.user.selected
+                }
+
                 binding.tvHeader.text = userItem.phoneUser?.name?.uppercase()?.substring(0, 1)
                     ?: userItem.user.displayName?.uppercase()?.substring(0, 1)
                 binding.tvUsername.text = userItem.phoneUser?.name ?: userItem.user.displayName
                 binding.tvTitle.text = userItem.user.telephoneNumber
 
                 // Remove first / with substring from avatarUrl
-                Glide.with(context).load(userItem.user.avatarUrl?.let { getAvatarUrl(it) }).into(binding.ivUserImage)
+                Glide.with(context).load(userItem.user.avatarUrl?.let { getAvatarUrl(it) })
+                    .into(binding.ivUserImage)
 
                 // if not first item, check if item above has the same header
                 if (position > 0) {
-                    val previousItem = getItem(position - 1).phoneUser?.name?.lowercase()?.substring(0, 1)
-                        ?: getItem(position - 1).user.displayName?.lowercase()?.substring(0, 1)
+                    val previousItem =
+                        getItem(position - 1).phoneUser?.name?.lowercase()?.substring(0, 1)
+                            ?: getItem(position - 1).user.displayName?.lowercase()?.substring(0, 1)
 
                     val currentItem = userItem.phoneUser?.name?.lowercase()?.substring(0, 1)
                         ?: userItem.user.displayName?.lowercase()?.substring(0, 1)
@@ -56,7 +65,6 @@ class ContactsAdapter(
                 } else {
                     binding.tvHeader.visibility = View.VISIBLE
                 }
-
 
                 itemView.setOnClickListener {
                     userItem.let {

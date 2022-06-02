@@ -74,7 +74,7 @@ class ContactsFragment : BaseFragment() {
     }
 
     private fun setupAdapter() {
-        contactsAdapter = ContactsAdapter(requireContext()) {
+        contactsAdapter = ContactsAdapter(requireContext(), false) {
             val bundle = bundleOf(Const.Navigation.USER_PROFILE to it.user)
             findNavController().navigate(R.id.action_mainFragment_to_contactDetailsFragment, bundle)
         }
