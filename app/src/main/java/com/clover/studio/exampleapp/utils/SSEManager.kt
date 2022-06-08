@@ -46,16 +46,21 @@ class SSEManager @Inject constructor(
                     it.doInput = true // enable inputStream
                 }
 
+                if (!sharedPrefs.isFirstSSELaunch()) {
+                    Timber.d("Syncing data")
+                    repo.syncMessageRecords()
+                    repo.syncMessages()
+                    repo.syncUsers()
+                    repo.syncRooms()
+                }
+
                 // Fetch local timestamps for syncing later. This will handle potential missing data
                 // in between calls. After this, open the connection to the SSE
                 conn.connect() // Blocking function. Should run in background
 
-                repo.syncMessageRecords()
-                repo.syncMessages()
-                repo.syncUsers()
-                repo.syncRooms()
-
                 val inputReader = conn.inputStream.bufferedReader()
+
+                sharedPrefs.writeFirstSSELaunch()
 
                 // run while the coroutine is active
                 while (isActive) {

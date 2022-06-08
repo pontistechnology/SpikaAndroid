@@ -69,7 +69,8 @@ class ChatScreenActivity : BaseActivity() {
             when (it) {
                 ChatStatesEnum.MESSAGE_SENT -> {
                     bindingSetup.etMessage.setText("")
-                    viewModel.getMessages(room.roomId)
+                    viewModel.deleteLocalMessages(unsentMessages)
+                    unsentMessages.clear()
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
@@ -153,7 +154,6 @@ class ChatScreenActivity : BaseActivity() {
         itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
 
         // Get user messages
-        viewModel.getMessages(room.roomId)
         viewModel.sendMessagesSeen(room.roomId)
 
         // Update room visited

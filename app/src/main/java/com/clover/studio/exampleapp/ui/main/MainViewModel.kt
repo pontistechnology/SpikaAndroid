@@ -61,6 +61,16 @@ class MainViewModel @Inject constructor(
         return userId
     }
 
+    fun getRooms() = viewModelScope.launch {
+        try {
+            repository.getRooms()
+            roomsListener.postValue(Event(RoomsFetched))
+        } catch (ex:Exception) {
+            Tools.checkError(ex)
+            roomsListener.postValue(Event(RoomFetchFail))
+        }
+    }
+
     fun checkIfRoomExists(userId: Int) = viewModelScope.launch {
         try {
             val roomData = repository.getRoomById(userId).data?.room

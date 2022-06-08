@@ -163,10 +163,22 @@ class RoomsFragment : BaseFragment() {
                     Timber.d("RoomData ${roomData.room.roomId}")
                 }
                 roomList = it
-                val sortedList = it.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
-                    .sortedByDescending { roomItem ->
-                        roomItem.message?.last { message -> message.message.createdAt != null }?.message?.createdAt
-                    }
+
+                var sortedList: List<RoomAndMessageAndRecords> = ArrayList()
+                Timber.d("${System.currentTimeMillis()}")
+                try {
+                    sortedList = it.sortedWith(compareBy(nullsFirst()) { roomItem ->
+                        if (!roomItem.message.isNullOrEmpty()) {
+                            roomItem.message.last { message -> message.message.createdAt != null }.message.createdAt
+                        } else null
+                    }).reversed()
+                } catch (ex: Exception) {
+                    Tools.checkError(ex)
+                }
+
+                if (sortedList.isEmpty()) {
+                    sortedList = it
+                }
                 roomsAdapter.submitList(sortedList)
             }
         }
@@ -186,7 +198,7 @@ class RoomsFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-
+        viewModel.getRooms()
         // This updates the elapsed time displayed when user return to the screen.
         roomsAdapter.notifyDataSetChanged()
     }

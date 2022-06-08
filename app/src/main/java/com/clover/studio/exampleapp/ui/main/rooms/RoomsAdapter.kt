@@ -71,6 +71,10 @@ class RoomsAdapter(
                         binding.tvNewMessages.text = unreadMessages.size.toString()
                         binding.tvNewMessages.visibility = View.VISIBLE
                     } else binding.tvNewMessages.visibility = View.GONE
+                } else {
+                    binding.tvLastMessage.text = ""
+                    binding.tvMessageTime.text = ""
+                    binding.tvNewMessages.visibility = View.GONE
                 }
 
                 itemView.setOnClickListener {

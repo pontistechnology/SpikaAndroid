@@ -12,6 +12,7 @@ import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
@@ -20,8 +21,11 @@ class ChatRepositoryImpl @Inject constructor(
     private val messageDao: MessageDao,
     private val sharedPrefsRepo: SharedPreferencesRepository
 ) : ChatRepository {
-    override suspend fun sendMessage(jsonObject: JsonObject): Message =
-        chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
+    override suspend fun sendMessage(jsonObject: JsonObject) {
+        val response = chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
+        Timber.d("Response message $response")
+        response.data?.message?.let { messageDao.insert(it) }
+    }
 
     override suspend fun getMessages(roomId: String) {
         val response = chatService.getMessages(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
@@ -67,7 +71,7 @@ class ChatRepositoryImpl @Inject constructor(
 }
 
 interface ChatRepository {
-    suspend fun sendMessage(jsonObject: JsonObject): Message
+    suspend fun sendMessage(jsonObject: JsonObject)
     suspend fun getMessages(roomId: String)
     suspend fun getMessagesLiveData(roomId: Int): LiveData<List<Message>>
     suspend fun getMessagesTimestamp(timestamp: Int): MessageResponse

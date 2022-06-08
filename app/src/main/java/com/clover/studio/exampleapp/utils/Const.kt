@@ -123,6 +123,7 @@ class Const {
             const val ACCOUNT_CREATED = "account_created"
             const val PUSH_TOKEN = "pushToken"
             const val NEW_USER = "newUser"
+            const val DATA_SYNCED = "dataSynced"
         }
     }
 

@@ -12,7 +12,7 @@ interface ChatService {
     suspend fun sendMessage(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
-    ): Message
+    ): MessageResponse
 
     @GET(Const.Networking.API_GET_MESSAGES)
     suspend fun getMessages(

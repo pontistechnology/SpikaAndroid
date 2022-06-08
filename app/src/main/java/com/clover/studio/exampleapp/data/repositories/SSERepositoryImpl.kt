@@ -26,7 +26,7 @@ class SSERepositoryImpl @Inject constructor(
     private val userDao: UserDao
 ) : SSERepository {
     override suspend fun syncMessageRecords() {
-        var messageRecordsTimestamp = 0L
+        var messageRecordsTimestamp = System.currentTimeMillis()
         if (messageRecordsDao.getMessageRecordsLocally().isNotEmpty()) {
             messageRecordsTimestamp =
                 messageRecordsDao.getMessageRecordsLocally().last().createdAt
@@ -63,7 +63,7 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncUsers() {
-        var userTimestamp = 0L
+        var userTimestamp = System.currentTimeMillis()
 
         if (userDao.getUsersLocally().isNotEmpty()) {
             userTimestamp = userDao.getUsersLocally().last().createdAt?.toLong()!!
@@ -83,7 +83,7 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncRooms() {
-        var roomTimestamp = 0L
+        var roomTimestamp = System.currentTimeMillis()
 
         if (chatRoomDao.getRoomsLocally().isNotEmpty()) {
             roomTimestamp = chatRoomDao.getRoomsLocally().last().createdAt!!

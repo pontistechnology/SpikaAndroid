@@ -84,7 +84,6 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun getRoomsLiveData(): LiveData<List<ChatRoom>> =
         chatRoomDao.getRooms()
 
-
     override suspend fun createNewRoom(jsonObject: JsonObject) =
         retrofitService.createNewRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
