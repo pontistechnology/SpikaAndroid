@@ -34,9 +34,10 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class AccountCreationFragment @Inject constructor(
-    private val uploadDownloadManager: UploadDownloadManager
-) : BaseFragment() {
+class AccountCreationFragment : BaseFragment() {
+    @Inject
+    lateinit var uploadDownloadManager: UploadDownloadManager
+
     private val viewModel: OnboardingViewModel by activityViewModels()
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var progress: Long = 1L
