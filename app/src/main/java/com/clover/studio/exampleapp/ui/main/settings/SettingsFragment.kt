@@ -218,7 +218,9 @@ class SettingsFragment : BaseFragment() {
 
                         override fun fileUploadError() {
                             Timber.d("Upload Error")
-                            showUploadError()
+                            requireActivity().runOnUiThread {
+                                showUploadError()
+                            }
                         }
 
                         override fun fileUploadVerified(path: String) {

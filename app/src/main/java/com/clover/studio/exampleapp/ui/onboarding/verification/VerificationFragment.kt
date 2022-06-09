@@ -266,7 +266,7 @@ class VerificationFragment : BaseFragment() {
 
         binding.etInputOne.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus) {
+                if (!hasFocus && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
                     Tools.hideKeyboard(requireActivity(), view)
                 }
             }
@@ -274,7 +274,7 @@ class VerificationFragment : BaseFragment() {
 
         binding.etInputTwo.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus) {
+                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
                     Tools.hideKeyboard(requireActivity(), view)
                 }
             }
@@ -282,7 +282,7 @@ class VerificationFragment : BaseFragment() {
 
         binding.etInputThree.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus) {
+                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
                     Tools.hideKeyboard(requireActivity(), view)
                 }
             }
@@ -290,7 +290,7 @@ class VerificationFragment : BaseFragment() {
 
         binding.etInputFour.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus) {
+                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
                     Tools.hideKeyboard(requireActivity(), view)
                 }
             }
@@ -298,7 +298,7 @@ class VerificationFragment : BaseFragment() {
 
         binding.etInputFive.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus) {
+                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputSix.hasFocus()) {
                     Tools.hideKeyboard(requireActivity(), view)
                 }
             }
@@ -306,7 +306,7 @@ class VerificationFragment : BaseFragment() {
 
         binding.etInputSix.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus) {
+                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus()) {
                     Tools.hideKeyboard(requireActivity(), view)
                 }
             }
