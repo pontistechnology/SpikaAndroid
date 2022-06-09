@@ -34,9 +34,10 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class AccountCreationFragment @Inject constructor(
-    private val uploadDownloadManager: UploadDownloadManager
-) : BaseFragment() {
+class AccountCreationFragment : BaseFragment() {
+    @Inject
+    lateinit var uploadDownloadManager: UploadDownloadManager
+
     private val viewModel: OnboardingViewModel by activityViewModels()
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var progress: Long = 1L
@@ -168,10 +169,10 @@ class AccountCreationFragment @Inject constructor(
         }
     }
 
-    private fun showUploadError() {
+    private fun showUploadError(description: String) {
         DialogError.getInstance(requireActivity(),
             getString(R.string.error),
-            getString(R.string.image_failed_upload),
+            getString(R.string.image_failed_upload, description),
             null,
             getString(R.string.ok),
             object : DialogInteraction {
@@ -229,9 +230,11 @@ class AccountCreationFragment @Inject constructor(
                                 } else progress = 0
                             }
 
-                            override fun fileUploadError() {
+                            override fun fileUploadError(description: String) {
                                 Timber.d("Upload Error")
-                                showUploadError()
+                                requireActivity().runOnUiThread {
+                                    showUploadError(description)
+                                }
                             }
 
                             override fun fileUploadVerified(path: String) {
