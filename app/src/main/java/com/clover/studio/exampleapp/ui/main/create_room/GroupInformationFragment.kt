@@ -278,10 +278,10 @@ class GroupInformationFragment : Fragment() {
                             } else progress = 0
                         }
 
-                        override fun fileUploadError() {
+                        override fun fileUploadError(description: String) {
                             Timber.d("Upload Error")
                             requireActivity().runOnUiThread {
-                                showUploadError()
+                                showUploadError(description)
                             }
                         }
 
@@ -299,10 +299,10 @@ class GroupInformationFragment : Fragment() {
         }
     }
 
-    private fun showUploadError() {
+    private fun showUploadError(description: String) {
         DialogError.getInstance(requireActivity(),
             getString(R.string.error),
-            getString(R.string.image_failed_upload),
+            getString(R.string.image_failed_upload, description),
             null,
             getString(R.string.ok),
             object : DialogInteraction {

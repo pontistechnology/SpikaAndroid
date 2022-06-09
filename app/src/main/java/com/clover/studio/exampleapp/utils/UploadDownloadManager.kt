@@ -90,15 +90,15 @@ class UploadDownloadManager constructor(
             fileUploadListener.filePieceUploaded()
         } catch (ex: Exception) {
             Tools.checkError(ex)
-            fileUploadListener.fileUploadError()
-            chunkCount = 1
+            fileUploadListener.fileUploadError(ex.message.toString())
+            chunkCount = 0
             return
         }
         chunkCount++
 
         if (chunkCount == chunks) {
             verifyFileUpload(uploadFile, fileUploadListener)
-            chunkCount = 1
+            chunkCount = 0
         }
     }
 
@@ -111,7 +111,7 @@ class UploadDownloadManager constructor(
             filePath?.let { fileUploadListener.fileUploadVerified(it) }
         } catch (ex: Exception) {
             Tools.checkError(ex)
-            fileUploadListener.fileUploadError()
+            fileUploadListener.fileUploadError(ex.message.toString())
             return
         }
     }
@@ -119,6 +119,6 @@ class UploadDownloadManager constructor(
 
 interface FileUploadListener {
     fun filePieceUploaded()
-    fun fileUploadError()
+    fun fileUploadError(description: String)
     fun fileUploadVerified(path: String)
 }
