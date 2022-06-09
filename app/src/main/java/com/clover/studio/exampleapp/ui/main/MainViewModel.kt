@@ -6,6 +6,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
@@ -31,10 +32,10 @@ class MainViewModel @Inject constructor(
     val createRoomListener = MutableLiveData<Event<MainStates>>()
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
 
-    fun getContacts() = viewModelScope.launch {
+    fun getContacts(page: Int) = viewModelScope.launch {
         try {
-            repository.getUsers()
-            usersListener.postValue(Event(UsersFetched))
+            val response = repository.getUsers(page)
+            usersListener.postValue(Event(UsersFetched(response.data?.list!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
             usersListener.postValue(Event(UsersError))
@@ -65,7 +66,7 @@ class MainViewModel @Inject constructor(
         try {
             repository.getRooms()
             roomsListener.postValue(Event(RoomsFetched))
-        } catch (ex:Exception) {
+        } catch (ex: Exception) {
             Tools.checkError(ex)
             roomsListener.postValue(Event(RoomFetchFail))
         }
@@ -136,7 +137,7 @@ class MainViewModel @Inject constructor(
 }
 
 sealed class MainStates
-object UsersFetched : MainStates()
+class UsersFetched(val userCount: List<User>) : MainStates()
 object UsersError : MainStates()
 object RoomsFetched : MainStates()
 object RoomFetchFail : MainStates()

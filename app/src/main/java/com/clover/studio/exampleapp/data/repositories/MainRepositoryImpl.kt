@@ -10,6 +10,7 @@ import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
+import com.clover.studio.exampleapp.data.models.networking.ContactResponse
 import com.clover.studio.exampleapp.data.models.networking.FileResponse
 import com.clover.studio.exampleapp.data.models.networking.RoomResponse
 import com.clover.studio.exampleapp.data.services.RetrofitService
@@ -27,14 +28,15 @@ class MainRepositoryImpl @Inject constructor(
     private val chatRoomDao: ChatRoomDao,
     private val sharedPrefs: SharedPreferencesRepository
 ) : MainRepository {
-    override suspend fun getUsers() {
-        val userData = retrofitService.getUsers(getHeaderMap(sharedPrefs.readToken()))
+    override suspend fun getUsers(page: Int): ContactResponse {
+        val userData = retrofitService.getUsers(getHeaderMap(sharedPrefs.readToken()), page)
 
         if (userData.data?.list != null) {
             for (user in userData.data.list) {
                 userDao.insert(user)
             }
         }
+        return userData
     }
 
     override fun getUserByID(id: Int) =
@@ -137,7 +139,7 @@ class MainRepositoryImpl @Inject constructor(
 }
 
 interface MainRepository {
-    suspend fun getUsers()
+    suspend fun getUsers(page: Int): ContactResponse
     fun getUserByID(id: Int): LiveData<User>
     fun getUserLiveData(): LiveData<List<User>>
     suspend fun getRoomById(userId: Int): RoomResponse

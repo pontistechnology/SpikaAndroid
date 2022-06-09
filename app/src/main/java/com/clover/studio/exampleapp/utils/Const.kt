@@ -97,6 +97,7 @@ class Const {
             const val DEVICE_ID = "deviceId"
             const val MESSAGE_ID = "messageId"
             const val LAST_UPDATE = "lastUpdate"
+            const val PAGE = "page"
         }
     }
 

@@ -12,7 +12,8 @@ import retrofit2.http.*
 interface RetrofitService {
     @GET(Const.Networking.API_CONTACTS)
     suspend fun getUsers(
-        @HeaderMap headers: Map<String, String?>
+        @HeaderMap headers: Map<String, String?>,
+        @Query(Const.Networking.PAGE) page: Int
     ): ContactResponse
 
     @GET(Const.Networking.API_GET_ROOM_BY_ID)
