@@ -68,6 +68,7 @@
         <entry key="app/src/main/res/layout/fragment_account_creation.xml" value="0.24923391215526047" />
         <entry key="app/src/main/res/layout/fragment_call_history.xml" value="0.23796296296296296" />
         <entry key="app/src/main/res/layout/fragment_chat.xml" value="0.2323799795709908" />
+        <entry key="app/src/main/res/layout/fragment_chat_details.xml" value="0.34427083333333336" />
         <entry key="app/src/main/res/layout/fragment_chat_settings.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_contact_details.xml" value="0.2602739726027397" />
         <entry key="app/src/main/res/layout/fragment_contacts.xml" value="0.23796296296296296" />

@@ -9,10 +9,13 @@ import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
@@ -162,6 +165,12 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun initViews() {
+        bindingSetup.tvTitle.setOnClickListener {
+            val navController = findNavController(R.id.nav_host_fragment)
+            navController.navigateUp()
+            navController.navigate(R.id.chatDetailsFragment)
+        }
+
         bindingSetup.ivArrowBack.setOnClickListener {
             finish()
         }

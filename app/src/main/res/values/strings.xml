@@ -85,4 +85,7 @@
     <string name="name_the_group">Name the group</string>
     <string name="s_people_selected">%s people selected</string>
     <string name="group_name">Group name…</string>
+    <string name="number_of_members">%s Members</string>
+    <string name="exit_group">Exit group</string>
+    <string name="report_group">Report group</string>
 </resources>
