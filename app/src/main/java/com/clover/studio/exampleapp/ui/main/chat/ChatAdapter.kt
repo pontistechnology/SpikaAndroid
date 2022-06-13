@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.networking.RoomUsers
+import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
 import com.clover.studio.exampleapp.utils.Tools
@@ -29,7 +29,7 @@ private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 class ChatAdapter(
     private val context: Context,
     private val myUserId: Int,
-    private val users: List<RoomUsers>
+    private val users: List<User>
 ) :
     ListAdapter<Message, RecyclerView.ViewHolder>(MessageDiffCallback()) {
 
@@ -110,10 +110,10 @@ class ChatAdapter(
             } else {
                 (holder as ReceivedMessageHolder).binding.tvMessage.text = it.body?.text
                 for (roomUser in users) {
-                    if (it.fromUserId == roomUser.userId) {
-                        holder.binding.tvUsername.text = roomUser.user?.displayName
+                    if (it.fromUserId == roomUser.id) {
+                        holder.binding.tvUsername.text = roomUser.displayName
                         Glide.with(context)
-                            .load(roomUser.user?.avatarUrl?.let { avatarUrl ->
+                            .load(roomUser.avatarUrl?.let { avatarUrl ->
                                 Tools.getAvatarUrl(
                                     avatarUrl
                                 )

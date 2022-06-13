@@ -13,9 +13,9 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageBody
+import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
@@ -40,7 +40,7 @@ private const val ROTATION_OFF = 0f
 @AndroidEntryPoint
 class ChatScreenActivity : BaseActivity() {
     private val viewModel: ChatViewModel by viewModels()
-    private lateinit var room: ChatRoom
+    private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var messages: MutableList<Message>
@@ -54,9 +54,9 @@ class ChatScreenActivity : BaseActivity() {
 
         val gson = Gson()
         // Fetch room data sent from previous activity
-        room = gson.fromJson(
+        roomWithUsers = gson.fromJson(
             intent.getStringExtra(Const.Navigation.ROOM_DATA),
-            ChatRoom::class.java
+            RoomWithUsers::class.java
         )
 
         initViews()
@@ -108,7 +108,7 @@ class ChatScreenActivity : BaseActivity() {
             }
         })
 
-        viewModel.getLocalMessages(room.roomId).observe(this) {
+        viewModel.getLocalMessages(roomWithUsers.room.roomId).observe(this) {
             if (it.isNotEmpty()) {
                 messages = it as MutableList<Message>
                 messages.sortByDescending { message -> message.createdAt }
@@ -120,7 +120,7 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun setUpAdapter() {
-        chatAdapter = ChatAdapter(this, viewModel.getLocalUserId()!!, room.users!!)
+        chatAdapter = ChatAdapter(this, viewModel.getLocalUserId()!!, roomWithUsers.users)
 
         bindingSetup.rvChat.adapter = chatAdapter
         bindingSetup.rvChat.layoutManager =
@@ -154,11 +154,11 @@ class ChatScreenActivity : BaseActivity() {
         itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
 
         // Get user messages
-        viewModel.sendMessagesSeen(room.roomId)
+        viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
 
         // Update room visited
-        room.visitedRoom = System.currentTimeMillis()
-        viewModel.updateRoomVisitedTimestamp(room)
+        roomWithUsers.room.visitedRoom = System.currentTimeMillis()
+        viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
     }
 
     private fun initViews() {
@@ -189,22 +189,22 @@ class ChatScreenActivity : BaseActivity() {
         // TODO add send message button and handle UI when message is being entered
         // Change required field after work has been done
 
-        if (Const.JsonFields.PRIVATE == room.type) {
-            room.users?.forEach { roomUser ->
-                if (viewModel.getLocalUserId().toString() != roomUser.userId.toString()) {
-                    bindingSetup.tvChatName.text = roomUser.user?.displayName
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            roomWithUsers.users.forEach { roomUser ->
+                if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
+                    bindingSetup.tvChatName.text = roomUser.displayName
                     Glide.with(this)
-                        .load(roomUser.user?.avatarUrl?.let { getAvatarUrl(it) })
+                        .load(roomUser.avatarUrl?.let { getAvatarUrl(it) })
                         .into(bindingSetup.ivUserImage)
                 }
             }
         } else {
-            bindingSetup.tvChatName.text = room.name
-            Glide.with(this).load(room.avatarUrl?.let { getAvatarUrl(it) })
+            bindingSetup.tvChatName.text = roomWithUsers.room.name
+            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { getAvatarUrl(it) })
                 .into(bindingSetup.ivUserImage)
         }
 
-        bindingSetup.tvTitle.text = room.type
+        bindingSetup.tvTitle.text = roomWithUsers.room.type
 
         bindingSetup.ivButtonSend.setOnClickListener {
             // TODO success and fail states.
@@ -216,7 +216,7 @@ class ChatScreenActivity : BaseActivity() {
                 0,
                 -1,
                 0,
-                room.roomId,
+                roomWithUsers.room.roomId,
                 "text",
                 MessageBody(bindingSetup.etMessage.text.toString(), "text"),
                 System.currentTimeMillis()
@@ -233,7 +233,7 @@ class ChatScreenActivity : BaseActivity() {
             )
             innerObject.addProperty(Const.JsonFields.TYPE, "text")
 
-            jsonObject.addProperty(Const.JsonFields.ROOM_ID, room.roomId)
+            jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomWithUsers.room.roomId)
             jsonObject.addProperty(Const.JsonFields.TYPE, "text")
             jsonObject.add(Const.JsonFields.BODY, innerObject)
 
@@ -243,8 +243,8 @@ class ChatScreenActivity : BaseActivity() {
 
     override fun onBackPressed() {
         // Update room visited
-        room.visitedRoom = System.currentTimeMillis()
-        viewModel.updateRoomVisitedTimestamp(room)
+        roomWithUsers.room.visitedRoom = System.currentTimeMillis()
+        viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
         finish()
     }
 }

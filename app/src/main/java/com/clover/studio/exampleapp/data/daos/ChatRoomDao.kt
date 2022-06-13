@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 
 @Dao
 interface ChatRoomDao {
@@ -38,4 +39,8 @@ interface ChatRoomDao {
     @Transaction
     @Query("SELECT * FROM room")
     fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
+
+    @Transaction
+    @Query("SELECT * FROM room")
+    fun getRoomAndUsers(): LiveData<List<RoomWithUsers>>
 }

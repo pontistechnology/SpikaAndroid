@@ -32,19 +32,19 @@ class RoomsAdapter(
     override fun onBindViewHolder(holder: RoomsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { roomItem ->
-                if (Const.JsonFields.PRIVATE == roomItem.room.type) {
-                    roomItem.room.users?.forEach { roomUser ->
-                        if (myUserId != roomUser.userId.toString()) {
-                            binding.tvRoomName.text = roomUser.user?.displayName
+                if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
+                    roomItem.roomWithUsers.users.forEach { roomUser ->
+                        if (myUserId != roomUser.id.toString()) {
+                            binding.tvRoomName.text = roomUser.displayName
                             Glide.with(context)
-                                .load(roomUser.user?.avatarUrl?.let { getAvatarUrl(it) })
+                                .load(roomUser.avatarUrl?.let { getAvatarUrl(it) })
                                 .into(binding.ivRoomImage)
                         }
                     }
                 } else {
-                    binding.tvRoomName.text = roomItem.room.name
+                    binding.tvRoomName.text = roomItem.roomWithUsers.room.name
                     Glide.with(context)
-                        .load(roomItem.room.avatarUrl?.let { getAvatarUrl(it) })
+                        .load(roomItem.roomWithUsers.room.avatarUrl?.let { getAvatarUrl(it) })
                         .into(binding.ivRoomImage)
                 }
 
@@ -58,10 +58,10 @@ class RoomsAdapter(
 
                     val unreadMessages = ArrayList<MessageAndRecords>()
                     for (messages in sortedList) {
-                        if (roomItem.room.visitedRoom == null) {
+                        if (roomItem.roomWithUsers.room.visitedRoom == null) {
                             unreadMessages.add(messages)
                         } else {
-                            if (messages.message.createdAt!! >= roomItem.room.visitedRoom!!) {
+                            if (messages.message.createdAt!! >= roomItem.roomWithUsers.room.visitedRoom!!) {
                                 unreadMessages.add(messages)
                             }
                         }
@@ -92,7 +92,7 @@ class RoomsAdapter(
             oldItem: RoomAndMessageAndRecords,
             newItem: RoomAndMessageAndRecords
         ) =
-            oldItem.room.roomId == newItem.room.roomId
+            oldItem.roomWithUsers.room.roomId == newItem.roomWithUsers.room.roomId
 
         override fun areContentsTheSame(
             oldItem: RoomAndMessageAndRecords,

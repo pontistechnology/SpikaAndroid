@@ -8,10 +8,11 @@ import androidx.room.TypeConverters
 import com.clover.studio.exampleapp.data.AppDatabase.Companion.DATABASE_VERSION
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.models.*
+import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.utils.helpers.TypeConverter
 
 @Database(
-    entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class],
+    entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class, RoomUser::class],
     version = DATABASE_VERSION,
     exportSchema = false
 )
@@ -34,6 +35,7 @@ abstract class AppDatabase : RoomDatabase() {
             const val TABLE_PHONE_USER = "phone_user"
             const val TABLE_CHAT_ROOM = "room"
             const val TABLE_MESSAGE_RECORDS = "message_records"
+            const val TABLE_ROOM_USER = "room_user"
 
             // general field names
             const val ID = "id"

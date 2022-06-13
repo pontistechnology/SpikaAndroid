@@ -59,12 +59,12 @@ class RoomsFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::roomList.isInitialized) {
                         for (room in roomList) {
-                            if (Const.JsonFields.PRIVATE == room.room.type) {
-                                room.room.users?.forEach { roomUser ->
+                            if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
+                                room.roomWithUsers.users.forEach { roomUser ->
                                     if (viewModel.getLocalUserId()
-                                            .toString() != roomUser.userId.toString()
+                                            .toString() != roomUser.id.toString()
                                     ) {
-                                        if (roomUser.user?.displayName?.lowercase()
+                                        if (roomUser.displayName?.lowercase()
                                                 ?.contains(query, ignoreCase = true) == true
                                         ) {
                                             filteredList.add(room)
@@ -72,7 +72,7 @@ class RoomsFragment : BaseFragment() {
                                     }
                                 }
                             } else {
-                                if (room.room.name?.lowercase()
+                                if (room.roomWithUsers.room.name?.lowercase()
                                         ?.contains(query, ignoreCase = true) == true
                                 ) {
                                     filteredList.add(room)
@@ -96,12 +96,12 @@ class RoomsFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::roomList.isInitialized) {
                         for (room in roomList) {
-                            if (Const.JsonFields.PRIVATE == room.room.type) {
-                                room.room.users?.forEach { roomUser ->
+                            if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
+                                room.roomWithUsers.users.forEach { roomUser ->
                                     if (viewModel.getLocalUserId()
-                                            .toString() != roomUser.userId.toString()
+                                            .toString() != roomUser.id.toString()
                                     ) {
-                                        if (roomUser.user?.displayName?.lowercase()
+                                        if (roomUser.displayName?.lowercase()
                                                 ?.contains(query, ignoreCase = true) == true
                                         ) {
                                             filteredList.add(room)
@@ -109,7 +109,7 @@ class RoomsFragment : BaseFragment() {
                                     }
                                 }
                             } else {
-                                if (room.room.name?.lowercase()
+                                if (room.roomWithUsers.room.name?.lowercase()
                                         ?.contains(query, ignoreCase = true) == true
                                 ) {
                                     filteredList.add(room)
@@ -160,7 +160,7 @@ class RoomsFragment : BaseFragment() {
             if (it.isNotEmpty()) {
                 binding.tvNoChats.visibility = View.GONE
                 for (roomData in it) {
-                    Timber.d("RoomData ${roomData.room.roomId}")
+                    Timber.d("RoomData ${roomData.roomWithUsers.room.roomId}")
                 }
                 roomList = it
 
@@ -187,7 +187,7 @@ class RoomsFragment : BaseFragment() {
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
             val gson = Gson()
-            val roomData = gson.toJson(it.room)
+            val roomData = gson.toJson(it.roomWithUsers.room)
             activity?.let { parent -> startChatScreenActivity(parent, roomData) }
         }
 

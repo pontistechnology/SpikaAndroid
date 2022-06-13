@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
+import com.clover.studio.exampleapp.data.models.junction.UserWithRooms
 
 @Dao
 interface UserDao {
@@ -29,6 +30,10 @@ interface UserDao {
     @Transaction
     @Query("SELECT * FROM user")
     fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>
+
+    @Transaction
+    @Query("SELECT * FROM user")
+    fun getUserAndRooms(): LiveData<List<UserWithRooms>>
 
     // TODO add getMe() method for our user object
 }

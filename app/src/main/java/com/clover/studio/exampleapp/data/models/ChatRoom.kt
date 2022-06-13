@@ -16,10 +16,6 @@ data class ChatRoom(
     @ColumnInfo(name = "name")
     val name: String?,
 
-    @ColumnInfo(name = "users")
-    @TypeConverters(TypeConverter::class)
-    val users: ArrayList<RoomUsers>? = ArrayList(),
-
     @ColumnInfo(name = "avatar_url")
     val avatarUrl: String?,
 

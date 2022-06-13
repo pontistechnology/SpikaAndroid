@@ -139,6 +139,7 @@ class SSERepositoryImpl @Inject constructor(
             val oldRoom = chatRoomDao.getRoomById(room.roomId)
             chatRoomDao.updateRoomTable(oldRoom, room)
         }
+        // TODO update user table also
     }
 
     override suspend fun deleteMessageRecord(messageRecords: MessageRecords) {
