@@ -73,13 +73,23 @@ class ContactDetailsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
+        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is RoomWithUsersFetched -> {
+                    Timber.d("Room with users = ${it.roomWithUsers}")
+                    val gson = Gson()
+                    val roomData = gson.toJson(it.roomWithUsers)
+                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                }
+                else -> Timber.d("Other error")
+            }
+        })
+
         viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is RoomExists -> {
                     Timber.d("Room already exists")
-                    val gson = Gson()
-                    val roomData = gson.toJson(it.roomData)
-                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                    viewModel.getRoomWithUsers(it.roomData.roomId)
                 }
                 is RoomNotFound -> {
                     Timber.d("Room not found, creating new one")

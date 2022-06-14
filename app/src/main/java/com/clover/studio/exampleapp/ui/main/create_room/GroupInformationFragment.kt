@@ -21,6 +21,7 @@ import com.clover.studio.exampleapp.databinding.FragmentGroupInformationBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomCreated
 import com.clover.studio.exampleapp.ui.main.RoomFailed
+import com.clover.studio.exampleapp.ui.main.RoomWithUsersFetched
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
@@ -206,14 +207,21 @@ class GroupInformationFragment : Fragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
+        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
-                is RoomCreated -> {
+                is RoomWithUsersFetched -> {
                     val gson = Gson()
-                    val roomData = gson.toJson(it.roomData)
+                    val roomData = gson.toJson(it.roomWithUsers)
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
                     activity?.finish()
                 }
+                else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is RoomCreated -> viewModel.getRoomWithUsers(it.roomData.roomId)
                 is RoomFailed -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")
             }

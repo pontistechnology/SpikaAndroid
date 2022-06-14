@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
@@ -31,6 +32,7 @@ class MainViewModel @Inject constructor(
     val checkRoomExistsListener = MutableLiveData<Event<MainStates>>()
     val createRoomListener = MutableLiveData<Event<MainStates>>()
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
+    val roomWithUsersListener = MutableLiveData<Event<MainStates>>()
 
     fun getContacts(page: Int) = viewModelScope.launch {
         try {
@@ -113,6 +115,16 @@ class MainViewModel @Inject constructor(
         emitSource(repository.getChatRoomAndMessageAndRecords())
     }
 
+    fun getRoomWithUsers(roomId: Int) = viewModelScope.launch {
+        try {
+            val response = repository.getRoomWithUsers(roomId)
+            roomWithUsersListener.postValue(Event(RoomWithUsersFetched(response)))
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            return@launch
+        }
+    }
+
     fun updatePushToken(jsonObject: JsonObject) = viewModelScope.launch {
         try {
             repository.updatePushToken(jsonObject)
@@ -147,3 +159,4 @@ class RoomExists(val roomData: ChatRoom) : MainStates()
 object RoomNotFound : MainStates()
 object UserUpdated : MainStates()
 object UserUpdateFailed : MainStates()
+class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : MainStates()

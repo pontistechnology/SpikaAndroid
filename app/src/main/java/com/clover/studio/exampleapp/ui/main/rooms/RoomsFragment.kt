@@ -187,7 +187,7 @@ class RoomsFragment : BaseFragment() {
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
             val gson = Gson()
-            val roomData = gson.toJson(it.roomWithUsers.room)
+            val roomData = gson.toJson(it.roomWithUsers)
             activity?.let { parent -> startChatScreenActivity(parent, roomData) }
         }
 

@@ -10,6 +10,7 @@ import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
+import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
 import com.clover.studio.exampleapp.data.models.networking.ContactResponse
 import com.clover.studio.exampleapp.data.models.networking.FileResponse
@@ -107,6 +108,9 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
         chatRoomDao.getChatRoomAndMessageAndRecords()
 
+    override suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers =
+        chatRoomDao.getRoomAndUsers(roomId)
+
     override suspend fun updatePushToken(jsonObject: JsonObject) =
         retrofitService.updatePushToken(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
@@ -161,6 +165,7 @@ interface MainRepository {
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
     suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>
     suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
+    suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
     suspend fun updatePushToken(jsonObject: JsonObject)
     suspend fun updateUserData(data: Map<String, String>): AuthResponse
     suspend fun uploadFiles(jsonObject: JsonObject): FileResponse

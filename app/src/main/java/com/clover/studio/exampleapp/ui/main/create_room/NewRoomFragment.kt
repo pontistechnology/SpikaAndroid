@@ -17,6 +17,7 @@ import com.clover.studio.exampleapp.databinding.FragmentNewRoomBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomExists
 import com.clover.studio.exampleapp.ui.main.RoomNotFound
+import com.clover.studio.exampleapp.ui.main.RoomWithUsersFetched
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.ui.main.contacts.ContactsAdapter
 import com.clover.studio.exampleapp.utils.Const
@@ -170,13 +171,22 @@ class NewRoomFragment : BaseFragment() {
             }
         }
 
+        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is RoomWithUsersFetched -> {
+                    val gson = Gson()
+                    val roomData = gson.toJson(it.roomWithUsers)
+                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                }
+                else -> Timber.d("Other error")
+            }
+        })
+
         viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is RoomExists -> {
                     Timber.d("Room already exists")
-                    val gson = Gson()
-                    val roomData = gson.toJson(it.roomData)
-                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                    viewModel.getRoomWithUsers(it.roomData.roomId)
                 }
                 is RoomNotFound -> {
                     Timber.d("Room not found, creating new one")
