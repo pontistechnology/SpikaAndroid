@@ -11,6 +11,7 @@ class Const {
             const val ROOM_DATA = "room_data"
             const val GO_ACCOUNT_CREATION = "go_account_creation"
             const val SELECTED_USERS = "selected_users"
+            const val ROOM_ID = "room_id"
         }
     }
 
@@ -88,6 +89,7 @@ class Const {
             const val API_UPDATE_TOKEN = "api/messenger/device"
             const val API_GET_MESSAGE_RECORDS = "api/messenger/messages/{messageId}/message-records"
             const val API_MESSAGES_SEEN = "api/messenger/messages/{roomId}/seen"
+            const val API_UPDATE_ROOM = "api/messenger/rooms/{roomId}"
 
             // Queries
             const val TIMESTAMP = "timestamp"

@@ -9,16 +9,15 @@ import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
+import com.clover.studio.exampleapp.ui.main.chat_details.startChatDetailsActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
@@ -165,9 +164,9 @@ class ChatScreenActivity : BaseActivity() {
 
     private fun initViews() {
         bindingSetup.tvTitle.setOnClickListener {
-            val navController = findNavController(R.id.nav_host_fragment)
-            navController.navigateUp()
-            navController.navigate(R.id.chatDetailsFragment)
+            val gson = Gson()
+            val roomData = gson.toJson(roomWithUsers)
+            startChatDetailsActivity(this, roomData)
         }
 
         bindingSetup.ivArrowBack.setOnClickListener {

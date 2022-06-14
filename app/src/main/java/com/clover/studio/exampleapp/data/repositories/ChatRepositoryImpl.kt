@@ -5,13 +5,12 @@ import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
 import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -22,7 +21,8 @@ class ChatRepositoryImpl @Inject constructor(
     private val sharedPrefsRepo: SharedPreferencesRepository
 ) : ChatRepository {
     override suspend fun sendMessage(jsonObject: JsonObject) {
-        val response = chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
+        val response =
+            chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
         Timber.d("Response message $response")
         response.data?.message?.let { messageDao.insert(it) }
     }
@@ -62,12 +62,20 @@ class ChatRepositoryImpl @Inject constructor(
         chatService.sendMessagesSeen(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
     override suspend fun updatedRoomVisitedTimestamp(chatRoom: ChatRoom) {
-        withContext(Dispatchers.IO) {
-            val oldRoom = roomDao.getRoomById(chatRoom.roomId)
-            roomDao.updateRoomTable(oldRoom, chatRoom)
-        }
+        val oldRoom = roomDao.getRoomById(chatRoom.roomId)
+        roomDao.updateRoomTable(oldRoom, chatRoom)
     }
 
+    override suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers =
+        roomDao.getRoomAndUsers(roomId)
+
+    override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int) {
+        val response =
+            chatService.updateRoom(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject, roomId)
+
+        val oldRoom = roomDao.getRoomById(roomId)
+        response.data?.room?.let { roomDao.updateRoomTable(oldRoom, it) }
+    }
 }
 
 interface ChatRepository {
@@ -80,4 +88,6 @@ interface ChatRepository {
     suspend fun deleteLocalMessages(messages: List<Message>)
     suspend fun sendMessagesSeen(roomId: Int)
     suspend fun updatedRoomVisitedTimestamp(chatRoom: ChatRoom)
+    suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
+    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int)
 }

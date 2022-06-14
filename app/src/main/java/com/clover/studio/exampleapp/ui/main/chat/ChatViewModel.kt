@@ -6,6 +6,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
@@ -86,6 +87,14 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun updateRoom(jsonObject: JsonObject, roomId: Int) = viewModelScope.launch {
+        try {
+            repository.updateRoom(jsonObject, roomId)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            return@launch
+        }
+    }
 }
 
 sealed class ChatStates
@@ -93,5 +102,6 @@ object MessagesFetched : ChatStates()
 data class MessagesTimestampFetched(val messages: List<Message>) : ChatStates()
 object MessageFetchFail : ChatStates()
 object MessageTimestampFetchFail : ChatStates()
+class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }

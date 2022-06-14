@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.data.services
 
 import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
 import com.clover.studio.exampleapp.data.models.networking.MessageResponse
+import com.clover.studio.exampleapp.data.models.networking.RoomResponse
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
 import retrofit2.http.*
@@ -42,4 +43,11 @@ interface ChatService {
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
     )
+
+    @PUT(Const.Networking.API_UPDATE_ROOM)
+    suspend fun updateRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): RoomResponse
 }

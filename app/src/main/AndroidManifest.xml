@@ -20,6 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ExampleApp">
         <activity
+            android:name=".ui.main.chat_details.ChatDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.main.chat.ChatScreenActivity"
             android:exported="false" />
         <activity

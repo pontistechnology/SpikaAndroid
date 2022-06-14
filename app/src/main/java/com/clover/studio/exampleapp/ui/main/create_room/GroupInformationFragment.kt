@@ -24,7 +24,6 @@ import com.clover.studio.exampleapp.ui.main.RoomFailed
 import com.clover.studio.exampleapp.ui.main.RoomWithUsersFetched
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.*
-import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
@@ -143,8 +142,7 @@ class GroupInformationFragment : Fragment() {
                     Const.JsonFields.NAME,
                     binding.etEnterUsername.text.toString()
                 )
-                jsonObject.addProperty(Const.JsonFields.AVATAR_URL,
-                    avatarPath?.let { path -> getAvatarUrl(path) })
+                jsonObject.addProperty(Const.JsonFields.AVATAR_URL, avatarPath)
                 jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
                 jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
                 jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.GROUP)
