@@ -1,6 +1,9 @@
 package com.clover.studio.exampleapp.data.models
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.models.networking.RoomUsers
 import com.google.gson.annotations.SerializedName
@@ -27,4 +30,7 @@ data class ChatRoom(
 
     @ColumnInfo(name = "visited_room")
     var visitedRoom: Long?
-)
+) {
+    @Ignore
+    val users: List<RoomUsers> = ArrayList()
+}

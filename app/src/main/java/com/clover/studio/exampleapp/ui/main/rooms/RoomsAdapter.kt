@@ -14,6 +14,7 @@ import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
+import timber.log.Timber
 
 class RoomsAdapter(
     private val context: Context,
@@ -32,6 +33,7 @@ class RoomsAdapter(
     override fun onBindViewHolder(holder: RoomsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { roomItem ->
+                Timber.d("Room data = $roomItem")
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
                     roomItem.roomWithUsers.users.forEach { roomUser ->
                         if (myUserId != roomUser.id.toString()) {

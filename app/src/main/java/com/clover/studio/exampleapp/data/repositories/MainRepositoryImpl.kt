@@ -9,6 +9,7 @@ import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
+import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
 import com.clover.studio.exampleapp.data.models.networking.ContactResponse
 import com.clover.studio.exampleapp.data.models.networking.FileResponse
@@ -56,6 +57,17 @@ class MainRepositoryImpl @Inject constructor(
                 withContext(Dispatchers.IO) {
                     val oldData = chatRoomDao.getRoomById(room.roomId)
                     chatRoomDao.updateRoomTable(oldData, room)
+                }
+
+                for (user in room.users) {
+                    user.user?.let { userDao.insert(it) }
+                    chatRoomDao.insertRoomWithUsers(
+                        RoomUser(
+                            room.roomId,
+                            user.userId,
+                            user.isAdmin
+                        )
+                    )
                 }
             }
         }

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 
 @Dao
@@ -26,6 +27,9 @@ interface ChatRoomDao {
 
     @Query("DELETE FROM room")
     suspend fun removeRooms()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRoomWithUsers(roomUser: RoomUser)
 
     // This method copies locally added fields to the database if present
     @Transaction

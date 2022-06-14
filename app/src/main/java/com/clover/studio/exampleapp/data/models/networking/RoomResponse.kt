@@ -15,7 +15,7 @@ data class RoomData(
 )
 
 data class RoomUsers(
-    val userId: Int?,
+    val userId: Int,
     val isAdmin: Boolean?,
     val user: User?
 )
