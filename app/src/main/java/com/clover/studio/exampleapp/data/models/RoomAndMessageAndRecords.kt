@@ -2,7 +2,6 @@ package com.clover.studio.exampleapp.data.models
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 
 data class RoomAndMessageAndRecords(

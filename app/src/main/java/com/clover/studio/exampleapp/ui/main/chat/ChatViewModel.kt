@@ -46,18 +46,6 @@ class ChatViewModel @Inject constructor(
         messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SENT))
     }
 
-    fun getMessages(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.getMessages(roomId.toString())
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            getMessagesListener.postValue(Event(MessageFetchFail))
-            return@launch
-        }
-
-        getMessagesListener.postValue(Event(MessagesFetched))
-    }
-
     fun getLocalMessages(roomId: Int) = liveData {
         emitSource(repository.getMessagesLiveData(roomId))
     }

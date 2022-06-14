@@ -148,14 +148,6 @@ class RoomsFragment : BaseFragment() {
             }
         })
 
-//        viewModel.getRooms().observe(viewLifecycleOwner) {
-//            if (it.isNotEmpty()) {
-//                binding.tvNoChats.visibility = View.GONE
-//                roomList = it
-//                roomsAdapter.submitList(it)
-//            }
-//        }
-
         viewModel.getChatRoomAndMessageAndRecords().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 binding.tvNoChats.visibility = View.GONE

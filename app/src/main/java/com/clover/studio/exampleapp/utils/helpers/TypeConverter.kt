@@ -25,18 +25,4 @@ object TypeConverter {
         return gson.toJson(messageBody, type)
     }
 
-    @TypeConverter
-    fun stringToRoomUser(json: String?): ArrayList<RoomUsers> {
-        val gson = Gson()
-        val type: Type = object : TypeToken<ArrayList<RoomUsers>?>() {}.type
-        return gson.fromJson(json, type)
-    }
-
-    @TypeConverter
-    fun roomUserToString(roomUsers: ArrayList<RoomUsers>): String {
-        val gson = Gson()
-        val type: Type = object : TypeToken<ArrayList<RoomUsers>?>() {}.type
-        return gson.toJson(roomUsers, type)
-    }
-
 }

@@ -1,6 +1,5 @@
 package com.clover.studio.exampleapp.data.services
 
-import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
 import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.utils.Const
