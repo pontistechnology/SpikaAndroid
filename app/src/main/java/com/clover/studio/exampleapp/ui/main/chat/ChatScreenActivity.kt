@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
