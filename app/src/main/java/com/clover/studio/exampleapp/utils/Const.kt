@@ -12,6 +12,7 @@ class Const {
             const val GO_ACCOUNT_CREATION = "go_account_creation"
             const val SELECTED_USERS = "selected_users"
             const val ROOM_ID = "room_id"
+            const val IS_ADMIN = "is_admin"
         }
     }
 
@@ -79,7 +80,7 @@ class Const {
             const val API_UPDATE_USER = "api/messenger/me"
             const val API_UPLOAD_FILE = "api/upload/files"
             const val API_VERIFY_FILE = "api/upload/files/verify"
-            const val API_POST_MESSAGE= "api/messenger/messages"
+            const val API_POST_MESSAGE = "api/messenger/messages"
             const val API_GET_MESSAGES = "api/messenger/messages/roomId/{roomId}"
             const val API_GET_MESSAGES_TIMESTAMP = "api/messenger/messages"
             const val API_MESSAGE_DELIVERED = "api/messenger/messages/delivered"

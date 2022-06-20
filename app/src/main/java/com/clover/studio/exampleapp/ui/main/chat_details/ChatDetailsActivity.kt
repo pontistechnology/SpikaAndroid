@@ -5,18 +5,15 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatDetailsBinding
-import com.clover.studio.exampleapp.databinding.ActivityOnboardingBinding
 import com.clover.studio.exampleapp.utils.Const
-import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
-fun startChatDetailsActivity(fromActivity: Activity, roomWithUsers: String) =
+fun startChatDetailsActivity(fromActivity: Activity, roomWithUsers: String, isAdmin: Boolean) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatDetailsActivity::class.java)
         intent.putExtra(Const.Navigation.ROOM_DATA, roomWithUsers)
+        intent.putExtra(Const.Navigation.IS_ADMIN, isAdmin)
         startActivity(intent)
     }
 

@@ -76,6 +76,11 @@ class ChatRepositoryImpl @Inject constructor(
         val oldRoom = roomDao.getRoomById(roomId)
         response.data?.room?.let { roomDao.updateRoomTable(oldRoom, it) }
     }
+
+    override suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean? {
+        val roomUser = roomDao.getRoomUserById(roomId, userId)
+        return roomUser.isAdmin
+    }
 }
 
 interface ChatRepository {
@@ -90,4 +95,5 @@ interface ChatRepository {
     suspend fun updatedRoomVisitedTimestamp(chatRoom: ChatRoom)
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int)
+    suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
 }

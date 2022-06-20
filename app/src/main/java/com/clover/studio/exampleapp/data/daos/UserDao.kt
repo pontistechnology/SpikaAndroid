@@ -16,7 +16,7 @@ interface UserDao {
     fun getUsers(): LiveData<List<User>>
 
     @Query("SELECT * FROM user")
-    fun getUsersLocally(): List<User>
+    suspend fun getUsersLocally(): List<User>
 
     @Query("SELECT * FROM user WHERE id LIKE :userId LIMIT 1")
     fun getUserById(userId: Int): LiveData<User>

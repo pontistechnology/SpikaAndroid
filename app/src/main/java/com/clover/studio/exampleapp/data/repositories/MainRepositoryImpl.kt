@@ -133,9 +133,7 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun getMessageRecords() {
         val messageIds: MutableList<Int> = ArrayList()
-        withContext(Dispatchers.IO) {
-            messageDao.getMessagesLocally().forEach { messageIds.add(it.id) }
-        }
+        messageDao.getMessagesLocally().forEach { messageIds.add(it.id) }
 
         if (messageIds.isNotEmpty()) {
             for (messageId in messageIds) {

@@ -46,6 +46,7 @@ class ChatScreenActivity : BaseActivity() {
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var messages: MutableList<Message>
     private var unsentMessages: MutableList<Message> = ArrayList()
+    private var isAdmin = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +64,18 @@ class ChatScreenActivity : BaseActivity() {
         initViews()
         setUpAdapter()
         initializeObservers()
+        checkIsUserAdmin()
+    }
+
+    private fun checkIsUserAdmin() {
+        for (user in roomWithUsers.users) {
+            isAdmin = user.id == viewModel.getLocalUserId() && viewModel.isUserAdmin(
+                roomWithUsers.room.roomId,
+                user.id
+            )
+
+            if (isAdmin) break
+        }
     }
 
     private fun initializeObservers() {
@@ -154,7 +167,7 @@ class ChatScreenActivity : BaseActivity() {
         val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
         itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
 
-        // Get user messages
+        // Notify backend of messages seen
         viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
 
         // Update room visited
@@ -166,7 +179,8 @@ class ChatScreenActivity : BaseActivity() {
         bindingSetup.tvTitle.setOnClickListener {
             val gson = Gson()
             val roomData = gson.toJson(roomWithUsers)
-            startChatDetailsActivity(this, roomData)
+            Timber.d("isAdmin = $isAdmin")
+            startChatDetailsActivity(this, roomData, isAdmin)
         }
 
         bindingSetup.ivArrowBack.setOnClickListener {

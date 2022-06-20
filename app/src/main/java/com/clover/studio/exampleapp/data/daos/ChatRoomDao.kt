@@ -31,6 +31,9 @@ interface ChatRoomDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRoomWithUsers(roomUser: RoomUser)
 
+    @Query("SELECT * FROM room_user WHERE room_id LIKE :roomId AND id LIKE :userId LIMIT 1")
+    suspend fun getRoomUserById(roomId: Int, userId: Int): RoomUser
+
     // This method copies locally added fields to the database if present
     @Transaction
     suspend fun updateRoomTable(oldData: ChatRoom?, newData: ChatRoom) {

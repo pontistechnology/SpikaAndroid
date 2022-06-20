@@ -13,7 +13,7 @@ interface MessageRecordsDao {
     fun getMessageRecords(messageId: Int): LiveData<List<MessageRecords>>
 
     @Query("SELECT * FROM message_records")
-    fun getMessageRecordsLocally(): List<MessageRecords>
+    suspend fun getMessageRecordsLocally(): List<MessageRecords>
 
     @Query("SELECT * FROM message_records WHERE id LIKE :messageId LIMIT 1")
     fun getMessageRecordById(messageId: String): LiveData<MessageRecords>

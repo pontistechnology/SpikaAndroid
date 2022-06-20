@@ -6,7 +6,6 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
@@ -14,6 +13,7 @@ import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,6 +57,7 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             userId = sharedPrefs.readUserId()
         }
+
         return userId
     }
 
@@ -95,6 +96,16 @@ class ChatViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun isUserAdmin(roomId: Int, userId: Int): Boolean {
+        var isAdmin: Boolean
+
+        runBlocking {
+            isAdmin = repository.getRoomUserById(roomId, userId) == true
+        }
+
+        return isAdmin
+    }
 }
 
 sealed class ChatStates
@@ -102,6 +113,5 @@ object MessagesFetched : ChatStates()
 data class MessagesTimestampFetched(val messages: List<Message>) : ChatStates()
 object MessageFetchFail : ChatStates()
 object MessageTimestampFetchFail : ChatStates()
-class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }

@@ -17,7 +17,7 @@ interface MessageDao {
     fun getMessageById(messageId: String): LiveData<Message>
 
     @Query("SELECT * FROM message")
-    fun getMessagesLocally(): List<Message>
+    suspend fun getMessagesLocally(): List<Message>
 
     @Delete
     suspend fun deleteMessage(message: Message)

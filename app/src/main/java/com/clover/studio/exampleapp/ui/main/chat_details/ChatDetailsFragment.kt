@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.databinding.FragmentChatDetailsBinding
@@ -46,6 +47,8 @@ class ChatDetailsFragment : BaseFragment() {
     private lateinit var roomWithUsers: RoomWithUsers
     private var progress: Long = 1L
     private var avatarPath: String? = null
+    private var idsToRemove: List<Int> = ArrayList()
+    private var isAdmin = false
 
     private var bindingSetup: FragmentChatDetailsBinding? = null
 
@@ -91,6 +94,9 @@ class ChatDetailsFragment : BaseFragment() {
             activity?.intent?.getStringExtra(Const.Navigation.ROOM_DATA),
             RoomWithUsers::class.java
         )
+
+        isAdmin = activity?.intent?.getBooleanExtra(Const.Navigation.IS_ADMIN, false) == true
+        Timber.d("isAdmin = $isAdmin")
     }
 
     override fun onCreateView(
@@ -99,11 +105,24 @@ class ChatDetailsFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentChatDetailsBinding.inflate(inflater, container, false)
 
-        setupAdapter()
         initializeObservers()
         initializeViews()
+        handleUserStatusViews(isAdmin)
 
         return binding.root
+    }
+
+    private fun handleUserStatusViews(isAdmin: Boolean) {
+        if (!isAdmin) {
+            binding.tvGroupName.isClickable = false
+            binding.tvDone.isFocusable = false
+
+            binding.cvAvatar.isClickable = false
+            binding.cvAvatar.isFocusable = false
+
+            binding.ivAddMember.visibility = View.INVISIBLE
+        }
+        setupAdapter(isAdmin)
     }
 
     private fun initializeViews() {
@@ -171,20 +190,47 @@ class ChatDetailsFragment : BaseFragment() {
                     }
                 })
         }
+
+        binding.tvMembersNumber.text =
+            getString(R.string.number_of_members, roomWithUsers.users.size)
     }
 
     private fun initializeObservers() {
 
     }
 
-    private fun setupAdapter() {
-        adapter = ChatDetailsAdapter(requireContext()) {
-//            selectedUsers.remove(it)
-//            adapter.submitList(selectedUsers)
-//            binding.tvMembersNumber.text =
-//                getString(R.string.s_people_selected, selectedUsers.size)
-//            adapter.notifyDataSetChanged()
-        }
+    private fun setupAdapter(isAdmin: Boolean) {
+        adapter = ChatDetailsAdapter(
+            requireContext(),
+            isAdmin,
+            object : ChatDetailsAdapter.DetailsAdapterListener {
+                override fun onItemClicked(user: User) {
+                    Timber.d("User item clicked = $user")
+                    user.displayName?.let {
+                        ChooserDialog.getInstance(requireContext(),
+                            it,
+                            null,
+                            getString(R.string.info),
+                            getString(R.string.make_group_admin),
+                            object : DialogInteraction {
+                                override fun onFirstOptionClicked() {
+                                    // TODO("Not yet implemented")
+                                }
+
+                                override fun onSecondOptionClicked() {
+                                    // TODO("Not yet implemented")
+                                }
+
+                            })
+                    }
+                }
+
+                override fun onViewClicked(position: Int, user: User) {
+                    Timber.d("Remove user item clicked = $user, $position")
+                    adapter.notifyItemRemoved(position)
+                    adapter.notifyDataSetChanged()
+                }
+            })
 
         binding.rvGroupMembers.adapter = adapter
         binding.rvGroupMembers.layoutManager =
