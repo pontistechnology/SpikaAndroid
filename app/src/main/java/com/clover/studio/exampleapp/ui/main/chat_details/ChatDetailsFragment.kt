@@ -24,11 +24,13 @@ import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -45,9 +47,9 @@ class ChatDetailsFragment : BaseFragment() {
     private lateinit var adapter: ChatDetailsAdapter
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private lateinit var roomWithUsers: RoomWithUsers
+    private var roomUsers: MutableList<User> = ArrayList()
     private var progress: Long = 1L
     private var avatarPath: String? = null
-    private var idsToRemove: List<Int> = ArrayList()
     private var isAdmin = false
 
     private var bindingSetup: FragmentChatDetailsBinding? = null
@@ -159,8 +161,8 @@ class ChatDetailsFragment : BaseFragment() {
 
         binding.tvDone.setOnClickListener {
             val roomName = binding.etEnterGroupName.text.toString()
-//            var userIds = TODO()
-//            var adminIds = TODO()
+
+//            val adminIds: MutableList<Int> = ArrayList()
 
             val jsonObject = JsonObject()
             if (roomName.isNotEmpty()) {
@@ -171,7 +173,7 @@ class ChatDetailsFragment : BaseFragment() {
                 jsonObject.addProperty(Const.JsonFields.AVATAR_URL, avatarPath)
             }
 
-            viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId)
+            viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
         }
 
         binding.cvAvatar.setOnClickListener {
@@ -227,7 +229,12 @@ class ChatDetailsFragment : BaseFragment() {
 
                 override fun onViewClicked(position: Int, user: User) {
                     Timber.d("Remove user item clicked = $user, $position")
-                    adapter.notifyItemRemoved(position)
+                    Timber.d("${roomUsers.size}")
+                    roomUsers.remove(user)
+                    updateRoomUsers(user.id)
+                    val modifiedList =
+                        roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
+                    adapter.submitList(modifiedList)
                     adapter.notifyDataSetChanged()
                 }
             })
@@ -235,7 +242,16 @@ class ChatDetailsFragment : BaseFragment() {
         binding.rvGroupMembers.adapter = adapter
         binding.rvGroupMembers.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        adapter.submitList(roomWithUsers.users)
+        roomUsers.addAll(roomWithUsers.users)
+        runBlocking {
+            for (user in roomUsers) {
+                if (viewModel.isUserAdmin(roomWithUsers.room.roomId, user.id)) {
+                    user.isAdmin = true
+                }
+            }
+            val modifiedList = roomUsers.sortedBy { user -> user.isAdmin }.reversed()
+            adapter.submitList(modifiedList)
+        }
     }
 
     private fun updateGroupImage() {
@@ -330,5 +346,20 @@ class ChatDetailsFragment : BaseFragment() {
         )
         Timber.d("$currentPhotoLocation")
         takePhotoContract.launch(currentPhotoLocation)
+    }
+
+    private fun updateRoomUsers(idToRemove: Int) {
+        val jsonObject = JsonObject()
+        val userIds = JsonArray()
+
+        for (user in roomUsers) {
+            if (!user.isAdmin)
+                userIds.add(user.id)
+        }
+
+        if (userIds.size() > 0)
+            jsonObject.add(Const.JsonFields.USER_IDS, userIds)
+
+        viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, idToRemove)
     }
 }

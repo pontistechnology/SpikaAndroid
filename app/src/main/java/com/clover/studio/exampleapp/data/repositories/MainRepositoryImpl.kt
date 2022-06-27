@@ -18,8 +18,6 @@ import com.clover.studio.exampleapp.data.models.networking.RoomResponse
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -55,10 +53,8 @@ class MainRepositoryImpl @Inject constructor(
 
         if (roomData.data?.list != null) {
             for (room in roomData.data.list) {
-                withContext(Dispatchers.IO) {
-                    val oldData = chatRoomDao.getRoomById(room.roomId)
-                    chatRoomDao.updateRoomTable(oldData, room)
-                }
+                val oldData = chatRoomDao.getRoomById(room.roomId)
+                chatRoomDao.updateRoomTable(oldData, room)
 
                 for (user in room.users) {
                     user.user?.let { userDao.insert(it) }
@@ -76,9 +72,7 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun getMessages() {
         val roomIds: MutableList<Int> = ArrayList()
-        withContext(Dispatchers.IO) {
-            chatRoomDao.getRoomsLocally().forEach { roomIds.add(it.roomId) }
-        }
+        chatRoomDao.getRoomsLocally().forEach { roomIds.add(it.roomId) }
 
         if (roomIds.isNotEmpty()) {
             for (id in roomIds) {

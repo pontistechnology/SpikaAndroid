@@ -88,9 +88,9 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun updateRoom(jsonObject: JsonObject, roomId: Int) = viewModelScope.launch {
+    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = viewModelScope.launch {
         try {
-            repository.updateRoom(jsonObject, roomId)
+            repository.updateRoom(jsonObject, roomId, userId)
         } catch (ex: Exception) {
             Tools.checkError(ex)
             return@launch

@@ -10,6 +10,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 @Dao
 interface ChatRoomDao {
 
+    // room table functions
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(chatRoom: ChatRoom): Long
 
@@ -28,11 +29,13 @@ interface ChatRoomDao {
     @Query("DELETE FROM room")
     suspend fun removeRooms()
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRoomWithUsers(roomUser: RoomUser)
+    @Transaction
+    @Query("SELECT * FROM room")
+    fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
 
-    @Query("SELECT * FROM room_user WHERE room_id LIKE :roomId AND id LIKE :userId LIMIT 1")
-    suspend fun getRoomUserById(roomId: Int, userId: Int): RoomUser
+    @Transaction
+    @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
+    suspend fun getRoomAndUsers(roomId: Int): RoomWithUsers
 
     // This method copies locally added fields to the database if present
     @Transaction
@@ -43,11 +46,13 @@ interface ChatRoomDao {
         insert(newData)
     }
 
-    @Transaction
-    @Query("SELECT * FROM room")
-    fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
+    // room_user table functions
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRoomWithUsers(roomUser: RoomUser)
 
-    @Transaction
-    @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
-    suspend fun getRoomAndUsers(roomId: Int): RoomWithUsers
+    @Delete
+    suspend fun deleteRoomUser(roomUser: RoomUser)
+
+    @Query("SELECT * FROM room_user WHERE room_id LIKE :roomId AND id LIKE :userId LIMIT 1")
+    suspend fun getRoomUserById(roomId: Int, userId: Int): RoomUser
 }

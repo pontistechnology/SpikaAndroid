@@ -3,8 +3,10 @@ package com.clover.studio.exampleapp.data.repositories
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
+import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
 import com.clover.studio.exampleapp.data.models.networking.MessageResponse
@@ -18,6 +20,7 @@ class ChatRepositoryImpl @Inject constructor(
     private val chatService: ChatService,
     private val roomDao: ChatRoomDao,
     private val messageDao: MessageDao,
+    private val userDao: UserDao,
     private val sharedPrefsRepo: SharedPreferencesRepository
 ) : ChatRepository {
     override suspend fun sendMessage(jsonObject: JsonObject) {
@@ -69,12 +72,34 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers =
         roomDao.getRoomAndUsers(roomId)
 
-    override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int) {
+    override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) {
         val response =
             chatService.updateRoom(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject, roomId)
 
         val oldRoom = roomDao.getRoomById(roomId)
         response.data?.room?.let { roomDao.updateRoomTable(oldRoom, it) }
+
+        if (response.data?.room != null) {
+            val room = response.data.room
+            val oldData = roomDao.getRoomById(room.roomId)
+            roomDao.updateRoomTable(oldData, room)
+
+            // Delete Room User if id has been passed through
+            if (userId != 0) {
+                roomDao.deleteRoomUser(RoomUser(roomId, userId, false))
+            }
+
+            for (user in room.users) {
+                user.user?.let { userDao.insert(it) }
+                roomDao.insertRoomWithUsers(
+                    RoomUser(
+                        room.roomId,
+                        user.userId,
+                        user.isAdmin
+                    )
+                )
+            }
+        }
     }
 
     override suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean? {
@@ -94,6 +119,6 @@ interface ChatRepository {
     suspend fun sendMessagesSeen(roomId: Int)
     suspend fun updatedRoomVisitedTimestamp(chatRoom: ChatRoom)
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
-    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int)
+    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
 }

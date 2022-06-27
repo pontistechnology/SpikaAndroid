@@ -13,8 +13,6 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SSERepositoryImpl @Inject constructor(
@@ -96,19 +94,17 @@ class SSERepositoryImpl @Inject constructor(
 
         if (response.data?.rooms?.isNotEmpty() == true) {
             for (room in response.data.rooms) {
-                withContext(Dispatchers.IO) {
-                    val oldData = chatRoomDao.getRoomById(room.roomId)
-                    chatRoomDao.updateRoomTable(oldData, room)
+                val oldData = chatRoomDao.getRoomById(room.roomId)
+                chatRoomDao.updateRoomTable(oldData, room)
 
-                    val messages = sseService.getMessagesForRooms(
-                        Tools.getHeaderMap(sharedPrefs.readToken()),
-                        room.roomId.toString()
-                    )
+                val messages = sseService.getMessagesForRooms(
+                    Tools.getHeaderMap(sharedPrefs.readToken()),
+                    room.roomId.toString()
+                )
 
-                    if (messages.data?.list?.isNotEmpty() == true) {
-                        for (message in messages.data.list) {
-                            messageDao.insert(message)
-                        }
+                if (messages.data?.list?.isNotEmpty() == true) {
+                    for (message in messages.data.list) {
+                        messageDao.insert(message)
                     }
                 }
             }
@@ -135,10 +131,8 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeRoom(room: ChatRoom) {
-        withContext(Dispatchers.IO) {
-            val oldRoom = chatRoomDao.getRoomById(room.roomId)
-            chatRoomDao.updateRoomTable(oldRoom, room)
-        }
+        val oldRoom = chatRoomDao.getRoomById(room.roomId)
+        chatRoomDao.updateRoomTable(oldRoom, room)
         // TODO update user table also
     }
 

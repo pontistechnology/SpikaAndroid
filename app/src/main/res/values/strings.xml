@@ -90,4 +90,5 @@
     <string name="report_group">Report group</string>
     <string name="info">Info</string>
     <string name="make_group_admin">Make group admin</string>
+    <string name="admin">Admin</string>
 </resources>
