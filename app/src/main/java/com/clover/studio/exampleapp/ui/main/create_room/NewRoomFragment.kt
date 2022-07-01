@@ -27,8 +27,11 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import timber.log.Timber
+import java.util.*
+import kotlin.streams.toList
 
 class NewRoomFragment : BaseFragment() {
+    private var args: NewRoomFragmentArgs? = null
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var contactsAdapter: ContactsAdapter
     private lateinit var selectedContactsAdapter: SelectedContactsAdapter
@@ -46,15 +49,22 @@ class NewRoomFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentNewRoomBinding.inflate(inflater, container, false)
 
+        val bundle = arguments
+        if (bundle != null) args = NewRoomFragmentArgs.fromBundle(bundle)
+
         initializeObservers()
-        initializeViews()
         setupAdapter(false)
+        initializeViews()
 
         return binding.root
     }
 
     private fun initializeViews() {
         // SearchView is immediately acting as if selected
+
+        // Behave like group chat if adding user from ChatDetails.
+        if (args?.userIds?.isNotEmpty() == true) handleGroupChat()
+
         binding.svContactsSearch.setIconifiedByDefault(false)
 
         binding.tvNext.setOnClickListener {
@@ -70,20 +80,29 @@ class NewRoomFragment : BaseFragment() {
         }
 
         binding.tvNewGroupChat.setOnClickListener {
-            binding.clSelectedContacts.visibility = View.VISIBLE
-            binding.tvSelectedNumber.text = getString(R.string.users_selected, selectedUsers.size)
-            binding.tvNewGroupChat.visibility = View.GONE
-            binding.tvNext.visibility = View.VISIBLE
-            binding.tvTitle.text = getString(R.string.select_members)
-
-            setupAdapter(true)
-            initializeObservers()
+            handleGroupChat()
         }
+    }
+
+    private fun handleGroupChat() {
+        binding.clSelectedContacts.visibility = View.VISIBLE
+        binding.tvSelectedNumber.text = getString(R.string.users_selected, selectedUsers.size)
+        binding.tvNewGroupChat.visibility = View.GONE
+        binding.tvNext.visibility = View.VISIBLE
+        binding.tvTitle.text = getString(R.string.select_members)
+
+        setupAdapter(true)
+        initializeObservers()
     }
 
     private fun setupAdapter(isGroupCreation: Boolean) {
         // Contacts Adapter
-        contactsAdapter = ContactsAdapter(requireContext(), isGroupCreation) {
+
+        // Check if there are some userIds already in Room if we are adding Room users
+        // This is only for adding users to Room
+        val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
+
+        contactsAdapter = ContactsAdapter(requireContext(), isGroupCreation, userIdsInRoom) {
             if (binding.tvNewGroupChat.visibility == View.GONE) {
                 if (selectedUsers.contains(it)) {
                     selectedUsers.remove(it)

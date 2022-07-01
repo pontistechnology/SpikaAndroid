@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -148,6 +149,19 @@ class ChatDetailsFragment : BaseFragment() {
                 .into(binding.ivUserImage)
         }
 
+        binding.ivAddMember.setOnClickListener {
+            val userIds = ArrayList<Int>()
+            for (user in roomWithUsers.users) {
+                userIds.add(user.id)
+            }
+
+            findNavController().navigate(
+                ChatDetailsFragmentDirections.actionChatDetailsFragmentToNewRoomFragment2(
+                    userIds.stream().mapToInt { i -> i }.toArray()
+                )
+            )
+        }
+
         binding.tvTitle.text = roomWithUsers.room.type
         binding.tvGroupName.text = roomWithUsers.room.name
 
@@ -198,7 +212,7 @@ class ChatDetailsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-
+        // TODO
     }
 
     private fun setupAdapter(isAdmin: Boolean) {

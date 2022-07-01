@@ -16,6 +16,7 @@ import timber.log.Timber
 class ContactsAdapter(
     private val context: Context,
     private val isGroupCreation: Boolean,
+    private val userIdsInRoom: List<Int>?,
     private val onItemClick: ((item: UserAndPhoneUser) -> Unit)
 ) :
     ListAdapter<UserAndPhoneUser, ContactsAdapter.ContactsViewHolder>(ContactsDiffCallback()) {
@@ -31,12 +32,24 @@ class ContactsAdapter(
 
     override fun onBindViewHolder(holder: ContactsViewHolder, position: Int) {
         with(holder) {
+            // Transparent view should ignore all click events on cards.
+            binding.transparentView.setOnClickListener { }
+
             getItem(position).let { userItem ->
+                // Show transparent view if userId is already in the room while adding users
+                // This is only for adding users to already created room
+                if (userIdsInRoom?.contains(userItem.user.id) == true) {
+                    binding.transparentView.visibility =
+                        View.VISIBLE
+                    userItem.user.selected = true
+                } else binding.transparentView.visibility = View.GONE
+
+
                 if (isGroupCreation) {
                     binding.cbUserSelected.visibility = View.VISIBLE
 
                     binding.cbUserSelected.isChecked = userItem.user.selected
-                }
+                } else binding.cbUserSelected.visibility = View.GONE
 
                 binding.tvHeader.text = userItem.phoneUser?.name?.uppercase()?.substring(0, 1)
                     ?: userItem.user.displayName?.uppercase()?.substring(0, 1)

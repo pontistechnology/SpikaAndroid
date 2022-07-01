@@ -1,10 +1,11 @@
 package com.clover.studio.exampleapp.utils.dialog
 
-import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.DialogChooserBinding
+import com.clover.studio.exampleapp.utils.extendables.BaseDialog
 
 interface DialogInteraction {
     fun onFirstOptionClicked()
@@ -18,7 +19,7 @@ class ChooserDialog(
     private val firstOption: String,
     private val secondOption: String,
     private val listener: DialogInteraction,
-) : AlertDialog(context) {
+) : BaseDialog(context) {
     private var bindingSetup: DialogChooserBinding? = null
 
     private val binding get() = bindingSetup!!

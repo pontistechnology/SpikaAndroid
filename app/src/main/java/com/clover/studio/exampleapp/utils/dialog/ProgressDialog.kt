@@ -5,7 +5,7 @@ import android.os.Bundle
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.utils.extendables.BaseDialog
 
-class ProgressDialog(context: Context?) : BaseDialog(context, R.style.Theme_Dialog_Dim) {
+class ProgressDialog(context: Context?) : BaseDialog(context) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.dialog_progress)

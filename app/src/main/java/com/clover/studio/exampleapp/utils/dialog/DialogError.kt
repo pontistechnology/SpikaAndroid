@@ -1,10 +1,11 @@
 package com.clover.studio.exampleapp.utils.dialog
 
-import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.DialogErrorBinding
+import com.clover.studio.exampleapp.utils.extendables.BaseDialog
 
 class DialogError(
     context: Context,
@@ -13,7 +14,7 @@ class DialogError(
     private val firstOption: String?,
     private val secondOption: String,
     private val listener: DialogInteraction
-) : AlertDialog(context) {
+) : BaseDialog(context) {
     private var bindingSetup: DialogErrorBinding? = null
 
     private val binding get() = bindingSetup!!

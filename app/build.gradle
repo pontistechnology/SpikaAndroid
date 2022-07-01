@@ -5,6 +5,8 @@ apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: "kotlin-parcelize"
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
+
 
 android {
     signingConfigs {

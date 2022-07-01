@@ -65,6 +65,7 @@
         <entry key="app/src/main/res/layout/custom_tab_layout.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/dialog_chooser.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/dialog_error.xml" value="0.34791666666666665" />
+        <entry key="app/src/main/res/layout/dialog_list.xml" value="0.34322916666666664" />
         <entry key="app/src/main/res/layout/dialog_progress.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_account_creation.xml" value="0.24923391215526047" />
         <entry key="app/src/main/res/layout/fragment_call_history.xml" value="0.23796296296296296" />
