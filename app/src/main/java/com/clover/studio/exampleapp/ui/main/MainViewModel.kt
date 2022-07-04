@@ -146,6 +146,15 @@ class MainViewModel @Inject constructor(
 
         userUpdateListener.postValue(Event(UserUpdated))
     }
+
+    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = viewModelScope.launch {
+        try {
+            repository.updateRoom(jsonObject, roomId, userId)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            return@launch
+        }
+    }
 }
 
 sealed class MainStates

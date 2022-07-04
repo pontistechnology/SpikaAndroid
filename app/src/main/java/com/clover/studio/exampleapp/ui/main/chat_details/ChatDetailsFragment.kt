@@ -157,6 +157,7 @@ class ChatDetailsFragment : BaseFragment() {
 
             findNavController().navigate(
                 ChatDetailsFragmentDirections.actionChatDetailsFragmentToNewRoomFragment2(
+                    roomWithUsers.room.roomId,
                     userIds.stream().mapToInt { i -> i }.toArray()
                 )
             )

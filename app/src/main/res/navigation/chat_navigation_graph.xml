@@ -27,5 +27,8 @@
             app:argType="integer[]"
             app:nullable="true"
             android:defaultValue="@null" />
+        <argument
+            android:name="roomId"
+            app:argType="integer" />
     </fragment>
 </navigation>

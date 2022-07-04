@@ -144,6 +144,36 @@ class MainRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) {
+        val response =
+            retrofitService.updateRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject, roomId)
+
+        val oldRoom = chatRoomDao.getRoomById(roomId)
+        response.data?.room?.let { chatRoomDao.updateRoomTable(oldRoom, it) }
+
+        if (response.data?.room != null) {
+            val room = response.data.room
+            val oldData = chatRoomDao.getRoomById(room.roomId)
+            chatRoomDao.updateRoomTable(oldData, room)
+
+            // Delete Room User if id has been passed through
+            if (userId != 0) {
+                chatRoomDao.deleteRoomUser(RoomUser(roomId, userId, false))
+            }
+
+            for (user in room.users) {
+                user.user?.let { userDao.insert(it) }
+                chatRoomDao.insertRoomWithUsers(
+                    RoomUser(
+                        room.roomId,
+                        user.userId,
+                        user.isAdmin
+                    )
+                )
+            }
+        }
+    }
 }
 
 interface MainRepository {
@@ -163,4 +193,5 @@ interface MainRepository {
     suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
     suspend fun verifyFile(jsonObject: JsonObject): FileResponse
     suspend fun getMessageRecords()
+    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
 }

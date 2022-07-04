@@ -69,7 +69,10 @@ class NewRoomFragment : BaseFragment() {
 
         binding.tvNext.setOnClickListener {
             val bundle = bundleOf(Const.Navigation.SELECTED_USERS to selectedUsers)
-            findNavController().navigate(
+
+            if (args?.roomId != 0) {
+                updateRoom()
+            } else findNavController().navigate(
                 R.id.action_newRoomFragment_to_groupInformationFragment,
                 bundle
             )
@@ -82,6 +85,22 @@ class NewRoomFragment : BaseFragment() {
         binding.tvNewGroupChat.setOnClickListener {
             handleGroupChat()
         }
+    }
+
+    private fun updateRoom() {
+        val jsonObject = JsonObject()
+        val userIds = JsonArray()
+
+        for (data in selectedUsers) {
+            userIds.add(data.user.id)
+        }
+
+        if (userIds.size() > 0)
+            jsonObject.add(Const.JsonFields.USER_IDS, userIds)
+
+        args?.roomId?.let { viewModel.updateRoom(jsonObject, it, 0) }
+
+        requireActivity().onBackPressed()
     }
 
     private fun handleGroupChat() {

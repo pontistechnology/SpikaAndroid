@@ -69,4 +69,11 @@ interface RetrofitService {
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
     ): FileResponse
+
+    @PUT(Const.Networking.API_UPDATE_ROOM)
+    suspend fun updateRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): RoomResponse
 }
