@@ -210,6 +210,10 @@ class ChatDetailsFragment : BaseFragment() {
 
         binding.tvMembersNumber.text =
             getString(R.string.number_of_members, roomWithUsers.users.size)
+
+        binding.ivBack.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun initializeObservers() {

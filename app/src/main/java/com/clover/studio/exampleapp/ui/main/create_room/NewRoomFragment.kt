@@ -50,7 +50,9 @@ class NewRoomFragment : BaseFragment() {
         bindingSetup = FragmentNewRoomBinding.inflate(inflater, container, false)
 
         val bundle = arguments
-        if (bundle != null) args = NewRoomFragmentArgs.fromBundle(bundle)
+        args = if (bundle != null)
+            NewRoomFragmentArgs.fromBundle(bundle)
+        else null
 
         initializeObservers()
         setupAdapter(false)
@@ -70,7 +72,7 @@ class NewRoomFragment : BaseFragment() {
         binding.tvNext.setOnClickListener {
             val bundle = bundleOf(Const.Navigation.SELECTED_USERS to selectedUsers)
 
-            if (args?.roomId != 0) {
+            if (args?.roomId != null && args?.roomId != 0) {
                 updateRoom()
             } else findNavController().navigate(
                 R.id.action_newRoomFragment_to_groupInformationFragment,
@@ -243,5 +245,10 @@ class NewRoomFragment : BaseFragment() {
                 else -> Timber.d("Other error")
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        arguments?.clear()
     }
 }
