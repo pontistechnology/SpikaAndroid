@@ -122,7 +122,8 @@ class ContactDetailsFragment : BaseFragment() {
                 is RoomCreated -> {
                     val gson = Gson()
                     val roomData = gson.toJson(it.roomData)
-                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                    Timber.d("Room data = $roomData")
+                    viewModel.getRoomWithUsers(it.roomData.roomId)
                 }
                 is RoomFailed -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")

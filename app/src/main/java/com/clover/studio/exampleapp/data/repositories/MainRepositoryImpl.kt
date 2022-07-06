@@ -93,8 +93,26 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun getRoomsLiveData(): LiveData<List<ChatRoom>> =
         chatRoomDao.getRooms()
 
-    override suspend fun createNewRoom(jsonObject: JsonObject) =
-        retrofitService.createNewRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    override suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse {
+        val response =
+            retrofitService.createNewRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+
+        val oldRoom = response.data?.room?.roomId?.let { chatRoomDao.getRoomById(it) }
+        response.data?.room?.let { chatRoomDao.updateRoomTable(oldRoom, it) }
+
+        for (user in response.data?.room?.users!!) {
+            user.user?.let { userDao.insert(it) }
+            chatRoomDao.insertRoomWithUsers(
+                RoomUser(
+                    response.data.room.roomId,
+                    user.userId,
+                    user.isAdmin
+                )
+            )
+        }
+
+        return response
+    }
 
     override suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>> =
         userDao.getUserAndPhoneUser()

@@ -8,6 +8,7 @@ import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageRecords
 import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.services.SSEService
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
@@ -133,7 +134,17 @@ class SSERepositoryImpl @Inject constructor(
     override suspend fun writeRoom(room: ChatRoom) {
         val oldRoom = chatRoomDao.getRoomById(room.roomId)
         chatRoomDao.updateRoomTable(oldRoom, room)
-        // TODO update user table also
+
+        for (user in room.users) {
+            user.user?.let { userDao.insert(it) }
+            chatRoomDao.insertRoomWithUsers(
+                RoomUser(
+                    room.roomId,
+                    user.userId,
+                    user.isAdmin
+                )
+            )
+        }
     }
 
     override suspend fun deleteMessageRecord(messageRecords: MessageRecords) {

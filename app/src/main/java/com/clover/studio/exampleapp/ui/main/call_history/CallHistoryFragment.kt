@@ -58,39 +58,41 @@ class CallHistoryFragment : BaseFragment() {
 
     private fun setupSearchView() {
         // SearchView is immediately acting as if selected
-        binding.svHistorySearch.setIconifiedByDefault(false)
-        binding.svHistorySearch.setOnQueryTextListener(object :
-            androidx.appcompat.widget.SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null) {
-                    Timber.d("Query: $query")
-                    for (user in userList) {
-                        if (user.displayName?.contains(query, ignoreCase = true) == true) {
-                            filteredList.add(user)
+        if (this::userList.isInitialized) {
+            binding.svHistorySearch.setIconifiedByDefault(false)
+            binding.svHistorySearch.setOnQueryTextListener(object :
+                androidx.appcompat.widget.SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    if (query != null) {
+                        Timber.d("Query: $query")
+                        for (user in userList) {
+                            if (user.displayName?.contains(query, ignoreCase = true) == true) {
+                                filteredList.add(user)
+                            }
                         }
+                        Timber.d("Filtered List: $filteredList")
+                        callHistoryAdapter.submitList(ArrayList(filteredList))
+                        filteredList.clear()
                     }
-                    Timber.d("Filtered List: $filteredList")
-                    callHistoryAdapter.submitList(ArrayList(filteredList))
-                    filteredList.clear()
+                    return true
                 }
-                return true
-            }
 
-            override fun onQueryTextChange(query: String?): Boolean {
-                if (query != null) {
-                    Timber.d("Query: $query")
-                    for (user in userList) {
-                        if (user.displayName?.contains(query, ignoreCase = true) == true) {
-                            filteredList.add(user)
+                override fun onQueryTextChange(query: String?): Boolean {
+                    if (query != null) {
+                        Timber.d("Query: $query")
+                        for (user in userList) {
+                            if (user.displayName?.contains(query, ignoreCase = true) == true) {
+                                filteredList.add(user)
+                            }
                         }
+                        Timber.d("Filtered List: $filteredList")
+                        callHistoryAdapter.submitList(ArrayList(filteredList))
+                        filteredList.clear()
                     }
-                    Timber.d("Filtered List: $filteredList")
-                    callHistoryAdapter.submitList(ArrayList(filteredList))
-                    filteredList.clear()
+                    return true
                 }
-                return true
-            }
-        })
+            })
+        }
         binding.svHistorySearch.setOnFocusChangeListener { view, hasFocus ->
             run {
                 view.clearFocus()
