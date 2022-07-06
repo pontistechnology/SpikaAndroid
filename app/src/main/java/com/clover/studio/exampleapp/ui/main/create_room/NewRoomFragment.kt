@@ -23,6 +23,7 @@ import com.clover.studio.exampleapp.ui.main.contacts.ContactsAdapter
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -203,9 +204,7 @@ class NewRoomFragment : BaseFragment() {
         viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 userList = it
-                val users = userList.toMutableList().sortedBy { user ->
-                    user.phoneUser?.name?.lowercase() ?: user.user.displayName?.lowercase()
-                }
+                val users = userList.sortUsersByLocale(requireContext())
                 userList = users
                 contactsAdapter.submitList(users)
             }

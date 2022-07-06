@@ -19,6 +19,7 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
 import timber.log.Timber
 
 class ContactsFragment : BaseFragment() {
@@ -58,19 +59,12 @@ class ContactsFragment : BaseFragment() {
             }
         })
 
-//        viewModel.getLocalUsers().observe(viewLifecycleOwner) {
-//            if (it.isNotEmpty()) {
-//                userList = it
-//                contactsAdapter.submitList(it)
-//            }
-//        }
-
         viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 userList = it
-                val users = userList.toMutableList().sortedBy { user ->
-                    user.phoneUser?.name?.lowercase() ?: user.user.displayName?.lowercase()
-                }
+
+                val users = userList.sortUsersByLocale(requireContext())
+
                 contactsAdapter.submitList(users)
             }
         }
@@ -131,9 +125,7 @@ class ContactsFragment : BaseFragment() {
                             }
                         }
                         Timber.d("Filtered List: $filteredList")
-                        val users = filteredList.sortedBy {
-                            it.phoneUser?.name?.lowercase() ?: it.user.displayName?.lowercase()
-                        }
+                        val users = filteredList.sortUsersByLocale(requireContext())
                         contactsAdapter.submitList(ArrayList(users))
                         filteredList.clear()
                     }
@@ -156,9 +148,7 @@ class ContactsFragment : BaseFragment() {
                             }
                         }
                         Timber.d("Filtered List: $filteredList")
-                        val users = filteredList.sortedBy {
-                            it.phoneUser?.name?.lowercase() ?: it.user.displayName?.lowercase()
-                        }
+                        val users = filteredList.sortUsersByLocale(requireContext())
                         contactsAdapter.submitList(ArrayList(users))
                         filteredList.clear()
                     }
