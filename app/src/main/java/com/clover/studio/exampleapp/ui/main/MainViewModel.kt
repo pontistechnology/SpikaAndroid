@@ -66,8 +66,8 @@ class MainViewModel @Inject constructor(
 
     fun getRooms() = viewModelScope.launch {
         try {
-            repository.getRooms()
-            roomsListener.postValue(Event(RoomsFetched))
+            val response = repository.getRooms()
+            roomsListener.postValue(Event(RoomsFetched(response.data?.list!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)
             roomsListener.postValue(Event(RoomFetchFail))
@@ -160,7 +160,7 @@ class MainViewModel @Inject constructor(
 sealed class MainStates
 class UsersFetched(val userCount: List<User>) : MainStates()
 object UsersError : MainStates()
-object RoomsFetched : MainStates()
+class RoomsFetched(val roomCount: List<ChatRoom>) : MainStates()
 object RoomFetchFail : MainStates()
 class RoomCreated(val roomData: ChatRoom) : MainStates()
 object RoomFailed : MainStates()

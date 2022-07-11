@@ -48,7 +48,7 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun getRoomById(userId: Int) =
         retrofitService.getRoomById(getHeaderMap(sharedPrefs.readToken()), userId)
 
-    override suspend fun getRooms() {
+    override suspend fun getRooms(): RoomResponse {
         val roomData = retrofitService.getRooms(getHeaderMap(sharedPrefs.readToken()))
 
         if (roomData.data?.list != null) {
@@ -68,6 +68,7 @@ class MainRepositoryImpl @Inject constructor(
                 }
             }
         }
+        return roomData
     }
 
     override suspend fun getMessages() {
@@ -199,7 +200,7 @@ interface MainRepository {
     fun getUserByID(id: Int): LiveData<User>
     fun getUserLiveData(): LiveData<List<User>>
     suspend fun getRoomById(userId: Int): RoomResponse
-    suspend fun getRooms()
+    suspend fun getRooms(): RoomResponse
     suspend fun getMessages()
     suspend fun getRoomsLiveData(): LiveData<List<ChatRoom>>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
