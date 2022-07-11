@@ -177,10 +177,7 @@ class ChatScreenActivity : BaseActivity() {
 
     private fun initViews() {
         bindingSetup.tvTitle.setOnClickListener {
-            val gson = Gson()
-            val roomData = gson.toJson(roomWithUsers)
-            Timber.d("isAdmin = $isAdmin")
-            startChatDetailsActivity(this, roomData, isAdmin)
+            startChatDetailsActivity(this, roomWithUsers.room.roomId, isAdmin)
         }
 
         bindingSetup.ivArrowBack.setOnClickListener {

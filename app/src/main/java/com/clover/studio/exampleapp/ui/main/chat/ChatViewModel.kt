@@ -6,6 +6,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
@@ -25,6 +26,7 @@ class ChatViewModel @Inject constructor(
     val getMessagesListener = MutableLiveData<Event<ChatStates>>()
     val getMessagesTimestampListener = MutableLiveData<Event<ChatStates>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
+    val roomWithUsersListener = MutableLiveData<Event<ChatStates>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
         try {
@@ -98,13 +100,21 @@ class ChatViewModel @Inject constructor(
     }
 
     fun isUserAdmin(roomId: Int, userId: Int): Boolean {
-        var isAdmin: Boolean
+        var isAdmin = false
 
         runBlocking {
-            isAdmin = repository.getRoomUserById(roomId, userId) == true
+            try {
+                isAdmin = repository.getRoomUserById(roomId, userId) == true
+            } catch (ex: Exception) {
+                Tools.checkError(ex)
+            }
         }
 
         return isAdmin
+    }
+
+    fun getRoomAndUsers(roomId: Int) = liveData {
+        emitSource(repository.getRoomWithUsers(roomId))
     }
 }
 
@@ -113,5 +123,7 @@ object MessagesFetched : ChatStates()
 data class MessagesTimestampFetched(val messages: List<Message>) : ChatStates()
 object MessageFetchFail : ChatStates()
 object MessageTimestampFetchFail : ChatStates()
+class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
+object RoomWithUsersFailed : ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }

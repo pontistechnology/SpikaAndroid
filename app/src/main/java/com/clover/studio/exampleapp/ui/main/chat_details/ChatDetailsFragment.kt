@@ -19,12 +19,13 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.databinding.FragmentChatDetailsBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
+import com.clover.studio.exampleapp.ui.main.chat.RoomWithUsersFailed
+import com.clover.studio.exampleapp.ui.main.chat.RoomWithUsersFetched
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
-import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,10 +48,10 @@ class ChatDetailsFragment : BaseFragment() {
     private val viewModel: ChatViewModel by activityViewModels()
     private lateinit var adapter: ChatDetailsAdapter
     private var currentPhotoLocation: Uri = Uri.EMPTY
-    private lateinit var roomWithUsers: RoomWithUsers
     private var roomUsers: MutableList<User> = ArrayList()
     private var progress: Long = 1L
     private var avatarPath: String? = null
+    private var roomId: Int? = null
     private var isAdmin = false
 
     private var bindingSetup: FragmentChatDetailsBinding? = null
@@ -92,12 +93,7 @@ class ChatDetailsFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Fetch room data sent from previous activity
-        val gson = Gson()
-        roomWithUsers = gson.fromJson(
-            activity?.intent?.getStringExtra(Const.Navigation.ROOM_DATA),
-            RoomWithUsers::class.java
-        )
-
+        roomId = activity?.intent?.getIntExtra(Const.Navigation.ROOM_ID, 0)
         isAdmin = activity?.intent?.getBooleanExtra(Const.Navigation.IS_ADMIN, false) == true
         Timber.d("isAdmin = $isAdmin")
     }
@@ -109,8 +105,8 @@ class ChatDetailsFragment : BaseFragment() {
         bindingSetup = FragmentChatDetailsBinding.inflate(inflater, container, false)
 
         initializeObservers()
-        initializeViews()
         handleUserStatusViews(isAdmin)
+        setupAdapter(isAdmin)
 
         return binding.root
     }
@@ -125,10 +121,9 @@ class ChatDetailsFragment : BaseFragment() {
 
             binding.ivAddMember.visibility = View.INVISIBLE
         }
-        setupAdapter(isAdmin)
     }
 
-    private fun initializeViews() {
+    private fun initializeViews(roomWithUsers: RoomWithUsers) {
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             roomWithUsers.users.forEach { roomUser ->
                 if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
@@ -217,7 +212,25 @@ class ChatDetailsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        // TODO
+        roomId?.let {
+            viewModel.getRoomAndUsers(it).observe(viewLifecycleOwner) { roomWithUsers ->
+                if (roomWithUsers != null) {
+                    initializeViews(roomWithUsers)
+                    updateRoomUserList(roomWithUsers)
+                }
+            }
+        }
+
+        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is RoomWithUsersFetched -> {
+                    initializeViews(it.roomWithUsers)
+                    handleUserStatusViews(isAdmin)
+                }
+                RoomWithUsersFailed -> Timber.d("Failed to fetch chat room")
+                else -> Timber.d("Other error")
+            }
+        })
     }
 
     private fun setupAdapter(isAdmin: Boolean) {
@@ -261,15 +274,20 @@ class ChatDetailsFragment : BaseFragment() {
         binding.rvGroupMembers.adapter = adapter
         binding.rvGroupMembers.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+    }
+
+    private fun updateRoomUserList(roomWithUsers: RoomWithUsers) {
+        roomUsers.clear()
         roomUsers.addAll(roomWithUsers.users)
         runBlocking {
             for (user in roomUsers) {
-                if (viewModel.isUserAdmin(roomWithUsers.room.roomId, user.id)) {
+                if (roomId?.let { viewModel.isUserAdmin(it, user.id) } == true) {
                     user.isAdmin = true
                 }
             }
             val modifiedList = roomUsers.sortedBy { user -> user.isAdmin }.reversed()
             adapter.submitList(modifiedList)
+            adapter.notifyDataSetChanged()
         }
     }
 
@@ -379,6 +397,6 @@ class ChatDetailsFragment : BaseFragment() {
         if (userIds.size() > 0)
             jsonObject.add(Const.JsonFields.USER_IDS, userIds)
 
-        viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, idToRemove)
+        roomId?.let { viewModel.updateRoom(jsonObject, it, idToRemove) }
     }
 }

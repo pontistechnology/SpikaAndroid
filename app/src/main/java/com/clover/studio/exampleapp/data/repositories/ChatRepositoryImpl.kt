@@ -69,8 +69,8 @@ class ChatRepositoryImpl @Inject constructor(
         roomDao.updateRoomTable(oldRoom, chatRoom)
     }
 
-    override suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers =
-        roomDao.getRoomAndUsers(roomId)
+    override suspend fun getRoomWithUsers(roomId: Int): LiveData<RoomWithUsers> =
+        roomDao.getRoomAndUsersLiveData(roomId)
 
     override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) {
         val response =
@@ -102,10 +102,8 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean? {
-        val roomUser = roomDao.getRoomUserById(roomId, userId)
-        return roomUser.isAdmin
-    }
+    override suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean? =
+        roomDao.getRoomUserById(roomId, userId).isAdmin
 }
 
 interface ChatRepository {
@@ -118,7 +116,7 @@ interface ChatRepository {
     suspend fun deleteLocalMessages(messages: List<Message>)
     suspend fun sendMessagesSeen(roomId: Int)
     suspend fun updatedRoomVisitedTimestamp(chatRoom: ChatRoom)
-    suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
+    suspend fun getRoomWithUsers(roomId: Int): LiveData<RoomWithUsers>
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
 }

@@ -9,10 +9,10 @@ import com.clover.studio.exampleapp.databinding.ActivityChatDetailsBinding
 import com.clover.studio.exampleapp.utils.Const
 import dagger.hilt.android.AndroidEntryPoint
 
-fun startChatDetailsActivity(fromActivity: Activity, roomWithUsers: String, isAdmin: Boolean) =
+fun startChatDetailsActivity(fromActivity: Activity, roomId: Int, isAdmin: Boolean) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatDetailsActivity::class.java)
-        intent.putExtra(Const.Navigation.ROOM_DATA, roomWithUsers)
+        intent.putExtra(Const.Navigation.ROOM_ID, roomId)
         intent.putExtra(Const.Navigation.IS_ADMIN, isAdmin)
         startActivity(intent)
     }

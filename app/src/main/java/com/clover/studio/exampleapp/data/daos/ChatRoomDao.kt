@@ -35,7 +35,11 @@ interface ChatRoomDao {
 
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
-    suspend fun getRoomAndUsers(roomId: Int): RoomWithUsers
+    fun getRoomAndUsers(roomId: Int): RoomWithUsers
+
+    @Transaction
+    @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
+    fun getRoomAndUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
 
     // This method copies locally added fields to the database if present
     @Transaction
