@@ -30,7 +30,8 @@ interface RetrofitService {
 
     @GET(Const.Networking.API_POST_NEW_ROOM)
     suspend fun getRooms(
-        @HeaderMap headers: Map<String, String?>
+        @HeaderMap headers: Map<String, String?>,
+        @Query(Const.Networking.PAGE) page: Int
     ): RoomResponse
 
     @GET(Const.Networking.API_GET_MESSAGES)

@@ -64,9 +64,9 @@ class MainViewModel @Inject constructor(
         return userId
     }
 
-    fun getRooms() = viewModelScope.launch {
+    fun getRooms(page: Int) = viewModelScope.launch {
         try {
-            val response = repository.getRooms()
+            val response = repository.getRooms(page)
             roomsListener.postValue(Event(RoomsFetched(response.data?.list!!)))
         } catch (ex: Exception) {
             Tools.checkError(ex)

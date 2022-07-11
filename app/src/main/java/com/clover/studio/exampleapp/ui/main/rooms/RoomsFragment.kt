@@ -216,12 +216,12 @@ class RoomsFragment : BaseFragment() {
 
     private fun loadMoreItems() {
         currentPage += 1
-        viewModel.getContacts(currentPage)
+        viewModel.getRooms(currentPage)
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.getRooms()
+        if (!isLastPage) viewModel.getRooms(currentPage)
         // This updates the elapsed time displayed when user return to the screen.
         roomsAdapter.notifyDataSetChanged()
     }
