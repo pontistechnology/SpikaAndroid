@@ -42,10 +42,9 @@ class ChatDetailsAdapter(
 
                 if (userItem.isAdmin) {
                     binding.tvAdmin.visibility = View.VISIBLE
-                    binding.ivRemoveUser.visibility = View.GONE
+                    binding.ivRemoveUser.visibility = View.INVISIBLE
                 } else {
                     binding.tvAdmin.visibility = View.GONE
-                    binding.ivRemoveUser.visibility = View.VISIBLE
                 }
 
                 itemView.setOnClickListener {
