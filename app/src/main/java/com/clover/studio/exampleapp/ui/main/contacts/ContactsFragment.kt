@@ -27,8 +27,6 @@ class ContactsFragment : BaseFragment() {
     private lateinit var contactsAdapter: ContactsAdapter
     private lateinit var userList: List<UserAndPhoneUser>
     private var filteredList: MutableList<UserAndPhoneUser> = ArrayList()
-    private var currentPage = 1
-    private var isLastPage = false
 
     private var bindingSetup: FragmentContactsBinding? = null
 
@@ -51,10 +49,7 @@ class ContactsFragment : BaseFragment() {
         viewModel.usersListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 UsersError -> Timber.d("Users error")
-                is UsersFetched -> {
-                    Timber.d("Users fetched")
-                    if (it.userCount.isEmpty()) isLastPage = true
-                }
+                UsersFetched -> Timber.d("Users fetched")
                 else -> Timber.d("Other error")
             }
         })
@@ -76,33 +71,9 @@ class ContactsFragment : BaseFragment() {
             findNavController().navigate(R.id.action_mainFragment_to_contactDetailsFragment, bundle)
         }
 
-        val pageSize = 10
         binding.rvContacts.adapter = contactsAdapter
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         binding.rvContacts.layoutManager = layoutManager
-        binding.rvContacts.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
-                val isAtLastItem = firstVisibleItem + visibleItemCount >= totalItemCount
-                // validate non negative values
-                val isValidFirstItem = firstVisibleItem >= 0
-                // validate total items are more than possible visible items
-                val totalIsMoreThanVisible = totalItemCount >= pageSize
-                // flag to know whether to load more
-                val shouldLoadMore =
-                    isValidFirstItem && isAtLastItem && totalIsMoreThanVisible && !isLastPage
-
-                if (shouldLoadMore) loadMoreItems()
-            }
-        })
-    }
-
-    private fun loadMoreItems() {
-        currentPage += 1
-        viewModel.getContacts(currentPage)
     }
 
     private fun setupSearchView() {
@@ -168,6 +139,6 @@ class ContactsFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        if (!isLastPage) viewModel.getContacts(currentPage)
+        viewModel.getContacts()
     }
 }

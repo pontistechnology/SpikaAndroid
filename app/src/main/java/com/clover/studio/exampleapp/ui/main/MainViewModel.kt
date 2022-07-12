@@ -6,7 +6,6 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
@@ -18,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,10 +34,18 @@ class MainViewModel @Inject constructor(
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
     val roomWithUsersListener = MutableLiveData<Event<MainStates>>()
 
-    fun getContacts(page: Int) = viewModelScope.launch {
+    fun getContacts() = viewModelScope.launch {
+        var page = 1
         try {
-            val response = repository.getUsers(page)
-            usersListener.postValue(Event(UsersFetched(response.data?.list!!)))
+            var count: Double? = repository.getUsers(page).data?.count?.toDouble()
+            if (count != null) {
+                while (count!! / 10 > page) {
+                    page++
+                    count = repository.getUsers(page).data?.count?.toDouble()
+                    Timber.d("Count = $count")
+                }
+                usersListener.postValue(Event(UsersFetched))
+            }
         } catch (ex: Exception) {
             Tools.checkError(ex)
             usersListener.postValue(Event(UsersError))
@@ -64,10 +72,18 @@ class MainViewModel @Inject constructor(
         return userId
     }
 
-    fun getRooms(page: Int) = viewModelScope.launch {
+    fun getRooms() = viewModelScope.launch {
+        var page = 1
         try {
-            val response = repository.getRooms(page)
-            roomsListener.postValue(Event(RoomsFetched(response.data?.list!!)))
+            var count = repository.getRooms(page).data?.count?.toDouble()
+            if (count != null) {
+                while (count!! / 10 > page) {
+                    page++
+                    count = repository.getRooms(page).data?.count?.toDouble()
+                    Timber.d("Count = $count")
+                }
+                roomsListener.postValue(Event(RoomsFetched))
+            }
         } catch (ex: Exception) {
             Tools.checkError(ex)
             roomsListener.postValue(Event(RoomFetchFail))
@@ -158,9 +174,9 @@ class MainViewModel @Inject constructor(
 }
 
 sealed class MainStates
-class UsersFetched(val userCount: List<User>) : MainStates()
+object UsersFetched : MainStates()
 object UsersError : MainStates()
-class RoomsFetched(val roomCount: List<ChatRoom>) : MainStates()
+object RoomsFetched : MainStates()
 object RoomFetchFail : MainStates()
 class RoomCreated(val roomData: ChatRoom) : MainStates()
 object RoomFailed : MainStates()

@@ -12,6 +12,8 @@ data class RoomData(
     val list: List<ChatRoom>?,
     val rooms: List<ChatRoom>?,
     val room: ChatRoom?,
+    val count: Long?,
+    val limit: Long?
 )
 
 data class RoomUsers(

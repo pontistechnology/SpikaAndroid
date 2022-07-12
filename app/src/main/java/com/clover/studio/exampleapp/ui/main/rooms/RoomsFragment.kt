@@ -27,8 +27,6 @@ class RoomsFragment : BaseFragment() {
     private lateinit var roomsAdapter: RoomsAdapter
     private lateinit var roomList: List<RoomAndMessageAndRecords>
     private var filteredList: MutableList<RoomAndMessageAndRecords> = ArrayList()
-    private var currentPage = 1
-    private var isLastPage = false
 
     private var bindingSetup: FragmentChatBinding? = null
 
@@ -145,10 +143,7 @@ class RoomsFragment : BaseFragment() {
         viewModel.roomsListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 RoomFetchFail -> Timber.d("Failed to fetch rooms")
-                is RoomsFetched -> {
-                    if (it.roomCount.isEmpty()) isLastPage = true
-                    Timber.d("Rooms fetched successfully")
-                }
+                RoomsFetched -> Timber.d("Rooms fetched successfully")
                 else -> Timber.d("Other error")
             }
         })
@@ -190,38 +185,14 @@ class RoomsFragment : BaseFragment() {
             activity?.let { parent -> startChatScreenActivity(parent, roomData) }
         }
 
-        val pageSize = 10
         binding.rvRooms.adapter = roomsAdapter
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         binding.rvRooms.layoutManager = layoutManager
-        binding.rvRooms.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
-                val isAtLastItem = firstVisibleItem + visibleItemCount >= totalItemCount
-                // validate non negative values
-                val isValidFirstItem = firstVisibleItem >= 0
-                // validate total items are more than possible visible items
-                val totalIsMoreThanVisible = totalItemCount >= pageSize
-                // flag to know whether to load more
-                val shouldLoadMore =
-                    isValidFirstItem && isAtLastItem && totalIsMoreThanVisible && !isLastPage
-
-                if (shouldLoadMore) loadMoreItems()
-            }
-        })
-    }
-
-    private fun loadMoreItems() {
-        currentPage += 1
-        viewModel.getRooms(currentPage)
     }
 
     override fun onResume() {
         super.onResume()
-        if (!isLastPage) viewModel.getRooms(currentPage)
+        viewModel.getRooms()
         // This updates the elapsed time displayed when user return to the screen.
         roomsAdapter.notifyDataSetChanged()
     }
