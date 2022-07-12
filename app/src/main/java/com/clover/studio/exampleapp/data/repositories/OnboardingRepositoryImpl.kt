@@ -69,31 +69,11 @@ class OnboardingRepositoryImpl @Inject constructor(
 }
 
 interface OnboardingRepository {
-    suspend fun sendUserData(
-        jsonObject: JsonObject
-    )
-
-    suspend fun verifyUserCode(
-        jsonObject: JsonObject
-    ): AuthResponse
-
-    suspend fun sendUserContacts(
-        contacts: List<String>
-    ): AuthResponse
-
-    suspend fun writePhoneUsers(
-        phoneUsers: List<PhoneUser>
-    )
-
-    suspend fun updateUser(
-        userMap: Map<String, String>
-    ): AuthResponse
-
-    suspend fun uploadFiles(
-        jsonObject: JsonObject
-    ): FileResponse
-
-    suspend fun verifyFile(
-        jsonObject: JsonObject
-    ): FileResponse
+    suspend fun sendUserData(jsonObject: JsonObject)
+    suspend fun verifyUserCode(jsonObject: JsonObject): AuthResponse
+    suspend fun sendUserContacts(contacts: List<String>): AuthResponse
+    suspend fun writePhoneUsers(phoneUsers: List<PhoneUser>)
+    suspend fun updateUser(userMap: Map<String, String>): AuthResponse
+    suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
+    suspend fun verifyFile(jsonObject: JsonObject): FileResponse
 }

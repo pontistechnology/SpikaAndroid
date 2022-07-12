@@ -39,10 +39,10 @@ class MainRepositoryImpl @Inject constructor(
         return userData
     }
 
-    override fun getUserByID(id: Int) =
+    override suspend fun getUserByID(id: Int) =
         userDao.getUserById(id)
 
-    override fun getUserLiveData(): LiveData<List<User>> =
+    override suspend fun getUserLiveData(): LiveData<List<User>> =
         userDao.getUsers()
 
     override suspend fun getRoomById(userId: Int) =
@@ -197,8 +197,8 @@ class MainRepositoryImpl @Inject constructor(
 
 interface MainRepository {
     suspend fun getUsers(page: Int): ContactResponse
-    fun getUserByID(id: Int): LiveData<User>
-    fun getUserLiveData(): LiveData<List<User>>
+    suspend fun getUserByID(id: Int): LiveData<User>
+    suspend fun getUserLiveData(): LiveData<List<User>>
     suspend fun getRoomById(userId: Int): RoomResponse
     suspend fun getRooms(page: Int): RoomResponse
     suspend fun getMessages()

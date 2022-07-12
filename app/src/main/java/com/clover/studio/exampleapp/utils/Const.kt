@@ -77,21 +77,21 @@ class Const {
 
             const val API_AUTH = "api/messenger/auth"
             const val API_VERIFY_CODE = "api/messenger/auth/verify"
-            const val API_CONTACTS = "api/messenger/contacts"
-            const val API_UPDATE_USER = "api/messenger/me"
-            const val API_UPLOAD_FILE = "api/upload/files"
-            const val API_VERIFY_FILE = "api/upload/files/verify"
+            const val API_CONTACTS = "api/messenger/contacts"  // Fix
+            const val API_UPDATE_USER = "api/messenger/me" // Fix
+            const val API_UPLOAD_FILE = "api/upload/files" // Fix
+            const val API_VERIFY_FILE = "api/upload/files/verify" // Fix
             const val API_POST_MESSAGE = "api/messenger/messages"
-            const val API_GET_MESSAGES = "api/messenger/messages/roomId/{roomId}"
+            const val API_GET_MESSAGES = "api/messenger/messages/roomId/{roomId}" // Fix
             const val API_GET_MESSAGES_TIMESTAMP = "api/messenger/messages"
-            const val API_MESSAGE_DELIVERED = "api/messenger/messages/delivered"
+            const val API_MESSAGE_DELIVERED = "api/messenger/messages/delivered" // Fix
             const val API_GET_ROOM_BY_ID = "api/messenger/rooms/users/{userId}"
-            const val API_POST_NEW_ROOM = "api/messenger/rooms"
+            const val API_POST_NEW_ROOM = "api/messenger/rooms" // Fix
             const val API_SSE_STREAM = "api/sse"
             const val API_UPDATE_TOKEN = "api/messenger/device"
             const val API_GET_MESSAGE_RECORDS = "api/messenger/messages/{messageId}/message-records"
             const val API_MESSAGES_SEEN = "api/messenger/messages/{roomId}/seen"
-            const val API_UPDATE_ROOM = "api/messenger/rooms/{roomId}"
+            const val API_UPDATE_ROOM = "api/messenger/rooms/{roomId}" // Fix
 
             // Queries
             const val TIMESTAMP = "timestamp"
