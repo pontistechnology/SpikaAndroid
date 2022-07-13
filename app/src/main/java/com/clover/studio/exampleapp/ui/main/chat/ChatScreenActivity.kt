@@ -3,29 +3,39 @@ package com.clover.studio.exampleapp.ui.main.chat
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.FileProvider
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.ui.main.chat_details.startChatDetailsActivity
-import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
+import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
+import com.clover.studio.exampleapp.utils.dialog.DialogError
+import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 
 fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
@@ -46,7 +56,44 @@ class ChatScreenActivity : BaseActivity() {
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var messages: MutableList<Message>
     private var unsentMessages: MutableList<Message> = ArrayList()
+    private var currentPhotoLocation: Uri = Uri.EMPTY
     private var isAdmin = false
+
+    @Inject
+    lateinit var uploadDownloadManager: UploadDownloadManager
+
+    private val chooseImageContract =
+        registerForActivityResult(ActivityResultContracts.GetContent()) {
+            if (it != null) {
+                val bitmap =
+                    Tools.handleSamplingAndRotationBitmap(this, it)
+                val bitmapUri = Tools.convertBitmapToUri(this, bitmap!!)
+
+                // TODO add image into view
+//                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
+//                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                currentPhotoLocation = bitmapUri
+            } else {
+                Timber.d("Gallery error")
+            }
+        }
+
+    private val takePhotoContract =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) {
+            if (it) {
+                val bitmap =
+                    Tools.handleSamplingAndRotationBitmap(this, currentPhotoLocation)
+                val bitmapUri = Tools.convertBitmapToUri(this, bitmap!!)
+
+                // TODO add image into view
+//                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
+//                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                currentPhotoLocation = bitmapUri
+            } else {
+                Timber.d("Photo error")
+            }
+        }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -184,6 +231,23 @@ class ChatScreenActivity : BaseActivity() {
             finish()
         }
 
+        bindingSetup.ivCamera.setOnClickListener {
+            ChooserDialog.getInstance(this,
+                getString(R.string.placeholder_title),
+                null,
+                getString(R.string.choose_from_gallery),
+                getString(R.string.take_photo),
+                object : DialogInteraction {
+                    override fun onFirstOptionClicked() {
+                        chooseImage()
+                    }
+
+                    override fun onSecondOptionClicked() {
+                        takePhoto()
+                    }
+                })
+        }
+
         bindingSetup.etMessage.addTextChangedListener {
             if (it?.isNotEmpty() == true) {
                 bindingSetup.ivCamera.visibility = View.GONE
@@ -264,5 +328,84 @@ class ChatScreenActivity : BaseActivity() {
         roomWithUsers.room.visitedRoom = System.currentTimeMillis()
         viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
         finish()
+    }
+
+    private fun chooseImage() {
+        chooseImageContract.launch(Const.JsonFields.IMAGE)
+    }
+
+    private fun takePhoto() {
+        currentPhotoLocation = FileProvider.getUriForFile(
+            this,
+            "com.clover.studio.exampleapp.fileprovider",
+            Tools.createImageFile(
+                (this)
+            )
+        )
+        Timber.d("$currentPhotoLocation")
+        takePhotoContract.launch(currentPhotoLocation)
+    }
+
+    private fun uploadImage() {
+        if (currentPhotoLocation != Uri.EMPTY) {
+            val inputStream =
+                this.contentResolver.openInputStream(currentPhotoLocation)
+
+            val fileStream = Tools.copyStreamToFile(this, inputStream!!)
+            val uploadPieces =
+                if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
+                    fileStream.length() / CHUNK_SIZE + 1
+                else fileStream.length() / CHUNK_SIZE
+
+//            binding.progressBar.max = uploadPieces.toInt()
+            Timber.d("File upload start")
+            CoroutineScope(Dispatchers.IO).launch {
+                uploadDownloadManager.uploadFile(
+                    this@ChatScreenActivity,
+                    currentPhotoLocation,
+                    Const.JsonFields.IMAGE,
+                    Const.JsonFields.AVATAR,
+                    uploadPieces,
+                    fileStream,
+                    object : FileUploadListener {
+                        override fun filePieceUploaded() {
+                           // Update progress
+                        }
+
+                        override fun fileUploadError(description: String) {
+                            Timber.d("Upload Error")
+                            this@ChatScreenActivity.runOnUiThread {
+                                showUploadError(description)
+                            }
+                        }
+
+                        override fun fileUploadVerified(path: String) {
+                            this@ChatScreenActivity.runOnUiThread {
+                                // remove progress and placeholder
+                            }
+
+                            // update room data
+                        }
+
+                    })
+            }
+        }
+    }
+
+    private fun showUploadError(description: String) {
+        DialogError.getInstance(this,
+            getString(R.string.error),
+            getString(R.string.image_failed_upload, description),
+            null,
+            getString(R.string.ok),
+            object : DialogInteraction {
+                override fun onFirstOptionClicked() {
+                    // ignore
+                }
+
+                override fun onSecondOptionClicked() {
+                    // ignore
+                }
+            })
     }
 }
