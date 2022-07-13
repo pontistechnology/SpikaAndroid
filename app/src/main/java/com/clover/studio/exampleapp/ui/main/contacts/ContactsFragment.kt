@@ -25,7 +25,7 @@ import timber.log.Timber
 class ContactsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var contactsAdapter: ContactsAdapter
-    private lateinit var userList: List<UserAndPhoneUser>
+    private lateinit var userList: MutableList<UserAndPhoneUser>
     private var filteredList: MutableList<UserAndPhoneUser> = ArrayList()
 
     private var bindingSetup: FragmentContactsBinding? = null
@@ -56,8 +56,9 @@ class ContactsFragment : BaseFragment() {
 
         viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
-                userList = it
+                userList = it.toMutableList()
 
+                // TODO fix this later
                 val users = userList.sortUsersByLocale(requireContext())
 
                 contactsAdapter.submitList(users)

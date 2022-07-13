@@ -36,7 +36,7 @@ class NewRoomFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var contactsAdapter: ContactsAdapter
     private lateinit var selectedContactsAdapter: SelectedContactsAdapter
-    private lateinit var userList: List<UserAndPhoneUser>
+    private lateinit var userList: MutableList<UserAndPhoneUser>
     private var selectedUsers: MutableList<UserAndPhoneUser> = ArrayList()
     private var user: User? = null
 
@@ -203,9 +203,9 @@ class NewRoomFragment : BaseFragment() {
     private fun initializeObservers() {
         viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
-                userList = it
+                userList = it.toMutableList()
                 val users = userList.sortUsersByLocale(requireContext())
-                userList = users
+                userList = users.toMutableList()
                 contactsAdapter.submitList(users)
             }
         }

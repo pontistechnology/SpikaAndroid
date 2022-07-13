@@ -1,23 +1,21 @@
 package com.clover.studio.exampleapp.data.repositories
 
 import androidx.lifecycle.LiveData
+import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.daos.MessageRecordsDao
 import com.clover.studio.exampleapp.data.daos.UserDao
-import com.clover.studio.exampleapp.data.models.ChatRoom
-import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
-import com.clover.studio.exampleapp.data.models.User
-import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
+import com.clover.studio.exampleapp.data.models.*
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
-import com.clover.studio.exampleapp.data.models.networking.AuthResponse
-import com.clover.studio.exampleapp.data.models.networking.ContactResponse
-import com.clover.studio.exampleapp.data.models.networking.FileResponse
-import com.clover.studio.exampleapp.data.models.networking.RoomResponse
+import com.clover.studio.exampleapp.data.models.networking.*
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -26,16 +24,19 @@ class MainRepositoryImpl @Inject constructor(
     private val messageDao: MessageDao,
     private val messageRecordsDao: MessageRecordsDao,
     private val chatRoomDao: ChatRoomDao,
+    private val appDatabase: AppDatabase,
     private val sharedPrefs: SharedPreferencesRepository
 ) : MainRepository {
     override suspend fun getUsers(page: Int): ContactResponse {
         val userData = retrofitService.getUsers(getHeaderMap(sharedPrefs.readToken()), page)
 
+        val users: MutableList<User> = ArrayList()
         if (userData.data?.list != null) {
             for (user in userData.data.list) {
-                userDao.insert(user)
+                users.add(user)
             }
         }
+        userDao.insert(users)
         return userData
     }
 
@@ -51,20 +52,32 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun getRooms(page: Int): RoomResponse {
         val roomData = retrofitService.getRooms(getHeaderMap(sharedPrefs.readToken()), page)
 
-        if (roomData.data?.list != null) {
-            for (room in roomData.data.list) {
-                val oldData = chatRoomDao.getRoomById(room.roomId)
-                chatRoomDao.updateRoomTable(oldData, room)
+        CoroutineScope(Dispatchers.IO).launch {
+            appDatabase.runInTransaction {
+                CoroutineScope(Dispatchers.IO).launch {
+                    if (roomData.data?.list != null) {
+                        val users: MutableList<User> = ArrayList()
+                        val roomUsers: MutableList<RoomUser> = ArrayList()
+                        val chatRooms: MutableList<ChatRoomUpdate> = ArrayList()
+                        for (room in roomData.data.list) {
+                            val oldData = chatRoomDao.getRoomById(room.roomId)
+                            chatRooms.add(ChatRoomUpdate(oldData, room))
 
-                for (user in room.users) {
-                    user.user?.let { userDao.insert(it) }
-                    chatRoomDao.insertRoomWithUsers(
-                        RoomUser(
-                            room.roomId,
-                            user.userId,
-                            user.isAdmin
-                        )
-                    )
+                            for (user in room.users) {
+                                user.user?.let { users.add(it) }
+                                roomUsers.add(
+                                    RoomUser(
+                                        room.roomId,
+                                        user.userId,
+                                        user.isAdmin
+                                    )
+                                )
+                            }
+                        }
+                        chatRoomDao.updateRoomTable(chatRooms)
+                        userDao.insert(users)
+                        chatRoomDao.insertRoomWithUsers(roomUsers)
+                    }
                 }
             }
         }
@@ -76,6 +89,7 @@ class MainRepositoryImpl @Inject constructor(
         chatRoomDao.getRoomsLocally().forEach { roomIds.add(it.roomId) }
 
         if (roomIds.isNotEmpty()) {
+            val messages: MutableList<Message> = ArrayList()
             for (id in roomIds) {
                 val messageData = retrofitService.getMessages(
                     getHeaderMap(sharedPrefs.readToken()),
@@ -84,10 +98,11 @@ class MainRepositoryImpl @Inject constructor(
 
                 if (messageData.data?.list != null) {
                     for (message in messageData.data.list) {
-                        messageDao.insert(message)
+                        messages.add(message)
                     }
                 }
             }
+            messageDao.insert(messages)
         }
     }
 
@@ -101,16 +116,25 @@ class MainRepositoryImpl @Inject constructor(
         val oldRoom = response.data?.room?.roomId?.let { chatRoomDao.getRoomById(it) }
         response.data?.room?.let { chatRoomDao.updateRoomTable(oldRoom, it) }
 
-        for (user in response.data?.room?.users!!) {
-            user.user?.let { userDao.insert(it) }
-            chatRoomDao.insertRoomWithUsers(
-                RoomUser(
-                    response.data.room.roomId,
-                    user.userId,
-                    user.isAdmin
-                )
-            )
+        appDatabase.runInTransaction {
+            CoroutineScope(Dispatchers.IO).launch {
+                val users: MutableList<User> = ArrayList()
+                val roomUsers: MutableList<RoomUser> = ArrayList()
+                for (user in response.data?.room?.users!!) {
+                    user.user?.let { users.add(it) }
+                    roomUsers.add(
+                        RoomUser(
+                            response.data.room.roomId,
+                            user.userId,
+                            user.isAdmin
+                        )
+                    )
+                }
+                userDao.insert(users)
+                chatRoomDao.insertRoomWithUsers(roomUsers)
+            }
         }
+
 
         return response
     }
@@ -148,6 +172,7 @@ class MainRepositoryImpl @Inject constructor(
         val messageIds: MutableList<Int> = ArrayList()
         messageDao.getMessagesLocally().forEach { messageIds.add(it.id) }
 
+        val messageRecords: MutableList<MessageRecords> = ArrayList()
         if (messageIds.isNotEmpty()) {
             for (messageId in messageIds) {
                 val recordsData = retrofitService.getMessageRecords(
@@ -157,10 +182,11 @@ class MainRepositoryImpl @Inject constructor(
 
                 if (recordsData.data.messageRecords.isNotEmpty()) {
                     for (messageRecord in recordsData.data.messageRecords) {
-                        messageRecordsDao.insert(messageRecord)
+                        messageRecords.add(messageRecord)
                     }
                 }
             }
+            messageRecordsDao.insert(messageRecords)
         }
     }
 
@@ -173,23 +199,29 @@ class MainRepositoryImpl @Inject constructor(
 
         if (response.data?.room != null) {
             val room = response.data.room
-            val oldData = chatRoomDao.getRoomById(room.roomId)
-            chatRoomDao.updateRoomTable(oldData, room)
 
             // Delete Room User if id has been passed through
             if (userId != 0) {
                 chatRoomDao.deleteRoomUser(RoomUser(roomId, userId, false))
             }
 
-            for (user in room.users) {
-                user.user?.let { userDao.insert(it) }
-                chatRoomDao.insertRoomWithUsers(
-                    RoomUser(
-                        room.roomId,
-                        user.userId,
-                        user.isAdmin
-                    )
-                )
+            appDatabase.runInTransaction {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val users: MutableList<User> = ArrayList()
+                    val roomUsers: MutableList<RoomUser> = ArrayList()
+                    for (user in room.users) {
+                        user.user?.let { users.add(it) }
+                        roomUsers.add(
+                            RoomUser(
+                                room.roomId,
+                                user.userId,
+                                user.isAdmin
+                            )
+                        )
+                    }
+                    userDao.insert(users)
+                    chatRoomDao.insertRoomWithUsers(roomUsers)
+                }
             }
         }
     }

@@ -6,6 +6,7 @@ import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
+import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate
 
 @Dao
 interface ChatRoomDao {
@@ -13,6 +14,10 @@ interface ChatRoomDao {
     // room table functions
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(chatRoom: ChatRoom): Long
+
+    // room table functions
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(chatRooms: List<ChatRoom>)
 
     @Query("SELECT * FROM room")
     fun getRooms(): LiveData<List<ChatRoom>>
@@ -30,7 +35,7 @@ interface ChatRoomDao {
     suspend fun removeRooms()
 
     @Transaction
-    @Query("SELECT * FROM room")
+    @Query("SELECT * FROM room LIMIT 8")
     fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
 
     @Transaction
@@ -50,9 +55,24 @@ interface ChatRoomDao {
         insert(newData)
     }
 
+    @Transaction
+    suspend fun updateRoomTable(chatRoomUpdate: List<ChatRoomUpdate>) {
+        val chatRooms: MutableList<ChatRoom> = ArrayList()
+        for (chatRoom in chatRoomUpdate) {
+            if (chatRoom.oldRoom.visitedRoom != null && chatRoom.newRoom.visitedRoom == null) {
+                chatRoom.newRoom.visitedRoom = chatRoom.oldRoom.visitedRoom
+            }
+            chatRooms.add(chatRoom.newRoom)
+        }
+        insert(chatRooms)
+    }
+
     // room_user table functions
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRoomWithUsers(roomUser: RoomUser)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRoomWithUsers(roomUser: List<RoomUser>)
 
     @Delete
     suspend fun deleteRoomUser(roomUser: RoomUser)

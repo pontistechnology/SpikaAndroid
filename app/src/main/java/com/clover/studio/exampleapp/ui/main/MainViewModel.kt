@@ -165,6 +165,7 @@ class MainViewModel @Inject constructor(
 
     fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = viewModelScope.launch {
         try {
+            Timber.d("RoomDataCalled")
             repository.updateRoom(jsonObject, roomId, userId)
         } catch (ex: Exception) {
             Tools.checkError(ex)

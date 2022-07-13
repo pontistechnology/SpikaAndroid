@@ -1,11 +1,13 @@
 package com.clover.studio.exampleapp.data.repositories
 
 import androidx.lifecycle.LiveData
+import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
@@ -13,6 +15,9 @@ import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -21,6 +26,7 @@ class ChatRepositoryImpl @Inject constructor(
     private val roomDao: ChatRoomDao,
     private val messageDao: MessageDao,
     private val userDao: UserDao,
+    private val appDatabase: AppDatabase,
     private val sharedPrefsRepo: SharedPreferencesRepository
 ) : ChatRepository {
     override suspend fun sendMessage(jsonObject: JsonObject) {
@@ -33,10 +39,12 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getMessages(roomId: String) {
         val response = chatService.getMessages(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
+        val messages: MutableList<Message> = ArrayList()
         if (response.data?.list != null) {
             for (message in response.data.list) {
-                messageDao.insert(message)
+                messages.add(message)
             }
+            messageDao.insert(messages)
         }
     }
 
@@ -55,9 +63,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun deleteLocalMessages(messages: List<Message>) {
         if (messages.isNotEmpty()) {
-            for (message in messages) {
-                messageDao.deleteMessage(message)
-            }
+            messageDao.deleteMessage(messages)
         }
     }
 
@@ -76,28 +82,34 @@ class ChatRepositoryImpl @Inject constructor(
         val response =
             chatService.updateRoom(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject, roomId)
 
-        val oldRoom = roomDao.getRoomById(roomId)
-        response.data?.room?.let { roomDao.updateRoomTable(oldRoom, it) }
+        appDatabase.runInTransaction {
+            CoroutineScope(Dispatchers.IO).launch {
+                val oldRoom = roomDao.getRoomById(roomId)
+                response.data?.room?.let { roomDao.updateRoomTable(oldRoom, it) }
 
-        if (response.data?.room != null) {
-            val room = response.data.room
-            val oldData = roomDao.getRoomById(room.roomId)
-            roomDao.updateRoomTable(oldData, room)
+                val users: MutableList<User> = ArrayList()
+                val roomUsers: MutableList<RoomUser> = ArrayList()
+                if (response.data?.room != null) {
+                    val room = response.data.room
 
-            // Delete Room User if id has been passed through
-            if (userId != 0) {
-                roomDao.deleteRoomUser(RoomUser(roomId, userId, false))
-            }
+                    // Delete Room User if id has been passed through
+                    if (userId != 0) {
+                        roomDao.deleteRoomUser(RoomUser(roomId, userId, false))
+                    }
 
-            for (user in room.users) {
-                user.user?.let { userDao.insert(it) }
-                roomDao.insertRoomWithUsers(
-                    RoomUser(
-                        room.roomId,
-                        user.userId,
-                        user.isAdmin
-                    )
-                )
+                    for (user in room.users) {
+                        user.user?.let { users.add(it) }
+                        roomUsers.add(
+                            RoomUser(
+                                room.roomId,
+                                user.userId,
+                                user.isAdmin
+                            )
+                        )
+                    }
+                    userDao.insert(users)
+                    roomDao.insertRoomWithUsers(roomUsers)
+                }
             }
         }
     }

@@ -10,6 +10,9 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(message: Message): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(messages: List<Message>)
+
     @Query("SELECT * FROM message WHERE room_id LIKE :messageId")
     fun getMessages(messageId: Int): LiveData<List<Message>>
 
@@ -21,6 +24,9 @@ interface MessageDao {
 
     @Delete
     suspend fun deleteMessage(message: Message)
+
+    @Delete
+    suspend fun deleteMessage(message: List<Message>)
 
     @Query("DELETE FROM message")
     suspend fun removeMessages()

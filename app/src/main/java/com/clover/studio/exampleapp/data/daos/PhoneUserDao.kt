@@ -9,6 +9,9 @@ interface PhoneUserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(phoneUser: PhoneUser): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(phoneUser: List<PhoneUser>)
+
     @Query("SELECT * FROM phone_user")
     fun getPhoneUsers(): LiveData<List<PhoneUser>>
 

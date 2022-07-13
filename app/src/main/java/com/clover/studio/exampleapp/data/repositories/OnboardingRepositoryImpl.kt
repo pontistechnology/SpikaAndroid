@@ -42,11 +42,9 @@ class OnboardingRepositoryImpl @Inject constructor(
         contacts: List<String>
     ): AuthResponse = retrofitService.sendContacts(getHeaderMap(sharedPrefs.readToken()), contacts)
 
-    override suspend fun writePhoneUsers(phoneUsers: List<PhoneUser>) {
-        for (user in phoneUsers) {
-            phoneUserDao.insert(user)
-        }
-    }
+    override suspend fun writePhoneUsers(phoneUsers: List<PhoneUser>) =
+        phoneUserDao.insert(phoneUsers)
+
 
     override suspend fun updateUser(
         userMap: Map<String, String>

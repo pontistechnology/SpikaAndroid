@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.di
 
 import android.content.Context
+import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.repositories.*
 import com.clover.studio.exampleapp.data.services.ChatService
@@ -33,9 +34,10 @@ object RepositoryModule {
         chatRoomDao: ChatRoomDao,
         messageDao: MessageDao,
         userDao: UserDao,
+        appDatabase: AppDatabase,
         sharedPrefs: SharedPreferencesRepository
     ) =
-        ChatRepositoryImpl(chatService, chatRoomDao, messageDao, userDao, sharedPrefs)
+        ChatRepositoryImpl(chatService, chatRoomDao, messageDao, userDao, appDatabase, sharedPrefs)
 
     @Singleton
     @Provides
@@ -45,6 +47,7 @@ object RepositoryModule {
         messageDao: MessageDao,
         messageRecordsDao: MessageRecordsDao,
         chatRoomDao: ChatRoomDao,
+        appDatabase: AppDatabase,
         sharedPrefs: SharedPreferencesRepository
     ) =
         MainRepositoryImpl(
@@ -53,6 +56,7 @@ object RepositoryModule {
             messageDao,
             messageRecordsDao,
             chatRoomDao,
+            appDatabase,
             sharedPrefs
         )
 
@@ -74,6 +78,7 @@ object RepositoryModule {
         messageDao: MessageDao,
         messageRecordsDao: MessageRecordsDao,
         chatRoomDao: ChatRoomDao,
+        appDatabase: AppDatabase,
         userDao: UserDao
     ) = SSERepositoryImpl(
         sharedPrefs,
@@ -81,6 +86,7 @@ object RepositoryModule {
         messageDao,
         messageRecordsDao,
         chatRoomDao,
+        appDatabase,
         userDao
     )
 

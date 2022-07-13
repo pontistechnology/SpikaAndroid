@@ -9,6 +9,9 @@ interface MessageRecordsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(messageRecords: MessageRecords): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(messageRecords: List<MessageRecords>)
+
     @Query("SELECT * FROM message_records WHERE message_id LIKE :messageId")
     fun getMessageRecords(messageId: Int): LiveData<List<MessageRecords>>
 

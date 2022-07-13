@@ -38,8 +38,8 @@ class RoomsFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentChatBinding.inflate(inflater, container, false)
 
-        setupAdapter()
         initializeObservers()
+        setupAdapter()
         setupSearchView()
 
         binding.ivCreateRoom.setOnClickListener {
@@ -152,7 +152,7 @@ class RoomsFragment : BaseFragment() {
             if (it.isNotEmpty()) {
                 binding.tvNoChats.visibility = View.GONE
                 for (roomData in it) {
-                    Timber.d("RoomData ${roomData.roomWithUsers.room.roomId}")
+                    Timber.d("Room Data ${roomData.roomWithUsers.room.roomId}")
                 }
                 roomList = it
 

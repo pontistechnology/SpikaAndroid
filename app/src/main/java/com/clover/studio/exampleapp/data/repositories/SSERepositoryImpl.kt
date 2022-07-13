@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.data.repositories
 
+import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.daos.MessageRecordsDao
@@ -14,6 +15,9 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SSERepositoryImpl @Inject constructor(
@@ -22,6 +26,7 @@ class SSERepositoryImpl @Inject constructor(
     private val messageDao: MessageDao,
     private val messageRecordsDao: MessageRecordsDao,
     private val chatRoomDao: ChatRoomDao,
+    private val appDatabase: AppDatabase,
     private val userDao: UserDao
 ) : SSERepository {
     override suspend fun syncMessageRecords() {
@@ -37,8 +42,11 @@ class SSERepositoryImpl @Inject constructor(
                 messageRecordsTimestamp
             )
 
-        for (record in response.data.messageRecords)
-            messageRecordsDao.insert(record)
+        val messageRecords: MutableList<MessageRecords> = ArrayList()
+        for (record in response.data.messageRecords) {
+            messageRecords.add(record)
+        }
+        messageRecordsDao.insert(messageRecords)
     }
 
     override suspend fun syncMessages() {
@@ -48,11 +56,13 @@ class SSERepositoryImpl @Inject constructor(
                 Tools.getHeaderMap(sharedPrefs.readToken())
             )
 
+        val messages: MutableList<Message> = ArrayList()
         if (response.data?.list?.isNotEmpty() == true) {
             for (message in response.data.list) {
-                messageDao.insert(message)
+                messages.add(message)
                 messageIds.add(message.id)
             }
+            messageDao.insert(messages)
 
             sseService.sendMessageDelivered(
                 Tools.getHeaderMap(sharedPrefs.readToken()),
@@ -74,10 +84,12 @@ class SSERepositoryImpl @Inject constructor(
                 userTimestamp
             )
 
+        val users: MutableList<User> = ArrayList()
         if (response.data?.users?.isNotEmpty() == true) {
             for (user in response.data.users) {
-                userDao.insert(user)
+                users.add(user)
             }
+            userDao.insert(users)
         }
     }
 
@@ -93,20 +105,26 @@ class SSERepositoryImpl @Inject constructor(
             roomTimestamp
         )
 
-        if (response.data?.rooms?.isNotEmpty() == true) {
-            for (room in response.data.rooms) {
-                val oldData = chatRoomDao.getRoomById(room.roomId)
-                chatRoomDao.updateRoomTable(oldData, room)
+        appDatabase.runInTransaction {
+            CoroutineScope(Dispatchers.IO).launch {
+                if (response.data?.rooms?.isNotEmpty() == true) {
+                    val messagesList: MutableList<Message> = ArrayList()
+                    for (room in response.data.rooms) {
+                        val oldData = chatRoomDao.getRoomById(room.roomId)
+                        chatRoomDao.updateRoomTable(oldData, room)
 
-                val messages = sseService.getMessagesForRooms(
-                    Tools.getHeaderMap(sharedPrefs.readToken()),
-                    room.roomId.toString()
-                )
+                        val messages = sseService.getMessagesForRooms(
+                            Tools.getHeaderMap(sharedPrefs.readToken()),
+                            room.roomId.toString()
+                        )
 
-                if (messages.data?.list?.isNotEmpty() == true) {
-                    for (message in messages.data.list) {
-                        messageDao.insert(message)
+                        if (messages.data?.list?.isNotEmpty() == true) {
+                            for (message in messages.data.list) {
+                                messagesList.add(message)
+                            }
+                        }
                     }
+                    messageDao.insert(messagesList)
                 }
             }
         }
@@ -135,15 +153,23 @@ class SSERepositoryImpl @Inject constructor(
         val oldRoom = chatRoomDao.getRoomById(room.roomId)
         chatRoomDao.updateRoomTable(oldRoom, room)
 
-        for (user in room.users) {
-            user.user?.let { userDao.insert(it) }
-            chatRoomDao.insertRoomWithUsers(
-                RoomUser(
-                    room.roomId,
-                    user.userId,
-                    user.isAdmin
-                )
-            )
+        appDatabase.runInTransaction {
+            CoroutineScope(Dispatchers.IO).launch {
+                val users: MutableList<User> = ArrayList()
+                val roomUsers: MutableList<RoomUser> = ArrayList()
+                for (user in room.users) {
+                    user.user?.let { users.add(it) }
+                    roomUsers.add(
+                        RoomUser(
+                            room.roomId,
+                            user.userId,
+                            user.isAdmin
+                        )
+                    )
+                }
+                userDao.insert(users)
+                chatRoomDao.insertRoomWithUsers(roomUsers)
+            }
         }
     }
 
