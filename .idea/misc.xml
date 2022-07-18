@@ -39,6 +39,8 @@
         <entry key="app/src/main/res/drawable/img_phone_filled.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_phone_shortcut.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_publish.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/img_remove_contact.xml" value="0.2945" />
+        <entry key="app/src/main/res/drawable/img_remove_contact_white.xml" value="0.2945" />
         <entry key="app/src/main/res/drawable/img_selector_background.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_send.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/img_settings_default.xml" value="0.27447916666666666" />
@@ -91,6 +93,7 @@
         <entry key="app/src/main/res/layout/item_chat_room.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/item_contact.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/item_country_code.xml" value="0.25416666666666665" />
+        <entry key="app/src/main/res/layout/item_image_selected.xml" value="0.34322916666666664" />
         <entry key="app/src/main/res/layout/item_message_me.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/item_message_other.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/item_new_room_contact.xml" value="0.34322916666666664" />

@@ -21,6 +21,7 @@ import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
+import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.ui.main.chat_details.startChatDetailsActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
@@ -56,23 +57,32 @@ class ChatScreenActivity : BaseActivity() {
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var messages: MutableList<Message>
     private var unsentMessages: MutableList<Message> = ArrayList()
-    private var currentPhotoLocation: Uri = Uri.EMPTY
+    private var currentPhotoLocation: MutableList<Uri> = ArrayList()
     private var isAdmin = false
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
 
     private val chooseImageContract =
-        registerForActivityResult(ActivityResultContracts.GetContent()) {
+        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
             if (it != null) {
-                val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(this, it)
-                val bitmapUri = Tools.convertBitmapToUri(this, bitmap!!)
+                Timber.d("$it")
+                for (uri in it) {
+                    val bitmap =
+                        Tools.handleSamplingAndRotationBitmap(this, uri)
+                    val bitmapUri = Tools.convertBitmapToUri(this, bitmap!!)
 
-                // TODO add image into view
-//                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
-//                binding.clSmallCameraPicker.visibility = View.VISIBLE
-                currentPhotoLocation = bitmapUri
+                    val imageSelected = ImageSelectedContainer(this, null)
+                    bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }
+                    bindingSetup.llImagesContainer.addView(imageSelected)
+                    imageSelected.setButtonListener(object :
+                        ImageSelectedContainer.RemoveImageSelected {
+                        override fun removeImage() {
+                            bindingSetup.llImagesContainer.removeView(imageSelected)
+                        }
+                    })
+                    currentPhotoLocation.add(bitmapUri)
+                }
             } else {
                 Timber.d("Gallery error")
             }
@@ -82,13 +92,19 @@ class ChatScreenActivity : BaseActivity() {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(this, currentPhotoLocation)
+                    Tools.handleSamplingAndRotationBitmap(this, currentPhotoLocation[0])
                 val bitmapUri = Tools.convertBitmapToUri(this, bitmap!!)
 
-                // TODO add image into view
-//                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
-//                binding.clSmallCameraPicker.visibility = View.VISIBLE
-                currentPhotoLocation = bitmapUri
+                val imageSelected = ImageSelectedContainer(this, null)
+                bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }
+                bindingSetup.llImagesContainer.addView(imageSelected)
+                imageSelected.setButtonListener(object :
+                    ImageSelectedContainer.RemoveImageSelected {
+                    override fun removeImage() {
+                        bindingSetup.llImagesContainer.removeView(imageSelected)
+                    }
+                })
+                currentPhotoLocation.add(bitmapUri)
             } else {
                 Timber.d("Photo error")
             }
@@ -335,7 +351,7 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun takePhoto() {
-        currentPhotoLocation = FileProvider.getUriForFile(
+        currentPhotoLocation[0] = FileProvider.getUriForFile(
             this,
             "com.clover.studio.exampleapp.fileprovider",
             Tools.createImageFile(
@@ -343,51 +359,53 @@ class ChatScreenActivity : BaseActivity() {
             )
         )
         Timber.d("$currentPhotoLocation")
-        takePhotoContract.launch(currentPhotoLocation)
+        takePhotoContract.launch(currentPhotoLocation[0])
     }
 
     private fun uploadImage() {
         if (currentPhotoLocation != Uri.EMPTY) {
-            val inputStream =
-                this.contentResolver.openInputStream(currentPhotoLocation)
+            for (uri in currentPhotoLocation) {
+                val inputStream =
+                    this.contentResolver.openInputStream(uri)
 
-            val fileStream = Tools.copyStreamToFile(this, inputStream!!)
-            val uploadPieces =
-                if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
-                    fileStream.length() / CHUNK_SIZE + 1
-                else fileStream.length() / CHUNK_SIZE
+                val fileStream = Tools.copyStreamToFile(this, inputStream!!)
+                val uploadPieces =
+                    if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
+                        fileStream.length() / CHUNK_SIZE + 1
+                    else fileStream.length() / CHUNK_SIZE
 
 //            binding.progressBar.max = uploadPieces.toInt()
-            Timber.d("File upload start")
-            CoroutineScope(Dispatchers.IO).launch {
-                uploadDownloadManager.uploadFile(
-                    this@ChatScreenActivity,
-                    currentPhotoLocation,
-                    Const.JsonFields.IMAGE,
-                    Const.JsonFields.AVATAR,
-                    uploadPieces,
-                    fileStream,
-                    object : FileUploadListener {
-                        override fun filePieceUploaded() {
-                           // Update progress
-                        }
-
-                        override fun fileUploadError(description: String) {
-                            Timber.d("Upload Error")
-                            this@ChatScreenActivity.runOnUiThread {
-                                showUploadError(description)
-                            }
-                        }
-
-                        override fun fileUploadVerified(path: String) {
-                            this@ChatScreenActivity.runOnUiThread {
-                                // remove progress and placeholder
+                Timber.d("File upload start")
+                CoroutineScope(Dispatchers.IO).launch {
+                    uploadDownloadManager.uploadFile(
+                        this@ChatScreenActivity,
+                        uri,
+                        Const.JsonFields.IMAGE,
+                        Const.JsonFields.AVATAR,
+                        uploadPieces,
+                        fileStream,
+                        object : FileUploadListener {
+                            override fun filePieceUploaded() {
+                                // Update progress
                             }
 
-                            // update room data
-                        }
+                            override fun fileUploadError(description: String) {
+                                Timber.d("Upload Error")
+                                this@ChatScreenActivity.runOnUiThread {
+                                    showUploadError(description)
+                                }
+                            }
 
-                    })
+                            override fun fileUploadVerified(path: String) {
+                                this@ChatScreenActivity.runOnUiThread {
+                                    // remove progress and placeholder
+                                }
+
+                                // update room data
+                            }
+
+                        })
+                }
             }
         }
     }
