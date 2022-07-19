@@ -52,6 +52,8 @@ class Const {
             const val FILE_HASH = "fileHash"
             const val RELATION_ID = "relationId"
             const val CLIENT_ID = "clientId"
+            const val FILE_ID = "fileId"
+            const val THUMB_ID = "thumbId"
 
             // Chat
             const val ROOM_ID = "roomId"

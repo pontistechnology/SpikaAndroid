@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.ui.main.chat
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -48,6 +49,7 @@ fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
 
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
+private const val THUMBNAIL_WIDTH = 256
 
 @AndroidEntryPoint
 class ChatScreenActivity : BaseActivity() {
@@ -58,7 +60,10 @@ class ChatScreenActivity : BaseActivity() {
     private lateinit var messages: MutableList<Message>
     private var unsentMessages: MutableList<Message> = ArrayList()
     private var currentPhotoLocation: MutableList<Uri> = ArrayList()
+    private var thumbnailUris: MutableList<Uri> = ArrayList()
+    private var imageMessageData: MutableList<MessageBody> = ArrayList()
     private var isAdmin = false
+    private var uploadIndex = 0
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -81,6 +86,12 @@ class ChatScreenActivity : BaseActivity() {
                             bindingSetup.llImagesContainer.removeView(imageSelected)
                         }
                     })
+
+                    val thumbnail =
+                        ThumbnailUtils.extractThumbnail(bitmap, THUMBNAIL_WIDTH, bitmap.height)
+                    val thumbnailUri = Tools.convertBitmapToUri(this, thumbnail)
+                    // Create thumbnail for the image which will also be sent to the backend
+                    thumbnailUris.add(thumbnailUri)
                     currentPhotoLocation.add(bitmapUri)
                 }
             } else {
@@ -305,38 +316,57 @@ class ChatScreenActivity : BaseActivity() {
         bindingSetup.tvTitle.text = roomWithUsers.room.type
 
         bindingSetup.ivButtonSend.setOnClickListener {
-            // TODO success and fail states.
-            val tempMessage = Message(
-                0,
-                viewModel.getLocalUserId(),
-                0,
-                0,
-                0,
-                -1,
-                0,
-                roomWithUsers.room.roomId,
-                "text",
-                MessageBody(bindingSetup.etMessage.text.toString(), "text"),
-                System.currentTimeMillis()
-            )
-
-            unsentMessages.add(tempMessage)
-            viewModel.storeMessageLocally(tempMessage)
-
-            val jsonObject = JsonObject()
-            val innerObject = JsonObject()
-            innerObject.addProperty(
-                Const.JsonFields.TEXT,
-                bindingSetup.etMessage.text.toString()
-            )
-            innerObject.addProperty(Const.JsonFields.TYPE, "text")
-
-            jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomWithUsers.room.roomId)
-            jsonObject.addProperty(Const.JsonFields.TYPE, "text")
-            jsonObject.add(Const.JsonFields.BODY, innerObject)
-
-            viewModel.sendMessage(jsonObject)
+            if (currentPhotoLocation.isNotEmpty()) {
+                currentPhotoLocation.forEach { imageUri ->
+                    uploadImage()
+                }
+            } else {
+                createTempMessage()
+                sendMessage()
+            }
         }
+    }
+
+    private fun sendMessage() {
+        sendMessage(false, 0, 0)
+    }
+
+    private fun sendMessage(isImage: Boolean, fileId: Long, thumbId: Long) {
+        val jsonObject = JsonObject()
+        val innerObject = JsonObject()
+        innerObject.addProperty(
+            Const.JsonFields.TEXT,
+            bindingSetup.etMessage.text.toString()
+        )
+        if (isImage) {
+            innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
+            innerObject.addProperty(Const.JsonFields.THUMB_ID, thumbId)
+        }
+
+        jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomWithUsers.room.roomId)
+        jsonObject.addProperty(Const.JsonFields.TYPE, "text")
+        jsonObject.add(Const.JsonFields.BODY, innerObject)
+
+        viewModel.sendMessage(jsonObject)
+    }
+
+    private fun createTempMessage() {
+        val tempMessage = Message(
+            0,
+            viewModel.getLocalUserId(),
+            0,
+            0,
+            0,
+            -1,
+            0,
+            roomWithUsers.room.roomId,
+            "text",
+            MessageBody(bindingSetup.etMessage.text.toString(), 1, 1),
+            System.currentTimeMillis()
+        )
+
+        unsentMessages.add(tempMessage)
+        viewModel.storeMessageLocally(tempMessage)
     }
 
     override fun onBackPressed() {
@@ -362,51 +392,69 @@ class ChatScreenActivity : BaseActivity() {
         takePhotoContract.launch(currentPhotoLocation[0])
     }
 
-    private fun uploadImage() {
-        if (currentPhotoLocation != Uri.EMPTY) {
-            for (uri in currentPhotoLocation) {
-                val inputStream =
-                    this.contentResolver.openInputStream(uri)
+    private fun uploadThumbnail(messageBody: MessageBody, index: Int) {
+        uploadFile(messageBody, true, thumbnailUris[index])
+    }
 
-                val fileStream = Tools.copyStreamToFile(this, inputStream!!)
-                val uploadPieces =
-                    if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
-                        fileStream.length() / CHUNK_SIZE + 1
-                    else fileStream.length() / CHUNK_SIZE
+    private fun uploadImage() {
+        val messageBody = MessageBody("", 0, 0)
+        uploadThumbnail(messageBody, uploadIndex)
+        uploadFile(messageBody, false, currentPhotoLocation[uploadIndex])
+    }
+
+    private fun uploadFile(messageBody: MessageBody, isThumbnail: Boolean, uri: Uri) {
+        val inputStream =
+            this.contentResolver.openInputStream(uri)
+
+        val fileStream = Tools.copyStreamToFile(this, inputStream!!)
+        val uploadPieces =
+            if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
+                fileStream.length() / CHUNK_SIZE + 1
+            else fileStream.length() / CHUNK_SIZE
 
 //            binding.progressBar.max = uploadPieces.toInt()
-                Timber.d("File upload start")
-                CoroutineScope(Dispatchers.IO).launch {
-                    uploadDownloadManager.uploadFile(
-                        this@ChatScreenActivity,
-                        uri,
-                        Const.JsonFields.IMAGE,
-                        Const.JsonFields.AVATAR,
-                        uploadPieces,
-                        fileStream,
-                        object : FileUploadListener {
-                            override fun filePieceUploaded() {
-                                // Update progress
-                            }
+        Timber.d("File upload start")
+        CoroutineScope(Dispatchers.IO).launch {
+            uploadDownloadManager.uploadFile(
+                this@ChatScreenActivity,
+                uri,
+                Const.JsonFields.IMAGE,
+                Const.JsonFields.AVATAR,
+                uploadPieces,
+                fileStream,
+                object : FileUploadListener {
+                    override fun filePieceUploaded() {
+                        // Update progress
+                    }
 
-                            override fun fileUploadError(description: String) {
-                                Timber.d("Upload Error")
-                                this@ChatScreenActivity.runOnUiThread {
-                                    showUploadError(description)
+                    override fun fileUploadError(description: String) {
+                        Timber.d("Upload Error")
+                        this@ChatScreenActivity.runOnUiThread {
+                            showUploadError(description)
+                        }
+                    }
+
+                    override fun fileUploadVerified(path: String) {
+                        this@ChatScreenActivity.runOnUiThread {
+                            if (!isThumbnail) {
+                                // TODO add file id to message body
+                                uploadIndex++
+                                if (uploadIndex < currentPhotoLocation.size) {
+                                    uploadImage()
+                                } else {
+                                    // TODO Add image ids to message
+                                    sendMessage()
                                 }
+                            } else {
+                                // TODO add thumb id to message body
+                                messageBody.thumbId = 0
                             }
+                        }
 
-                            override fun fileUploadVerified(path: String) {
-                                this@ChatScreenActivity.runOnUiThread {
-                                    // remove progress and placeholder
-                                }
+                        // update room data
+                    }
 
-                                // update room data
-                            }
-
-                        })
-                }
-            }
+                })
         }
     }
 

@@ -54,7 +54,8 @@ data class Message(
 )
 
 data class MessageBody(
-    val text: String?,
-    val type: String?
+    var text: String?,
+    var fileId: Long?,
+    var thumbId: Long?
 )
 
