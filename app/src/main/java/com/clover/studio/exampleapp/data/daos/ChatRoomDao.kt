@@ -35,7 +35,7 @@ interface ChatRoomDao {
     suspend fun removeRooms()
 
     @Transaction
-    @Query("SELECT * FROM room LIMIT 8")
+    @Query("SELECT * FROM room")
     fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
 
     @Transaction
