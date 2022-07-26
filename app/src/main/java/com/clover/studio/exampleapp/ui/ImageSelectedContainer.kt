@@ -31,7 +31,7 @@ class ImageSelectedContainer(context: Context, attrs: AttributeSet?) :
     }
 
     fun setImage(bitmap: Bitmap) {
-        binding.ivUserImage.let { Glide.with(this).load(bitmap).into(it) }
+        binding.ivUserImage.let { Glide.with(this).load(bitmap).centerCrop().into(it) }
     }
 
     private fun handleButtonClicks() {

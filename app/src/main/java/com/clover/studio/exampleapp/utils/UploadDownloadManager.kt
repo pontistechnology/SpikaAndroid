@@ -44,10 +44,9 @@ class UploadDownloadManager constructor(
         fileType: String,
         filePieces: Long,
         file: File,
+        isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
     ) {
-        Timber.d("${file.length()}")
-
         BufferedInputStream(FileInputStream(file)).use { bis ->
             var len: Int
             var piece = 0L
@@ -68,13 +67,11 @@ class UploadDownloadManager constructor(
                     file.name.toString(),
                     randomId,
                     Tools.sha256HashFromUri(activity, fileUri),
-                    fileType,
-                    1
+                    fileType
                 )
 
-                startUploadAPI(uploadFile, filePieces, fileUploadListener)
+                startUploadAPI(uploadFile, filePieces, isThumbnail, fileUploadListener)
 
-                Timber.d("$uploadFile")
                 piece++
             }
         }
@@ -83,6 +80,7 @@ class UploadDownloadManager constructor(
     private suspend fun startUploadAPI(
         uploadFile: UploadFile,
         chunks: Long,
+        isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
     ) {
         try {
@@ -97,18 +95,28 @@ class UploadDownloadManager constructor(
         chunkCount++
 
         if (chunkCount == chunks) {
-            verifyFileUpload(uploadFile, fileUploadListener)
+            verifyFileUpload(uploadFile, isThumbnail, fileUploadListener)
             chunkCount = 0
         }
     }
 
     private suspend fun verifyFileUpload(
         uploadFile: UploadFile,
+        isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
     ) {
         try {
-            val filePath = repository.verifyFile(uploadFile.fileToJson()).data?.file?.path
-            filePath?.let { fileUploadListener.fileUploadVerified(it) }
+            val file = repository.verifyFile(uploadFile.fileToJson()).data?.file
+            Timber.d("UploadDownload FilePath = ${file?.path}")
+            if (isThumbnail) file?.path?.let {
+                fileUploadListener.fileUploadVerified(
+                    it,
+                    file.id.toLong(),
+                    0
+                )
+            }
+            else file?.path?.let { fileUploadListener.fileUploadVerified(it, 0, file.id.toLong()) }
+
         } catch (ex: Exception) {
             Tools.checkError(ex)
             fileUploadListener.fileUploadError(ex.message.toString())
@@ -120,5 +128,5 @@ class UploadDownloadManager constructor(
 interface FileUploadListener {
     fun filePieceUploaded()
     fun fileUploadError(description: String)
-    fun fileUploadVerified(path: String)
+    fun fileUploadVerified(path: String, thumbId: Long = 0, fileId: Long = 0)
 }

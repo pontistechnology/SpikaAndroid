@@ -207,6 +207,7 @@ class SettingsFragment : BaseFragment() {
                     Const.JsonFields.AVATAR,
                     uploadPieces,
                     fileStream,
+                    false,
                     object :
                         FileUploadListener {
                         override fun filePieceUploaded() {
@@ -223,7 +224,7 @@ class SettingsFragment : BaseFragment() {
                             }
                         }
 
-                        override fun fileUploadVerified(path: String) {
+                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
                                 binding.clProgressScreen.visibility = View.GONE

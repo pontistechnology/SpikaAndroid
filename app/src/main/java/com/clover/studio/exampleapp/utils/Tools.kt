@@ -88,7 +88,7 @@ object Tools {
     }
 
     fun copyStreamToFile(activity: Activity, inputStream: InputStream): File {
-        val outputFile = File(activity.cacheDir, "tempFile.jpeg")
+        val outputFile = File(activity.cacheDir, "tempFile${System.currentTimeMillis()}.jpeg")
         inputStream.use { input ->
             val outputStream = FileOutputStream(outputFile)
             outputStream.use { output ->

@@ -58,6 +58,7 @@ class Const {
             // Chat
             const val ROOM_ID = "roomId"
             const val TEXT = "text"
+            const val CHAT_IMAGE = "image"
             const val NAME = "name"
             const val AVATAR_URL = "avatarUrl"
             const val USER_IDS = "userIds"

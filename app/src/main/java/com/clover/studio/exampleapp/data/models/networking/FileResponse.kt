@@ -11,7 +11,7 @@ data class FileData(
 )
 
 data class FileInfo(
-    val id: Int?,
+    val id: Int,
     val fileName: String?,
     val size: Long?,
     val mimeType: String?,

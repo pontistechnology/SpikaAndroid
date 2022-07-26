@@ -48,7 +48,7 @@ android {
             debuggable true
 
             resValue "string", "APP_NAME", "Example App Debug"
-            buildConfigField("String", "SERVER_URL", "\"https://beta.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.debug
         }
@@ -60,7 +60,7 @@ android {
             debuggable true
 
             resValue "string", "APP_NAME", "Example App Dev"
-            buildConfigField("String", "SERVER_URL", "\"https://beta.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.debug
         }
@@ -70,7 +70,7 @@ android {
             minifyEnabled false
 
             resValue "string", "APP_NAME", "Example App"
-            buildConfigField("String", "SERVER_URL", "\"https://beta.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.release
         }
@@ -82,7 +82,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             resValue "string", "APP_NAME", "Example App"
-            buildConfigField("String", "SERVER_URL", "\"https://beta.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.release
         }

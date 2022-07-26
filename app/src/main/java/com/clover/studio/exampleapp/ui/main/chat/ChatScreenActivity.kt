@@ -80,6 +80,8 @@ class ChatScreenActivity : BaseActivity() {
                     val imageSelected = ImageSelectedContainer(this, null)
                     bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }
                     bindingSetup.llImagesContainer.addView(imageSelected)
+
+                    runOnUiThread { showSendButton() }
                     imageSelected.setButtonListener(object :
                         ImageSelectedContainer.RemoveImageSelected {
                         override fun removeImage() {
@@ -88,7 +90,7 @@ class ChatScreenActivity : BaseActivity() {
                     })
 
                     val thumbnail =
-                        ThumbnailUtils.extractThumbnail(bitmap, THUMBNAIL_WIDTH, bitmap.height)
+                        ThumbnailUtils.extractThumbnail(bitmap, bitmap.width, bitmap.height)
                     val thumbnailUri = Tools.convertBitmapToUri(this, thumbnail)
                     // Create thumbnail for the image which will also be sent to the backend
                     thumbnailUris.add(thumbnailUri)
@@ -277,21 +279,9 @@ class ChatScreenActivity : BaseActivity() {
 
         bindingSetup.etMessage.addTextChangedListener {
             if (it?.isNotEmpty() == true) {
-                bindingSetup.ivCamera.visibility = View.GONE
-                bindingSetup.ivMicrophone.visibility = View.GONE
-                bindingSetup.ivButtonSend.visibility = View.VISIBLE
-                bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                    endToStart = bindingSetup.ivButtonSend.id
-                }
-                bindingSetup.ivAdd.rotation = ROTATION_ON
+                showSendButton()
             } else {
-                bindingSetup.ivCamera.visibility = View.VISIBLE
-                bindingSetup.ivMicrophone.visibility = View.VISIBLE
-                bindingSetup.ivButtonSend.visibility = View.GONE
-                bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                    endToStart = bindingSetup.ivCamera.id
-                }
-                bindingSetup.ivAdd.rotation = ROTATION_OFF
+                hideSendButton()
             }
         }
 
@@ -317,14 +307,32 @@ class ChatScreenActivity : BaseActivity() {
 
         bindingSetup.ivButtonSend.setOnClickListener {
             if (currentPhotoLocation.isNotEmpty()) {
-                currentPhotoLocation.forEach { imageUri ->
-                    uploadImage()
-                }
+                uploadImage()
             } else {
                 createTempMessage()
                 sendMessage()
             }
         }
+    }
+
+    private fun hideSendButton() {
+        bindingSetup.ivCamera.visibility = View.VISIBLE
+        bindingSetup.ivMicrophone.visibility = View.VISIBLE
+        bindingSetup.ivButtonSend.visibility = View.GONE
+        bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            endToStart = bindingSetup.ivCamera.id
+        }
+        bindingSetup.ivAdd.rotation = ROTATION_OFF
+    }
+
+    private fun showSendButton() {
+        bindingSetup.ivCamera.visibility = View.GONE
+        bindingSetup.ivMicrophone.visibility = View.GONE
+        bindingSetup.ivButtonSend.visibility = View.VISIBLE
+        bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            endToStart = bindingSetup.ivButtonSend.id
+        }
+        bindingSetup.ivAdd.rotation = ROTATION_ON
     }
 
     private fun sendMessage() {
@@ -341,10 +349,10 @@ class ChatScreenActivity : BaseActivity() {
         if (isImage) {
             innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
             innerObject.addProperty(Const.JsonFields.THUMB_ID, thumbId)
-        }
+            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.CHAT_IMAGE)
+        } else jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.TEXT)
 
         jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomWithUsers.room.roomId)
-        jsonObject.addProperty(Const.JsonFields.TYPE, "text")
         jsonObject.add(Const.JsonFields.BODY, innerObject)
 
         viewModel.sendMessage(jsonObject)
@@ -360,7 +368,7 @@ class ChatScreenActivity : BaseActivity() {
             -1,
             0,
             roomWithUsers.room.roomId,
-            "text",
+            Const.JsonFields.TEXT,
             MessageBody(bindingSetup.etMessage.text.toString(), 1, 1),
             System.currentTimeMillis()
         )
@@ -399,7 +407,7 @@ class ChatScreenActivity : BaseActivity() {
     private fun uploadImage() {
         val messageBody = MessageBody("", 0, 0)
         uploadThumbnail(messageBody, uploadIndex)
-        uploadFile(messageBody, false, currentPhotoLocation[uploadIndex])
+//        uploadFile(messageBody, false, currentPhotoLocation[uploadIndex])
     }
 
     private fun uploadFile(messageBody: MessageBody, isThumbnail: Boolean, uri: Uri) {
@@ -422,32 +430,30 @@ class ChatScreenActivity : BaseActivity() {
                 Const.JsonFields.AVATAR,
                 uploadPieces,
                 fileStream,
+                isThumbnail,
                 object : FileUploadListener {
                     override fun filePieceUploaded() {
                         // Update progress
                     }
 
                     override fun fileUploadError(description: String) {
-                        Timber.d("Upload Error")
                         this@ChatScreenActivity.runOnUiThread {
                             showUploadError(description)
                         }
                     }
 
-                    override fun fileUploadVerified(path: String) {
+                    override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
                         this@ChatScreenActivity.runOnUiThread {
                             if (!isThumbnail) {
-                                // TODO add file id to message body
+                                if (fileId > 0) messageBody.fileId = fileId
+                                sendMessage(true, messageBody.fileId!!, messageBody.thumbId!!)
                                 uploadIndex++
                                 if (uploadIndex < currentPhotoLocation.size) {
                                     uploadImage()
-                                } else {
-                                    // TODO Add image ids to message
-                                    sendMessage()
-                                }
+                                } else uploadIndex = 0
                             } else {
-                                // TODO add thumb id to message body
-                                messageBody.thumbId = 0
+                                if (thumbId > 0) messageBody.thumbId = thumbId
+                                uploadFile(messageBody, false, currentPhotoLocation[uploadIndex])
                             }
                         }
 

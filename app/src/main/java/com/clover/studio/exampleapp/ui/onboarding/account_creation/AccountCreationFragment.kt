@@ -222,6 +222,7 @@ class AccountCreationFragment : BaseFragment() {
                         Const.JsonFields.AVATAR,
                         uploadPieces,
                         fileStream,
+                        false,
                         object : FileUploadListener {
                             override fun filePieceUploaded() {
                                 if (progress <= uploadPieces) {
@@ -237,7 +238,11 @@ class AccountCreationFragment : BaseFragment() {
                                 }
                             }
 
-                            override fun fileUploadVerified(path: String) {
+                            override fun fileUploadVerified(
+                                path: String,
+                                thumbId: Long,
+                                fileId: Long
+                            ) {
                                 requireActivity().runOnUiThread {
                                     binding.clProgressScreen.visibility = View.GONE
                                 }
@@ -248,7 +253,6 @@ class AccountCreationFragment : BaseFragment() {
                                 )
                                 viewModel.updateUserData(userData)
                             }
-
                         })
                 }
                 binding.clProgressScreen.visibility = View.VISIBLE

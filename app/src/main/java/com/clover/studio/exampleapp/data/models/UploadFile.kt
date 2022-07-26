@@ -27,9 +27,6 @@ data class UploadFile(
 
     // type: The name of the other model to which the file refers to(avatar, message, group)
     var type: String?,
-
-    // relationId: The id of the model the file refers to
-    var relationId: Int?
 ) {
     fun fileToJson(): JsonObject {
         val jsonObject = JsonObject()
@@ -41,7 +38,6 @@ data class UploadFile(
         jsonObject.addProperty(Const.JsonFields.CLIENT_ID, clientId)
         jsonObject.addProperty(Const.JsonFields.FILE_HASH, fileHash)
         jsonObject.addProperty(Const.JsonFields.TYPE, type)
-        jsonObject.addProperty(Const.JsonFields.RELATION_ID, relationId)
 
         return jsonObject
     }
