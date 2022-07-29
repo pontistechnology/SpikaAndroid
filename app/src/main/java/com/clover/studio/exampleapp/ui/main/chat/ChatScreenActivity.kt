@@ -62,7 +62,7 @@ class ChatScreenActivity : BaseActivity() {
     private var unsentMessages: MutableList<Message> = ArrayList()
     private var currentPhotoLocation: MutableList<Uri> = ArrayList()
     private var thumbnailUris: MutableList<Uri> = ArrayList()
-    private var imageMessageData: MutableList<MessageBody> = ArrayList()
+    private var photoImageUri: Uri? = null
     private var isAdmin = false
     private var uploadIndex = 0
 
@@ -105,31 +105,32 @@ class ChatScreenActivity : BaseActivity() {
     private val takePhotoContract =
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
-                val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(this, currentPhotoLocation[0])
-                currentPhotoLocation.clear()
-                val bitmapUri = Tools.convertBitmapToUri(this, bitmap!!)
+                if (photoImageUri != null) {
+                    val bitmap =
+                        Tools.handleSamplingAndRotationBitmap(this, photoImageUri)
+                    val bitmapUri = Tools.convertBitmapToUri(this, bitmap!!)
 
-                val imageSelected = ImageSelectedContainer(this, null)
-                bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }
-                bindingSetup.llImagesContainer.addView(imageSelected)
+                    val imageSelected = ImageSelectedContainer(this, null)
+                    bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }
+                    bindingSetup.llImagesContainer.addView(imageSelected)
 
-                runOnUiThread { showSendButton() }
-                imageSelected.setButtonListener(object :
-                    ImageSelectedContainer.RemoveImageSelected {
-                    override fun removeImage() {
-                        bindingSetup.llImagesContainer.removeView(imageSelected)
-                    }
-                })
-                val thumbnail =
-                    ThumbnailUtils.extractThumbnail(bitmap, bitmap.width, bitmap.height)
-                val thumbnailUri = Tools.convertBitmapToUri(this, thumbnail)
-                // Create thumbnail for the image which will also be sent to the backend
-                thumbnailUris.add(thumbnailUri)
-                currentPhotoLocation.add(bitmapUri)
-            } else {
-                Timber.d("Photo error")
-            }
+                    runOnUiThread { showSendButton() }
+                    imageSelected.setButtonListener(object :
+                        ImageSelectedContainer.RemoveImageSelected {
+                        override fun removeImage() {
+                            bindingSetup.llImagesContainer.removeView(imageSelected)
+                        }
+                    })
+                    val thumbnail =
+                        ThumbnailUtils.extractThumbnail(bitmap, bitmap.width, bitmap.height)
+                    val thumbnailUri = Tools.convertBitmapToUri(this, thumbnail)
+                    // Create thumbnail for the image which will also be sent to the backend
+                    thumbnailUris.add(thumbnailUri)
+                    currentPhotoLocation.add(bitmapUri)
+                } else {
+                    Timber.d("Photo error")
+                }
+            } else Timber.d("Photo error")
         }
 
 
@@ -398,16 +399,14 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun takePhoto() {
-        val tempFileUri = FileProvider.getUriForFile(
+        photoImageUri = FileProvider.getUriForFile(
             this,
             "com.clover.studio.exampleapp.fileprovider",
             Tools.createImageFile(
                 (this)
             )
         )
-        currentPhotoLocation.add(tempFileUri)
-        Timber.d("$currentPhotoLocation")
-        takePhotoContract.launch(currentPhotoLocation[0])
+        takePhotoContract.launch(photoImageUri)
     }
 
     private fun uploadThumbnail(messageBody: MessageBody, index: Int) {
