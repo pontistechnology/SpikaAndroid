@@ -56,6 +56,15 @@ data class Message(
 data class MessageBody(
     var text: String?,
     var fileId: Long?,
-    var thumbId: Long?
+    var thumbId: Long?,
+    var file: MessageFile?,
+    var thumb: MessageFile?
+)
+
+data class MessageFile(
+    val fileName: String,
+    val mimeType: String,
+    val path: String,
+    val size: Long
 )
 

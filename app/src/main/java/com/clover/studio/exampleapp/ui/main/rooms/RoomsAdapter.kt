@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
@@ -52,7 +53,10 @@ class RoomsAdapter(
 
                 if (!roomItem.message.isNullOrEmpty()) {
                     val sortedList = roomItem.message.sortedBy { it.message.createdAt }
-                    binding.tvLastMessage.text = sortedList.last().message.body?.text.toString()
+                    val lastMessage = sortedList.last().message.body
+                    if (lastMessage?.text.isNullOrEmpty()) {
+                        binding.tvLastMessage.text = context.getString(R.string.image_shared)
+                    } else binding.tvLastMessage.text = lastMessage?.text.toString()
 
                     binding.tvMessageTime.text = roomItem.message.last().message.createdAt?.let {
                         getRelativeTimeSpan(it)

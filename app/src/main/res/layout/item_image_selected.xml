@@ -26,6 +26,44 @@
             android:src="@drawable/img_camera" />
     </androidx.cardview.widget.CardView>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_progress_screen"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:elevation="5dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:backgroundTint="@color/dark_background_transp"
+            android:layout_margin="10dp"
+            app:cardCornerRadius="10dp"
+            app:cardPreventCornerOverlap="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:indeterminate="false"
+            android:elevation="5dp"
+            android:progress="0"
+            android:progressDrawable="@drawable/custom_circular_progress"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <ImageView
         android:id="@+id/iv_remove_image"
         android:layout_width="20dp"

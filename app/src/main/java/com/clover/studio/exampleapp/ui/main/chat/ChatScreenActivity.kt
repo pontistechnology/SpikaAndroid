@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.FileProvider
+import androidx.core.view.get
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -369,7 +370,7 @@ class ChatScreenActivity : BaseActivity() {
             0,
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT,
-            MessageBody(bindingSetup.etMessage.text.toString(), 1, 1),
+            MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null),
             System.currentTimeMillis()
         )
 
@@ -405,7 +406,7 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun uploadImage() {
-        val messageBody = MessageBody("", 0, 0)
+        val messageBody = MessageBody("", 0, 0, null, null)
         uploadThumbnail(messageBody, uploadIndex)
 //        uploadFile(messageBody, false, currentPhotoLocation[uploadIndex])
     }
@@ -419,8 +420,10 @@ class ChatScreenActivity : BaseActivity() {
             if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
                 fileStream.length() / CHUNK_SIZE + 1
             else fileStream.length() / CHUNK_SIZE
+        var progress = 0
 
-//            binding.progressBar.max = uploadPieces.toInt()
+        val imageContainer = bindingSetup.llImagesContainer[uploadIndex] as ImageSelectedContainer
+        imageContainer.setMaxProgress(uploadPieces.toInt())
         Timber.d("File upload start")
         CoroutineScope(Dispatchers.IO).launch {
             uploadDownloadManager.uploadFile(
@@ -433,12 +436,16 @@ class ChatScreenActivity : BaseActivity() {
                 isThumbnail,
                 object : FileUploadListener {
                     override fun filePieceUploaded() {
-                        // Update progress
+                        if (progress <= uploadPieces) {
+                            imageContainer.setUploadProgress(progress)
+                            progress++
+                        } else progress = 0
                     }
 
                     override fun fileUploadError(description: String) {
                         this@ChatScreenActivity.runOnUiThread {
                             showUploadError(description)
+                            imageContainer.hideProgressScreen()
                         }
                     }
 
@@ -447,6 +454,9 @@ class ChatScreenActivity : BaseActivity() {
                             if (!isThumbnail) {
                                 if (fileId > 0) messageBody.fileId = fileId
                                 sendMessage(true, messageBody.fileId!!, messageBody.thumbId!!)
+
+                                // TODO think about changing this... Index changes for other views when removed
+                                imageContainer.removeView(imageContainer[0])
                                 uploadIndex++
                                 if (uploadIndex < currentPhotoLocation.size) {
                                     uploadImage()
@@ -454,6 +464,7 @@ class ChatScreenActivity : BaseActivity() {
                             } else {
                                 if (thumbId > 0) messageBody.thumbId = thumbId
                                 uploadFile(messageBody, false, currentPhotoLocation[uploadIndex])
+                                imageContainer.hideProgressScreen()
                             }
                         }
 

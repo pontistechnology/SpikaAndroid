@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
@@ -36,5 +37,18 @@ class ImageSelectedContainer(context: Context, attrs: AttributeSet?) :
 
     private fun handleButtonClicks() {
         binding.ivRemoveImage.setOnClickListener { removeImageSelected!!.removeImage() }
+    }
+
+    fun setMaxProgress(progress: Int) {
+        binding.progressBar.max = progress
+        binding.clProgressScreen.visibility = View.VISIBLE
+    }
+
+    fun setUploadProgress(progress: Int) {
+        binding.progressBar.secondaryProgress = progress
+    }
+
+    fun hideProgressScreen() {
+        binding.clProgressScreen.visibility = View.GONE
     }
 }
