@@ -107,17 +107,25 @@ class ChatScreenActivity : BaseActivity() {
             if (it) {
                 val bitmap =
                     Tools.handleSamplingAndRotationBitmap(this, currentPhotoLocation[0])
+                currentPhotoLocation.clear()
                 val bitmapUri = Tools.convertBitmapToUri(this, bitmap!!)
 
                 val imageSelected = ImageSelectedContainer(this, null)
                 bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }
                 bindingSetup.llImagesContainer.addView(imageSelected)
+
+                runOnUiThread { showSendButton() }
                 imageSelected.setButtonListener(object :
                     ImageSelectedContainer.RemoveImageSelected {
                     override fun removeImage() {
                         bindingSetup.llImagesContainer.removeView(imageSelected)
                     }
                 })
+                val thumbnail =
+                    ThumbnailUtils.extractThumbnail(bitmap, bitmap.width, bitmap.height)
+                val thumbnailUri = Tools.convertBitmapToUri(this, thumbnail)
+                // Create thumbnail for the image which will also be sent to the backend
+                thumbnailUris.add(thumbnailUri)
                 currentPhotoLocation.add(bitmapUri)
             } else {
                 Timber.d("Photo error")
@@ -390,13 +398,14 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun takePhoto() {
-        currentPhotoLocation[0] = FileProvider.getUriForFile(
+        val tempFileUri = FileProvider.getUriForFile(
             this,
             "com.clover.studio.exampleapp.fileprovider",
             Tools.createImageFile(
                 (this)
             )
         )
+        currentPhotoLocation.add(tempFileUri)
         Timber.d("$currentPhotoLocation")
         takePhotoContract.launch(currentPhotoLocation[0])
     }
