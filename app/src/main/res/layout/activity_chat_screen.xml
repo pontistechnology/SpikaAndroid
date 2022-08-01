@@ -90,16 +90,21 @@
             app:layout_constraintEnd_toStartOf="@id/iv_call_user"
             app:layout_constraintTop_toTopOf="@id/iv_call_user" />
 
-        <LinearLayout
-            android:id="@+id/ll_images_container"
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:background="@color/white"
             android:elevation="1dp"
             app:layout_constraintBottom_toTopOf="@id/iv_add"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent">
+
+            <LinearLayout
+                android:id="@+id/ll_images_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
 
         <ImageView
             android:id="@+id/iv_add"

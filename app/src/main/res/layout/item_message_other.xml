@@ -11,11 +11,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp"
+        android:fontFamily="@font/montserrat"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/tv_username"
         app:layout_constraintEnd_toEndOf="parent"
-        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        android:fontFamily="@font/montserrat"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -28,42 +28,69 @@
         android:textColor="@color/text_tertiary"
         android:textSize="12sp"
         app:layout_constrainedHeight="true"
-        app:layout_constraintBottom_toTopOf="@id/tv_message"
-        app:layout_constraintStart_toStartOf="@id/tv_message" />
+        app:layout_constraintBottom_toTopOf="@id/cl_container"
+        app:layout_constraintStart_toStartOf="@id/cl_container" />
 
-    <TextView
-        android:id="@+id/tv_message"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_message_received"
-        android:fontFamily="@font/montserrat"
-        android:gravity="center|start"
-        android:padding="10dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        android:text="@string/some_message"
-        android:textSize="14sp"
         app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toStartOf="@id/iv_emoticons"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toEndOf="@id/cv_chat_image"
-        app:layout_constraintTop_toBottomOf="@id/tv_username" />
+        app:layout_constraintTop_toBottomOf="@id/tv_username">
+
+        <!-- TODO change this placeholder height size -->
+        <ImageView
+            android:id="@+id/iv_chat_image"
+            android:layout_width="wrap_content"
+            android:layout_height="256dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="24dp"
+            android:padding="10dp"
+            android:visibility="gone"
+            app:layout_constrainedHeight="true"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_message_received"
+            android:fontFamily="@font/montserrat"
+            android:gravity="center|start"
+            android:padding="10dp"
+            android:text="@string/some_message"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_chat_image"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_margin="20dp"
-        app:layout_constraintHorizontal_chainStyle="packed"
         android:background="@drawable/img_selector_background"
         android:backgroundTint="@color/light_blue"
         android:elevation="0dp"
-        app:layout_constraintHorizontal_bias="0.0"
         app:cardCornerRadius="50dp"
         app:cardPreventCornerOverlap="false"
-        app:layout_constraintBottom_toBottomOf="@id/tv_message"
-        app:layout_constraintEnd_toStartOf="@id/tv_message"
+        app:layout_constraintBottom_toBottomOf="@id/cl_container"
+        app:layout_constraintEnd_toStartOf="@id/cl_container"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_message">
+        app:layout_constraintTop_toTopOf="@id/cl_container">
 
         <ImageView
             android:id="@+id/iv_user_image"
@@ -82,10 +109,10 @@
         android:layout_marginEnd="20dp"
         android:scaleType="center"
         android:src="@drawable/img_smiley_gray"
-        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/tv_message"
-        app:layout_constraintTop_toTopOf="@id/tv_message"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/cl_container"
+        app:layout_constraintTop_toTopOf="@id/cl_container"
         tools:ignore="ContentDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

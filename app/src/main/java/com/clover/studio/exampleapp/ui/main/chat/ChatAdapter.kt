@@ -121,6 +121,19 @@ class ChatAdapter(
                 }
             } else {
                 (holder as ReceivedMessageHolder).binding.tvMessage.text = it.body?.text
+
+                if (it.body?.text.isNullOrEmpty()) {
+                    holder.binding.tvMessage.visibility = View.GONE
+                    holder.binding.ivChatImage.visibility = View.VISIBLE
+
+                    Glide.with(context)
+                        .load(it.body?.file?.path?.let { imagePath -> Tools.getAvatarUrl(imagePath) })
+                        .into(holder.binding.ivChatImage)
+                } else {
+                    holder.binding.tvMessage.visibility = View.VISIBLE
+                    holder.binding.ivChatImage.visibility = View.GONE
+                }
+
                 for (roomUser in users) {
                     if (it.fromUserId == roomUser.id) {
                         holder.binding.tvUsername.text = roomUser.displayName
