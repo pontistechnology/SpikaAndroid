@@ -87,8 +87,8 @@ object Tools {
         return map
     }
 
-    fun copyStreamToFile(activity: Activity, inputStream: InputStream): File {
-        val outputFile = File(activity.cacheDir, "tempFile${System.currentTimeMillis()}.jpeg")
+    fun copyStreamToFile(activity: Activity, inputStream: InputStream, extension: String): File {
+        val outputFile = File(activity.cacheDir, "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}")
         inputStream.use { input ->
             val outputStream = FileOutputStream(outputFile)
             outputStream.use { output ->
@@ -240,12 +240,12 @@ object Tools {
         }
     }
 
-    fun sha256HashFromUri(activity: Activity, currentPhotoLocation: Uri): String? {
+    fun sha256HashFromUri(activity: Activity, currentPhotoLocation: Uri, extension: String): String? {
         val sha256FileHash: String?
         val inputStream =
             activity.contentResolver.openInputStream(currentPhotoLocation)
         sha256FileHash =
-            calculateSHA256FileHash(copyStreamToFile(activity, inputStream!!))
+            calculateSHA256FileHash(copyStreamToFile(activity, inputStream!!, extension))
 
         return sha256FileHash
     }

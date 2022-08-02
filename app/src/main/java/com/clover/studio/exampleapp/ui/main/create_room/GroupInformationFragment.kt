@@ -259,7 +259,7 @@ class GroupInformationFragment : Fragment() {
             val inputStream =
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
 
-            val fileStream = Tools.copyStreamToFile(requireActivity(), inputStream!!)
+            val fileStream = Tools.copyStreamToFile(requireActivity(), inputStream!!, activity?.contentResolver?.getType(currentPhotoLocation)!!)
             val uploadPieces =
                 if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
                     fileStream.length() / CHUNK_SIZE + 1

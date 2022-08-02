@@ -6,11 +6,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    app:contentInsetEnd="0dp"
+    app:contentInsetStart="0dp"
+    app:layout_dodgeInsetEdges="bottom"
     tools:context=".ui.main.chat.ChatScreenActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <View
+            android:id="@+id/v_transparent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/dark_background_transp"
+            android:elevation="3dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/iv_add"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/iv_arrow_back"
@@ -110,6 +123,7 @@
             android:id="@+id/iv_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/white"
             android:padding="20dp"
             android:src="@drawable/img_add"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -170,6 +184,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
+            android:background="@color/white"
             android:src="@drawable/img_smiley"
             app:layout_constraintBottom_toBottomOf="@id/cl_typing"
             app:layout_constraintEnd_toEndOf="@id/cl_typing"
@@ -179,6 +194,7 @@
             android:id="@+id/iv_microphone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/white"
             android:padding="20dp"
             android:src="@drawable/img_microphone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -188,6 +204,7 @@
             android:id="@+id/iv_button_send"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/white"
             android:padding="20dp"
             android:src="@drawable/img_button_send"
             android:visibility="gone"
@@ -199,11 +216,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
+            android:background="@color/white"
             android:src="@drawable/img_camera"
             app:layout_constraintBottom_toBottomOf="@id/iv_microphone"
             app:layout_constraintEnd_toStartOf="@id/iv_microphone"
             app:layout_constraintStart_toEndOf="@id/cl_typing"
             app:layout_constraintTop_toTopOf="@id/iv_microphone" />
 
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:elevation="4dp"
+            app:layout_constraintBottom_toTopOf="@id/iv_add"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <include
+                android:id="@+id/bottom_sheet"
+                layout="@layout/bottom_sheet_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:behavior_peekHeight="0dp"
+                app:layout_anchorGravity="bottom"
+                app:layout_behavior="@string/bottom_sheet_behavior" />
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

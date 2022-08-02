@@ -37,9 +37,11 @@ class Const {
 
             // Mime types
             const val IMAGE = "image/*"
+            const val FILE = "*/*"
 
             // File types
             const val AVATAR = "avatar"
+            const val FILE_TYPE = "file"
 
             // File upload
             const val CHUNK = "chunk"

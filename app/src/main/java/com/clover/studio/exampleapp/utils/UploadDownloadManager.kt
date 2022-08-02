@@ -66,7 +66,7 @@ class UploadDownloadManager constructor(
                     mimeType,
                     file.name.toString(),
                     randomId,
-                    Tools.sha256HashFromUri(activity, fileUri),
+                    Tools.sha256HashFromUri(activity, fileUri, activity.contentResolver.getType(fileUri)!!),
                     fileType
                 )
 

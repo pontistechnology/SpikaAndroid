@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.FileProvider
 import androidx.core.view.get
@@ -31,6 +32,7 @@ import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,13 +63,24 @@ class ChatScreenActivity : BaseActivity() {
     private lateinit var messages: MutableList<Message>
     private var unsentMessages: MutableList<Message> = ArrayList()
     private var currentPhotoLocation: MutableList<Uri> = ArrayList()
+    private var filesSelected: MutableList<Uri> = ArrayList()
     private var thumbnailUris: MutableList<Uri> = ArrayList()
     private var photoImageUri: Uri? = null
     private var isAdmin = false
     private var uploadIndex = 0
+    private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
+
+    private val chooseFileContract =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+            if (it != null) {
+                displayFileInContainer()
+                runOnUiThread { showSendButton() }
+                filesSelected.add(it)
+            }
+        }
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
@@ -96,6 +109,8 @@ class ChatScreenActivity : BaseActivity() {
         bindingSetup = ActivityChatScreenBinding.inflate(layoutInflater)
         val view = bindingSetup.root
         setContentView(view)
+
+        bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
 
         val gson = Gson()
         // Fetch room data sent from previous activity
@@ -227,6 +242,10 @@ class ChatScreenActivity : BaseActivity() {
             finish()
         }
 
+        bindingSetup.ivMicrophone.setOnClickListener {
+            chooseFile()
+        }
+
         bindingSetup.ivCamera.setOnClickListener {
             ChooserDialog.getInstance(this,
                 getString(R.string.placeholder_title),
@@ -275,10 +294,22 @@ class ChatScreenActivity : BaseActivity() {
         bindingSetup.ivButtonSend.setOnClickListener {
             if (currentPhotoLocation.isNotEmpty()) {
                 uploadImage()
+            } else if (filesSelected.isNotEmpty()) {
+                uploadFile(filesSelected[0])
             } else {
                 createTempMessage()
                 sendMessage()
             }
+        }
+
+        bindingSetup.ivAdd.setOnClickListener {
+            bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
+            bindingSetup.vTransparent.visibility = View.VISIBLE
+        }
+
+        bindingSetup.bottomSheet.ivRemove.setOnClickListener {
+            bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+            bindingSetup.vTransparent.visibility = View.GONE
         }
     }
 
@@ -303,10 +334,10 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun sendMessage() {
-        sendMessage(false, 0, 0)
+        sendMessage(isImage = false, isFile = false, 0, 0)
     }
 
-    private fun sendMessage(isImage: Boolean, fileId: Long, thumbId: Long) {
+    private fun sendMessage(isImage: Boolean, isFile: Boolean, fileId: Long, thumbId: Long) {
         val jsonObject = JsonObject()
         val innerObject = JsonObject()
         innerObject.addProperty(
@@ -317,6 +348,9 @@ class ChatScreenActivity : BaseActivity() {
             innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
             innerObject.addProperty(Const.JsonFields.THUMB_ID, thumbId)
             jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.CHAT_IMAGE)
+        } else if (isFile) {
+            innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
+            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.FILE_TYPE)
         } else jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.TEXT)
 
         jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomWithUsers.room.roomId)
@@ -351,6 +385,10 @@ class ChatScreenActivity : BaseActivity() {
         finish()
     }
 
+    private fun chooseFile() {
+        chooseFileContract.launch(arrayOf(Const.JsonFields.FILE))
+    }
+
     private fun chooseImage() {
         chooseImageContract.launch(Const.JsonFields.IMAGE)
     }
@@ -367,7 +405,7 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun uploadThumbnail(messageBody: MessageBody, index: Int) {
-        uploadFile(messageBody, true, thumbnailUris[index])
+        uploadImage(messageBody, true, thumbnailUris[index])
     }
 
     private fun uploadImage() {
@@ -376,11 +414,69 @@ class ChatScreenActivity : BaseActivity() {
 //        uploadFile(messageBody, false, currentPhotoLocation[uploadIndex])
     }
 
-    private fun uploadFile(messageBody: MessageBody, isThumbnail: Boolean, uri: Uri) {
+    private fun uploadFile(uri: Uri) {
+        val messageBody = MessageBody("", 0, 0, null, null)
         val inputStream =
             this.contentResolver.openInputStream(uri)
 
-        val fileStream = Tools.copyStreamToFile(this, inputStream!!)
+        val fileStream = Tools.copyStreamToFile(this, inputStream!!, contentResolver.getType(uri)!!)
+        val uploadPieces =
+            if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
+                fileStream.length() / CHUNK_SIZE + 1
+            else fileStream.length() / CHUNK_SIZE
+        var progress = 0
+
+        val imageContainer = bindingSetup.llImagesContainer[uploadIndex] as ImageSelectedContainer
+        imageContainer.setMaxProgress(uploadPieces.toInt())
+        Timber.d("File upload start")
+        CoroutineScope(Dispatchers.IO).launch {
+            uploadDownloadManager.uploadFile(
+                this@ChatScreenActivity,
+                uri,
+                Const.JsonFields.FILE,
+                Const.JsonFields.FILE_TYPE,
+                uploadPieces,
+                fileStream,
+                false,
+                object : FileUploadListener {
+                    override fun filePieceUploaded() {
+                        if (progress <= uploadPieces) {
+                            imageContainer.setUploadProgress(progress)
+                            progress++
+                        } else progress = 0
+                    }
+
+                    override fun fileUploadError(description: String) {
+                        this@ChatScreenActivity.runOnUiThread {
+                            showUploadError(description)
+                            imageContainer.hideProgressScreen()
+                        }
+                    }
+
+                    override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                        this@ChatScreenActivity.runOnUiThread {
+                            Timber.d("Successfully sent file")
+                            imageContainer.removeView(imageContainer[0])
+                            if (fileId > 0) messageBody.fileId = fileId
+                            sendMessage(
+                                isImage = false,
+                                isFile = true,
+                                messageBody.fileId!!,
+                                0
+                            )
+                        }
+
+                        // update room data
+                    }
+                })
+        }
+    }
+
+    private fun uploadImage(messageBody: MessageBody, isThumbnail: Boolean, uri: Uri) {
+        val inputStream =
+            this.contentResolver.openInputStream(uri)
+
+        val fileStream = Tools.copyStreamToFile(this, inputStream!!, contentResolver.getType(uri)!!)
         val uploadPieces =
             if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
                 fileStream.length() / CHUNK_SIZE + 1
@@ -418,7 +514,12 @@ class ChatScreenActivity : BaseActivity() {
                         this@ChatScreenActivity.runOnUiThread {
                             if (!isThumbnail) {
                                 if (fileId > 0) messageBody.fileId = fileId
-                                sendMessage(true, messageBody.fileId!!, messageBody.thumbId!!)
+                                sendMessage(
+                                    isImage = true,
+                                    isFile = false,
+                                    messageBody.fileId!!,
+                                    messageBody.thumbId!!
+                                )
 
                                 // TODO think about changing this... Index changes for other views when removed
                                 imageContainer.removeView(imageContainer[0])
@@ -428,14 +529,13 @@ class ChatScreenActivity : BaseActivity() {
                                 } else uploadIndex = 0
                             } else {
                                 if (thumbId > 0) messageBody.thumbId = thumbId
-                                uploadFile(messageBody, false, currentPhotoLocation[uploadIndex])
+                                uploadImage(messageBody, false, currentPhotoLocation[uploadIndex])
                                 imageContainer.hideProgressScreen()
                             }
                         }
 
                         // update room data
                     }
-
                 })
         }
     }
@@ -455,6 +555,11 @@ class ChatScreenActivity : BaseActivity() {
                     // ignore
                 }
             })
+    }
+
+    private fun displayFileInContainer() {
+        val imageSelected = ImageSelectedContainer(this, null)
+        bindingSetup.llImagesContainer.addView(imageSelected)
     }
 
     private fun convertImageToBitmap(imageUri: Uri?) {
