@@ -9,7 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.ItemImageSelectedBinding
-import timber.log.Timber
+import com.clover.studio.exampleapp.utils.Const
 
 class ImageSelectedContainer(context: Context, attrs: AttributeSet?) :
     ConstraintLayout(context, attrs) {
@@ -35,6 +35,34 @@ class ImageSelectedContainer(context: Context, attrs: AttributeSet?) :
         binding.ivUserImage.let { Glide.with(this).load(bitmap).centerCrop().into(it) }
     }
 
+    fun setFile(extension: String, name: String) {
+        binding.clFileDetails.visibility = View.VISIBLE
+        binding.ivUserImage.visibility = View.GONE
+
+        binding.tvFileName.text = name
+
+        when (extension) {
+            Const.FileExtensions.PDF -> binding.ivFile.setImageDrawable(
+                context.resources.getDrawable(
+                    R.drawable.img_pdf,
+                    null
+                )
+            )
+            Const.FileExtensions.ZIP -> binding.ivFile.setImageDrawable(
+                context.resources.getDrawable(
+                    R.drawable.img_zip,
+                    null
+                )
+            )
+            else -> binding.ivFile.setImageDrawable(
+                context.resources.getDrawable(
+                    R.drawable.img_word,
+                    null
+                )
+            )
+        }
+    }
+
     private fun handleButtonClicks() {
         binding.ivRemoveImage.setOnClickListener { removeImageSelected!!.removeImage() }
     }
@@ -42,6 +70,7 @@ class ImageSelectedContainer(context: Context, attrs: AttributeSet?) :
     fun setMaxProgress(progress: Int) {
         binding.progressBar.max = progress
         binding.clProgressScreen.visibility = View.VISIBLE
+        binding.ivRemoveImage.visibility = View.GONE
     }
 
     fun setUploadProgress(progress: Int) {

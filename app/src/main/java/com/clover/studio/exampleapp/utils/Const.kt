@@ -17,6 +17,13 @@ class Const {
         }
     }
 
+    class FileExtensions {
+        companion object {
+            const val PDF = "pdf"
+            const val ZIP = "zip"
+        }
+    }
+
     class JsonFields {
         companion object {
             const val CODE: String = "code"

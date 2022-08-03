@@ -6,6 +6,7 @@ import android.content.Intent
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -76,7 +77,7 @@ class ChatScreenActivity : BaseActivity() {
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
             if (it != null) {
                 for (uri in it) {
-                    displayFileInContainer()
+                    displayFileInContainer(uri)
                     runOnUiThread { showSendButton() }
                     filesSelected.add(uri)
                 }
@@ -246,6 +247,7 @@ class ChatScreenActivity : BaseActivity() {
         bindingSetup.bottomSheet.btnFiles.setOnClickListener {
             chooseFile()
             bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+            bindingSetup.vTransparent.visibility = View.GONE
         }
 
         bindingSetup.ivCamera.setOnClickListener {
@@ -570,8 +572,25 @@ class ChatScreenActivity : BaseActivity() {
             })
     }
 
-    private fun displayFileInContainer() {
+    private fun displayFileInContainer(uri: Uri) {
         val imageSelected = ImageSelectedContainer(this, null)
+
+        var fileName = ""
+        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
+
+        val cr = applicationContext.contentResolver
+        cr.query(uri, projection, null, null, null)?.use { metaCursor ->
+            if (metaCursor.moveToFirst()) {
+                fileName = metaCursor.getString(0)
+            }
+        }
+
+        imageSelected.setFile(contentResolver.getType(uri)!!, fileName)
+        imageSelected.setButtonListener(object : ImageSelectedContainer.RemoveImageSelected {
+            override fun removeImage() {
+                bindingSetup.llImagesContainer.removeView(imageSelected)
+            }
+        })
         bindingSetup.llImagesContainer.addView(imageSelected)
     }
 

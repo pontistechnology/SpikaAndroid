@@ -8,15 +8,46 @@
         android:id="@+id/cv_image_container"
         android:layout_width="75dp"
         android:layout_height="75dp"
+        android:layout_margin="10dp"
         android:backgroundTint="@color/light_blue"
         android:elevation="0dp"
-        android:layout_margin="10dp"
         app:cardCornerRadius="10dp"
         app:cardPreventCornerOverlap="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_file_details"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/iv_file"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/img_pdf"
+                app:layout_constraintBottom_toTopOf="@id/tv_file_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_file_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/montserrat"
+                android:maxLines="1"
+                android:text="@string/placeholder_title"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iv_file" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
             android:id="@+id/iv_user_image"
@@ -40,22 +71,22 @@
         <androidx.cardview.widget.CardView
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:backgroundTint="@color/dark_background_transp"
             android:layout_margin="10dp"
+            android:backgroundTint="@color/dark_background_transp"
             app:cardCornerRadius="10dp"
             app:cardPreventCornerOverlap="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ProgressBar
             android:id="@+id/progress_bar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:indeterminate="false"
             android:elevation="5dp"
+            android:indeterminate="false"
             android:progress="0"
             android:progressDrawable="@drawable/custom_circular_progress"
             app:layout_constraintBottom_toBottomOf="parent"

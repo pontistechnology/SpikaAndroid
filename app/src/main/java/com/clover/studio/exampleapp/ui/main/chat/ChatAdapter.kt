@@ -18,6 +18,7 @@ import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
 import timber.log.Timber
@@ -69,18 +70,58 @@ class ChatAdapter(
             val date = calendar.get(Calendar.DAY_OF_MONTH)
 
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
-                (holder as SentMessageHolder).binding.tvMessage.text = it.body?.text
+                holder as SentMessageHolder
+                when (it.type) {
+                    Const.JsonFields.TEXT -> {
+                        holder.binding.tvMessage.text = it.body?.text
+                        holder.binding.tvMessage.visibility = View.VISIBLE
+                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.clFileMessage.visibility = View.GONE
+                    }
+                    Const.JsonFields.CHAT_IMAGE -> {
+                        holder.binding.tvMessage.visibility = View.GONE
+                        holder.binding.ivChatImage.visibility = View.VISIBLE
+                        holder.binding.clFileMessage.visibility = View.GONE
 
-                if (it.body?.text.isNullOrEmpty()) {
-                    holder.binding.tvMessage.visibility = View.GONE
-                    holder.binding.ivChatImage.visibility = View.VISIBLE
+                        Glide.with(context)
+                            .load(it.body?.file?.path?.let { imagePath ->
+                                Tools.getAvatarUrl(
+                                    imagePath
+                                )
+                            })
+                            .into(holder.binding.ivChatImage)
+                    }
+                    Const.JsonFields.FILE_TYPE -> {
+                        holder.binding.tvMessage.visibility = View.GONE
+                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.clFileMessage.visibility = View.VISIBLE
 
-                    Glide.with(context)
-                        .load(it.body?.file?.path?.let { imagePath -> Tools.getAvatarUrl(imagePath) })
-                        .into(holder.binding.ivChatImage)
-                } else {
-                    holder.binding.tvMessage.visibility = View.VISIBLE
-                    holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.tvFileTitle.text = it.body?.file?.fileName
+                        holder.binding.tvFileSize.text = it.body?.file?.size.toString()
+
+                        when (it.body?.file?.fileName?.substringAfterLast(".")) {
+                            Const.FileExtensions.PDF -> holder.binding.ivFileType.setImageDrawable(
+                                context.resources.getDrawable(
+                                    R.drawable.img_pdf, null
+                                )
+                            )
+                            Const.FileExtensions.ZIP -> holder.binding.ivFileType.setImageDrawable(
+                                context.resources.getDrawable(
+                                    R.drawable.img_zip, null
+                                )
+                            )
+                            else -> holder.binding.ivFileType.setImageDrawable(
+                                context.resources.getDrawable(
+                                    R.drawable.img_word, null
+                                )
+                            )
+                        }
+                    }
+                    else -> {
+                        holder.binding.tvMessage.visibility = View.VISIBLE
+                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.clFileMessage.visibility = View.GONE
+                    }
                 }
 
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it)
