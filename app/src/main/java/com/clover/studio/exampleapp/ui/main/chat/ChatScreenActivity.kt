@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.FileProvider
 import androidx.core.view.get
@@ -74,11 +73,13 @@ class ChatScreenActivity : BaseActivity() {
     lateinit var uploadDownloadManager: UploadDownloadManager
 
     private val chooseFileContract =
-        registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+        registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
             if (it != null) {
-                displayFileInContainer()
-                runOnUiThread { showSendButton() }
-                filesSelected.add(it)
+                for (uri in it) {
+                    displayFileInContainer()
+                    runOnUiThread { showSendButton() }
+                    filesSelected.add(uri)
+                }
             }
         }
 
@@ -242,8 +243,9 @@ class ChatScreenActivity : BaseActivity() {
             finish()
         }
 
-        bindingSetup.ivMicrophone.setOnClickListener {
+        bindingSetup.bottomSheet.btnFiles.setOnClickListener {
             chooseFile()
+            bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
         bindingSetup.ivCamera.setOnClickListener {
@@ -464,6 +466,14 @@ class ChatScreenActivity : BaseActivity() {
                                 messageBody.fileId!!,
                                 0
                             )
+
+                            uploadIndex++
+                            if (uploadIndex < filesSelected.size) {
+                                uploadFile(filesSelected[uploadIndex])
+                            } else {
+                                uploadIndex = 0
+                                filesSelected.clear()
+                            }
                         }
 
                         // update room data
@@ -526,7 +536,10 @@ class ChatScreenActivity : BaseActivity() {
                                 uploadIndex++
                                 if (uploadIndex < currentPhotoLocation.size) {
                                     uploadImage()
-                                } else uploadIndex = 0
+                                } else {
+                                    uploadIndex = 0
+                                    currentPhotoLocation.clear()
+                                }
                             } else {
                                 if (thumbId > 0) messageBody.thumbId = thumbId
                                 uploadImage(messageBody, false, currentPhotoLocation[uploadIndex])

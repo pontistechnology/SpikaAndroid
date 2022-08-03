@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_rounded_corners_top">
+    android:background="@drawable/bg_rounded_corners_top"
+    android:paddingBottom="20dp">
 
     <TextView
         android:layout_width="wrap_content"
@@ -29,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:gravity="center"
+        android:gravity="center|center_vertical"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -37,43 +38,59 @@
         app:layout_constraintTop_toBottomOf="@id/iv_remove">
 
         <Button
+            android:id="@+id/btn_files"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:drawableTop="@drawable/img_file"
+            android:ellipsize="end"
             android:fontFamily="@font/montserrat"
+            android:maxLines="1"
             android:text="@string/files"
             android:textAllCaps="false"
-            android:textColor="@color/primary_color" />
+            android:textColor="@color/primary_color"
+            android:textSize="12sp" />
 
         <Button
+            android:id="@+id/btn_library"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:drawableTop="@drawable/img_library"
+            android:ellipsize="end"
             android:fontFamily="@font/montserrat"
+            android:maxLines="1"
             android:text="@string/library"
             android:textAllCaps="false"
-            android:textColor="@color/primary_color" />
+            android:textColor="@color/primary_color"
+            android:textSize="12sp" />
 
         <Button
+            android:id="@+id/btn_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:drawableTop="@drawable/img_location"
+            android:ellipsize="end"
             android:fontFamily="@font/montserrat"
+            android:maxLines="1"
             android:text="@string/location"
             android:textAllCaps="false"
-            android:textColor="@color/primary_color" />
+            android:textColor="@color/primary_color"
+            android:textSize="12sp" />
 
         <Button
+            android:id="@+id/btn_contact"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:drawableTop="@drawable/img_account_filled"
+            android:drawableTop="@drawable/img_contact"
+            android:ellipsize="end"
             android:fontFamily="@font/montserrat"
+            android:maxLines="1"
             android:text="@string/contact"
             android:textAllCaps="false"
-            android:textColor="@color/primary_color" />
+            android:textColor="@color/primary_color"
+            android:textSize="12sp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
