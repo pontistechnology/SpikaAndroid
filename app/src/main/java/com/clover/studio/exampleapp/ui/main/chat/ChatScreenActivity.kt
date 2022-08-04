@@ -452,8 +452,16 @@ class ChatScreenActivity : BaseActivity() {
 
                     override fun fileUploadError(description: String) {
                         this@ChatScreenActivity.runOnUiThread {
-                            showUploadError(description)
-                            imageContainer.hideProgressScreen()
+                            imageContainer.removeView(imageContainer[0])
+                            uploadIndex++
+                            if (uploadIndex < filesSelected.size) {
+                                uploadFile(filesSelected[uploadIndex])
+                            } else {
+                                uploadIndex = 0
+                                filesSelected.clear()
+                            }
+//                            showUploadError(description)
+//                            imageContainer.hideProgressScreen()
                         }
                     }
 
@@ -517,8 +525,16 @@ class ChatScreenActivity : BaseActivity() {
 
                     override fun fileUploadError(description: String) {
                         this@ChatScreenActivity.runOnUiThread {
-                            showUploadError(description)
-                            imageContainer.hideProgressScreen()
+                            imageContainer.removeView(imageContainer[0])
+                            uploadIndex++
+                            if (uploadIndex < currentPhotoLocation.size) {
+                                uploadImage()
+                            } else {
+                                uploadIndex = 0
+                                currentPhotoLocation.clear()
+                            }
+//                            showUploadError(description)
+//                            imageContainer.hideProgressScreen()
                         }
                     }
 
