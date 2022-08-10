@@ -7,11 +7,16 @@ import java.text.Collator
 
 object Extensions {
     fun MutableList<UserAndPhoneUser>.sortUsersByLocale(context: Context): List<UserAndPhoneUser> {
+        val itemsToRemove: MutableList<UserAndPhoneUser> = mutableListOf()
         for (user in this) {
             Timber.d("${user.user.displayName}, ${user.phoneUser?.name}")
             if (user.user.displayName == null && user.phoneUser?.name == null) {
-                this.remove(user)
+                itemsToRemove.add(user)
             }
+        }
+
+        for (item in itemsToRemove) {
+            this.remove(item)
         }
 
         val locale = context.resources.configuration.locales.get(0)

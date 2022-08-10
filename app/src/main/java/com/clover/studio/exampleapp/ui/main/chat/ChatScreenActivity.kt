@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -304,11 +305,15 @@ class ChatScreenActivity : BaseActivity() {
                 createTempMessage()
                 sendMessage()
             }
+
+            hideSendButton()
         }
 
         bindingSetup.ivAdd.setOnClickListener {
-            bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
-            bindingSetup.vTransparent.visibility = View.VISIBLE
+            if (bottomSheetBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
+                bindingSetup.vTransparent.visibility = View.VISIBLE
+            }
         }
 
         bindingSetup.bottomSheet.ivRemove.setOnClickListener {
@@ -460,6 +465,12 @@ class ChatScreenActivity : BaseActivity() {
                                 uploadIndex = 0
                                 filesSelected.clear()
                             }
+
+                            Toast.makeText(
+                                baseContext,
+                                getString(R.string.failed_file_upload),
+                                Toast.LENGTH_SHORT
+                            ).show()
 //                            showUploadError(description)
 //                            imageContainer.hideProgressScreen()
                         }
@@ -533,6 +544,12 @@ class ChatScreenActivity : BaseActivity() {
                                 uploadIndex = 0
                                 currentPhotoLocation.clear()
                             }
+
+                            Toast.makeText(
+                                baseContext,
+                                getString(R.string.failed_file_upload),
+                                Toast.LENGTH_SHORT
+                            ).show()
 //                            showUploadError(description)
 //                            imageContainer.hideProgressScreen()
                         }

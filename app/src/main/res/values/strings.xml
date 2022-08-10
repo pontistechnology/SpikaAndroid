@@ -97,4 +97,5 @@
     <string name="library">Library</string>
     <string name="location">Location</string>
     <string name="contact">Contact</string>
+    <string name="failed_file_upload">Failed to upload file</string>
 </resources>
