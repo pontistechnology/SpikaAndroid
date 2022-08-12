@@ -59,7 +59,7 @@ interface ChatRoomDao {
     suspend fun updateRoomTable(chatRoomUpdate: List<ChatRoomUpdate>) {
         val chatRooms: MutableList<ChatRoom> = ArrayList()
         for (chatRoom in chatRoomUpdate) {
-            if (chatRoom.oldRoom.visitedRoom != null && chatRoom.newRoom.visitedRoom == null) {
+            if (chatRoom.oldRoom?.visitedRoom != null && chatRoom.newRoom.visitedRoom == null) {
                 chatRoom.newRoom.visitedRoom = chatRoom.oldRoom.visitedRoom
             }
             chatRooms.add(chatRoom.newRoom)
