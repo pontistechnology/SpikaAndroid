@@ -205,11 +205,13 @@ class GroupInformationFragment : Fragment() {
     }
 
     private fun initializeObservers() {
+        // TODO add error popups and handle error while creating or navigating to rooms
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is RoomWithUsersFetched -> {
                     val gson = Gson()
                     val roomData = gson.toJson(it.roomWithUsers)
+                    Timber.d("Fetched room with users: $activity, $it")
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
                     activity?.finish()
                 }
