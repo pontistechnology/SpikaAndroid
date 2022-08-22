@@ -104,7 +104,7 @@
             app:layout_constraintTop_toTopOf="@id/iv_call_user" />
 
         <HorizontalScrollView
-            android:id="@+id/horizontalScrollView"
+            android:id="@+id/hsv_images"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
@@ -229,7 +229,7 @@
             app:layout_constraintTop_toTopOf="@id/iv_microphone" />
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/coordinatorLayout"
+            android:id="@+id/cl_bottom_sheet"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:elevation="4dp"

@@ -26,7 +26,6 @@ import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
-import com.clover.studio.exampleapp.ui.main.MainActivity
 import com.clover.studio.exampleapp.ui.main.chat_details.startChatDetailsActivity
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.utils.*
@@ -327,7 +326,7 @@ class ChatScreenActivity : BaseActivity() {
             bindingSetup.ivAdd.rotation = ROTATION_OFF
         }
 
-        bindingSetup.bottomSheet.btnLibrary.setOnClickListener{
+        bindingSetup.bottomSheet.btnLibrary.setOnClickListener {
             chooseImage()
         }
     }

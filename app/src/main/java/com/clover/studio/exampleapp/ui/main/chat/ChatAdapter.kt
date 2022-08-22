@@ -195,7 +195,6 @@ class ChatAdapter(
                         holder.binding.tvFileSize.text = it.body?.file?.size.toString()
 
                         when (it.body?.file?.fileName?.substringAfterLast(".")) {
-                            // aa
                             Const.FileExtensions.PDF -> holder.binding.ivFileType.setImageDrawable(
                                 context.resources.getDrawable(
                                     R.drawable.img_pdf, null
@@ -303,9 +302,9 @@ class ChatAdapter(
         } else {
             view.visibility = View.VISIBLE
             view.text =
-            message.createdAt?.let {
+                message.createdAt?.let {
                     getRelativeTimeSpan(it)
-            }
+                }
         }
     }
 }

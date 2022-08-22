@@ -18,7 +18,6 @@ import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.databinding.FragmentChatDetailsBinding
-import com.clover.studio.exampleapp.ui.main.MainFragment
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
 import com.clover.studio.exampleapp.ui.main.chat.RoomWithUsersFailed
 import com.clover.studio.exampleapp.ui.main.chat.RoomWithUsersFetched
@@ -187,6 +186,25 @@ class ChatDetailsFragment : BaseFragment() {
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
         }
 
+        binding.cvAvatar.setOnClickListener {
+            if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && isAdmin) {
+                ChooserDialog.getInstance(requireContext(),
+                    getString(R.string.placeholder_title),
+                    null,
+                    getString(R.string.choose_from_gallery),
+                    getString(R.string.take_photo),
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            chooseImage()
+                        }
+
+                        override fun onSecondOptionClicked() {
+                            takePhoto()
+                        }
+                    })
+            }
+        }
+
         binding.tvMembersNumber.text =
             getString(R.string.number_of_members, roomWithUsers.users.size)
 
@@ -280,7 +298,11 @@ class ChatDetailsFragment : BaseFragment() {
             val inputStream =
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
 
-            val fileStream = Tools.copyStreamToFile(requireActivity(), inputStream!!, activity?.contentResolver?.getType(currentPhotoLocation)!!)
+            val fileStream = Tools.copyStreamToFile(
+                requireActivity(),
+                inputStream!!,
+                activity?.contentResolver?.getType(currentPhotoLocation)!!
+            )
             val uploadPieces =
                 if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
                     fileStream.length() / CHUNK_SIZE + 1

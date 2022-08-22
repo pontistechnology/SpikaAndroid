@@ -62,8 +62,8 @@ class RoomsFragment : BaseFragment() {
                             if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
                                 room.roomWithUsers.users.forEach { roomUser ->
                                     if (viewModel.getLocalUserId()
-                                            .toString() != roomUser.id.toString())
-                                    {
+                                            .toString() != roomUser.id.toString()
+                                    ) {
                                         if (roomUser.displayName?.lowercase()
                                                 ?.contains(query, ignoreCase = true) == true
                                         ) {
@@ -120,13 +120,14 @@ class RoomsFragment : BaseFragment() {
                         }
                         Timber.d("Filtered List: $filteredList")
 
-                        val sortedList = filteredList.sortedWith(compareBy(nullsFirst()) { roomItem ->
-                            if (!roomItem.message.isNullOrEmpty()) {
-                                roomItem.message.first { message -> message.message.createdAt != null }.message.createdAt
-                            } else
-                                null
-                        }
-                        ).reversed()
+                        val sortedList =
+                            filteredList.sortedWith(compareBy(nullsFirst()) { roomItem ->
+                                if (!roomItem.message.isNullOrEmpty()) {
+                                    roomItem.message.first { message -> message.message.createdAt != null }.message.createdAt
+                                } else
+                                    null
+                            }
+                            ).reversed()
 
                         roomsAdapter.submitList(ArrayList(sortedList))
                         filteredList.clear()
