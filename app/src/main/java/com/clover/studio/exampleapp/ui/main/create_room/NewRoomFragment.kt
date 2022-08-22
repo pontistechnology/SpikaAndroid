@@ -57,63 +57,21 @@ class NewRoomFragment : BaseFragment() {
             NewRoomFragmentArgs.fromBundle(bundle)
         else null
 
-        setupAdapter(false)
-        setupSearchView()
         initializeObservers()
+        setupAdapter(false)
         initializeViews()
+        setupSearchView()
 
         return binding.root
     }
 
-    private fun initializeObservers() {
-        viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                userList = it.toMutableList()
-                val users = userList.sortUsersByLocale(requireContext())
-                userList = users.toMutableList()
-                contactsAdapter.submitList(users)
-            }
-        }
-
-        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomWithUsersFetched -> {
-                    val gson = Gson()
-                    val roomData = gson.toJson(it.roomWithUsers)
-                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
-                }
-                else -> Timber.d("Other error")
-            }
-        })
-
-        viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomExists -> {
-                    Timber.d("Room already exists")
-                    viewModel.getRoomWithUsers(it.roomData.roomId)
-                }
-                is RoomNotFound -> {
-                    Timber.d("Room not found, creating new one")
-                    val jsonObject = JsonObject()
-
-                    val userIdsArray = JsonArray()
-                    userIdsArray.add(user?.id)
-
-                    jsonObject.addProperty(Const.JsonFields.NAME, user?.displayName)
-                    jsonObject.addProperty(Const.JsonFields.AVATAR_URL, user?.avatarUrl)
-                    jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
-                    jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
-
-                    viewModel.createNewRoom(jsonObject)
-                }
-                else -> Timber.d("Other error")
-            }
-        })
-    }
-
     private fun initializeViews() {
+        // SearchView is immediately acting as if selected
+
         // Behave like group chat if adding user from ChatDetails.
         if (args?.userIds?.isNotEmpty() == true) handleGroupChat()
+
+        binding.svContactsSearch.setIconifiedByDefault(false)
 
         binding.tvNext.setOnClickListener {
             val bundle = bundleOf(Const.Navigation.SELECTED_USERS to selectedUsers)
@@ -162,7 +120,6 @@ class NewRoomFragment : BaseFragment() {
         initializeObservers()
     }
 
-
     private fun setupAdapter(isGroupCreation: Boolean) {
         // Contacts Adapter
 
@@ -196,7 +153,6 @@ class NewRoomFragment : BaseFragment() {
         binding.rvContacts.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
-
         // Contacts Selected Adapter
         selectedContactsAdapter = SelectedContactsAdapter(requireContext()) {
             if (selectedUsers.contains(it)) {
@@ -214,6 +170,83 @@ class NewRoomFragment : BaseFragment() {
         binding.rvSelected.adapter = selectedContactsAdapter
         binding.rvSelected.layoutManager =
             LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
+    }
+
+    private fun handleSelectedUserList(userItem: UserAndPhoneUser) {
+        for (user in userList) {
+            if (user == userItem) {
+                user.user.selected = !user.user.selected
+            }
+        }
+
+        contactsAdapter.submitList(userList)
+        contactsAdapter.notifyDataSetChanged()
+    }
+
+    private fun handleNextTextView() {
+        if (selectedUsers.size > 0) {
+            binding.tvNext.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.primary_color
+                )
+            )
+            binding.tvNext.isClickable = true
+        } else {
+            binding.tvNext.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.text_tertiary
+                )
+            )
+            binding.tvNext.isClickable = false
+        }
+    }
+
+    private fun initializeObservers() {
+        viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
+            if (it.isNotEmpty()) {
+                userList = it.toMutableList()
+                val users = userList.sortUsersByLocale(requireContext())
+                userList = users.toMutableList()
+                contactsAdapter.submitList(users)
+            }
+        }
+
+        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is RoomWithUsersFetched -> {
+                    val gson = Gson()
+                    val roomData = gson.toJson(it.roomWithUsers)
+                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                }
+                else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is RoomExists -> {
+                    Timber.d("Room already exists")
+                    viewModel.getRoomWithUsers(it.roomData.roomId)
+                }
+                is RoomNotFound -> {
+                    Timber.d("Room not found, creating new one")
+                    val jsonObject = JsonObject()
+
+                    val userIdsArray = JsonArray()
+                    userIdsArray.add(user?.id)
+
+                    jsonObject.addProperty(Const.JsonFields.NAME, user?.displayName)
+                    jsonObject.addProperty(Const.JsonFields.AVATAR_URL, user?.avatarUrl)
+                    jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
+                    jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
+
+                    viewModel.createNewRoom(jsonObject)
+                }
+                else -> Timber.d("Other error")
+            }
+        })
     }
 
     private fun setupSearchView() {
@@ -274,37 +307,6 @@ class NewRoomFragment : BaseFragment() {
                     Tools.hideKeyboard(requireActivity(), view)
                 }
             }
-        }
-    }
-
-    private fun handleSelectedUserList(userItem: UserAndPhoneUser) {
-        for (user in userList) {
-            if (user == userItem) {
-                user.user.selected = !user.user.selected
-            }
-        }
-
-        contactsAdapter.submitList(userList)
-        contactsAdapter.notifyDataSetChanged()
-    }
-
-    private fun handleNextTextView() {
-        if (selectedUsers.size > 0) {
-            binding.tvNext.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.primary_color
-                )
-            )
-            binding.tvNext.isClickable = true
-        } else {
-            binding.tvNext.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.text_tertiary
-                )
-            )
-            binding.tvNext.isClickable = false
         }
     }
 

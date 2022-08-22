@@ -73,8 +73,6 @@ class ChatScreenActivity : BaseActivity() {
     private var uploadIndex = 0
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
 
-    private var imageUri: Uri? = null
-
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
 

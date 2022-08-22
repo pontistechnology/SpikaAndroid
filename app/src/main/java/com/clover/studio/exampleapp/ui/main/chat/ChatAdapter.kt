@@ -304,12 +304,7 @@ class ChatAdapter(
             view.visibility = View.VISIBLE
             view.text =
             message.createdAt?.let {
-                if(it < 3000){
                     getRelativeTimeSpan(it)
-                } else{
-                    getRelativeTimeSpan(it)
-                }
-
             }
         }
     }
