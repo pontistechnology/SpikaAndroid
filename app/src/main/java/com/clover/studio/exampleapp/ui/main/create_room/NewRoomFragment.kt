@@ -22,6 +22,7 @@ import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.ui.main.contacts.ContactsAdapter
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
 import com.google.gson.Gson
@@ -38,6 +39,7 @@ class NewRoomFragment : BaseFragment() {
     private lateinit var selectedContactsAdapter: SelectedContactsAdapter
     private lateinit var userList: MutableList<UserAndPhoneUser>
     private var selectedUsers: MutableList<UserAndPhoneUser> = ArrayList()
+    private var filteredList: MutableList<UserAndPhoneUser> = ArrayList()
     private var user: User? = null
 
     private var bindingSetup: FragmentNewRoomBinding? = null
@@ -55,20 +57,63 @@ class NewRoomFragment : BaseFragment() {
             NewRoomFragmentArgs.fromBundle(bundle)
         else null
 
-        initializeObservers()
         setupAdapter(false)
+        setupSearchView()
+        initializeObservers()
         initializeViews()
 
         return binding.root
     }
 
-    private fun initializeViews() {
-        // SearchView is immediately acting as if selected
+    private fun initializeObservers() {
+        viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
+            if (it.isNotEmpty()) {
+                userList = it.toMutableList()
+                val users = userList.sortUsersByLocale(requireContext())
+                userList = users.toMutableList()
+                contactsAdapter.submitList(users)
+            }
+        }
 
+        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is RoomWithUsersFetched -> {
+                    val gson = Gson()
+                    val roomData = gson.toJson(it.roomWithUsers)
+                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                }
+                else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is RoomExists -> {
+                    Timber.d("Room already exists")
+                    viewModel.getRoomWithUsers(it.roomData.roomId)
+                }
+                is RoomNotFound -> {
+                    Timber.d("Room not found, creating new one")
+                    val jsonObject = JsonObject()
+
+                    val userIdsArray = JsonArray()
+                    userIdsArray.add(user?.id)
+
+                    jsonObject.addProperty(Const.JsonFields.NAME, user?.displayName)
+                    jsonObject.addProperty(Const.JsonFields.AVATAR_URL, user?.avatarUrl)
+                    jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
+                    jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
+
+                    viewModel.createNewRoom(jsonObject)
+                }
+                else -> Timber.d("Other error")
+            }
+        })
+    }
+
+    private fun initializeViews() {
         // Behave like group chat if adding user from ChatDetails.
         if (args?.userIds?.isNotEmpty() == true) handleGroupChat()
-
-        binding.svContactsSearch.setIconifiedByDefault(false)
 
         binding.tvNext.setOnClickListener {
             val bundle = bundleOf(Const.Navigation.SELECTED_USERS to selectedUsers)
@@ -117,6 +162,7 @@ class NewRoomFragment : BaseFragment() {
         initializeObservers()
     }
 
+
     private fun setupAdapter(isGroupCreation: Boolean) {
         // Contacts Adapter
 
@@ -150,6 +196,7 @@ class NewRoomFragment : BaseFragment() {
         binding.rvContacts.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
+
         // Contacts Selected Adapter
         selectedContactsAdapter = SelectedContactsAdapter(requireContext()) {
             if (selectedUsers.contains(it)) {
@@ -167,6 +214,67 @@ class NewRoomFragment : BaseFragment() {
         binding.rvSelected.adapter = selectedContactsAdapter
         binding.rvSelected.layoutManager =
             LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
+    }
+
+    private fun setupSearchView() {
+        // SearchView is immediately acting as if selected
+        binding.svContactsSearch.setIconifiedByDefault(false)
+        binding.svContactsSearch.setOnQueryTextListener(object :
+            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query != null) {
+                    Timber.d("Query: $query")
+                    if (::userList.isInitialized) {
+                        for (user in userList) {
+                            if ((user.phoneUser?.name?.lowercase()?.contains(
+                                    query,
+                                    ignoreCase = true
+                                ) ?: user.user.displayName?.lowercase()
+                                    ?.contains(query, ignoreCase = true)) == true
+                            ) {
+                                filteredList.add(user)
+                            }
+                        }
+                        Timber.d("Filtered List: $filteredList")
+                        val users = filteredList.sortUsersByLocale(requireContext())
+                        contactsAdapter.submitList(ArrayList(users))
+                        filteredList.clear()
+                    }
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(query: String?): Boolean {
+                if (query != null) {
+                    Timber.d("Query: $query")
+                    if (::userList.isInitialized) {
+                        for (user in userList) {
+                            if ((user.phoneUser?.name?.lowercase()?.contains(
+                                    query,
+                                    ignoreCase = true
+                                ) ?: user.user.displayName?.lowercase()
+                                    ?.contains(query, ignoreCase = true)) == true
+                            ) {
+                                filteredList.add(user)
+                            }
+                        }
+                        Timber.d("Filtered List: $filteredList")
+                        val users = filteredList.sortUsersByLocale(requireContext())
+                        contactsAdapter.submitList(ArrayList(users))
+                        filteredList.clear()
+                    }
+                }
+                return true
+            }
+        })
+
+        binding.svContactsSearch.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
     }
 
     private fun handleSelectedUserList(userItem: UserAndPhoneUser) {
@@ -198,52 +306,6 @@ class NewRoomFragment : BaseFragment() {
             )
             binding.tvNext.isClickable = false
         }
-    }
-
-    private fun initializeObservers() {
-        viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                userList = it.toMutableList()
-                val users = userList.sortUsersByLocale(requireContext())
-                userList = users.toMutableList()
-                contactsAdapter.submitList(users)
-            }
-        }
-
-        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomWithUsersFetched -> {
-                    val gson = Gson()
-                    val roomData = gson.toJson(it.roomWithUsers)
-                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
-                }
-                else -> Timber.d("Other error")
-            }
-        })
-
-        viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomExists -> {
-                    Timber.d("Room already exists")
-                    viewModel.getRoomWithUsers(it.roomData.roomId)
-                }
-                is RoomNotFound -> {
-                    Timber.d("Room not found, creating new one")
-                    val jsonObject = JsonObject()
-
-                    val userIdsArray = JsonArray()
-                    userIdsArray.add(user?.id)
-
-                    jsonObject.addProperty(Const.JsonFields.NAME, user?.displayName)
-                    jsonObject.addProperty(Const.JsonFields.AVATAR_URL, user?.avatarUrl)
-                    jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
-                    jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
-
-                    viewModel.createNewRoom(jsonObject)
-                }
-                else -> Timber.d("Other error")
-            }
-        })
     }
 
     override fun onDestroyView() {

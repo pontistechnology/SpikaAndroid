@@ -18,6 +18,7 @@ import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.databinding.FragmentChatDetailsBinding
+import com.clover.studio.exampleapp.ui.main.MainFragment
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
 import com.clover.studio.exampleapp.ui.main.chat.RoomWithUsersFailed
 import com.clover.studio.exampleapp.ui.main.chat.RoomWithUsersFetched
@@ -184,23 +185,6 @@ class ChatDetailsFragment : BaseFragment() {
             }
 
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
-        }
-
-        binding.cvAvatar.setOnClickListener {
-            ChooserDialog.getInstance(requireContext(),
-                getString(R.string.placeholder_title),
-                null,
-                getString(R.string.choose_from_gallery),
-                getString(R.string.take_photo),
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        chooseImage()
-                    }
-
-                    override fun onSecondOptionClicked() {
-                        takePhoto()
-                    }
-                })
         }
 
         binding.tvMembersNumber.text =

@@ -62,8 +62,8 @@ class RoomsFragment : BaseFragment() {
                             if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
                                 room.roomWithUsers.users.forEach { roomUser ->
                                     if (viewModel.getLocalUserId()
-                                            .toString() != roomUser.id.toString()
-                                    ) {
+                                            .toString() != roomUser.id.toString())
+                                    {
                                         if (roomUser.displayName?.lowercase()
                                                 ?.contains(query, ignoreCase = true) == true
                                         ) {
@@ -75,10 +75,12 @@ class RoomsFragment : BaseFragment() {
                                 if (room.roomWithUsers.room.name?.lowercase()
                                         ?.contains(query, ignoreCase = true) == true
                                 ) {
+                                    Timber.d("Filtered room List: ${room.roomWithUsers.room.name}")
                                     filteredList.add(room)
                                 }
                             }
                         }
+                        Timber.d("Filtered room List: $filteredList")
                         val sortedList =
                             filteredList.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
                                 .sortedByDescending { roomItem ->
@@ -117,11 +119,15 @@ class RoomsFragment : BaseFragment() {
                             }
                         }
                         Timber.d("Filtered List: $filteredList")
-                        val sortedList =
-                            filteredList.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
-                                .sortedByDescending { roomItem ->
-                                    roomItem.message?.first { message -> message.message.createdAt != null }?.message?.createdAt
-                                }
+
+                        val sortedList = filteredList.sortedWith(compareBy(nullsFirst()) { roomItem ->
+                            if (!roomItem.message.isNullOrEmpty()) {
+                                roomItem.message.first { message -> message.message.createdAt != null }.message.createdAt
+                            } else
+                                null
+                        }
+                        ).reversed()
+
                         roomsAdapter.submitList(ArrayList(sortedList))
                         filteredList.clear()
                     }

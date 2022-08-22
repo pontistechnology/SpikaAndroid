@@ -116,7 +116,7 @@ class MainRepositoryImpl @Inject constructor(
         val oldRoom = response.data?.room?.roomId?.let { chatRoomDao.getRoomById(it) }
         response.data?.room?.let { chatRoomDao.updateRoomTable(oldRoom, it) }
 
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch { CoroutineScope(Dispatchers.IO).launch {
             appDatabase.runInTransaction {
                 CoroutineScope(Dispatchers.IO).launch {
                     val users: MutableList<User> = ArrayList()
@@ -135,6 +135,7 @@ class MainRepositoryImpl @Inject constructor(
                     chatRoomDao.insertRoomWithUsers(roomUsers)
                 }
             }
+          }
         }
 
 
