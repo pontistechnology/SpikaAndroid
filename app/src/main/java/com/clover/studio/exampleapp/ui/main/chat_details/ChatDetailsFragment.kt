@@ -187,20 +187,22 @@ class ChatDetailsFragment : BaseFragment() {
         }
 
         binding.cvAvatar.setOnClickListener {
-            ChooserDialog.getInstance(requireContext(),
-                getString(R.string.placeholder_title),
-                null,
-                getString(R.string.choose_from_gallery),
-                getString(R.string.take_photo),
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        chooseImage()
-                    }
+            if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && isAdmin) {
+                ChooserDialog.getInstance(requireContext(),
+                    getString(R.string.placeholder_title),
+                    null,
+                    getString(R.string.choose_from_gallery),
+                    getString(R.string.take_photo),
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            chooseImage()
+                        }
 
-                    override fun onSecondOptionClicked() {
-                        takePhoto()
-                    }
-                })
+                        override fun onSecondOptionClicked() {
+                            takePhoto()
+                        }
+                    })
+            }
         }
 
         binding.tvMembersNumber.text =
@@ -296,7 +298,11 @@ class ChatDetailsFragment : BaseFragment() {
             val inputStream =
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
 
-            val fileStream = Tools.copyStreamToFile(requireActivity(), inputStream!!, activity?.contentResolver?.getType(currentPhotoLocation)!!)
+            val fileStream = Tools.copyStreamToFile(
+                requireActivity(),
+                inputStream!!,
+                activity?.contentResolver?.getType(currentPhotoLocation)!!
+            )
             val uploadPieces =
                 if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
                     fileStream.length() / CHUNK_SIZE + 1

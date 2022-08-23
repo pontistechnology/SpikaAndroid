@@ -27,6 +27,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.ui.main.chat_details.startChatDetailsActivity
+import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
@@ -116,6 +117,7 @@ class ChatScreenActivity : BaseActivity() {
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
 
         val gson = Gson()
+
         // Fetch room data sent from previous activity
         roomWithUsers = gson.fromJson(
             intent.getStringExtra(Const.Navigation.ROOM_DATA),
@@ -242,7 +244,7 @@ class ChatScreenActivity : BaseActivity() {
         }
 
         bindingSetup.ivArrowBack.setOnClickListener {
-            finish()
+            startMainActivity(this)
         }
 
         bindingSetup.bottomSheet.btnFiles.setOnClickListener {
@@ -311,14 +313,21 @@ class ChatScreenActivity : BaseActivity() {
 
         bindingSetup.ivAdd.setOnClickListener {
             if (bottomSheetBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
+                bindingSetup.ivAdd.rotation = ROTATION_ON
                 bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
                 bindingSetup.vTransparent.visibility = View.VISIBLE
+
             }
         }
 
         bindingSetup.bottomSheet.ivRemove.setOnClickListener {
             bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
             bindingSetup.vTransparent.visibility = View.GONE
+            bindingSetup.ivAdd.rotation = ROTATION_OFF
+        }
+
+        bindingSetup.bottomSheet.btnLibrary.setOnClickListener {
+            chooseImage()
         }
     }
 

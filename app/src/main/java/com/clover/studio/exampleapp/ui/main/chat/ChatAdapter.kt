@@ -302,7 +302,9 @@ class ChatAdapter(
         } else {
             view.visibility = View.VISIBLE
             view.text =
-                message.createdAt?.let { getRelativeTimeSpan(it) }
+                message.createdAt?.let {
+                    getRelativeTimeSpan(it)
+                }
         }
     }
 }

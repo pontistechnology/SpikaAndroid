@@ -22,6 +22,7 @@ import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.ui.main.contacts.ContactsAdapter
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
 import com.google.gson.Gson
@@ -38,6 +39,7 @@ class NewRoomFragment : BaseFragment() {
     private lateinit var selectedContactsAdapter: SelectedContactsAdapter
     private lateinit var userList: MutableList<UserAndPhoneUser>
     private var selectedUsers: MutableList<UserAndPhoneUser> = ArrayList()
+    private var filteredList: MutableList<UserAndPhoneUser> = ArrayList()
     private var user: User? = null
 
     private var bindingSetup: FragmentNewRoomBinding? = null
@@ -58,6 +60,7 @@ class NewRoomFragment : BaseFragment() {
         initializeObservers()
         setupAdapter(false)
         initializeViews()
+        setupSearchView()
 
         return binding.root
     }
@@ -244,6 +247,67 @@ class NewRoomFragment : BaseFragment() {
                 else -> Timber.d("Other error")
             }
         })
+    }
+
+    private fun setupSearchView() {
+        // SearchView is immediately acting as if selected
+        binding.svContactsSearch.setIconifiedByDefault(false)
+        binding.svContactsSearch.setOnQueryTextListener(object :
+            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query != null) {
+                    Timber.d("Query: $query")
+                    if (::userList.isInitialized) {
+                        for (user in userList) {
+                            if ((user.phoneUser?.name?.lowercase()?.contains(
+                                    query,
+                                    ignoreCase = true
+                                ) ?: user.user.displayName?.lowercase()
+                                    ?.contains(query, ignoreCase = true)) == true
+                            ) {
+                                filteredList.add(user)
+                            }
+                        }
+                        Timber.d("Filtered List: $filteredList")
+                        val users = filteredList.sortUsersByLocale(requireContext())
+                        contactsAdapter.submitList(ArrayList(users))
+                        filteredList.clear()
+                    }
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(query: String?): Boolean {
+                if (query != null) {
+                    Timber.d("Query: $query")
+                    if (::userList.isInitialized) {
+                        for (user in userList) {
+                            if ((user.phoneUser?.name?.lowercase()?.contains(
+                                    query,
+                                    ignoreCase = true
+                                ) ?: user.user.displayName?.lowercase()
+                                    ?.contains(query, ignoreCase = true)) == true
+                            ) {
+                                filteredList.add(user)
+                            }
+                        }
+                        Timber.d("Filtered List: $filteredList")
+                        val users = filteredList.sortUsersByLocale(requireContext())
+                        contactsAdapter.submitList(ArrayList(users))
+                        filteredList.clear()
+                    }
+                }
+                return true
+            }
+        })
+
+        binding.svContactsSearch.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

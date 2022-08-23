@@ -166,7 +166,6 @@ class ContactDetailsFragment : BaseFragment() {
                         binding.clProgressScreen.visibility = View.GONE
                         return false
                     }
-
                     override fun onResourceReady(
                         resource: Drawable?,
                         model: Any?,

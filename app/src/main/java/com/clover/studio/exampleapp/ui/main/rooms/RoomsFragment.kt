@@ -75,10 +75,12 @@ class RoomsFragment : BaseFragment() {
                                 if (room.roomWithUsers.room.name?.lowercase()
                                         ?.contains(query, ignoreCase = true) == true
                                 ) {
+                                    Timber.d("Filtered room List: ${room.roomWithUsers.room.name}")
                                     filteredList.add(room)
                                 }
                             }
                         }
+                        Timber.d("Filtered room List: $filteredList")
                         val sortedList =
                             filteredList.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
                                 .sortedByDescending { roomItem ->
@@ -117,11 +119,16 @@ class RoomsFragment : BaseFragment() {
                             }
                         }
                         Timber.d("Filtered List: $filteredList")
+
                         val sortedList =
-                            filteredList.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
-                                .sortedByDescending { roomItem ->
-                                    roomItem.message?.first { message -> message.message.createdAt != null }?.message?.createdAt
-                                }
+                            filteredList.sortedWith(compareBy(nullsFirst()) { roomItem ->
+                                if (!roomItem.message.isNullOrEmpty()) {
+                                    roomItem.message.first { message -> message.message.createdAt != null }.message.createdAt
+                                } else
+                                    null
+                            }
+                            ).reversed()
+
                         roomsAdapter.submitList(ArrayList(sortedList))
                         filteredList.clear()
                     }
