@@ -8,7 +8,7 @@
         android:id="@+id/cv_image_container"
         android:layout_width="75dp"
         android:layout_height="75dp"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/ten_dp_margin"
         android:backgroundTint="@color/light_blue"
         android:elevation="0dp"
         app:cardCornerRadius="10dp"
@@ -71,7 +71,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/ten_dp_margin"
             android:backgroundTint="@color/dark_background_transp"
             app:cardCornerRadius="10dp"
             app:cardPreventCornerOverlap="false"

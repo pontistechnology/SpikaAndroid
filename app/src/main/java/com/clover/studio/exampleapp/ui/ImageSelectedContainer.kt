@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.res.ResourcesCompat
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.ItemImageSelectedBinding
@@ -43,19 +44,29 @@ class ImageSelectedContainer(context: Context, attrs: AttributeSet?) :
 
         when (extension) {
             Const.FileExtensions.PDF -> binding.ivFile.setImageDrawable(
-                context.resources.getDrawable(
+                ResourcesCompat.getDrawable(
+                    context.resources,
                     R.drawable.img_pdf,
                     null
                 )
             )
             Const.FileExtensions.ZIP -> binding.ivFile.setImageDrawable(
-                context.resources.getDrawable(
+                ResourcesCompat.getDrawable(
+                    context.resources,
                     R.drawable.img_zip,
                     null
                 )
             )
+            Const.FileExtensions.MP3, Const.FileExtensions.WAW -> binding.ivFile.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    context.resources,
+                    R.drawable.ic_baseline_audio_file_blue_24,
+                    null
+                )
+            )
             else -> binding.ivFile.setImageDrawable(
-                context.resources.getDrawable(
+                ResourcesCompat.getDrawable(
+                    context.resources,
                     R.drawable.img_word,
                     null
                 )

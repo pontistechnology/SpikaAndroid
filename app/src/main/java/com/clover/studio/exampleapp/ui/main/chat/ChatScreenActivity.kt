@@ -249,8 +249,7 @@ class ChatScreenActivity : BaseActivity() {
 
         bindingSetup.bottomSheet.btnFiles.setOnClickListener {
             chooseFile()
-            bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-            bindingSetup.vTransparent.visibility = View.GONE
+            rotationAnimation()
         }
 
         bindingSetup.ivCamera.setOnClickListener {
@@ -316,19 +315,31 @@ class ChatScreenActivity : BaseActivity() {
                 bindingSetup.ivAdd.rotation = ROTATION_ON
                 bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
                 bindingSetup.vTransparent.visibility = View.VISIBLE
-
             }
         }
 
         bindingSetup.bottomSheet.ivRemove.setOnClickListener {
             bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-            bindingSetup.vTransparent.visibility = View.GONE
-            bindingSetup.ivAdd.rotation = ROTATION_OFF
+            rotationAnimation()
         }
 
         bindingSetup.bottomSheet.btnLibrary.setOnClickListener {
             chooseImage()
+            rotationAnimation()
         }
+
+        bindingSetup.bottomSheet.btnLocation.setOnClickListener {
+            rotationAnimation()
+        }
+        bindingSetup.bottomSheet.btnContact.setOnClickListener {
+            rotationAnimation()
+        }
+    }
+
+    private fun rotationAnimation() {
+        bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.vTransparent.visibility = View.GONE
+        bindingSetup.ivAdd.rotation = ROTATION_OFF
     }
 
     private fun hideSendButton() {
@@ -437,14 +448,26 @@ class ChatScreenActivity : BaseActivity() {
         val inputStream =
             this.contentResolver.openInputStream(uri)
 
+        var fileName = ""
+        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
+
+        val cr = applicationContext.contentResolver
+        cr.query(uri, projection, null, null, null)?.use { metaCursor ->
+            if (metaCursor.moveToFirst()) {
+                fileName = metaCursor.getString(0)
+            }
+        }
+
+        Tools.fileName = fileName
+
         val fileStream = Tools.copyStreamToFile(this, inputStream!!, contentResolver.getType(uri)!!)
         val uploadPieces =
             if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
                 fileStream.length() / CHUNK_SIZE + 1
             else fileStream.length() / CHUNK_SIZE
         var progress = 0
-
         val imageContainer = bindingSetup.llImagesContainer[uploadIndex] as ImageSelectedContainer
+
         imageContainer.setMaxProgress(uploadPieces.toInt())
         Timber.d("File upload start")
         CoroutineScope(Dispatchers.IO).launch {
@@ -489,7 +512,9 @@ class ChatScreenActivity : BaseActivity() {
                         this@ChatScreenActivity.runOnUiThread {
                             Timber.d("Successfully sent file")
                             imageContainer.removeView(imageContainer[0])
-                            if (fileId > 0) messageBody.fileId = fileId
+                            if (fileId > 0)
+                                messageBody.fileId = fileId
+                            Timber.d("File ID: $fileId")
                             sendMessage(
                                 isImage = false,
                                 isFile = true,

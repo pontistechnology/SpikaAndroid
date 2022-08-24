@@ -6,9 +6,11 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -100,25 +102,11 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.VISIBLE
 
                         holder.binding.tvFileTitle.text = it.body?.file?.fileName
-                        holder.binding.tvFileSize.text = it.body?.file?.size.toString()
 
-                        when (it.body?.file?.fileName?.substringAfterLast(".")) {
-                            Const.FileExtensions.PDF -> holder.binding.ivFileType.setImageDrawable(
-                                context.resources.getDrawable(
-                                    R.drawable.img_pdf, null
-                                )
-                            )
-                            Const.FileExtensions.ZIP -> holder.binding.ivFileType.setImageDrawable(
-                                context.resources.getDrawable(
-                                    R.drawable.img_zip, null
-                                )
-                            )
-                            else -> holder.binding.ivFileType.setImageDrawable(
-                                context.resources.getDrawable(
-                                    R.drawable.img_word, null
-                                )
-                            )
-                        }
+                        holder.binding.tvFileSize.text =
+                            Tools.calculateToMegabyte(it.body?.file?.size!!).toString()
+
+                        addFiles(it, holder.binding.ivFileType)
                     }
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
@@ -194,23 +182,8 @@ class ChatAdapter(
                         holder.binding.tvFileTitle.text = it.body?.file?.fileName
                         holder.binding.tvFileSize.text = it.body?.file?.size.toString()
 
-                        when (it.body?.file?.fileName?.substringAfterLast(".")) {
-                            Const.FileExtensions.PDF -> holder.binding.ivFileType.setImageDrawable(
-                                context.resources.getDrawable(
-                                    R.drawable.img_pdf, null
-                                )
-                            )
-                            Const.FileExtensions.ZIP -> holder.binding.ivFileType.setImageDrawable(
-                                context.resources.getDrawable(
-                                    R.drawable.img_zip, null
-                                )
-                            )
-                            else -> holder.binding.ivFileType.setImageDrawable(
-                                context.resources.getDrawable(
-                                    R.drawable.img_word, null
-                                )
-                            )
-                        }
+                        addFiles(it, holder.binding.ivFileType)
+
                     }
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
@@ -267,6 +240,39 @@ class ChatAdapter(
                     holder.binding.tvUsername.visibility = View.VISIBLE
                 }
             }
+        }
+    }
+
+    private fun addFiles(message: Message, ivFileType: ImageView) {
+        when (message.body?.file?.fileName?.substringAfterLast(".")) {
+            Const.FileExtensions.PDF -> ivFileType.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    context.resources,
+                    R.drawable.ic_baseline_picture_as_pdf_24,
+                    null
+                )
+            )
+            Const.FileExtensions.ZIP, Const.FileExtensions.RAR -> ivFileType.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    context.resources,
+                    R.drawable.ic_baseline_folder_zip_24,
+                    null
+                )
+            )
+            Const.FileExtensions.MP3, Const.FileExtensions.WAW -> ivFileType.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    context.resources,
+                    R.drawable.ic_baseline_audio_file_24,
+                    null
+                )
+            )
+            else -> ivFileType.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    context.resources,
+                    R.drawable.ic_baseline_insert_drive_file_24,
+                    null
+                )
+            )
         }
     }
 
