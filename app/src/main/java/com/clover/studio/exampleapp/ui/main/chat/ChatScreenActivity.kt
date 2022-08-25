@@ -77,6 +77,7 @@ class ChatScreenActivity : BaseActivity() {
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
+            bindingSetup.llImagesContainer.removeAllViews()
             if (it != null) {
                 for (uri in it) {
                     displayFileInContainer(uri)
@@ -88,6 +89,7 @@ class ChatScreenActivity : BaseActivity() {
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
+            bindingSetup.llImagesContainer.removeAllViews()
             if (it != null) {
                 for (uri in it) {
                     convertImageToBitmap(uri)
@@ -489,7 +491,9 @@ class ChatScreenActivity : BaseActivity() {
 
                     override fun fileUploadError(description: String) {
                         this@ChatScreenActivity.runOnUiThread {
-                            imageContainer.removeView(imageContainer[0])
+                            if (imageContainer.childCount > 0) {
+                                imageContainer.removeViewAt(0)
+                            }
                             uploadIndex++
                             if (uploadIndex < filesSelected.size) {
                                 uploadFile(filesSelected[uploadIndex])
@@ -511,10 +515,11 @@ class ChatScreenActivity : BaseActivity() {
                     override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
                         this@ChatScreenActivity.runOnUiThread {
                             Timber.d("Successfully sent file")
-                            imageContainer.removeView(imageContainer[0])
-                            if (fileId > 0)
-                                messageBody.fileId = fileId
-                            Timber.d("File ID: $fileId")
+                            if (imageContainer.childCount > 0) {
+                                imageContainer.removeViewAt(0)
+                            }
+
+                            if (fileId > 0) messageBody.fileId = fileId
                             sendMessage(
                                 isImage = false,
                                 isFile = true,
@@ -530,7 +535,6 @@ class ChatScreenActivity : BaseActivity() {
                                 filesSelected.clear()
                             }
                         }
-
                         // update room data
                     }
                 })
@@ -570,7 +574,9 @@ class ChatScreenActivity : BaseActivity() {
 
                     override fun fileUploadError(description: String) {
                         this@ChatScreenActivity.runOnUiThread {
-                            imageContainer.removeView(imageContainer[0])
+                            if (imageContainer.childCount > 0) {
+                                imageContainer.removeViewAt(0)
+                            }
                             uploadIndex++
                             if (uploadIndex < currentPhotoLocation.size) {
                                 uploadImage()
@@ -601,7 +607,9 @@ class ChatScreenActivity : BaseActivity() {
                                 )
 
                                 // TODO think about changing this... Index changes for other views when removed
-                                imageContainer.removeView(imageContainer[0])
+                                if (imageContainer.childCount > 0) {
+                                    imageContainer.removeViewAt(0)
+                                }
                                 uploadIndex++
                                 if (uploadIndex < currentPhotoLocation.size) {
                                     uploadImage()
@@ -656,6 +664,7 @@ class ChatScreenActivity : BaseActivity() {
         imageSelected.setButtonListener(object : ImageSelectedContainer.RemoveImageSelected {
             override fun removeImage() {
                 bindingSetup.llImagesContainer.removeView(imageSelected)
+                bindingSetup.ivAdd.rotation = ROTATION_OFF
             }
         })
         bindingSetup.llImagesContainer.addView(imageSelected)
