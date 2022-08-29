@@ -21,6 +21,13 @@ class Const {
         companion object {
             const val PDF = "pdf"
             const val ZIP = "zip"
+            const val RAR = "rar"
+            const val MP3 = "mp3"
+            const val WAW = "waw"
+            const val MP4 = "mp4"
+            const val MKV = "mkv"
+            const val JPEG = "jpeg"
+            const val PNG = "png"
         }
     }
 

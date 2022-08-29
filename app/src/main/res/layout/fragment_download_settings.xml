@@ -10,7 +10,7 @@
         android:id="@+id/iv_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/twenty_dp_margin"
         android:src="@drawable/img_arrow_back"
         app:layout_constraintEnd_toStartOf="@id/tv_page_name"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,7 +20,7 @@
         android:id="@+id/tv_page_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/media_auto_download"
         android:textSize="14sp"
@@ -32,7 +32,7 @@
         android:id="@+id/cl_photos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_back">
@@ -40,7 +40,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="@dimen/ten_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/photos"
             android:textSize="14sp"
@@ -60,7 +60,7 @@
         android:id="@+id/cl_audio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_photos">
@@ -68,7 +68,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="@dimen/ten_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/audio"
             android:textSize="14sp"
@@ -88,7 +88,7 @@
         android:id="@+id/cl_video"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_audio">
@@ -96,7 +96,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="@dimen/ten_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/video"
             android:textSize="14sp"
@@ -116,7 +116,7 @@
         android:id="@+id/cl_documents"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_video">
@@ -124,7 +124,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="@dimen/ten_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/documents"
             android:textSize="14sp"

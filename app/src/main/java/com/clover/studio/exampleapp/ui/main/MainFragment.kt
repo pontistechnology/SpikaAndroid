@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.clover.studio.exampleapp.databinding.FragmentMainBinding
 import com.clover.studio.exampleapp.ui.main.call_history.CallHistoryFragment
-import com.clover.studio.exampleapp.ui.main.rooms.RoomsFragment
 import com.clover.studio.exampleapp.ui.main.contacts.ContactsFragment
+import com.clover.studio.exampleapp.ui.main.rooms.RoomsFragment
 import com.clover.studio.exampleapp.ui.main.settings.SettingsFragment
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.android.material.tabs.TabLayoutMediator
@@ -23,9 +23,12 @@ class MainFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentMainBinding.inflate(inflater, container, false)
 
-        initializePager()
-
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initializePager()
     }
 
     private fun initializePager() {
@@ -40,7 +43,7 @@ class MainFragment : BaseFragment() {
             MainPagerAdapter(
                 requireContext(),
                 fragmentList,
-                requireActivity().supportFragmentManager,
+                this.childFragmentManager,
                 lifecycle
             )
 

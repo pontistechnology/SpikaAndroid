@@ -3,24 +3,52 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/ic_baseline_audio_file_blue_24.xml" value="0.112" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/img_audio.xml" value="0.186" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/img_edit.xml" value="0.184" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/img_file.xml" value="0.176" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/img_image.xml" value="0.186" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/img_library.xml" value="0.184" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/img_pdf.xml" value="0.184" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/img_video.xml" value="0.2405" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/img_video_selected.xml" value="0.2405" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/img_zip.xml" value="0.184" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/activity_chat_details.xml" value="0.2328125" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/activity_chat_screen.xml" value="0.4" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/activity_main.xml" value="0.27447916666666666" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/activity_onboarding.xml" value="0.2328125" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/activity_splash.xml" value="0.2328125" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/bottom_sheet_actions.xml" value="0.27447916666666666" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/custom_tab_layout.xml" value="0.27447916666666666" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/dialog_chooser.xml" value="0.27447916666666666" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/dialog_error.xml" value="0.2328125" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/dialog_progress.xml" value="0.2328125" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_account_creation.xml" value="0.2328125" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_call_history.xml" value="0.2328125" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_chat.xml" value="0.2328125" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_chat_details.xml" value="0.23697916666666666" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_chat_settings.xml" value="0.27447916666666666" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_contact_details.xml" value="0.27447916666666666" />
-        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_contacts.xml" value="0.16104868913857678" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_contacts.xml" value="0.264" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_country_picker.xml" value="0.2328125" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_download_settings.xml" value="0.4" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_group_information.xml" value="0.14791666666666667" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_main.xml" value="0.27447916666666666" />
-        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_new_room.xml" value="0.264" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_new_room.xml" value="0.33" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_notification_settings.xml" value="0.2328125" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_privacy_settings.xml" value="0.4" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_register_number.xml" value="0.2328125" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_settings.xml" value="0.2328125" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_verification.xml" value="0.23697916666666666" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/item_call_history.xml" value="0.2328125" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/item_chat_room.xml" value="0.27447916666666666" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/item_contact.xml" value="0.27447916666666666" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/item_country_code.xml" value="0.2328125" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/item_image_selected.xml" value="0.27447916666666666" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/item_message_me.xml" value="0.536" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/item_message_other.xml" value="0.8" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/item_new_room_contact.xml" value="0.2328125" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/item_people_selected.xml" value="0.2328125" />
         <entry key="app/src/main/res/drawable/bg_btn_blue.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/bg_btn_white.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/bg_button_blue_border.xml" value="0.27447916666666666" />

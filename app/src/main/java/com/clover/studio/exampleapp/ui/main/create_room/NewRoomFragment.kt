@@ -270,7 +270,9 @@ class NewRoomFragment : BaseFragment() {
                         }
                         Timber.d("Filtered List: $filteredList")
                         val users = filteredList.sortUsersByLocale(requireContext())
-                        contactsAdapter.submitList(ArrayList(users))
+                        contactsAdapter.submitList(ArrayList(users)) {
+                            binding.rvContacts.scrollToPosition(0)
+                        }
                         filteredList.clear()
                     }
                 }
@@ -293,7 +295,9 @@ class NewRoomFragment : BaseFragment() {
                         }
                         Timber.d("Filtered List: $filteredList")
                         val users = filteredList.sortUsersByLocale(requireContext())
-                        contactsAdapter.submitList(ArrayList(users))
+                        contactsAdapter.submitList(ArrayList(users)) {
+                            binding.rvContacts.scrollToPosition(0)
+                        }
                         filteredList.clear()
                     }
                 }

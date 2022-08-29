@@ -24,6 +24,7 @@ import java.io.*
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -31,8 +32,11 @@ import kotlin.math.roundToInt
 
 const val BITMAP_WIDTH = 512
 const val BITMAP_HEIGHT = 512
+const val TO_MEGABYTE = 1000000
 
 object Tools {
+    var fileName: String = ""
+
     fun checkError(ex: Exception) {
         when (ex) {
             is IllegalArgumentException -> Timber.d("IllegalArgumentException ${ex.message}")
@@ -88,7 +92,10 @@ object Tools {
     }
 
     fun copyStreamToFile(activity: Activity, inputStream: InputStream, extension: String): File {
-        val outputFile = File(activity.cacheDir, "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}")
+        if (fileName.isEmpty()) {
+            fileName = "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}"
+        }
+        val outputFile = File(activity.cacheDir, fileName)
         inputStream.use { input ->
             val outputStream = FileOutputStream(outputFile)
             outputStream.use { output ->
@@ -102,6 +109,11 @@ object Tools {
             }
         }
         return outputFile
+    }
+
+    fun calculateToMegabyte(size: Long): String? {
+        val df = DecimalFormat("#.##")
+        return df.format(size.toFloat().div(TO_MEGABYTE))
     }
 
     @Throws(IOException::class)
@@ -240,7 +252,11 @@ object Tools {
         }
     }
 
-    fun sha256HashFromUri(activity: Activity, currentPhotoLocation: Uri, extension: String): String? {
+    fun sha256HashFromUri(
+        activity: Activity,
+        currentPhotoLocation: Uri,
+        extension: String
+    ): String? {
         val sha256FileHash: String?
         val inputStream =
             activity.contentResolver.openInputStream(currentPhotoLocation)

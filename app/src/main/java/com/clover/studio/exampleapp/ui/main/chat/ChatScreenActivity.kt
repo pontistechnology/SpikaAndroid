@@ -77,6 +77,7 @@ class ChatScreenActivity : BaseActivity() {
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
+            bindingSetup.llImagesContainer.removeAllViews()
             if (it != null) {
                 for (uri in it) {
                     displayFileInContainer(uri)
@@ -88,6 +89,7 @@ class ChatScreenActivity : BaseActivity() {
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
+            bindingSetup.llImagesContainer.removeAllViews()
             if (it != null) {
                 for (uri in it) {
                     convertImageToBitmap(uri)
@@ -249,8 +251,7 @@ class ChatScreenActivity : BaseActivity() {
 
         bindingSetup.bottomSheet.btnFiles.setOnClickListener {
             chooseFile()
-            bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-            bindingSetup.vTransparent.visibility = View.GONE
+            closeBottomSheetAndRotateAnimation()
         }
 
         bindingSetup.ivCamera.setOnClickListener {
@@ -316,19 +317,31 @@ class ChatScreenActivity : BaseActivity() {
                 bindingSetup.ivAdd.rotation = ROTATION_ON
                 bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
                 bindingSetup.vTransparent.visibility = View.VISIBLE
-
             }
         }
 
         bindingSetup.bottomSheet.ivRemove.setOnClickListener {
             bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-            bindingSetup.vTransparent.visibility = View.GONE
-            bindingSetup.ivAdd.rotation = ROTATION_OFF
+            closeBottomSheetAndRotateAnimation()
         }
 
         bindingSetup.bottomSheet.btnLibrary.setOnClickListener {
             chooseImage()
+            closeBottomSheetAndRotateAnimation()
         }
+
+        bindingSetup.bottomSheet.btnLocation.setOnClickListener {
+            closeBottomSheetAndRotateAnimation()
+        }
+        bindingSetup.bottomSheet.btnContact.setOnClickListener {
+            closeBottomSheetAndRotateAnimation()
+        }
+    }
+
+    private fun closeBottomSheetAndRotateAnimation() {
+        bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.vTransparent.visibility = View.GONE
+        bindingSetup.ivAdd.rotation = ROTATION_OFF
     }
 
     private fun hideSendButton() {
@@ -437,14 +450,26 @@ class ChatScreenActivity : BaseActivity() {
         val inputStream =
             this.contentResolver.openInputStream(uri)
 
+        var fileName = ""
+        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
+
+        val cr = applicationContext.contentResolver
+        cr.query(uri, projection, null, null, null)?.use { metaCursor ->
+            if (metaCursor.moveToFirst()) {
+                fileName = metaCursor.getString(0)
+            }
+        }
+
+        Tools.fileName = fileName
+
         val fileStream = Tools.copyStreamToFile(this, inputStream!!, contentResolver.getType(uri)!!)
         val uploadPieces =
             if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
                 fileStream.length() / CHUNK_SIZE + 1
             else fileStream.length() / CHUNK_SIZE
         var progress = 0
-
         val imageContainer = bindingSetup.llImagesContainer[uploadIndex] as ImageSelectedContainer
+
         imageContainer.setMaxProgress(uploadPieces.toInt())
         Timber.d("File upload start")
         CoroutineScope(Dispatchers.IO).launch {
@@ -466,7 +491,9 @@ class ChatScreenActivity : BaseActivity() {
 
                     override fun fileUploadError(description: String) {
                         this@ChatScreenActivity.runOnUiThread {
-                            imageContainer.removeView(imageContainer[0])
+                            if (imageContainer.childCount > 0) {
+                                imageContainer.removeViewAt(0)
+                            }
                             uploadIndex++
                             if (uploadIndex < filesSelected.size) {
                                 uploadFile(filesSelected[uploadIndex])
@@ -488,7 +515,10 @@ class ChatScreenActivity : BaseActivity() {
                     override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
                         this@ChatScreenActivity.runOnUiThread {
                             Timber.d("Successfully sent file")
-                            imageContainer.removeView(imageContainer[0])
+                            if (imageContainer.childCount > 0) {
+                                imageContainer.removeViewAt(0)
+                            }
+
                             if (fileId > 0) messageBody.fileId = fileId
                             sendMessage(
                                 isImage = false,
@@ -505,7 +535,6 @@ class ChatScreenActivity : BaseActivity() {
                                 filesSelected.clear()
                             }
                         }
-
                         // update room data
                     }
                 })
@@ -545,7 +574,9 @@ class ChatScreenActivity : BaseActivity() {
 
                     override fun fileUploadError(description: String) {
                         this@ChatScreenActivity.runOnUiThread {
-                            imageContainer.removeView(imageContainer[0])
+                            if (imageContainer.childCount > 0) {
+                                imageContainer.removeViewAt(0)
+                            }
                             uploadIndex++
                             if (uploadIndex < currentPhotoLocation.size) {
                                 uploadImage()
@@ -576,7 +607,9 @@ class ChatScreenActivity : BaseActivity() {
                                 )
 
                                 // TODO think about changing this... Index changes for other views when removed
-                                imageContainer.removeView(imageContainer[0])
+                                if (imageContainer.childCount > 0) {
+                                    imageContainer.removeViewAt(0)
+                                }
                                 uploadIndex++
                                 if (uploadIndex < currentPhotoLocation.size) {
                                     uploadImage()
@@ -631,6 +664,7 @@ class ChatScreenActivity : BaseActivity() {
         imageSelected.setButtonListener(object : ImageSelectedContainer.RemoveImageSelected {
             override fun removeImage() {
                 bindingSetup.llImagesContainer.removeView(imageSelected)
+                bindingSetup.ivAdd.rotation = ROTATION_OFF
             }
         })
         bindingSetup.llImagesContainer.addView(imageSelected)
