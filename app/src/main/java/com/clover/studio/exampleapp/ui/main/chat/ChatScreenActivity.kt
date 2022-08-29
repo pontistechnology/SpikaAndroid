@@ -251,7 +251,7 @@ class ChatScreenActivity : BaseActivity() {
 
         bindingSetup.bottomSheet.btnFiles.setOnClickListener {
             chooseFile()
-            rotationAnimation()
+            closeBottomSheetAndRotateAnimation()
         }
 
         bindingSetup.ivCamera.setOnClickListener {
@@ -322,23 +322,23 @@ class ChatScreenActivity : BaseActivity() {
 
         bindingSetup.bottomSheet.ivRemove.setOnClickListener {
             bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-            rotationAnimation()
+            closeBottomSheetAndRotateAnimation()
         }
 
         bindingSetup.bottomSheet.btnLibrary.setOnClickListener {
             chooseImage()
-            rotationAnimation()
+            closeBottomSheetAndRotateAnimation()
         }
 
         bindingSetup.bottomSheet.btnLocation.setOnClickListener {
-            rotationAnimation()
+            closeBottomSheetAndRotateAnimation()
         }
         bindingSetup.bottomSheet.btnContact.setOnClickListener {
-            rotationAnimation()
+            closeBottomSheetAndRotateAnimation()
         }
     }
 
-    private fun rotationAnimation() {
+    private fun closeBottomSheetAndRotateAnimation() {
         bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
         bindingSetup.vTransparent.visibility = View.GONE
         bindingSetup.ivAdd.rotation = ROTATION_OFF

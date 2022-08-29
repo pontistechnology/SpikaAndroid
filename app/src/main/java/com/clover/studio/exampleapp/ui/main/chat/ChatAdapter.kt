@@ -106,7 +106,7 @@ class ChatAdapter(
                         holder.binding.tvFileSize.text =
                             Tools.calculateToMegabyte(it.body?.file?.size!!).toString()
 
-                        addFiles(it, holder.binding.ivFileType)
+                        setImageDrawableToImageView(it, holder.binding.ivFileType)
                     }
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
@@ -182,7 +182,7 @@ class ChatAdapter(
                         holder.binding.tvFileTitle.text = it.body?.file?.fileName
                         holder.binding.tvFileSize.text = it.body?.file?.size.toString()
 
-                        addFiles(it, holder.binding.ivFileType)
+                        setImageDrawableToImageView(it, holder.binding.ivFileType)
 
                     }
                     else -> {
@@ -243,7 +243,7 @@ class ChatAdapter(
         }
     }
 
-    private fun addFiles(message: Message, ivFileType: ImageView) {
+    private fun setImageDrawableToImageView(message: Message, ivFileType: ImageView) {
         when (message.body?.file?.fileName?.substringAfterLast(".")) {
             Const.FileExtensions.PDF -> ivFileType.setImageDrawable(
                 ResourcesCompat.getDrawable(
