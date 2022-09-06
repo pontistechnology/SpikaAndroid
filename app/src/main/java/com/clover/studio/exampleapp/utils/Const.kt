@@ -53,6 +53,8 @@ class Const {
             const val IMAGE = "image/*"
             const val FILE = "*/*"
 
+            const val VIDEO = "video"
+
             // File types
             const val AVATAR = "avatar"
             const val FILE_TYPE = "file"
@@ -83,6 +85,7 @@ class Const {
             const val GROUP = "group"
             const val BODY = "body"
             const val MESSAGE_IDS = "messagesIds"
+
         }
     }
 

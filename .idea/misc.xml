@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/bg_message_user.xml" value="0.216" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/ic_baseline_audio_file_blue_24.xml" value="0.112" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/img_audio.xml" value="0.186" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/drawable/img_edit.xml" value="0.184" />
@@ -25,7 +26,7 @@
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/dialog_progress.xml" value="0.2328125" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_account_creation.xml" value="0.2328125" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_call_history.xml" value="0.2328125" />
-        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_chat.xml" value="0.2328125" />
+        <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_chat.xml" value="0.25" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_chat_details.xml" value="0.23697916666666666" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_chat_settings.xml" value="0.27447916666666666" />
         <entry key="..\:/Users/Korisnik/AndroidStudioProjects/SpikaAndroid/app/src/main/res/layout/fragment_contact_details.xml" value="0.27447916666666666" />

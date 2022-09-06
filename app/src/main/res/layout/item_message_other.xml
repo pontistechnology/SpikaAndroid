@@ -99,6 +99,18 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- Video container -->
+            <VideoView
+                android:id="@+id/vv_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:src="@drawable/ic_baseline_video_library_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+            </VideoView>
+
             <TextView
                 android:id="@+id/tv_file_title"
                 android:layout_width="wrap_content"

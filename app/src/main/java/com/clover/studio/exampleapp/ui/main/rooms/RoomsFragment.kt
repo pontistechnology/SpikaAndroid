@@ -29,6 +29,7 @@ class RoomsFragment : BaseFragment() {
     private var filteredList: MutableList<RoomAndMessageAndRecords> = ArrayList()
 
     private var bindingSetup: FragmentChatBinding? = null
+    private var userId: String = ""
 
     private val binding get() = bindingSetup!!
 
@@ -38,9 +39,9 @@ class RoomsFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentChatBinding.inflate(inflater, container, false)
 
-        initializeObservers()
         setupAdapter()
         setupSearchView()
+        initializeObservers()
 
         binding.ivCreateRoom.setOnClickListener {
             findNavController().navigate(R.id.action_mainFragment_to_newRoomFragment)
@@ -61,7 +62,7 @@ class RoomsFragment : BaseFragment() {
                         for (room in roomList) {
                             if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
                                 room.roomWithUsers.users.forEach { roomUser ->
-                                    if (viewModel.getLocalUserId()
+                                    if (userId
                                             .toString() != roomUser.id.toString()
                                     ) {
                                         if (roomUser.displayName?.lowercase()
@@ -100,7 +101,7 @@ class RoomsFragment : BaseFragment() {
                         for (room in roomList) {
                             if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
                                 room.roomWithUsers.users.forEach { roomUser ->
-                                    if (viewModel.getLocalUserId()
+                                    if (userId
                                             .toString() != roomUser.id.toString()
                                     ) {
                                         if (roomUser.displayName?.lowercase()
@@ -147,6 +148,8 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
+        userId = viewModel.getLocalUserId().toString()
+
         viewModel.roomsListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 RoomFetchFail -> Timber.d("Failed to fetch rooms")
@@ -186,7 +189,7 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun setupAdapter() {
-        roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
+        roomsAdapter = RoomsAdapter(requireContext(), userId) {
             val gson = Gson()
             val roomData = gson.toJson(it.roomWithUsers)
             activity?.let { parent -> startChatScreenActivity(parent, roomData) }
@@ -195,12 +198,12 @@ class RoomsFragment : BaseFragment() {
         binding.rvRooms.adapter = roomsAdapter
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         binding.rvRooms.layoutManager = layoutManager
+
     }
 
     override fun onResume() {
         super.onResume()
         viewModel.getRooms()
         // This updates the elapsed time displayed when user return to the screen.
-        roomsAdapter.notifyDataSetChanged()
     }
 }

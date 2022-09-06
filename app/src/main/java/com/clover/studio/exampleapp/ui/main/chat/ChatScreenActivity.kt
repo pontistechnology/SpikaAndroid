@@ -1,13 +1,16 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -54,7 +57,7 @@ fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
 
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
-private const val THUMBNAIL_WIDTH = 256
+//private const val THUMBNAIL_WIDTH = 256
 
 @AndroidEntryPoint
 class ChatScreenActivity : BaseActivity() {
@@ -64,8 +67,12 @@ class ChatScreenActivity : BaseActivity() {
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var messages: MutableList<Message>
     private var unsentMessages: MutableList<Message> = ArrayList()
+
     private var currentPhotoLocation: MutableList<Uri> = ArrayList()
+    private var currentVideoLocation: MutableList<Uri> = ArrayList()
+
     private var filesSelected: MutableList<Uri> = ArrayList()
+
     private var thumbnailUris: MutableList<Uri> = ArrayList()
     private var photoImageUri: Uri? = null
     private var isAdmin = false
@@ -88,11 +95,11 @@ class ChatScreenActivity : BaseActivity() {
         }
 
     private val chooseImageContract =
-        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
+        registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
             bindingSetup.llImagesContainer.removeAllViews()
             if (it != null) {
                 for (uri in it) {
-                    convertImageToBitmap(uri)
+                    getImageOrVideo(uri)
                 }
             } else {
                 Timber.d("Gallery error")
@@ -301,9 +308,17 @@ class ChatScreenActivity : BaseActivity() {
 
         bindingSetup.ivButtonSend.setOnClickListener {
             if (currentPhotoLocation.isNotEmpty()) {
+                Timber.d("current photo: ${currentPhotoLocation.toString()}")
                 uploadImage()
+
             } else if (filesSelected.isNotEmpty()) {
+                Timber.d("current file: ${filesSelected[0].toString()}")
                 uploadFile(filesSelected[0])
+
+            } else if(currentVideoLocation.isNotEmpty()){
+                Timber.d("current video: ${currentVideoLocation.toString()}")
+                uploadVideo()
+
             } else {
                 createTempMessage()
                 sendMessage()
@@ -326,6 +341,7 @@ class ChatScreenActivity : BaseActivity() {
         }
 
         bindingSetup.bottomSheet.btnLibrary.setOnClickListener {
+            // chooseImageOrVideo
             chooseImage()
             rotationAnimation()
         }
@@ -365,10 +381,10 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun sendMessage() {
-        sendMessage(isImage = false, isFile = false, 0, 0)
+        sendMessage(isImage = false, isFile = false, isVideo = false,0, 0)
     }
 
-    private fun sendMessage(isImage: Boolean, isFile: Boolean, fileId: Long, thumbId: Long) {
+    private fun sendMessage(isImage: Boolean, isFile: Boolean, isVideo: Boolean, fileId: Long, thumbId: Long) {
         val jsonObject = JsonObject()
         val innerObject = JsonObject()
         innerObject.addProperty(
@@ -382,7 +398,12 @@ class ChatScreenActivity : BaseActivity() {
         } else if (isFile) {
             innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
             jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.FILE_TYPE)
-        } else jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.TEXT)
+        } else if(isVideo) {
+            innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
+            innerObject.addProperty(Const.JsonFields.THUMB_ID, thumbId)
+            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.VIDEO)
+        }
+        else jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.TEXT)
 
         jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomWithUsers.room.roomId)
         jsonObject.add(Const.JsonFields.BODY, innerObject)
@@ -421,7 +442,7 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun chooseImage() {
-        chooseImageContract.launch(Const.JsonFields.IMAGE)
+        chooseImageContract.launch(arrayOf(Const.JsonFields.FILE))
     }
 
     private fun takePhoto() {
@@ -438,10 +459,19 @@ class ChatScreenActivity : BaseActivity() {
     private fun uploadThumbnail(messageBody: MessageBody, index: Int) {
         uploadImage(messageBody, true, thumbnailUris[index])
     }
+    private fun uploadVideoThumbnail(messageBody: MessageBody, index: Int) {
+        uploadVideo(messageBody, true, thumbnailUris[index])
+    }
 
     private fun uploadImage() {
         val messageBody = MessageBody("", 0, 0, null, null)
         uploadThumbnail(messageBody, uploadIndex)
+//        uploadFile(messageBody, false, currentPhotoLocation[uploadIndex])
+    }
+
+    private fun uploadVideo() {
+        val messageBody = MessageBody("", 0, 0, null, null)
+        uploadVideoThumbnail(messageBody, uploadIndex)
 //        uploadFile(messageBody, false, currentPhotoLocation[uploadIndex])
     }
 
@@ -523,6 +553,7 @@ class ChatScreenActivity : BaseActivity() {
                             sendMessage(
                                 isImage = false,
                                 isFile = true,
+                                isVideo = false,
                                 messageBody.fileId!!,
                                 0
                             )
@@ -535,6 +566,98 @@ class ChatScreenActivity : BaseActivity() {
                                 filesSelected.clear()
                             }
                         }
+                        // update room data
+                    }
+                })
+        }
+    }
+
+    private fun uploadVideo(messageBody: MessageBody, isThumbnail: Boolean, uri: Uri){
+        val inputStream =
+            this.contentResolver.openInputStream(uri)
+
+        val fileStream = Tools.copyStreamToFile(this, inputStream!!, contentResolver.getType(uri)!!)
+        val uploadPieces =
+            if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
+                fileStream.length() / CHUNK_SIZE + 1
+            else fileStream.length() / CHUNK_SIZE
+
+        Timber.d("upload pieces: $uploadPieces")
+        var progress = 0
+
+        val imageContainer = bindingSetup.llImagesContainer[uploadIndex] as ImageSelectedContainer
+        imageContainer.setMaxProgress(uploadPieces.toInt())
+        Timber.d("File upload start")
+        CoroutineScope(Dispatchers.IO).launch {
+            uploadDownloadManager.uploadFile(
+                this@ChatScreenActivity,
+                uri,
+                Const.JsonFields.VIDEO,
+                Const.JsonFields.AVATAR,
+                uploadPieces,
+                fileStream,
+                isThumbnail,
+                object : FileUploadListener {
+                    override fun filePieceUploaded() {
+                        if (progress <= uploadPieces) {
+                            imageContainer.setUploadProgress(progress)
+                            progress++
+                        } else progress = 0
+                    }
+
+                    override fun fileUploadError(description: String) {
+                        this@ChatScreenActivity.runOnUiThread {
+                            if (imageContainer.childCount > 0) {
+                                imageContainer.removeViewAt(0)
+                            }
+                            uploadIndex++
+                            if (uploadIndex < currentPhotoLocation.size) {
+                                uploadVideo()
+                            } else {
+                                uploadIndex = 0
+                                currentVideoLocation.clear()
+                            }
+
+                            Toast.makeText(
+                                baseContext,
+                                getString(R.string.failed_file_upload),
+                                Toast.LENGTH_SHORT
+                            ).show()
+//                            showUploadError(description)
+//                            imageContainer.hideProgressScreen()
+                        }
+                    }
+
+                    override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                        this@ChatScreenActivity.runOnUiThread {
+                            if (!isThumbnail) {
+                                if (fileId > 0) messageBody.fileId = fileId
+                                sendMessage(
+                                    isImage = false,
+                                    isFile = false,
+                                    isVideo = true,
+                                    messageBody.fileId!!,
+                                    messageBody.thumbId!!
+                                )
+
+                                // TODO think about changing this... Index changes for other views when removed
+                                if (imageContainer.childCount > 0) {
+                                    imageContainer.removeViewAt(0)
+                                }
+                                uploadIndex++
+                                if (uploadIndex < currentPhotoLocation.size) {
+                                    uploadVideo()
+                                } else {
+                                    uploadIndex = 0
+                                    currentVideoLocation.clear()
+                                }
+                            } else {
+                                if (thumbId > 0) messageBody.thumbId = thumbId
+                                uploadVideo(messageBody, false, currentVideoLocation[uploadIndex])
+                                imageContainer.hideProgressScreen()
+                            }
+                        }
+
                         // update room data
                     }
                 })
@@ -602,6 +725,7 @@ class ChatScreenActivity : BaseActivity() {
                                 sendMessage(
                                     isImage = true,
                                     isFile = false,
+                                    isVideo = false,
                                     messageBody.fileId!!,
                                     messageBody.thumbId!!
                                 )
@@ -623,7 +747,6 @@ class ChatScreenActivity : BaseActivity() {
                                 imageContainer.hideProgressScreen()
                             }
                         }
-
                         // update room data
                     }
                 })
@@ -670,6 +793,47 @@ class ChatScreenActivity : BaseActivity() {
         bindingSetup.llImagesContainer.addView(imageSelected)
     }
 
+    private fun getImageOrVideo(uri: Uri){
+        val cR: ContentResolver = applicationContext.contentResolver
+        val mime = MimeTypeMap.getSingleton()
+        val type = mime.getExtensionFromMimeType(cR.getType(uri))
+        Timber.d("file type: $type")
+
+        if (type.equals("mp4")){
+            convertVideo(uri)
+        }else{
+            convertImageToBitmap(uri)
+        }
+    }
+
+    private fun convertVideo(videoUri: Uri){
+        val mmr = MediaMetadataRetriever()
+        mmr.setDataSource(this, videoUri)
+        val bm = mmr.frameAtTime
+
+        val imageSelected = ImageSelectedContainer(this, null)
+        bm.let { imageBitmap -> imageSelected.setImage(imageBitmap!!) }
+        bindingSetup.llImagesContainer.addView(imageSelected)
+
+        val bitmapUri = Tools.convertBitmapToUri(this, bm!!)
+
+        runOnUiThread { showSendButton() }
+        imageSelected.setButtonListener(object :
+            ImageSelectedContainer.RemoveImageSelected {
+            override fun removeImage() {
+                bindingSetup.llImagesContainer.removeView(imageSelected)
+                bindingSetup.ivAdd.rotation = ROTATION_OFF
+            }
+        })
+
+        val thumbnail =
+            ThumbnailUtils.extractThumbnail(bm, bm.width, bm.height)
+        val thumbnailUri = Tools.convertBitmapToUri(this, thumbnail)
+
+        thumbnailUris.add(thumbnailUri)
+        currentVideoLocation.add(bitmapUri)
+    }
+
     private fun convertImageToBitmap(imageUri: Uri?) {
         val bitmap =
             Tools.handleSamplingAndRotationBitmap(this, imageUri)
@@ -684,6 +848,7 @@ class ChatScreenActivity : BaseActivity() {
             ImageSelectedContainer.RemoveImageSelected {
             override fun removeImage() {
                 bindingSetup.llImagesContainer.removeView(imageSelected)
+                bindingSetup.ivAdd.rotation = ROTATION_OFF
             }
         })
         val thumbnail =

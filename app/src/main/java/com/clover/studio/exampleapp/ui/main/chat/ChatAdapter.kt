@@ -1,12 +1,14 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.MediaController
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -96,6 +98,7 @@ class ChatAdapter(
                             })
                             .into(holder.binding.ivChatImage)
                     }
+
                     Const.JsonFields.FILE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.GONE
@@ -108,6 +111,37 @@ class ChatAdapter(
 
                         addFiles(it, holder.binding.ivFileType)
                     }
+
+                    Const.JsonFields.VIDEO -> {
+                        holder.binding.tvMessage.visibility = View.GONE
+                        holder.binding.vvVideo.visibility = View.VISIBLE
+                        holder.binding.ivChatImage.visibility = View.VISIBLE
+                        holder.binding.clFileMessage.visibility = View.GONE
+
+                        // Insert video
+                        val videoView = holder.binding.vvVideo
+
+                        /*val uri = it.body?.file?.path?.let { videoPath ->
+                            Tools.getVideoUrl(
+                                videoPath
+                            )
+                        }*/
+
+                        // Timber.d("video uri: $uri")
+
+                        videoView.setVideoURI(Uri.parse("\"http://videocdn.bodybuilding.com/video/mp4/62000/62792m.mp4\""))
+                        videoView.requestFocus()
+
+                        val mediaController = MediaController(holder.itemView.context)
+                        mediaController.setAnchorView(videoView)
+                        mediaController.setMediaPlayer(videoView)
+
+                        videoView.setMediaController(mediaController)
+
+                        videoView.start()
+
+                    }
+
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.ivChatImage.visibility = View.GONE
@@ -174,6 +208,17 @@ class ChatAdapter(
                             })
                             .into(holder.binding.ivChatImage)
                     }
+                    Const.JsonFields.VIDEO -> {
+                        holder.binding.tvMessage.visibility = View.GONE
+                        holder.binding.vvVideo.visibility = View.VISIBLE
+                        holder.binding.ivChatImage.visibility = View.VISIBLE
+                        holder.binding.clFileMessage.visibility = View.GONE
+
+                        // Insert video
+                        // TODO
+                    }
+
+
                     Const.JsonFields.FILE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.GONE
