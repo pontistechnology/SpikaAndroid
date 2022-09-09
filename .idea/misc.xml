@@ -54,6 +54,7 @@
         <entry key="app/src/main/res/drawable/bg_btn_white.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/bg_button_blue_border.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/drawable/bg_circle_image.xml" value="0.27447916666666666" />
+        <entry key="app/src/main/res/drawable/bg_message_user.xml" value="0.2305" />
         <entry key="app/src/main/res/drawable/button_contact_states.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/ic_toggle_off.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/img_account_default.xml" value="0.27447916666666666" />
@@ -97,6 +98,8 @@
         <entry key="app/src/main/res/drawable/sw_custom_switch.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/sw_states.xml" value="0.36822916666666666" />
         <entry key="app/src/main/res/drawable/sw_track.xml" value="0.36822916666666666" />
+        <entry key="app/src/main/res/layout/activity_chat_details.xml" value="0.27239583333333334" />
+        <entry key="app/src/main/res/layout/activity_chat_screen.xml" value="0.27239583333333334" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_onboarding.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.25416666666666665" />
@@ -104,12 +107,15 @@
         <entry key="app/src/main/res/layout/fragment_account_creation.xml" value="0.24923391215526047" />
         <entry key="app/src/main/res/layout/fragment_call_history.xml" value="0.23796296296296296" />
         <entry key="app/src/main/res/layout/fragment_chat.xml" value="0.2323799795709908" />
+        <entry key="app/src/main/res/layout/fragment_chat_details.xml" value="0.27239583333333334" />
+        <entry key="app/src/main/res/layout/fragment_chat_messages.xml" value="0.27239583333333334" />
         <entry key="app/src/main/res/layout/fragment_chat_settings.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_contact_details.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_contacts.xml" value="0.23796296296296296" />
         <entry key="app/src/main/res/layout/fragment_country_picker.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/fragment_download_settings.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_main.xml" value="0.20729166666666668" />
+        <entry key="app/src/main/res/layout/fragment_new_room.xml" value="0.2677083333333333" />
         <entry key="app/src/main/res/layout/fragment_notification_settings.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_privacy.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_privacy_settings.xml" value="0.34791666666666665" />
@@ -117,9 +123,12 @@
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.23796296296296296" />
         <entry key="app/src/main/res/layout/fragment_splash.xml" value="0.23697916666666666" />
         <entry key="app/src/main/res/layout/fragment_verification.xml" value="0.23697916666666666" />
+        <entry key="app/src/main/res/layout/fragment_video.xml" value="0.27239583333333334" />
         <entry key="app/src/main/res/layout/item_call_history.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/item_contact.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/layout/item_country_code.xml" value="0.25416666666666665" />
+        <entry key="app/src/main/res/layout/item_message_me.xml" value="0.35833333333333334" />
+        <entry key="app/src/main/res/layout/item_message_other.xml" value="0.5" />
       </map>
     </option>
   </component>

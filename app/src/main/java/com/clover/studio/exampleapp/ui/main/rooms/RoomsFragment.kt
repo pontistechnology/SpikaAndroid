@@ -39,9 +39,9 @@ class RoomsFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentChatBinding.inflate(inflater, container, false)
 
+        initializeObservers()
         setupAdapter()
         setupSearchView()
-        initializeObservers()
 
         binding.ivCreateRoom.setOnClickListener {
             findNavController().navigate(R.id.action_mainFragment_to_newRoomFragment)
@@ -189,6 +189,7 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun setupAdapter() {
+        Timber.d("roomsfrag: $userId")
         roomsAdapter = RoomsAdapter(requireContext(), userId) {
             val gson = Gson()
             val roomData = gson.toJson(it.roomWithUsers)
@@ -196,6 +197,7 @@ class RoomsFragment : BaseFragment() {
         }
 
         binding.rvRooms.adapter = roomsAdapter
+        binding.rvRooms.setItemViewCacheSize(10)
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         binding.rvRooms.layoutManager = layoutManager
 

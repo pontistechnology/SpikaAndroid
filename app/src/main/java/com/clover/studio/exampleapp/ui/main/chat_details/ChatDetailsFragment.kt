@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -46,6 +47,7 @@ class ChatDetailsFragment : BaseFragment() {
     lateinit var sharedPrefs: SharedPreferencesRepository
 
     private val viewModel: ChatViewModel by activityViewModels()
+    private val args: ChatDetailsFragmentArgs by navArgs()
     private lateinit var adapter: ChatDetailsAdapter
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var roomUsers: MutableList<User> = ArrayList()
@@ -55,7 +57,6 @@ class ChatDetailsFragment : BaseFragment() {
     private var isAdmin = false
 
     private var bindingSetup: FragmentChatDetailsBinding? = null
-
     private val binding get() = bindingSetup!!
 
     private val chooseImageContract =
@@ -92,9 +93,9 @@ class ChatDetailsFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Fetch room data sent from previous activity
-        roomId = activity?.intent?.getIntExtra(Const.Navigation.ROOM_ID, 0)
-        isAdmin = activity?.intent?.getBooleanExtra(Const.Navigation.IS_ADMIN, false) == true
+        // Fetch room data sent from previous fragment
+        roomId = args.roomId
+        isAdmin = args.isAdmin
         Timber.d("isAdmin = $isAdmin")
     }
 
@@ -209,7 +210,10 @@ class ChatDetailsFragment : BaseFragment() {
             getString(R.string.number_of_members, roomWithUsers.users.size)
 
         binding.ivBack.setOnClickListener {
-            requireActivity().onBackPressed()
+            val action =
+                ChatDetailsFragmentDirections.actionChatDetailsFragmentToChatMessagesFragment2()
+            findNavController().navigate(action)
+
         }
     }
 
