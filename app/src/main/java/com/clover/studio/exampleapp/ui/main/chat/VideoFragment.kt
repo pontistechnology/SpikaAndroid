@@ -6,13 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.MediaController
-import android.widget.VideoView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.databinding.FragmentVideoBinding
+import timber.log.Timber
 
 
 class VideoFragment : Fragment() {
@@ -49,29 +48,20 @@ class VideoFragment : Fragment() {
             .load(videoPath)
             .into(binding.ivVideoHolder)
 
-        val videoView = VideoView(context)
-
-        videoView.setOnPreparedListener{
-            binding.clVideoLoading.visibility = View.GONE
-        }
-
-        val layoutParams = ConstraintLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        layoutParams.setMargins(8, 8, 8, 8)
-        videoView.layoutParams = layoutParams
+        val videoView = binding.vvVideo
 
         val mediaController = MediaController(context)
         mediaController.setAnchorView(binding.clVideoContainer)
-        videoView.setMediaController(mediaController)
 
+        videoView.setMediaController(mediaController)
         videoView.setVideoURI(Uri.parse(videoPath))
 
+        videoView.setOnPreparedListener {
+            binding.clVideoLoading.visibility = View.GONE
+        }
 
-        val constraintLayout = binding.clVideoContainer
-        constraintLayout.visibility = View.VISIBLE
-        constraintLayout.addView(videoView)
+        val frameLayout = binding.clVideoContainer
+        frameLayout.visibility = View.VISIBLE
         videoView.start()
     }
 

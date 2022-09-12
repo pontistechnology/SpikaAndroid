@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -73,8 +72,6 @@ class ChatMessagesFragment : Fragment() {
     private var isAdmin = false
     private var uploadIndex = 0
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
-
-    private lateinit var tempLayout: EditText
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -156,15 +153,7 @@ class ChatMessagesFragment : Fragment() {
                     bindingSetup.etMessage.setText("")
                     viewModel.deleteLocalMessages(unsentMessages)
                     unsentMessages.clear()
-
-
-
                     chatAdapter.notifyDataSetChanged()
-
-                    Timber.d("clear msg1: $unsentMessages")
-                    Timber.d("temp2: ${tempLayout.id.toString()}")
-
-                    bindingSetup.rvChat.removeView(tempLayout)
 
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
@@ -201,7 +190,6 @@ class ChatMessagesFragment : Fragment() {
                 ChatStatesEnum.MESSAGE_DELIVERED -> {
                     Timber.d("Messages delivered")
                     unsentMessages.clear()
-                    bindingSetup.rvChat.removeView(tempLayout)
 
                 }
                 ChatStatesEnum.MESSAGE_DELIVER_FAIL -> Timber.d("Failed to deliver messages")
@@ -437,10 +425,6 @@ class ChatMessagesFragment : Fragment() {
     }
 
     private fun createTempMessage() {
-
-        tempLayout = bindingSetup.etMessage
-        Timber.d("temp1: ${tempLayout.id.toString()}")
-
         val tempMessage = Message(
             0,
             viewModel.getLocalUserId(),
@@ -451,7 +435,7 @@ class ChatMessagesFragment : Fragment() {
             0,
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT,
-            MessageBody(tempLayout.text.toString(), 1, 1, null, null),
+            MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null),
             System.currentTimeMillis()
         )
 

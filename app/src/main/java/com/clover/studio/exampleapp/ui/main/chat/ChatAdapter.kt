@@ -112,7 +112,8 @@ class ChatAdapter(
                         holder.binding.vvVideo.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.body?.file?.fileName
-                        var megabyteText = Tools.calculateToMegabyte(it.body?.file?.size!!).toString() + " MB"
+                        val megabyteText =
+                            Tools.calculateToMegabyte(it.body?.file?.size!!).toString() + " MB"
                         holder.binding.tvFileSize.text = megabyteText
 
                         addFiles(it, holder.binding.ivFileType)
@@ -125,7 +126,6 @@ class ChatAdapter(
 
                         holder.binding.clVideos.visibility = View.VISIBLE
 
-                        // Insert video
                         val videoPath = it.body?.file?.path?.let { videoPath ->
                             Tools.getVideoUrl(
                                 videoPath
@@ -219,7 +219,7 @@ class ChatAdapter(
 
                         holder.binding.clVideos.visibility = View.VISIBLE
 
-                        // Insert video
+
                         val videoPath = it.body?.file?.path?.let { videoPath ->
                             Tools.getVideoUrl(
                                 videoPath
@@ -229,6 +229,7 @@ class ChatAdapter(
                         Glide.with(context)
                             .load(videoPath)
                             .into(holder.binding.vvVideo)
+
 
                         holder.binding.ivPlayButton.setOnClickListener { view ->
                             val action =
@@ -247,7 +248,8 @@ class ChatAdapter(
                         holder.binding.vvVideo.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.body?.file?.fileName
-                        var megabyteText = Tools.calculateToMegabyte(it.body?.file?.size!!).toString() + " MB"
+                        val megabyteText =
+                            Tools.calculateToMegabyte(it.body?.file?.size!!).toString() + " MB"
                         holder.binding.tvFileSize.text = megabyteText
 
                         addFiles(it, holder.binding.ivFileType)
