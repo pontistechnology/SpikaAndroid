@@ -18,7 +18,7 @@ import com.clover.studio.exampleapp.ui.main.*
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
+import com.clover.studio.exampleapp.utils.Tools.getFileUrl
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
@@ -140,7 +140,7 @@ class ContactDetailsFragment : BaseFragment() {
                 user?.id?.let { id -> viewModel.checkIfRoomExists(id) }
             }
 
-            Glide.with(this).load(user?.avatarUrl?.let { getAvatarUrl(it) })
+            Glide.with(this).load(user?.avatarUrl?.let { getFileUrl(it) })
                 .listener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(
                         e: GlideException?,
@@ -166,6 +166,7 @@ class ContactDetailsFragment : BaseFragment() {
                         binding.clProgressScreen.visibility = View.GONE
                         return false
                     }
+
                     override fun onResourceReady(
                         resource: Drawable?,
                         model: Any?,

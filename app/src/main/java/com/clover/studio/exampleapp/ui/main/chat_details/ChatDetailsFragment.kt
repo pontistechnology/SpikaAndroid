@@ -129,18 +129,18 @@ class ChatDetailsFragment : BaseFragment() {
                 if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
                     binding.tvChatName.text = roomUser.displayName
                     Glide.with(this)
-                        .load(roomUser.avatarUrl?.let { Tools.getAvatarUrl(it) })
+                        .load(roomUser.avatarUrl?.let { Tools.getFileUrl(it) })
                         .into(binding.ivPickAvatar)
                     Glide.with(this)
-                        .load(roomUser.avatarUrl?.let { Tools.getAvatarUrl(it) })
+                        .load(roomUser.avatarUrl?.let { Tools.getFileUrl(it) })
                         .into(binding.ivUserImage)
                 }
             }
         } else {
             binding.tvChatName.text = roomWithUsers.room.name
-            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getAvatarUrl(it) })
+            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
                 .into(binding.ivPickAvatar)
-            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getAvatarUrl(it) })
+            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
                 .into(binding.ivUserImage)
         }
 

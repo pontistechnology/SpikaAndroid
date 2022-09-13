@@ -22,11 +22,11 @@ interface MessageDao {
     @Query("SELECT * FROM message")
     suspend fun getMessagesLocally(): List<Message>
 
-    @Query("DELETE FROM message WHERE ID LIKE (:messageId)")
-    suspend fun deleteMessage(messageId: Int)
-
     @Delete
-    suspend fun deleteMessage(message: List<Message>)
+    suspend fun deleteMessage(message: Message)
+
+    @Query("DELETE FROM message WHERE ID LIKE (:messageId)")
+    suspend fun deleteMessage(messageId: List<Long>)
 
     @Query("DELETE FROM message")
     suspend fun removeMessages()

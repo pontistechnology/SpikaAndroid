@@ -97,7 +97,7 @@ class ChatAdapter(
 
                         Glide.with(context)
                             .load(it.body?.file?.path?.let { imagePath ->
-                                Tools.getAvatarUrl(
+                                Tools.getFileUrl(
                                     imagePath
                                 )
                             })
@@ -113,9 +113,10 @@ class ChatAdapter(
 
                         holder.binding.tvFileTitle.text = it.body?.file?.fileName
                         val megabyteText =
-                            Tools.calculateToMegabyte(it.body?.file?.size!!).toString() + " MB"
+                            "${
+                                Tools.calculateToMegabyte(it.body?.file?.size!!).toString()
+                            } ${holder.itemView.context.getString(R.string.files_mb_text)}"
                         holder.binding.tvFileSize.text = megabyteText
-
                         addFiles(it, holder.binding.ivFileType)
                     }
 
@@ -126,7 +127,7 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.VISIBLE
 
                         val videoPath = it.body?.file?.path?.let { videoPath ->
-                            Tools.getVideoUrl(
+                            Tools.getFileUrl(
                                 videoPath
                             )
                         }
@@ -206,7 +207,7 @@ class ChatAdapter(
 
                         Glide.with(context)
                             .load(it.body?.file?.path?.let { imagePath ->
-                                Tools.getAvatarUrl(
+                                Tools.getFileUrl(
                                     imagePath
                                 )
                             })
@@ -220,7 +221,7 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.VISIBLE
 
                         val videoPath = it.body?.file?.path?.let { videoPath ->
-                            Tools.getVideoUrl(
+                            Tools.getFileUrl(
                                 videoPath
                             )
                         }
@@ -247,7 +248,9 @@ class ChatAdapter(
 
                         holder.binding.tvFileTitle.text = it.body?.file?.fileName
                         val megabyteText =
-                            Tools.calculateToMegabyte(it.body?.file?.size!!).toString() + " MB"
+                            "${
+                                Tools.calculateToMegabyte(it.body?.file?.size!!).toString()
+                            } ${holder.itemView.context.getString(R.string.files_mb_text)}"
                         holder.binding.tvFileSize.text = megabyteText
 
                         addFiles(it, holder.binding.ivFileType)
@@ -264,7 +267,7 @@ class ChatAdapter(
                     holder.binding.ivChatImage.visibility = View.VISIBLE
 
                     Glide.with(context)
-                        .load(it.body?.file?.path?.let { imagePath -> Tools.getAvatarUrl(imagePath) })
+                        .load(it.body?.file?.path?.let { imagePath -> Tools.getFileUrl(imagePath) })
                         .into(holder.binding.ivChatImage)
                 } else {
                     holder.binding.tvMessage.visibility = View.VISIBLE
@@ -276,7 +279,7 @@ class ChatAdapter(
                         holder.binding.tvUsername.text = roomUser.displayName
                         Glide.with(context)
                             .load(roomUser.avatarUrl?.let { avatarUrl ->
-                                Tools.getAvatarUrl(
+                                Tools.getFileUrl(
                                     avatarUrl
                                 )
                             })

@@ -34,7 +34,7 @@ class ChatDetailsAdapter(
                 binding.tvUsername.text = userItem.displayName
                 binding.tvTitle.text = userItem.telephoneNumber
                 // Remove first / with substring from avatarUrl
-                Glide.with(context).load(userItem.avatarUrl?.let { Tools.getAvatarUrl(it) })
+                Glide.with(context).load(userItem.avatarUrl?.let { Tools.getFileUrl(it) })
                     .into(binding.ivUserImage)
 
                 if (isAdmin) binding.ivRemoveUser.visibility = View.VISIBLE

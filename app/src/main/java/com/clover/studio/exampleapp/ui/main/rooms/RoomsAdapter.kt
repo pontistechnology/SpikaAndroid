@@ -13,7 +13,7 @@ import com.clover.studio.exampleapp.data.models.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
+import com.clover.studio.exampleapp.utils.Tools.getFileUrl
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
 import timber.log.Timber
 
@@ -41,18 +41,18 @@ class RoomsAdapter(
                         Timber.d("Room user = ${roomItem.roomWithUsers.room.roomId}, ${roomUser.displayName}")
                         if (myUserId != roomUser.id.toString()) {
                             Glide.with(context)
-                                .load(roomUser.avatarUrl?.let { getAvatarUrl(it) })
+                                .load(roomUser.avatarUrl?.let { getFileUrl(it) })
                                 .into(binding.ivRoomImage)
-                            Timber.d("url: ${roomUser.avatarUrl?.let { getAvatarUrl(it) }}")
+                            Timber.d("url: ${roomUser.avatarUrl?.let { getFileUrl(it) }}")
                         } else {
                             Glide.with(context)
-                                .load(roomItem.roomWithUsers.room.avatarUrl?.let { getAvatarUrl(it) })
+                                .load(roomItem.roomWithUsers.room.avatarUrl?.let { getFileUrl(it) })
                                 .into(binding.ivRoomImage)
                         }
                     }
                 } else {
                     Glide.with(context)
-                        .load(roomItem.roomWithUsers.room.avatarUrl?.let { getAvatarUrl(it) })
+                        .load(roomItem.roomWithUsers.room.avatarUrl?.let { getFileUrl(it) })
                         .into(binding.ivRoomImage)
                 }
 

@@ -301,13 +301,13 @@ class ChatMessagesFragment : Fragment() {
                 if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
                     bindingSetup.tvChatName.text = roomUser.displayName
                     Glide.with(this)
-                        .load(roomUser.avatarUrl?.let { Tools.getAvatarUrl(it) })
+                        .load(roomUser.avatarUrl?.let { Tools.getFileUrl(it) })
                         .into(bindingSetup.ivUserImage)
                 }
             }
         } else {
             bindingSetup.tvChatName.text = roomWithUsers.room.name
-            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getAvatarUrl(it) })
+            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
                 .into(bindingSetup.ivUserImage)
         }
 
@@ -438,7 +438,7 @@ class ChatMessagesFragment : Fragment() {
         viewModel.storeMessageLocally(tempMessage)
     }
 
-    fun onBackPressed() {
+    private fun onBackPressed() {
         // Update room visited
         roomWithUsers.room.visitedRoom = System.currentTimeMillis()
         viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)

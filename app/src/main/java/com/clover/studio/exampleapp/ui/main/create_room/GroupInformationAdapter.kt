@@ -32,7 +32,7 @@ class GroupInformationAdapter(
                 binding.tvUsername.text = userItem.phoneUser?.name ?: userItem.user.displayName
                 binding.tvTitle.text = userItem.user.telephoneNumber
                 // Remove first / with substring from avatarUrl
-                Glide.with(context).load(userItem.user.avatarUrl?.let { Tools.getAvatarUrl(it) })
+                Glide.with(context).load(userItem.user.avatarUrl?.let { Tools.getFileUrl(it) })
                     .into(binding.ivUserImage)
 
                 itemView.setOnClickListener {

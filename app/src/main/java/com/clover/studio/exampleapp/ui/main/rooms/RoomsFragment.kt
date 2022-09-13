@@ -29,7 +29,6 @@ class RoomsFragment : BaseFragment() {
     private var filteredList: MutableList<RoomAndMessageAndRecords> = ArrayList()
 
     private var bindingSetup: FragmentChatBinding? = null
-    private var userId: String = ""
 
     private val binding get() = bindingSetup!!
 
@@ -62,7 +61,7 @@ class RoomsFragment : BaseFragment() {
                         for (room in roomList) {
                             if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
                                 room.roomWithUsers.users.forEach { roomUser ->
-                                    if (userId
+                                    if (viewModel.getLocalUserId()
                                             .toString() != roomUser.id.toString()
                                     ) {
                                         if (roomUser.displayName?.lowercase()
@@ -101,7 +100,7 @@ class RoomsFragment : BaseFragment() {
                         for (room in roomList) {
                             if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
                                 room.roomWithUsers.users.forEach { roomUser ->
-                                    if (userId
+                                    if (viewModel.getLocalUserId()
                                             .toString() != roomUser.id.toString()
                                     ) {
                                         if (roomUser.displayName?.lowercase()
@@ -148,8 +147,6 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        userId = viewModel.getLocalUserId().toString()
-
         viewModel.roomsListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 RoomFetchFail -> Timber.d("Failed to fetch rooms")
@@ -189,7 +186,7 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun setupAdapter() {
-        roomsAdapter = RoomsAdapter(requireContext(), userId) {
+        roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
             val gson = Gson()
             val roomData = gson.toJson(it.roomWithUsers)
             activity?.let { parent -> startChatScreenActivity(parent, roomData) }
