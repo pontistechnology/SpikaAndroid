@@ -33,19 +33,13 @@ class RoomsAdapter(
 
     override fun onBindViewHolder(holder: RoomsViewHolder, position: Int) {
         with(holder) {
-
             getItem(position).let { roomItem ->
                 Timber.d("Room data = $roomItem")
                 binding.tvRoomName.text = roomItem.roomWithUsers.room.name
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
                     roomItem.roomWithUsers.users.forEach { roomUser ->
                         Timber.d("Room user = ${roomItem.roomWithUsers.room.roomId}, ${roomUser.displayName}")
-
                         if (myUserId != roomUser.id.toString()) {
-
-                            Timber.d("my user ID: ${myUserId}")
-                            Timber.d("room user ID: ${roomUser.id}, ${roomUser.displayName}")
-
                             Glide.with(context)
                                 .load(roomUser.avatarUrl?.let { getAvatarUrl(it) })
                                 .into(binding.ivRoomImage)

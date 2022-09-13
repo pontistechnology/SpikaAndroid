@@ -87,13 +87,13 @@ class ChatAdapter(
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.ivChatImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
-                        holder.binding.vvVideo.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
-                        holder.binding.vvVideo.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
 
                         Glide.with(context)
                             .load(it.body?.file?.path?.let { imagePath ->
@@ -109,7 +109,7 @@ class ChatAdapter(
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.VISIBLE
-                        holder.binding.vvVideo.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.body?.file?.fileName
                         val megabyteText =
@@ -123,7 +123,6 @@ class ChatAdapter(
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
-
                         holder.binding.clVideos.visibility = View.VISIBLE
 
                         val videoPath = it.body?.file?.path?.let { videoPath ->
@@ -134,7 +133,7 @@ class ChatAdapter(
 
                         Glide.with(context)
                             .load(videoPath)
-                            .into(holder.binding.vvVideo)
+                            .into(holder.binding.ivVideoThumbnail)
 
                         holder.binding.ivPlayButton.setOnClickListener { view ->
                             val action =
@@ -197,11 +196,13 @@ class ChatAdapter(
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.ivChatImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
 
                         Glide.with(context)
                             .load(it.body?.file?.path?.let { imagePath ->
@@ -216,9 +217,7 @@ class ChatAdapter(
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
-
                         holder.binding.clVideos.visibility = View.VISIBLE
-
 
                         val videoPath = it.body?.file?.path?.let { videoPath ->
                             Tools.getVideoUrl(
@@ -228,8 +227,7 @@ class ChatAdapter(
 
                         Glide.with(context)
                             .load(videoPath)
-                            .into(holder.binding.vvVideo)
-
+                            .into(holder.binding.ivVideoThumbnail)
 
                         holder.binding.ivPlayButton.setOnClickListener { view ->
                             val action =
@@ -245,7 +243,7 @@ class ChatAdapter(
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.VISIBLE
-                        holder.binding.vvVideo.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.body?.file?.fileName
                         val megabyteText =

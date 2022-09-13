@@ -166,7 +166,6 @@ class ChatMessagesFragment : Fragment() {
                 is MessagesFetched -> {
                     viewModel.deleteLocalMessages(unsentMessages)
                     unsentMessages.clear()
-                    Timber.d("clear msg2: $unsentMessages")
                 }
                 is MessageFetchFail -> Timber.d("Failed to fetch messages")
                 else -> Timber.d("Other error")
@@ -316,15 +315,12 @@ class ChatMessagesFragment : Fragment() {
 
         bindingSetup.ivButtonSend.setOnClickListener {
             if (currentPhotoLocation.isNotEmpty()) {
-                Timber.d("current photo: $currentPhotoLocation")
                 uploadImage()
 
             } else if (filesSelected.isNotEmpty()) {
-                Timber.d("current file: ${filesSelected[0]}")
                 uploadFile(filesSelected[0])
 
             } else if (currentVideoLocation.isNotEmpty()) {
-                Timber.d("current video: $currentVideoLocation")
                 uploadVideo()
 
             } else {
@@ -349,7 +345,6 @@ class ChatMessagesFragment : Fragment() {
         }
 
         bindingSetup.bottomSheet.btnLibrary.setOnClickListener {
-            // chooseImageOrVideo
             chooseImage()
             rotationAnimation()
         }
@@ -680,7 +675,6 @@ class ChatMessagesFragment : Fragment() {
                                 imageContainer.hideProgressScreen()
                             }
                         }
-
                         // update room data
                     }
                 })
@@ -799,7 +793,6 @@ class ChatMessagesFragment : Fragment() {
 
     private fun displayFileInContainer(uri: Uri) {
         val imageSelected = ImageSelectedContainer(activity!!, null)
-
         var fileName = ""
         val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
 
@@ -824,9 +817,8 @@ class ChatMessagesFragment : Fragment() {
         val cR: ContentResolver = context!!.contentResolver
         val mime = MimeTypeMap.getSingleton()
         val type = mime.getExtensionFromMimeType(cR.getType(uri))
-        Timber.d("file type: $type")
 
-        if (type.equals("mp4")) {
+        if (type.equals(Const.FileExtensions.MP4)) {
             convertVideo(uri)
         } else {
             convertImageToBitmap(uri)
@@ -853,8 +845,6 @@ class ChatMessagesFragment : Fragment() {
 
         thumbnailUris.add(videoUri)
         currentVideoLocation.add(videoUri)
-
-        Timber.d("currentVideoLocation: $currentVideoLocation")
     }
 
     private fun convertImageToBitmap(imageUri: Uri?) {
@@ -881,7 +871,5 @@ class ChatMessagesFragment : Fragment() {
         // Create thumbnail for the image which will also be sent to the backend
         thumbnailUris.add(thumbnailUri)
         currentPhotoLocation.add(bitmapUri)
-
-        Timber.d("currentImageLocation: $currentPhotoLocation")
     }
 }

@@ -96,7 +96,6 @@ class ChatDetailsFragment : BaseFragment() {
         // Fetch room data sent from previous fragment
         roomId = args.roomId
         isAdmin = args.isAdmin
-        Timber.d("isAdmin = $isAdmin")
     }
 
     override fun onCreateView(

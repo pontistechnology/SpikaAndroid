@@ -11,7 +11,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.databinding.FragmentVideoBinding
-import timber.log.Timber
 
 
 class VideoFragment : Fragment() {
@@ -26,7 +25,6 @@ class VideoFragment : Fragment() {
         videoPath = args.videoPath
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,6 +32,7 @@ class VideoFragment : Fragment() {
         bindingSetup = FragmentVideoBinding.inflate(inflater, container, false)
 
         initializeListeners()
+        initializeVideo()
 
         return binding.root
     }
@@ -43,26 +42,24 @@ class VideoFragment : Fragment() {
             val action = VideoFragmentDirections.actionVideoFragmentToChatMessagesFragment()
             findNavController().navigate(action)
         }
+    }
 
+    private fun initializeVideo() {
         Glide.with(this)
             .load(videoPath)
             .into(binding.ivVideoHolder)
 
         val videoView = binding.vvVideo
-
         val mediaController = MediaController(context)
         mediaController.setAnchorView(binding.clVideoContainer)
 
         videoView.setMediaController(mediaController)
         videoView.setVideoURI(Uri.parse(videoPath))
-
         videoView.setOnPreparedListener {
             binding.clVideoLoading.visibility = View.GONE
         }
 
-        val frameLayout = binding.clVideoContainer
-        frameLayout.visibility = View.VISIBLE
+        binding.clVideoContainer.visibility = View.VISIBLE
         videoView.start()
     }
-
 }
