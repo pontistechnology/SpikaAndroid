@@ -138,6 +138,8 @@
         <entry key="app/src/main/res/layout/item_message_other.xml" value="0.5" />
         <entry key="app/src/main/res/layout/item_new_room_contact.xml" value="0.3229166666666667" />
         <entry key="app/src/main/res/layout/item_people_selected.xml" value="0.3229166666666667" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1925" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1925" />
       </map>
     </option>
   </component>
