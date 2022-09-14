@@ -19,7 +19,7 @@ import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.UserUpdateFailed
 import com.clover.studio.exampleapp.ui.main.UserUpdated
 import com.clover.studio.exampleapp.utils.*
-import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
+import com.clover.studio.exampleapp.utils.Tools.getFileUrl
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
@@ -121,7 +121,7 @@ class SettingsFragment : BaseFragment() {
             binding.tvUsername.text = it.displayName ?: getString(R.string.no_username)
             binding.tvPhoneNumber.text = it.telephoneNumber
 
-            Glide.with(requireActivity()).load(it.avatarUrl?.let { url -> getAvatarUrl(url) })
+            Glide.with(requireActivity()).load(it.avatarUrl?.let { url -> getFileUrl(url) })
                 .into(binding.ivPickPhoto)
         }
 
@@ -191,7 +191,11 @@ class SettingsFragment : BaseFragment() {
             val inputStream =
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
 
-            val fileStream = Tools.copyStreamToFile(requireActivity(), inputStream!!, activity?.contentResolver?.getType(currentPhotoLocation)!!)
+            val fileStream = Tools.copyStreamToFile(
+                requireActivity(),
+                inputStream!!,
+                activity?.contentResolver?.getType(currentPhotoLocation)!!
+            )
             val uploadPieces =
                 if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
                     fileStream.length() / CHUNK_SIZE + 1

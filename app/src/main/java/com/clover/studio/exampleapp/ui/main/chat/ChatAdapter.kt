@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -26,6 +27,7 @@ import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
 import timber.log.Timber
 import java.util.*
 
+
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 
@@ -35,6 +37,7 @@ class ChatAdapter(
     private val users: List<User>
 ) :
     ListAdapter<Message, RecyclerView.ViewHolder>(MessageDiffCallback()) {
+
 
     inner class SentMessageHolder(val binding: ItemMessageMeBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -54,6 +57,7 @@ class ChatAdapter(
         }
     }
 
+
     override fun getItemViewType(position: Int): Int {
         val message = getItem(position)
 
@@ -66,7 +70,8 @@ class ChatAdapter(
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        getItem(position).let {
+
+        getItem(position).let { it ->
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.createdAt!!
             val date = calendar.get(Calendar.DAY_OF_MONTH)
@@ -82,32 +87,64 @@ class ChatAdapter(
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.ivChatImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
 
                         Glide.with(context)
                             .load(it.body?.file?.path?.let { imagePath ->
-                                Tools.getAvatarUrl(
+                                Tools.getFileUrl(
                                     imagePath
                                 )
                             })
                             .into(holder.binding.ivChatImage)
+
                     }
+
                     Const.JsonFields.FILE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.VISIBLE
+                        holder.binding.clVideos.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.body?.file?.fileName
-
-                        holder.binding.tvFileSize.text =
-                            Tools.calculateToMegabyte(it.body?.file?.size!!).toString()
-
-                        setImageDrawableToImageView(it, holder.binding.ivFileType)
+                        val megabyteText =
+                            "${
+                                Tools.calculateToMegabyte(it.body?.file?.size!!).toString()
+                            } ${holder.itemView.context.getString(R.string.files_mb_text)}"
+                        holder.binding.tvFileSize.text = megabyteText
+                        addFiles(it, holder.binding.ivFileType)
                     }
+
+                    Const.JsonFields.VIDEO -> {
+                        holder.binding.tvMessage.visibility = View.GONE
+                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.VISIBLE
+
+                        val videoPath = it.body?.file?.path?.let { videoPath ->
+                            Tools.getFileUrl(
+                                videoPath
+                            )
+                        }
+
+                        Glide.with(context)
+                            .load(videoPath)
+                            .into(holder.binding.ivVideoThumbnail)
+
+                        holder.binding.ivPlayButton.setOnClickListener { view ->
+                            val action =
+                                ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
+                                    videoPath!!
+                                )
+                            view.findNavController().navigate(action)
+                        }
+                    }
+
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.ivChatImage.visibility = View.GONE
@@ -160,30 +197,63 @@ class ChatAdapter(
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.ivChatImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
 
                         Glide.with(context)
                             .load(it.body?.file?.path?.let { imagePath ->
-                                Tools.getAvatarUrl(
+                                Tools.getFileUrl(
                                     imagePath
                                 )
                             })
                             .into(holder.binding.ivChatImage)
                     }
+
+                    Const.JsonFields.VIDEO -> {
+                        holder.binding.tvMessage.visibility = View.GONE
+                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.VISIBLE
+
+                        val videoPath = it.body?.file?.path?.let { videoPath ->
+                            Tools.getFileUrl(
+                                videoPath
+                            )
+                        }
+
+                        Glide.with(context)
+                            .load(videoPath)
+                            .into(holder.binding.ivVideoThumbnail)
+
+                        holder.binding.ivPlayButton.setOnClickListener { view ->
+                            val action =
+                                ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
+                                    videoPath!!
+                                )
+                            view.findNavController().navigate(action)
+                        }
+                    }
+
+
                     Const.JsonFields.FILE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.ivChatImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.VISIBLE
+                        holder.binding.clVideos.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.body?.file?.fileName
-                        holder.binding.tvFileSize.text = it.body?.file?.size.toString()
+                        val megabyteText =
+                            "${
+                                Tools.calculateToMegabyte(it.body?.file?.size!!).toString()
+                            } ${holder.itemView.context.getString(R.string.files_mb_text)}"
+                        holder.binding.tvFileSize.text = megabyteText
 
-                        setImageDrawableToImageView(it, holder.binding.ivFileType)
-
+                        addFiles(it, holder.binding.ivFileType)
                     }
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
@@ -197,7 +267,7 @@ class ChatAdapter(
                     holder.binding.ivChatImage.visibility = View.VISIBLE
 
                     Glide.with(context)
-                        .load(it.body?.file?.path?.let { imagePath -> Tools.getAvatarUrl(imagePath) })
+                        .load(it.body?.file?.path?.let { imagePath -> Tools.getFileUrl(imagePath) })
                         .into(holder.binding.ivChatImage)
                 } else {
                     holder.binding.tvMessage.visibility = View.VISIBLE
@@ -209,7 +279,7 @@ class ChatAdapter(
                         holder.binding.tvUsername.text = roomUser.displayName
                         Glide.with(context)
                             .load(roomUser.avatarUrl?.let { avatarUrl ->
-                                Tools.getAvatarUrl(
+                                Tools.getFileUrl(
                                     avatarUrl
                                 )
                             })
@@ -243,7 +313,7 @@ class ChatAdapter(
         }
     }
 
-    private fun setImageDrawableToImageView(message: Message, ivFileType: ImageView) {
+    private fun addFiles(message: Message, ivFileType: ImageView) {
         when (message.body?.file?.fileName?.substringAfterLast(".")) {
             Const.FileExtensions.PDF -> ivFileType.setImageDrawable(
                 ResourcesCompat.getDrawable(

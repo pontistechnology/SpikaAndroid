@@ -11,13 +11,13 @@ apply plugin: 'androidx.navigation.safeargs.kotlin'
 android {
     signingConfigs {
         debug {
-            storeFile file('/Library/Android/release-keystore')
+            storeFile file('release-keystore')
             storePassword 'spika1234'
             keyAlias 'release'
             keyPassword 'spika1234'
         }
         release {
-            storeFile file('/Library/Android/release-keystore')
+            storeFile file('release-keystore')
             storePassword 'spika1234'
             keyAlias 'release'
             keyPassword 'spika1234'

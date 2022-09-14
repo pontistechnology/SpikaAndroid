@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -31,15 +32,51 @@
                 android:layout_height="256dp"
                 android:layout_marginStart="@dimen/ten_dp_margin"
                 android:layout_marginEnd="@dimen/twenty_four_dp_margin"
-                android:padding="10dp"
+                android:padding="@dimen/ten_dp_margin"
                 android:visibility="gone"
-                app:layout_constrainedHeight="true"
-                app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constrainedHeight="true"
+                app:layout_constrainedWidth="true"/>
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_videos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginEnd="@dimen/twenty_four_dp_margin"
+                android:padding="@dimen/ten_dp_margin"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/iv_play_button"
+                    android:layout_width="78dp"
+                    android:layout_height="64dp"
+                    android:adjustViewBounds="true"
+                    android:elevation="4dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/iv_video_thumbnail"
+                    app:layout_constraintEnd_toEndOf="@+id/iv_video_thumbnail"
+                    app:layout_constraintStart_toStartOf="@+id/iv_video_thumbnail"
+                    app:layout_constraintTop_toTopOf="@+id/iv_video_thumbnail"
+                    app:srcCompat="@drawable/ic_baseline_play_circle_filled_24" />
+
+                <ImageView
+                    android:id="@+id/iv_video_thumbnail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="256dp"
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:id="@+id/tv_message"
@@ -50,14 +87,17 @@
                 android:background="@drawable/bg_message_user"
                 android:backgroundTint="@color/message_me"
                 android:fontFamily="@font/montserrat"
-                android:padding="10dp"
+                android:padding="@dimen/ten_dp_margin"
                 android:text="@string/some_message"
                 android:textSize="14sp"
+                android:visibility="visible"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- Video container -->
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_file_message"
@@ -78,7 +118,7 @@
                     android:id="@+id/iv_file_type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:padding="@dimen/ten_dp_margin"
                     android:src="@drawable/img_zip"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -113,7 +153,6 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/iv_file_type"
                     app:layout_constraintTop_toBottomOf="@id/tv_file_title" />
-
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

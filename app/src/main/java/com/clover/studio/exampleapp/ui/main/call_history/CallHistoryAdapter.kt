@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ItemCallHistoryBinding
-import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
+import com.clover.studio.exampleapp.utils.Tools.getFileUrl
 
 class CallHistoryAdapter(
     private val context: Context,
@@ -35,7 +35,7 @@ class CallHistoryAdapter(
 //                binding.tvCallTime.text = // TODO set call time
 //                binding.ivCallType.setImageDrawable() // TODO set image for call type
 
-                Glide.with(context).load(userItem.avatarUrl?.let { getAvatarUrl(it) })
+                Glide.with(context).load(userItem.avatarUrl?.let { getFileUrl(it) })
                     .into(binding.ivPickPhoto)
 
                 itemView.setOnClickListener {

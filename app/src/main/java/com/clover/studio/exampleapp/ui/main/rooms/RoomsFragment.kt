@@ -195,12 +195,12 @@ class RoomsFragment : BaseFragment() {
         binding.rvRooms.adapter = roomsAdapter
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         binding.rvRooms.layoutManager = layoutManager
+
     }
 
     override fun onResume() {
         super.onResume()
         viewModel.getRooms()
         // This updates the elapsed time displayed when user return to the screen.
-        roomsAdapter.notifyDataSetChanged()
     }
 }

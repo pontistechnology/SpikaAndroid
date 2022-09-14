@@ -4,6 +4,7 @@
     <dimen name="forty_dp_margin">40dp</dimen>
     <dimen name="thirty_two_dp_margin">32dp</dimen>
     <dimen name="thirty_dp_margin">30dp</dimen>
+    <dimen name="twenty_five_dp_margin">25dp</dimen>
     <dimen name="twenty_four_dp_margin">24dp</dimen>
     <dimen name="twenty_dp_margin">20dp</dimen>
     <dimen name="ten_dp_margin">10dp</dimen>

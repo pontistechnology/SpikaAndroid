@@ -266,13 +266,14 @@ object Tools {
         return sha256FileHash
     }
 
-    fun getAvatarUrl(url: String): String {
+    fun getFileUrl(url: String): String {
         return when {
             url.startsWith(BuildConfig.SERVER_URL) -> url
             url.startsWith("/") -> BuildConfig.SERVER_URL + url.substring(1)
             else -> BuildConfig.SERVER_URL + "/" + url
         }
     }
+
 
     fun getRelativeTimeSpan(startDate: Long): CharSequence? {
         return DateUtils.getRelativeTimeSpanString(

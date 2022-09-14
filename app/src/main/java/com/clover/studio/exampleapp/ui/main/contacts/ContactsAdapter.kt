@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.databinding.ItemContactBinding
-import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
+import com.clover.studio.exampleapp.utils.Tools.getFileUrl
 import timber.log.Timber
 
 class ContactsAdapter(
@@ -57,7 +57,7 @@ class ContactsAdapter(
                 binding.tvTitle.text = userItem.user.telephoneNumber
 
                 // Remove first / with substring from avatarUrl
-                Glide.with(context).load(userItem.user.avatarUrl?.let { getAvatarUrl(it) })
+                Glide.with(context).load(userItem.user.avatarUrl?.let { getFileUrl(it) })
                     .into(binding.ivUserImage)
 
                 // if not first item, check if item above has the same header

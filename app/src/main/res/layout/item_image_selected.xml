@@ -22,7 +22,7 @@
             android:id="@+id/cl_file_details"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="10dp"
+            android:padding="@dimen/ten_dp_margin"
             android:visibility="gone">
 
             <ImageView
