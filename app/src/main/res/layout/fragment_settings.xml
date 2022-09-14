@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
-        android:padding="20dp"
+        android:padding="@dimen/twenty_dp_margin"
         android:text="@string/done"
         android:textColor="@color/primary_color"
         android:visibility="gone"
@@ -118,7 +118,7 @@
         android:background="@drawable/bg_text_field"
         android:fontFamily="@font/montserrat"
         android:hint="@string/enter_username"
-        android:padding="10dp"
+        android:padding="@dimen/ten_dp_margin"
         android:textSize="14sp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/cl_privacy"
@@ -155,7 +155,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/ten_dp_margin"
-        android:padding="20dp"
+        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_phone_number">
@@ -183,7 +183,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/ten_dp_margin"
-        android:padding="20dp"
+        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_privacy">
@@ -211,7 +211,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/ten_dp_margin"
-        android:padding="20dp"
+        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_chat">
@@ -239,7 +239,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/ten_dp_margin"
-        android:padding="20dp"
+        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_notifications">
@@ -270,7 +270,7 @@
         android:layout_marginTop="@dimen/twenty_dp_margin"
         android:layout_marginEnd="@dimen/ten_dp_margin"
         android:layout_marginBottom="@dimen/ten_dp_margin"
-        android:padding="20dp"
+        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_media_download">

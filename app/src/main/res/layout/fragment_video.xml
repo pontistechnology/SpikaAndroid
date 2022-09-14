@@ -35,7 +35,7 @@
             android:layout_margin="@dimen/twenty_dp_margin"
             android:layout_marginStart="@dimen/eight_dp_margin"
             android:layout_marginTop="@dimen/eight_dp_margin"
-            android:padding="10dp"
+            android:padding="@dimen/ten_dp_margin"
             android:src="@drawable/img_arrow_back"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

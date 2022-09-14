@@ -25,7 +25,7 @@ interface MessageDao {
     @Delete
     suspend fun deleteMessage(message: Message)
 
-    @Query("DELETE FROM message WHERE ID LIKE (:messageId)")
+    @Query("DELETE FROM message WHERE id IN (:messageId)")
     suspend fun deleteMessage(messageId: List<Long>)
 
     @Query("DELETE FROM message")
