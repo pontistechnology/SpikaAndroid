@@ -15,6 +15,7 @@ import com.clover.studio.exampleapp.utils.UploadDownloadManager
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -44,13 +45,14 @@ class ChatScreenActivity : BaseActivity() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.main_chat_container) as NavHostFragment
         val navController = navHostFragment.navController
 
-
         // Fetch room data sent from previous activity
         val gson = Gson()
         roomWithUsers = gson.fromJson(
             intent.getStringExtra(Const.Navigation.ROOM_DATA),
             RoomWithUsers::class.java
         )
+
+        Timber.d("chatScreen ${roomWithUsers.toString()}")
 
         initViews()
         initializeObservers()

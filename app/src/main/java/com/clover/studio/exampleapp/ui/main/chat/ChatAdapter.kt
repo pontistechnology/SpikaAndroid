@@ -85,13 +85,13 @@ class ChatAdapter(
                     Const.JsonFields.TEXT -> {
                         holder.binding.tvMessage.text = it.body?.text
                         holder.binding.tvMessage.visibility = View.VISIBLE
-                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.ivChatImage.visibility = View.VISIBLE
+                        holder.binding.cvImage.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
 
@@ -107,7 +107,7 @@ class ChatAdapter(
 
                     Const.JsonFields.FILE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.VISIBLE
                         holder.binding.clVideos.visibility = View.GONE
 
@@ -122,7 +122,7 @@ class ChatAdapter(
 
                     Const.JsonFields.VIDEO -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.VISIBLE
 
@@ -136,6 +136,7 @@ class ChatAdapter(
                             .load(videoPath)
                             .into(holder.binding.ivVideoThumbnail)
 
+
                         holder.binding.ivPlayButton.setOnClickListener { view ->
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
@@ -147,7 +148,7 @@ class ChatAdapter(
 
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
-                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                     }
                 }
@@ -195,13 +196,13 @@ class ChatAdapter(
                     Const.JsonFields.TEXT -> {
                         holder.binding.tvMessage.text = it.body?.text
                         holder.binding.tvMessage.visibility = View.VISIBLE
-                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.ivChatImage.visibility = View.VISIBLE
+                        holder.binding.cvImage.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
 
@@ -216,7 +217,7 @@ class ChatAdapter(
 
                     Const.JsonFields.VIDEO -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.VISIBLE
 
@@ -242,7 +243,7 @@ class ChatAdapter(
 
                     Const.JsonFields.FILE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.VISIBLE
                         holder.binding.clVideos.visibility = View.GONE
 
@@ -257,21 +258,21 @@ class ChatAdapter(
                     }
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
-                        holder.binding.ivChatImage.visibility = View.GONE
+                        holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                     }
                 }
 
                 if (it.body?.text.isNullOrEmpty()) {
                     holder.binding.tvMessage.visibility = View.GONE
-                    holder.binding.ivChatImage.visibility = View.VISIBLE
+                    holder.binding.cvImage.visibility = View.VISIBLE
 
                     Glide.with(context)
                         .load(it.body?.file?.path?.let { imagePath -> Tools.getFileUrl(imagePath) })
                         .into(holder.binding.ivChatImage)
                 } else {
                     holder.binding.tvMessage.visibility = View.VISIBLE
-                    holder.binding.ivChatImage.visibility = View.GONE
+                    holder.binding.cvImage.visibility = View.GONE
                 }
 
                 for (roomUser in users) {

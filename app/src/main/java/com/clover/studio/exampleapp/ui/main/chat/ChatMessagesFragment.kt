@@ -17,7 +17,6 @@ import androidx.core.content.FileProvider
 import androidx.core.view.get
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -33,6 +32,7 @@ import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -54,7 +54,7 @@ private const val ROTATION_OFF = 0f
 //private const val THUMBNAIL_WIDTH = 256
 
 @AndroidEntryPoint
-class ChatMessagesFragment : Fragment() {
+class ChatMessagesFragment : BaseFragment() {
     private val viewModel: ChatViewModel by viewModels()
     private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: FragmentChatMessagesBinding
@@ -111,7 +111,6 @@ class ChatMessagesFragment : Fragment() {
             } else Timber.d("Photo error")
         }
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -122,9 +121,10 @@ class ChatMessagesFragment : Fragment() {
 
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
 
-        // Fetch room data sent from previous activity
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
-        Timber.d("$roomWithUsers")
+        Timber.d("chat activity: $roomWithUsers")
+
+        setInformation(roomWithUsers)
 
         initViews()
         setUpAdapter()
@@ -134,6 +134,44 @@ class ChatMessagesFragment : Fragment() {
         return bindingSetup.root
     }
 
+    private fun setInformation(roomWithUsers: RoomWithUsers) {
+        Timber.d("entered")
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            setName(roomWithUsers)
+            val avatarUrl = setIcon(roomWithUsers)
+            Glide.with(this)
+                .load(avatarUrl.let { Tools.getFileUrl(it) })
+                .into(bindingSetup.ivUserImage)
+
+        } else {
+            bindingSetup.tvChatName.text = roomWithUsers.room.name
+            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
+                .into(bindingSetup.ivUserImage)
+        }
+    }
+
+    private fun setIcon(roomWithUsers: RoomWithUsers): String {
+        var avatarUrl = ""
+        if (roomWithUsers.room.avatarUrl != "") {
+            avatarUrl = roomWithUsers.room.avatarUrl.toString()
+        } else {
+            for (user in roomWithUsers.users) {
+                if (user.id != viewModel.getLocalUserId()) {
+                    avatarUrl = user.avatarUrl.toString()
+                }
+            }
+        }
+        return avatarUrl
+    }
+
+    private fun setName(roomWithUsers: RoomWithUsers) {
+        if (roomWithUsers.room.name != "") {
+            bindingSetup.tvChatName.text = roomWithUsers.room.name
+        } else {
+            bindingSetup.tvChatName.text = roomWithUsers.users[0].displayName
+        }
+    }
+
 
     private fun checkIsUserAdmin() {
         for (user in roomWithUsers.users) {
@@ -141,7 +179,6 @@ class ChatMessagesFragment : Fragment() {
                 roomWithUsers.room.roomId,
                 user.id
             )
-
             if (isAdmin) break
         }
     }
@@ -295,21 +332,6 @@ class ChatMessagesFragment : Fragment() {
 
         // TODO add send message button and handle UI when message is being entered
         // Change required field after work has been done
-
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            roomWithUsers.users.forEach { roomUser ->
-                if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
-                    bindingSetup.tvChatName.text = roomUser.displayName
-                    Glide.with(this)
-                        .load(roomUser.avatarUrl?.let { Tools.getFileUrl(it) })
-                        .into(bindingSetup.ivUserImage)
-                }
-            }
-        } else {
-            bindingSetup.tvChatName.text = roomWithUsers.room.name
-            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
-                .into(bindingSetup.ivUserImage)
-        }
 
         bindingSetup.tvTitle.text = roomWithUsers.room.type
 

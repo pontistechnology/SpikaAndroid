@@ -35,13 +35,18 @@ class RoomsAdapter(
         with(holder) {
             getItem(position).let { roomItem ->
                 Timber.d("Room data = $roomItem")
+
                 binding.tvRoomName.text = roomItem.roomWithUsers.room.name
+
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
                     roomItem.roomWithUsers.users.forEach { roomUser ->
+
                         Timber.d("Room user = ${roomItem.roomWithUsers.room.roomId}, ${roomUser.displayName}")
+
                         if (myUserId != roomUser.id.toString()) {
                             Glide.with(context)
                                 .load(roomUser.avatarUrl?.let { getFileUrl(it) })
+                                .dontAnimate()
                                 .into(binding.ivRoomImage)
                             Timber.d("url: ${roomUser.avatarUrl?.let { getFileUrl(it) }}")
                         } else {
@@ -51,6 +56,9 @@ class RoomsAdapter(
                         }
                     }
                 } else {
+
+                    binding.tvRoomName.text = roomItem.roomWithUsers.room.name
+
                     Glide.with(context)
                         .load(roomItem.roomWithUsers.room.avatarUrl?.let { getFileUrl(it) })
                         .into(binding.ivRoomImage)
