@@ -34,56 +34,64 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv_chat_image"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:background="@drawable/img_selector_background"
-            android:backgroundTint="@color/light_blue"
-            android:elevation="0dp"
-            app:cardCornerRadius="20dp"
-            app:cardPreventCornerOverlap="false"
-            app:layout_constraintBottom_toBottomOf="@id/iv_arrow_back"
-            app:layout_constraintStart_toEndOf="@id/iv_arrow_back"
-            app:layout_constraintTop_toTopOf="@id/iv_arrow_back">
-
-            <ImageView
-                android:id="@+id/iv_user_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="center"
-                android:src="@drawable/img_camera" />
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-            android:id="@+id/tv_chat_name"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_header"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/twenty_dp_margin"
-            android:layout_marginEnd="@dimen/ten_dp_margin"
-            android:ellipsize="end"
-            android:fontFamily="@font/montserrat"
-            android:maxLines="1"
-            android:text="@string/enter_username"
-            android:textSize="14sp"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintEnd_toStartOf="@id/iv_video_call"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/cv_chat_image"
-            app:layout_constraintTop_toTopOf="@id/cv_chat_image" />
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@+id/iv_video_call"
+            app:layout_constraintStart_toEndOf="@+id/iv_arrow_back"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat"
-            android:text="@string/enter_username"
-            android:textSize="14sp"
-            android:visibility="visible"
-            app:layout_constraintStart_toEndOf="@id/cv_chat_image"
-            app:layout_constraintTop_toBottomOf="@id/tv_chat_name" />
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_chat_image"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_margin="@dimen/twenty_dp_margin"
+                android:background="@drawable/img_selector_background"
+                android:backgroundTint="@color/light_blue"
+                android:elevation="0dp"
+                app:cardCornerRadius="20dp"
+                app:cardPreventCornerOverlap="false"
+                app:layout_constraintBottom_toBottomOf="@id/iv_arrow_back"
+                app:layout_constraintStart_toEndOf="@id/iv_arrow_back"
+                app:layout_constraintTop_toTopOf="@id/iv_arrow_back">
+
+                <ImageView
+                    android:id="@+id/iv_user_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="center"
+                    android:src="@drawable/img_camera" />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/tv_chat_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/montserrat"
+                android:text="@string/enter_username"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/cv_chat_image"
+                app:layout_constraintTop_toTopOf="@id/cv_chat_image" />
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/montserrat"
+                android:text="@string/enter_username"
+                android:textSize="14sp"
+                android:visibility="visible"
+                app:layout_constraintStart_toEndOf="@id/cv_chat_image"
+                app:layout_constraintTop_toBottomOf="@id/tv_chat_name" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
         <ImageView
             android:id="@+id/iv_call_user"
@@ -134,11 +142,12 @@
             android:id="@+id/rv_chat"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="@dimen/eight_dp_margin"
             android:visibility="visible"
             app:layout_constraintBottom_toTopOf="@id/cl_typing"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_arrow_back" />
+            app:layout_constraintTop_toBottomOf="@+id/cl_header" />
 
         <TextView
             android:layout_width="match_parent"

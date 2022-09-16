@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
+
 /*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
@@ -51,7 +52,7 @@ import javax.inject.Inject
 */
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
-//private const val THUMBNAIL_WIDTH = 256
+private const val THUMBNAIL_WIDTH = 256
 
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment() {
@@ -287,7 +288,7 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun initViews() {
-        bindingSetup.tvTitle.setOnClickListener {
+        bindingSetup.clHeader.setOnClickListener {
             val action =
                 ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
                     roomWithUsers.room.roomId,
@@ -825,6 +826,7 @@ class ChatMessagesFragment : BaseFragment() {
             }
         }
 
+
         imageSelected.setFile(cr.getType(uri)!!, fileName)
         imageSelected.setButtonListener(object : ImageSelectedContainer.RemoveImageSelected {
             override fun removeImage() {
@@ -852,6 +854,15 @@ class ChatMessagesFragment : BaseFragment() {
         mmr.setDataSource(context, videoUri)
         val bitMap = mmr.frameAtTime
 
+        var height = bitMap?.height
+        if (height != null) {
+            if (height > THUMBNAIL_WIDTH) {
+                height = THUMBNAIL_WIDTH
+            }
+        }
+
+        Tools.videoHeight = height!!
+
         val imageSelected = ImageSelectedContainer(activity!!, null)
         bitMap.let { imageBitmap -> imageSelected.setImage(imageBitmap!!) }
         bindingSetup.llImagesContainer.addView(imageSelected)
@@ -873,6 +884,12 @@ class ChatMessagesFragment : BaseFragment() {
         val bitmap =
             Tools.handleSamplingAndRotationBitmap(activity!!, imageUri)
         val bitmapUri = Tools.convertBitmapToUri(activity!!, bitmap!!)
+
+        var height = bitmap.height
+        if (height > THUMBNAIL_WIDTH) {
+            height = THUMBNAIL_WIDTH
+        }
+        Tools.pictureHeight = height
 
         val imageSelected = ImageSelectedContainer(context!!, null)
         bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }
