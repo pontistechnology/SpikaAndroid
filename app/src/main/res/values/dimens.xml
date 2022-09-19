@@ -1,5 +1,5 @@
 <resources>
-    <dimen name="text_margin">16dp</dimen>
+    <dimen name="sixteen_dp_margin">16dp</dimen>
     <dimen name="fifty_dp_margin">50dp</dimen>
     <dimen name="forty_dp_margin">40dp</dimen>
     <dimen name="thirty_two_dp_margin">32dp</dimen>

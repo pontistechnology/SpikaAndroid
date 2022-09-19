@@ -35,7 +35,7 @@
                 android:visibility="gone"
                 app:cardCornerRadius="8dp"
                 android:layout_marginStart="@dimen/ten_dp_margin"
-                android:layout_marginEnd="24dp"
+                android:layout_marginEnd="@dimen/twenty_four_dp_margin"
                 app:layout_constrainedHeight="true"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"

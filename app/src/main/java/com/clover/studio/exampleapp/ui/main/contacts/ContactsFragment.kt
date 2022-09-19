@@ -48,7 +48,7 @@ class ContactsFragment : BaseFragment() {
     private fun initializeObservers() {
         viewModel.usersListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
-                UsersError -> Timber.d("Users error") // socket timeout error
+                UsersError -> Timber.d("Users error")
                 UsersFetched -> Timber.d("Users fetched")
                 else -> Timber.d("Other error")
             }

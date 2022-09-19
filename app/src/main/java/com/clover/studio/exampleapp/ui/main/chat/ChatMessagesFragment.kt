@@ -123,10 +123,8 @@ class ChatMessagesFragment : BaseFragment() {
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
-        Timber.d("chat activity: $roomWithUsers")
 
         setInformation(roomWithUsers)
-
         initViews()
         setUpAdapter()
         initializeObservers()
@@ -136,10 +134,9 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun setInformation(roomWithUsers: RoomWithUsers) {
-        Timber.d("entered")
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             setName(roomWithUsers)
-            val avatarUrl = setIcon(roomWithUsers)
+            val avatarUrl = setAvatar(roomWithUsers)
             Glide.with(this)
                 .load(avatarUrl.let { Tools.getFileUrl(it) })
                 .into(bindingSetup.ivUserImage)
@@ -151,9 +148,9 @@ class ChatMessagesFragment : BaseFragment() {
         }
     }
 
-    private fun setIcon(roomWithUsers: RoomWithUsers): String {
+    private fun setAvatar(roomWithUsers: RoomWithUsers): String {
         var avatarUrl = ""
-        if (roomWithUsers.room.avatarUrl != "") {
+        if (roomWithUsers.room.avatarUrl?.isNotEmpty() == true) {
             avatarUrl = roomWithUsers.room.avatarUrl.toString()
         } else {
             for (user in roomWithUsers.users) {
@@ -166,7 +163,7 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun setName(roomWithUsers: RoomWithUsers) {
-        if (roomWithUsers.room.name != "") {
+        if (roomWithUsers.room.name?.isNotEmpty() == true) {
             bindingSetup.tvChatName.text = roomWithUsers.room.name
         } else {
             bindingSetup.tvChatName.text = roomWithUsers.users[0].displayName
