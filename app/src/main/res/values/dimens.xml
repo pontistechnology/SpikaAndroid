@@ -1,5 +1,6 @@
 <resources>
     <dimen name="sixteen_dp_margin">16dp</dimen>
+    <dimen name="sixty_four_dp">64dp</dimen>
     <dimen name="fifty_dp_margin">50dp</dimen>
     <dimen name="forty_dp_margin">40dp</dimen>
     <dimen name="thirty_two_dp_margin">32dp</dimen>
