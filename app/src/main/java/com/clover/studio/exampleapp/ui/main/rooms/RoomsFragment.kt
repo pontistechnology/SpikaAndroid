@@ -26,8 +26,9 @@ class RoomsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var roomsAdapter: RoomsAdapter
     private lateinit var roomList: List<RoomAndMessageAndRecords>
+    private var nonEmptyRoomList: MutableList<RoomAndMessageAndRecords> = mutableListOf()
     private var filteredList: MutableList<RoomAndMessageAndRecords> = ArrayList()
-
+    private var initialSortedList: List<RoomAndMessageAndRecords> = ArrayList()
     private var bindingSetup: FragmentChatBinding? = null
 
     private val binding get() = bindingSetup!!
@@ -57,38 +58,17 @@ class RoomsFragment : BaseFragment() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
                     Timber.d("Query: $query")
-                    if (::roomList.isInitialized) {
-                        for (room in roomList) {
-                            if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
-                                room.roomWithUsers.users.forEach { roomUser ->
-                                    if (viewModel.getLocalUserId()
-                                            .toString() != roomUser.id.toString()
-                                    ) {
-                                        if (roomUser.displayName?.lowercase()
-                                                ?.contains(query, ignoreCase = true) == true
-                                        ) {
-                                            filteredList.add(room)
-                                        }
-                                    }
-                                }
-                            } else {
-                                if (room.roomWithUsers.room.name?.lowercase()
-                                        ?.contains(query, ignoreCase = true) == true
-                                ) {
-                                    Timber.d("Filtered room List: ${room.roomWithUsers.room.name}")
-                                    filteredList.add(room)
-                                }
+                    if (initialSortedList.isNotEmpty()) {
+                        for (room in initialSortedList) {
+                            if (room.roomWithUsers.room.name?.lowercase()
+                                    ?.contains(query, ignoreCase = true) == true
+                            ) {
+                                filteredList.add(room)
                             }
                         }
-                        Timber.d("Filtered room List: $filteredList")
-                        val sortedList =
-                            filteredList.filter { roomItem -> !roomItem.message.isNullOrEmpty() }
-                                .sortedByDescending { roomItem ->
-                                    roomItem.message?.first { message -> message.message.createdAt != null }?.message?.createdAt
-                                }
-                        roomsAdapter.submitList(ArrayList(sortedList))
-                        filteredList.clear()
                     }
+                    roomsAdapter.submitList(ArrayList(filteredList))
+                    filteredList.clear()
                 }
                 return true
             }
@@ -96,43 +76,19 @@ class RoomsFragment : BaseFragment() {
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
                     Timber.d("Query: $query")
-                    if (::roomList.isInitialized) {
-                        for (room in roomList) {
-                            if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
-                                room.roomWithUsers.users.forEach { roomUser ->
-                                    if (viewModel.getLocalUserId()
-                                            .toString() != roomUser.id.toString()
-                                    ) {
-                                        if (roomUser.displayName?.lowercase()
-                                                ?.contains(query, ignoreCase = true) == true
-                                        ) {
-                                            filteredList.add(room)
-                                        }
-                                    }
-                                }
-                            } else {
-                                if (room.roomWithUsers.room.name?.lowercase()
-                                        ?.contains(query, ignoreCase = true) == true
-                                ) {
-                                    filteredList.add(room)
-                                }
+                    if (initialSortedList.isNotEmpty()) {
+                        for (room in initialSortedList) {
+                            if (room.roomWithUsers.room.name?.lowercase()
+                                    ?.contains(query, ignoreCase = true) == true
+                            ) {
+                                filteredList.add(room)
                             }
                         }
-                        Timber.d("Filtered List: $filteredList")
-
-                        val sortedList =
-                            filteredList.sortedWith(compareBy(nullsFirst()) { roomItem ->
-                                if (!roomItem.message.isNullOrEmpty()) {
-                                    roomItem.message.first { message -> message.message.createdAt != null }.message.createdAt
-                                } else
-                                    null
-                            }
-                            ).reversed()
-
-                        roomsAdapter.submitList(ArrayList(sortedList))
-                        filteredList.clear()
                     }
+                    roomsAdapter.submitList(ArrayList(filteredList))
+                    filteredList.clear()
                 }
+                binding.rvRooms.scrollToPosition(0)
                 return true
             }
         })
@@ -162,25 +118,32 @@ class RoomsFragment : BaseFragment() {
                     Timber.d("Room Data ${roomData.roomWithUsers.room.roomId}")
                 }
                 roomList = it
+                nonEmptyRoomList = roomList.toMutableList()
+                roomList.forEach { roomItem ->
+                    if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
+                        if (roomItem.message.isNullOrEmpty()) {
+                            nonEmptyRoomList.remove(roomItem)
+                        }
+                    }
+                }
 
-                var sortedList: List<RoomAndMessageAndRecords> = ArrayList()
                 Timber.d("${System.currentTimeMillis()}")
                 try {
-                    sortedList = it.sortedWith(compareBy(nullsFirst()) { roomItem ->
-                        if (!roomItem.message.isNullOrEmpty()) {
-                            roomItem.message.last { message -> message.message.createdAt != null }.message.createdAt
-                        } else null
-                    }).reversed()
+                    initialSortedList =
+                        nonEmptyRoomList.sortedWith(compareBy(nullsFirst()) { roomItem ->
+                            if (!roomItem.message.isNullOrEmpty()) {
+                                roomItem.message.last { message -> message.message.createdAt != null }.message.createdAt
+                            } else null
+                        }).reversed()
                 } catch (ex: Exception) {
                     Tools.checkError(ex)
                 }
 
-                if (sortedList.isEmpty()) {
-                    sortedList = it
+                if (initialSortedList.isEmpty()) {
+                    initialSortedList = it
                 }
 
-                Timber.d("Room list = ${sortedList.size}")
-                roomsAdapter.submitList(sortedList)
+                roomsAdapter.submitList(initialSortedList)
             }
         }
     }
