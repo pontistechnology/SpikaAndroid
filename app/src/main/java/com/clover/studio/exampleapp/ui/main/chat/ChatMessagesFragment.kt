@@ -52,7 +52,7 @@ import javax.inject.Inject
 */
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
-private const val THUMBNAIL_WIDTH = 256
+private const val THUMBNAIL_HEIGHT = 256
 
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment() {
@@ -853,8 +853,8 @@ class ChatMessagesFragment : BaseFragment() {
 
         var height = bitMap?.height
         if (height != null) {
-            if (height > THUMBNAIL_WIDTH) {
-                height = THUMBNAIL_WIDTH
+            if (height > THUMBNAIL_HEIGHT) {
+                height = THUMBNAIL_HEIGHT
             }
         }
 
@@ -883,8 +883,8 @@ class ChatMessagesFragment : BaseFragment() {
         val bitmapUri = Tools.convertBitmapToUri(activity!!, bitmap!!)
 
         var height = bitmap.height
-        if (height > THUMBNAIL_WIDTH) {
-            height = THUMBNAIL_WIDTH
+        if (height > THUMBNAIL_HEIGHT) {
+            height = THUMBNAIL_HEIGHT
         }
         Tools.pictureHeight = height
 
