@@ -90,6 +90,7 @@ class SSEManager @Inject constructor(
                             if (response != null) {
                                 Timber.d("Response type: ${response.data?.type}")
                                 when (response.data?.type) {
+                                    // Messages: new, update, delete
                                     Const.JsonFields.NEW_MESSAGE -> {
                                         response.data?.message?.let { repo.writeMessages(it) }
                                         response.data?.message?.id?.let {
@@ -98,6 +99,12 @@ class SSEManager @Inject constructor(
                                             )
                                         }
                                     }
+                                    Const.JsonFields.UPDATE_MESSAGE -> {
+                                        response.data?.message?.let { repo.writeMessages(it) }
+                                    }
+                                    Const.JsonFields.DELETE_MESSAGE -> {
+                                        response.data?.message?.let { repo.deleteMessage(it) }
+                                    }
                                     Const.JsonFields.NEW_MESSAGE_RECORD -> {
                                         response.data?.messageRecord?.let {
                                             repo.writeMessageRecord(
@@ -105,7 +112,7 @@ class SSEManager @Inject constructor(
                                             )
                                         }
                                     }
-                                    Const.JsonFields.DELETED_MESSAGE_RECORD -> {
+                                    Const.JsonFields.DELETE_MESSAGE_RECORD -> {
                                         response.data?.messageRecord?.let {
                                             repo.deleteMessageRecord(
                                                 it

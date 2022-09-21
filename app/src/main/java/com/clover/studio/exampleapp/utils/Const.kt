@@ -42,8 +42,10 @@ class Const {
 
             // SSE
             const val NEW_MESSAGE = "NEW_MESSAGE"
+            const val UPDATE_MESSAGE = "UPDATE_MESSAGE"
+            const val DELETE_MESSAGE = "DELETE_MESSAGE"
             const val NEW_MESSAGE_RECORD = "NEW_MESSAGE_RECORD"
-            const val DELETED_MESSAGE_RECORD = "DELETED_MESSAGE_RECORD"
+            const val DELETE_MESSAGE_RECORD = "DELETE_MESSAGE_RECORD"
             const val NEW_ROOM = "NEW_ROOM"
             const val UPDATE_ROOM = "UPDATE_ROOM"
             const val DELETE_ROOM = "DELETE_ROOM"
