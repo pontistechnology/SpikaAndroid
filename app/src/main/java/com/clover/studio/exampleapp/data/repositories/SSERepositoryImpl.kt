@@ -133,7 +133,7 @@ class SSERepositoryImpl @Inject constructor(
     override suspend fun sendMessageDelivered(messageId: Int) {
         sseService.sendMessageDelivered(
             Tools.getHeaderMap(sharedPrefs.readToken()),
-            getMessageIdJson(ArrayList(messageId))
+            getMessageIdJson(arrayListOf(messageId))
         )
     }
 

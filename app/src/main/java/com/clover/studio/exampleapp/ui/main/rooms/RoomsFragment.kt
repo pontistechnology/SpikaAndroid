@@ -25,7 +25,7 @@ import timber.log.Timber
 class RoomsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var roomsAdapter: RoomsAdapter
-    private lateinit var roomList: List<RoomAndMessageAndRecords>
+    private var roomList: List<RoomAndMessageAndRecords> = mutableListOf()
     private var nonEmptyRoomList: MutableList<RoomAndMessageAndRecords> = mutableListOf()
     private var filteredList: MutableList<RoomAndMessageAndRecords> = ArrayList()
     private var sortedList: List<RoomAndMessageAndRecords> = ArrayList()
