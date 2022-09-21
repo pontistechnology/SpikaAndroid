@@ -28,7 +28,7 @@ class RoomsFragment : BaseFragment() {
     private lateinit var roomList: List<RoomAndMessageAndRecords>
     private var nonEmptyRoomList: MutableList<RoomAndMessageAndRecords> = mutableListOf()
     private var filteredList: MutableList<RoomAndMessageAndRecords> = ArrayList()
-    private var initialSortedList: List<RoomAndMessageAndRecords> = ArrayList()
+    private var sortedList: List<RoomAndMessageAndRecords> = ArrayList()
     private var bindingSetup: FragmentChatBinding? = null
 
     private val binding get() = bindingSetup!!
@@ -58,8 +58,8 @@ class RoomsFragment : BaseFragment() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
                     Timber.d("Query: $query")
-                    if (initialSortedList.isNotEmpty()) {
-                        for (room in initialSortedList) {
+                    if (sortedList.isNotEmpty()) {
+                        for (room in sortedList) {
                             if (room.roomWithUsers.room.name?.lowercase()
                                     ?.contains(query, ignoreCase = true) == true
                             ) {
@@ -76,8 +76,8 @@ class RoomsFragment : BaseFragment() {
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
                     Timber.d("Query: $query")
-                    if (initialSortedList.isNotEmpty()) {
-                        for (room in initialSortedList) {
+                    if (sortedList.isNotEmpty()) {
+                        for (room in sortedList) {
                             if (room.roomWithUsers.room.name?.lowercase()
                                     ?.contains(query, ignoreCase = true) == true
                             ) {
@@ -126,10 +126,9 @@ class RoomsFragment : BaseFragment() {
                         }
                     }
                 }
-
                 Timber.d("${System.currentTimeMillis()}")
                 try {
-                    initialSortedList =
+                    sortedList =
                         nonEmptyRoomList.sortedWith(compareBy(nullsFirst()) { roomItem ->
                             if (!roomItem.message.isNullOrEmpty()) {
                                 roomItem.message.last { message -> message.message.createdAt != null }.message.createdAt
@@ -139,11 +138,10 @@ class RoomsFragment : BaseFragment() {
                     Tools.checkError(ex)
                 }
 
-                if (initialSortedList.isEmpty()) {
-                    initialSortedList = it
+                if (sortedList.isEmpty()) {
+                    sortedList = it
                 }
-
-                roomsAdapter.submitList(initialSortedList)
+                roomsAdapter.submitList(sortedList)
             }
         }
     }
