@@ -84,7 +84,6 @@ class ContactsFragment : BaseFragment() {
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
-                    Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
                             if ((user.phoneUser?.name?.lowercase()?.contains(
@@ -96,7 +95,6 @@ class ContactsFragment : BaseFragment() {
                                 filteredList.add(user)
                             }
                         }
-                        Timber.d("Filtered List: $filteredList")
                         val users = filteredList.sortUsersByLocale(requireContext())
                         contactsAdapter.submitList(ArrayList(users))
                         filteredList.clear()
@@ -107,7 +105,6 @@ class ContactsFragment : BaseFragment() {
 
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
-                    Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
                             if ((user.phoneUser?.name?.lowercase()?.contains(
@@ -119,7 +116,6 @@ class ContactsFragment : BaseFragment() {
                                 filteredList.add(user)
                             }
                         }
-                        Timber.d("Filtered List: $filteredList")
                         val users = filteredList.sortUsersByLocale(requireContext())
                         contactsAdapter.submitList(ArrayList(users))
                         filteredList.clear()

@@ -17,7 +17,6 @@ import androidx.core.content.FileProvider
 import androidx.core.view.get
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -33,6 +32,7 @@ import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,6 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+
 
 /*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
@@ -51,10 +52,10 @@ import javax.inject.Inject
 */
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
-//private const val THUMBNAIL_WIDTH = 256
+private const val THUMBNAIL_HEIGHT = 256
 
 @AndroidEntryPoint
-class ChatMessagesFragment : Fragment() {
+class ChatMessagesFragment : BaseFragment() {
     private val viewModel: ChatViewModel by viewModels()
     private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: FragmentChatMessagesBinding
@@ -111,7 +112,6 @@ class ChatMessagesFragment : Fragment() {
             } else Timber.d("Photo error")
         }
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -122,16 +122,52 @@ class ChatMessagesFragment : Fragment() {
 
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
 
-        // Fetch room data sent from previous activity
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
-        Timber.d("$roomWithUsers")
 
+        setInformation(roomWithUsers)
         initViews()
         setUpAdapter()
         initializeObservers()
         checkIsUserAdmin()
 
         return bindingSetup.root
+    }
+
+    private fun setInformation(roomWithUsers: RoomWithUsers) {
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            setName(roomWithUsers)
+            val avatarUrl = setAvatar(roomWithUsers)
+            Glide.with(this)
+                .load(avatarUrl.let { Tools.getFileUrl(it) })
+                .into(bindingSetup.ivUserImage)
+
+        } else {
+            bindingSetup.tvChatName.text = roomWithUsers.room.name
+            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
+                .into(bindingSetup.ivUserImage)
+        }
+    }
+
+    private fun setAvatar(roomWithUsers: RoomWithUsers): String {
+        var avatarUrl = ""
+        if (roomWithUsers.room.avatarUrl?.isNotEmpty() == true) {
+            avatarUrl = roomWithUsers.room.avatarUrl.toString()
+        } else {
+            for (user in roomWithUsers.users) {
+                if (user.id != viewModel.getLocalUserId()) {
+                    avatarUrl = user.avatarUrl.toString()
+                }
+            }
+        }
+        return avatarUrl
+    }
+
+    private fun setName(roomWithUsers: RoomWithUsers) {
+        if (roomWithUsers.room.name?.isNotEmpty() == true) {
+            bindingSetup.tvChatName.text = roomWithUsers.room.name
+        } else {
+            bindingSetup.tvChatName.text = roomWithUsers.users[0].displayName
+        }
     }
 
 
@@ -141,7 +177,6 @@ class ChatMessagesFragment : Fragment() {
                 roomWithUsers.room.roomId,
                 user.id
             )
-
             if (isAdmin) break
         }
     }
@@ -250,7 +285,7 @@ class ChatMessagesFragment : Fragment() {
     }
 
     private fun initViews() {
-        bindingSetup.tvTitle.setOnClickListener {
+        bindingSetup.clHeader.setOnClickListener {
             val action =
                 ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
                     roomWithUsers.room.roomId,
@@ -295,21 +330,6 @@ class ChatMessagesFragment : Fragment() {
 
         // TODO add send message button and handle UI when message is being entered
         // Change required field after work has been done
-
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            roomWithUsers.users.forEach { roomUser ->
-                if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
-                    bindingSetup.tvChatName.text = roomUser.displayName
-                    Glide.with(this)
-                        .load(roomUser.avatarUrl?.let { Tools.getFileUrl(it) })
-                        .into(bindingSetup.ivUserImage)
-                }
-            }
-        } else {
-            bindingSetup.tvChatName.text = roomWithUsers.room.name
-            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
-                .into(bindingSetup.ivUserImage)
-        }
 
         bindingSetup.tvTitle.text = roomWithUsers.room.type
 
@@ -803,6 +823,7 @@ class ChatMessagesFragment : Fragment() {
             }
         }
 
+
         imageSelected.setFile(cr.getType(uri)!!, fileName)
         imageSelected.setButtonListener(object : ImageSelectedContainer.RemoveImageSelected {
             override fun removeImage() {
@@ -830,6 +851,15 @@ class ChatMessagesFragment : Fragment() {
         mmr.setDataSource(context, videoUri)
         val bitMap = mmr.frameAtTime
 
+        var height = bitMap?.height
+        if (height != null) {
+            if (height > THUMBNAIL_HEIGHT) {
+                height = THUMBNAIL_HEIGHT
+            }
+        }
+
+        Tools.videoHeight = height!!
+
         val imageSelected = ImageSelectedContainer(activity!!, null)
         bitMap.let { imageBitmap -> imageSelected.setImage(imageBitmap!!) }
         bindingSetup.llImagesContainer.addView(imageSelected)
@@ -851,6 +881,12 @@ class ChatMessagesFragment : Fragment() {
         val bitmap =
             Tools.handleSamplingAndRotationBitmap(activity!!, imageUri)
         val bitmapUri = Tools.convertBitmapToUri(activity!!, bitmap!!)
+
+        var height = bitmap.height
+        if (height > THUMBNAIL_HEIGHT) {
+            height = THUMBNAIL_HEIGHT
+        }
+        Tools.pictureHeight = height
 
         val imageSelected = ImageSelectedContainer(context!!, null)
         bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }

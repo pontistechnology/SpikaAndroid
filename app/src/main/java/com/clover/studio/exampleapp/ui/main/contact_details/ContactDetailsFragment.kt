@@ -79,6 +79,7 @@ class ContactDetailsFragment : BaseFragment() {
                     Timber.d("Room with users = ${it.roomWithUsers}")
                     val gson = Gson()
                     val roomData = gson.toJson(it.roomWithUsers)
+                    Timber.d("ROOM data: = ${it.roomWithUsers}")
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
                 }
                 else -> Timber.d("Other error")

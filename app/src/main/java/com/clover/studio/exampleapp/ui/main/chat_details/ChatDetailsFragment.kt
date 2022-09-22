@@ -135,6 +135,16 @@ class ChatDetailsFragment : BaseFragment() {
                         .load(roomUser.avatarUrl?.let { Tools.getFileUrl(it) })
                         .into(binding.ivUserImage)
                 }
+                // Our chat:
+                else {
+                    binding.tvChatName.text = roomWithUsers.room.name
+                    Glide.with(this)
+                        .load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
+                        .into(binding.ivPickAvatar)
+                    Glide.with(this)
+                        .load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
+                        .into(binding.ivUserImage)
+                }
             }
         } else {
             binding.tvChatName.text = roomWithUsers.room.name

@@ -11,13 +11,13 @@ apply plugin: 'androidx.navigation.safeargs.kotlin'
 android {
     signingConfigs {
         debug {
-            storeFile file('release-keystore')
+            storeFile file('/Library/Android/release-keystore')
             storePassword 'spika1234'
             keyAlias 'release'
             keyPassword 'spika1234'
         }
         release {
-            storeFile file('release-keystore')
+            storeFile file('/Library/Android/release-keystore')
             storePassword 'spika1234'
             keyAlias 'release'
             keyPassword 'spika1234'
@@ -47,7 +47,7 @@ android {
 
             debuggable true
 
-            resValue "string", "APP_NAME", "Example App Debug"
+            resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.debug
@@ -59,7 +59,7 @@ android {
 
             debuggable true
 
-            resValue "string", "APP_NAME", "Example App Dev"
+            resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.debug
@@ -69,7 +69,7 @@ android {
             debuggable true
             minifyEnabled false
 
-            resValue "string", "APP_NAME", "Example App"
+            resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.release
@@ -81,7 +81,7 @@ android {
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
-            resValue "string", "APP_NAME", "Example App"
+            resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.release
@@ -162,5 +162,6 @@ dependencies {
     // SmsVerificationAPI
     implementation 'com.google.android.gms:play-services-auth:20.2.0'
     implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
+
 
 }

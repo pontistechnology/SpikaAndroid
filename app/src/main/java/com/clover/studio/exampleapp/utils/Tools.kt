@@ -36,6 +36,8 @@ const val TO_MEGABYTE = 1000000
 
 object Tools {
     var fileName: String = ""
+    var pictureHeight: Int = 0
+    var videoHeight: Int = 0
 
     fun checkError(ex: Exception) {
         when (ex) {
