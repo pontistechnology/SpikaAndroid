@@ -194,6 +194,10 @@ class ChatDetailsFragment : BaseFragment() {
             }
 
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
+
+            binding.tvDone.visibility = View.GONE
+            binding.ivCallUser.visibility = View.VISIBLE
+            binding.ivVideoCall.visibility = View.VISIBLE
         }
 
         binding.cvAvatar.setOnClickListener {
@@ -352,8 +356,10 @@ class ChatDetailsFragment : BaseFragment() {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
                                 binding.clProgressScreen.visibility = View.GONE
+                                binding.ivVideoCall.visibility = View.GONE
+                                binding.ivCallUser.visibility = View.GONE
+                                binding.tvDone.visibility = View.VISIBLE
                             }
-
                             avatarPath = path
                         }
 
