@@ -115,7 +115,7 @@ class RoomsFragment : BaseFragment() {
             if (it.isNotEmpty()) {
                 binding.tvNoChats.visibility = View.GONE
                 for (roomData in it) {
-                    Timber.d("Room Data ${roomData.roomWithUsers.room.roomId}")
+                    Timber.d("Room Data ${roomData.roomWithUsers.room.roomId}, ${roomData.roomWithUsers.room.name}")
                 }
                 roomList = it
                 nonEmptyRoomList = roomList.toMutableList()

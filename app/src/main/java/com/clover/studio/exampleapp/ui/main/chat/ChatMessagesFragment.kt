@@ -135,41 +135,26 @@ class ChatMessagesFragment : BaseFragment() {
 
     private fun setInformation(roomWithUsers: RoomWithUsers) {
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            setName(roomWithUsers)
-            val avatarUrl = setAvatar(roomWithUsers)
-            Glide.with(this)
-                .load(avatarUrl.let { Tools.getFileUrl(it) })
-                .into(bindingSetup.ivUserImage)
-
+            for (user in roomWithUsers.users) {
+                if (user.id.toString() != viewModel.getLocalUserId().toString()) {
+                    bindingSetup.tvChatName.text = user.displayName
+                    Glide.with(this)
+                        .load(user.avatarUrl.let { Tools.getFileUrl(it!!) })
+                        .into(bindingSetup.ivUserImage)
+                    break
+                } else {
+                    bindingSetup.tvChatName.text = user.displayName
+                    Glide.with(this)
+                        .load(user.avatarUrl.let { Tools.getFileUrl(it!!) })
+                        .into(bindingSetup.ivUserImage)
+                }
+            }
         } else {
             bindingSetup.tvChatName.text = roomWithUsers.room.name
             Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
                 .into(bindingSetup.ivUserImage)
         }
     }
-
-    private fun setAvatar(roomWithUsers: RoomWithUsers): String {
-        var avatarUrl = ""
-        if (roomWithUsers.room.avatarUrl?.isNotEmpty() == true) {
-            avatarUrl = roomWithUsers.room.avatarUrl.toString()
-        } else {
-            for (user in roomWithUsers.users) {
-                if (user.id != viewModel.getLocalUserId()) {
-                    avatarUrl = user.avatarUrl.toString()
-                }
-            }
-        }
-        return avatarUrl
-    }
-
-    private fun setName(roomWithUsers: RoomWithUsers) {
-        if (roomWithUsers.room.name?.isNotEmpty() == true) {
-            bindingSetup.tvChatName.text = roomWithUsers.room.name
-        } else {
-            bindingSetup.tvChatName.text = roomWithUsers.users[0].displayName
-        }
-    }
-
 
     private fun checkIsUserAdmin() {
         for (user in roomWithUsers.users) {

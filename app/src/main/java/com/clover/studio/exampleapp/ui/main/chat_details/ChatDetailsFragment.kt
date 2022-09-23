@@ -125,7 +125,7 @@ class ChatDetailsFragment : BaseFragment() {
 
     private fun initializeViews(roomWithUsers: RoomWithUsers) {
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            roomWithUsers.users.forEach { roomUser ->
+            for (roomUser in roomWithUsers.users) {
                 if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
                     binding.tvChatName.text = roomUser.displayName
                     Glide.with(this)
@@ -134,20 +134,24 @@ class ChatDetailsFragment : BaseFragment() {
                     Glide.with(this)
                         .load(roomUser.avatarUrl?.let { Tools.getFileUrl(it) })
                         .into(binding.ivUserImage)
+                    binding.tvGroupName.text = roomUser.displayName
+                    break
                 }
                 // Our chat:
                 else {
-                    binding.tvChatName.text = roomWithUsers.room.name
+                    binding.tvChatName.text = roomUser.displayName
+                    binding.tvGroupName.text = roomUser.displayName
                     Glide.with(this)
-                        .load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
+                        .load(roomUser.avatarUrl?.let { Tools.getFileUrl(it) })
                         .into(binding.ivPickAvatar)
                     Glide.with(this)
-                        .load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
+                        .load(roomUser.avatarUrl?.let { Tools.getFileUrl(it) })
                         .into(binding.ivUserImage)
                 }
             }
         } else {
             binding.tvChatName.text = roomWithUsers.room.name
+            binding.tvGroupName.text = roomWithUsers.room.name
             Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
                 .into(binding.ivPickAvatar)
             Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
@@ -169,14 +173,15 @@ class ChatDetailsFragment : BaseFragment() {
         }
 
         binding.tvTitle.text = roomWithUsers.room.type
-        binding.tvGroupName.text = roomWithUsers.room.name
 
         binding.tvGroupName.setOnClickListener {
-            binding.etEnterGroupName.visibility = View.VISIBLE
-            binding.tvDone.visibility = View.VISIBLE
-            binding.tvGroupName.visibility = View.INVISIBLE
-            binding.ivCallUser.visibility = View.GONE
-            binding.ivVideoCall.visibility = View.GONE
+            if (roomWithUsers.room.type.toString() == Const.JsonFields.GROUP && isAdmin) {
+                binding.etEnterGroupName.visibility = View.VISIBLE
+                binding.tvDone.visibility = View.VISIBLE
+                binding.tvGroupName.visibility = View.INVISIBLE
+                binding.ivCallUser.visibility = View.GONE
+                binding.ivVideoCall.visibility = View.GONE
+            }
         }
 
         binding.tvDone.setOnClickListener {

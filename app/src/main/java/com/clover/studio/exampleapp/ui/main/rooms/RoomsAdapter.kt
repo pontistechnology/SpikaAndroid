@@ -34,31 +34,25 @@ class RoomsAdapter(
     override fun onBindViewHolder(holder: RoomsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { roomItem ->
-                Timber.d("Room data = $roomItem")
-
-                binding.tvRoomName.text = roomItem.roomWithUsers.room.name
-
+                var userName = ""
+                var userAvatar = ""
+                Timber.d("Room data = $roomItem, ${roomItem.roomWithUsers.room.name}")
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
-                    roomItem.roomWithUsers.users.forEach { roomUser ->
-
-                        Timber.d("Room user = ${roomItem.roomWithUsers.room.roomId}, ${roomUser.displayName}")
-
+                    for (roomUser in roomItem.roomWithUsers.users) {
+                        userName = roomUser.displayName.toString()
+                        userAvatar = roomUser.avatarUrl.toString()
                         if (myUserId != roomUser.id.toString()) {
-                            Glide.with(context)
-                                .load(roomUser.avatarUrl?.let { getFileUrl(it) })
-                                .dontAnimate()
-                                .into(binding.ivRoomImage)
-                            Timber.d("url: ${roomUser.avatarUrl?.let { getFileUrl(it) }}")
-                        } else {
-                            Glide.with(context)
-                                .load(roomItem.roomWithUsers.room.avatarUrl?.let { getFileUrl(it) })
-                                .into(binding.ivRoomImage)
+                            userName = roomUser.displayName.toString()
+                            userAvatar = roomUser.avatarUrl.toString()
+                            break
                         }
                     }
+                    binding.tvRoomName.text = userName
+                    Glide.with(context)
+                        .load(userAvatar.let { getFileUrl(it) })
+                        .into(binding.ivRoomImage)
                 } else {
-
                     binding.tvRoomName.text = roomItem.roomWithUsers.room.name
-
                     Glide.with(context)
                         .load(roomItem.roomWithUsers.room.avatarUrl?.let { getFileUrl(it) })
                         .into(binding.ivRoomImage)
@@ -104,6 +98,7 @@ class RoomsAdapter(
             }
         }
     }
+
 
     private class RoomsDiffCallback : DiffUtil.ItemCallback<RoomAndMessageAndRecords>() {
 

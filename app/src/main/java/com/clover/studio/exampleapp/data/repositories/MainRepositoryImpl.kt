@@ -16,6 +16,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -131,8 +132,15 @@ class MainRepositoryImpl @Inject constructor(
                             )
                         )
                     }
+                    for (roomUser in roomUsers) {
+                        Timber.d("roomUser: $roomUser")
+                        chatRoomDao.insertRoomWithUser(roomUser)
+                    }
+
                     userDao.insert(users)
-                    chatRoomDao.insertRoomWithUsers(roomUsers)
+                    //chatRoomDao.insertRoomWithUsers(roomUsers)
+
+
                 }
             }
         }
