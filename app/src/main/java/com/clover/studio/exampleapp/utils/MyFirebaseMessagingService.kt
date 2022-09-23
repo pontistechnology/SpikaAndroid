@@ -69,7 +69,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 val messageArray = JsonArray()
                 messageArray.add(response.message.id)
                 messageObject.add(Const.JsonFields.MESSAGE_IDS, messageArray)
-                chatRepo.sendMessageDelivered(messageObject)
+
+                // TODO check why code below is not working. Might have been blocking push notifications
+                // TODO and crashing the app when receiving notification in background
+//                chatRepo.sendMessageDelivered(messageObject)
 
                 // Filter message if its from my user, don't show notification for it
                 if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId) {
