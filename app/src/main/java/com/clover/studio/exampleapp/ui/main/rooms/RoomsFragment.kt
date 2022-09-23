@@ -162,6 +162,9 @@ class RoomsFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
         viewModel.getRooms()
+
         // This updates the elapsed time displayed when user return to the screen.
+        // TODO: it needs to be removed at one point
+        roomsAdapter.notifyDataSetChanged()
     }
 }
