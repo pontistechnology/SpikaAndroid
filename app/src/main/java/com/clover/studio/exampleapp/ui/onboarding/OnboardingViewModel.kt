@@ -12,6 +12,7 @@ import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -134,6 +135,39 @@ class OnboardingViewModel @Inject constructor(
             Tools.checkError(ex)
             return@launch
         }
+    }
+
+
+    fun isAppStarted(): Boolean {
+        var flag: Boolean
+        runBlocking {
+            flag = sharedPrefs.isFirstAppStart()
+        }
+        return flag
+    }
+
+    fun writeFirstAppStart() {
+        runBlocking {
+            sharedPrefs.writeFirstAppStart(true)
+        }
+    }
+
+    fun writePhoneAndDeviceId(phoneNumber: String, deviceId: String) {
+        runBlocking {
+            sharedPrefs.writeUserPhoneAndDeviceId(phoneNumber, deviceId)
+        }
+    }
+
+    fun readPhoneNumber(): String {
+        var number = ""
+        runBlocking {
+            number = sharedPrefs.readPhoneNumber().toString()
+        }
+        return number
+    }
+
+    fun readDeviceId() {
+        // TODO
     }
 }
 

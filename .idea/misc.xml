@@ -112,7 +112,7 @@
         <entry key="app/src/main/res/layout/fragment_call_history.xml" value="0.23796296296296296" />
         <entry key="app/src/main/res/layout/fragment_chat.xml" value="0.2323799795709908" />
         <entry key="app/src/main/res/layout/fragment_chat_details.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/fragment_chat_messages.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/fragment_chat_messages.xml" value="0.4354166666666667" />
         <entry key="app/src/main/res/layout/fragment_chat_settings.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_contact_details.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_contacts.xml" value="0.23796296296296296" />
@@ -124,7 +124,7 @@
         <entry key="app/src/main/res/layout/fragment_notification_settings.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_privacy.xml" value="0.34791666666666665" />
         <entry key="app/src/main/res/layout/fragment_privacy_settings.xml" value="0.34791666666666665" />
-        <entry key="app/src/main/res/layout/fragment_register_number.xml" value="0.25416666666666665" />
+        <entry key="app/src/main/res/layout/fragment_register_number.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.23796296296296296" />
         <entry key="app/src/main/res/layout/fragment_splash.xml" value="0.23697916666666666" />
         <entry key="app/src/main/res/layout/fragment_verification.xml" value="0.23697916666666666" />

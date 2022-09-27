@@ -132,15 +132,8 @@ class MainRepositoryImpl @Inject constructor(
                             )
                         )
                     }
-                    for (roomUser in roomUsers) {
-                        Timber.d("roomUser: $roomUser")
-                        chatRoomDao.insertRoomWithUser(roomUser)
-                    }
-
+                    chatRoomDao.insertRoomWithUsers(roomUsers)
                     userDao.insert(users)
-                    //chatRoomDao.insertRoomWithUsers(roomUsers)
-
-
                 }
             }
         }

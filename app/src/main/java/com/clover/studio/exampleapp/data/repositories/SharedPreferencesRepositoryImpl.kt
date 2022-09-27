@@ -94,6 +94,45 @@ class SharedPreferencesRepositoryImpl(
 
     private fun getPrefs(): SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
+
+    // **********************************************
+    override suspend fun writeFirstAppStart(firstAppStart: Boolean) {
+        with(getPrefs().edit()) {
+            putBoolean(
+                Const.PrefsData.FIRST_START,
+                firstAppStart
+            )
+            commit()
+        }
+    }
+
+    override suspend fun isFirstAppStart(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.FIRST_START, false)
+
+    override suspend fun writeUserPhoneAndDeviceId(phoneNumber: String, deviceId: String) {
+        with(getPrefs().edit()) {
+            putString(Const.PrefsData.PHONE_NUMBER, phoneNumber)
+            putString(Const.PrefsData.DEVICE_ID, deviceId)
+            commit()
+        }
+    }
+
+    override suspend fun readPhoneNumber(): String? =
+        getPrefs().getString(Const.PrefsData.PHONE_NUMBER, null)
+
+    override suspend fun writeTokenExpired(tokenExpiredFlag: Boolean) {
+        with(getPrefs().edit()) {
+            putBoolean(
+                Const.PrefsData.TOKEN_EXPIRED,
+                tokenExpiredFlag
+            )
+            commit()
+        }
+    }
+
+    override suspend fun readTokenExpired(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.TOKEN_EXPIRED, false)
+
 }
 
 interface SharedPreferencesRepository {
@@ -111,4 +150,13 @@ interface SharedPreferencesRepository {
     suspend fun setNewUser(newUser: Boolean)
     suspend fun writeFirstSSELaunch()
     suspend fun isFirstSSELaunch(): Boolean
+
+    suspend fun writeFirstAppStart(firstAppStart: Boolean)
+    suspend fun isFirstAppStart(): Boolean
+
+    suspend fun writeUserPhoneAndDeviceId(phoneNumber: String, deviceId: String)
+    suspend fun readPhoneNumber(): String?
+
+    suspend fun writeTokenExpired(tokenExpiredFlag: Boolean)
+    suspend fun readTokenExpired(): Boolean
 }

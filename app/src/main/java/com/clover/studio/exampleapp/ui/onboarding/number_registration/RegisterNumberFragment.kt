@@ -22,6 +22,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.PhoneUser
+import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
+import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
@@ -43,6 +45,8 @@ class RegisterNumberFragment : BaseFragment() {
 
     private var bindingSetup: FragmentRegisterNumberBinding? = null
 
+    private lateinit var sharedPrefsRepo: SharedPreferencesRepository
+    private var phoneNumber: String = ""
     private val binding get() = bindingSetup!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,10 +65,13 @@ class RegisterNumberFragment : BaseFragment() {
         // Inflate the layout for this fragment
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
 
+        sharedPrefsRepo = SharedPreferencesRepositoryImpl(context!!)
+
         if (countryCode != "") {
             binding.tvCountryCode.text = countryCode
         }
 
+        checkUser()
         checkContactsPermission()
         setTextListener()
         setClickListeners()
@@ -74,6 +81,20 @@ class RegisterNumberFragment : BaseFragment() {
         viewModel.readToken()
 
         return binding.root
+    }
+
+    private fun checkUser() {
+        if (viewModel.isAppStarted()) {
+            // Set text View with number:
+            //Timber.d("first start true")
+            phoneNumber = viewModel.readPhoneNumber()
+            binding.etPhoneNumber.visibility = View.GONE
+            binding.tvDefaultPhoneNumber.visibility = View.VISIBLE
+            binding.tvDefaultPhoneNumber.text = phoneNumber
+            binding.btnNext.isEnabled = true
+        } else {
+            viewModel.writeFirstAppStart()
+        }
     }
 
     override fun onDestroyView() {
@@ -86,10 +107,9 @@ class RegisterNumberFragment : BaseFragment() {
             when (it) {
                 OnboardingStates.REGISTERING_SUCCESS -> {
                     val bundle = bundleOf(
-                        Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString()
-                            .toInt(),
+                        Const.Navigation.PHONE_NUMBER to countryCode + phoneNumber.toInt(),
                         Const.Navigation.PHONE_NUMBER_HASHED to hashString(
-                            countryCode + binding.etPhoneNumber.text.toString().toInt()
+                            countryCode + phoneNumber.toInt()
                         ),
                         Const.Navigation.COUNTRY_CODE to countryCode.substring(1),
                         Const.Navigation.DEVICE_ID to Settings.Secure.getString(
@@ -128,6 +148,11 @@ class RegisterNumberFragment : BaseFragment() {
         }
 
         binding.btnNext.setOnClickListener {
+            if (phoneNumber.isEmpty()) {
+                phoneNumber = binding.etPhoneNumber.text.toString()
+                viewModel.writePhoneAndDeviceId(phoneNumber, "")
+            }
+            binding.btnNext.isEnabled = false
             viewModel.sendNewUserData(getJsonObject())
         }
     }
@@ -161,11 +186,11 @@ class RegisterNumberFragment : BaseFragment() {
 
         jsonObject.addProperty(
             Const.JsonFields.TELEPHONE_NUMBER,
-            countryCode + binding.etPhoneNumber.text.toString().toInt()
+            countryCode + phoneNumber.toInt()
         )
         jsonObject.addProperty(
             Const.JsonFields.TELEPHONE_NUMBER_HASHED, hashString(
-                countryCode + binding.etPhoneNumber.text.toString().toInt()
+                countryCode + phoneNumber.toInt()
             )
         )
         jsonObject.addProperty(Const.JsonFields.COUNTRY_CODE, countryCode.substring(1))

@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.utils
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -18,6 +19,7 @@ import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.exampleapp.BuildConfig
+import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -39,13 +41,20 @@ object Tools {
     var pictureHeight: Int = 0
     var videoHeight: Int = 0
 
-    fun checkError(ex: Exception) {
+    fun checkError(ex: Exception): Boolean {
         when (ex) {
             is IllegalArgumentException -> Timber.d("IllegalArgumentException ${ex.message}")
             is IOException -> Timber.d("IOException ${ex.message}")
-            is HttpException -> Timber.d("HttpException: ${ex.code()} ${ex.message}")
+            is HttpException ->
+                if (ex.code() == 401) {
+                    Timber.d("Token Expired: ${ex.code()} ${ex.message}")
+                    return true
+                } else {
+                    Timber.d("HttpException: ${ex.code()} ${ex.message}")
+                }
             else -> Timber.d("UnknownError: ${ex.message}")
         }
+        return false
     }
 
     fun formatE164Number(context: Context, countryCode: String?, phNum: String?): String? {
@@ -287,5 +296,16 @@ object Tools {
         val inputMethodManager: InputMethodManager =
             activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    fun alertDialog(context: Context, activity: Activity) {
+        val builder = AlertDialog.Builder(context)
+        builder.setMessage("Session is over, you must log in again.")
+        builder.setPositiveButton(
+            "OK"
+        ) { _, _ -> startOnboardingActivity(activity, false) }
+
+        val alert = builder.create()
+        alert.show()
     }
 }

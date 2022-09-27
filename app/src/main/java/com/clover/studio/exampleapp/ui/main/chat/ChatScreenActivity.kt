@@ -4,12 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Parcelable
 import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
+import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.UploadDownloadManager
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
@@ -28,9 +28,10 @@ fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
 
 @AndroidEntryPoint
 class ChatScreenActivity : BaseActivity() {
-    var roomWithUsers: RoomWithUsers ?= null
+    var roomWithUsers: RoomWithUsers? = null
 
     private lateinit var bindingSetup: ActivityChatScreenBinding
+    private val viewModel: MainViewModel by viewModels()
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -42,7 +43,8 @@ class ChatScreenActivity : BaseActivity() {
         val view = bindingSetup.root
         setContentView(view)
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.main_chat_container) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.main_chat_container) as NavHostFragment
         val navController = navHostFragment.navController
 
         // Fetch room data sent from previous activity
@@ -53,16 +55,9 @@ class ChatScreenActivity : BaseActivity() {
         )
 
         Timber.d("chatScreen ${roomWithUsers.toString()}")
-
-        initViews()
         initializeObservers()
     }
 
-
     private fun initializeObservers() {
-    }
-
-
-    private fun initViews() {
     }
 }
