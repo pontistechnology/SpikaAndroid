@@ -29,6 +29,7 @@ import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
+import com.clover.studio.exampleapp.ui.main.TokenExpired
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
@@ -73,6 +74,9 @@ class ChatMessagesFragment : BaseFragment() {
     private var isAdmin = false
     private var uploadIndex = 0
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
+
+    private var avatarUrl = ""
+    private var userName = ""
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -124,7 +128,6 @@ class ChatMessagesFragment : BaseFragment() {
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
 
-        setInformation(roomWithUsers)
         initViews()
         setUpAdapter()
         initializeObservers()
@@ -133,27 +136,11 @@ class ChatMessagesFragment : BaseFragment() {
         return bindingSetup.root
     }
 
-    private fun setInformation(roomWithUsers: RoomWithUsers) {
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            for (user in roomWithUsers.users) {
-                if (user.id.toString() != viewModel.getLocalUserId().toString()) {
-                    bindingSetup.tvChatName.text = user.displayName
-                    Glide.with(this)
-                        .load(user.avatarUrl.let { Tools.getFileUrl(it!!) })
-                        .into(bindingSetup.ivUserImage)
-                    break
-                } else {
-                    bindingSetup.tvChatName.text = user.displayName
-                    Glide.with(this)
-                        .load(user.avatarUrl.let { Tools.getFileUrl(it!!) })
-                        .into(bindingSetup.ivUserImage)
-                }
-            }
-        } else {
-            bindingSetup.tvChatName.text = roomWithUsers.room.name
-            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
-                .into(bindingSetup.ivUserImage)
-        }
+    private fun setAvatarAndName(avatarUrl: String, userName: String){
+        bindingSetup.tvChatName.text = userName
+        Glide.with(this)
+            .load(avatarUrl.let { Tools.getFileUrl(it) })
+            .into(bindingSetup.ivUserImage)
     }
 
     private fun checkIsUserAdmin() {
@@ -192,6 +179,7 @@ class ChatMessagesFragment : BaseFragment() {
             }
         })
 
+        // TODO
         viewModel.getMessagesTimestampListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is MessagesTimestampFetched -> {
@@ -203,7 +191,6 @@ class ChatMessagesFragment : BaseFragment() {
                 else -> Timber.d("Other error")
             }
         })
-
         viewModel.sendMessageDeliveredListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 ChatStatesEnum.MESSAGE_DELIVERED -> {
@@ -270,6 +257,23 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun initViews() {
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            for (user in roomWithUsers.users) {
+                if (user.id.toString() != viewModel.getLocalUserId().toString()) {
+                    avatarUrl = user.avatarUrl.toString()
+                    userName = user.displayName.toString()
+                    break
+                } else {
+                    avatarUrl = user.avatarUrl.toString()
+                    userName = user.displayName.toString()
+                }
+            }
+        } else {
+            avatarUrl = roomWithUsers.room.avatarUrl.toString()
+            userName = roomWithUsers.room.name.toString()
+        }
+        setAvatarAndName(avatarUrl, userName)
+
         bindingSetup.clHeader.setOnClickListener {
             val action =
                 ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(

@@ -13,7 +13,6 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.databinding.FragmentContactsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
-import com.clover.studio.exampleapp.ui.main.TokenExpired
 import com.clover.studio.exampleapp.ui.main.UsersError
 import com.clover.studio.exampleapp.ui.main.UsersFetched
 import com.clover.studio.exampleapp.utils.Const
@@ -51,10 +50,6 @@ class ContactsFragment : BaseFragment() {
             when (it) {
                 UsersError -> Timber.d("Users error")
                 UsersFetched -> Timber.d("Users fetched")
-                TokenExpired -> {
-                    Timber.d("Token expired")
-                    Tools.alertDialog(context!!, activity!!)
-                }
                 else -> Timber.d("Other error")
             }
             Timber.d("parent: ${activity!!}")

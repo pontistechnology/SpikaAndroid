@@ -109,6 +109,7 @@
         <entry key="app/src/main/res/layout/dialog_error.xml" value="0.3229166666666667" />
         <entry key="app/src/main/res/layout/dialog_progress.xml" value="0.3229166666666667" />
         <entry key="app/src/main/res/layout/fragment_account_creation.xml" value="0.24923391215526047" />
+        <entry key="app/src/main/res/layout/fragment_alert_dialog.xml" value="0.29528985507246375" />
         <entry key="app/src/main/res/layout/fragment_call_history.xml" value="0.23796296296296296" />
         <entry key="app/src/main/res/layout/fragment_chat.xml" value="0.2323799795709908" />
         <entry key="app/src/main/res/layout/fragment_chat_details.xml" value="0.33" />
@@ -138,6 +139,7 @@
         <entry key="app/src/main/res/layout/item_message_other.xml" value="0.75" />
         <entry key="app/src/main/res/layout/item_new_room_contact.xml" value="0.3229166666666667" />
         <entry key="app/src/main/res/layout/item_people_selected.xml" value="0.3229166666666667" />
+        <entry key="app/src/main/res/layout/token_expired_dialog.xml" value="0.33" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1925" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1925" />
       </map>

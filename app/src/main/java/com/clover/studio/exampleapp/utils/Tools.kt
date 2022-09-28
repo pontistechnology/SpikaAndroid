@@ -1,7 +1,6 @@
 package com.clover.studio.exampleapp.utils
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -19,7 +18,6 @@ import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.exampleapp.BuildConfig
-import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -35,6 +33,7 @@ import kotlin.math.roundToInt
 const val BITMAP_WIDTH = 512
 const val BITMAP_HEIGHT = 512
 const val TO_MEGABYTE = 1000000
+const val DEVICE_ID_LENGTH = 13
 
 object Tools {
     var fileName: String = ""
@@ -298,14 +297,13 @@ object Tools {
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    fun alertDialog(context: Context, activity: Activity) {
-        val builder = AlertDialog.Builder(context)
-        builder.setMessage("Session is over, you must log in again.")
-        builder.setPositiveButton(
-            "OK"
-        ) { _, _ -> startOnboardingActivity(activity, false) }
-
-        val alert = builder.create()
-        alert.show()
+    fun generateDeviceId(): String {
+        val hexChars = "0123456789abcdefABCDEF"
+        val deviceId = StringBuilder(DEVICE_ID_LENGTH * 2)
+        for (i in 0..DEVICE_ID_LENGTH) {
+            val randomNumber = hexChars.random()
+            deviceId.append(randomNumber)
+        }
+        return deviceId.toString()
     }
 }

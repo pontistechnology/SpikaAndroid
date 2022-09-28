@@ -47,6 +47,7 @@ class RegisterNumberFragment : BaseFragment() {
 
     private lateinit var sharedPrefsRepo: SharedPreferencesRepository
     private var phoneNumber: String = ""
+    private var deviceId: String = ""
     private val binding get() = bindingSetup!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -150,7 +151,8 @@ class RegisterNumberFragment : BaseFragment() {
         binding.btnNext.setOnClickListener {
             if (phoneNumber.isEmpty()) {
                 phoneNumber = binding.etPhoneNumber.text.toString()
-                viewModel.writePhoneAndDeviceId(phoneNumber, "")
+                deviceId = Tools.generateDeviceId()
+                viewModel.writePhoneAndDeviceId(phoneNumber, deviceId)
             }
             binding.btnNext.isEnabled = false
             viewModel.sendNewUserData(getJsonObject())

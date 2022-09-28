@@ -1,8 +1,8 @@
 package com.clover.studio.exampleapp.ui.onboarding
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.PhoneUser
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
 import com.clover.studio.exampleapp.data.repositories.OnboardingRepositoryImpl
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class OnboardingViewModel @Inject constructor(
     private val onboardingRepository: OnboardingRepositoryImpl,
     private val sharedPrefs: SharedPreferencesRepository
-) : ViewModel() {
+) : BaseViewModel() {
 
     var codeVerificationListener = MutableLiveData<Event<OnboardingStates>>()
     var registrationListener = MutableLiveData<Event<OnboardingStates>>()
@@ -137,6 +137,11 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
+    fun writeFirstAppStart() {
+        runBlocking {
+            sharedPrefs.writeFirstAppStart(true)
+        }
+    }
 
     fun isAppStarted(): Boolean {
         var flag: Boolean
@@ -144,12 +149,6 @@ class OnboardingViewModel @Inject constructor(
             flag = sharedPrefs.isFirstAppStart()
         }
         return flag
-    }
-
-    fun writeFirstAppStart() {
-        runBlocking {
-            sharedPrefs.writeFirstAppStart(true)
-        }
     }
 
     fun writePhoneAndDeviceId(phoneNumber: String, deviceId: String) {

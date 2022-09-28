@@ -42,7 +42,7 @@ class ChatViewModel @Inject constructor(
             repository.sendMessage(jsonObject)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                messageSendListener.postValue(Event(ChatStatesEnum.TOKEN_EXPIRED))
+                setTokenExpiredTrue()
             } else {
                 messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SEND_FAIL))
             }

@@ -39,24 +39,23 @@ class RoomsAdapter(
                 Timber.d("Room data = $roomItem, ${roomItem.roomWithUsers.room.name}")
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
                     for (roomUser in roomItem.roomWithUsers.users) {
-                        userName = roomUser.displayName.toString()
-                        userAvatar = roomUser.avatarUrl.toString()
                         if (myUserId != roomUser.id.toString()) {
                             userName = roomUser.displayName.toString()
                             userAvatar = roomUser.avatarUrl.toString()
                             break
+                        } else {
+                            userName = roomUser.displayName.toString()
+                            userAvatar = roomUser.avatarUrl.toString()
                         }
                     }
-                    binding.tvRoomName.text = userName
-                    Glide.with(context)
-                        .load(userAvatar.let { getFileUrl(it) })
-                        .into(binding.ivRoomImage)
                 } else {
-                    binding.tvRoomName.text = roomItem.roomWithUsers.room.name
-                    Glide.with(context)
-                        .load(roomItem.roomWithUsers.room.avatarUrl?.let { getFileUrl(it) })
-                        .into(binding.ivRoomImage)
+                    userName = roomItem.roomWithUsers.room.name.toString()
+                    userAvatar = roomItem.roomWithUsers.room.avatarUrl.toString()
                 }
+                binding.tvRoomName.text = userName
+                Glide.with(context)
+                    .load(userAvatar.let { getFileUrl(it) })
+                    .into(binding.ivRoomImage)
 
                 if (!roomItem.message.isNullOrEmpty()) {
                     val sortedList = roomItem.message.sortedBy { it.message.createdAt }

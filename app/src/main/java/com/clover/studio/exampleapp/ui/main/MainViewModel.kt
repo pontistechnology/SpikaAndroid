@@ -48,7 +48,7 @@ class MainViewModel @Inject constructor(
             }
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                usersListener.postValue(Event(TokenExpired))
+                setTokenExpiredTrue()
             } else {
                 usersListener.postValue(Event(UsersError))
             }
@@ -89,7 +89,7 @@ class MainViewModel @Inject constructor(
             }
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                roomsListener.postValue(Event(TokenExpired))
+                setTokenExpiredTrue()
             } else {
                 roomsListener.postValue(Event(RoomFetchFail))
             }
@@ -102,7 +102,7 @@ class MainViewModel @Inject constructor(
             checkRoomExistsListener.postValue(Event(RoomExists(roomData!!)))
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                checkRoomExistsListener.postValue(Event(TokenExpired))
+                setTokenExpiredTrue()
             } else {
                 checkRoomExistsListener.postValue(Event(RoomNotFound))
             }
@@ -116,7 +116,7 @@ class MainViewModel @Inject constructor(
             createRoomListener.postValue(Event(RoomCreated(roomData!!)))
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                createRoomListener.postValue(Event(TokenExpired))
+                setTokenExpiredTrue()
             } else {
                 createRoomListener.postValue(Event(RoomFailed))
             }
@@ -149,7 +149,7 @@ class MainViewModel @Inject constructor(
             roomWithUsersListener.postValue(Event(RoomWithUsersFetched(response)))
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                roomWithUsersListener.postValue(Event(TokenExpired))
+                setTokenExpiredTrue()
             } else {
                 //
             }
@@ -172,7 +172,7 @@ class MainViewModel @Inject constructor(
             sharedPrefsRepo.accountCreated(true)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                userUpdateListener.postValue(Event(TokenExpired))
+                setTokenExpiredTrue()
             } else {
                 userUpdateListener.postValue(Event(UserUpdateFailed))
             }
@@ -192,7 +192,6 @@ class MainViewModel @Inject constructor(
             return@launch
         }
     }
-
 }
 
 sealed class MainStates
