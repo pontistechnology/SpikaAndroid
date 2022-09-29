@@ -153,10 +153,10 @@ class Const {
             const val PUSH_TOKEN = "pushToken"
             const val NEW_USER = "newUser"
             const val DATA_SYNCED = "dataSynced"
-            const val FIRST_START = "first_start"
-            const val PHONE_NUMBER = "phone_number"
-            const val DEVICE_ID = "device_id"
-            const val COUNTRY_CODE = "country_code"
+            const val FIRST_START = "firstStart"
+            const val PHONE_NUMBER = "phoneNumber"
+            const val DEVICE_ID = "deviceId"
+            const val COUNTRY_CODE = "countryCode"
             const val REGISTERED = "registered"
         }
     }

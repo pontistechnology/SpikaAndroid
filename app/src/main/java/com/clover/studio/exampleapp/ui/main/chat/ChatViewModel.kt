@@ -42,7 +42,7 @@ class ChatViewModel @Inject constructor(
             repository.sendMessage(jsonObject)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                setTokenExpiredTrue(Event(true))
+                setTokenExpiredTrue()
             } else {
                 messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SEND_FAIL))
             }
@@ -80,7 +80,7 @@ class ChatViewModel @Inject constructor(
             repository.sendMessagesSeen(roomId)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                setTokenExpiredTrue(Event(true))
+                setTokenExpiredTrue()
             }
             return@launch
         }
@@ -91,7 +91,7 @@ class ChatViewModel @Inject constructor(
             repository.updatedRoomVisitedTimestamp(chatRoom)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                setTokenExpiredTrue(Event(true))
+                setTokenExpiredTrue()
             }
             return@launch
         }
@@ -102,7 +102,7 @@ class ChatViewModel @Inject constructor(
             repository.updateRoom(jsonObject, roomId, userId)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                setTokenExpiredTrue(Event(true))
+                setTokenExpiredTrue()
             }
             return@launch
         }

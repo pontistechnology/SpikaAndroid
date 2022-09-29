@@ -51,7 +51,6 @@ class MainActivity : BaseActivity() {
 
         viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
             if (tokenExpired) {
-                viewModel.setTokenExpiredFalse()
                 DialogError.getInstance(this,
                     getString(R.string.warning),
                     getString(R.string.session_expired),
@@ -63,6 +62,7 @@ class MainActivity : BaseActivity() {
                         }
 
                         override fun onSecondOptionClicked() {
+                            viewModel.setTokenExpiredFalse()
                             startOnboardingActivity(this@MainActivity, false)
                         }
                     })

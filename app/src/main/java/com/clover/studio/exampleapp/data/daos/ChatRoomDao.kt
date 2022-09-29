@@ -74,11 +74,6 @@ interface ChatRoomDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRoomWithUsers(roomUser: List<RoomUser>)
 
-    //
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRoomWithUser(roomUser: RoomUser)
-    //
-
     @Delete
     suspend fun deleteRoomUser(roomUser: RoomUser)
 

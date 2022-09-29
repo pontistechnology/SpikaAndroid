@@ -64,7 +64,6 @@ class ChatScreenActivity : BaseActivity() {
     private fun initializeObservers() {
         viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
             if (tokenExpired) {
-                viewModel.setTokenExpiredFalse()
                 DialogError.getInstance(this,
                     getString(R.string.warning),
                     getString(R.string.session_expired),
@@ -76,6 +75,7 @@ class ChatScreenActivity : BaseActivity() {
                         }
 
                         override fun onSecondOptionClicked() {
+                            viewModel.setTokenExpiredFalse()
                             startOnboardingActivity(this@ChatScreenActivity, false)
                         }
                     })

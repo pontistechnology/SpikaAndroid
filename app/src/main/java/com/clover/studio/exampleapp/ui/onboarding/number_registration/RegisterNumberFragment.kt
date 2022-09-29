@@ -21,8 +21,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.PhoneUser
-import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
-import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
@@ -44,7 +42,6 @@ class RegisterNumberFragment : BaseFragment() {
 
     private var bindingSetup: FragmentRegisterNumberBinding? = null
 
-    private lateinit var sharedPrefsRepo: SharedPreferencesRepository
     private var phoneNumber: String = ""
     private var deviceId: String = ""
     private val binding get() = bindingSetup!!
@@ -65,7 +62,6 @@ class RegisterNumberFragment : BaseFragment() {
         // Inflate the layout for this fragment
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
 
-        sharedPrefsRepo = SharedPreferencesRepositoryImpl(context!!)
 
         if (countryCode != "") {
             binding.tvCountryCode.text = countryCode

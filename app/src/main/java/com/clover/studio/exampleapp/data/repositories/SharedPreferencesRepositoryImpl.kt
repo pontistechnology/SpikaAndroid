@@ -92,10 +92,6 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun isFirstSSELaunch(): Boolean =
         getPrefs().getBoolean(Const.PrefsData.DATA_SYNCED, true)
 
-    private fun getPrefs(): SharedPreferences =
-        context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
-
-    // **********************************************
     override suspend fun writeFirstAppStart(firstAppStart: Boolean) {
         with(getPrefs().edit()) {
             putBoolean(
@@ -144,6 +140,8 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun readRegistered(): Boolean =
         getPrefs().getBoolean(Const.PrefsData.REGISTERED, false)
 
+    private fun getPrefs(): SharedPreferences =
+        context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
 }
 
 interface SharedPreferencesRepository {
