@@ -10,9 +10,12 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
+import com.clover.studio.exampleapp.utils.SSEManager
 import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -20,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val repository: ChatRepositoryImpl,
-    private val sharedPrefs: SharedPreferencesRepository
+    private val sharedPrefs: SharedPreferencesRepository,
+    private val sseManager: SSEManager
 ) : BaseViewModel() {
     val messageSendListener = MutableLiveData<Event<ChatStatesEnum>>()
     val getMessagesListener = MutableLiveData<Event<ChatStates>>()
@@ -124,6 +128,17 @@ class ChatViewModel @Inject constructor(
 
     fun getRoomAndUsers(roomId: Int) = liveData {
         emitSource(repository.getRoomWithUsers(roomId))
+    }
+
+    fun getPushNotificationStream(): Flow<Message> = flow {
+        viewModelScope.launch {
+            try {
+                sseManager.startSSEStream()
+            } catch (ex: Exception) {
+                Tools.checkError(ex)
+                return@launch
+            }
+        }
     }
 }
 

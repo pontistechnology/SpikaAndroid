@@ -45,10 +45,6 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initializeObservers() {
-        viewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
-            Timber.d("Message $it")
-        }
-
         viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
             if (tokenExpired) {
                 DialogError.getInstance(this,
@@ -101,5 +97,12 @@ class MainActivity : BaseActivity() {
             viewModel.updatePushToken(jsonObject)
             Timber.d("Token: $token")
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
+            Timber.d("Message $it")
+        }
     }
 }

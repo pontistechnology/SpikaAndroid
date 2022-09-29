@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.NavHostFragment
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
@@ -18,6 +19,7 @@ import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -81,5 +83,12 @@ class ChatScreenActivity : BaseActivity() {
                     })
             }
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        chatViewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
+            Timber.d("Observing SSE")
+        }
     }
 }
