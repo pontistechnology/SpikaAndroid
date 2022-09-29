@@ -66,6 +66,9 @@ class ChatScreenActivity : BaseActivity() {
     private fun initializeObservers() {
         baseViewModel.tokenExpiredListener.observe(this) { tokenExpired ->
             if (tokenExpired) {
+                Timber.d("chatScreen: token: $tokenExpired")
+                baseViewModel.setTokenExpiredFalse()
+                Timber.d("chatScreen2: token: $tokenExpired")
                 DialogError.getInstance(this,
                     "Warning",
                     "Session has expired. Log in again",
@@ -81,7 +84,6 @@ class ChatScreenActivity : BaseActivity() {
                         }
                     })
                 //
-                baseViewModel.setTokenExpiredFalse()
             }
         }
     }

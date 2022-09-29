@@ -87,13 +87,14 @@ class RegisterNumberFragment : BaseFragment() {
     private fun checkUser() {
         if (viewModel.isAppStarted()) {
             // Set text View with number:
-            //Timber.d("first start true")
+            Timber.d("first start true")
             phoneNumber = viewModel.readPhoneNumber()
             binding.etPhoneNumber.visibility = View.GONE
             binding.tvDefaultPhoneNumber.visibility = View.VISIBLE
             binding.tvDefaultPhoneNumber.text = phoneNumber
             binding.btnNext.isEnabled = true
         } else {
+            Timber.d("first start false - already user")
             viewModel.writeFirstAppStart()
         }
     }
@@ -154,6 +155,7 @@ class RegisterNumberFragment : BaseFragment() {
                 deviceId = Tools.generateDeviceId()
                 viewModel.writePhoneAndDeviceId(phoneNumber, deviceId)
             }
+            Timber.d("phone number: $phoneNumber")
             binding.btnNext.isEnabled = false
             viewModel.sendNewUserData(getJsonObject())
         }

@@ -45,6 +45,8 @@ class MainViewModel @Inject constructor(
                     Timber.d("Count = $count")
                 }
                 usersListener.postValue(Event(UsersFetched))
+                // Test:
+                // setTokenExpiredTrue()
             }
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
