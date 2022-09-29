@@ -52,7 +52,6 @@ class ContactsFragment : BaseFragment() {
                 UsersFetched -> Timber.d("Users fetched")
                 else -> Timber.d("Other error")
             }
-            Timber.d("parent: ${activity!!}")
         })
 
         viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {

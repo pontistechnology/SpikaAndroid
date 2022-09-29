@@ -109,10 +109,15 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun isFirstAppStart(): Boolean =
         getPrefs().getBoolean(Const.PrefsData.FIRST_START, false)
 
-    override suspend fun writeUserPhoneAndDeviceId(phoneNumber: String, deviceId: String) {
+    override suspend fun writeUserPhoneDetails(
+        phoneNumber: String,
+        deviceId: String,
+        countryCode: String
+    ) {
         with(getPrefs().edit()) {
             putString(Const.PrefsData.PHONE_NUMBER, phoneNumber)
             putString(Const.PrefsData.DEVICE_ID, deviceId)
+            putString(Const.PrefsData.COUNTRY_CODE, countryCode)
             commit()
         }
     }
@@ -120,18 +125,24 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun readPhoneNumber(): String? =
         getPrefs().getString(Const.PrefsData.PHONE_NUMBER, null)
 
-    override suspend fun writeTokenExpired(tokenExpiredFlag: Boolean) {
+    override suspend fun readCountryCode(): String? =
+        getPrefs().getString(Const.PrefsData.COUNTRY_CODE, null)
+
+    override suspend fun readDeviceId(): String? =
+        getPrefs().getString(Const.PrefsData.DEVICE_ID, null)
+
+    override suspend fun writeRegistered(registeredFlag: Boolean) {
         with(getPrefs().edit()) {
             putBoolean(
-                Const.PrefsData.TOKEN_EXPIRED,
-                tokenExpiredFlag
+                Const.PrefsData.REGISTERED,
+                registeredFlag
             )
             commit()
         }
     }
 
-    override suspend fun readTokenExpired(): Boolean =
-        getPrefs().getBoolean(Const.PrefsData.TOKEN_EXPIRED, false)
+    override suspend fun readRegistered(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.REGISTERED, false)
 
 }
 
@@ -154,9 +165,12 @@ interface SharedPreferencesRepository {
     suspend fun writeFirstAppStart(firstAppStart: Boolean)
     suspend fun isFirstAppStart(): Boolean
 
-    suspend fun writeUserPhoneAndDeviceId(phoneNumber: String, deviceId: String)
+    suspend fun writeUserPhoneDetails(phoneNumber: String, deviceId: String, countryCode: String)
     suspend fun readPhoneNumber(): String?
+    suspend fun readDeviceId(): String?
+    suspend fun readCountryCode(): String?
 
-    suspend fun writeTokenExpired(tokenExpiredFlag: Boolean)
-    suspend fun readTokenExpired(): Boolean
+    suspend fun writeRegistered(registeredFlag: Boolean)
+    suspend fun readRegistered(): Boolean
+
 }

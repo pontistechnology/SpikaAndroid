@@ -42,7 +42,7 @@ class ChatViewModel @Inject constructor(
             repository.sendMessage(jsonObject)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
+                setTokenExpiredTrue(Event(true))
             } else {
                 messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SEND_FAIL))
             }
@@ -79,7 +79,9 @@ class ChatViewModel @Inject constructor(
         try {
             repository.sendMessagesSeen(roomId)
         } catch (ex: Exception) {
-            Tools.checkError(ex)
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue(Event(true))
+            }
             return@launch
         }
     }
@@ -88,7 +90,9 @@ class ChatViewModel @Inject constructor(
         try {
             repository.updatedRoomVisitedTimestamp(chatRoom)
         } catch (ex: Exception) {
-            Tools.checkError(ex)
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue(Event(true))
+            }
             return@launch
         }
     }
@@ -97,7 +101,9 @@ class ChatViewModel @Inject constructor(
         try {
             repository.updateRoom(jsonObject, roomId, userId)
         } catch (ex: Exception) {
-            Tools.checkError(ex)
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue(Event(true))
+            }
             return@launch
         }
     }
@@ -129,4 +135,4 @@ object MessageTimestampFetchFail : ChatStates()
 class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
 object RoomWithUsersFailed : ChatStates()
 
-enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL, TOKEN_EXPIRED }
+enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }

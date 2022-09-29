@@ -45,12 +45,10 @@ class MainViewModel @Inject constructor(
                     Timber.d("Count = $count")
                 }
                 usersListener.postValue(Event(UsersFetched))
-                // Test:
-                // setTokenExpiredTrue()
             }
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
+                setTokenExpiredTrue(Event(true))
             } else {
                 usersListener.postValue(Event(UsersError))
             }
@@ -91,7 +89,7 @@ class MainViewModel @Inject constructor(
             }
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
+                setTokenExpiredTrue(Event(true))
             } else {
                 roomsListener.postValue(Event(RoomFetchFail))
             }
@@ -104,7 +102,7 @@ class MainViewModel @Inject constructor(
             checkRoomExistsListener.postValue(Event(RoomExists(roomData!!)))
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
+                setTokenExpiredTrue(Event(true))
             } else {
                 checkRoomExistsListener.postValue(Event(RoomNotFound))
             }
@@ -118,7 +116,7 @@ class MainViewModel @Inject constructor(
             createRoomListener.postValue(Event(RoomCreated(roomData!!)))
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
+                setTokenExpiredTrue(Event(true))
             } else {
                 createRoomListener.postValue(Event(RoomFailed))
             }
@@ -131,7 +129,9 @@ class MainViewModel @Inject constructor(
             try {
                 sseManager.startSSEStream()
             } catch (ex: Exception) {
-                Tools.checkError(ex)
+                if (Tools.checkError(ex)) {
+                    setTokenExpiredTrue(Event(true))
+                }
                 return@launch
             }
         }
@@ -151,9 +151,7 @@ class MainViewModel @Inject constructor(
             roomWithUsersListener.postValue(Event(RoomWithUsersFetched(response)))
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                //
+                setTokenExpiredTrue(Event(true))
             }
             return@launch
         }
@@ -163,7 +161,9 @@ class MainViewModel @Inject constructor(
         try {
             repository.updatePushToken(jsonObject)
         } catch (ex: Exception) {
-            Tools.checkError(ex)
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue(Event(true))
+            }
             return@launch
         }
     }
@@ -174,7 +174,7 @@ class MainViewModel @Inject constructor(
             sharedPrefsRepo.accountCreated(true)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
+                setTokenExpiredTrue(Event(true))
             } else {
                 userUpdateListener.postValue(Event(UserUpdateFailed))
             }
@@ -190,7 +190,9 @@ class MainViewModel @Inject constructor(
             Timber.d("RoomDataCalled")
             repository.updateRoom(jsonObject, roomId, userId)
         } catch (ex: Exception) {
-            Tools.checkError(ex)
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue(Event(true))
+            }
             return@launch
         }
     }
@@ -207,5 +209,4 @@ class RoomExists(val roomData: ChatRoom) : MainStates()
 object RoomNotFound : MainStates()
 object UserUpdated : MainStates()
 object UserUpdateFailed : MainStates()
-object TokenExpired : MainStates()
 class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : MainStates()

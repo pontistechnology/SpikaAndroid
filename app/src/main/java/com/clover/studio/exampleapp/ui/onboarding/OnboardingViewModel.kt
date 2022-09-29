@@ -137,10 +137,8 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    fun writeFirstAppStart() {
-        runBlocking {
-            sharedPrefs.writeFirstAppStart(true)
-        }
+    fun writeFirstAppStart() = viewModelScope.launch {
+        sharedPrefs.writeFirstAppStart(true)
     }
 
     fun isAppStarted(): Boolean {
@@ -151,22 +149,37 @@ class OnboardingViewModel @Inject constructor(
         return flag
     }
 
-    fun writePhoneAndDeviceId(phoneNumber: String, deviceId: String) {
-        runBlocking {
-            sharedPrefs.writeUserPhoneAndDeviceId(phoneNumber, deviceId)
+    fun writePhoneAndDeviceId(phoneNumber: String, deviceId: String, countryCode: String) =
+        viewModelScope.launch {
+            sharedPrefs.writeUserPhoneDetails(phoneNumber, deviceId, countryCode)
         }
-    }
 
     fun readPhoneNumber(): String {
-        var number = ""
+        var number: String
         runBlocking {
             number = sharedPrefs.readPhoneNumber().toString()
         }
         return number
     }
 
-    fun readDeviceId() {
-        // TODO
+    fun readCountryCode(): String {
+        var countryCode: String
+        runBlocking {
+            countryCode = sharedPrefs.readCountryCode().toString()
+        }
+        return countryCode
+    }
+
+    fun registerFlag(flag: Boolean) = viewModelScope.launch {
+        sharedPrefs.writeRegistered(flag)
+    }
+
+    fun readDeviceId(): String {
+        var deviceId: String
+        runBlocking {
+            deviceId = sharedPrefs.readDeviceId().toString()
+        }
+        return deviceId
     }
 }
 

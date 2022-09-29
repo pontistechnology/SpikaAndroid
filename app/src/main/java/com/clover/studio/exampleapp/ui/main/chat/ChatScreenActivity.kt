@@ -6,12 +6,12 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
-import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.UploadDownloadManager
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
@@ -34,9 +34,7 @@ class ChatScreenActivity : BaseActivity() {
     var roomWithUsers: RoomWithUsers? = null
 
     private lateinit var bindingSetup: ActivityChatScreenBinding
-
-    //private val viewModel: MainViewModel by viewModels()
-    private val baseViewModel: BaseViewModel by viewModels()
+    private val viewModel: ChatViewModel by viewModels()
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -64,16 +62,14 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun initializeObservers() {
-        baseViewModel.tokenExpiredListener.observe(this) { tokenExpired ->
+        viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
             if (tokenExpired) {
-                Timber.d("chatScreen: token: $tokenExpired")
-                baseViewModel.setTokenExpiredFalse()
-                Timber.d("chatScreen2: token: $tokenExpired")
+                viewModel.setTokenExpiredFalse()
                 DialogError.getInstance(this,
-                    "Warning",
-                    "Session has expired. Log in again",
+                    getString(R.string.warning),
+                    getString(R.string.session_expired),
                     null,
-                    "OK",
+                    getString(R.string.ok),
                     object : DialogInteraction {
                         override fun onFirstOptionClicked() {
                             // ignore
@@ -83,8 +79,7 @@ class ChatScreenActivity : BaseActivity() {
                             startOnboardingActivity(this@ChatScreenActivity, false)
                         }
                     })
-                //
             }
-        }
+        })
     }
 }

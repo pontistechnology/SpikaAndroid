@@ -6,10 +6,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
-import com.clover.studio.exampleapp.BaseViewModel
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
@@ -29,7 +30,6 @@ fun startMainActivity(fromActivity: Activity) = fromActivity.apply {
 class MainActivity : BaseActivity() {
 
     private val viewModel: MainViewModel by viewModels()
-    private val baseViewModel: BaseViewModel by viewModels()
     private lateinit var bindingSetup: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,16 +49,14 @@ class MainActivity : BaseActivity() {
             Timber.d("Message $it")
         }
 
-        baseViewModel.tokenExpiredListener.observe(this) { tokenExpired ->
+        viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
             if (tokenExpired) {
-                Timber.d("mainActivity: token: $tokenExpired")
-                baseViewModel.setTokenExpiredFalse()
-                Timber.d("mainActivity2: token: $tokenExpired")
+                viewModel.setTokenExpiredFalse()
                 DialogError.getInstance(this,
-                    "Warning",
-                    "Session has expired. Log in again",
+                    getString(R.string.warning),
+                    getString(R.string.session_expired),
                     null,
-                    "OK",
+                    getString(R.string.ok),
                     object : DialogInteraction {
                         override fun onFirstOptionClicked() {
                             // ignore
@@ -68,10 +66,8 @@ class MainActivity : BaseActivity() {
                             startOnboardingActivity(this@MainActivity, false)
                         }
                     })
-                //
-
             }
-        }
+        })
 
 //        viewModel.roomsListener.observe(this, EventObserver {
 //            when (it) {

@@ -17,7 +17,7 @@ import androidx.core.content.FileProvider
 import androidx.core.view.get
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,7 +29,6 @@ import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
-import com.clover.studio.exampleapp.ui.main.TokenExpired
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
@@ -57,7 +56,7 @@ private const val THUMBNAIL_HEIGHT = 256
 
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment() {
-    private val viewModel: ChatViewModel by viewModels()
+    private val viewModel: ChatViewModel by activityViewModels()
     private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: FragmentChatMessagesBinding
     private lateinit var chatAdapter: ChatAdapter
@@ -136,7 +135,7 @@ class ChatMessagesFragment : BaseFragment() {
         return bindingSetup.root
     }
 
-    private fun setAvatarAndName(avatarUrl: String, userName: String){
+    private fun setAvatarAndName(avatarUrl: String, userName: String) {
         bindingSetup.tvChatName.text = userName
         Glide.with(this)
             .load(avatarUrl.let { Tools.getFileUrl(it) })
