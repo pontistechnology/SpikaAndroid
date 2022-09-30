@@ -60,7 +60,7 @@ class ChatMessagesFragment : BaseFragment() {
     private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: FragmentChatMessagesBinding
     private lateinit var chatAdapter: ChatAdapter
-    private lateinit var messages: MutableList<Message>
+    private var messages: MutableList<Message> = mutableListOf()
     private var unsentMessages: MutableList<Message> = ArrayList()
 
     private var currentPhotoLocation: MutableList<Uri> = ArrayList()
@@ -127,8 +127,8 @@ class ChatMessagesFragment : BaseFragment() {
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
 
-        initViews()
         setUpAdapter()
+        initViews()
         initializeObservers()
         checkIsUserAdmin()
 
@@ -159,8 +159,6 @@ class ChatMessagesFragment : BaseFragment() {
                     bindingSetup.etMessage.setText("")
                     viewModel.deleteLocalMessages(unsentMessages)
                     unsentMessages.clear()
-                    chatAdapter.notifyDataSetChanged()
-
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
@@ -215,10 +213,16 @@ class ChatMessagesFragment : BaseFragment() {
 
     private fun setUpAdapter() {
         chatAdapter = ChatAdapter(context!!, viewModel.getLocalUserId()!!, roomWithUsers.users)
-
         bindingSetup.rvChat.adapter = chatAdapter
         bindingSetup.rvChat.layoutManager =
             LinearLayoutManager(context, RecyclerView.VERTICAL, true)
+
+        //
+        bindingSetup.rvChat.layoutManager?.smoothScrollToPosition(
+            bindingSetup.rvChat,
+            null,
+            0
+        )
 
         // Add callback for item swipe handling
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
@@ -896,4 +900,10 @@ class ChatMessagesFragment : BaseFragment() {
         thumbnailUris.add(thumbnailUri)
         currentPhotoLocation.add(bitmapUri)
     }
+
+    override fun onResume() {
+        super.onResume()
+        bindingSetup.rvChat.scrollToPosition(0)
+    }
+
 }
