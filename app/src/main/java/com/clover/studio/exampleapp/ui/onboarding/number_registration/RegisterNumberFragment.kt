@@ -7,7 +7,6 @@ import android.database.Cursor
 import android.database.DatabaseUtils
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -43,6 +42,8 @@ class RegisterNumberFragment : BaseFragment() {
 
     private var bindingSetup: FragmentRegisterNumberBinding? = null
 
+    private var phoneNumber: String = ""
+    private var deviceId: String = ""
     private val binding get() = bindingSetup!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,19 +62,40 @@ class RegisterNumberFragment : BaseFragment() {
         // Inflate the layout for this fragment
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
 
+
         if (countryCode != "") {
             binding.tvCountryCode.text = countryCode
         }
 
+        checkUser()
         checkContactsPermission()
         setTextListener()
         setClickListeners()
         setObservers()
 
         // Log check if token is present in shared prefs
+        viewModel.registerFlag(false)
         viewModel.readToken()
 
         return binding.root
+    }
+
+    private fun checkUser() {
+        if (viewModel.isAppStarted()) {
+            phoneNumber = viewModel.readPhoneNumber()
+            countryCode = viewModel.readCountryCode()
+            deviceId = viewModel.readDeviceId()
+
+            binding.etPhoneNumber.visibility = View.GONE
+            binding.tvDefaultPhoneNumber.visibility = View.VISIBLE
+            binding.tvDefaultPhoneNumber.text = phoneNumber
+            binding.tvCountryCode.text = countryCode
+
+            binding.btnNext.isEnabled = true
+
+        } else {
+            viewModel.writeFirstAppStart()
+        }
     }
 
     override fun onDestroyView() {
@@ -86,18 +108,15 @@ class RegisterNumberFragment : BaseFragment() {
             when (it) {
                 OnboardingStates.REGISTERING_SUCCESS -> {
                     val bundle = bundleOf(
-                        Const.Navigation.PHONE_NUMBER to countryCode + binding.etPhoneNumber.text.toString()
-                            .toInt(),
+                        Const.Navigation.PHONE_NUMBER to countryCode + phoneNumber.toInt(),
                         Const.Navigation.PHONE_NUMBER_HASHED to hashString(
-                            countryCode + binding.etPhoneNumber.text.toString().toInt()
+                            countryCode + phoneNumber.toInt()
                         ),
                         Const.Navigation.COUNTRY_CODE to countryCode.substring(1),
-                        Const.Navigation.DEVICE_ID to Settings.Secure.getString(
-                            context?.contentResolver,
-                            Settings.Secure.ANDROID_ID
-                        )
+                        Const.Navigation.DEVICE_ID to deviceId
                     )
 
+                    viewModel.registerFlag(true)
                     findNavController().navigate(
                         R.id.action_splashFragment_to_verificationFragment, bundle
                     )
@@ -122,12 +141,20 @@ class RegisterNumberFragment : BaseFragment() {
 
     private fun setClickListeners() {
         binding.tvCountryCode.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_splashFragment_to_countryPickerFragment
-            )
+            if (countryCode.isEmpty()) {
+                findNavController().navigate(
+                    R.id.action_splashFragment_to_countryPickerFragment
+                )
+            }
         }
 
         binding.btnNext.setOnClickListener {
+            if (phoneNumber.isEmpty()) {
+                phoneNumber = binding.etPhoneNumber.text.toString()
+                countryCode = binding.tvCountryCode.text.toString()
+                deviceId = Tools.generateDeviceId()
+                viewModel.writePhoneAndDeviceId(phoneNumber, deviceId, countryCode)
+            }
             viewModel.sendNewUserData(getJsonObject())
         }
     }
@@ -143,7 +170,10 @@ class RegisterNumberFragment : BaseFragment() {
             }
 
             override fun afterTextChanged(s: Editable) {
-                binding.btnNext.isEnabled = s.isNotEmpty()
+                if (s.isNotEmpty()) {
+                    binding.btnNext.isEnabled = s.isNotEmpty()
+                }
+
             }
         })
 
@@ -161,20 +191,15 @@ class RegisterNumberFragment : BaseFragment() {
 
         jsonObject.addProperty(
             Const.JsonFields.TELEPHONE_NUMBER,
-            countryCode + binding.etPhoneNumber.text.toString().toInt()
+            countryCode + phoneNumber.toInt()
         )
         jsonObject.addProperty(
             Const.JsonFields.TELEPHONE_NUMBER_HASHED, hashString(
-                countryCode + binding.etPhoneNumber.text.toString().toInt()
+                countryCode + phoneNumber.toInt()
             )
         )
         jsonObject.addProperty(Const.JsonFields.COUNTRY_CODE, countryCode.substring(1))
-        jsonObject.addProperty(
-            Const.JsonFields.DEVICE_ID, Settings.Secure.getString(
-                context?.contentResolver,
-                Settings.Secure.ANDROID_ID
-            )
-        )
+        jsonObject.addProperty(Const.JsonFields.DEVICE_ID, deviceId)
 
         return jsonObject
     }

@@ -17,7 +17,7 @@ import androidx.core.content.FileProvider
 import androidx.core.view.get
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -56,7 +56,7 @@ private const val THUMBNAIL_HEIGHT = 256
 
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment() {
-    private val viewModel: ChatViewModel by viewModels()
+    private val viewModel: ChatViewModel by activityViewModels()
     private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: FragmentChatMessagesBinding
     private lateinit var chatAdapter: ChatAdapter
@@ -73,6 +73,9 @@ class ChatMessagesFragment : BaseFragment() {
     private var isAdmin = false
     private var uploadIndex = 0
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
+
+    private var avatarUrl = ""
+    private var userName = ""
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -124,7 +127,6 @@ class ChatMessagesFragment : BaseFragment() {
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
 
-        setInformation(roomWithUsers)
         initViews()
         setUpAdapter()
         initializeObservers()
@@ -133,43 +135,12 @@ class ChatMessagesFragment : BaseFragment() {
         return bindingSetup.root
     }
 
-    private fun setInformation(roomWithUsers: RoomWithUsers) {
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            setName(roomWithUsers)
-            val avatarUrl = setAvatar(roomWithUsers)
-            Glide.with(this)
-                .load(avatarUrl.let { Tools.getFileUrl(it) })
-                .into(bindingSetup.ivUserImage)
-
-        } else {
-            bindingSetup.tvChatName.text = roomWithUsers.room.name
-            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
-                .into(bindingSetup.ivUserImage)
-        }
+    private fun setAvatarAndName(avatarUrl: String, userName: String) {
+        bindingSetup.tvChatName.text = userName
+        Glide.with(this)
+            .load(avatarUrl.let { Tools.getFileUrl(it) })
+            .into(bindingSetup.ivUserImage)
     }
-
-    private fun setAvatar(roomWithUsers: RoomWithUsers): String {
-        var avatarUrl = ""
-        if (roomWithUsers.room.avatarUrl?.isNotEmpty() == true) {
-            avatarUrl = roomWithUsers.room.avatarUrl.toString()
-        } else {
-            for (user in roomWithUsers.users) {
-                if (user.id != viewModel.getLocalUserId()) {
-                    avatarUrl = user.avatarUrl.toString()
-                }
-            }
-        }
-        return avatarUrl
-    }
-
-    private fun setName(roomWithUsers: RoomWithUsers) {
-        if (roomWithUsers.room.name?.isNotEmpty() == true) {
-            bindingSetup.tvChatName.text = roomWithUsers.room.name
-        } else {
-            bindingSetup.tvChatName.text = roomWithUsers.users[0].displayName
-        }
-    }
-
 
     private fun checkIsUserAdmin() {
         for (user in roomWithUsers.users) {
@@ -207,6 +178,7 @@ class ChatMessagesFragment : BaseFragment() {
             }
         })
 
+        // TODO
         viewModel.getMessagesTimestampListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is MessagesTimestampFetched -> {
@@ -218,7 +190,6 @@ class ChatMessagesFragment : BaseFragment() {
                 else -> Timber.d("Other error")
             }
         })
-
         viewModel.sendMessageDeliveredListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 ChatStatesEnum.MESSAGE_DELIVERED -> {
@@ -285,6 +256,23 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun initViews() {
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            for (user in roomWithUsers.users) {
+                if (user.id.toString() != viewModel.getLocalUserId().toString()) {
+                    avatarUrl = user.avatarUrl.toString()
+                    userName = user.displayName.toString()
+                    break
+                } else {
+                    avatarUrl = user.avatarUrl.toString()
+                    userName = user.displayName.toString()
+                }
+            }
+        } else {
+            avatarUrl = roomWithUsers.room.avatarUrl.toString()
+            userName = roomWithUsers.room.name.toString()
+        }
+        setAvatarAndName(avatarUrl, userName)
+
         bindingSetup.clHeader.setOnClickListener {
             val action =
                 ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(

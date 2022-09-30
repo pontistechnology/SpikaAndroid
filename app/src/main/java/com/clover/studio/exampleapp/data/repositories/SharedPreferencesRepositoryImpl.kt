@@ -92,6 +92,54 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun isFirstSSELaunch(): Boolean =
         getPrefs().getBoolean(Const.PrefsData.DATA_SYNCED, true)
 
+    override suspend fun writeFirstAppStart(firstAppStart: Boolean) {
+        with(getPrefs().edit()) {
+            putBoolean(
+                Const.PrefsData.FIRST_START,
+                firstAppStart
+            )
+            commit()
+        }
+    }
+
+    override suspend fun isFirstAppStart(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.FIRST_START, false)
+
+    override suspend fun writeUserPhoneDetails(
+        phoneNumber: String,
+        deviceId: String,
+        countryCode: String
+    ) {
+        with(getPrefs().edit()) {
+            putString(Const.PrefsData.PHONE_NUMBER, phoneNumber)
+            putString(Const.PrefsData.DEVICE_ID, deviceId)
+            putString(Const.PrefsData.COUNTRY_CODE, countryCode)
+            commit()
+        }
+    }
+
+    override suspend fun readPhoneNumber(): String? =
+        getPrefs().getString(Const.PrefsData.PHONE_NUMBER, null)
+
+    override suspend fun readCountryCode(): String? =
+        getPrefs().getString(Const.PrefsData.COUNTRY_CODE, null)
+
+    override suspend fun readDeviceId(): String? =
+        getPrefs().getString(Const.PrefsData.DEVICE_ID, null)
+
+    override suspend fun writeRegistered(registeredFlag: Boolean) {
+        with(getPrefs().edit()) {
+            putBoolean(
+                Const.PrefsData.REGISTERED,
+                registeredFlag
+            )
+            commit()
+        }
+    }
+
+    override suspend fun readRegistered(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.REGISTERED, false)
+
     private fun getPrefs(): SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
 }
@@ -111,4 +159,16 @@ interface SharedPreferencesRepository {
     suspend fun setNewUser(newUser: Boolean)
     suspend fun writeFirstSSELaunch()
     suspend fun isFirstSSELaunch(): Boolean
+
+    suspend fun writeFirstAppStart(firstAppStart: Boolean)
+    suspend fun isFirstAppStart(): Boolean
+
+    suspend fun writeUserPhoneDetails(phoneNumber: String, deviceId: String, countryCode: String)
+    suspend fun readPhoneNumber(): String?
+    suspend fun readDeviceId(): String?
+    suspend fun readCountryCode(): String?
+
+    suspend fun writeRegistered(registeredFlag: Boolean)
+    suspend fun readRegistered(): Boolean
+
 }

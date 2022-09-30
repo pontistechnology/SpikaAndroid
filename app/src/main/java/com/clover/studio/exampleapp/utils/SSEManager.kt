@@ -90,7 +90,6 @@ class SSEManager @Inject constructor(
                             if (response != null) {
                                 Timber.d("Response type: ${response.data?.type}")
                                 when (response.data?.type) {
-                                    // Messages: new, update, delete
                                     Const.JsonFields.NEW_MESSAGE -> {
                                         response.data?.message?.let { repo.writeMessages(it) }
                                         response.data?.message?.id?.let {

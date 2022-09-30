@@ -115,7 +115,7 @@ class RoomsFragment : BaseFragment() {
             if (it.isNotEmpty()) {
                 binding.tvNoChats.visibility = View.GONE
                 for (roomData in it) {
-                    Timber.d("Room Data ${roomData.roomWithUsers.room.roomId}")
+                    Timber.d("Room Data ${roomData.roomWithUsers.room.roomId}, ${roomData.roomWithUsers.room.name}")
                 }
                 roomList = it
                 nonEmptyRoomList = roomList.toMutableList()
@@ -162,6 +162,9 @@ class RoomsFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
         viewModel.getRooms()
+
         // This updates the elapsed time displayed when user return to the screen.
+        // TODO: it needs to be removed at one point
+        roomsAdapter.notifyDataSetChanged()
     }
 }

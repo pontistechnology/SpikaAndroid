@@ -56,6 +56,9 @@ class ChatDetailsFragment : BaseFragment() {
     private var roomId: Int? = null
     private var isAdmin = false
 
+    private var userName = ""
+    private var avatarUr = ""
+
     private var bindingSetup: FragmentChatDetailsBinding? = null
     private val binding get() = bindingSetup!!
 
@@ -125,34 +128,21 @@ class ChatDetailsFragment : BaseFragment() {
 
     private fun initializeViews(roomWithUsers: RoomWithUsers) {
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            roomWithUsers.users.forEach { roomUser ->
+            for (roomUser in roomWithUsers.users) {
                 if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
-                    binding.tvChatName.text = roomUser.displayName
-                    Glide.with(this)
-                        .load(roomUser.avatarUrl?.let { Tools.getFileUrl(it) })
-                        .into(binding.ivPickAvatar)
-                    Glide.with(this)
-                        .load(roomUser.avatarUrl?.let { Tools.getFileUrl(it) })
-                        .into(binding.ivUserImage)
-                }
-                // Our chat:
-                else {
-                    binding.tvChatName.text = roomWithUsers.room.name
-                    Glide.with(this)
-                        .load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
-                        .into(binding.ivPickAvatar)
-                    Glide.with(this)
-                        .load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
-                        .into(binding.ivUserImage)
+                    userName = roomUser.displayName.toString()
+                    avatarUr = roomUser.avatarUrl.toString()
+                    break
+                } else {
+                    userName = roomUser.displayName.toString()
+                    avatarUr = roomUser.avatarUrl.toString()
                 }
             }
         } else {
-            binding.tvChatName.text = roomWithUsers.room.name
-            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
-                .into(binding.ivPickAvatar)
-            Glide.with(this).load(roomWithUsers.room.avatarUrl?.let { Tools.getFileUrl(it) })
-                .into(binding.ivUserImage)
+            userName = roomWithUsers.room.name.toString()
+            avatarUr = roomWithUsers.room.avatarUrl.toString()
         }
+        setAvatarAndUsername(avatarUr, userName)
 
         binding.ivAddMember.setOnClickListener {
             val userIds = ArrayList<Int>()
@@ -169,14 +159,15 @@ class ChatDetailsFragment : BaseFragment() {
         }
 
         binding.tvTitle.text = roomWithUsers.room.type
-        binding.tvGroupName.text = roomWithUsers.room.name
 
         binding.tvGroupName.setOnClickListener {
-            binding.etEnterGroupName.visibility = View.VISIBLE
-            binding.tvDone.visibility = View.VISIBLE
-            binding.tvGroupName.visibility = View.INVISIBLE
-            binding.ivCallUser.visibility = View.GONE
-            binding.ivVideoCall.visibility = View.GONE
+            if (roomWithUsers.room.type.toString() == Const.JsonFields.GROUP && isAdmin) {
+                binding.etEnterGroupName.visibility = View.VISIBLE
+                binding.tvDone.visibility = View.VISIBLE
+                binding.tvGroupName.visibility = View.INVISIBLE
+                binding.ivCallUser.visibility = View.GONE
+                binding.ivVideoCall.visibility = View.GONE
+            }
         }
 
         binding.tvDone.setOnClickListener {
@@ -194,6 +185,12 @@ class ChatDetailsFragment : BaseFragment() {
             }
 
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
+
+            binding.tvDone.visibility = View.GONE
+            binding.ivCallUser.visibility = View.VISIBLE
+            binding.ivVideoCall.visibility = View.VISIBLE
+            binding.etEnterGroupName.visibility = View.INVISIBLE
+            binding.tvGroupName.visibility = View.VISIBLE
         }
 
         binding.cvAvatar.setOnClickListener {
@@ -226,6 +223,17 @@ class ChatDetailsFragment : BaseFragment() {
         }
     }
 
+    private fun setAvatarAndUsername(avatarUrl: String, username: String) {
+        Glide.with(this)
+            .load(avatarUrl.let { Tools.getFileUrl(it) })
+            .into(binding.ivPickAvatar)
+        Glide.with(this)
+            .load(avatarUrl.let { Tools.getFileUrl(it) })
+            .into(binding.ivUserImage)
+        binding.tvGroupName.text = username
+        binding.tvChatName.text = username
+    }
+
     private fun initializeObservers() {
         roomId?.let {
             viewModel.getRoomAndUsers(it).observe(viewLifecycleOwner) { roomWithUsers ->
@@ -247,6 +255,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         })
     }
+
 
     private fun setupAdapter(isAdmin: Boolean) {
         adapter = ChatDetailsAdapter(
@@ -352,8 +361,10 @@ class ChatDetailsFragment : BaseFragment() {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
                                 binding.clProgressScreen.visibility = View.GONE
+                                binding.ivVideoCall.visibility = View.GONE
+                                binding.ivCallUser.visibility = View.GONE
+                                binding.tvDone.visibility = View.VISIBLE
                             }
-
                             avatarPath = path
                         }
 

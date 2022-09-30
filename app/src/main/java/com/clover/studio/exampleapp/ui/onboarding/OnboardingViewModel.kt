@@ -1,8 +1,8 @@
 package com.clover.studio.exampleapp.ui.onboarding
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.PhoneUser
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
 import com.clover.studio.exampleapp.data.repositories.OnboardingRepositoryImpl
@@ -12,6 +12,7 @@ import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -19,7 +20,7 @@ import javax.inject.Inject
 class OnboardingViewModel @Inject constructor(
     private val onboardingRepository: OnboardingRepositoryImpl,
     private val sharedPrefs: SharedPreferencesRepository
-) : ViewModel() {
+) : BaseViewModel() {
 
     var codeVerificationListener = MutableLiveData<Event<OnboardingStates>>()
     var registrationListener = MutableLiveData<Event<OnboardingStates>>()
@@ -134,6 +135,51 @@ class OnboardingViewModel @Inject constructor(
             Tools.checkError(ex)
             return@launch
         }
+    }
+
+    fun writeFirstAppStart() = viewModelScope.launch {
+        sharedPrefs.writeFirstAppStart(true)
+    }
+
+    fun isAppStarted(): Boolean {
+        var flag: Boolean
+        runBlocking {
+            flag = sharedPrefs.isFirstAppStart()
+        }
+        return flag
+    }
+
+    fun writePhoneAndDeviceId(phoneNumber: String, deviceId: String, countryCode: String) =
+        viewModelScope.launch {
+            sharedPrefs.writeUserPhoneDetails(phoneNumber, deviceId, countryCode)
+        }
+
+    fun readPhoneNumber(): String {
+        var number: String
+        runBlocking {
+            number = sharedPrefs.readPhoneNumber().toString()
+        }
+        return number
+    }
+
+    fun readCountryCode(): String {
+        var countryCode: String
+        runBlocking {
+            countryCode = sharedPrefs.readCountryCode().toString()
+        }
+        return countryCode
+    }
+
+    fun registerFlag(flag: Boolean) = viewModelScope.launch {
+        sharedPrefs.writeRegistered(flag)
+    }
+
+    fun readDeviceId(): String {
+        var deviceId: String
+        runBlocking {
+            deviceId = sharedPrefs.readDeviceId().toString()
+        }
+        return deviceId
     }
 }
 

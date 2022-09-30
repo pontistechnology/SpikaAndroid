@@ -33,19 +33,28 @@ import kotlin.math.roundToInt
 const val BITMAP_WIDTH = 512
 const val BITMAP_HEIGHT = 512
 const val TO_MEGABYTE = 1000000
+const val DEVICE_ID_LENGTH = 13
+const val TOKEN_EXPIRED_CODE = 401
 
 object Tools {
     var fileName: String = ""
     var pictureHeight: Int = 0
     var videoHeight: Int = 0
 
-    fun checkError(ex: Exception) {
+    fun checkError(ex: Exception): Boolean {
         when (ex) {
             is IllegalArgumentException -> Timber.d("IllegalArgumentException ${ex.message}")
             is IOException -> Timber.d("IOException ${ex.message}")
-            is HttpException -> Timber.d("HttpException: ${ex.code()} ${ex.message}")
+            is HttpException ->
+                if (ex.code() == TOKEN_EXPIRED_CODE) {
+                    Timber.d("Token Expired: ${ex.code()} ${ex.message}")
+                    return true
+                } else {
+                    Timber.d("HttpException: ${ex.code()} ${ex.message}")
+                }
             else -> Timber.d("UnknownError: ${ex.message}")
         }
+        return false
     }
 
     fun formatE164Number(context: Context, countryCode: String?, phNum: String?): String? {
@@ -287,5 +296,15 @@ object Tools {
         val inputMethodManager: InputMethodManager =
             activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    fun generateDeviceId(): String {
+        val hexChars = "0123456789abcdefABCDEF"
+        val deviceId = StringBuilder(DEVICE_ID_LENGTH * 2)
+        for (i in 0..DEVICE_ID_LENGTH) {
+            val randomNumber = hexChars.random()
+            deviceId.append(randomNumber)
+        }
+        return deviceId.toString()
     }
 }

@@ -1,9 +1,9 @@
 package com.clover.studio.exampleapp.ui.main
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
@@ -25,7 +25,7 @@ class MainViewModel @Inject constructor(
     private val repository: MainRepositoryImpl,
     private val sharedPrefsRepo: SharedPreferencesRepository,
     private val sseManager: SSEManager
-) : ViewModel() {
+) : BaseViewModel() {
 
     val usersListener = MutableLiveData<Event<MainStates>>()
     val roomsListener = MutableLiveData<Event<MainStates>>()
@@ -47,8 +47,11 @@ class MainViewModel @Inject constructor(
                 usersListener.postValue(Event(UsersFetched))
             }
         } catch (ex: Exception) {
-            Tools.checkError(ex)
-            usersListener.postValue(Event(UsersError))
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                usersListener.postValue(Event(UsersError))
+            }
             return@launch
         }
     }
@@ -85,8 +88,11 @@ class MainViewModel @Inject constructor(
                 roomsListener.postValue(Event(RoomsFetched))
             }
         } catch (ex: Exception) {
-            Tools.checkError(ex)
-            roomsListener.postValue(Event(RoomFetchFail))
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                roomsListener.postValue(Event(RoomFetchFail))
+            }
         }
     }
 
@@ -95,8 +101,11 @@ class MainViewModel @Inject constructor(
             val roomData = repository.getRoomById(userId).data?.room
             checkRoomExistsListener.postValue(Event(RoomExists(roomData!!)))
         } catch (ex: Exception) {
-            Tools.checkError(ex)
-            checkRoomExistsListener.postValue(Event(RoomNotFound))
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                checkRoomExistsListener.postValue(Event(RoomNotFound))
+            }
             return@launch
         }
     }
@@ -106,8 +115,11 @@ class MainViewModel @Inject constructor(
             val roomData = repository.createNewRoom(jsonObject).data?.room
             createRoomListener.postValue(Event(RoomCreated(roomData!!)))
         } catch (ex: Exception) {
-            Tools.checkError(ex)
-            createRoomListener.postValue(Event(RoomFailed))
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                createRoomListener.postValue(Event(RoomFailed))
+            }
             return@launch
         }
     }
@@ -117,7 +129,9 @@ class MainViewModel @Inject constructor(
             try {
                 sseManager.startSSEStream()
             } catch (ex: Exception) {
-                Tools.checkError(ex)
+                if (Tools.checkError(ex)) {
+                    setTokenExpiredTrue()
+                }
                 return@launch
             }
         }
@@ -136,7 +150,9 @@ class MainViewModel @Inject constructor(
             val response = repository.getRoomWithUsers(roomId)
             roomWithUsersListener.postValue(Event(RoomWithUsersFetched(response)))
         } catch (ex: Exception) {
-            Tools.checkError(ex)
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
             return@launch
         }
     }
@@ -145,7 +161,9 @@ class MainViewModel @Inject constructor(
         try {
             repository.updatePushToken(jsonObject)
         } catch (ex: Exception) {
-            Tools.checkError(ex)
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
             return@launch
         }
     }
@@ -155,20 +173,26 @@ class MainViewModel @Inject constructor(
             repository.updateUserData(userMap)
             sharedPrefsRepo.accountCreated(true)
         } catch (ex: Exception) {
-            Tools.checkError(ex)
-            userUpdateListener.postValue(Event(UserUpdateFailed))
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                userUpdateListener.postValue(Event(UserUpdateFailed))
+            }
             return@launch
         }
 
         userUpdateListener.postValue(Event(UserUpdated))
     }
 
+
     fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = viewModelScope.launch {
         try {
             Timber.d("RoomDataCalled")
             repository.updateRoom(jsonObject, roomId, userId)
         } catch (ex: Exception) {
-            Tools.checkError(ex)
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
             return@launch
         }
     }

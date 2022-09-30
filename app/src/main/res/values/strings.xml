@@ -99,4 +99,10 @@
     <string name="contact">Contact</string>
     <string name="failed_file_upload">Failed to upload file</string>
     <string name="files_mb_text"> MB</string>
+
+    <!--Alert dialog text-->
+    <string name="warning">Warning</string>
+    <string name="session_expired">Session has expired. Please log in again.</string>
+
+
 </resources>
