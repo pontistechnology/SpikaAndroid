@@ -83,7 +83,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                     with(NotificationManagerCompat.from(baseContext)) {
                         // notificationId is a unique int for each notification that you must define
-                        notify(1511, builder.build())
+                        response.message.roomId?.let { notify(it, builder.build()) }
                     }
                 }
             }
