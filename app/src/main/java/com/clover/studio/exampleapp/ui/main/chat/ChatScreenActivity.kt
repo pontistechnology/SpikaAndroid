@@ -87,7 +87,7 @@ class ChatScreenActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        chatViewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
+        viewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
             Timber.d("Observing SSE")
         }
     }
