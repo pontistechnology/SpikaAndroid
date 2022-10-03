@@ -91,4 +91,22 @@ class ChatScreenActivity : BaseActivity() {
             Timber.d("Observing SSE")
         }
     }
+
+    override fun onBackPressed() {
+        val fragment =
+            this.supportFragmentManager.findFragmentById(R.id.main_chat_container) as? NavHostFragment
+        val currentFragment = fragment?.childFragmentManager?.fragments?.get(0) as? ChatOnBackPressed
+
+        // Check why this returns null if upload is not in progress
+        currentFragment?.onBackPressed()?.takeIf { !it }.let {
+            Timber.d("Boolean: $it")
+            if (it == null) {
+                super.onBackPressed()
+            }
+        }
+    }
+}
+
+interface ChatOnBackPressed {
+    fun onBackPressed(): Boolean
 }

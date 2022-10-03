@@ -31,6 +31,7 @@ import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
+import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -55,7 +56,7 @@ private const val ROTATION_OFF = 0f
 private const val THUMBNAIL_HEIGHT = 256
 
 @AndroidEntryPoint
-class ChatMessagesFragment : BaseFragment() {
+class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private val viewModel: ChatViewModel by activityViewModels()
     private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: FragmentChatMessagesBinding
@@ -72,6 +73,7 @@ class ChatMessagesFragment : BaseFragment() {
     private var photoImageUri: Uri? = null
     private var isAdmin = false
     private var uploadIndex = 0
+    private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
 
     private var avatarUrl = ""
@@ -281,7 +283,7 @@ class ChatMessagesFragment : BaseFragment() {
         }
 
         bindingSetup.ivArrowBack.setOnClickListener {
-            onBackPressed()
+            onBackArrowPressed()
         }
 
         bindingSetup.bottomSheet.btnFiles.setOnClickListener {
@@ -444,12 +446,16 @@ class ChatMessagesFragment : BaseFragment() {
         viewModel.storeMessageLocally(tempMessage)
     }
 
-    private fun onBackPressed() {
-        // Update room visited
-        roomWithUsers.room.visitedRoom = System.currentTimeMillis()
-        viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
-        //
-        activity!!.finish()
+    private fun onBackArrowPressed() {
+        if (uploadInProgress) {
+            showUploadError()
+        } else {
+            // Update room visited
+            roomWithUsers.room.visitedRoom = System.currentTimeMillis()
+            viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
+            //
+            activity!!.finish()
+        }
     }
 
     private fun chooseFile() {
@@ -492,6 +498,7 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun uploadFile(uri: Uri) {
+        uploadInProgress = true
         val messageBody = MessageBody("", 0, 0, null, null)
         val inputStream =
             activity!!.contentResolver.openInputStream(uri)
@@ -523,76 +530,106 @@ class ChatMessagesFragment : BaseFragment() {
         imageContainer.setMaxProgress(uploadPieces.toInt())
         Timber.d("File upload start")
         CoroutineScope(Dispatchers.IO).launch {
-            uploadDownloadManager.uploadFile(
-                activity!!,
-                uri,
-                Const.JsonFields.FILE,
-                Const.JsonFields.FILE_TYPE,
-                uploadPieces,
-                fileStream,
-                false,
-                object : FileUploadListener {
-                    override fun filePieceUploaded() {
-                        if (progress <= uploadPieces) {
-                            imageContainer.setUploadProgress(progress)
-                            progress++
-                        } else progress = 0
-                    }
-
-                    override fun fileUploadError(description: String) {
-                        activity!!.runOnUiThread {
-                            if (imageContainer.childCount > 0) {
-                                imageContainer.removeViewAt(0)
-                            }
-                            uploadIndex++
-                            if (uploadIndex < filesSelected.size) {
-                                uploadFile(filesSelected[uploadIndex])
-                            } else {
+            try {
+                uploadDownloadManager.uploadFile(
+                    activity!!,
+                    uri,
+                    Const.JsonFields.FILE,
+                    Const.JsonFields.FILE_TYPE,
+                    uploadPieces,
+                    fileStream,
+                    false,
+                    object : FileUploadListener {
+                        override fun filePieceUploaded() {
+                            try {
+                                if (progress <= uploadPieces) {
+                                    imageContainer.setUploadProgress(progress)
+                                    progress++
+                                } else progress = 0
+                            } catch (ex: Exception) {
+                                Timber.d("Video upload failed on piece")
                                 uploadIndex = 0
                                 filesSelected.clear()
+                                uploadInProgress = false
                             }
+                        }
 
-                            Toast.makeText(
-                                activity!!.baseContext,
-                                getString(R.string.failed_file_upload),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        override fun fileUploadError(description: String) {
+                            try {
+                                activity!!.runOnUiThread {
+                                    if (imageContainer.childCount > 0) {
+                                        imageContainer.removeViewAt(0)
+                                    }
+                                    uploadIndex++
+                                    if (uploadIndex < filesSelected.size) {
+                                        uploadFile(filesSelected[uploadIndex])
+                                    } else {
+                                        uploadIndex = 0
+                                        filesSelected.clear()
+                                    }
+
+                                    Toast.makeText(
+                                        activity!!.baseContext,
+                                        getString(R.string.failed_file_upload),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
 //                            showUploadError(description)
 //                            imageContainer.hideProgressScreen()
-                        }
-                    }
-
-                    override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
-                        activity!!.runOnUiThread {
-                            Timber.d("Successfully sent file")
-                            if (imageContainer.childCount > 0) {
-                                imageContainer.removeViewAt(0)
-                            }
-
-                            if (fileId > 0) messageBody.fileId = fileId
-                            sendMessage(
-                                isImage = false,
-                                isFile = true,
-                                isVideo = false,
-                                messageBody.fileId!!,
-                                0
-                            )
-
-                            uploadIndex++
-                            if (uploadIndex < filesSelected.size) {
-                                uploadFile(filesSelected[uploadIndex])
-                            } else {
+                                    uploadInProgress = false
+                                }
+                            } catch (ex: Exception) {
+                                Timber.d("Video upload failed on error")
                                 uploadIndex = 0
                                 filesSelected.clear()
+                                uploadInProgress = false
                             }
                         }
-                        // update room data
-                    }
-                })
+
+                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                            try {
+                                activity!!.runOnUiThread {
+                                    Timber.d("Successfully sent file")
+                                    if (imageContainer.childCount > 0) {
+                                        imageContainer.removeViewAt(0)
+                                    }
+
+                                    if (fileId > 0) messageBody.fileId = fileId
+                                    sendMessage(
+                                        isImage = false,
+                                        isFile = true,
+                                        isVideo = false,
+                                        messageBody.fileId!!,
+                                        0
+                                    )
+
+                                    uploadIndex++
+                                    if (uploadIndex < filesSelected.size) {
+                                        uploadFile(filesSelected[uploadIndex])
+                                    } else {
+                                        uploadIndex = 0
+                                        filesSelected.clear()
+                                        uploadInProgress = false
+                                    }
+                                }
+                                // update room data
+                            } catch (ex: Exception) {
+                                Timber.d("Video upload failed on verify")
+                                uploadIndex = 0
+                                filesSelected.clear()
+                                uploadInProgress = false
+                            }
+                        }
+                    })
+            } catch (ex: Exception) {
+                uploadIndex = 0
+                filesSelected.clear()
+                uploadInProgress = false
+            }
         }
     }
 
     private fun uploadVideo(messageBody: MessageBody, isThumbnail: Boolean, uri: Uri) {
+        uploadInProgress = true
         val inputStream =
             activity!!.contentResolver.openInputStream(uri)
 
@@ -613,81 +650,115 @@ class ChatMessagesFragment : BaseFragment() {
         imageContainer.setMaxProgress(uploadPieces.toInt())
         Timber.d("File upload start")
         CoroutineScope(Dispatchers.IO).launch {
-            uploadDownloadManager.uploadFile(
-                activity!!,
-                uri,
-                Const.JsonFields.VIDEO,
-                Const.JsonFields.AVATAR,
-                uploadPieces,
-                fileStream,
-                isThumbnail,
-                object : FileUploadListener {
-                    override fun filePieceUploaded() {
-                        if (progress <= uploadPieces) {
-                            imageContainer.setUploadProgress(progress)
-                            progress++
-                        } else progress = 0
-                    }
-
-                    override fun fileUploadError(description: String) {
-                        activity!!.runOnUiThread {
-                            if (imageContainer.childCount > 0) {
-                                imageContainer.removeViewAt(0)
-                            }
-                            uploadIndex++
-                            if (uploadIndex < currentPhotoLocation.size) {
-                                uploadVideo()
-                            } else {
+            try {
+                uploadDownloadManager.uploadFile(
+                    activity!!,
+                    uri,
+                    Const.JsonFields.VIDEO,
+                    Const.JsonFields.AVATAR,
+                    uploadPieces,
+                    fileStream,
+                    isThumbnail,
+                    object : FileUploadListener {
+                        override fun filePieceUploaded() {
+                            try {
+                                if (progress <= uploadPieces) {
+                                    imageContainer.setUploadProgress(progress)
+                                    progress++
+                                } else progress = 0
+                            } catch (ex: Exception) {
+                                Timber.d("Video upload failed on piece")
                                 uploadIndex = 0
                                 currentVideoLocation.clear()
+                                uploadInProgress = false
                             }
+                        }
 
-                            Toast.makeText(
-                                activity!!.baseContext,
-                                getString(R.string.failed_file_upload),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        override fun fileUploadError(description: String) {
+                            try {
+                                activity!!.runOnUiThread {
+                                    if (imageContainer.childCount > 0) {
+                                        imageContainer.removeViewAt(0)
+                                    }
+                                    uploadIndex++
+                                    if (uploadIndex < currentPhotoLocation.size) {
+                                        uploadVideo()
+                                    } else {
+                                        uploadIndex = 0
+                                        currentVideoLocation.clear()
+                                    }
+
+                                    Toast.makeText(
+                                        activity!!.baseContext,
+                                        getString(R.string.failed_file_upload),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
 //                            showUploadError(description)
 //                            imageContainer.hideProgressScreen()
-                        }
-                    }
-
-                    override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
-                        activity!!.runOnUiThread {
-                            if (!isThumbnail) {
-                                if (fileId > 0) messageBody.fileId = fileId
-                                sendMessage(
-                                    isImage = false,
-                                    isFile = false,
-                                    isVideo = true,
-                                    messageBody.fileId!!,
-                                    messageBody.thumbId!!
-                                )
-
-                                // TODO think about changing this... Index changes for other views when removed
-                                if (imageContainer.childCount > 0) {
-                                    imageContainer.removeViewAt(0)
+                                    uploadInProgress = false
                                 }
-                                uploadIndex++
-                                if (uploadIndex < currentPhotoLocation.size) {
-                                    uploadVideo()
-                                } else {
-                                    uploadIndex = 0
-                                    currentVideoLocation.clear()
-                                }
-                            } else {
-                                if (thumbId > 0) messageBody.thumbId = thumbId
-                                uploadVideo(messageBody, false, currentVideoLocation[uploadIndex])
-                                imageContainer.hideProgressScreen()
+                            } catch (ex: Exception) {
+                                Timber.d("Video upload failed on error")
+                                uploadIndex = 0
+                                currentVideoLocation.clear()
+                                uploadInProgress = false
                             }
                         }
-                        // update room data
-                    }
-                })
+
+                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                            try {
+                                activity!!.runOnUiThread {
+                                    if (!isThumbnail) {
+                                        if (fileId > 0) messageBody.fileId = fileId
+                                        sendMessage(
+                                            isImage = false,
+                                            isFile = false,
+                                            isVideo = true,
+                                            messageBody.fileId!!,
+                                            messageBody.thumbId!!
+                                        )
+
+                                        // TODO think about changing this... Index changes for other views when removed
+                                        if (imageContainer.childCount > 0) {
+                                            imageContainer.removeViewAt(0)
+                                        }
+                                        uploadIndex++
+                                        if (uploadIndex < currentPhotoLocation.size) {
+                                            uploadVideo()
+                                        } else {
+                                            uploadIndex = 0
+                                            currentVideoLocation.clear()
+                                            uploadInProgress = false
+                                        }
+                                    } else {
+                                        if (thumbId > 0) messageBody.thumbId = thumbId
+                                        uploadVideo(
+                                            messageBody,
+                                            false,
+                                            currentVideoLocation[uploadIndex]
+                                        )
+                                        imageContainer.hideProgressScreen()
+                                    }
+                                }
+                                // update room data
+                            } catch (ex: Exception) {
+                                Timber.d("Video upload failed on verify")
+                                uploadIndex = 0
+                                currentVideoLocation.clear()
+                                uploadInProgress = false
+                            }
+                        }
+                    })
+            } catch (ex: Exception) {
+                uploadIndex = 0
+                currentVideoLocation.clear()
+                uploadInProgress = false
+            }
         }
     }
 
     private fun uploadImage(messageBody: MessageBody, isThumbnail: Boolean, uri: Uri) {
+        uploadInProgress = true
         val inputStream =
             activity!!.contentResolver.openInputStream(uri)
 
@@ -706,85 +777,118 @@ class ChatMessagesFragment : BaseFragment() {
         imageContainer.setMaxProgress(uploadPieces.toInt())
         Timber.d("File upload start")
         CoroutineScope(Dispatchers.IO).launch {
-            uploadDownloadManager.uploadFile(
-                activity!!,
-                uri,
-                Const.JsonFields.IMAGE,
-                Const.JsonFields.AVATAR,
-                uploadPieces,
-                fileStream,
-                isThumbnail,
-                object : FileUploadListener {
-                    override fun filePieceUploaded() {
-                        if (progress <= uploadPieces) {
-                            imageContainer.setUploadProgress(progress)
-                            progress++
-                        } else progress = 0
-                    }
-
-                    override fun fileUploadError(description: String) {
-                        activity!!.runOnUiThread {
-                            if (imageContainer.childCount > 0) {
-                                imageContainer.removeViewAt(0)
-                            }
-                            uploadIndex++
-                            if (uploadIndex < currentPhotoLocation.size) {
-                                uploadImage()
-                            } else {
+            try {
+                uploadDownloadManager.uploadFile(
+                    activity!!,
+                    uri,
+                    Const.JsonFields.IMAGE,
+                    Const.JsonFields.AVATAR,
+                    uploadPieces,
+                    fileStream,
+                    isThumbnail,
+                    object : FileUploadListener {
+                        override fun filePieceUploaded() {
+                            try {
+                                if (progress <= uploadPieces) {
+                                    imageContainer.setUploadProgress(progress)
+                                    progress++
+                                } else progress = 0
+                            } catch (ex: Exception) {
+                                Timber.d("File upload failed on piece")
                                 uploadIndex = 0
                                 currentPhotoLocation.clear()
+                                uploadInProgress = false
                             }
+                        }
 
-                            Toast.makeText(
-                                activity!!.baseContext,
-                                getString(R.string.failed_file_upload),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        override fun fileUploadError(description: String) {
+                            try {
+                                activity!!.runOnUiThread {
+                                    if (imageContainer.childCount > 0) {
+                                        imageContainer.removeViewAt(0)
+                                    }
+                                    uploadIndex++
+                                    if (uploadIndex < currentPhotoLocation.size) {
+                                        uploadImage()
+                                    } else {
+                                        uploadIndex = 0
+                                        currentPhotoLocation.clear()
+                                    }
+
+                                    Toast.makeText(
+                                        activity!!.baseContext,
+                                        getString(R.string.failed_file_upload),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    uploadInProgress = false
 //                            showUploadError(description)
 //                            imageContainer.hideProgressScreen()
-                        }
-                    }
-
-                    override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
-                        activity!!.runOnUiThread {
-                            if (!isThumbnail) {
-                                if (fileId > 0) messageBody.fileId = fileId
-                                sendMessage(
-                                    isImage = true,
-                                    isFile = false,
-                                    isVideo = false,
-                                    messageBody.fileId!!,
-                                    messageBody.thumbId!!
-                                )
-
-                                // TODO think about changing this... Index changes for other views when removed
-                                if (imageContainer.childCount > 0) {
-                                    imageContainer.removeViewAt(0)
                                 }
-                                uploadIndex++
-                                if (uploadIndex < currentPhotoLocation.size) {
-                                    uploadImage()
-                                } else {
-                                    uploadIndex = 0
-                                    currentPhotoLocation.clear()
-                                }
-                            } else {
-                                if (thumbId > 0) messageBody.thumbId = thumbId
-                                uploadImage(messageBody, false, currentPhotoLocation[uploadIndex])
-                                imageContainer.hideProgressScreen()
+                            } catch (ex: Exception) {
+                                Timber.d("File upload failed on error")
+                                uploadIndex = 0
+                                currentPhotoLocation.clear()
+                                uploadInProgress = false
                             }
                         }
-                        // update room data
-                    }
-                })
+
+                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                            try {
+                                activity!!.runOnUiThread {
+                                    if (!isThumbnail) {
+                                        if (fileId > 0) messageBody.fileId = fileId
+                                        sendMessage(
+                                            isImage = true,
+                                            isFile = false,
+                                            isVideo = false,
+                                            messageBody.fileId!!,
+                                            messageBody.thumbId!!
+                                        )
+
+                                        // TODO think about changing this... Index changes for other views when removed
+                                        if (imageContainer.childCount > 0) {
+                                            imageContainer.removeViewAt(0)
+                                        }
+                                        uploadIndex++
+                                        if (uploadIndex < currentPhotoLocation.size) {
+                                            uploadImage()
+                                        } else {
+                                            uploadIndex = 0
+                                            currentPhotoLocation.clear()
+                                            uploadInProgress = false
+                                        }
+                                    } else {
+                                        if (thumbId > 0) messageBody.thumbId = thumbId
+                                        uploadImage(
+                                            messageBody,
+                                            false,
+                                            currentPhotoLocation[uploadIndex]
+                                        )
+                                        imageContainer.hideProgressScreen()
+                                    }
+                                }
+                                // update room data
+                            } catch (ex: Exception) {
+                                Timber.d("File upload failed on verified")
+                                uploadIndex = 0
+                                currentPhotoLocation.clear()
+                                uploadInProgress = false
+                            }
+                        }
+                    })
+            } catch (ex: Exception) {
+                uploadIndex = 0
+                currentPhotoLocation.clear()
+                uploadInProgress = false
+            }
         }
     }
 
-    /*private fun showUploadError(description: String) {
+    private fun showUploadError() {
         DialogError.getInstance(activity!!,
-            getString(R.string.error),
-            getString(R.string.image_failed_upload, description),
-            null,
+            getString(R.string.warning),
+            getString(R.string.upload_in_progress),
+            getString(R.string.back),
             getString(R.string.ok),
             object : DialogInteraction {
                 override fun onFirstOptionClicked() {
@@ -792,10 +896,14 @@ class ChatMessagesFragment : BaseFragment() {
                 }
 
                 override fun onSecondOptionClicked() {
-                    // ignore
+                    // Update room visited
+                    roomWithUsers.room.visitedRoom = System.currentTimeMillis()
+                    viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
+                    //
+                    activity!!.finish()
                 }
             })
-    }*/
+    }
 
     private fun displayFileInContainer(uri: Uri) {
         val imageSelected = ImageSelectedContainer(activity!!, null)
@@ -893,5 +1001,12 @@ class ChatMessagesFragment : BaseFragment() {
         // Create thumbnail for the image which will also be sent to the backend
         thumbnailUris.add(thumbnailUri)
         currentPhotoLocation.add(bitmapUri)
+    }
+
+    override fun onBackPressed(): Boolean {
+        return if (uploadInProgress) {
+            showUploadError()
+            false
+        } else true
     }
 }

@@ -66,8 +66,10 @@
     <string name="take_photo">Take Photo</string>
     <string name="action">Action</string>
     <string name="error">Error</string>
+    <string name="upload_in_progress">There is an upload in progress. If you leave the screen the upload will automatically fail.</string>
     <string name="image_failed_upload">Image could not be uploaded. Try again or continue without image. %s</string>
     <string name="ok">Ok</string>
+    <string name="back">Back</string>
     <string name="failed_user_data">Failed to load user data.</string>
     <string name="failed_user_image">Failed to load user image.</string>
     <string name="placeholder_time">2 min ago</string>
