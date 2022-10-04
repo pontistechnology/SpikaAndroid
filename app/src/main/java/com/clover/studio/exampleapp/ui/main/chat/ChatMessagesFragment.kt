@@ -136,14 +136,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
-        initViews()
         setUpAdapter()
+        initViews()
         initializeObservers()
         checkIsUserAdmin()
 
         return bindingSetup.root
     }
-
     private fun setAvatarAndName(avatarUrl: String, userName: String) {
         bindingSetup.tvChatName.text = userName
         Glide.with(this)
@@ -417,7 +416,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
             endToStart = bindingSetup.ivButtonSend.id
         }
-        bindingSetup.ivAdd.rotation = ROTATION_ON
+        bindingSetup.ivAdd.rotation = ROTATION_OFF
     }
 
     private fun sendMessage() {

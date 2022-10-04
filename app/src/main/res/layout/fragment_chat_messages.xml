@@ -9,6 +9,7 @@
     app:contentInsetEnd="0dp"
     app:contentInsetStart="0dp"
     app:layout_dodgeInsetEdges="bottom"
+    android:fitsSystemWindows="true"
     tools:context=".ui.main.chat.ChatMessagesFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -177,7 +178,9 @@
                 android:id="@+id/et_message"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/eight_dp_margin"
+                app:emojiSize="20sp"
+                android:textColor="@android:color/black"
+                android:layout_marginStart="@dimen/ten_dp_margin"
                 android:background="@null"
                 android:fontFamily="@font/montserrat"
                 android:hint="@string/type_here"
@@ -191,6 +194,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.434" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
