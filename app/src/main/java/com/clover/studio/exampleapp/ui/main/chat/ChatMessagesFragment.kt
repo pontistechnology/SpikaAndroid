@@ -127,8 +127,8 @@ class ChatMessagesFragment : BaseFragment() {
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
 
-        setUpAdapter()
         initViews()
+        setUpAdapter()
         initializeObservers()
         checkIsUserAdmin()
 
@@ -894,10 +894,4 @@ class ChatMessagesFragment : BaseFragment() {
         thumbnailUris.add(thumbnailUri)
         currentPhotoLocation.add(bitmapUri)
     }
-
-    override fun onResume() {
-        super.onResume()
-        bindingSetup.rvChat.scrollToPosition(0)
-    }
-
 }
