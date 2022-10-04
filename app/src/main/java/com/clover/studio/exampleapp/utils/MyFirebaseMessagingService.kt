@@ -74,12 +74,23 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 // TODO and crashing the app when receiving notification in background
 //                chatRepo.sendMessageDelivered(messageObject)
 
+                // TODO
+                val title: String
+                val content: String
+                /*if (response.groupName.isEmpty()){
+                    title = response.userName
+                    content = response.message.body?.text.toString()
+                } else{
+                    title = response.groupName
+                    content = response.userName + ": " + response.message.body?.text.toString()
+                }*/
+
                 // Filter message if its from my user, don't show notification for it
                 if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId) {
                     val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                         .setSmallIcon(R.drawable.img_spika_logo)
-                        .setContentTitle(getString(R.string.new_message))
-                        .setContentText(response.message.body?.text)
+                        .setContentTitle(response.userName)
+                        .setContentText(response.message.body?.text.toString())
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                     with(NotificationManagerCompat.from(baseContext)) {
                         // notificationId is a unique int for each notification that you must define
