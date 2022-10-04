@@ -214,15 +214,9 @@ class ChatMessagesFragment : BaseFragment() {
     private fun setUpAdapter() {
         chatAdapter = ChatAdapter(context!!, viewModel.getLocalUserId()!!, roomWithUsers.users)
         bindingSetup.rvChat.adapter = chatAdapter
-        bindingSetup.rvChat.layoutManager =
-            LinearLayoutManager(context, RecyclerView.VERTICAL, true)
-
-        //
-        bindingSetup.rvChat.layoutManager?.smoothScrollToPosition(
-            bindingSetup.rvChat,
-            null,
-            0
-        )
+        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
+        layoutManager.stackFromEnd = true
+        bindingSetup.rvChat.layoutManager = layoutManager
 
         // Add callback for item swipe handling
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
