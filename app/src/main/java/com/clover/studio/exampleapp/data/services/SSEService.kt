@@ -12,6 +12,7 @@ interface SSEService {
     @GET(Const.Networking.API_SYNC_MESSAGES)
     suspend fun syncMessages(
         @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long
     ): MessageResponse
 
     @GET(Const.Networking.API_SYNC_MESSAGE_RECORDS)

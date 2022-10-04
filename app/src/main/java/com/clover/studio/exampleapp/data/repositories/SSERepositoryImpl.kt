@@ -18,6 +18,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class SSERepositoryImpl @Inject constructor(
@@ -30,6 +31,7 @@ class SSERepositoryImpl @Inject constructor(
     private val userDao: UserDao
 ) : SSERepository {
     override suspend fun syncMessageRecords() {
+        Timber.d("Syncing message records")
         var messageRecordsTimestamp = System.currentTimeMillis()
         if (messageRecordsDao.getMessageRecordsLocally().isNotEmpty()) {
             messageRecordsTimestamp =
@@ -50,10 +52,17 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncMessages() {
+        Timber.d("Syncing messages")
+        var messageTimestamp = System.currentTimeMillis()
+        if (messageDao.getMessagesLocally().isNotEmpty()) {
+            messageTimestamp =
+                messageDao.getMessagesLocally().last().createdAt!!
+        }
         val messageIds = ArrayList<Int>()
         val response =
             sseService.syncMessages(
-                Tools.getHeaderMap(sharedPrefs.readToken())
+                Tools.getHeaderMap(sharedPrefs.readToken()),
+                messageTimestamp
             )
 
         val messages: MutableList<Message> = ArrayList()
@@ -72,6 +81,7 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncUsers() {
+        Timber.d("Syncing users")
         var userTimestamp = System.currentTimeMillis()
 
         if (userDao.getUsersLocally().isNotEmpty()) {
@@ -94,6 +104,7 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncRooms() {
+        Timber.d("Syncing rooms")
         var roomTimestamp = System.currentTimeMillis()
 
         if (chatRoomDao.getRoomsLocally().isNotEmpty()) {
@@ -141,7 +152,7 @@ class SSERepositoryImpl @Inject constructor(
         messageDao.insert(message)
     }
 
-    override suspend fun deleteMessage(message: Message){
+    override suspend fun deleteMessage(message: Message) {
         messageDao.deleteMessage(message)
     }
 

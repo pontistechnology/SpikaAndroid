@@ -94,7 +94,7 @@ class Const {
     class Networking {
         companion object {
             // Sync Data
-            const val API_SYNC_MESSAGES = "api/messenger/messages/sync"
+            const val API_SYNC_MESSAGES = "api/messenger/messages/sync/{lastUpdate}"
             const val API_SYNC_MESSAGE_RECORDS = "api/messenger/message-records/sync/{lastUpdate}"
             const val API_SYNC_USERS = "api/messenger/users/sync/{lastUpdate}"
             const val API_SYNC_ROOMS = "api/messenger/rooms/sync/{lastUpdate}"
