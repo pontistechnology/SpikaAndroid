@@ -77,20 +77,21 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 // TODO
                 val title: String
                 val content: String
-                /*if (response.groupName.isEmpty()){
-                    title = response.userName
+                if (response.message.groupName?.isEmpty() == true) {
+                    title = response.message.userName
                     content = response.message.body?.text.toString()
-                } else{
-                    title = response.groupName
-                    content = response.userName + ": " + response.message.body?.text.toString()
-                }*/
+                } else {
+                    title = response.message.groupName.toString()
+                    content =
+                        response.message.userName + ": " + response.message.body?.text.toString()
+                }
 
                 // Filter message if its from my user, don't show notification for it
                 if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId) {
                     val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                         .setSmallIcon(R.drawable.img_spika_logo)
-                        .setContentTitle(response.userName)
-                        .setContentText(response.message.body?.text.toString())
+                        .setContentTitle(title)
+                        .setContentText(content)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                     with(NotificationManagerCompat.from(baseContext)) {
                         // notificationId is a unique int for each notification that you must define

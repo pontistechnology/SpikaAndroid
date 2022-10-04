@@ -5,7 +5,7 @@ import com.clover.studio.exampleapp.data.AppDatabase
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_MESSAGE)
-data class Message(
+data class Message @JvmOverloads constructor(
 
     @PrimaryKey
     @ColumnInfo(name = AppDatabase.TablesInfo.ID)
@@ -50,7 +50,15 @@ data class Message(
 
     @SerializedName("createdAt")
     @ColumnInfo(name = "created_at")
-    val createdAt: Long?
+    val createdAt: Long?,
+
+    // Two field below are used for firebase messaging and are not needed in the local db
+    @Ignore
+    @SerializedName("fromUserName")
+    val userName: String = "",
+
+    @Ignore
+    val groupName: String? = ""
 )
 
 data class MessageBody(
