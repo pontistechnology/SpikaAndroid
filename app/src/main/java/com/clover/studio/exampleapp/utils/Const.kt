@@ -158,6 +158,12 @@ class Const {
             const val DEVICE_ID = "deviceId"
             const val COUNTRY_CODE = "countryCode"
             const val REGISTERED = "registered"
+
+            // Sync
+            const val MESSAGE_RECORD_SYNC = "message_record_sync"
+            const val MESSAGE_SYNC = "message_sync"
+            const val USER_SYNC = "user_sync"
+            const val ROOM_SYNC = "room_sync"
         }
     }
 
