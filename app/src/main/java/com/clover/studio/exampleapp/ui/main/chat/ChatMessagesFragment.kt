@@ -681,7 +681,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                         imageContainer.removeViewAt(0)
                                     }
                                     uploadIndex++
-                                    if (uploadIndex < currentPhotoLocation.size) {
+                                    if (uploadIndex < currentVideoLocation.size) {
                                         uploadVideo()
                                     } else {
                                         uploadIndex = 0
@@ -718,12 +718,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                             messageBody.thumbId!!
                                         )
 
+                                        imageContainer.hideProgressScreen()
                                         // TODO think about changing this... Index changes for other views when removed
                                         if (imageContainer.childCount > 0) {
                                             imageContainer.removeViewAt(0)
                                         }
                                         uploadIndex++
-                                        if (uploadIndex < currentPhotoLocation.size) {
+                                        if (uploadIndex < currentVideoLocation.size) {
                                             uploadVideo()
                                         } else {
                                             uploadIndex = 0
@@ -737,7 +738,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                             false,
                                             currentVideoLocation[uploadIndex]
                                         )
-                                        imageContainer.hideProgressScreen()
                                     }
                                 }
                                 // update room data
@@ -845,6 +845,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                             messageBody.thumbId!!
                                         )
 
+                                        imageContainer.hideProgressScreen()
                                         // TODO think about changing this... Index changes for other views when removed
                                         if (imageContainer.childCount > 0) {
                                             imageContainer.removeViewAt(0)
@@ -864,7 +865,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                             false,
                                             currentPhotoLocation[uploadIndex]
                                         )
-                                        imageContainer.hideProgressScreen()
                                     }
                                 }
                                 // update room data
@@ -943,9 +943,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun convertVideo(videoUri: Uri) {
         val mmr = MediaMetadataRetriever()
         mmr.setDataSource(context, videoUri)
-        val bitMap = mmr.frameAtTime
+        val bitmap = mmr.frameAtTime
 
-        var height = bitMap?.height
+        var height = bitmap?.height
         if (height != null) {
             if (height > THUMBNAIL_HEIGHT) {
                 height = THUMBNAIL_HEIGHT
@@ -955,7 +955,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         Tools.videoHeight = height!!
 
         val imageSelected = ImageSelectedContainer(activity!!, null)
-        bitMap.let { imageBitmap -> imageSelected.setImage(imageBitmap!!) }
+        bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap!!) }
         bindingSetup.llImagesContainer.addView(imageSelected)
 
         activity!!.runOnUiThread { showSendButton() }
@@ -966,8 +966,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
             }
         })
+        val thumbnail =
+            ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
+        val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
 
-        thumbnailUris.add(videoUri)
+        thumbnailUris.add(thumbnailUri)
         currentVideoLocation.add(videoUri)
     }
 
