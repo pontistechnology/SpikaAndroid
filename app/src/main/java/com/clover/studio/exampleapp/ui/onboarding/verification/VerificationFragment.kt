@@ -111,11 +111,13 @@ class VerificationFragment : BaseFragment() {
                 OnboardingStates.CODE_VERIFIED -> {
                     binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
                     binding.ivCheckmark.visibility = View.VISIBLE
+                    viewModel.writeFirstAppStart()
                     goToMainActivity()
                 }
                 OnboardingStates.CODE_VERIFIED_NEW_USER -> {
                     binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
                     binding.ivCheckmark.visibility = View.VISIBLE
+                    viewModel.writeFirstAppStart()
                     goToAccountCreation()
                 }
                 OnboardingStates.CODE_ERROR -> {
