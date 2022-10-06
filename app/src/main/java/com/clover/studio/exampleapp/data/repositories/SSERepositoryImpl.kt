@@ -10,6 +10,7 @@ import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageRecords
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
+import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate
 import com.clover.studio.exampleapp.data.services.SSEService
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
@@ -33,9 +34,9 @@ class SSERepositoryImpl @Inject constructor(
     override suspend fun syncMessageRecords() {
         Timber.d("Syncing message records")
         var messageRecordsTimestamp = System.currentTimeMillis()
-        if (messageRecordsDao.getMessageRecordsLocally().isNotEmpty()) {
+        if (sharedPrefs.readMessageRecordTimestamp() != 0L) {
             messageRecordsTimestamp =
-                messageRecordsDao.getMessageRecordsLocally().last().createdAt
+                sharedPrefs.readMessageRecordTimestamp()!!
         }
 
         val response =
@@ -49,14 +50,17 @@ class SSERepositoryImpl @Inject constructor(
             messageRecords.add(record)
         }
         messageRecordsDao.insert(messageRecords)
+
+        if (messageRecords.isNotEmpty())
+            sharedPrefs.writeMessageRecordTimestamp(messageRecords.maxByOrNull { it.createdAt }!!.createdAt)
     }
 
     override suspend fun syncMessages() {
         Timber.d("Syncing messages")
         var messageTimestamp = System.currentTimeMillis()
-        if (messageDao.getMessagesLocally().isNotEmpty()) {
+        if (sharedPrefs.readMessageTimestamp() != 0L) {
             messageTimestamp =
-                messageDao.getMessagesLocally().last().createdAt!!
+                sharedPrefs.readMessageTimestamp()!!
         }
         val messageIds = ArrayList<Int>()
         val response =
@@ -77,6 +81,13 @@ class SSERepositoryImpl @Inject constructor(
                 Tools.getHeaderMap(sharedPrefs.readToken()),
                 getMessageIdJson(messageIds)
             )
+
+            if (messages.isNotEmpty())
+                messages.maxByOrNull { it.createdAt!! }?.createdAt?.let {
+                    sharedPrefs.writeMessageTimestamp(
+                        it
+                    )
+                }
         }
     }
 
@@ -84,8 +95,9 @@ class SSERepositoryImpl @Inject constructor(
         Timber.d("Syncing users")
         var userTimestamp = System.currentTimeMillis()
 
-        if (userDao.getUsersLocally().isNotEmpty()) {
-            userTimestamp = userDao.getUsersLocally().last().createdAt?.toLong()!!
+        if (sharedPrefs.readUserTimestamp() != 0L) {
+            userTimestamp =
+                sharedPrefs.readUserTimestamp()!!
         }
 
         val response =
@@ -100,42 +112,62 @@ class SSERepositoryImpl @Inject constructor(
                 users.add(user)
             }
             userDao.insert(users)
+
+            if (users.isNotEmpty())
+                users.maxByOrNull { it.createdAt!! }?.createdAt?.let {
+                    sharedPrefs.writeUserTimestamp(
+                        it.toLong()
+                    )
+                }
         }
     }
 
     override suspend fun syncRooms() {
         Timber.d("Syncing rooms")
-        var roomTimestamp = System.currentTimeMillis()
+        var roomTimestamp = 0L
 
-        if (chatRoomDao.getRoomsLocally().isNotEmpty()) {
-            roomTimestamp = chatRoomDao.getRoomsLocally().last().createdAt!!
-        }
+        roomTimestamp = sharedPrefs.readRoomTimestamp()!!
 
         val response = sseService.syncRooms(
             Tools.getHeaderMap(sharedPrefs.readToken()),
             roomTimestamp
         )
 
-        appDatabase.runInTransaction {
-            CoroutineScope(Dispatchers.IO).launch {
-                if (response.data?.rooms?.isNotEmpty() == true) {
-                    val messagesList: MutableList<Message> = ArrayList()
-                    for (room in response.data.rooms) {
-                        val oldData = chatRoomDao.getRoomById(room.roomId)
-                        chatRoomDao.updateRoomTable(oldData, room)
+        CoroutineScope(Dispatchers.IO).launch {
+            appDatabase.runInTransaction {
+                CoroutineScope(Dispatchers.IO).launch {
+                    if (response.data?.rooms != null) {
+                        val users: MutableList<User> = ArrayList()
+                        val rooms: MutableList<ChatRoom> = ArrayList()
+                        val roomUsers: MutableList<RoomUser> = ArrayList()
+                        val chatRooms: MutableList<ChatRoomUpdate> = ArrayList()
+                        for (room in response.data.rooms) {
+                            val oldData = chatRoomDao.getRoomById(room.roomId)
+                            chatRooms.add(ChatRoomUpdate(oldData, room))
+                            rooms.add(room)
 
-                        val messages = sseService.getMessagesForRooms(
-                            Tools.getHeaderMap(sharedPrefs.readToken()),
-                            room.roomId.toString()
-                        )
-
-                        if (messages.data?.list?.isNotEmpty() == true) {
-                            for (message in messages.data.list) {
-                                messagesList.add(message)
+                            for (user in room.users) {
+                                user.user?.let { users.add(it) }
+                                roomUsers.add(
+                                    RoomUser(
+                                        room.roomId,
+                                        user.userId,
+                                        user.isAdmin
+                                    )
+                                )
                             }
                         }
+                        chatRoomDao.updateRoomTable(chatRooms)
+                        userDao.insert(users)
+                        chatRoomDao.insertRoomWithUsers(roomUsers)
+
+                        if (rooms.isNotEmpty())
+                            rooms.maxByOrNull { it.createdAt!! }?.createdAt?.let {
+                                sharedPrefs.writeRoomTimestamp(
+                                    it
+                                )
+                            }
                     }
-                    messageDao.insert(messagesList)
                 }
             }
         }

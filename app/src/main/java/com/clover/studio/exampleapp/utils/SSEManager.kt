@@ -50,9 +50,10 @@ class SSEManager @Inject constructor(
                     Timber.d("Syncing data")
                     repo.syncMessageRecords()
                     repo.syncMessages()
-                    repo.syncUsers()
-                    repo.syncRooms()
                 }
+
+                repo.syncUsers()
+                repo.syncRooms()
 
                 // Fetch local timestamps for syncing later. This will handle potential missing data
                 // in between calls. After this, open the connection to the SSE

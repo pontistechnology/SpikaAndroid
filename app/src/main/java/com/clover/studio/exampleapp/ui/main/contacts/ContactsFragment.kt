@@ -136,6 +136,6 @@ class ContactsFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.getContacts()
+//        viewModel.getContacts()
     }
 }

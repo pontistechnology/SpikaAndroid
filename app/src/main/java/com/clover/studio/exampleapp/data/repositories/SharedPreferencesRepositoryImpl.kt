@@ -92,6 +92,46 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun isFirstSSELaunch(): Boolean =
         getPrefs().getBoolean(Const.PrefsData.DATA_SYNCED, true)
 
+    override suspend fun writeMessageRecordTimestamp(messageRecordTimestamp: Long) {
+        with(getPrefs().edit()) {
+            putLong(Const.PrefsData.MESSAGE_RECORD_SYNC, messageRecordTimestamp)
+            commit()
+        }
+    }
+
+    override suspend fun readMessageRecordTimestamp(): Long =
+        getPrefs().getLong(Const.PrefsData.MESSAGE_RECORD_SYNC, 0)
+
+    override suspend fun writeMessageTimestamp(messageTimestamp: Long) {
+        with(getPrefs().edit()) {
+            putLong(Const.PrefsData.MESSAGE_SYNC, messageTimestamp)
+            commit()
+        }
+    }
+
+    override suspend fun readMessageTimestamp(): Long =
+        getPrefs().getLong(Const.PrefsData.MESSAGE_SYNC, 0)
+
+    override suspend fun writeUserTimestamp(userTimestamp: Long) {
+        with(getPrefs().edit()) {
+            putLong(Const.PrefsData.USER_SYNC, userTimestamp)
+            commit()
+        }
+    }
+
+    override suspend fun readUserTimestamp(): Long =
+        getPrefs().getLong(Const.PrefsData.USER_SYNC, 0)
+
+    override suspend fun writeRoomTimestamp(roomTimestamp: Long) {
+        with(getPrefs().edit()) {
+            putLong(Const.PrefsData.ROOM_SYNC, roomTimestamp)
+            commit()
+        }
+    }
+
+    override suspend fun readRoomTimestamp(): Long =
+        getPrefs().getLong(Const.PrefsData.ROOM_SYNC, 0)
+
     override suspend fun writeFirstAppStart(firstAppStart: Boolean) {
         with(getPrefs().edit()) {
             putBoolean(
@@ -160,6 +200,16 @@ interface SharedPreferencesRepository {
     suspend fun writeFirstSSELaunch()
     suspend fun isFirstSSELaunch(): Boolean
 
+    // Sync
+    suspend fun writeMessageRecordTimestamp(messageRecordTimestamp: Long)
+    suspend fun readMessageRecordTimestamp(): Long?
+    suspend fun writeMessageTimestamp(messageTimestamp: Long)
+    suspend fun readMessageTimestamp(): Long?
+    suspend fun writeUserTimestamp(userTimestamp: Long)
+    suspend fun readUserTimestamp(): Long?
+    suspend fun writeRoomTimestamp(roomTimestamp: Long)
+    suspend fun readRoomTimestamp(): Long?
+
     suspend fun writeFirstAppStart(firstAppStart: Boolean)
     suspend fun isFirstAppStart(): Boolean
 
@@ -170,5 +220,4 @@ interface SharedPreferencesRepository {
 
     suspend fun writeRegistered(registeredFlag: Boolean)
     suspend fun readRegistered(): Boolean
-
 }
