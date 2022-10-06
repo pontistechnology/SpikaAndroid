@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.children
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -32,11 +33,13 @@ import java.util.*
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
+private var REACTION = ""
 
 class ChatAdapter(
     private val context: Context,
     private val myUserId: Int,
-    private val users: List<User>
+    private val users: List<User>,
+    private val onItemLongClick: ((reaction: String) -> Unit)
 ) :
     ListAdapter<Message, RecyclerView.ViewHolder>(MessageDiffCallback()) {
 
@@ -348,6 +351,26 @@ class ChatAdapter(
                     }
                 }
 
+                if (holder.binding.tvReactedEmoji.text.isNotEmpty()) {
+                    holder.binding.cvReactions.visibility = View.VISIBLE
+                }
+
+                holder.binding.clContainer.setOnLongClickListener { _ ->
+                    holder.binding.cvEmoji.visibility = View.VISIBLE
+
+                    //holder.binding.cvMessageOptions.visibility = View.VISIBLE
+                    //holder.binding.vTransparentMessages.visibility = View.VISIBLE
+
+                    holder.binding.clContainer.bringToFront()
+
+                    listeners(holder)
+                    it.let {
+                        onItemLongClick.invoke(REACTION)
+                    }
+
+                    true
+                }
+
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it)
 
                 if (position > 0) {
@@ -381,6 +404,44 @@ class ChatAdapter(
             }
         }
     }
+
+    private fun listeners(holder: ReceivedMessageHolder) {
+        holder.binding.clEmoji.children.forEach { child ->
+            child.setOnClickListener {
+                when (child) {
+                    holder.binding.tvThumbsUpEmoji -> {
+                        holder.binding.tvReactedEmoji.text =
+                            context.getString(R.string.thumbs_up_emoji)
+                        REACTION = "thumbs"
+                    }
+                    holder.binding.tvHeartEmoji -> {
+                        holder.binding.tvReactedEmoji.text =
+                            context.getString(R.string.heart_emoji)
+                        REACTION = "heart"
+                    }
+                    holder.binding.tvCryingEmoji -> {
+                        holder.binding.tvReactedEmoji.text =
+                            context.getString(R.string.crying_face_emoji)
+                    }
+                    holder.binding.tvAstonishedEmoji -> {
+                        holder.binding.tvReactedEmoji.text =
+                            context.getString(R.string.astonished_emoji)
+                    }
+                    holder.binding.tvDisappointedRelievedEmoji -> {
+                        holder.binding.tvReactedEmoji.text =
+                            context.getString(R.string.disappointed_relieved_emoji)
+                    }
+                    holder.binding.tvPrayingHandsEmoji -> {
+                        holder.binding.tvReactedEmoji.text =
+                            context.getString(R.string.praying_hands_emoji)
+                    }
+                }
+                holder.binding.cvReactions.visibility = View.VISIBLE
+                holder.binding.cvEmoji.visibility = View.GONE
+            }
+        }
+    }
+
 
     private fun addFiles(message: Message, ivFileType: ImageView) {
         when (message.body?.file?.fileName?.substringAfterLast(".")) {

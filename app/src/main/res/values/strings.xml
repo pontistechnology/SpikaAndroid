@@ -115,5 +115,21 @@
     <string name="no">No</string>
     <string name="room_delete_admin_error">Only admins can delete conversations.</string>
 
+    <!--Emoji-->
+    <string name="thumbs_up_emoji">&#128077;</string>
+    <string name="praying_hands_emoji">&#128591;&#127996;</string>
+    <string name="crying_face_emoji">&#128514;</string>
+    <string name="heart_emoji">&#128153;</string>
+    <string name="astonished_emoji">&#128558;</string>
+    <string name="disappointed_relieved_emoji">&#128549;</string>
+
+    <!--Message options-->
+    <string name="reply">Reply</string>
+    <string name="forward">Forward</string>
+    <string name="copy">Copy</string>
+    <string name="details">Details</string>
+    <string name="favorite">Favorite</string>
+    <string name="delete">Delete</string>
+
 
 </resources>
