@@ -221,7 +221,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun setUpAdapter() {
-        chatAdapter = ChatAdapter(context!!, viewModel.getLocalUserId()!!, roomWithUsers.users)
+        chatAdapter = ChatAdapter(context!!, viewModel.getLocalUserId()!!, roomWithUsers.users){
+            addMessageReaction(it)
+        }
         bindingSetup.rvChat.adapter = chatAdapter
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         layoutManager.stackFromEnd = true
@@ -260,6 +262,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // Update room visited
         roomWithUsers.room.visitedRoom = System.currentTimeMillis()
         viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
+    }
+
+    private fun addMessageReaction(reaction: String) {
+        // Message
+        Timber.d("message: $reaction")
     }
 
     private fun initViews() {

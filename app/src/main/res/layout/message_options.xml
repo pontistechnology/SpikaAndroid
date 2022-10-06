@@ -20,7 +20,7 @@
             android:layout_marginTop="@dimen/eight_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/forward"
-            app:layout_constraintStart_toEndOf="@+id/iv_forward"
+            app:layout_constraintStart_toEndOf="@+id/imageView3"
             app:layout_constraintTop_toBottomOf="@+id/tv_reply" />
 
         <TextView
@@ -31,7 +31,7 @@
             android:layout_marginTop="@dimen/eight_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/reply"
-            app:layout_constraintStart_toEndOf="@+id/iv_reply"
+            app:layout_constraintStart_toEndOf="@+id/imageView2"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -42,7 +42,7 @@
             android:layout_marginTop="@dimen/eight_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/copy"
-            app:layout_constraintStart_toEndOf="@+id/iv_copy"
+            app:layout_constraintStart_toEndOf="@+id/imageView4"
             app:layout_constraintTop_toBottomOf="@+id/tv_forward" />
 
         <TextView
@@ -53,7 +53,7 @@
             android:layout_marginTop="@dimen/eight_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/details"
-            app:layout_constraintStart_toEndOf="@+id/iv_details"
+            app:layout_constraintStart_toEndOf="@+id/imageView5"
             app:layout_constraintTop_toBottomOf="@+id/tv_copy" />
 
         <TextView
@@ -64,7 +64,7 @@
             android:layout_marginTop="@dimen/eight_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/favorite"
-            app:layout_constraintStart_toEndOf="@+id/iv_favorite"
+            app:layout_constraintStart_toEndOf="@+id/imageView6"
             app:layout_constraintTop_toBottomOf="@+id/tv_details" />
 
         <TextView
@@ -76,11 +76,11 @@
             android:fontFamily="@font/montserrat"
             android:text="@string/delete"
             android:textColor="@color/style_red"
-            app:layout_constraintStart_toEndOf="@+id/iv_delete"
+            app:layout_constraintStart_toEndOf="@+id/imageView"
             app:layout_constraintTop_toBottomOf="@+id/tv_favorite" />
 
         <ImageView
-            android:id="@+id/iv_delete"
+            android:id="@+id/imageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
@@ -90,7 +90,7 @@
             app:srcCompat="@drawable/ic_delete_24px" />
 
         <ImageView
-            android:id="@+id/iv_reply"
+            android:id="@+id/imageView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
@@ -100,7 +100,7 @@
             app:srcCompat="@drawable/ic_forward_24px" />
 
         <ImageView
-            android:id="@+id/iv_forward"
+            android:id="@+id/imageView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
@@ -111,7 +111,7 @@
             app:srcCompat="@drawable/ic_forward_24px" />
 
         <ImageView
-            android:id="@+id/iv_copy"
+            android:id="@+id/imageView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
@@ -121,7 +121,7 @@
             app:srcCompat="@drawable/ic_content_copy_24px" />
 
         <ImageView
-            android:id="@+id/iv_details"
+            android:id="@+id/imageView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
@@ -131,7 +131,7 @@
             app:srcCompat="@drawable/ic_info_24px" />
 
         <ImageView
-            android:id="@+id/iv_favorite"
+            android:id="@+id/imageView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
