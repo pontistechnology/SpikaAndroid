@@ -153,10 +153,10 @@ class RoomsFragment : BaseFragment() {
             activity?.let { parent -> startChatScreenActivity(parent, roomData) }
         }
 
+        binding.rvRooms.itemAnimator = null
         binding.rvRooms.adapter = roomsAdapter
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         binding.rvRooms.layoutManager = layoutManager
-
     }
 
     override fun onResume() {
