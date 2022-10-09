@@ -54,6 +54,7 @@ import javax.inject.Inject
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
 private const val THUMBNAIL_HEIGHT = 256
+private const val THUMBNAIL_WIDTH = 256
 
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
@@ -917,7 +918,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-
         imageSelected.setFile(cr.getType(uri)!!, fileName)
         imageSelected.setButtonListener(object : ImageSelectedContainer.RemoveImageSelected {
             override fun removeImage() {
@@ -945,15 +945,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         mmr.setDataSource(context, videoUri)
         val bitmap = mmr.frameAtTime
 
-        var height = bitmap?.height
-        if (height != null) {
-            if (height > THUMBNAIL_HEIGHT) {
-                height = THUMBNAIL_HEIGHT
-            }
-        }
-
-        Tools.videoHeight = height!!
-
         val imageSelected = ImageSelectedContainer(activity!!, null)
         bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap!!) }
         bindingSetup.llImagesContainer.addView(imageSelected)
@@ -978,12 +969,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val bitmap =
             Tools.handleSamplingAndRotationBitmap(activity!!, imageUri)
         val bitmapUri = Tools.convertBitmapToUri(activity!!, bitmap!!)
-
-        var height = bitmap.height
-        if (height > THUMBNAIL_HEIGHT) {
-            height = THUMBNAIL_HEIGHT
-        }
-        Tools.pictureHeight = height
 
         val imageSelected = ImageSelectedContainer(context!!, null)
         bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }

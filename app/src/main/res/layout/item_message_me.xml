@@ -31,13 +31,13 @@
                 android:id="@+id/cv_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sixty_four_dp"
+                android:layout_marginTop="@dimen/eight_dp_margin"
+                android:layout_marginEnd="@dimen/twenty_four_dp_margin"
+                android:layout_marginBottom="@dimen/eight_dp_margin"
                 android:padding="@dimen/ten_dp_margin"
                 android:visibility="gone"
                 app:cardCornerRadius="8dp"
-                android:layout_marginStart="@dimen/sixty_four_dp"
-                android:layout_marginEnd="@dimen/twenty_four_dp_margin"
-                android:layout_marginTop="@dimen/eight_dp_margin"
-                android:layout_marginBottom="@dimen/eight_dp_margin"
                 app:layout_constrainedHeight="true"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -60,7 +60,6 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.cardview.widget.CardView>
 
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_videos"
                 android:layout_width="wrap_content"
@@ -74,14 +73,18 @@
                 <ImageView
                     android:id="@+id/iv_play_button"
                     android:layout_width="78dp"
-                    android:layout_height="64dp"
+                    android:layout_height="78dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
                     android:adjustViewBounds="true"
                     android:elevation="4dp"
                     app:layout_constraintBottom_toBottomOf="@+id/cv_video"
                     app:layout_constraintEnd_toEndOf="@+id/cv_video"
                     app:layout_constraintStart_toStartOf="@+id/cv_video"
                     app:layout_constraintTop_toTopOf="@+id/cv_video"
-                    app:srcCompat="@drawable/ic_baseline_play_circle_filled_24" />
+                    app:srcCompat="@drawable/ic_baseline_videocam_24" />
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cv_video"
@@ -92,7 +95,6 @@
                     android:layout_marginEnd="@dimen/twenty_four_dp_margin"
                     android:layout_marginBottom="8dp"
                     android:padding="@dimen/ten_dp_margin"
-                    android:visibility="visible"
                     app:cardCornerRadius="8dp"
                     app:layout_constrainedHeight="true"
                     app:layout_constrainedWidth="true"
@@ -107,7 +109,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
-                        android:visibility="visible"
+                        app:layout_constrainedHeight="true"
+                        app:layout_constrainedWidth="true"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

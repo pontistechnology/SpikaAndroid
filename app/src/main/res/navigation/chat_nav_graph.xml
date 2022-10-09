@@ -49,22 +49,26 @@
         tools:layout="@layout/fragment_chat_messages" >
         <action
             android:id="@+id/action_chatMessagesFragment2_to_videoFragment2"
-            app:destination="@id/videoFragment" />
+            app:destination="@id/mediaFragment" />
         <action
             android:id="@+id/action_chatMessagesFragment_to_chatDetailsFragment"
             app:destination="@id/chatDetailsFragment" />
     </fragment>
     <fragment
-        android:id="@+id/videoFragment"
-        android:name="com.clover.studio.exampleapp.ui.main.chat.VideoFragment"
-        android:label="fragment_video"
-        tools:layout="@layout/fragment_video" >
+        android:id="@+id/mediaFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.chat.MediaFragment"
+        android:label="fragment_media"
+        tools:layout="@layout/fragment_media">
         <argument
             android:name="videoPath"
-            app:argType="string"
-            android:defaultValue="null" />
+            android:defaultValue="null"
+            app:argType="string" />
         <action
             android:id="@+id/action_videoFragment_to_chatMessagesFragment"
             app:destination="@id/chatMessagesFragment" />
+        <argument
+            android:name="picturePath"
+            android:defaultValue="null"
+            app:argType="string" />
     </fragment>
 </navigation>

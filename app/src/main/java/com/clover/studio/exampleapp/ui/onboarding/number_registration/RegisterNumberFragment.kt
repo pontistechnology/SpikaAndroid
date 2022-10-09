@@ -113,6 +113,7 @@ class RegisterNumberFragment : BaseFragment() {
                     )
 
                     viewModel.registerFlag(true)
+                    viewModel.writeFirstAppStart()
                     findNavController().navigate(
                         R.id.action_splashFragment_to_verificationFragment, bundle
                     )

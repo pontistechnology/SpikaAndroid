@@ -21,7 +21,8 @@
         android:theme="@style/Theme.ExampleApp">
         <activity
             android:name=".ui.main.chat.ChatScreenActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".ui.splash.SplashActivity"
             android:exported="true"
