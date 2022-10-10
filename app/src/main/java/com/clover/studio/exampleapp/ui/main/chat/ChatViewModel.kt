@@ -140,6 +140,28 @@ class ChatViewModel @Inject constructor(
             }
         }
     }
+
+    fun muteRoom(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.muteRoom(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun unmuteRoom(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.unmuteRoom(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
 }
 
 sealed class ChatStates

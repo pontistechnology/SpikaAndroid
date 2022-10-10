@@ -116,6 +116,9 @@ class Const {
             const val API_GET_MESSAGE_RECORDS = "api/messenger/messages/{messageId}/message-records"
             const val API_MESSAGES_SEEN = "api/messenger/messages/{roomId}/seen"
             const val API_UPDATE_ROOM = "api/messenger/rooms/{roomId}" // Fix
+            const val API_MUTE_ROOM = "api/messenger/rooms/{roomId}/mute"
+            const val API_UNMUTE_ROOM = "api/messenger/rooms/{roomId}/unmute"
+            const val API_GET_SETTINGS = "api/messenger/me/settings"
 
             // Queries
             const val TIMESTAMP = "timestamp"

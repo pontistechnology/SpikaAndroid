@@ -50,4 +50,21 @@ interface ChatService {
         @Body jsonObject: JsonObject,
         @Path(Const.Networking.ROOM_ID) roomId: Int
     ): RoomResponse
+
+    @POST(Const.Networking.API_MUTE_ROOM)
+    suspend fun muteRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    )
+
+    @POST(Const.Networking.API_UNMUTE_ROOM)
+    suspend fun unmuteRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    )
+
+    @GET(Const.Networking.API_GET_SETTINGS)
+    suspend fun getSettings(
+        @HeaderMap headers: Map<String, String?>
+    )
 }

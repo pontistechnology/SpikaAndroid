@@ -120,6 +120,12 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean? =
         roomDao.getRoomUserById(roomId, userId).isAdmin
+
+    override suspend fun muteRoom(roomId: Int) =
+        chatService.muteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+
+    override suspend fun unmuteRoom(roomId: Int) =
+        chatService.unmuteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 }
 
 interface ChatRepository {
@@ -135,4 +141,6 @@ interface ChatRepository {
     suspend fun getRoomWithUsers(roomId: Int): LiveData<RoomWithUsers>
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
+    suspend fun muteRoom(roomId: Int)
+    suspend fun unmuteRoom(roomId: Int)
 }

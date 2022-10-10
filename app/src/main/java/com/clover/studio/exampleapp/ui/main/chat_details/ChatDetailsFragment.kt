@@ -221,6 +221,14 @@ class ChatDetailsFragment : BaseFragment() {
             findNavController().navigate(action)
 
         }
+
+        binding.swMute.setOnCheckedChangeListener { compoundButton, isChecked ->
+            if (isChecked) {
+                muteRoom()
+            } else {
+                unmuteRoom()
+            }
+        }
     }
 
     private fun setAvatarAndUsername(avatarUrl: String, username: String) {
@@ -298,6 +306,14 @@ class ChatDetailsFragment : BaseFragment() {
         binding.rvGroupMembers.adapter = adapter
         binding.rvGroupMembers.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+    }
+
+    private fun muteRoom() {
+        roomId?.let { viewModel.muteRoom(it) }
+    }
+
+    private fun unmuteRoom() {
+        roomId?.let { viewModel.unmuteRoom(it) }
     }
 
     private fun updateRoomUserList(roomWithUsers: RoomWithUsers) {
