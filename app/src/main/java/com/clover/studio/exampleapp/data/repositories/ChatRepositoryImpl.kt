@@ -12,6 +12,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
 import com.clover.studio.exampleapp.data.models.networking.MessageResponse
+import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
@@ -105,9 +106,7 @@ class ChatRepositoryImpl @Inject constructor(
                         user.user?.let { users.add(it) }
                         roomUsers.add(
                             RoomUser(
-                                room.roomId,
-                                user.userId,
-                                user.isAdmin
+                                room.roomId, user.userId, user.isAdmin
                             )
                         )
                     }
@@ -126,6 +125,10 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun unmuteRoom(roomId: Int) =
         chatService.unmuteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+
+    override suspend fun getUserSettings(roomId: Int): List<Settings> =
+        chatService.getSettings(getHeaderMap(sharedPrefsRepo.readToken())).data.settings
+
 }
 
 interface ChatRepository {
@@ -143,4 +146,5 @@ interface ChatRepository {
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
     suspend fun muteRoom(roomId: Int)
     suspend fun unmuteRoom(roomId: Int)
+    suspend fun getUserSettings(roomId: Int): List<Settings>
 }

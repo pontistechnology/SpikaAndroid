@@ -19,9 +19,7 @@ import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.databinding.FragmentChatDetailsBinding
-import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
-import com.clover.studio.exampleapp.ui.main.chat.RoomWithUsersFailed
-import com.clover.studio.exampleapp.ui.main.chat.RoomWithUsersFetched
+import com.clover.studio.exampleapp.ui.main.chat.*
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
@@ -223,10 +221,13 @@ class ChatDetailsFragment : BaseFragment() {
         }
 
         binding.swMute.setOnCheckedChangeListener { compoundButton, isChecked ->
-            if (isChecked) {
-                muteRoom()
-            } else {
-                unmuteRoom()
+            // Check if user event or set programmatically.
+            if (compoundButton.isPressed) {
+                if (isChecked) {
+                    muteRoom()
+                } else {
+                    unmuteRoom()
+                }
             }
         }
     }
@@ -262,8 +263,32 @@ class ChatDetailsFragment : BaseFragment() {
                 else -> Timber.d("Other error")
             }
         })
+
+        viewModel.userSettingsListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is UserSettingsFetched -> {
+                    for (setting in it.settings) {
+                        if (setting.key.contains(roomId.toString())) {
+                            if (setting.value) {
+                                binding.swMute.isChecked = true
+                                break
+                            }
+                        } else {
+                            binding.swMute.isChecked = false
+                        }
+                    }
+                }
+
+                UserSettingsFetchFailed -> Timber.d("Failed to fetch user settings")
+                else -> Timber.d("Other error")
+            }
+        })
     }
 
+    override fun onResume() {
+        super.onResume()
+        roomId?.let { viewModel.getUserSettings(it) }
+    }
 
     private fun setupAdapter(isAdmin: Boolean) {
         adapter = ChatDetailsAdapter(

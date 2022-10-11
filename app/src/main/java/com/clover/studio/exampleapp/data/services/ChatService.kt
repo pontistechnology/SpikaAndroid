@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.data.services
 import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
 import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.data.models.networking.RoomResponse
+import com.clover.studio.exampleapp.data.models.networking.SettingsResponse
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
 import retrofit2.http.*
@@ -66,5 +67,5 @@ interface ChatService {
     @GET(Const.Networking.API_GET_SETTINGS)
     suspend fun getSettings(
         @HeaderMap headers: Map<String, String?>
-    )
+    ): SettingsResponse
 }

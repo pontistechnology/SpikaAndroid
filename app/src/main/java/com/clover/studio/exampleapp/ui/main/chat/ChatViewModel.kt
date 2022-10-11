@@ -7,6 +7,7 @@ import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
+import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
@@ -31,6 +32,7 @@ class ChatViewModel @Inject constructor(
     val getMessagesTimestampListener = MutableLiveData<Event<ChatStates>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
     val roomWithUsersListener = MutableLiveData<Event<ChatStates>>()
+    val userSettingsListener = MutableLiveData<Event<ChatStates>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
         try {
@@ -162,6 +164,20 @@ class ChatViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun getUserSettings(roomId: Int) = viewModelScope.launch {
+        try {
+            val data = repository.getUserSettings(roomId)
+            userSettingsListener.postValue(Event(UserSettingsFetched(data)))
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                userSettingsListener.postValue(Event(UserSettingsFetchFailed))
+            }
+            return@launch
+        }
+    }
 }
 
 sealed class ChatStates
@@ -171,5 +187,7 @@ object MessageFetchFail : ChatStates()
 object MessageTimestampFetchFail : ChatStates()
 class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
 object RoomWithUsersFailed : ChatStates()
+class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
+object UserSettingsFetchFailed : ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }
