@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -36,6 +37,7 @@ class MediaFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         bindingSetup = FragmentMediaBinding.inflate(inflater, container, false)
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         initializeListeners()
         if (imagePath!!.isEmpty()) {
             initializeVideo()

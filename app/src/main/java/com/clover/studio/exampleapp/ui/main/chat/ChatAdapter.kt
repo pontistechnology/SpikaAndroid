@@ -73,6 +73,7 @@ class ChatAdapter(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
+
         getItem(position).let { it ->
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.createdAt!!
@@ -103,11 +104,19 @@ class ChatAdapter(
                             )
                         }
 
+                        /*val thumbnail = it.body?.thumb?.path?.let { thumbnail ->
+                            Tools.getFileUrl(
+                                thumbnail
+                            )
+                        }*/
+
+                        // TODO
                         Glide.with(context)
                             .load(imagePath)
-                            .dontTransform()
-                            .placeholder(R.drawable.ic_baseline_image_24)
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                            .placeholder(R.drawable.ic_baseline_image_24)
+                            .dontTransform()
+                            .dontAnimate()
                             .into(holder.binding.ivChatImage)
 
                         holder.binding.ivChatImage.setOnClickListener { view ->
@@ -222,7 +231,6 @@ class ChatAdapter(
                 }
             } else {
                 // View holder for messages from other users
-                // TODO Add placeholder for picture and video
                 holder as ReceivedMessageHolder
                 when (it.type) {
                     Const.JsonFields.TEXT -> {
@@ -246,6 +254,10 @@ class ChatAdapter(
 
                         Glide.with(context)
                             .load(imagePath)
+                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                            .placeholder(R.drawable.ic_baseline_image_24)
+                            .dontTransform()
+                            .dontAnimate()
                             .into(holder.binding.ivChatImage)
 
                         holder.binding.ivChatImage.setOnClickListener { view ->
@@ -271,6 +283,11 @@ class ChatAdapter(
 
                         Glide.with(context)
                             .load(videoPath)
+                            .priority(Priority.HIGH)
+                            .dontTransform()
+                            .dontAnimate()
+                            .placeholder(R.drawable.ic_baseline_videocam_24)
+                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .into(holder.binding.ivVideoThumbnail)
 
                         holder.binding.ivPlayButton.setOnClickListener { view ->

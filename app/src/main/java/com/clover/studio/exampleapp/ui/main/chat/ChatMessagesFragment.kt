@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
 import android.content.ContentResolver
+import android.content.pm.ActivityInfo
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
@@ -125,6 +126,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     ): View {
         super.onCreate(savedInstanceState)
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
 
