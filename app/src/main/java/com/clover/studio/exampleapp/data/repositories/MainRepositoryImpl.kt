@@ -16,7 +16,6 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -146,6 +145,9 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
         chatRoomDao.getChatRoomAndMessageAndRecords()
 
+    override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
+        chatRoomDao.getSingleRoomData(roomId)
+
     override suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers =
         chatRoomDao.getRoomAndUsers(roomId)
 
@@ -239,6 +241,7 @@ interface MainRepository {
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
     suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>
     suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
+    suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
     suspend fun updatePushToken(jsonObject: JsonObject)
     suspend fun updateUserData(data: Map<String, String>): AuthResponse

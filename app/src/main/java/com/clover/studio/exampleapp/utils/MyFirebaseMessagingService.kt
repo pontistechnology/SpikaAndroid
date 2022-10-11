@@ -1,13 +1,17 @@
 package com.clover.studio.exampleapp.utils
 
+import android.app.PendingIntent
+import android.content.Intent
 import android.text.TextUtils
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.GROUP_ALERT_ALL
 import androidx.core.app.NotificationManagerCompat
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.networking.FirebaseResponse
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepositoryImpl
+import com.clover.studio.exampleapp.ui.main.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
@@ -98,12 +102,23 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 }
 
                 // Filter message if its from my user, don't show notification for it
+                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId) {
+                    val intent = Intent(baseContext, MainActivity::class.java)
+                    intent.putExtra("roomId", response.message.roomId)
                 if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted != 1) {
                     val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                         .setSmallIcon(R.drawable.img_spika_logo)
                         .setContentTitle(title)
                         .setContentText(content)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
+                        .setContentIntent(
+                            PendingIntent.getActivity(
+                                baseContext,
+                                1111,
+                                intent,
+                                PendingIntent.FLAG_IMMUTABLE
+                            )
+                        )
                     with(NotificationManagerCompat.from(baseContext)) {
                         // notificationId is a unique int for each notification that you must define
                         response.message.roomId?.let { notify(it, builder.build()) }

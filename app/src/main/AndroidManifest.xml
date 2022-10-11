@@ -20,10 +20,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ExampleApp">
         <activity
-            android:name=".ui.main.chat_details.ChatDetailsActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.main.chat.ChatScreenActivity"
+            android:launchMode="singleTop"
             android:exported="false" />
         <activity
             android:name=".ui.splash.SplashActivity"
@@ -42,6 +40,7 @@
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="false"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
         <provider

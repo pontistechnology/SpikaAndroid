@@ -8,14 +8,17 @@ import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
+import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -65,6 +68,18 @@ class MainActivity : BaseActivity() {
             }
         })
 
+        viewModel.roomDataListener.observe(this, EventObserver {
+            when (it) {
+                is SingleRoomData -> {
+                    val gson = Gson()
+                    val roomData = gson.toJson(it.roomData.roomWithUsers)
+                    startChatScreenActivity(this, roomData)
+                }
+                SingleRoomFetchFailed -> Timber.d("Failed to fetch room data")
+                else -> Timber.d("Other error")
+            }
+        })
+
 //        viewModel.roomsListener.observe(this, EventObserver {
 //            when (it) {
 //                is RoomsFetched -> viewModel.getMessagesRemote()
@@ -103,6 +118,15 @@ class MainActivity : BaseActivity() {
         super.onResume()
         viewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
             Timber.d("Message $it")
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        val extras = intent?.extras
+        if (extras != null) {
+            viewModel.getSingleRoomData(extras.get("roomId") as Int)
+            Timber.d("Extras: ${extras.get("roomId")}")
         }
     }
 }
