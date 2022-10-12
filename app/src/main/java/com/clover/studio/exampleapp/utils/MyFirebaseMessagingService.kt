@@ -87,7 +87,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 }
 
                 // Filter message if its from my user, don't show notification for it
-                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId) {
+                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted != 1) {
                     val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                         .setSmallIcon(R.drawable.img_spika_logo)
                         .setContentTitle(title)

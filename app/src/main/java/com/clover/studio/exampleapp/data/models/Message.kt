@@ -58,7 +58,10 @@ data class Message @JvmOverloads constructor(
     val userName: String = "",
 
     @Ignore
-    val groupName: String? = ""
+    val groupName: String? = "",
+
+    @Ignore
+    val muted: Int? = 0
 )
 
 data class MessageBody(
