@@ -78,12 +78,23 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 val title: String
                 val content: String
                 if (response.message.groupName?.isEmpty() == true) {
+                    content = when (response.message.type) {
+                        Const.JsonFields.CHAT_IMAGE -> getString(R.string.image_shared)
+                        Const.JsonFields.VIDEO -> getString(R.string.video_shared)
+                        Const.JsonFields.FILE_TYPE -> getString(R.string.file_shared)
+                        else -> response.message.body?.text.toString()
+                    }
                     title = response.message.userName
-                    content = response.message.body?.text.toString()
                 } else {
+                    content = when (response.message.type) {
+                        Const.JsonFields.CHAT_IMAGE -> response.message.userName + ": " + getString(
+                            R.string.image_shared
+                        )
+                        Const.JsonFields.VIDEO -> response.message.userName + ": " + getString(R.string.video_shared)
+                        Const.JsonFields.FILE_TYPE -> response.message.userName + ": " + getString(R.string.file_shared)
+                        else -> response.message.userName + ": " + response.message.body?.text.toString()
+                    }
                     title = response.message.groupName.toString()
-                    content =
-                        response.message.userName + ": " + response.message.body?.text.toString()
                 }
 
                 // Filter message if its from my user, don't show notification for it

@@ -105,6 +105,8 @@
     <!--Alert dialog text-->
     <string name="warning">Warning</string>
     <string name="session_expired">Session has expired. Please log in again.</string>
+    <string name="video_shared">Video shared</string>
+    <string name="file_shared">File shared</string>
 
 
 </resources>
