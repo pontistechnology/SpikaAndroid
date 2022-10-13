@@ -75,10 +75,10 @@
                     android:id="@+id/iv_play_button"
                     android:layout_width="78dp"
                     android:layout_height="78dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginStart="@dimen/eight_dp_margin"
+                    android:layout_marginTop="@dimen/eight_dp_margin"
+                    android:layout_marginEnd="@dimen/eight_dp_margin"
+                    android:layout_marginBottom="@dimen/eight_dp_margin"
                     android:adjustViewBounds="true"
                     android:elevation="4dp"
                     app:layout_constraintBottom_toBottomOf="@+id/cv_video"
@@ -92,9 +92,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/sixty_four_dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/eight_dp_margin"
                     android:layout_marginEnd="@dimen/twenty_four_dp_margin"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="@dimen/eight_dp_margin"
                     android:padding="@dimen/ten_dp_margin"
                     app:cardCornerRadius="8dp"
                     app:layout_constrainedHeight="true"
@@ -119,7 +119,7 @@
                 </androidx.cardview.widget.CardView>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
+            <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/tv_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

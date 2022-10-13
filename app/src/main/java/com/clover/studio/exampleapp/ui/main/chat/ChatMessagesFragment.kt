@@ -37,6 +37,7 @@ import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
+import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +81,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var avatarUrl = ""
     private var userName = ""
+    private lateinit var emojiPopup: EmojiPopup
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -131,6 +133,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
+
+        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
         initViews()
         setUpAdapter()
@@ -311,9 +315,30 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 })
         }
 
+        // Emoji section:
+        bindingSetup.ivBtnEmoji.setOnClickListener {
+            emojiPopup.toggle() // Toggles visibility of the Popup.
+            emojiPopup.dismiss() // Dismisses the Popup.
+            emojiPopup.isShowing // Returns true when Popup is showing.
+            bindingSetup.ivAdd.rotation = ROTATION_OFF
+        }
+
+        bindingSetup.etMessage.setOnClickListener {
+            if (emojiPopup.isShowing) {
+                emojiPopup.dismiss()
+            }
+        }
+
+        bindingSetup.rvChat.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (bottom < oldBottom) {
+                bindingSetup.rvChat.smoothScrollToPosition(0)
+            }
+        }
+
         bindingSetup.etMessage.addTextChangedListener {
             if (it?.isNotEmpty() == true) {
                 showSendButton()
+                bindingSetup.ivAdd.rotation = ROTATION_OFF
             } else {
                 hideSendButton()
             }

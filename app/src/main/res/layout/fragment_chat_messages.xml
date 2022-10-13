@@ -173,16 +173,16 @@
             app:layout_constraintEnd_toStartOf="@id/iv_camera"
             app:layout_constraintStart_toEndOf="@id/iv_add">
 
-            <EditText
+            <com.vanniktech.emoji.EmojiEditText
                 android:id="@+id/et_message"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/twenty_dp_margin"
+                android:layout_marginStart="@dimen/eight_dp_margin"
                 android:background="@null"
                 android:fontFamily="@font/montserrat"
                 android:hint="@string/type_here"
                 android:imeOptions="flagNoExtractUi"
-                android:inputType="textMultiLine"
+                android:inputType="textMultiLine|textCapSentences"
                 android:maxLines="5"
                 android:paddingEnd="@dimen/thirty_dp_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -194,6 +194,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
+            android:id="@+id/iv_btn_emoji"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/ten_dp_margin"
