@@ -6,7 +6,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.clover.studio.exampleapp.utils.CHANNEL_ID
+import com.clover.studio.exampleapp.utils.helpers.AppLifecycleManager
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
@@ -22,6 +24,7 @@ class MainApplication : Application() {
         }
 
         createNotificationChannel()
+        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleManager)
         // TODO release tree implementation
     }
 

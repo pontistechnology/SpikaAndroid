@@ -11,6 +11,7 @@ import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.exampleapp.ui.main.MainActivity
+import com.clover.studio.exampleapp.utils.helpers.AppLifecycleManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
@@ -101,7 +102,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 }
 
                 // Filter message if its from my user, don't show notification for it
-                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted != 1) {
+                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted != 1 && !AppLifecycleManager.isInForeground) {
                     Timber.d("Extras: ${response.message.roomId}")
                     val intent = Intent(baseContext, MainActivity::class.java)
                     intent.putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
