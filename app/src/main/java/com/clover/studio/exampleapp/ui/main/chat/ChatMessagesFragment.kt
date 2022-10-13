@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
@@ -65,6 +66,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var bindingSetup: FragmentChatMessagesBinding
     private lateinit var chatAdapter: ChatAdapter
     private var messages: MutableList<Message> = mutableListOf()
+    private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
     private var unsentMessages: MutableList<Message> = ArrayList()
 
     private var currentPhotoLocation: MutableList<Uri> = ArrayList()
@@ -143,6 +145,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         return bindingSetup.root
     }
+
     private fun setAvatarAndName(avatarUrl: String, userName: String) {
         bindingSetup.tvChatName.text = userName
         Glide.with(this)
@@ -191,7 +194,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 is MessagesTimestampFetched -> {
                     Timber.d("Messages timestamp fetched")
                     messages = it.messages as MutableList<Message>
-                    chatAdapter.submitList(it.messages)
+                    //chatAdapter.submitList(it.messages)
                 }
                 is MessageTimestampFetchFail -> Timber.d("Failed to fetch messages timestamp")
                 else -> Timber.d("Other error")
@@ -209,7 +212,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
-        viewModel.getLocalMessages(roomWithUsers.room.roomId).observe(viewLifecycleOwner) {
+        // Add records
+        // TODO
+        viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
+            .observe(viewLifecycleOwner) {
+                messagesRecords.clear()
+                it.message?.forEach { msg ->
+                    messagesRecords.add(msg)
+                }
+                messagesRecords.sortByDescending { messages -> messages.message.createdAt }
+                chatAdapter.submitList(messagesRecords) {
+                    bindingSetup.rvChat.scrollToPosition(0)
+                }
+
+            }
+
+        /*viewModel.getLocalMessages(roomWithUsers.room.roomId).observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 messages = it as MutableList<Message>
                 messages.sortByDescending { message -> message.createdAt }
@@ -217,11 +235,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     bindingSetup.rvChat.scrollToPosition(0)
                 }
             }
-        }
+        }*/
     }
 
     private fun setUpAdapter() {
-        chatAdapter = ChatAdapter(context!!, viewModel.getLocalUserId()!!, roomWithUsers.users){
+        chatAdapter = ChatAdapter(context!!, viewModel.getLocalUserId()!!, roomWithUsers.users) {
             addMessageReaction(it)
         }
         bindingSetup.rvChat.adapter = chatAdapter
@@ -1033,3 +1051,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         } else true
     }
 }
+
+
+

@@ -27,6 +27,7 @@ class ChatRepositoryImpl @Inject constructor(
     private val chatService: ChatService,
     private val roomDao: ChatRoomDao,
     private val messageDao: MessageDao,
+    private val chatRoomDao: ChatRoomDao,
     private val userDao: UserDao,
     private val appDatabase: AppDatabase,
     private val sharedPrefsRepo: SharedPreferencesRepository
@@ -124,6 +125,9 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean? =
         roomDao.getRoomUserById(roomId, userId).isAdmin
 
+    override suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords> =
+        chatRoomDao.getChatRoomAndMessageAndRecordsById(roomId)
+
     override suspend fun muteRoom(roomId: Int) =
         chatService.muteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
@@ -163,5 +167,6 @@ interface ChatRepository {
     suspend fun unmuteRoom(roomId: Int)
     suspend fun getUserSettings(): List<Settings>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
+    suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords>
     suspend fun deleteRoom(roomId: Int)
 }
