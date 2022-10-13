@@ -21,7 +21,6 @@
         android:theme="@style/Theme.ExampleApp">
         <activity
             android:name=".ui.main.chat.ChatScreenActivity"
-            android:launchMode="singleTop"
             android:exported="false" />
         <activity
             android:name=".ui.splash.SplashActivity"

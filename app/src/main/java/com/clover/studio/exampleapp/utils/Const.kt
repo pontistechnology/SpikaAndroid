@@ -17,6 +17,12 @@ class Const {
         }
     }
 
+    class IntentExtras {
+        companion object {
+            const val ROOM_ID_EXTRA = "room_id_extra"
+        }
+    }
+
     class FileExtensions {
         companion object {
             const val PDF = "pdf"

@@ -6,11 +6,16 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
+import com.clover.studio.exampleapp.ui.main.MainStates
+import com.clover.studio.exampleapp.ui.main.SingleRoomData
+import com.clover.studio.exampleapp.ui.main.SingleRoomFetchFailed
 import com.clover.studio.exampleapp.utils.Event
+import com.clover.studio.exampleapp.utils.SSEListener
 import com.clover.studio.exampleapp.utils.SSEManager
 import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonObject
@@ -32,6 +37,7 @@ class ChatViewModel @Inject constructor(
     val getMessagesTimestampListener = MutableLiveData<Event<ChatStates>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
     val roomWithUsersListener = MutableLiveData<Event<ChatStates>>()
+    val roomDataListener = MutableLiveData<Event<MainStates>>()
     val userSettingsListener = MutableLiveData<Event<ChatStates>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
@@ -132,14 +138,27 @@ class ChatViewModel @Inject constructor(
         emitSource(repository.getRoomWithUsers(roomId))
     }
 
-    fun getPushNotificationStream(): Flow<Message> = flow {
+    fun getPushNotificationStream(listener: SSEListener): Flow<Message> = flow {
         viewModelScope.launch {
             try {
-                sseManager.startSSEStream()
+                sseManager.startSSEStream(listener)
             } catch (ex: Exception) {
                 Tools.checkError(ex)
                 return@launch
             }
+        }
+    }
+
+    fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
+        try {
+            roomDataListener.postValue(Event(SingleRoomData(repository.getSingleRoomData(roomId))))
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                roomDataListener.postValue(Event(SingleRoomFetchFailed))
+            }
+            return@launch
         }
     }
 
@@ -189,5 +208,7 @@ class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
 object RoomWithUsersFailed : ChatStates()
 class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
+class SingleRoomData(val roomData: RoomAndMessageAndRecords) : ChatStates()
+object SingleRoomFetchFailed : ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }

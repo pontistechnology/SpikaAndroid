@@ -7,6 +7,7 @@ import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
@@ -129,6 +130,9 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getUserSettings(roomId: Int): List<Settings> =
         chatService.getSettings(getHeaderMap(sharedPrefsRepo.readToken())).data.settings
 
+
+    override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
+        roomDao.getSingleRoomData(roomId)
 }
 
 interface ChatRepository {
@@ -147,4 +151,5 @@ interface ChatRepository {
     suspend fun muteRoom(roomId: Int)
     suspend fun unmuteRoom(roomId: Int)
     suspend fun getUserSettings(roomId: Int): List<Settings>
+    suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
 }

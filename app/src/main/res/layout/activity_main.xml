@@ -17,4 +17,9 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/main_nav_graph" />
+
+    <include
+        android:id="@+id/cv_notification"
+        android:visibility="gone"
+        layout="@layout/dialog_notification" />
 </androidx.constraintlayout.widget.ConstraintLayout>

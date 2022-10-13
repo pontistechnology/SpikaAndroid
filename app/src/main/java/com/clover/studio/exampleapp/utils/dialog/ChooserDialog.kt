@@ -3,14 +3,9 @@ package com.clover.studio.exampleapp.utils.dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.DialogChooserBinding
 import com.clover.studio.exampleapp.utils.extendables.BaseDialog
-
-interface DialogInteraction {
-    fun onFirstOptionClicked()
-    fun onSecondOptionClicked()
-}
+import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 
 class ChooserDialog(
     context: Context?,

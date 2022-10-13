@@ -11,6 +11,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
+import com.clover.studio.exampleapp.utils.SSEListener
 import com.clover.studio.exampleapp.utils.SSEManager
 import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonObject
@@ -126,10 +127,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getPushNotificationStream(): Flow<Message> = flow {
+    fun getPushNotificationStream(listener: SSEListener): Flow<Message> = flow {
         viewModelScope.launch {
             try {
-                sseManager.startSSEStream()
+                sseManager.startSSEStream(listener)
             } catch (ex: Exception) {
                 if (Tools.checkError(ex)) {
                     setTokenExpiredTrue()

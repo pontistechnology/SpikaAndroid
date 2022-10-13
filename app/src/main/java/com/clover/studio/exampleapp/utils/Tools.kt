@@ -13,11 +13,16 @@ import android.text.TextUtils
 import android.text.format.DateUtils
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.RemoteViews
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.exampleapp.BuildConfig
+import com.clover.studio.exampleapp.R
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -306,5 +311,29 @@ object Tools {
             deviceId.append(randomNumber)
         }
         return deviceId.toString()
+    }
+
+    fun createCustomNotification(
+        activity: Activity,
+        title: String?,
+        text: String?,
+        imageUrl: String?,
+        roomId: Int?
+    ) {
+        val remoteViews = RemoteViews(activity.packageName, R.layout.dialog_notification)
+        remoteViews.setImageViewUri(R.id.iv_user_image, imageUrl?.toUri())
+        remoteViews.setTextViewText(R.id.tv_title, title)
+        remoteViews.setTextViewText(R.id.tv_message, text)
+
+        val builder = NotificationCompat.Builder(activity, CHANNEL_ID)
+            .setSmallIcon(R.drawable.img_spika_logo)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCustomContentView(remoteViews)
+        with(NotificationManagerCompat.from(activity)) {
+            // notificationId is a unique int for each notification that you must define
+            roomId?.let { notify(it, builder.build()) }
+        }
     }
 }

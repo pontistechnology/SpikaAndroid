@@ -103,9 +103,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
                 // Filter message if its from my user, don't show notification for it
                 if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId) {
+                    Timber.d("Extras: ${response.message.roomId}")
                     val intent = Intent(baseContext, MainActivity::class.java)
                     intent.putExtra("roomId", response.message.roomId)
                 if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted != 1) {
+                    intent.putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
                     val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                         .setSmallIcon(R.drawable.img_spika_logo)
                         .setContentTitle(title)
@@ -114,14 +116,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         .setContentIntent(
                             PendingIntent.getActivity(
                                 baseContext,
-                                1111,
+                                response.message.roomId!!,
                                 intent,
-                                PendingIntent.FLAG_IMMUTABLE
+                                PendingIntent.FLAG_MUTABLE
                             )
                         )
                     with(NotificationManagerCompat.from(baseContext)) {
                         // notificationId is a unique int for each notification that you must define
-                        response.message.roomId?.let { notify(it, builder.build()) }
+                        response.message.roomId.let { notify(it, builder.build()) }
                     }
                 }
             }

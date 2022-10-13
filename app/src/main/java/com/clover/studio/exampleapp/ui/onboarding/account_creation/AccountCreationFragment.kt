@@ -23,8 +23,8 @@ import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.Tools.convertBitmapToUri
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
-import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -206,7 +206,11 @@ class AccountCreationFragment : BaseFragment() {
                 val inputStream =
                     requireActivity().contentResolver.openInputStream(currentPhotoLocation)
 
-                val fileStream = Tools.copyStreamToFile(requireActivity(), inputStream!!, activity?.contentResolver?.getType(currentPhotoLocation)!!)
+                val fileStream = Tools.copyStreamToFile(
+                    requireActivity(),
+                    inputStream!!,
+                    activity?.contentResolver?.getType(currentPhotoLocation)!!
+                )
                 val uploadPieces =
                     if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
                         fileStream.length() / CHUNK_SIZE + 1

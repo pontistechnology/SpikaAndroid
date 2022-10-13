@@ -3,9 +3,9 @@ package com.clover.studio.exampleapp.utils.dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.DialogErrorBinding
 import com.clover.studio.exampleapp.utils.extendables.BaseDialog
+import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 
 class DialogError(
     context: Context,

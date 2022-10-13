@@ -26,7 +26,7 @@ import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
-import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
+import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -261,7 +261,11 @@ class GroupInformationFragment : Fragment() {
             val inputStream =
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
 
-            val fileStream = Tools.copyStreamToFile(requireActivity(), inputStream!!, activity?.contentResolver?.getType(currentPhotoLocation)!!)
+            val fileStream = Tools.copyStreamToFile(
+                requireActivity(),
+                inputStream!!,
+                activity?.contentResolver?.getType(currentPhotoLocation)!!
+            )
             val uploadPieces =
                 if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
                     fileStream.length() / CHUNK_SIZE + 1

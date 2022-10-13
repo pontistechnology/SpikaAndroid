@@ -30,8 +30,8 @@ import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.formatE164Number
 import com.clover.studio.exampleapp.utils.Tools.hashString
 import com.clover.studio.exampleapp.utils.dialog.DialogError
-import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.google.gson.JsonObject
 import timber.log.Timber
 

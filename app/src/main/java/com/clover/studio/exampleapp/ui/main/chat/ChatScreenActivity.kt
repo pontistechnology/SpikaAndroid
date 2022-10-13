@@ -4,19 +4,23 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.NavHostFragment
 import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
+import com.clover.studio.exampleapp.ui.main.SingleRoomData
+import com.clover.studio.exampleapp.ui.main.SingleRoomFetchFailed
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
-import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.UploadDownloadManager
+import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.DialogError
-import com.clover.studio.exampleapp.utils.dialog.DialogInteraction
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
+import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +33,14 @@ fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
         intent.putExtra(Const.Navigation.ROOM_DATA, roomData)
         startActivity(intent)
+    }
+
+fun replaceChatScreenActivity(fromActivity: Activity, roomData: String) =
+    fromActivity.apply {
+        val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
+        intent.putExtra(Const.Navigation.ROOM_DATA, roomData)
+        startActivity(intent)
+        finish()
     }
 
 @AndroidEntryPoint
@@ -83,11 +95,42 @@ class ChatScreenActivity : BaseActivity() {
                     })
             }
         })
+
+        viewModel.roomDataListener.observe(this, EventObserver {
+            when (it) {
+                is SingleRoomData -> {
+                    val gson = Gson()
+                    val roomData = gson.toJson(it.roomData.roomWithUsers)
+                    replaceChatScreenActivity(this, roomData)
+                }
+                SingleRoomFetchFailed -> Timber.d("Failed to fetch room data")
+                else -> Timber.d("Other error")
+            }
+        })
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.getPushNotificationStream().asLiveData(Dispatchers.IO).observe(this) {
+        viewModel.getPushNotificationStream(object : SSEListener {
+            override fun newMessageReceived(message: Message) {
+                Timber.d("Message received")
+                runOnUiThread {
+                    bindingSetup.cvNotification.tvTitle.text = message.userName
+                    bindingSetup.cvNotification.tvMessage.text = message.body?.text
+                    bindingSetup.cvNotification.cvRoot.visibility = View.VISIBLE
+
+                    bindingSetup.cvNotification.cvRoot.setOnClickListener {
+                        message.roomId?.let { viewModel.getSingleRoomData(it) }
+                    }
+
+//                    Glide.with(this@MainActivity).load()
+//                    .into(bindingSetup.cvNotification.ivUserImage)
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        bindingSetup.cvNotification.cvRoot.visibility = View.GONE
+                    }, 3000)
+                }
+            }
+        }).asLiveData(Dispatchers.IO).observe(this) {
             Timber.d("Observing SSE")
         }
     }
@@ -95,7 +138,8 @@ class ChatScreenActivity : BaseActivity() {
     override fun onBackPressed() {
         val fragment =
             this.supportFragmentManager.findFragmentById(R.id.main_chat_container) as? NavHostFragment
-        val currentFragment = fragment?.childFragmentManager?.fragments?.get(0) as? ChatOnBackPressed
+        val currentFragment =
+            fragment?.childFragmentManager?.fragments?.get(0) as? ChatOnBackPressed
 
         // Check why this returns null if upload is not in progress
         currentFragment?.onBackPressed()?.takeIf { !it }.let {
@@ -105,6 +149,8 @@ class ChatScreenActivity : BaseActivity() {
             }
         }
     }
+
+
 }
 
 interface ChatOnBackPressed {

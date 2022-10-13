@@ -3,6 +3,7 @@
 package com.clover.studio.exampleapp.utils
 
 import com.clover.studio.exampleapp.BuildConfig
+import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.networking.StreamingResponse
 import com.clover.studio.exampleapp.data.repositories.SSERepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
@@ -17,18 +18,18 @@ import javax.inject.Inject
 
 class SSEManager @Inject constructor(
     private val repo: SSERepositoryImpl,
-    private val sharedPrefs: SharedPreferencesRepository
+    private val sharedPrefs: SharedPreferencesRepository,
 ) {
     private var job: Job? = null
 
-    suspend fun startSSEStream() {
+    suspend fun startSSEStream(listener: SSEListener) {
         val url =
             BuildConfig.SERVER_URL + Const.Networking.API_SSE_STREAM + "?accesstoken=" + sharedPrefs.readToken()
 
-        openConnectionAndFetchEvents(url)
+        openConnectionAndFetchEvents(url, listener)
     }
 
-    private suspend fun openConnectionAndFetchEvents(url: String) {
+    private suspend fun openConnectionAndFetchEvents(url: String, listener: SSEListener) {
         if (job != null) {
             job?.cancel()
         }
@@ -98,6 +99,7 @@ class SSEManager @Inject constructor(
                                                 it
                                             )
                                         }
+                                        response.data?.message?.let { listener.newMessageReceived(it) }
                                     }
                                     Const.JsonFields.UPDATE_MESSAGE -> {
                                         response.data?.message?.let { repo.writeMessages(it) }
@@ -142,10 +144,14 @@ class SSEManager @Inject constructor(
             } catch (ex: Exception) {
                 if (ex is IOException) {
                     Timber.d("IOException ${ex.message} ${ex.localizedMessage}")
-                    openConnectionAndFetchEvents(url)
+                    openConnectionAndFetchEvents(url, listener)
                 }
                 Tools.checkError(ex)
             }
         }
     }
+}
+
+interface SSEListener {
+    fun newMessageReceived(message: Message)
 }
