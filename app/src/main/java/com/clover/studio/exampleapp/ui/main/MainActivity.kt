@@ -9,6 +9,7 @@ import android.os.Looper
 import android.view.View
 import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
+import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
@@ -17,6 +18,7 @@ import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.SSEListener
+import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
@@ -84,6 +86,64 @@ class MainActivity : BaseActivity() {
             }
         })
 
+        viewModel.roomNotificationListener.observe(this, EventObserver {
+            when (it) {
+                is RoomNotificationData -> {
+                    val myUserId = viewModel.getLocalUserId()
+                    if (myUserId == it.message.fromUserId) return@EventObserver
+                    runOnUiThread {
+                        if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
+                            Glide.with(this@MainActivity)
+                                .load(it.roomWithUsers.room.avatarUrl?.let { it1 ->
+                                    Tools.getFileUrl(
+                                        it1
+                                    )
+                                })
+                                .into(bindingSetup.cvNotification.ivUserImage)
+                            bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
+                            for (user in it.roomWithUsers.users) {
+                                if (user.id != myUserId && user.id == it.message.fromUserId) {
+                                    bindingSetup.cvNotification.tvMessage.text =
+                                        user.displayName + ": " + it.message.body?.text
+                                    break
+                                }
+                            }
+                        } else {
+                            for (user in it.roomWithUsers.users) {
+                                if (user.id != myUserId && user.id == it.message.fromUserId) {
+                                    Glide.with(this@MainActivity)
+                                        .load(user.avatarUrl?.let { it1 ->
+                                            Tools.getFileUrl(
+                                                it1
+                                            )
+                                        })
+                                        .into(bindingSetup.cvNotification.ivUserImage)
+                                    bindingSetup.cvNotification.tvTitle.text = user.displayName
+                                    bindingSetup.cvNotification.tvMessage.text =
+                                        it.message.body?.text
+                                    break
+                                }
+                            }
+                        }
+
+
+                        bindingSetup.cvNotification.cvRoot.visibility = View.VISIBLE
+
+                        val roomId = it.message.roomId
+                        bindingSetup.cvNotification.cvRoot.setOnClickListener {
+                            roomId?.let { roomId -> viewModel.getSingleRoomData(roomId) }
+                        }
+
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            bindingSetup.cvNotification.cvRoot.visibility = View.GONE
+                        }, 3000)
+                    }
+                }
+                is RoomWithUsersFailed -> Timber.d("Failed to fetch room with users")
+                else -> Timber.d("Other error")
+            }
+        })
+
 //        viewModel.roomsListener.observe(this, EventObserver {
 //            when (it) {
 //                is RoomsFetched -> viewModel.getMessagesRemote()
@@ -123,21 +183,7 @@ class MainActivity : BaseActivity() {
         viewModel.getPushNotificationStream(object : SSEListener {
             override fun newMessageReceived(message: Message) {
                 Timber.d("Message received")
-                runOnUiThread {
-                    bindingSetup.cvNotification.tvTitle.text = message.userName
-                    bindingSetup.cvNotification.tvMessage.text = message.body?.text
-                    bindingSetup.cvNotification.cvRoot.visibility = View.VISIBLE
-
-                    bindingSetup.cvNotification.cvRoot.setOnClickListener {
-                        message.roomId?.let { viewModel.getSingleRoomData(it) }
-                    }
-
-//                    Glide.with(this@MainActivity).load()
-//                    .into(bindingSetup.cvNotification.ivUserImage)
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        bindingSetup.cvNotification.cvRoot.visibility = View.GONE
-                    }, 3000)
-                }
+                message.roomId?.let { viewModel.getRoomWithUsers(it, message) }
             }
         }).asLiveData(Dispatchers.IO).observe(this) {
             Timber.d("Message $it")

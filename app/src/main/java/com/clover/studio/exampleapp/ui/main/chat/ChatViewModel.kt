@@ -39,6 +39,7 @@ class ChatViewModel @Inject constructor(
     val roomWithUsersListener = MutableLiveData<Event<ChatStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
     val userSettingsListener = MutableLiveData<Event<ChatStates>>()
+    val roomNotificationListener = MutableLiveData<Event<ChatStates>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
         try {
@@ -135,7 +136,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun getRoomAndUsers(roomId: Int) = liveData {
-        emitSource(repository.getRoomWithUsers(roomId))
+        emitSource(repository.getRoomWithUsersLiveData(roomId))
     }
 
     fun getPushNotificationStream(listener: SSEListener): Flow<Message> = flow {
@@ -157,6 +158,27 @@ class ChatViewModel @Inject constructor(
                 setTokenExpiredTrue()
             } else {
                 roomDataListener.postValue(Event(SingleRoomFetchFailed))
+            }
+            return@launch
+        }
+    }
+
+    fun getRoomWithUsers(roomId: Int, message: Message) = viewModelScope.launch {
+        try {
+            roomNotificationListener.postValue(
+                Event(
+                    RoomNotificationData(
+                        repository.getRoomWithUsers(
+                            roomId
+                        ), message
+                    )
+                )
+            )
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                roomNotificationListener.postValue(Event(RoomWithUsersFailed))
             }
             return@launch
         }
@@ -206,6 +228,7 @@ object MessageFetchFail : ChatStates()
 object MessageTimestampFetchFail : ChatStates()
 class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
 object RoomWithUsersFailed : ChatStates()
+class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : ChatStates()
 class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
 class SingleRoomData(val roomData: RoomAndMessageAndRecords) : ChatStates()

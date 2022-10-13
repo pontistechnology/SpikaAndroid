@@ -17,7 +17,9 @@ object AppLifecycleManager : LifecycleEventObserver {
             Lifecycle.Event.ON_START -> {
                 isInForeground = true
             }
-            else -> {}
+            else -> {
+                // ignore
+            }
         }
     }
 }

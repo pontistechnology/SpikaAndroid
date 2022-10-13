@@ -36,6 +36,7 @@ class MainViewModel @Inject constructor(
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
     val roomWithUsersListener = MutableLiveData<Event<MainStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
+    val roomNotificationListener = MutableLiveData<Event<MainStates>>()
 
     fun getContacts() = viewModelScope.launch {
         var page = 1
@@ -173,6 +174,28 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun getRoomWithUsers(roomId: Int, message: Message) = viewModelScope.launch {
+        try {
+            roomNotificationListener.postValue(
+                Event(
+                    RoomNotificationData(
+                        repository.getRoomWithUsers(
+                            roomId
+                        ), message
+                    )
+                )
+            )
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                roomNotificationListener.postValue(Event(RoomWithUsersFailed))
+            }
+            return@launch
+        }
+    }
+
+
     fun updatePushToken(jsonObject: JsonObject) = viewModelScope.launch {
         try {
             repository.updatePushToken(jsonObject)
@@ -226,5 +249,7 @@ object RoomNotFound : MainStates()
 object UserUpdated : MainStates()
 object UserUpdateFailed : MainStates()
 class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : MainStates()
+object RoomWithUsersFailed : MainStates()
+class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : MainStates()
 class SingleRoomData(val roomData: RoomAndMessageAndRecords) : MainStates()
 object SingleRoomFetchFailed : MainStates()
