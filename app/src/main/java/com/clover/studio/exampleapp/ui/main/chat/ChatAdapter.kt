@@ -110,7 +110,6 @@ class ChatAdapter(
                             )
                         }*/
 
-                        // TODO
                         Glide.with(context)
                             .load(imagePath)
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
@@ -142,12 +141,12 @@ class ChatAdapter(
                         holder.binding.tvFileSize.text = megabyteText
                         addFiles(it, holder.binding.ivFileType)
 
+                        // TODO
                         val filePath = it.body.file?.path?.let { filePath ->
                             Tools.getFileUrl(
                                 filePath
                             )
                         }
-
                         holder.binding.tvFileTitle.setOnClickListener {
 
                         }
@@ -254,10 +253,10 @@ class ChatAdapter(
 
                         Glide.with(context)
                             .load(imagePath)
-                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .placeholder(R.drawable.ic_baseline_image_24)
                             .dontTransform()
                             .dontAnimate()
+                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .into(holder.binding.ivChatImage)
 
                         holder.binding.ivChatImage.setOnClickListener { view ->
@@ -268,6 +267,7 @@ class ChatAdapter(
                             view.findNavController().navigate(action)
                         }
                     }
+
 
                     Const.JsonFields.VIDEO -> {
                         holder.binding.tvMessage.visibility = View.GONE
