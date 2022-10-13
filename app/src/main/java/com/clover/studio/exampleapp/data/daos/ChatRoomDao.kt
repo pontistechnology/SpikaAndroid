@@ -51,6 +51,10 @@ interface ChatRoomDao {
 
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
+    fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords>
+
+    @Transaction
+    @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getRoomAndUsers(roomId: Int): RoomWithUsers
 
     @Transaction

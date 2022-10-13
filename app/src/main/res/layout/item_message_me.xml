@@ -211,6 +211,109 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_emoji"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:visibility="gone"
+        app:cardCornerRadius="4dp"
+        app:layout_constraintStart_toStartOf="@+id/tv_username"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_emoji"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:longClickable="true">
+
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/tv_thumbs_up_emoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="@dimen/five_dp_margin"
+                android:text="@string/thumbs_up_emoji"
+                android:textSize="20sp"
+                app:emojiSize="30dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/tv_heart_emoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="@dimen/five_dp_margin"
+                android:text="@string/heart_emoji"
+                android:textSize="20sp"
+                app:emojiSize="30dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_thumbs_up_emoji"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/tv_crying_emoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="@dimen/five_dp_margin"
+                android:text="@string/crying_face_emoji"
+                android:textSize="20sp"
+                app:emojiSize="30dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_heart_emoji"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/tv_astonished_emoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="@dimen/five_dp_margin"
+                android:text="@string/astonished_emoji"
+                android:textSize="20sp"
+                app:emojiSize="30dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_crying_emoji"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/tv_disappointed_relieved_emoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="@dimen/five_dp_margin"
+                android:text="@string/disappointed_relieved_emoji"
+                android:textSize="20sp"
+                app:emojiSize="30dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_astonished_emoji"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/tv_praying_hands_emoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="@dimen/five_dp_margin"
+                android:text="@string/praying_hands_emoji"
+                android:textSize="20sp"
+                app:emojiSize="30dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_disappointed_relieved_emoji"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+
     <ImageView
         android:id="@+id/iv_message_status"
         android:layout_width="wrap_content"

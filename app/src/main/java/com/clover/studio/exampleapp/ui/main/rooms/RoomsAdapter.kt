@@ -15,6 +15,7 @@ import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getFileUrl
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
+import timber.log.Timber
 
 class RoomsAdapter(
     private val context: Context,
@@ -51,6 +52,8 @@ class RoomsAdapter(
                     userName = roomItem.roomWithUsers.room.name.toString()
                     userAvatar = roomItem.roomWithUsers.room.avatarUrl.toString()
                 }
+
+
                 binding.tvRoomName.text = userName
 
                 Glide.with(context)
@@ -94,6 +97,7 @@ class RoomsAdapter(
                                 }
                             }
                         }
+                        Timber.d("tmp::::::: $unreadMessages")
                     }
 
                     if (unreadMessages.isNotEmpty()) {

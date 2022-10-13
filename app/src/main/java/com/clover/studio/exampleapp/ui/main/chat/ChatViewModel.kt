@@ -150,6 +150,10 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun getChatRoomAndMessageAndRecordsById(roomId: Int) = liveData {
+        emitSource(repository.getChatRoomAndMessageAndRecordsById(roomId))
+    }
+
     fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
         try {
             roomDataListener.postValue(Event(SingleRoomData(repository.getSingleRoomData(roomId))))

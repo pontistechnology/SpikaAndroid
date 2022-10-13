@@ -21,6 +21,7 @@ import com.bumptech.glide.Priority
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
@@ -41,8 +42,9 @@ class ChatAdapter(
     private val users: List<User>,
     private val onItemLongClick: ((reaction: String) -> Unit)
 ) :
-    ListAdapter<Message, RecyclerView.ViewHolder>(MessageDiffCallback()) {
-
+    ListAdapter<MessageAndRecords, RecyclerView.ViewHolder>(
+        RoomAndMessageAndRecordsDiffCallback()
+    ) {
 
     inner class SentMessageHolder(val binding: ItemMessageMeBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -66,7 +68,7 @@ class ChatAdapter(
     override fun getItemViewType(position: Int): Int {
         val message = getItem(position)
 
-        return if (message.fromUserId == myUserId) {
+        return if (message.message.fromUserId == myUserId) {
             VIEW_TYPE_MESSAGE_SENT
         } else {
             VIEW_TYPE_MESSAGE_RECEIVED
@@ -76,20 +78,21 @@ class ChatAdapter(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
-
         getItem(position).let { it ->
+
+            Timber.d("messageRecords: $it")
+
             val calendar = Calendar.getInstance()
-            calendar.timeInMillis = it.createdAt!!
+            calendar.timeInMillis = it.message.createdAt!!
             val date = calendar.get(Calendar.DAY_OF_MONTH)
 
             // View holder for my messages
-
             // TODO can two view holders use same method for binding if all views are the same?
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 holder as SentMessageHolder
-                when (it.type) {
+                when (it.message.type) {
                     Const.JsonFields.TEXT -> {
-                        holder.binding.tvMessage.text = it.body?.text
+                        holder.binding.tvMessage.text = it.message.body?.text
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
@@ -130,10 +133,11 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.VISIBLE
                         holder.binding.clVideos.visibility = View.GONE
 
-                        holder.binding.tvFileTitle.text = it.body?.file?.fileName
+                        holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
                         val megabyteText =
                             "${
-                                Tools.calculateToMegabyte(it.body?.file?.size!!).toString()
+                                Tools.calculateToMegabyte(it.message.body?.file?.size!!)
+                                    .toString()
                             } ${holder.itemView.context.getString(R.string.files_mb_text)}"
                         holder.binding.tvFileSize.text = megabyteText
                         addFiles(it, holder.binding.ivFileType)
@@ -154,7 +158,7 @@ class ChatAdapter(
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
 
-                        val videoPath = it.body?.file?.path?.let { videoPath ->
+                        val videoPath = it.message.body?.file?.path?.let { videoPath ->
                             Tools.getFileUrl(
                                 videoPath
                             )
@@ -189,10 +193,10 @@ class ChatAdapter(
                     }
                 }
 
-                showDateHeader(position, date, holder.binding.tvSectionHeader, it)
+                showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
                 when {
-                    it.seenCount!! > 0 -> {
+                    it.message.seenCount!! > 0 -> {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
@@ -200,7 +204,7 @@ class ChatAdapter(
                             )
                         )
                     }
-                    it.totalUserCount == it.deliveredCount -> {
+                    it.message.totalUserCount == it.message.deliveredCount -> {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
@@ -208,7 +212,7 @@ class ChatAdapter(
                             )
                         )
                     }
-                    it.deliveredCount!! >= 0 -> {
+                    it.message.deliveredCount!! >= 0 -> {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
@@ -228,9 +232,9 @@ class ChatAdapter(
             } else {
                 // View holder for messages from other users
                 holder as ReceivedMessageHolder
-                when (it.type) {
+                when (it.message.type) {
                     Const.JsonFields.TEXT -> {
-                        holder.binding.tvMessage.text = it.body?.text
+                        holder.binding.tvMessage.text = it.message.body?.text
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
@@ -273,7 +277,7 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.VISIBLE
 
-                        val videoPath = it.body?.file?.path?.let { videoPath ->
+                        val videoPath = it.message.body?.file?.path?.let { videoPath ->
                             Tools.getFileUrl(
                                 videoPath
                             )
@@ -307,14 +311,15 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.VISIBLE
                         holder.binding.clVideos.visibility = View.GONE
 
-                        holder.binding.tvFileTitle.text = it.body?.file?.fileName
+                        holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
                         val megabyteText =
                             "${
-                                Tools.calculateToMegabyte(it.body?.file?.size!!).toString()
+                                Tools.calculateToMegabyte(it.message.body?.file?.size!!)
+                                    .toString()
                             } ${holder.itemView.context.getString(R.string.files_mb_text)}"
                         holder.binding.tvFileSize.text = megabyteText
 
-                        addFiles(it, holder.binding.ivFileType)
+                        addFiles(it.message, holder.binding.ivFileType)
                     }
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
@@ -324,12 +329,16 @@ class ChatAdapter(
                     }
                 }
 
-                if (it.body?.text.isNullOrEmpty()) {
+                if (it.message.body?.text.isNullOrEmpty()) {
                     holder.binding.tvMessage.visibility = View.GONE
                     holder.binding.cvImage.visibility = View.VISIBLE
 
                     Glide.with(context)
-                        .load(it.body?.file?.path?.let { imagePath -> Tools.getFileUrl(imagePath) })
+                        .load(it.message.body?.file?.path?.let { imagePath ->
+                            Tools.getFileUrl(
+                                imagePath
+                            )
+                        })
                         .into(holder.binding.ivChatImage)
                 } else {
                     holder.binding.tvMessage.visibility = View.VISIBLE
@@ -337,7 +346,7 @@ class ChatAdapter(
                 }
 
                 for (roomUser in users) {
-                    if (it.fromUserId == roomUser.id) {
+                    if (it.message.fromUserId == roomUser.id) {
                         holder.binding.tvUsername.text = roomUser.displayName
                         Glide.with(context)
                             .load(roomUser.avatarUrl?.let { avatarUrl ->
@@ -355,11 +364,20 @@ class ChatAdapter(
                     holder.binding.cvReactions.visibility = View.VISIBLE
                 }
 
+                // private / group
+                it.records?.forEach { records ->
+                    Timber.d("records: $records")
+                    if (!records.reaction.isNullOrEmpty()) {
+                        val text = records.reaction
+                        holder.binding.cvReactions.visibility = View.VISIBLE
+                        holder.binding.tvReactedEmoji.text = text
+                    }
+                }
+
+
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     holder.binding.cvEmoji.visibility = View.VISIBLE
-
-                    //holder.binding.cvMessageOptions.visibility = View.VISIBLE
-                    //holder.binding.vTransparentMessages.visibility = View.VISIBLE
+                    holder.binding.cvMessageOptions.visibility = View.VISIBLE
 
                     holder.binding.clContainer.bringToFront()
 
@@ -371,14 +389,14 @@ class ChatAdapter(
                     true
                 }
 
-                showDateHeader(position, date, holder.binding.tvSectionHeader, it)
+                showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
                 if (position > 0) {
                     try {
                         val nextItem = getItem(position + 1).fromUserId
                         val previousItem = getItem(position - 1).fromUserId
 
-                        val currentItem = it.fromUserId
+                        val currentItem = it.message.fromUserId
                         Timber.d("Items : $nextItem, $currentItem ${nextItem == currentItem}")
 
                         if (previousItem == currentItem) {
@@ -438,6 +456,7 @@ class ChatAdapter(
                 }
                 holder.binding.cvReactions.visibility = View.VISIBLE
                 holder.binding.cvEmoji.visibility = View.GONE
+                holder.binding.cvMessageOptions.visibility = View.GONE
             }
         }
     }
@@ -476,13 +495,18 @@ class ChatAdapter(
         }
     }
 
-    private class MessageDiffCallback : DiffUtil.ItemCallback<Message>() {
+    private class RoomAndMessageAndRecordsDiffCallback :
+        DiffUtil.ItemCallback<MessageAndRecords>() {
 
-        override fun areItemsTheSame(oldItem: Message, newItem: Message) =
-            oldItem.id == newItem.id
+        override fun areItemsTheSame(
+            oldItem: MessageAndRecords,
+            newItem: MessageAndRecords
+        ) = oldItem.message.id == newItem.message.id
 
-        override fun areContentsTheSame(oldItem: Message, newItem: Message) =
-            oldItem == newItem
+        override fun areContentsTheSame(
+            oldItem: MessageAndRecords,
+            newItem: MessageAndRecords
+        ) = oldItem == newItem
     }
 
     private fun showDateHeader(
@@ -493,7 +517,7 @@ class ChatAdapter(
     ) {
         if (position >= 0 && currentList.size - 1 > position) {
             val calendar = Calendar.getInstance()
-            calendar.timeInMillis = getItem(position + 1).createdAt!!
+            calendar.timeInMillis = getItem(position + 1).message.createdAt!!
             val previousDate = calendar.get(Calendar.DAY_OF_MONTH)
 
             if (date != previousDate) {

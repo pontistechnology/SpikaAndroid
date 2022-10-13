@@ -31,13 +31,22 @@ object RepositoryModule {
     @Provides
     fun provideChatRepository(
         chatService: ChatService,
-        chatRoomDao: ChatRoomDao,
+        roomDao: ChatRoomDao,
         messageDao: MessageDao,
+        chatRoomDao: ChatRoomDao,
         userDao: UserDao,
         appDatabase: AppDatabase,
         sharedPrefs: SharedPreferencesRepository
     ) =
-        ChatRepositoryImpl(chatService, chatRoomDao, messageDao, userDao, appDatabase, sharedPrefs)
+        ChatRepositoryImpl(
+            chatService,
+            roomDao,
+            messageDao,
+            chatRoomDao,
+            userDao,
+            appDatabase,
+            sharedPrefs
+        )
 
     @Singleton
     @Provides
