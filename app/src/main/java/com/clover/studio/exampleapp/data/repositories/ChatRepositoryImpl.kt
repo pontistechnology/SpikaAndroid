@@ -130,7 +130,7 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun unmuteRoom(roomId: Int) =
         chatService.unmuteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
-    override suspend fun getUserSettings(roomId: Int): List<Settings> =
+    override suspend fun getUserSettings(): List<Settings> =
         chatService.getSettings(getHeaderMap(sharedPrefsRepo.readToken())).data.settings
 
 
@@ -154,6 +154,6 @@ interface ChatRepository {
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
     suspend fun muteRoom(roomId: Int)
     suspend fun unmuteRoom(roomId: Int)
-    suspend fun getUserSettings(roomId: Int): List<Settings>
+    suspend fun getUserSettings(): List<Settings>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
 }

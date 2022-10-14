@@ -47,6 +47,7 @@ fun replaceChatScreenActivity(fromActivity: Activity, roomData: String) =
 @AndroidEntryPoint
 class ChatScreenActivity : BaseActivity() {
     var roomWithUsers: RoomWithUsers? = null
+    private var mutedRooms: MutableList<String> = ArrayList()
 
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private val viewModel: ChatViewModel by viewModels()
@@ -65,10 +66,6 @@ class ChatScreenActivity : BaseActivity() {
 
         val view = bindingSetup.root
         setContentView(view)
-
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.main_chat_container) as NavHostFragment
-        val navController = navHostFragment.navController
 
         // Fetch room data sent from previous activity
         val gson = Gson()
@@ -102,6 +99,19 @@ class ChatScreenActivity : BaseActivity() {
             }
         })
 
+        viewModel.userSettingsListener.observe(this, EventObserver {
+            when (it) {
+                is UserSettingsFetched -> {
+                    for (setting in it.settings) {
+                        mutedRooms.add(setting.key)
+                    }
+                }
+
+                UserSettingsFetchFailed -> Timber.d("Failed to fetch user settings")
+                else -> Timber.d("Other error")
+            }
+        })
+
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it) {
                 is SingleRoomData -> {
@@ -118,7 +128,15 @@ class ChatScreenActivity : BaseActivity() {
             when (it) {
                 is RoomNotificationData -> {
                     val myUserId = viewModel.getLocalUserId()
-                    if (myUserId == it.message.fromUserId || roomWithUsers?.room?.roomId == it.message.roomId) return@EventObserver
+                    var isRoomMuted = false
+                    for (key in mutedRooms) {
+                        if (key.contains(it.message.roomId.toString())) {
+                            isRoomMuted = true
+                            break
+                        }
+                    }
+
+                    if (myUserId == it.message.fromUserId || roomWithUsers?.room?.roomId == it.message.roomId || isRoomMuted) return@EventObserver
                     runOnUiThread {
                         if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
                             Glide.with(this@ChatScreenActivity)
@@ -177,6 +195,7 @@ class ChatScreenActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.getUserSettings()
         viewModel.getPushNotificationStream(object : SSEListener {
             override fun newMessageReceived(message: Message) {
                 Timber.d("Message received")

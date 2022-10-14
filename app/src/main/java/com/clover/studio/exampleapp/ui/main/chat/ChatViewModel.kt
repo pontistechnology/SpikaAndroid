@@ -206,9 +206,9 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun getUserSettings(roomId: Int) = viewModelScope.launch {
+    fun getUserSettings() = viewModelScope.launch {
         try {
-            val data = repository.getUserSettings(roomId)
+            val data = repository.getUserSettings()
             userSettingsListener.postValue(Event(UserSettingsFetched(data)))
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {

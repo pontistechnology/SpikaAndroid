@@ -228,6 +228,9 @@ class MainRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun getUserSettings(): List<Settings> =
+        retrofitService.getSettings(getHeaderMap(sharedPrefs.readToken())).data.settings
 }
 
 interface MainRepository {
@@ -249,4 +252,5 @@ interface MainRepository {
     suspend fun verifyFile(jsonObject: JsonObject): FileResponse
     suspend fun getMessageRecords()
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
+    suspend fun getUserSettings(): List<Settings>
 }

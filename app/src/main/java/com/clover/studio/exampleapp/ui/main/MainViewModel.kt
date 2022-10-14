@@ -8,6 +8,7 @@ import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
+import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
@@ -36,6 +37,7 @@ class MainViewModel @Inject constructor(
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
     val roomWithUsersListener = MutableLiveData<Event<MainStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
+    val userSettingsListener = MutableLiveData<Event<MainStates>>()
     val roomNotificationListener = MutableLiveData<Event<MainStates>>()
 
     fun getContacts() = viewModelScope.launch {
@@ -235,6 +237,20 @@ class MainViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun getUserSettings() = viewModelScope.launch {
+        try {
+            val data = repository.getUserSettings()
+            userSettingsListener.postValue(Event(UserSettingsFetched(data)))
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                userSettingsListener.postValue(Event(UserSettingsFetchFailed))
+            }
+            return@launch
+        }
+    }
 }
 
 sealed class MainStates
@@ -253,3 +269,5 @@ object RoomWithUsersFailed : MainStates()
 class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : MainStates()
 class SingleRoomData(val roomData: RoomAndMessageAndRecords) : MainStates()
 object SingleRoomFetchFailed : MainStates()
+class UserSettingsFetched(val settings: List<Settings>) : MainStates()
+object UserSettingsFetchFailed : MainStates()

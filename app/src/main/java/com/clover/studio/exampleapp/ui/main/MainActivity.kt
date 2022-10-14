@@ -37,6 +37,7 @@ fun startMainActivity(fromActivity: Activity) = fromActivity.apply {
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
+    private var mutedRooms: MutableList<String> = ArrayList()
 
     private val viewModel: MainViewModel by viewModels()
     private lateinit var bindingSetup: ActivityMainBinding
@@ -54,8 +55,6 @@ class MainActivity : BaseActivity() {
 
         initializeObservers()
         sendPushTokenToServer()
-
-//        viewModel.getRoomsRemote()
     }
 
     private fun initializeObservers() {
@@ -79,6 +78,19 @@ class MainActivity : BaseActivity() {
             }
         })
 
+        viewModel.userSettingsListener.observe(this, EventObserver {
+            when (it) {
+                is UserSettingsFetched -> {
+                    for (setting in it.settings) {
+                        mutedRooms.add(setting.key)
+                    }
+                }
+
+                UserSettingsFetchFailed -> Timber.d("Failed to fetch user settings")
+                else -> Timber.d("Other error")
+            }
+        })
+
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it) {
                 is SingleRoomData -> {
@@ -95,7 +107,15 @@ class MainActivity : BaseActivity() {
             when (it) {
                 is RoomNotificationData -> {
                     val myUserId = viewModel.getLocalUserId()
-                    if (myUserId == it.message.fromUserId) return@EventObserver
+                    var isRoomMuted = false
+                    for (key in mutedRooms) {
+                        if (key.contains(it.message.roomId.toString())) {
+                            isRoomMuted = true
+                            break
+                        }
+                    }
+
+                    if (myUserId == it.message.fromUserId || isRoomMuted) return@EventObserver
                     runOnUiThread {
                         if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
                             Glide.with(this@MainActivity)
@@ -151,22 +171,6 @@ class MainActivity : BaseActivity() {
                 else -> Timber.d("Other error")
             }
         })
-
-//        viewModel.roomsListener.observe(this, EventObserver {
-//            when (it) {
-//                is RoomsFetched -> viewModel.getMessagesRemote()
-//                is RoomFetchFail -> Timber.d("Failed to fetch rooms")
-//                else -> Timber.d("Other error")
-//            }
-//        })
-//
-//        viewModel.messagesListener.observe(this, EventObserver {
-//            when (it) {
-//                is MessagesFetched -> viewModel.getMessageRecords()
-//                is MessagesFetchFail -> Timber.d("Failed to fetch messages")
-//                else -> Timber.d("Other error")
-//            }
-//        })
     }
 
     private fun sendPushTokenToServer() {
@@ -188,6 +192,7 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.getUserSettings()
         viewModel.getPushNotificationStream(object : SSEListener {
             override fun newMessageReceived(message: Message) {
                 Timber.d("Message received")

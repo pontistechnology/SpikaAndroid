@@ -287,7 +287,7 @@ class ChatDetailsFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        roomId?.let { viewModel.getUserSettings(it) }
+        viewModel.getUserSettings()
     }
 
     private fun setupAdapter(isAdmin: Boolean) {

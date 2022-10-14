@@ -77,4 +77,9 @@ interface RetrofitService {
         @Body jsonObject: JsonObject,
         @Path(Const.Networking.ROOM_ID) roomId: Int
     ): RoomResponse
+
+    @GET(Const.Networking.API_GET_SETTINGS)
+    suspend fun getSettings(
+        @HeaderMap headers: Map<String, String?>
+    ): SettingsResponse
 }
