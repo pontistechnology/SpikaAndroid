@@ -1,4 +1,6 @@
 <resources>
+    <dimen name="eighty_eight_dp_margin">88dp</dimen>
+    <dimen name="sixty_four_dp">64dp</dimen>
     <dimen name="fifty_dp_margin">50dp</dimen>
     <dimen name="forty_dp_margin">40dp</dimen>
     <dimen name="thirty_two_dp_margin">32dp</dimen>
@@ -6,7 +8,7 @@
     <dimen name="twenty_five_dp_margin">25dp</dimen>
     <dimen name="twenty_four_dp_margin">24dp</dimen>
     <dimen name="twenty_dp_margin">20dp</dimen>
-    <dimen name="sixty_four_dp">64dp</dimen>
+    <dimen name="sixteen_dp_margin">16dp</dimen>
     <dimen name="ten_dp_margin">10dp</dimen>
     <dimen name="eight_dp_margin">8dp</dimen>
     <dimen name="five_dp_margin">5dp</dimen>
