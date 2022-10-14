@@ -59,9 +59,28 @@ class RoomsAdapter(
                 if (!roomItem.message.isNullOrEmpty()) {
                     val sortedList = roomItem.message.sortedBy { it.message.createdAt }
                     val lastMessage = sortedList.last().message.body
+                    var textUserName = ""
+
+                    if (Const.JsonFields.GROUP == roomItem.roomWithUsers.room.type) {
+                        for (user in roomItem.roomWithUsers.users) {
+                            if (sortedList.last().message.fromUserId == user.id) {
+                                textUserName = user.displayName.toString() + ": "
+                                break
+                            }
+                        }
+                    }
                     if (lastMessage?.text.isNullOrEmpty()) {
-                        binding.tvLastMessage.text = context.getString(R.string.image_shared)
-                    } else binding.tvLastMessage.text = lastMessage?.text.toString()
+                        when (sortedList.last().message.type) {
+                            Const.JsonFields.CHAT_IMAGE -> binding.tvLastMessage.text =
+                                textUserName + context.getString(R.string.image_shared)
+                            Const.JsonFields.VIDEO -> binding.tvLastMessage.text =
+                                textUserName + context.getString(R.string.video_shared)
+                            Const.JsonFields.FILE_TYPE -> binding.tvLastMessage.text =
+                                textUserName + context.getString(R.string.file_shared)
+                            else -> binding.tvLastMessage.text =
+                                textUserName + lastMessage?.text.toString()
+                        }
+                    } else binding.tvLastMessage.text = textUserName + lastMessage?.text.toString()
 
                     binding.tvMessageTime.text = roomItem.message.last().message.createdAt?.let {
                         getRelativeTimeSpan(it)
