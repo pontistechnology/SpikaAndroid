@@ -63,10 +63,6 @@ class RegisterNumberFragment : BaseFragment() {
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
 
 
-        if (countryCode != "") {
-            binding.tvCountryCode.text = countryCode
-        }
-
         checkUser()
         checkContactsPermission()
         setTextListener()
@@ -94,7 +90,7 @@ class RegisterNumberFragment : BaseFragment() {
             binding.btnNext.isEnabled = true
 
         } else {
-            viewModel.writeFirstAppStart()
+            binding.tvCountryCode.text = countryCode
         }
     }
 
@@ -117,6 +113,7 @@ class RegisterNumberFragment : BaseFragment() {
                     )
 
                     viewModel.registerFlag(true)
+                    viewModel.writeFirstAppStart()
                     findNavController().navigate(
                         R.id.action_splashFragment_to_verificationFragment, bundle
                     )
@@ -140,8 +137,8 @@ class RegisterNumberFragment : BaseFragment() {
     }
 
     private fun setClickListeners() {
-        binding.tvCountryCode.setOnClickListener {
-            if (countryCode.isEmpty()) {
+        if (!viewModel.isAppStarted()) {
+            binding.tvCountryCode.setOnClickListener {
                 findNavController().navigate(
                     R.id.action_splashFragment_to_countryPickerFragment
                 )

@@ -39,7 +39,7 @@
         app:layout_constraintStart_toEndOf="@id/cv_user_image"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
+    <com.vanniktech.emoji.EmojiTextView
         android:id="@+id/tv_last_message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

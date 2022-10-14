@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.ui.main.chat_details
 
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -104,6 +105,7 @@ class ChatDetailsFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         bindingSetup = FragmentChatDetailsBinding.inflate(inflater, container, false)
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         initializeObservers()
         handleUserStatusViews(isAdmin)

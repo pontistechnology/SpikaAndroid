@@ -6,7 +6,6 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -17,7 +16,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.Priority
+import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.User
@@ -73,6 +73,7 @@ class ChatAdapter(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
+
         getItem(position).let { it ->
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.createdAt!!
@@ -97,14 +98,27 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
 
+                        val imagePath = it.body?.file?.path?.let { imagePath ->
+                            Tools.getFileUrl(
+                                imagePath
+                            )
+                        }
+
                         Glide.with(context)
-                            .load(it.body?.file?.path?.let { imagePath ->
-                                Tools.getFileUrl(
-                                    imagePath
-                                )
-                            })
-                            .apply(RequestOptions().override(MATCH_PARENT, Tools.pictureHeight))
+                            .load(imagePath)
+                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                            .placeholder(R.drawable.ic_baseline_image_24)
+                            .dontTransform()
+                            .dontAnimate()
                             .into(holder.binding.ivChatImage)
+
+                        holder.binding.ivChatImage.setOnClickListener { view ->
+                            val action =
+                                ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
+                                    "", imagePath!!
+                                )
+                            view.findNavController().navigate(action)
+                        }
                     }
 
                     Const.JsonFields.FILE_TYPE -> {
@@ -120,13 +134,22 @@ class ChatAdapter(
                             } ${holder.itemView.context.getString(R.string.files_mb_text)}"
                         holder.binding.tvFileSize.text = megabyteText
                         addFiles(it, holder.binding.ivFileType)
+
+                        // TODO
+                        val filePath = it.body.file?.path?.let { filePath ->
+                            Tools.getFileUrl(
+                                filePath
+                            )
+                        }
+                        holder.binding.tvFileTitle.setOnClickListener {
+
+                        }
                     }
 
                     Const.JsonFields.VIDEO -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
-                        holder.binding.clVideos.visibility = View.VISIBLE
 
                         val videoPath = it.body?.file?.path?.let { videoPath ->
                             Tools.getFileUrl(
@@ -134,18 +157,22 @@ class ChatAdapter(
                             )
                         }
 
-                        //holder.binding.ivChatImage.layoutParams = ()
-
                         Glide.with(context)
                             .load(videoPath)
-                            .apply(RequestOptions().override(MATCH_PARENT, Tools.videoHeight))
+                            .priority(Priority.HIGH)
+                            .dontTransform()
+                            .dontAnimate()
+                            .placeholder(R.drawable.ic_baseline_videocam_24)
+                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .into(holder.binding.ivVideoThumbnail)
 
+                        holder.binding.clVideos.visibility = View.VISIBLE
+                        holder.binding.ivPlayButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
 
                         holder.binding.ivPlayButton.setOnClickListener { view ->
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
-                                    videoPath!!
+                                    videoPath!!, ""
                                 )
                             view.findNavController().navigate(action)
                         }
@@ -208,22 +235,38 @@ class ChatAdapter(
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.cvImage.visibility = View.VISIBLE
+                        holder.binding.clImages.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
 
+                        val imagePath = it.body?.file?.path?.let { imagePath ->
+                            Tools.getFileUrl(
+                                imagePath
+                            )
+                        }
+
                         Glide.with(context)
-                            .load(it.body?.file?.path?.let { imagePath ->
-                                Tools.getFileUrl(
-                                    imagePath
-                                )
-                            })
+                            .load(imagePath)
+                            .placeholder(R.drawable.ic_baseline_image_24)
+                            .dontTransform()
+                            .dontAnimate()
+                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .into(holder.binding.ivChatImage)
+
+
+                        holder.binding.ivChatImage.setOnClickListener { view ->
+                            val action =
+                                ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
+                                    "", imagePath!!
+                                )
+                            view.findNavController().navigate(action)
+                        }
                     }
+
 
                     Const.JsonFields.VIDEO -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.cvImage.visibility = View.GONE
+                        holder.binding.clImages.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.VISIBLE
 
@@ -235,12 +278,20 @@ class ChatAdapter(
 
                         Glide.with(context)
                             .load(videoPath)
+                            .priority(Priority.HIGH)
+                            .dontTransform()
+                            .dontAnimate()
+                            .placeholder(R.drawable.ic_baseline_videocam_24)
+                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .into(holder.binding.ivVideoThumbnail)
+
+                        holder.binding.clVideos.visibility = View.VISIBLE
+                        holder.binding.ivPlayButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
 
                         holder.binding.ivPlayButton.setOnClickListener { view ->
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
-                                    videoPath!!
+                                    videoPath!!, ""
                                 )
                             view.findNavController().navigate(action)
                         }

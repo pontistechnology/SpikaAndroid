@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
 import android.content.ContentResolver
+import android.content.pm.ActivityInfo
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
@@ -36,6 +37,7 @@ import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
+import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,6 +56,7 @@ import javax.inject.Inject
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
 private const val THUMBNAIL_HEIGHT = 256
+private const val THUMBNAIL_WIDTH = 256
 
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
@@ -78,6 +81,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var avatarUrl = ""
     private var userName = ""
+    private lateinit var emojiPopup: EmojiPopup
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -124,10 +128,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     ): View {
         super.onCreate(savedInstanceState)
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
+
+        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
         initViews()
         setUpAdapter()
@@ -308,9 +315,30 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 })
         }
 
+        // Emoji section:
+        bindingSetup.ivBtnEmoji.setOnClickListener {
+            emojiPopup.toggle() // Toggles visibility of the Popup.
+            emojiPopup.dismiss() // Dismisses the Popup.
+            emojiPopup.isShowing // Returns true when Popup is showing.
+            bindingSetup.ivAdd.rotation = ROTATION_OFF
+        }
+
+        bindingSetup.etMessage.setOnClickListener {
+            if (emojiPopup.isShowing) {
+                emojiPopup.dismiss()
+            }
+        }
+
+        bindingSetup.rvChat.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (bottom < oldBottom) {
+                bindingSetup.rvChat.smoothScrollToPosition(0)
+            }
+        }
+
         bindingSetup.etMessage.addTextChangedListener {
             if (it?.isNotEmpty() == true) {
                 showSendButton()
+                bindingSetup.ivAdd.rotation = ROTATION_OFF
             } else {
                 hideSendButton()
             }
@@ -917,7 +945,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-
         imageSelected.setFile(cr.getType(uri)!!, fileName)
         imageSelected.setButtonListener(object : ImageSelectedContainer.RemoveImageSelected {
             override fun removeImage() {
@@ -945,15 +972,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         mmr.setDataSource(context, videoUri)
         val bitmap = mmr.frameAtTime
 
-        var height = bitmap?.height
-        if (height != null) {
-            if (height > THUMBNAIL_HEIGHT) {
-                height = THUMBNAIL_HEIGHT
-            }
-        }
-
-        Tools.videoHeight = height!!
-
         val imageSelected = ImageSelectedContainer(activity!!, null)
         bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap!!) }
         bindingSetup.llImagesContainer.addView(imageSelected)
@@ -978,12 +996,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val bitmap =
             Tools.handleSamplingAndRotationBitmap(activity!!, imageUri)
         val bitmapUri = Tools.convertBitmapToUri(activity!!, bitmap!!)
-
-        var height = bitmap.height
-        if (height > THUMBNAIL_HEIGHT) {
-            height = THUMBNAIL_HEIGHT
-        }
-        Tools.pictureHeight = height
 
         val imageSelected = ImageSelectedContainer(context!!, null)
         bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }
