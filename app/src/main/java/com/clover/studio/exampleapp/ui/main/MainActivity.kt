@@ -40,6 +40,11 @@ class MainActivity : BaseActivity() {
 
     private val viewModel: MainViewModel by viewModels()
     private lateinit var bindingSetup: ActivityMainBinding
+    private var handler = Handler(Looper.getMainLooper())
+    private var runnable: Runnable = Runnable {
+        Timber.d("Ending handler")
+        bindingSetup.cvNotification.cvRoot.visibility = View.GONE
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,9 +99,9 @@ class MainActivity : BaseActivity() {
                     runOnUiThread {
                         if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
                             Glide.with(this@MainActivity)
-                                .load(it.roomWithUsers.room.avatarUrl?.let { it1 ->
+                                .load(it.roomWithUsers.room.avatarUrl?.let { avatarUrl ->
                                     Tools.getFileUrl(
-                                        it1
+                                        avatarUrl
                                     )
                                 })
                                 .into(bindingSetup.cvNotification.ivUserImage)
@@ -112,9 +117,9 @@ class MainActivity : BaseActivity() {
                             for (user in it.roomWithUsers.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     Glide.with(this@MainActivity)
-                                        .load(user.avatarUrl?.let { it1 ->
+                                        .load(user.avatarUrl?.let { avatarUrl ->
                                             Tools.getFileUrl(
-                                                it1
+                                                avatarUrl
                                             )
                                         })
                                         .into(bindingSetup.cvNotification.ivUserImage)
@@ -134,9 +139,12 @@ class MainActivity : BaseActivity() {
                             roomId?.let { roomId -> viewModel.getSingleRoomData(roomId) }
                         }
 
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            bindingSetup.cvNotification.cvRoot.visibility = View.GONE
-                        }, 3000)
+                        Timber.d("Starting handler")
+                        runnable.let { runnable -> handler.removeCallbacks(runnable) }
+
+                        handler = Handler(Looper.getMainLooper())
+                        Timber.d("Starting handler")
+                        handler.postDelayed(runnable, 5000)
                     }
                 }
                 is RoomWithUsersFailed -> Timber.d("Failed to fetch room with users")
