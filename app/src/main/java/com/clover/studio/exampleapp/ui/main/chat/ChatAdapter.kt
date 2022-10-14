@@ -104,12 +104,6 @@ class ChatAdapter(
                             )
                         }
 
-                        /*val thumbnail = it.body?.thumb?.path?.let { thumbnail ->
-                            Tools.getFileUrl(
-                                thumbnail
-                            )
-                        }*/
-
                         Glide.with(context)
                             .load(imagePath)
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
@@ -241,7 +235,7 @@ class ChatAdapter(
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.cvImage.visibility = View.VISIBLE
+                        holder.binding.clImages.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
 
@@ -259,6 +253,7 @@ class ChatAdapter(
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .into(holder.binding.ivChatImage)
 
+
                         holder.binding.ivChatImage.setOnClickListener { view ->
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
@@ -271,7 +266,7 @@ class ChatAdapter(
 
                     Const.JsonFields.VIDEO -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.cvImage.visibility = View.GONE
+                        holder.binding.clImages.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.VISIBLE
 
@@ -289,6 +284,9 @@ class ChatAdapter(
                             .placeholder(R.drawable.ic_baseline_videocam_24)
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .into(holder.binding.ivVideoThumbnail)
+
+                        holder.binding.clVideos.visibility = View.VISIBLE
+                        holder.binding.ivPlayButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
 
                         holder.binding.ivPlayButton.setOnClickListener { view ->
                             val action =

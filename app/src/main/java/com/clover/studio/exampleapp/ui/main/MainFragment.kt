@@ -33,9 +33,9 @@ class MainFragment : BaseFragment() {
 
     private fun initializePager() {
         val fragmentList = arrayListOf(
-            ContactsFragment(),
-            CallHistoryFragment(),
             RoomsFragment(),
+            CallHistoryFragment(),
+            ContactsFragment(),
             SettingsFragment()
         )
 

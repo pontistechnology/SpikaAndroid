@@ -19,9 +19,9 @@ class MainPagerAdapter constructor(
 ) : FragmentStateAdapter(fragmentManager, lifecycle) {
 
     private val imageResources = arrayOf(
-        R.drawable.nav_contact_states,
-        R.drawable.nav_call_history_states,
         R.drawable.nav_chat_states,
+        R.drawable.nav_call_history_states,
+        R.drawable.nav_contact_states,
         R.drawable.nav_settings_states
     )
 
