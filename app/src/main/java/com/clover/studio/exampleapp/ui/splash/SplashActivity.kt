@@ -35,6 +35,7 @@ class SplashActivity : BaseActivity() {
                 SplashStates.NAVIGATE_ONBOARDING -> goToOnboarding()
                 SplashStates.NAVIGATE_MAIN -> goToMainActivity()
                 SplashStates.NAVIGATE_ACCOUNT_CREATION -> goToAccountCreation()
+                else -> Timber.d("Some error")
             }
         })
 

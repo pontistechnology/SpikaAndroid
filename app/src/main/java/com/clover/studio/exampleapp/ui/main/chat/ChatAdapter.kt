@@ -135,7 +135,7 @@ class ChatAdapter(
                         holder.binding.tvFileSize.text = megabyteText
                         addFiles(it, holder.binding.ivFileType)
 
-                        // TODO
+                        // TODO implement file handling when clicked on in chat
                         val filePath = it.body.file?.path?.let { filePath ->
                             Tools.getFileUrl(
                                 filePath

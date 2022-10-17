@@ -124,9 +124,8 @@ class SSERepositoryImpl @Inject constructor(
 
     override suspend fun syncRooms() {
         Timber.d("Syncing rooms")
-        var roomTimestamp = 0L
 
-        roomTimestamp = sharedPrefs.readRoomTimestamp()!!
+        val roomTimestamp: Long = sharedPrefs.readRoomTimestamp()!!
 
         val response = sseService.syncRooms(
             Tools.getHeaderMap(sharedPrefs.readToken()),

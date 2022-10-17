@@ -245,7 +245,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
                 // Get swiped message text and add to message EditText
                 // After that, return item to correct position
-                val position = viewHolder.adapterPosition
+                val position = viewHolder.absoluteAdapterPosition
                 bindingSetup.etMessage.setText(messages[position].body?.text)
                 chatAdapter.notifyItemChanged(position)
             }
@@ -329,7 +329,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        bindingSetup.rvChat.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+        bindingSetup.rvChat.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
             if (bottom < oldBottom) {
                 bindingSetup.rvChat.smoothScrollToPosition(0)
             }
