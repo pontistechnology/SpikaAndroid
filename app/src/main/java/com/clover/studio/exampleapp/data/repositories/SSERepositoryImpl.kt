@@ -33,10 +33,13 @@ class SSERepositoryImpl @Inject constructor(
 ) : SSERepository {
     override suspend fun syncMessageRecords() {
         Timber.d("Syncing message records")
-        var messageRecordsTimestamp = System.currentTimeMillis()
+        var messageRecordsTimestamp = 0L
         if (sharedPrefs.readMessageRecordTimestamp() != 0L) {
             messageRecordsTimestamp =
                 sharedPrefs.readMessageRecordTimestamp()!!
+        } else {
+            // This is only for first launch
+            sharedPrefs.writeMessageRecordTimestamp(System.currentTimeMillis())
         }
 
         val response =
@@ -51,17 +54,24 @@ class SSERepositoryImpl @Inject constructor(
         }
         messageRecordsDao.insert(messageRecords)
 
-        if (messageRecords.isNotEmpty())
+        if (messageRecords.isNotEmpty()) {
+            val maxTimestamp = messageRecords.maxByOrNull { it.createdAt }?.createdAt
+            Timber.d("MaxTimestamp message records timestamps: $maxTimestamp")
             sharedPrefs.writeMessageRecordTimestamp(messageRecords.maxByOrNull { it.createdAt }!!.createdAt)
+        }
     }
 
     override suspend fun syncMessages() {
         Timber.d("Syncing messages")
-        var messageTimestamp = System.currentTimeMillis()
+        var messageTimestamp = 0L
         if (sharedPrefs.readMessageTimestamp() != 0L) {
             messageTimestamp =
                 sharedPrefs.readMessageTimestamp()!!
+        } else {
+            // This is only for first launch
+            sharedPrefs.writeMessageTimestamp(System.currentTimeMillis())
         }
+
         val messageIds = ArrayList<Int>()
         val response =
             sseService.syncMessages(
@@ -82,22 +92,28 @@ class SSERepositoryImpl @Inject constructor(
                 getMessageIdJson(messageIds)
             )
 
-            if (messages.isNotEmpty())
-                messages.maxByOrNull { it.createdAt!! }?.createdAt?.let {
+            if (messages.isNotEmpty()) {
+                val maxTimestamp = messages.maxByOrNull { it.modifiedAt!! }?.modifiedAt
+                Timber.d("MaxTimestamp messages: $maxTimestamp")
+                messages.maxByOrNull { it.modifiedAt!! }?.modifiedAt?.let {
                     sharedPrefs.writeMessageTimestamp(
                         it
                     )
                 }
+            }
         }
     }
 
     override suspend fun syncUsers() {
         Timber.d("Syncing users")
-        var userTimestamp = System.currentTimeMillis()
+        var userTimestamp = 0L
 
         if (sharedPrefs.readUserTimestamp() != 0L) {
             userTimestamp =
                 sharedPrefs.readUserTimestamp()!!
+        } else {
+            // This is only for first launch
+            sharedPrefs.writeUserTimestamp(System.currentTimeMillis())
         }
 
         val response =
@@ -113,12 +129,15 @@ class SSERepositoryImpl @Inject constructor(
             }
             userDao.insert(users)
 
-            if (users.isNotEmpty())
-                users.maxByOrNull { it.createdAt!! }?.createdAt?.let {
+            if (users.isNotEmpty()) {
+                val maxTimestamp = users.maxByOrNull { it.modifiedAt!! }?.modifiedAt
+                Timber.d("MaxTimestamp users: $maxTimestamp")
+                users.maxByOrNull { it.modifiedAt!! }?.modifiedAt?.let {
                     sharedPrefs.writeUserTimestamp(
-                        it.toLong()
+                        it
                     )
                 }
+            }
         }
     }
 
@@ -160,12 +179,15 @@ class SSERepositoryImpl @Inject constructor(
                         userDao.insert(users)
                         chatRoomDao.insertRoomWithUsers(roomUsers)
 
-                        if (rooms.isNotEmpty())
-                            rooms.maxByOrNull { it.createdAt!! }?.createdAt?.let {
+                        if (rooms.isNotEmpty()) {
+                            val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
+                            Timber.d("MaxTimestamp rooms: $maxTimestamp")
+                            rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt?.let {
                                 sharedPrefs.writeRoomTimestamp(
                                     it
                                 )
                             }
+                        }
                     }
                 }
             }

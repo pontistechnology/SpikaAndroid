@@ -467,7 +467,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT,
             MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null),
-            System.currentTimeMillis()
+            System.currentTimeMillis(),
+            null
         )
 
         unsentMessages.add(tempMessage)
