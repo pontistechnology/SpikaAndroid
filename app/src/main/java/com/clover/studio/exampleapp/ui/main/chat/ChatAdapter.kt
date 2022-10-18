@@ -22,6 +22,7 @@ import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.ReactionMessage
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
@@ -35,16 +36,15 @@ import java.util.*
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 private var REACTION = ""
+private var reactionMessage: ReactionMessage = ReactionMessage("", 0)
 
 class ChatAdapter(
     private val context: Context,
     private val myUserId: Int,
     private val users: List<User>,
-    private val onItemLongClick: ((reaction: String) -> Unit)
+    private val addReaction: ((reaction: ReactionMessage) -> Unit),
 ) :
-    ListAdapter<MessageAndRecords, RecyclerView.ViewHolder>(
-        RoomAndMessageAndRecordsDiffCallback()
-    ) {
+    ListAdapter<MessageAndRecords, RecyclerView.ViewHolder>(MessageAndRecordsDiffCallback()) {
 
     inner class SentMessageHolder(val binding: ItemMessageMeBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -104,7 +104,7 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
 
-                        val imagePath = it.body?.file?.path?.let { imagePath ->
+                        val imagePath = it.message.body?.file?.path?.let { imagePath ->
                             Tools.getFileUrl(
                                 imagePath
                             )
@@ -140,10 +140,10 @@ class ChatAdapter(
                                     .toString()
                             } ${holder.itemView.context.getString(R.string.files_mb_text)}"
                         holder.binding.tvFileSize.text = megabyteText
-                        addFiles(it, holder.binding.ivFileType)
+                        addFiles(it.message, holder.binding.ivFileType)
 
                         // TODO implement file handling when clicked on in chat
-                        val filePath = it.body.file?.path?.let { filePath ->
+                        val filePath = it.message.body.file?.path?.let { filePath ->
                             Tools.getFileUrl(
                                 filePath
                             )
@@ -192,6 +192,24 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.GONE
                     }
                 }
+
+                // Reactions section:
+                it.records?.forEach { records ->
+                    // TODO - Duplicated reactions on scroll
+                    if (!records.reaction.isNullOrEmpty()) {
+                        val text = records.reaction
+                        holder.binding.tvReactedEmoji.text = text
+                        holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                    }
+                }
+
+                holder.binding.clContainer.setOnLongClickListener { _ ->
+                    holder.binding.cvReactions.visibility = View.VISIBLE
+                    holder.binding.cvMessageOptions.visibility = View.VISIBLE
+                    listeners(holder, it.message.id)
+                    true
+                }
+
 
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
@@ -246,7 +264,7 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
 
-                        val imagePath = it.body?.file?.path?.let { imagePath ->
+                        val imagePath = it.message.body?.file?.path?.let { imagePath ->
                             Tools.getFileUrl(
                                 imagePath
                             )
@@ -360,32 +378,24 @@ class ChatAdapter(
                     }
                 }
 
-                if (holder.binding.tvReactedEmoji.text.isNotEmpty()) {
-                    holder.binding.cvReactions.visibility = View.VISIBLE
-                }
-
-                // private / group
+                // Reactions section:
                 it.records?.forEach { records ->
-                    Timber.d("records: $records")
-                    if (!records.reaction.isNullOrEmpty()) {
-                        val text = records.reaction
-                        holder.binding.cvReactions.visibility = View.VISIBLE
-                        holder.binding.tvReactedEmoji.text = text
+                    // TODO - Duplicated reactions on scroll
+                    if (it.message.id == records.messageId) {
+                        if (!records.reaction.isNullOrEmpty()) {
+                            val text = records.reaction
+                            holder.binding.tvReactedEmoji.text = text
+                            holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                        } else {
+                            holder.binding.cvReactedEmoji.visibility = View.GONE
+                        }
                     }
                 }
-
 
                 holder.binding.clContainer.setOnLongClickListener { _ ->
-                    holder.binding.cvEmoji.visibility = View.VISIBLE
+                    holder.binding.cvReactions.visibility = View.VISIBLE
                     holder.binding.cvMessageOptions.visibility = View.VISIBLE
-
-                    holder.binding.clContainer.bringToFront()
-
-                    listeners(holder)
-                    it.let {
-                        onItemLongClick.invoke(REACTION)
-                    }
-
+                    listeners(holder, it.message.id)
                     true
                 }
 
@@ -423,40 +433,96 @@ class ChatAdapter(
         }
     }
 
-    private fun listeners(holder: ReceivedMessageHolder) {
-        holder.binding.clEmoji.children.forEach { child ->
+    // TODO - same listeners method for both holders
+    private fun listeners(holder: ReceivedMessageHolder, messageId: Int) {
+        holder.binding.reactions.clEmoji.children.forEach { child ->
             child.setOnClickListener {
                 when (child) {
-                    holder.binding.tvThumbsUpEmoji -> {
-                        holder.binding.tvReactedEmoji.text =
-                            context.getString(R.string.thumbs_up_emoji)
-                        REACTION = "thumbs"
+                    holder.binding.reactions.tvThumbsUpEmoji -> {
+                        REACTION = context.getString(R.string.thumbs_up_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
                     }
-                    holder.binding.tvHeartEmoji -> {
-                        holder.binding.tvReactedEmoji.text =
-                            context.getString(R.string.heart_emoji)
-                        REACTION = "heart"
+                    holder.binding.reactions.tvHeartEmoji -> {
+                        REACTION = context.getString(R.string.heart_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
                     }
-                    holder.binding.tvCryingEmoji -> {
-                        holder.binding.tvReactedEmoji.text =
-                            context.getString(R.string.crying_face_emoji)
+                    holder.binding.reactions.tvCryingEmoji -> {
+                        REACTION = context.getString(R.string.crying_face_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
                     }
-                    holder.binding.tvAstonishedEmoji -> {
-                        holder.binding.tvReactedEmoji.text =
-                            context.getString(R.string.astonished_emoji)
+                    holder.binding.reactions.tvAstonishedEmoji -> {
+                        REACTION = context.getString(R.string.astonished_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
                     }
-                    holder.binding.tvDisappointedRelievedEmoji -> {
-                        holder.binding.tvReactedEmoji.text =
-                            context.getString(R.string.disappointed_relieved_emoji)
+                    holder.binding.reactions.tvDisappointedRelievedEmoji -> {
+                        REACTION = context.getString(R.string.disappointed_relieved_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
+
                     }
-                    holder.binding.tvPrayingHandsEmoji -> {
-                        holder.binding.tvReactedEmoji.text =
-                            context.getString(R.string.praying_hands_emoji)
+                    holder.binding.reactions.tvPrayingHandsEmoji -> {
+                        REACTION = context.getString(R.string.praying_hands_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
                     }
                 }
-                holder.binding.cvReactions.visibility = View.VISIBLE
-                holder.binding.cvEmoji.visibility = View.GONE
+                reactionMessage.reaction = REACTION
+                reactionMessage.messageId = messageId
+
+                Timber.d("react: ${reactionMessage.reaction}, ${reactionMessage.messageId}")
+
+                if (REACTION.isNotEmpty()) {
+                    addReaction.invoke(reactionMessage)
+                }
+
+                holder.binding.cvReactions.visibility = View.GONE
                 holder.binding.cvMessageOptions.visibility = View.GONE
+                holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    // TODO - same listeners method for both holders
+    private fun listeners(holder: SentMessageHolder, messageId: Int) {
+        holder.binding.reactions.clEmoji.children.forEach { child ->
+            child.setOnClickListener {
+                when (child) {
+                    holder.binding.reactions.tvThumbsUpEmoji -> {
+                        REACTION = context.getString(R.string.thumbs_up_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
+                    }
+                    holder.binding.reactions.tvHeartEmoji -> {
+                        REACTION = context.getString(R.string.heart_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
+                    }
+                    holder.binding.reactions.tvCryingEmoji -> {
+                        REACTION = context.getString(R.string.crying_face_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
+                    }
+                    holder.binding.reactions.tvAstonishedEmoji -> {
+                        REACTION = context.getString(R.string.astonished_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
+                    }
+                    holder.binding.reactions.tvDisappointedRelievedEmoji -> {
+                        REACTION = context.getString(R.string.disappointed_relieved_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
+
+                    }
+                    holder.binding.reactions.tvPrayingHandsEmoji -> {
+                        REACTION = context.getString(R.string.praying_hands_emoji)
+                        holder.binding.tvReactedEmoji.text = REACTION
+                    }
+                }
+                reactionMessage.reaction = REACTION
+                reactionMessage.messageId = messageId
+
+                Timber.d("react: ${reactionMessage.reaction}, ${reactionMessage.messageId}")
+
+                if (REACTION.isNotEmpty()) {
+                    addReaction.invoke(reactionMessage)
+                }
+
+                holder.binding.cvReactions.visibility = View.GONE
+                holder.binding.cvMessageOptions.visibility = View.GONE
+                holder.binding.cvReactedEmoji.visibility = View.VISIBLE
             }
         }
     }
@@ -495,18 +561,21 @@ class ChatAdapter(
         }
     }
 
-    private class RoomAndMessageAndRecordsDiffCallback :
-        DiffUtil.ItemCallback<MessageAndRecords>() {
+    private class MessageAndRecordsDiffCallback : DiffUtil.ItemCallback<MessageAndRecords>() {
 
         override fun areItemsTheSame(
             oldItem: MessageAndRecords,
             newItem: MessageAndRecords
-        ) = oldItem.message.id == newItem.message.id
+        ): Boolean {
+            return oldItem.message == newItem.message
+        }
 
         override fun areContentsTheSame(
             oldItem: MessageAndRecords,
             newItem: MessageAndRecords
-        ) = oldItem == newItem
+        ): Boolean {
+            return oldItem == newItem
+        }
     }
 
     private fun showDateHeader(
