@@ -9,6 +9,12 @@ apply plugin: 'androidx.navigation.safeargs.kotlin'
 
 
 android {
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFileName = "spika_ultimate_${variant.versionCode}_${variant.buildType.name}.apk"
+        }
+    }
+
     signingConfigs {
         debug {
             storeFile file('/Library/Android/release-keystore')
