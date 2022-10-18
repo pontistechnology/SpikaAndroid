@@ -57,6 +57,20 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(appContext: Context) =
             Room.databaseBuilder(appContext, AppDatabase::class.java, "MainDatabase")
+                // Use code below to add migrations if necessary
+//                .addMigrations(
+//                    MIGRATION_1_2,
+//                )
+//                .fallbackToDestructiveMigration()
                 .build()
     }
+
+    /**
+     * Dummy implementation of migration. Change migrate when doing real migration and test with MigrationTest.kt
+     */
+//    val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+//        override fun migrate(database: SupportSQLiteDatabase) {
+//            database.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM + " ADD COLUMN version TEXT")
+//        }
+//    }
 }
