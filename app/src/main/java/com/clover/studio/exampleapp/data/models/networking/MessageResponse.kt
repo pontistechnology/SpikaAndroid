@@ -8,7 +8,7 @@ data class MessageResponse(
 )
 
 data class MessageData(
-    val list: List<Message>?,
+    val messages: List<Message>?,
     val count: Int?,
     val limit: Int?,
     val message: Message?

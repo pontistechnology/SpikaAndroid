@@ -42,8 +42,8 @@ class ChatRepositoryImpl @Inject constructor(
         val response = chatService.getMessages(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
         val messages: MutableList<Message> = ArrayList()
-        if (response.data?.list != null) {
-            for (message in response.data.list) {
+        if (response.data?.messages != null) {
+            for (message in response.data.messages) {
                 messages.add(message)
             }
             messageDao.insert(messages)

@@ -80,8 +80,8 @@ class SSERepositoryImpl @Inject constructor(
             )
 
         val messages: MutableList<Message> = ArrayList()
-        if (response.data?.list?.isNotEmpty() == true) {
-            for (message in response.data.list) {
+        if (response.data?.messages?.isNotEmpty() == true) {
+            for (message in response.data.messages) {
                 messages.add(message)
                 messageIds.add(message.id)
             }

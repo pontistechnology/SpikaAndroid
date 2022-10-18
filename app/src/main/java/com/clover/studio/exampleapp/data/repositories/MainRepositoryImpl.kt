@@ -96,8 +96,8 @@ class MainRepositoryImpl @Inject constructor(
                     id.toString()
                 )
 
-                if (messageData.data?.list != null) {
-                    for (message in messageData.data.list) {
+                if (messageData.data?.messages != null) {
+                    for (message in messageData.data.messages) {
                         messages.add(message)
                     }
                 }
