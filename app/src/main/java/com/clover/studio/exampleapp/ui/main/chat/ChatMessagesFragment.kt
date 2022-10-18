@@ -28,6 +28,7 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.MessageBody
+import com.clover.studio.exampleapp.data.models.ReactionMessage
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
@@ -83,6 +84,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var avatarUrl = ""
     private var userName = ""
+    private var reactionMessage: ReactionMessage = ReactionMessage("", 0)
     private lateinit var emojiPopup: EmojiPopup
 
     @Inject
@@ -211,31 +213,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 else -> Timber.d("Other error")
             }
         })
-
-        // Add records
-        // TODO
         viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
             .observe(viewLifecycleOwner) {
                 messagesRecords.clear()
-                it.message?.forEach { msg ->
-                    messagesRecords.add(msg)
-                }
-                messagesRecords.sortByDescending { messages -> messages.message.createdAt }
-                chatAdapter.submitList(messagesRecords) {
-                    bindingSetup.rvChat.scrollToPosition(0)
-                }
 
-            }
+                if (it.message?.isNotEmpty() == true) {
+                    it.message.forEach { msg ->
+                        messagesRecords.add(msg)
+                    }
+                    messagesRecords.sortByDescending { messages -> messages.message.createdAt }
 
-        /*viewModel.getLocalMessages(roomWithUsers.room.roomId).observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                messages = it as MutableList<Message>
-                messages.sortByDescending { message -> message.createdAt }
-                chatAdapter.submitList(messages) {
-                    bindingSetup.rvChat.scrollToPosition(0)
+                    // messagesRecords.toList -> for DiffUtil class
+                    chatAdapter.submitList(messagesRecords.toList()) {
+                        bindingSetup.rvChat.scrollToPosition(0)
+                    }
                 }
             }
-        }*/
     }
 
     private fun setUpAdapter() {
@@ -282,9 +275,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
     }
 
-    private fun addMessageReaction(reaction: String) {
-        // Message
-        Timber.d("message: $reaction")
+    private fun addMessageReaction(reaction: ReactionMessage) {
+        // POST reaction to server:
+        Timber.d("reactions: ${reaction.reaction}, ${reaction.messageId}")
+        val jsonObject = JsonObject()
+        jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
+        jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
+        jsonObject.addProperty(Const.JsonFields.REACTION, reaction.reaction)
+        viewModel.sendReaction(jsonObject)
     }
 
     private fun initViews() {

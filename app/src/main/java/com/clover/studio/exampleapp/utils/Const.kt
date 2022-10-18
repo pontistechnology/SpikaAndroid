@@ -11,30 +11,10 @@ class Const {
             const val ROOM_DATA = "room_data"
             const val GO_ACCOUNT_CREATION = "go_account_creation"
             const val SELECTED_USERS = "selected_users"
-            const val ROOM_ID = "roomId"
+            const val ROOM_ID = "room_id"
             const val IS_ADMIN = "is_admin"
             const val USER_IDS = "user_ids"
             const val USER_NUMBER = "user_number"
-            const val NOTE_ID = "noteId"
-            const val NOTES_DETAILS = "notesDetails"
-            const val NOTES_NAME = "notesName"
-        }
-    }
-
-    class UserActions {
-        companion object {
-            const val DELETE_MESSAGE_ME = "user"
-            const val DELETE_MESSAGE_ALL = "all"
-            const val DOWNLOAD_FILE = "download_file"
-            const val DOWNLOAD_CANCEL = "download_cancel"
-            const val MESSAGE_ACTION = "action"
-            const val MESSAGE_REPLY = "reply"
-            const val USER_REMOVE = "remove_user"
-            const val USER_OPTIONS = "user_options"
-            const val SHOW_MESSAGE_REACTIONS = "show_message_reactions"
-            const val NAVIGATE_TO_MEDIA_FRAGMENT = "navigate_to_media_fragment"
-            const val ACTION_LEFT = "left"
-            const val ACTION_RIGHT = "right"
         }
     }
 
@@ -55,7 +35,6 @@ class Const {
             const val MKV = "mkv"
             const val JPEG = "jpeg"
             const val PNG = "png"
-            const val AUDIO = "audio/mpeg"
         }
     }
 
@@ -67,10 +46,6 @@ class Const {
             const val TELEPHONE_NUMBER_HASHED = "telephoneNumberHashed"
             const val COUNTRY_CODE = "countryCode"
             const val PUSH_TOKEN = "pushToken"
-            const val TEMPORARY_FILE_ID = 1L
-
-            // Mute/Unmute
-            const val SUCCESS = "success"
 
             // SSE
             const val NEW_MESSAGE = "NEW_MESSAGE"
@@ -82,22 +57,18 @@ class Const {
             const val UPDATE_ROOM = "UPDATE_ROOM"
             const val DELETE_ROOM = "DELETE_ROOM"
             const val USER_UPDATE = "USER_UPDATE"
-            const val SEEN_ROOM = "SEEN_ROOM"
 
             // Mime types
             const val IMAGE = "image/*"
             const val FILE = "*/*"
-            const val VIDEO = "video/*"
-            const val AUDIO = "audio/*"
 
             // File types
-            const val AVATAR_TYPE = "avatar"
+            const val AVATAR = "avatar"
             const val FILE_TYPE = "file"
-            const val AUDIO_TYPE = "audio"
-            const val VIDEO_TYPE = "video"
-            const val TEXT_TYPE = "text"
-            const val IMAGE_TYPE = "image"
-            const val SVG_TYPE = "svg"
+            const val AUDIO = "audio"
+            const val VIDEO = "video"
+            const val TEXT = "text"
+            const val CHAT_IMAGE = "image"
 
             // File upload
             const val CHUNK = "chunk"
@@ -112,16 +83,11 @@ class Const {
             const val CLIENT_ID = "clientId"
             const val FILE_ID = "fileId"
             const val THUMB_ID = "thumbId"
-            const val LOCAL_ID = "localId"
-            const val METADATA = "metaData"
-            const val WIDTH = "width"
-            const val HEIGHT = "height"
-            const val DURATION = "duration"
 
             // Chat
             const val ROOM_ID = "roomId"
             const val NAME = "name"
-            const val AVATAR_FILE_ID = "avatarFileId"
+            const val AVATAR_URL = "avatarUrl"
             const val USER_IDS = "userIds"
             const val ADMIN_USER_IDS = "adminUserIds"
             const val PRIVATE = "private"
@@ -130,13 +96,6 @@ class Const {
             const val MESSAGE_IDS = "messagesIds"
             const val REACTION = "reaction"
 
-            // Reply
-            const val REPLY_ID = "replyId"
-
-            // Message details
-            const val SEEN = "seen"
-            const val DELIVERED = "delivered"
-            const val SENT = "sent"
         }
     }
 
@@ -146,7 +105,6 @@ class Const {
             const val API_SYNC_MESSAGES = "api/messenger/messages/sync/{lastUpdate}"
             const val API_SYNC_MESSAGE_RECORDS = "api/messenger/message-records/sync/{lastUpdate}"
             const val API_POST_REACTION = "api/messenger/message-records"
-            const val API_DELETE_REACTION = "api/messenger/message-records/{id}"
             const val API_SYNC_USERS = "api/messenger/users/sync/{lastUpdate}"
             const val API_SYNC_ROOMS = "api/messenger/rooms/sync/{lastUpdate}"
 
@@ -154,7 +112,6 @@ class Const {
             const val API_VERIFY_CODE = "api/messenger/auth/verify"
             const val API_CONTACTS = "api/messenger/contacts"  // Fix
             const val API_UPDATE_USER = "api/messenger/me" // Fix
-            const val API_GET_FILE_FROM_ID = "api/upload/files/"
             const val API_UPLOAD_FILE = "api/upload/files" // Fix
             const val API_VERIFY_FILE = "api/upload/files/verify" // Fix
             const val API_POST_MESSAGE = "api/messenger/messages"
@@ -170,19 +127,7 @@ class Const {
             const val API_UPDATE_ROOM = "api/messenger/rooms/{roomId}" // Fix
             const val API_MUTE_ROOM = "api/messenger/rooms/{roomId}/mute"
             const val API_UNMUTE_ROOM = "api/messenger/rooms/{roomId}/unmute"
-            const val API_PIN_ROOM = "api/messenger/rooms/{roomId}/pin"
-            const val API_UNPIN_ROOM = "api/messenger/rooms/{roomId}/unpin"
-            const val API_UNREAD_COUNT = "api/messenger/rooms/unread-count"
             const val API_GET_SETTINGS = "api/messenger/me/settings"
-            const val API_UPDATE_MESSAGE = "api/messenger/messages/{id}"
-            const val API_LEAVE_ROOM = "api/messenger/rooms/{id}/leave"
-            const val API_NOTES = "api/messenger/notes/roomId/{roomId}"
-            const val API_MANAGE_NOTE = "api/messenger/notes/{id}"
-            const val API_BLOCK = "api/messenger/blocks"
-            const val API_CREATE_BLOCK = "api/messenger/blocks/{roomId}"
-            const val API_DELETE_BLOCK = "api/messenger/blocks/{id}"
-            const val API_DELETE_BLOCK_FOR_USER = "api/messenger/blocks/userId/{userId}"
-            const val API_ROOM_BLOCKS = "api/messenger/blocks/rooms/{roomId}"
 
             // Queries
             const val TIMESTAMP = "timestamp"
@@ -193,9 +138,6 @@ class Const {
             const val MESSAGE_ID = "messageId"
             const val LAST_UPDATE = "lastUpdate"
             const val PAGE = "page"
-            const val ID = "id"
-            const val TARGET = "target"
-            const val AVATAR_ID = "avatarFileId"
         }
     }
 
@@ -228,23 +170,19 @@ class Const {
             const val DEVICE_ID = "deviceId"
             const val COUNTRY_CODE = "countryCode"
             const val REGISTERED = "registered"
-            const val BLOCKED_USERS = "blocked_users"
 
             // Sync
             const val MESSAGE_RECORD_SYNC = "message_record_sync"
             const val MESSAGE_SYNC = "message_sync"
             const val USER_SYNC = "user_sync"
             const val ROOM_SYNC = "room_sync"
-
-            // Theme
-            const val THEME = "theme"
         }
     }
 
     class UserData {
         companion object {
             const val DISPLAY_NAME: String = "displayName"
-            const val AVATAR_FILE_ID: String = "avatarFileId"
+            const val AVATAR_URL: String = "avatarUrl"
         }
     }
 }

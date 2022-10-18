@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -221,6 +222,18 @@ class ChatViewModel @Inject constructor(
                 userSettingsListener.postValue(Event(UserSettingsFetchFailed))
             }
             return@launch
+        }
+    }
+
+    fun sendReaction(jsonObject: JsonObject) = viewModelScope.launch {
+        try {
+            repository.sendReaction(jsonObject)
+        } catch (ex: Exception){
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                Timber.d("Exception: $ex")
+            }
         }
     }
 
