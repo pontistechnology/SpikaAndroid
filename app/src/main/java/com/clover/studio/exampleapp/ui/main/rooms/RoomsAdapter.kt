@@ -81,12 +81,15 @@ class RoomsAdapter(
                     }
 
                     val unreadMessages = ArrayList<MessageAndRecords>()
-                    for (messages in sortedList) {
-                        if (roomItem.roomWithUsers.room.visitedRoom == null) {
-                            unreadMessages.add(messages)
-                        } else {
-                            if (messages.message.createdAt!! >= roomItem.roomWithUsers.room.visitedRoom!!) {
-                                unreadMessages.add(messages)
+                    if (sortedList.isNotEmpty()) {
+                        for (messages in sortedList) {
+                            if (roomItem.roomWithUsers.room.visitedRoom == null) {
+                                if (myUserId != messages.message.fromUserId.toString())
+                                    unreadMessages.add(messages)
+                            } else {
+                                if (messages.message.modifiedAt!! >= roomItem.roomWithUsers.room.visitedRoom!! && myUserId != messages.message.fromUserId.toString()) {
+                                    unreadMessages.add(messages)
+                                }
                             }
                         }
                     }
