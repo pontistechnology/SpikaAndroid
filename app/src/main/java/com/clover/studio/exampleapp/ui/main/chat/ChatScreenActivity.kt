@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -138,6 +139,15 @@ class ChatScreenActivity : BaseActivity() {
 
                     if (myUserId == it.message.fromUserId || roomWithUsers?.room?.roomId == it.message.roomId || isRoomMuted) return@EventObserver
                     runOnUiThread {
+                        val animator =
+                            ValueAnimator.ofInt(bindingSetup.cvNotification.pbTimeout.max, 0)
+                        animator.duration = 5000
+                        animator.addUpdateListener { animation ->
+                            bindingSetup.cvNotification.pbTimeout.progress =
+                                animation.animatedValue as Int
+                        }
+                        animator.start()
+
                         if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
                             Glide.with(this@ChatScreenActivity)
                                 .load(it.roomWithUsers.room.avatarUrl?.let { avatarUrl ->
@@ -149,8 +159,21 @@ class ChatScreenActivity : BaseActivity() {
                             bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
                             for (user in it.roomWithUsers.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
+                                    val content: String = when (it.message.type) {
+                                        Const.JsonFields.CHAT_IMAGE -> user.displayName + ": " + getString(
+                                            R.string.image_shared
+                                        )
+                                        Const.JsonFields.VIDEO -> user.displayName + ": " + getString(
+                                            R.string.video_shared
+                                        )
+                                        Const.JsonFields.FILE_TYPE -> user.displayName + ": " + getString(
+                                            R.string.file_shared
+                                        )
+                                        else -> user.displayName + ": " + it.message.body?.text.toString()
+                                    }
+
                                     bindingSetup.cvNotification.tvMessage.text =
-                                        user.displayName + ": " + it.message.body?.text
+                                        content
                                     break
                                 }
                             }
@@ -164,9 +187,19 @@ class ChatScreenActivity : BaseActivity() {
                                             )
                                         })
                                         .into(bindingSetup.cvNotification.ivUserImage)
+
+                                    val content: String = when (it.message.type) {
+                                        Const.JsonFields.CHAT_IMAGE -> getString(
+                                            R.string.image_shared
+                                        )
+                                        Const.JsonFields.VIDEO -> getString(R.string.video_shared)
+                                        Const.JsonFields.FILE_TYPE -> getString(R.string.file_shared)
+                                        else -> it.message.body?.text.toString()
+                                    }
+
                                     bindingSetup.cvNotification.tvTitle.text = user.displayName
                                     bindingSetup.cvNotification.tvMessage.text =
-                                        it.message.body?.text
+                                        content
                                     break
                                 }
                             }

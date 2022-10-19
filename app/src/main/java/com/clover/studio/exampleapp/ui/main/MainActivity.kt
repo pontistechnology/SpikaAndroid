@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.ui.main
 
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -29,6 +30,7 @@ import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
+
 
 fun startMainActivity(fromActivity: Activity) = fromActivity.apply {
     startActivity(Intent(fromActivity as Context, MainActivity::class.java))
@@ -117,6 +119,15 @@ class MainActivity : BaseActivity() {
 
                     if (myUserId == it.message.fromUserId || isRoomMuted) return@EventObserver
                     runOnUiThread {
+                        val animator =
+                            ValueAnimator.ofInt(bindingSetup.cvNotification.pbTimeout.max, 0)
+                        animator.duration = 5000
+                        animator.addUpdateListener { animation ->
+                            bindingSetup.cvNotification.pbTimeout.progress =
+                                animation.animatedValue as Int
+                        }
+                        animator.start()
+
                         if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
                             Glide.with(this@MainActivity)
                                 .load(it.roomWithUsers.room.avatarUrl?.let { avatarUrl ->
@@ -128,8 +139,21 @@ class MainActivity : BaseActivity() {
                             bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
                             for (user in it.roomWithUsers.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
+                                    val content: String = when (it.message.type) {
+                                        Const.JsonFields.CHAT_IMAGE -> user.displayName + ": " + getString(
+                                            R.string.image_shared
+                                        )
+                                        Const.JsonFields.VIDEO -> user.displayName + ": " + getString(
+                                            R.string.video_shared
+                                        )
+                                        Const.JsonFields.FILE_TYPE -> user.displayName + ": " + getString(
+                                            R.string.file_shared
+                                        )
+                                        else -> user.displayName + ": " + it.message.body?.text.toString()
+                                    }
+
                                     bindingSetup.cvNotification.tvMessage.text =
-                                        user.displayName + ": " + it.message.body?.text
+                                        content
                                     break
                                 }
                             }
@@ -143,9 +167,18 @@ class MainActivity : BaseActivity() {
                                             )
                                         })
                                         .into(bindingSetup.cvNotification.ivUserImage)
+
+                                    val content: String = when (it.message.type) {
+                                        Const.JsonFields.CHAT_IMAGE -> getString(
+                                            R.string.image_shared
+                                        )
+                                        Const.JsonFields.VIDEO -> getString(R.string.video_shared)
+                                        Const.JsonFields.FILE_TYPE -> getString(R.string.file_shared)
+                                        else -> it.message.body?.text.toString()
+                                    }
                                     bindingSetup.cvNotification.tvTitle.text = user.displayName
                                     bindingSetup.cvNotification.tvMessage.text =
-                                        it.message.body?.text
+                                        content
                                     break
                                 }
                             }
