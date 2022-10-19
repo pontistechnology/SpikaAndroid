@@ -7,6 +7,7 @@ import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.networking.StreamingResponse
 import com.clover.studio.exampleapp.data.repositories.SSERepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
+import com.clover.studio.exampleapp.utils.helpers.AppLifecycleManager
 import com.google.gson.Gson
 import kotlinx.coroutines.*
 import okio.IOException
@@ -30,6 +31,8 @@ class SSEManager @Inject constructor(
     }
 
     private suspend fun openConnectionAndFetchEvents(url: String, listener: SSEListener) {
+        if (!AppLifecycleManager.isInForeground) return
+
         if (job != null) {
             job?.cancel()
         }

@@ -87,7 +87,7 @@ class RoomsAdapter(
                                 if (myUserId != messages.message.fromUserId.toString())
                                     unreadMessages.add(messages)
                             } else {
-                                if (messages.message.modifiedAt!! >= roomItem.roomWithUsers.room.visitedRoom!! && myUserId != messages.message.fromUserId.toString()) {
+                                if (messages.message.modifiedAt != null && messages.message.modifiedAt >= roomItem.roomWithUsers.room.visitedRoom!! && myUserId != messages.message.fromUserId.toString()) {
                                     unreadMessages.add(messages)
                                 }
                             }
