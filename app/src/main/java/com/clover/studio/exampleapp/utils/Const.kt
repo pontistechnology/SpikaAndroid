@@ -61,11 +61,13 @@ class Const {
             const val IMAGE = "image/*"
             const val FILE = "*/*"
 
-            const val VIDEO = "video"
-
             // File types
             const val AVATAR = "avatar"
             const val FILE_TYPE = "file"
+            const val AUDIO = "audio"
+            const val VIDEO = "video"
+            const val TEXT = "text"
+            const val CHAT_IMAGE = "image"
 
             // File upload
             const val CHUNK = "chunk"
@@ -83,8 +85,6 @@ class Const {
 
             // Chat
             const val ROOM_ID = "roomId"
-            const val TEXT = "text"
-            const val CHAT_IMAGE = "image"
             const val NAME = "name"
             const val AVATAR_URL = "avatarUrl"
             const val USER_IDS = "userIds"

@@ -159,18 +159,15 @@ class ChatScreenActivity : BaseActivity() {
                             bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
                             for (user in it.roomWithUsers.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
-                                    val content: String = when (it.message.type) {
-                                        Const.JsonFields.CHAT_IMAGE -> user.displayName + ": " + getString(
-                                            R.string.image_shared
-                                        )
-                                        Const.JsonFields.VIDEO -> user.displayName + ": " + getString(
-                                            R.string.video_shared
-                                        )
-                                        Const.JsonFields.FILE_TYPE -> user.displayName + ": " + getString(
-                                            R.string.file_shared
-                                        )
-                                        else -> user.displayName + ": " + it.message.body?.text.toString()
-                                    }
+                                    val content: String =
+                                        if (it.message.type != Const.JsonFields.TEXT) {
+                                            user.displayName + ": " + getString(
+                                                R.string.generic_shared,
+                                                it.message.type.toString()
+                                                    .replaceFirstChar { type -> type.uppercase() })
+                                        } else {
+                                            user.displayName + ": " + it.message.body?.text.toString()
+                                        }
 
                                     bindingSetup.cvNotification.tvMessage.text =
                                         content
@@ -187,15 +184,15 @@ class ChatScreenActivity : BaseActivity() {
                                             )
                                         })
                                         .into(bindingSetup.cvNotification.ivUserImage)
-
-                                    val content: String = when (it.message.type) {
-                                        Const.JsonFields.CHAT_IMAGE -> getString(
-                                            R.string.image_shared
-                                        )
-                                        Const.JsonFields.VIDEO -> getString(R.string.video_shared)
-                                        Const.JsonFields.FILE_TYPE -> getString(R.string.file_shared)
-                                        else -> it.message.body?.text.toString()
-                                    }
+                                    val content: String =
+                                        if (it.message.type != Const.JsonFields.TEXT) {
+                                            getString(
+                                                R.string.generic_shared,
+                                                it.message.type.toString()
+                                                    .replaceFirstChar { type -> type.uppercase() })
+                                        } else {
+                                            it.message.body?.text.toString()
+                                        }
 
                                     bindingSetup.cvNotification.tvTitle.text = user.displayName
                                     bindingSetup.cvNotification.tvMessage.text =

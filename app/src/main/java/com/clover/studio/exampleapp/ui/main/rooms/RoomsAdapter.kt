@@ -70,16 +70,10 @@ class RoomsAdapter(
                         }
                     }
                     if (lastMessage?.text.isNullOrEmpty()) {
-                        when (sortedList.last().message.type) {
-                            Const.JsonFields.CHAT_IMAGE -> binding.tvLastMessage.text =
-                                textUserName + context.getString(R.string.image_shared)
-                            Const.JsonFields.VIDEO -> binding.tvLastMessage.text =
-                                textUserName + context.getString(R.string.video_shared)
-                            Const.JsonFields.FILE_TYPE -> binding.tvLastMessage.text =
-                                textUserName + context.getString(R.string.file_shared)
-                            else -> binding.tvLastMessage.text =
-                                textUserName + lastMessage?.text.toString()
-                        }
+                        binding.tvLastMessage.text = textUserName + context.getString(
+                            R.string.generic_shared,
+                            sortedList.last().message.type.toString()
+                                .replaceFirstChar { it.uppercase() })
                     } else binding.tvLastMessage.text = textUserName + lastMessage?.text.toString()
 
                     binding.tvMessageTime.text = roomItem.message.last().message.createdAt?.let {
