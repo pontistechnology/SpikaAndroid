@@ -84,6 +84,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var avatarUrl = ""
     private var userName = ""
+    private var firstChatVisit = true
     private var reactionMessage: ReactionMessage = ReactionMessage("", 0)
     private lateinit var emojiPopup: EmojiPopup
 
@@ -224,8 +225,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     messagesRecords.sortByDescending { messages -> messages.message.createdAt }
 
                     // messagesRecords.toList -> for DiffUtil class
-                    chatAdapter.submitList(messagesRecords.toList()) {
+                    chatAdapter.submitList(messagesRecords.toList())
+                    if (firstChatVisit) {
                         bindingSetup.rvChat.scrollToPosition(0)
+                        firstChatVisit = false
                     }
                 }
             }

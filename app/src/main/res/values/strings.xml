@@ -127,6 +127,7 @@
     <string name="reply">Reply</string>
     <string name="forward">Forward</string>
     <string name="copy">Copy</string>
+    <string name="edit">Edit</string>
     <string name="details">Details</string>
     <string name="favorite">Favorite</string>
     <string name="delete">Delete</string>

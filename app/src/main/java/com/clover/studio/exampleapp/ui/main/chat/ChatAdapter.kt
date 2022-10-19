@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.text.format.DateUtils
@@ -75,12 +76,10 @@ class ChatAdapter(
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-
         getItem(position).let { it ->
-
-            Timber.d("messageRecords: $it")
 
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.message.createdAt!!
@@ -194,22 +193,36 @@ class ChatAdapter(
                 }
 
                 // Reactions section:
-                it.records?.forEach { records ->
-                    // TODO - Duplicated reactions on scroll
-                    if (!records.reaction.isNullOrEmpty()) {
-                        val text = records.reaction
-                        holder.binding.tvReactedEmoji.text = text
+                // Reactions section:
+                // Listener - remove reaction layouts
+                holder.binding.clMessageMe.setOnTouchListener { _, _ ->
+                    holder.binding.cvReactions.visibility = View.GONE
+                    holder.binding.cvMessageOptions.visibility = View.GONE
+                    if (!holder.binding.tvReactedEmoji.text.isNullOrEmpty()) {
                         holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                    }
+                    return@setOnTouchListener true
+                }
+
+                it.records?.forEach { records ->
+                    if (it.message.id == records.messageId) {
+                        if (!records.reaction.isNullOrEmpty()) {
+                            val text = records.reaction
+                            holder.binding.tvReactedEmoji.text = text
+                            holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                        } else {
+                            holder.binding.cvReactedEmoji.visibility = View.GONE
+                        }
                     }
                 }
 
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     holder.binding.cvReactions.visibility = View.VISIBLE
                     holder.binding.cvMessageOptions.visibility = View.VISIBLE
+                    holder.binding.cvReactedEmoji.visibility = View.GONE
                     listeners(holder, it.message.id)
                     true
                 }
-
 
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
@@ -379,8 +392,17 @@ class ChatAdapter(
                 }
 
                 // Reactions section:
+                // Listener - remove reaction layouts
+                holder.binding.clMessageOther.setOnTouchListener { _, _ ->
+                    holder.binding.cvReactions.visibility = View.GONE
+                    holder.binding.cvMessageOptions.visibility = View.GONE
+                    if (!holder.binding.tvReactedEmoji.text.isNullOrEmpty()) {
+                        holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                    }
+                    return@setOnTouchListener true
+                }
+
                 it.records?.forEach { records ->
-                    // TODO - Duplicated reactions on scroll
                     if (it.message.id == records.messageId) {
                         if (!records.reaction.isNullOrEmpty()) {
                             val text = records.reaction
@@ -395,6 +417,7 @@ class ChatAdapter(
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     holder.binding.cvReactions.visibility = View.VISIBLE
                     holder.binding.cvMessageOptions.visibility = View.VISIBLE
+                    holder.binding.cvReactedEmoji.visibility = View.GONE
                     listeners(holder, it.message.id)
                     true
                 }
@@ -441,6 +464,7 @@ class ChatAdapter(
                     holder.binding.reactions.tvThumbsUpEmoji -> {
                         REACTION = context.getString(R.string.thumbs_up_emoji)
                         holder.binding.tvReactedEmoji.text = REACTION
+                        //child.setBackgroundResource(R.drawable.bg_message_received)
                     }
                     holder.binding.reactions.tvHeartEmoji -> {
                         REACTION = context.getString(R.string.heart_emoji)
@@ -457,7 +481,6 @@ class ChatAdapter(
                     holder.binding.reactions.tvDisappointedRelievedEmoji -> {
                         REACTION = context.getString(R.string.disappointed_relieved_emoji)
                         holder.binding.tvReactedEmoji.text = REACTION
-
                     }
                     holder.binding.reactions.tvPrayingHandsEmoji -> {
                         REACTION = context.getString(R.string.praying_hands_emoji)
@@ -466,8 +489,6 @@ class ChatAdapter(
                 }
                 reactionMessage.reaction = REACTION
                 reactionMessage.messageId = messageId
-
-                Timber.d("react: ${reactionMessage.reaction}, ${reactionMessage.messageId}")
 
                 if (REACTION.isNotEmpty()) {
                     addReaction.invoke(reactionMessage)
@@ -513,8 +534,6 @@ class ChatAdapter(
                 }
                 reactionMessage.reaction = REACTION
                 reactionMessage.messageId = messageId
-
-                Timber.d("react: ${reactionMessage.reaction}, ${reactionMessage.messageId}")
 
                 if (REACTION.isNotEmpty()) {
                     addReaction.invoke(reactionMessage)

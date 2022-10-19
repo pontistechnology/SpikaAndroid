@@ -5,6 +5,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/cl_emoji"
+        android:background="@color/white"
         android:longClickable="true">
 
         <com.vanniktech.emoji.EmojiTextView
@@ -17,6 +18,7 @@
             android:text="@string/thumbs_up_emoji"
             android:textSize="20sp"
             app:emojiSize="30dp"
+            android:background="?attr/selectableItemBackground"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,6 +33,7 @@
             android:text="@string/heart_emoji"
             android:textSize="20sp"
             app:emojiSize="30dp"
+            android:background="?attr/selectableItemBackground"
             app:layout_constraintStart_toEndOf="@+id/tv_thumbs_up_emoji"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -45,6 +48,7 @@
             android:text="@string/crying_face_emoji"
             android:textSize="20sp"
             app:emojiSize="30dp"
+            android:background="?attr/selectableItemBackground"
             app:layout_constraintStart_toEndOf="@+id/tv_heart_emoji"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -59,6 +63,7 @@
             android:text="@string/astonished_emoji"
             android:textSize="20sp"
             app:emojiSize="30dp"
+            android:background="?attr/selectableItemBackground"
             app:layout_constraintStart_toEndOf="@+id/tv_crying_emoji"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -73,6 +78,7 @@
             android:text="@string/disappointed_relieved_emoji"
             android:textSize="20sp"
             app:emojiSize="30dp"
+            android:background="?attr/selectableItemBackground"
             app:layout_constraintStart_toEndOf="@+id/tv_astonished_emoji"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -87,6 +93,7 @@
             android:text="@string/praying_hands_emoji"
             android:textSize="20sp"
             app:emojiSize="30dp"
+            android:background="?attr/selectableItemBackground"
             app:layout_constraintStart_toEndOf="@+id/tv_disappointed_relieved_emoji"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>

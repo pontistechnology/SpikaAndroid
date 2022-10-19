@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_message_other"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -339,9 +340,11 @@
             android:id="@+id/cv_reactions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="5dp"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/tv_username"
+            app:cardCornerRadius="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/cl_container"
             app:layout_constraintStart_toStartOf="@+id/tv_username"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -358,16 +361,17 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="2dp"
             android:visibility="gone"
+            app:cardCornerRadius="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/cl_container"
-            app:layout_constraintStart_toEndOf="@+id/cl_container"
-            app:layout_constraintTop_toTopOf="@+id/cl_container"
+            app:layout_constraintStart_toStartOf="@+id/cl_container"
+            app:layout_constraintTop_toBottomOf="@+id/cl_container"
             app:layout_constraintVertical_bias="1.0">
 
             <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/tv_reacted_emoji"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="1dp"
                 android:text="@string/praying_hands_emoji" />
         </androidx.cardview.widget.CardView>
 

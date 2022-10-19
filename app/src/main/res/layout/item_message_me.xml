@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_message_me"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -10,6 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/thirty_two_dp_margin"
+        android:layout_marginTop="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.934"
@@ -20,11 +22,11 @@
             android:id="@+id/cl_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/cv_message_options"
+            android:layout_marginTop="18dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_section_header">
 
             <!-- TODO change this placeholder height size -->
 
@@ -203,10 +205,9 @@
             android:id="@+id/tv_section_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/twenty_dp_margin"
+            android:layout_marginTop="2dp"
             android:fontFamily="@font/montserrat"
             android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@id/cl_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -221,7 +222,7 @@
             app:cardCornerRadius="4dp"
             app:layout_constraintBottom_toTopOf="@+id/cl_container"
             app:layout_constraintEnd_toEndOf="@+id/cl_container"
-            app:layout_constraintTop_toBottomOf="@+id/tv_section_header">
+            app:layout_constraintTop_toTopOf="parent">
 
             <include
                 android:id="@+id/reactions"
@@ -235,15 +236,17 @@
             android:id="@+id/cv_message_options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="2dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/cl_container">
+            app:layout_constraintEnd_toEndOf="@+id/cl_container"
+            app:layout_constraintTop_toBottomOf="@+id/cl_container">
 
             <include
                 android:id="@+id/message_options"
-                layout="@layout/message_options"
+                layout="@layout/message_options_me"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </androidx.cardview.widget.CardView>
@@ -252,16 +255,18 @@
             android:id="@+id/cv_reacted_emoji"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginEnd="24dp"
             android:visibility="gone"
+            app:cardCornerRadius="8dp"
             app:layout_constraintBottom_toBottomOf="@+id/cl_container"
-            app:layout_constraintStart_toStartOf="@+id/cl_container"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cl_container">
 
             <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/tv_reacted_emoji"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="1dp"
                 android:text="@string/praying_hands_emoji" />
 
         </androidx.cardview.widget.CardView>
