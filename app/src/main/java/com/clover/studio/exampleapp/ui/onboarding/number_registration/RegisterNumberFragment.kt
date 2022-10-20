@@ -62,7 +62,6 @@ class RegisterNumberFragment : BaseFragment() {
         // Inflate the layout for this fragment
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
 
-
         checkUser()
         checkContactsPermission()
         setTextListener()
@@ -134,11 +133,18 @@ class RegisterNumberFragment : BaseFragment() {
                 else -> Timber.d("Other error")
             }
         })
+
+        viewModel.userPhoneNumberListener.observe(viewLifecycleOwner) {
+            binding.etPhoneNumber.setText(it)
+        }
     }
 
     private fun setClickListeners() {
         if (!viewModel.isAppStarted()) {
             binding.tvCountryCode.setOnClickListener {
+                if (binding.etPhoneNumber.text.isNotEmpty()) {
+                    viewModel.userPhoneNumberListener.value = binding.etPhoneNumber.text.toString()
+                }
                 findNavController().navigate(
                     R.id.action_splashFragment_to_countryPickerFragment
                 )

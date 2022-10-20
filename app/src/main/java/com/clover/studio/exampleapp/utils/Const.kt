@@ -14,6 +14,7 @@ class Const {
             const val ROOM_ID = "room_id"
             const val IS_ADMIN = "is_admin"
             const val USER_IDS = "user_ids"
+            const val USER_NUMBER = "user_number"
         }
     }
 

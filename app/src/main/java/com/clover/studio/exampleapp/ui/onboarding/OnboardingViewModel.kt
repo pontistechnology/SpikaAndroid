@@ -26,6 +26,7 @@ class OnboardingViewModel @Inject constructor(
     var registrationListener = MutableLiveData<Event<OnboardingStates>>()
     var accountCreationListener = MutableLiveData<Event<OnboardingStates>>()
     var userUpdateListener = MutableLiveData<Event<OnboardingStates>>()
+    var userPhoneNumberListener = MutableLiveData<String>()
 
     fun sendNewUserData(
         jsonObject: JsonObject
