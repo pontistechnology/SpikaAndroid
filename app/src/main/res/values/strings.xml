@@ -105,6 +105,10 @@
     <!--Alert dialog text-->
     <string name="warning">Warning</string>
     <string name="session_expired">Session has expired. Please log in again.</string>
+    <string name="room_local_fetch_error">Error while fetching room from the local database</string>
+    <string name="failed_room_creation">Failed to create room</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="error_room_exists">Error while checking if room exists</string>
 
 
 </resources>

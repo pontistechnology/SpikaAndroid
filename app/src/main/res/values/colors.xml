@@ -21,6 +21,7 @@
     <color name="border">#C9C9CA</color>
     <color name="dark_background">#1C1C1C</color>
     <color name="dark_background_transp">#CC1C1C1C</color>
+    <color name="background_80_transp">#CC000000</color>
     <color name="dark_background_2">#3D3D3D</color>
     <color name="error_background">#FFECEC</color>
     <color name="message_me">#C8EBFE</color>

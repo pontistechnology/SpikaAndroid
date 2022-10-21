@@ -9,14 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
-import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.databinding.FragmentGroupInformationBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomCreated
@@ -26,6 +25,7 @@ import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -38,12 +38,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GroupInformationFragment : Fragment() {
+class GroupInformationFragment : BaseFragment() {
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
-
-    @Inject
-    lateinit var sharedPrefs: SharedPreferencesRepository
 
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var adapter: GroupInformationAdapter
@@ -128,27 +125,26 @@ class GroupInformationFragment : Fragment() {
 
     private fun initializeViews() {
         binding.tvCreate.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                val jsonObject = JsonObject()
+            val jsonObject = JsonObject()
 
-                val userIdsArray = JsonArray()
-                for (user in selectedUsers) {
-                    userIdsArray.add(user.user.id)
-                }
-                val adminUserIds = JsonArray()
-                adminUserIds.add(sharedPrefs.readUserId())
-
-                jsonObject.addProperty(
-                    Const.JsonFields.NAME,
-                    binding.etEnterUsername.text.toString()
-                )
-                jsonObject.addProperty(Const.JsonFields.AVATAR_URL, avatarPath)
-                jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
-                jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
-                jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.GROUP)
-
-                viewModel.createNewRoom(jsonObject)
+            val userIdsArray = JsonArray()
+            for (user in selectedUsers) {
+                userIdsArray.add(user.user.id)
             }
+            val adminUserIds = JsonArray()
+            adminUserIds.add(viewModel.getLocalUserId())
+
+            jsonObject.addProperty(
+                Const.JsonFields.NAME,
+                binding.etEnterUsername.text.toString()
+            )
+            jsonObject.addProperty(Const.JsonFields.AVATAR_URL, avatarPath)
+            jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
+            jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
+            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.GROUP)
+
+            showProgress(false)
+            viewModel.createNewRoom(jsonObject)
         }
 
         binding.tvPeopleSelected.text = getString(R.string.s_people_selected, selectedUsers.size)
@@ -209,21 +205,36 @@ class GroupInformationFragment : Fragment() {
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is RoomWithUsersFetched -> {
+                    hideProgress()
                     val gson = Gson()
                     val roomData = gson.toJson(it.roomWithUsers)
                     Timber.d("Fetched room with users: $activity, $it")
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
-                    activity?.finish()
+
+                    // Pop back to main fragment instead of returning to GroupInformationFragment
+                    findNavController().popBackStack(R.id.mainFragment, false)
                 }
-                else -> Timber.d("Other error")
+                else -> {
+                    hideProgress()
+                    showRoomCreationError(getString(R.string.room_local_fetch_error))
+                    Timber.d("Other error")
+                }
             }
         })
 
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is RoomCreated -> viewModel.getRoomWithUsers(it.roomData.roomId)
-                is RoomFailed -> Timber.d("Failed to create room")
-                else -> Timber.d("Other error")
+                is RoomFailed -> {
+                    hideProgress()
+                    showRoomCreationError(getString(R.string.failed_room_creation))
+                    Timber.d("Failed to create room")
+                }
+                else -> {
+                    hideProgress()
+                    showRoomCreationError(getString(R.string.something_went_wrong))
+                    Timber.d("Other error")
+                }
             }
         })
     }
@@ -338,5 +349,17 @@ class GroupInformationFragment : Fragment() {
             )
         )
         binding.clSmallCameraPicker.visibility = View.GONE
+    }
+
+    private fun showRoomCreationError(description: String) {
+        DialogError.getInstance(
+            requireActivity(),
+            getString(R.string.error),
+            description,
+            null,
+            getString(R.string.ok),
+            object : DialogInteraction {
+                // ignore
+            })
     }
 }

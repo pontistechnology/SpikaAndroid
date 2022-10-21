@@ -92,5 +92,11 @@
         android:id="@+id/groupInformationFragment"
         android:name="com.clover.studio.exampleapp.ui.main.create_room.GroupInformationFragment"
         android:label="fragment_group_information"
-        tools:layout="@layout/fragment_group_information" />
+        tools:layout="@layout/fragment_group_information" >
+        <action
+            android:id="@+id/action_groupInformationFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>

@@ -14,16 +14,15 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.databinding.FragmentNewRoomBinding
-import com.clover.studio.exampleapp.ui.main.MainViewModel
-import com.clover.studio.exampleapp.ui.main.RoomExists
-import com.clover.studio.exampleapp.ui.main.RoomNotFound
-import com.clover.studio.exampleapp.ui.main.RoomWithUsersFetched
+import com.clover.studio.exampleapp.ui.main.*
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.ui.main.contacts.ContactsAdapter
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -105,8 +104,6 @@ class NewRoomFragment : BaseFragment() {
             jsonObject.add(Const.JsonFields.USER_IDS, userIds)
 
         args?.roomId?.let { viewModel.updateRoom(jsonObject, it, 0) }
-
-        requireActivity().onBackPressed()
     }
 
     private fun handleGroupChat() {
@@ -145,6 +142,7 @@ class NewRoomFragment : BaseFragment() {
                 handleSelectedUserList(it)
             } else {
                 user = it.user
+                showProgress(false)
                 it.user.id.let { id -> viewModel.checkIfRoomExists(id) }
             }
         }
@@ -216,11 +214,16 @@ class NewRoomFragment : BaseFragment() {
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is RoomWithUsersFetched -> {
+                    hideProgress()
                     val gson = Gson()
                     val roomData = gson.toJson(it.roomWithUsers)
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                    findNavController().popBackStack(R.id.mainFragment, false)
                 }
-                else -> Timber.d("Other error")
+                else -> {
+                    hideProgress()
+                    showRoomCreationError(getString(R.string.room_local_fetch_error))
+                    Timber.d("Other error")}
             }
         })
 
@@ -244,7 +247,24 @@ class NewRoomFragment : BaseFragment() {
 
                     viewModel.createNewRoom(jsonObject)
                 }
-                else -> Timber.d("Other error")
+                else -> {
+                    hideProgress()
+                    showRoomCreationError(getString(R.string.error_room_exists))
+                    Timber.d("Other error")}
+            }
+        })
+
+        viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is RoomCreated -> viewModel.getRoomWithUsers(it.roomData.roomId)
+                is RoomFailed -> {
+                    hideProgress()
+                    showRoomCreationError(getString(R.string.failed_room_creation))
+                    Timber.d("Failed to create room")}
+                else ->{
+                    hideProgress()
+                    showRoomCreationError(getString(R.string.something_went_wrong))
+                    Timber.d("Other error")}
             }
         })
     }
@@ -317,5 +337,17 @@ class NewRoomFragment : BaseFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         arguments?.clear()
+    }
+
+    private fun showRoomCreationError(description: String) {
+        DialogError.getInstance(
+            requireActivity(),
+            getString(R.string.error),
+            description,
+            null,
+            getString(R.string.ok),
+            object : DialogInteraction {
+                // ignore
+            })
     }
 }
