@@ -91,7 +91,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-
         <ImageView
             android:id="@+id/iv_call_user"
             android:layout_width="wrap_content"
@@ -134,17 +133,18 @@
             android:background="@color/white"
             android:padding="@dimen/twenty_dp_margin"
             android:src="@drawable/img_add"
+            app:layout_constraintTop_toTopOf="@id/divider"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_chat"
-            android:windowSoftInputMode="adjustResize"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginBottom="@dimen/eight_dp_margin"
             android:fillViewport="true"
             android:visibility="visible"
+            android:windowSoftInputMode="adjustResize"
             app:layout_constraintBottom_toTopOf="@id/cl_typing"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -213,7 +213,7 @@
             android:src="@drawable/img_microphone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/cl_typing" />
+            app:layout_constraintTop_toTopOf="@+id/divider" />
 
         <ImageView
             android:id="@+id/iv_button_send"
@@ -225,7 +225,7 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/cl_typing"/>
+            app:layout_constraintTop_toTopOf="@+id/divider" />
 
         <ImageView
             android:id="@+id/iv_camera"
@@ -237,7 +237,17 @@
             app:layout_constraintBottom_toBottomOf="@id/iv_microphone"
             app:layout_constraintEnd_toStartOf="@id/iv_microphone"
             app:layout_constraintStart_toEndOf="@id/cl_typing"
-            app:layout_constraintTop_toTopOf="@id/iv_microphone" />
+            app:layout_constraintTop_toTopOf="@id/divider" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/text_secondary"
+            app:layout_constraintBottom_toTopOf="@id/cl_typing"
+            android:layout_marginBottom="@dimen/ten_dp_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/cl_bottom_sheet"
