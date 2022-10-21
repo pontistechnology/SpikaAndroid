@@ -84,8 +84,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var avatarUrl = ""
     private var userName = ""
-    private var firstChatVisit = true
-    private var reactionMessage: ReactionMessage = ReactionMessage("", 0)
+    private var firstEnter = true
     private lateinit var emojiPopup: EmojiPopup
 
     @Inject
@@ -216,26 +215,34 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         })
         viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
             .observe(viewLifecycleOwner) {
-                messagesRecords.clear()
+                if (it.roomWithUsers.room.roomId == roomWithUsers.room.roomId) {
+                    messagesRecords.clear()
 
-                if (it.message?.isNotEmpty() == true) {
-                    it.message.forEach { msg ->
-                        messagesRecords.add(msg)
-                    }
-                    messagesRecords.sortByDescending { messages -> messages.message.createdAt }
+                    if (it.message?.isNotEmpty() == true) {
+                        it.message.forEach { msg ->
+                            messagesRecords.add(msg)
+                        }
+                        messagesRecords.sortByDescending { messages -> messages.message.createdAt }
 
-                    // messagesRecords.toList -> for DiffUtil class
-                    chatAdapter.submitList(messagesRecords.toList())
-                    if (firstChatVisit) {
-                        bindingSetup.rvChat.scrollToPosition(0)
-                        firstChatVisit = false
+                        // messagesRecords.toList -> for DiffUtil class
+                        chatAdapter.submitList(messagesRecords.toList())
+
+                        if (firstEnter) {
+                            bindingSetup.rvChat.scrollToPosition(0)
+                            firstEnter = false
+                        }
                     }
                 }
             }
     }
 
     private fun setUpAdapter() {
-        chatAdapter = ChatAdapter(context!!, viewModel.getLocalUserId()!!, roomWithUsers.users) {
+        chatAdapter = ChatAdapter(
+            context!!,
+            viewModel.getLocalUserId()!!,
+            roomWithUsers.users,
+            roomWithUsers.room.type!!
+        ) {
             addMessageReaction(it)
         }
         bindingSetup.rvChat.adapter = chatAdapter

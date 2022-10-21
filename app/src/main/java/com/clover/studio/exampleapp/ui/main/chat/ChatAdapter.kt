@@ -30,7 +30,6 @@ import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
-import timber.log.Timber
 import java.util.*
 
 
@@ -43,6 +42,7 @@ class ChatAdapter(
     private val context: Context,
     private val myUserId: Int,
     private val users: List<User>,
+    private val chatType: String,
     private val addReaction: ((reaction: ReactionMessage) -> Unit),
 ) :
     ListAdapter<MessageAndRecords, RecyclerView.ViewHolder>(MessageAndRecordsDiffCallback()) {
@@ -124,6 +124,13 @@ class ChatAdapter(
                                 )
                             view.findNavController().navigate(action)
                         }
+
+                        holder.binding.ivChatImage.setOnLongClickListener { _ ->
+                            holder.binding.cvReactions.visibility = View.VISIBLE
+                            //holder.binding.cvMessageOptions.visibility = View.VISIBLE
+                            listeners(holder, it.message.id)
+                            true
+                        }
                     }
 
                     Const.JsonFields.FILE_TYPE -> {
@@ -193,33 +200,29 @@ class ChatAdapter(
                 }
 
                 // Reactions section:
-                // Reactions section:
                 // Listener - remove reaction layouts
                 holder.binding.clMessageMe.setOnTouchListener { _, _ ->
-                    holder.binding.cvReactions.visibility = View.GONE
-                    holder.binding.cvMessageOptions.visibility = View.GONE
-                    if (!holder.binding.tvReactedEmoji.text.isNullOrEmpty()) {
-                        holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                    if (holder.binding.cvReactions.visibility == View.VISIBLE) {
+                        holder.binding.cvReactions.visibility = View.GONE
+                        //holder.binding.cvMessageOptions.visibility = View.GONE
                     }
                     return@setOnTouchListener true
                 }
 
-                it.records?.forEach { records ->
-                    if (it.message.id == records.messageId) {
-                        if (!records.reaction.isNullOrEmpty()) {
-                            val text = records.reaction
-                            holder.binding.tvReactedEmoji.text = text
-                            holder.binding.cvReactedEmoji.visibility = View.VISIBLE
-                        } else {
-                            holder.binding.cvReactedEmoji.visibility = View.GONE
-                        }
+                for (record in it.records!!) {
+                    if (!record.reaction.isNullOrEmpty()) {
+                        holder.binding.tvReactedEmoji.text = record.reaction
+                        holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                        // Break - temporary solution for group chats
+
+                    } else {
+                        holder.binding.cvReactedEmoji.visibility = View.GONE
                     }
                 }
 
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     holder.binding.cvReactions.visibility = View.VISIBLE
-                    holder.binding.cvMessageOptions.visibility = View.VISIBLE
-                    holder.binding.cvReactedEmoji.visibility = View.GONE
+                    //holder.binding.cvMessageOptions.visibility = View.VISIBLE
                     listeners(holder, it.message.id)
                     true
                 }
@@ -285,12 +288,11 @@ class ChatAdapter(
 
                         Glide.with(context)
                             .load(imagePath)
+                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .placeholder(R.drawable.ic_baseline_image_24)
                             .dontTransform()
                             .dontAnimate()
-                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .into(holder.binding.ivChatImage)
-
 
                         holder.binding.ivChatImage.setOnClickListener { view ->
                             val action =
@@ -299,8 +301,14 @@ class ChatAdapter(
                                 )
                             view.findNavController().navigate(action)
                         }
-                    }
 
+                        holder.binding.ivChatImage.setOnLongClickListener { _ ->
+                            holder.binding.cvReactions.visibility = View.VISIBLE
+                            //holder.binding.cvMessageOptions.visibility = View.VISIBLE
+                            listeners(holder, it.message.id)
+                            true
+                        }
+                    }
 
                     Const.JsonFields.VIDEO -> {
                         holder.binding.tvMessage.visibility = View.GONE
@@ -334,7 +342,6 @@ class ChatAdapter(
                             view.findNavController().navigate(action)
                         }
                     }
-
 
                     Const.JsonFields.FILE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
@@ -394,43 +401,60 @@ class ChatAdapter(
                 // Reactions section:
                 // Listener - remove reaction layouts
                 holder.binding.clMessageOther.setOnTouchListener { _, _ ->
-                    holder.binding.cvReactions.visibility = View.GONE
-                    holder.binding.cvMessageOptions.visibility = View.GONE
-                    if (!holder.binding.tvReactedEmoji.text.isNullOrEmpty()) {
-                        holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                    if (holder.binding.cvReactions.visibility == View.VISIBLE) {
+                        holder.binding.cvReactions.visibility = View.GONE
+                        //holder.binding.cvMessageOptions.visibility = View.GONE
                     }
                     return@setOnTouchListener true
                 }
 
-                it.records?.forEach { records ->
-                    if (it.message.id == records.messageId) {
-                        if (!records.reaction.isNullOrEmpty()) {
-                            val text = records.reaction
-                            holder.binding.tvReactedEmoji.text = text
+                // TODO - implement more than one reaction per message in group chat
+
+                // Private chat:
+                if (chatType == Const.JsonFields.PRIVATE) {
+                    for (record in it.records!!) {
+                        if (!record.reaction.isNullOrEmpty()) {
+                            holder.binding.tvReactedEmoji.text = record.reaction
                             holder.binding.cvReactedEmoji.visibility = View.VISIBLE
                         } else {
                             holder.binding.cvReactedEmoji.visibility = View.GONE
                         }
                     }
+                    // Group chat:
+                } else {
+                    var reactions = ""
+                    for (record in it.records!!) {
+                        if (!record.reaction.isNullOrEmpty()) {
+                            reactions += " "
+                            reactions += record.reaction
+                        }
+                    }
+                    if (!reactions.isNullOrEmpty()) {
+                        holder.binding.tvReactedEmoji.text = reactions
+                        holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                    } else {
+                        holder.binding.cvReactedEmoji.visibility = View.GONE
+                    }
                 }
+
 
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     holder.binding.cvReactions.visibility = View.VISIBLE
-                    holder.binding.cvMessageOptions.visibility = View.VISIBLE
-                    holder.binding.cvReactedEmoji.visibility = View.GONE
+                    //holder.binding.cvMessageOptions.visibility = View.VISIBLE
                     listeners(holder, it.message.id)
                     true
                 }
 
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
+                // TODO
                 if (position > 0) {
                     try {
                         val nextItem = getItem(position + 1).fromUserId
                         val previousItem = getItem(position - 1).fromUserId
 
                         val currentItem = it.message.fromUserId
-                        Timber.d("Items : $nextItem, $currentItem ${nextItem == currentItem}")
+                        //Timber.d("Items : $nextItem, $currentItem ${nextItem == currentItem}")
 
                         if (previousItem == currentItem) {
                             holder.binding.cvUserImage.visibility = View.INVISIBLE
@@ -492,11 +516,12 @@ class ChatAdapter(
 
                 if (REACTION.isNotEmpty()) {
                     addReaction.invoke(reactionMessage)
+                    holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                } else {
+                    holder.binding.cvReactedEmoji.visibility = View.GONE
                 }
-
                 holder.binding.cvReactions.visibility = View.GONE
                 holder.binding.cvMessageOptions.visibility = View.GONE
-                holder.binding.cvReactedEmoji.visibility = View.VISIBLE
             }
         }
     }
@@ -537,11 +562,12 @@ class ChatAdapter(
 
                 if (REACTION.isNotEmpty()) {
                     addReaction.invoke(reactionMessage)
+                    holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                } else {
+                    holder.binding.cvReactedEmoji.visibility = View.GONE
                 }
-
                 holder.binding.cvReactions.visibility = View.GONE
                 holder.binding.cvMessageOptions.visibility = View.GONE
-                holder.binding.cvReactedEmoji.visibility = View.VISIBLE
             }
         }
     }
@@ -586,14 +612,14 @@ class ChatAdapter(
             oldItem: MessageAndRecords,
             newItem: MessageAndRecords
         ): Boolean {
-            return oldItem.message == newItem.message
+            return oldItem.message.id == newItem.message.id
         }
 
         override fun areContentsTheSame(
             oldItem: MessageAndRecords,
             newItem: MessageAndRecords
         ): Boolean {
-            return oldItem == newItem
+            return oldItem.message.id == newItem.message.id
         }
     }
 
