@@ -57,8 +57,22 @@ class MainActivity : BaseActivity() {
 
         initializeObservers()
         sendPushTokenToServer()
+        checkIntentExtras()
 
 //        deleteRooms()
+    }
+
+    private fun checkIntentExtras() {
+        val extras = intent?.extras
+        if (extras != null) {
+            Timber.d("Extras: ${extras.get(Const.IntentExtras.ROOM_ID_EXTRA)}")
+            try {
+                viewModel.getSingleRoomData(extras.get(Const.IntentExtras.ROOM_ID_EXTRA) as Int)
+            } catch (ex: Exception) {
+                // ignore
+            }
+            intent.removeExtra(Const.IntentExtras.ROOM_ID_EXTRA)
+        }
     }
 
     /**
@@ -247,15 +261,6 @@ class MainActivity : BaseActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        val extras = intent?.extras
-        if (extras != null) {
-            Timber.d("Extras: ${extras.get(Const.IntentExtras.ROOM_ID_EXTRA)}")
-            try {
-                viewModel.getSingleRoomData(extras.get(Const.IntentExtras.ROOM_ID_EXTRA) as Int)
-            } catch (ex: Exception) {
-                // ignore
-            }
-            intent.removeExtra(Const.IntentExtras.ROOM_ID_EXTRA)
-        }
+        checkIntentExtras()
     }
 }
