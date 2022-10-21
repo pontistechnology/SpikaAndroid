@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
+import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentNewRoomBinding
 import com.clover.studio.exampleapp.ui.main.*
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
@@ -223,7 +224,8 @@ class NewRoomFragment : BaseFragment() {
                 else -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.room_local_fetch_error))
-                    Timber.d("Other error")}
+                    Timber.d("Other error")
+                }
             }
         })
 
@@ -250,21 +252,37 @@ class NewRoomFragment : BaseFragment() {
                 else -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.error_room_exists))
-                    Timber.d("Other error")}
+                    Timber.d("Other error")
+                }
             }
         })
 
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
-                is RoomCreated -> viewModel.getRoomWithUsers(it.roomData.roomId)
+                is RoomCreated -> {
+                    hideProgress()
+                    val users = mutableListOf<User>()
+                    for (roomUser in it.roomData.users) {
+                        roomUser.user?.let { user -> users.add(user) }
+                    }
+
+                    val roomWithUsers = RoomWithUsers(it.roomData, users)
+                    val gson = Gson()
+                    val roomData = gson.toJson(roomWithUsers)
+                    Timber.d("Room with users: $roomWithUsers")
+                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                    findNavController().popBackStack(R.id.mainFragment, false)
+                }
                 is RoomFailed -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))
-                    Timber.d("Failed to create room")}
-                else ->{
+                    Timber.d("Failed to create room")
+                }
+                else -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.something_went_wrong))
-                    Timber.d("Other error")}
+                    Timber.d("Other error")
+                }
             }
         })
     }
