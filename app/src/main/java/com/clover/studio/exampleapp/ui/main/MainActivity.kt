@@ -57,6 +57,19 @@ class MainActivity : BaseActivity() {
 
         initializeObservers()
         sendPushTokenToServer()
+
+//        deleteRooms()
+    }
+
+    /**
+     * Mock function for deleting rooms if you have any unwanted rooms in the local database.
+     */
+    private fun deleteRooms() {
+        val roomIds = listOf<Int>(540)
+
+        for (id in roomIds) {
+            viewModel.deleteRoom(id)
+        }
     }
 
     private fun initializeObservers() {
