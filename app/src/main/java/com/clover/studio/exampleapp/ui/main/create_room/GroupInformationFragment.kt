@@ -15,12 +15,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
+import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentGroupInformationBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomCreated
 import com.clover.studio.exampleapp.ui.main.RoomFailed
-import com.clover.studio.exampleapp.ui.main.RoomWithUsersFetched
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
@@ -201,30 +202,22 @@ class GroupInformationFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        // TODO add error popups and handle error while creating or navigating to rooms
-        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomWithUsersFetched -> {
-                    hideProgress()
-                    val gson = Gson()
-                    val roomData = gson.toJson(it.roomWithUsers)
-                    Timber.d("Fetched room with users: $activity, $it")
-                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
-
-                    // Pop back to main fragment instead of returning to GroupInformationFragment
-                    findNavController().popBackStack(R.id.mainFragment, false)
-                }
-                else -> {
-                    hideProgress()
-                    showRoomCreationError(getString(R.string.room_local_fetch_error))
-                    Timber.d("Other error")
-                }
-            }
-        })
-
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
-                is RoomCreated -> viewModel.getRoomWithUsers(it.roomData.roomId)
+                is RoomCreated -> {
+                    hideProgress()
+                    val users = mutableListOf<User>()
+                    for (roomUser in it.roomData.users) {
+                        roomUser.user?.let { user -> users.add(user) }
+                    }
+
+                    val roomWithUsers = RoomWithUsers(it.roomData, users)
+                    val gson = Gson()
+                    val roomData = gson.toJson(roomWithUsers)
+                    Timber.d("Room with users: $roomWithUsers")
+                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                    findNavController().popBackStack(R.id.mainFragment, false)
+                }
                 is RoomFailed -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))

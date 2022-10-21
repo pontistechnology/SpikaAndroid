@@ -235,12 +235,14 @@ class ChatDetailsFragment : BaseFragment() {
     }
 
     private fun setAvatarAndUsername(avatarUrl: String, username: String) {
-        Glide.with(this)
-            .load(avatarUrl.let { Tools.getFileUrl(it) })
-            .into(binding.ivPickAvatar)
-        Glide.with(this)
-            .load(avatarUrl.let { Tools.getFileUrl(it) })
-            .into(binding.ivUserImage)
+        if (avatarUrl.isNotEmpty()) {
+            Glide.with(this)
+                .load(avatarUrl.let { Tools.getFileUrl(it) })
+                .into(binding.ivPickAvatar)
+            Glide.with(this)
+                .load(avatarUrl.let { Tools.getFileUrl(it) })
+                .into(binding.ivUserImage)
+        }
         binding.tvGroupName.text = username
         binding.tvChatName.text = username
     }
