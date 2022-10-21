@@ -33,12 +33,13 @@ class SSERepositoryImpl @Inject constructor(
 ) : SSERepository {
     override suspend fun syncMessageRecords() {
         Timber.d("Syncing message records")
-        var messageRecordsTimestamp = 0L
+        val messageRecordsTimestamp: Long
         if (sharedPrefs.readMessageRecordTimestamp() != 0L) {
             messageRecordsTimestamp =
                 sharedPrefs.readMessageRecordTimestamp()!!
         } else {
             // This is only for first launch
+            messageRecordsTimestamp = System.currentTimeMillis()
             sharedPrefs.writeMessageRecordTimestamp(System.currentTimeMillis())
         }
 
@@ -63,12 +64,13 @@ class SSERepositoryImpl @Inject constructor(
 
     override suspend fun syncMessages() {
         Timber.d("Syncing messages")
-        var messageTimestamp = 0L
+        val messageTimestamp: Long
         if (sharedPrefs.readMessageTimestamp() != 0L) {
             messageTimestamp =
                 sharedPrefs.readMessageTimestamp()!!
         } else {
             // This is only for first launch
+            messageTimestamp = System.currentTimeMillis()
             sharedPrefs.writeMessageTimestamp(System.currentTimeMillis())
         }
 
@@ -106,13 +108,14 @@ class SSERepositoryImpl @Inject constructor(
 
     override suspend fun syncUsers() {
         Timber.d("Syncing users")
-        var userTimestamp = 0L
+        val userTimestamp: Long
 
         if (sharedPrefs.readUserTimestamp() != 0L) {
             userTimestamp =
                 sharedPrefs.readUserTimestamp()!!
         } else {
             // This is only for first launch
+            userTimestamp = System.currentTimeMillis()
             sharedPrefs.writeUserTimestamp(System.currentTimeMillis())
         }
 
