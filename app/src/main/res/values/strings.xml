@@ -101,6 +101,7 @@
     <string name="failed_file_upload">Failed to upload file</string>
     <string name="files_mb_text"> MB</string>
     <string name="generic_shared">%s shared</string>
+    <string name="now">Now</string>
 
     <!--Alert dialog text-->
     <string name="warning">Warning</string>

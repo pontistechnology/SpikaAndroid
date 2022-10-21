@@ -81,8 +81,14 @@ class RoomsAdapter(
                                 .replaceFirstChar { it.uppercase() })
                     } else binding.tvLastMessage.text = textUserName + lastMessage?.text.toString()
 
-                    binding.tvMessageTime.text = roomItem.message.last().message.createdAt?.let {
+                    val time = roomItem.message.last().message.createdAt?.let {
                         getRelativeTimeSpan(it)
+                    }
+
+                    if (time?.get(0) == '0') {
+                        binding.tvMessageTime.text = context.getString(R.string.now)
+                    } else {
+                        binding.tvMessageTime.text = time
                     }
 
                     val unreadMessages = ArrayList<MessageAndRecords>()
