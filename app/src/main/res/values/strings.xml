@@ -117,10 +117,11 @@
     <string name="room_delete_admin_error">Only admins can delete conversations.</string>
 
     <!--Emoji-->
+    <!--TODO ask for emoji unicode-->
     <string name="thumbs_up_emoji">&#128077;</string>
-    <string name="praying_hands_emoji">&#128591;&#127996;</string>
+    <string name="praying_hands_emoji">&#x1F64F;</string>
     <string name="crying_face_emoji">&#128514;</string>
-    <string name="heart_emoji">&#128153;</string>
+    <string name="heart_emoji">&#x1F499;</string>
     <string name="astonished_emoji">&#128558;</string>
     <string name="disappointed_relieved_emoji">&#128549;</string>
 

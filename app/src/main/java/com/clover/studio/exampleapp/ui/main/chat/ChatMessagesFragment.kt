@@ -225,11 +225,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         messagesRecords.sortByDescending { messages -> messages.message.createdAt }
 
                         // messagesRecords.toList -> for DiffUtil class
-                        chatAdapter.submitList(messagesRecords.toList())
-
-                        if (firstEnter) {
+                        chatAdapter.submitList(messagesRecords.toList()) {
                             bindingSetup.rvChat.scrollToPosition(0)
-                            firstEnter = false
                         }
                     }
                 }

@@ -21,15 +21,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.MessageAndRecords
-import com.clover.studio.exampleapp.data.models.ReactionMessage
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.*
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
+import timber.log.Timber
 import java.util.*
 
 
@@ -37,6 +35,7 @@ private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 private var REACTION = ""
 private var reactionMessage: ReactionMessage = ReactionMessage("", 0)
+//private var reactions = Reactions(0, 0, 0, 0, 0, 0)
 
 class ChatAdapter(
     private val context: Context,
@@ -64,7 +63,6 @@ class ChatAdapter(
             ReceivedMessageHolder(binding)
         }
     }
-
 
     override fun getItemViewType(position: Int): Int {
         val message = getItem(position)
@@ -117,19 +115,12 @@ class ChatAdapter(
                             .dontAnimate()
                             .into(holder.binding.ivChatImage)
 
-                        holder.binding.ivChatImage.setOnClickListener { view ->
+                        holder.binding.clContainer.setOnClickListener { view ->
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
                                     "", imagePath!!
                                 )
                             view.findNavController().navigate(action)
-                        }
-
-                        holder.binding.ivChatImage.setOnLongClickListener { _ ->
-                            holder.binding.cvReactions.visibility = View.VISIBLE
-                            //holder.binding.cvMessageOptions.visibility = View.VISIBLE
-                            listeners(holder, it.message.id)
-                            true
                         }
                     }
 
@@ -149,11 +140,11 @@ class ChatAdapter(
                         addFiles(it.message, holder.binding.ivFileType)
 
                         // TODO implement file handling when clicked on in chat
-                        val filePath = it.message.body.file?.path?.let { filePath ->
+                        /*val filePath = it.message.body.file?.path?.let { filePath ->
                             Tools.getFileUrl(
                                 filePath
                             )
-                        }
+                        }*/
                         holder.binding.tvFileTitle.setOnClickListener {
 
                         }
@@ -199,7 +190,8 @@ class ChatAdapter(
                     }
                 }
 
-                // Reactions section:
+                /* Reactions section: */
+
                 // Listener - remove reaction layouts
                 holder.binding.clMessageMe.setOnTouchListener { _, _ ->
                     if (holder.binding.cvReactions.visibility == View.VISIBLE) {
@@ -209,12 +201,42 @@ class ChatAdapter(
                     return@setOnTouchListener true
                 }
 
-                for (record in it.records!!) {
-                    if (!record.reaction.isNullOrEmpty()) {
-                        holder.binding.tvReactedEmoji.text = record.reaction
+                // Get reactions from database:
+                var reactionText = ""
+                var reactions = Reactions(0, 0, 0, 0, 0, 0)
+                // Private chat - show only last reaction
+                if (chatType == Const.JsonFields.PRIVATE) {
+                    val last = it.records!!.last().reaction
+                    if (!last.isNullOrEmpty()) {
+                        holder.binding.tvReactedEmoji.text = last
                         holder.binding.cvReactedEmoji.visibility = View.VISIBLE
-                        // Break - temporary solution for group chats
+                    } else {
+                        holder.binding.cvReactedEmoji.visibility = View.GONE
+                    }
+                    // Group chat:
+                } else {
+                    var myReaction = ""
+                    /* TODO: if user changes reaction show only last reaction*/
+                    // TODO Matko
+                    // Message id: 16861
+                    for (record in it.records!!) {
+                        if (!record.reaction.isNullOrEmpty()) {
+                            if (record.userId != myUserId) {
+                                getAllReactions(record.reaction, reactions)
+                            } else {
+                                // Tmp solution - getting only last sent reaction
+                                myReaction = record.reaction
+                            }
+                        }
+                    }
 
+                    if (myReaction.isNotEmpty()) {
+                        getAllReactions(myReaction, reactions)
+                    }
+                    reactionText = getGroupReactions(reactions, "")
+                    if (reactionText.isNotEmpty()) {
+                        holder.binding.tvReactedEmoji.text = reactionText
+                        holder.binding.cvReactedEmoji.visibility = View.VISIBLE
                     } else {
                         holder.binding.cvReactedEmoji.visibility = View.GONE
                     }
@@ -222,8 +244,14 @@ class ChatAdapter(
 
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     holder.binding.cvReactions.visibility = View.VISIBLE
+                    //val reactionsContainer = holder.binding.cllReactions as ReactionsContainer
                     //holder.binding.cvMessageOptions.visibility = View.VISIBLE
-                    listeners(holder, it.message.id)
+                    if (chatType == Const.JsonFields.PRIVATE) {
+                        val privateReactions = Reactions(0, 0, 0, 0, 0, 0)
+                        listeners(holder, it.message.id, privateReactions)
+                    } else {
+                        listeners(holder, it.message.id, reactions)
+                    }
                     true
                 }
 
@@ -294,7 +322,7 @@ class ChatAdapter(
                             .dontAnimate()
                             .into(holder.binding.ivChatImage)
 
-                        holder.binding.ivChatImage.setOnClickListener { view ->
+                        holder.binding.clContainer.setOnClickListener { view ->
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
                                     "", imagePath!!
@@ -302,12 +330,6 @@ class ChatAdapter(
                             view.findNavController().navigate(action)
                         }
 
-                        holder.binding.ivChatImage.setOnLongClickListener { _ ->
-                            holder.binding.cvReactions.visibility = View.VISIBLE
-                            //holder.binding.cvMessageOptions.visibility = View.VISIBLE
-                            listeners(holder, it.message.id)
-                            true
-                        }
                     }
 
                     Const.JsonFields.VIDEO -> {
@@ -398,7 +420,7 @@ class ChatAdapter(
                     }
                 }
 
-                // Reactions section:
+                /* Reactions section: */
                 // Listener - remove reaction layouts
                 holder.binding.clMessageOther.setOnTouchListener { _, _ ->
                     if (holder.binding.cvReactions.visibility == View.VISIBLE) {
@@ -408,46 +430,68 @@ class ChatAdapter(
                     return@setOnTouchListener true
                 }
 
-                // TODO - implement more than one reaction per message in group chat
-
-                // Private chat:
+                // Get reactions from database:
+                var reactionText = ""
+                val reactions = Reactions(0, 0, 0, 0, 0, 0)
+                // Private chat - show only last reaction
                 if (chatType == Const.JsonFields.PRIVATE) {
-                    for (record in it.records!!) {
-                        if (!record.reaction.isNullOrEmpty()) {
-                            holder.binding.tvReactedEmoji.text = record.reaction
-                            holder.binding.cvReactedEmoji.visibility = View.VISIBLE
-                        } else {
-                            holder.binding.cvReactedEmoji.visibility = View.GONE
-                        }
+                    val last = it.records!!.last().reaction
+                    Timber.d("last: $last")
+                    if (!last.isNullOrEmpty()) {
+                        holder.binding.tvReactedEmoji.text = last
+                        holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                    } else {
+                        holder.binding.cvReactedEmoji.visibility = View.GONE
                     }
                     // Group chat:
                 } else {
-                    var reactions = ""
+                    var myReaction = ""
+                    /* TODO: if user changes reaction show only last reaction*/
+                    // TODO Matko
+                    // Message id: 16861
                     for (record in it.records!!) {
                         if (!record.reaction.isNullOrEmpty()) {
-                            reactions += " "
-                            reactions += record.reaction
+                            if (record.userId != myUserId) {
+                                getAllReactions(record.reaction.toString(), reactions)
+                                Timber.d("react: ${record.reaction}")
+                            } else {
+                                // Tmp solution - getting only last sent reaction
+                                myReaction = record.reaction
+                            }
+                        } else {
+                            continue
                         }
                     }
-                    if (!reactions.isNullOrEmpty()) {
-                        holder.binding.tvReactedEmoji.text = reactions
+                    if (myReaction.isNotEmpty()) {
+                        getAllReactions(myReaction, reactions)
+                    }
+
+                    reactionText = getGroupReactions(reactions, "")
+                    if (reactionText.isNotEmpty()) {
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, "")
                         holder.binding.cvReactedEmoji.visibility = View.VISIBLE
                     } else {
                         holder.binding.cvReactedEmoji.visibility = View.GONE
                     }
                 }
 
-
+                // Send new reaction:
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     holder.binding.cvReactions.visibility = View.VISIBLE
+                    //val reactionsContainer = holder.binding.cllReactions as ReactionsContainer
                     //holder.binding.cvMessageOptions.visibility = View.VISIBLE
-                    listeners(holder, it.message.id)
+                    if (chatType == Const.JsonFields.PRIVATE) {
+                        val privateReactions = Reactions(0, 0, 0, 0, 0, 0)
+                        listeners(holder, it.message.id, privateReactions)
+                    } else {
+                        listeners(holder, it.message.id, reactions)
+                    }
                     true
                 }
 
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
-                // TODO
+                // TODO - show avatar only on last message and name on first message
                 if (position > 0) {
                     try {
                         val nextItem = getItem(position + 1).fromUserId
@@ -480,37 +524,100 @@ class ChatAdapter(
         }
     }
 
+    // Get number of reactions for each one
+    private fun getAllReactions(reaction: String, reactions: Reactions) {
+        when (reaction) {
+            // TODO - Some reactions from web not showing, ask for emoji unicode
+            context.getString(R.string.praying_hands_emoji) -> {
+                reactions.prayingHandsEmoji++
+            }
+            context.getString(R.string.thumbs_up_emoji) -> {
+                reactions.thumbsUp++
+            }
+            context.getString(R.string.heart_emoji) -> {
+                reactions.heart++
+            }
+            context.getString(R.string.astonished_emoji) -> {
+                reactions.astonishedEmoji++
+            }
+            context.getString(R.string.disappointed_relieved_emoji) -> {
+                reactions.relievedEmoji++
+            }
+            context.getString(R.string.crying_face_emoji) -> {
+                reactions.cryingFaceEmoji++
+            }
+            else -> {
+                Timber.d("not found")
+            }
+        }
+    }
+
+    // Get reaction and number of that reaction
+    private fun getGroupReactions(reactions: Reactions, reaction: String): String {
+        var reactionText = ""
+        if (chatType == Const.JsonFields.PRIVATE) {
+            reactionText = reaction
+        } else {
+            if (reactions.thumbsUp != 0) {
+                reactionText += context.getString(R.string.thumbs_up_emoji) + " " + reactions.thumbsUp + " "
+            }
+            if (reactions.heart != 0) {
+                reactionText += context.getString(R.string.heart_emoji) + " " + reactions.heart + " "
+            }
+            if (reactions.astonishedEmoji != 0) {
+                reactionText += context.getString(R.string.astonished_emoji) + " " + reactions.astonishedEmoji + " "
+            }
+            if (reactions.prayingHandsEmoji != 0) {
+                reactionText += context.getString(R.string.praying_hands_emoji) + " " + reactions.prayingHandsEmoji + " "
+            }
+            if (reactions.cryingFaceEmoji != 0) {
+                reactionText += context.getString(R.string.crying_face_emoji) + " " + reactions.cryingFaceEmoji + " "
+            }
+            if (reactions.relievedEmoji != 0) {
+                reactionText += context.getString(R.string.disappointed_relieved_emoji) + " " + reactions.relievedEmoji + " "
+            }
+        }
+        return reactionText
+    }
+
     // TODO - same listeners method for both holders
-    private fun listeners(holder: ReceivedMessageHolder, messageId: Int) {
+    private fun listeners(holder: ReceivedMessageHolder, messageId: Int, reactions: Reactions) {
+        // TODO - remove my reaction for new one
         holder.binding.reactions.clEmoji.children.forEach { child ->
             child.setOnClickListener {
                 when (child) {
                     holder.binding.reactions.tvThumbsUpEmoji -> {
                         REACTION = context.getString(R.string.thumbs_up_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
-                        //child.setBackgroundResource(R.drawable.bg_message_received)
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                     holder.binding.reactions.tvHeartEmoji -> {
                         REACTION = context.getString(R.string.heart_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                     holder.binding.reactions.tvCryingEmoji -> {
                         REACTION = context.getString(R.string.crying_face_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                     holder.binding.reactions.tvAstonishedEmoji -> {
-                        REACTION = context.getString(R.string.astonished_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
+                        REACTION = context.getString(R.string.astonished_emoji, REACTION)
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                     holder.binding.reactions.tvDisappointedRelievedEmoji -> {
                         REACTION = context.getString(R.string.disappointed_relieved_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                     holder.binding.reactions.tvPrayingHandsEmoji -> {
                         REACTION = context.getString(R.string.praying_hands_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                 }
+
                 reactionMessage.reaction = REACTION
                 reactionMessage.messageId = messageId
 
@@ -526,37 +633,43 @@ class ChatAdapter(
         }
     }
 
-    // TODO - same listeners method for both holders
-    private fun listeners(holder: SentMessageHolder, messageId: Int) {
+    private fun listeners(holder: SentMessageHolder, messageId: Int, reactions: Reactions) {
+        // TODO - remove my reaction for new one
         holder.binding.reactions.clEmoji.children.forEach { child ->
             child.setOnClickListener {
                 when (child) {
                     holder.binding.reactions.tvThumbsUpEmoji -> {
                         REACTION = context.getString(R.string.thumbs_up_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                     holder.binding.reactions.tvHeartEmoji -> {
                         REACTION = context.getString(R.string.heart_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                     holder.binding.reactions.tvCryingEmoji -> {
                         REACTION = context.getString(R.string.crying_face_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                     holder.binding.reactions.tvAstonishedEmoji -> {
                         REACTION = context.getString(R.string.astonished_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                     holder.binding.reactions.tvDisappointedRelievedEmoji -> {
-                        REACTION = context.getString(R.string.disappointed_relieved_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
-
+                        REACTION = context.getString(R.string.disappointed_relieved_emoji, REACTION)
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                     holder.binding.reactions.tvPrayingHandsEmoji -> {
                         REACTION = context.getString(R.string.praying_hands_emoji)
-                        holder.binding.tvReactedEmoji.text = REACTION
+                        getAllReactions(REACTION, reactions)
+                        holder.binding.tvReactedEmoji.text = getGroupReactions(reactions, REACTION)
                     }
                 }
+
                 reactionMessage.reaction = REACTION
                 reactionMessage.messageId = messageId
 
