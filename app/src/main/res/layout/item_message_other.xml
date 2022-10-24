@@ -337,8 +337,7 @@
                 android:id="@+id/tv_reacted_emoji"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="1dp"
-                android:text="@string/praying_hands_emoji" />
+                android:padding="1dp"/>
         </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

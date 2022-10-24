@@ -225,8 +225,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         messagesRecords.sortByDescending { messages -> messages.message.createdAt }
 
                         // messagesRecords.toList -> for DiffUtil class
-                        chatAdapter.submitList(messagesRecords.toList()) {
+                        chatAdapter.submitList(messagesRecords.toList())
+
+                        if (firstEnter) {
                             bindingSetup.rvChat.scrollToPosition(0)
+                            firstEnter = false
                         }
                     }
                 }
@@ -285,11 +288,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun addMessageReaction(reaction: ReactionMessage) {
         // POST reaction to server:
         Timber.d("reactions: ${reaction.reaction}, ${reaction.messageId}")
-        val jsonObject = JsonObject()
-        jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
-        jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
-        jsonObject.addProperty(Const.JsonFields.REACTION, reaction.reaction)
-        viewModel.sendReaction(jsonObject)
+        if (!reaction.clicked) {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
+            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
+            jsonObject.addProperty(Const.JsonFields.REACTION, reaction.reaction)
+            viewModel.sendReaction(jsonObject)
+        } else {
+            // Remove reaction
+            val jsonObject = JsonObject()
+            jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
+            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
+            viewModel.deleteReaction(reaction.reactionId)
+        }
     }
 
     private fun initViews() {

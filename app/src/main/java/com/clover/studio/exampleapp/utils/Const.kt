@@ -105,6 +105,7 @@ class Const {
             const val API_SYNC_MESSAGES = "api/messenger/messages/sync/{lastUpdate}"
             const val API_SYNC_MESSAGE_RECORDS = "api/messenger/message-records/sync/{lastUpdate}"
             const val API_POST_REACTION = "api/messenger/message-records"
+            const val API_DELETE_REACTION = "api/messenger/message-records/{id}"
             const val API_SYNC_USERS = "api/messenger/users/sync/{lastUpdate}"
             const val API_SYNC_ROOMS = "api/messenger/rooms/sync/{lastUpdate}"
 
@@ -138,6 +139,7 @@ class Const {
             const val MESSAGE_ID = "messageId"
             const val LAST_UPDATE = "lastUpdate"
             const val PAGE = "page"
+            const val ID = "id"
         }
     }
 

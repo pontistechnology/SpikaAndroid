@@ -228,7 +228,7 @@ class ChatViewModel @Inject constructor(
     fun sendReaction(jsonObject: JsonObject) = viewModelScope.launch {
         try {
             repository.sendReaction(jsonObject)
-        } catch (ex: Exception){
+        } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
             } else {
@@ -236,6 +236,19 @@ class ChatViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteReaction(id: Int) = viewModelScope.launch {
+        try {
+            repository.deleteReaction(id)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                Timber.d("Exception: $ex")
+            }
+        }
+    }
+
 
 
     fun deleteRoom(roomId: Int) = viewModelScope.launch {

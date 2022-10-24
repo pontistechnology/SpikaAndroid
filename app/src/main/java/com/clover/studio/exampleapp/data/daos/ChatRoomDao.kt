@@ -91,4 +91,8 @@ interface ChatRoomDao {
 
     @Query("SELECT * FROM room_user WHERE room_id LIKE :roomId AND id LIKE :userId LIMIT 1")
     suspend fun getRoomUserById(roomId: Int, userId: Int): RoomUser
+
+    @Transaction
+    @Query("DELETE FROM message_records WHERE id LIKE :id")
+    suspend fun deleteReactionRecord(id: Int)
 }
