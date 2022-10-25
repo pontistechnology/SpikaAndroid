@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.databinding.ItemContactBinding
 import com.clover.studio.exampleapp.utils.Tools.getFileUrl
@@ -57,8 +58,14 @@ class ContactsAdapter(
                 binding.tvTitle.text = userItem.user.telephoneNumber
 
                 // Remove first / with substring from avatarUrl
-                Glide.with(context).load(userItem.user.avatarUrl?.let { getFileUrl(it) })
-                    .into(binding.ivUserImage)
+                if (userItem.user.avatarUrl?.isNotEmpty() == true) {
+                    Glide.with(context).load(userItem.user.avatarUrl.let { getFileUrl(it) })
+                        .into(binding.ivUserImage)
+                } else {
+                    Glide.with(context)
+                        .load(context.getDrawable(R.drawable.img_user_placeholder))
+                        .into(binding.ivUserImage)
+                }
 
                 // if not first item, check if item above has the same header
                 if (position > 0) {

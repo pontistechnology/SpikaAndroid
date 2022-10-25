@@ -52,9 +52,16 @@ class RoomsAdapter(
                     userAvatar = roomItem.roomWithUsers.room.avatarUrl.toString()
                 }
                 binding.tvRoomName.text = userName
-                Glide.with(context)
-                    .load(userAvatar.let { getFileUrl(it) })
-                    .into(binding.ivRoomImage)
+
+                if (userAvatar.isNotEmpty()) {
+                    Glide.with(context)
+                        .load(getFileUrl(userAvatar))
+                        .into(binding.ivRoomImage)
+                } else {
+                    Glide.with(context)
+                        .load(context.getDrawable(R.drawable.img_user_placeholder))
+                        .into(binding.ivRoomImage)
+                }
 
                 if (!roomItem.message.isNullOrEmpty()) {
                     val sortedList = roomItem.message.sortedBy { it.message.createdAt }

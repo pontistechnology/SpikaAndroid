@@ -146,9 +146,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun setAvatarAndName(avatarUrl: String, userName: String) {
         bindingSetup.tvChatName.text = userName
-        Glide.with(this)
-            .load(avatarUrl.let { Tools.getFileUrl(it) })
-            .into(bindingSetup.ivUserImage)
+        if (avatarUrl.isNotEmpty()) {
+            Glide.with(this)
+                .load(avatarUrl.let { Tools.getFileUrl(it) })
+                .into(bindingSetup.ivUserImage)
+        } else {
+            Glide.with(this)
+                .load(context?.getDrawable(R.drawable.img_user_placeholder))
+                .into(bindingSetup.ivUserImage)
+        }
     }
 
     private fun checkIsUserAdmin() {
