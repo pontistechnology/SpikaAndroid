@@ -304,13 +304,7 @@ object Tools {
     }
 
     fun generateDeviceId(): String {
-        val hexChars = "0123456789abcdefABCDEF"
-        val deviceId = StringBuilder(DEVICE_ID_LENGTH * 2)
-        for (i in 0..DEVICE_ID_LENGTH) {
-            val randomNumber = hexChars.random()
-            deviceId.append(randomNumber)
-        }
-        return deviceId.toString()
+        return UUID.randomUUID().toString().substring(0, 13)
     }
 
     fun createCustomNotification(
