@@ -59,10 +59,10 @@
 
                 <ImageView
                     android:id="@+id/iv_user_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
                     android:scaleType="center"
-                    android:src="@drawable/img_camera" />
+                    android:src="@drawable/img_user_placeholder" />
             </androidx.cardview.widget.CardView>
 
             <TextView
@@ -133,9 +133,9 @@
             android:background="@color/white"
             android:padding="@dimen/twenty_dp_margin"
             android:src="@drawable/img_add"
-            app:layout_constraintTop_toTopOf="@id/divider"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/divider" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_chat"
@@ -243,9 +243,9 @@
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginBottom="@dimen/ten_dp_margin"
             android:background="@color/text_secondary"
             app:layout_constraintBottom_toTopOf="@id/cl_typing"
-            android:layout_marginBottom="@dimen/ten_dp_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
