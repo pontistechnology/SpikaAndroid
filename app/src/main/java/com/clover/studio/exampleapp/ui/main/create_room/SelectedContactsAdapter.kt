@@ -32,14 +32,9 @@ class SelectedContactsAdapter(
             getItem(position).let { userItem ->
                 binding.tvUserName.text = userItem.phoneUser?.name ?: userItem.user.displayName
                 // Remove first / with substring from avatarUrl
-                if (userItem.user.avatarUrl?.isNotEmpty() == true) {
-                    Glide.with(context).load(userItem.user.avatarUrl.let { Tools.getFileUrl(it) })
-                        .into(binding.ivUserImage)
-                } else {
-                    Glide.with(context)
-                        .load(context.getDrawable(R.drawable.img_user_placeholder))
-                        .into(binding.ivUserImage)
-                }
+                Glide.with(context).load(userItem.user.avatarUrl?.let { Tools.getFileUrl(it) })
+                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                    .into(binding.ivUserImage)
 
                 itemView.setOnClickListener {
                     userItem.let {

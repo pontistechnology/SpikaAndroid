@@ -149,19 +149,14 @@ class ChatScreenActivity : BaseActivity() {
                         animator.start()
 
                         if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
-                            if (it.roomWithUsers.room.avatarUrl?.isNotEmpty() == true) {
-                                Glide.with(this@ChatScreenActivity)
-                                    .load(it.roomWithUsers.room.avatarUrl.let { avatarUrl ->
-                                        Tools.getFileUrl(
-                                            avatarUrl
-                                        )
-                                    })
-                                    .into(bindingSetup.cvNotification.ivUserImage)
-                            } else {
-                                Glide.with(this@ChatScreenActivity)
-                                    .load(getDrawable(R.drawable.img_user_placeholder))
-                                    .into(bindingSetup.cvNotification.ivUserImage)
-                            }
+                            Glide.with(this@ChatScreenActivity)
+                                .load(it.roomWithUsers.room.avatarUrl?.let { avatarUrl ->
+                                    Tools.getFileUrl(
+                                        avatarUrl
+                                    )
+                                })
+                                .placeholder(getDrawable(R.drawable.img_user_placeholder))
+                                .into(bindingSetup.cvNotification.ivUserImage)
                             bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
                             for (user in it.roomWithUsers.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
@@ -183,19 +178,14 @@ class ChatScreenActivity : BaseActivity() {
                         } else {
                             for (user in it.roomWithUsers.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
-                                    if (user.avatarUrl?.isNotEmpty() == true) {
-                                        Glide.with(this@ChatScreenActivity)
-                                            .load(user.avatarUrl.let { avatarUrl ->
-                                                Tools.getFileUrl(
-                                                    avatarUrl
-                                                )
-                                            })
-                                            .into(bindingSetup.cvNotification.ivUserImage)
-                                    } else {
-                                        Glide.with(this@ChatScreenActivity)
-                                            .load(getDrawable(R.drawable.img_user_placeholder))
-                                            .into(bindingSetup.cvNotification.ivUserImage)
-                                    }
+                                    Glide.with(this@ChatScreenActivity)
+                                        .load(user.avatarUrl?.let { avatarUrl ->
+                                            Tools.getFileUrl(
+                                                avatarUrl
+                                            )
+                                        })
+                                        .placeholder(getDrawable(R.drawable.img_user_placeholder))
+                                        .into(bindingSetup.cvNotification.ivUserImage)
                                     val content: String =
                                         if (it.message.type != Const.JsonFields.TEXT) {
                                             getString(

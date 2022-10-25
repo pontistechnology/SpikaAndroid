@@ -336,19 +336,14 @@ class ChatAdapter(
                 for (roomUser in users) {
                     if (it.fromUserId == roomUser.id) {
                         holder.binding.tvUsername.text = roomUser.displayName
-                        if (roomUser.avatarUrl?.isNotEmpty() == true) {
-                            Glide.with(context)
-                                .load(roomUser.avatarUrl.let { avatarUrl ->
-                                    Tools.getFileUrl(
-                                        avatarUrl
-                                    )
-                                })
-                                .into(holder.binding.ivUserImage)
-                        } else {
-                            Glide.with(context)
-                                .load(context.getDrawable(R.drawable.img_user_placeholder))
-                                .into(holder.binding.ivUserImage)
-                        }
+                        Glide.with(context)
+                            .load(roomUser.avatarUrl?.let { avatarUrl ->
+                                Tools.getFileUrl(
+                                    avatarUrl
+                                )
+                            })
+                            .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                            .into(holder.binding.ivUserImage)
                         break
                     }
                 }

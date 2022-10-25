@@ -121,10 +121,9 @@ class SettingsFragment : BaseFragment() {
             binding.tvUsername.text = it.displayName ?: getString(R.string.no_username)
             binding.tvPhoneNumber.text = it.telephoneNumber
 
-            if (it.avatarUrl?.isNotEmpty() == true) {
-                Glide.with(requireActivity()).load(getFileUrl(it.avatarUrl))
-                    .into(binding.ivPickPhoto)
-            }
+            Glide.with(requireActivity()).load(it.avatarUrl?.let { imageUrl -> getFileUrl(imageUrl) })
+                .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
+                .into(binding.ivPickPhoto)
         }
 
         viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {

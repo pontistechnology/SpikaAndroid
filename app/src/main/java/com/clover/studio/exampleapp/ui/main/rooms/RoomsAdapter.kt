@@ -53,15 +53,10 @@ class RoomsAdapter(
                 }
                 binding.tvRoomName.text = userName
 
-                if (userAvatar.isNotEmpty()) {
-                    Glide.with(context)
-                        .load(getFileUrl(userAvatar))
-                        .into(binding.ivRoomImage)
-                } else {
-                    Glide.with(context)
-                        .load(context.getDrawable(R.drawable.img_user_placeholder))
-                        .into(binding.ivRoomImage)
-                }
+                Glide.with(context)
+                    .load(getFileUrl(userAvatar))
+                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                    .into(binding.ivRoomImage)
 
                 if (!roomItem.message.isNullOrEmpty()) {
                     val sortedList = roomItem.message.sortedBy { it.message.createdAt }
