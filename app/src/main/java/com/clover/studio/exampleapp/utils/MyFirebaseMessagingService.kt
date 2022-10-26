@@ -12,6 +12,7 @@ import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.exampleapp.ui.main.MainActivity
+import com.clover.studio.exampleapp.utils.helpers.AppLifecycleManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
@@ -102,30 +103,32 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 }
 
                 // Filter message if its from my user, don't show notification for it
-//                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted == false && !AppLifecycleManager.isInForeground) {
-                Timber.d("Extras: ${response.message.roomId}")
-                val intent = Intent(baseContext, MainActivity::class.java)
-                intent.putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
-                val resultPendingIntent: PendingIntent? = TaskStackBuilder.create(baseContext).run {
-                    addNextIntentWithParentStack(intent)
-                    response.message.roomId?.let {
-                        getPendingIntent(
-                            it,
-                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-                        )
+                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted == false && !AppLifecycleManager.isInForeground) {
+                    Timber.d("Extras: ${response.message.roomId}")
+                    val intent = Intent(baseContext, MainActivity::class.java)
+                    intent.putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                    val resultPendingIntent: PendingIntent? =
+                        TaskStackBuilder.create(baseContext).run {
+                            addNextIntentWithParentStack(intent)
+                            response.message.roomId?.let {
+                                getPendingIntent(
+                                    it,
+                                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                                )
+                            }
+                        }
+                    val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
+                        .setSmallIcon(R.drawable.img_spika_logo)
+                        .setContentTitle(title)
+                        .setContentText(content)
+                        .setPriority(NotificationCompat.PRIORITY_MAX)
+                        .setContentIntent(resultPendingIntent)
+                    with(NotificationManagerCompat.from(baseContext)) {
+                        // notificationId is a unique int for each notification that you must define
+                        response.message.roomId?.let { notify(it, builder.build()) }
                     }
                 }
-                val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.img_spika_logo)
-                    .setContentTitle(title)
-                    .setContentText(content)
-                    .setPriority(NotificationCompat.PRIORITY_MAX)
-                    .setContentIntent(resultPendingIntent)
-                with(NotificationManagerCompat.from(baseContext)) {
-                    // notificationId is a unique int for each notification that you must define
-                    response.message.roomId?.let { notify(it, builder.build()) }
-                }
-//                }
             }
         } catch (ex: Exception) {
             Tools.checkError(ex)
