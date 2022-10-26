@@ -10,8 +10,8 @@
 
     <ProgressBar
         android:id="@+id/progress_bar"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="@dimen/seventy_dp"
+        android:layout_height="@dimen/seventy_dp"
         android:indeterminateOnly="true"
         android:indeterminateTint="@color/primary_color"
         app:layout_constraintBottom_toBottomOf="parent"
