@@ -237,9 +237,21 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun deleteReaction(id: Int) = viewModelScope.launch {
+    fun deleteReaction(recordId: Int, userId: Int) = viewModelScope.launch {
         try {
-            repository.deleteReaction(id)
+            repository.deleteReaction(recordId, userId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                Timber.d("Exception: $ex")
+            }
+        }
+    }
+
+    fun deleteAllReactions(messageId: Int) = viewModelScope.launch {
+        try {
+            repository.deleteAllReactions(messageId)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()

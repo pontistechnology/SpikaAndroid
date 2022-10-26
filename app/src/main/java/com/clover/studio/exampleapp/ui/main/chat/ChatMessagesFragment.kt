@@ -215,22 +215,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         })
         viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
             .observe(viewLifecycleOwner) {
-                if (it.roomWithUsers.room.roomId == roomWithUsers.room.roomId) {
-                    messagesRecords.clear()
+                messagesRecords.clear()
 
-                    if (it.message?.isNotEmpty() == true) {
-                        it.message.forEach { msg ->
-                            messagesRecords.add(msg)
-                        }
-                        messagesRecords.sortByDescending { messages -> messages.message.createdAt }
+                if (it.message?.isNotEmpty() == true) {
+                    it.message.forEach { msg ->
+                        messagesRecords.add(msg)
+                    }
+                    messagesRecords.sortByDescending { messages -> messages.message.createdAt }
 
-                        // messagesRecords.toList -> for DiffUtil class
-                        chatAdapter.submitList(messagesRecords.toList())
-
-                        if (firstEnter) {
-                            bindingSetup.rvChat.scrollToPosition(0)
-                            firstEnter = false
-                        }
+                    // messagesRecords.toList -> for DiffUtil class
+                    chatAdapter.submitList(messagesRecords)
+                    // TODO
+                    chatAdapter.notifyDataSetChanged()
+                    if (firstEnter) {
+                        bindingSetup.rvChat.scrollToPosition(0)
+                        firstEnter = false
                     }
                 }
             }
@@ -288,19 +287,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun addMessageReaction(reaction: ReactionMessage) {
         // POST reaction to server:
         Timber.d("reactions: ${reaction.reaction}, ${reaction.messageId}")
-        if (!reaction.clicked) {
-            val jsonObject = JsonObject()
-            jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
-            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
-            jsonObject.addProperty(Const.JsonFields.REACTION, reaction.reaction)
-            viewModel.sendReaction(jsonObject)
-        } else {
+        /*if (!reaction.clicked) {*/
+        val jsonObject = JsonObject()
+        jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
+        jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
+        jsonObject.addProperty(Const.JsonFields.REACTION, reaction.reaction)
+        viewModel.sendReaction(jsonObject)
+        /*} else {
             // Remove reaction
             val jsonObject = JsonObject()
             jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
             jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
-            viewModel.deleteReaction(reaction.reactionId)
-        }
+            if (roomWithUsers.room.type == Const.JsonFields.PRIVATE){
+                viewModel.deleteAllReactions(reaction.messageId)
+            } else {
+                viewModel.deleteReaction(reaction.reactionId, reaction.userId)
+            }
+        }*/
     }
 
     private fun initViews() {

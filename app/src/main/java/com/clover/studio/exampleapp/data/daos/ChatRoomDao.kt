@@ -93,6 +93,11 @@ interface ChatRoomDao {
     suspend fun getRoomUserById(roomId: Int, userId: Int): RoomUser
 
     @Transaction
-    @Query("DELETE FROM message_records WHERE id LIKE :id")
-    suspend fun deleteReactionRecord(id: Int)
+    @Query("DELETE FROM message_records WHERE id LIKE :id AND user_id LIKE :userId")
+    suspend fun deleteReactionRecord(id: Int, userId: Int)
+
+    // Private chat: delete all records
+    @Transaction
+    @Query("DELETE FROM message_records WHERE message_id LIKE :id AND type='reaction'")
+    suspend fun deleteAllReactions(id: Int)
 }
