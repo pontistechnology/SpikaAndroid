@@ -224,9 +224,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     messagesRecords.sortByDescending { messages -> messages.message.createdAt }
 
                     // messagesRecords.toList -> for DiffUtil class
-                    chatAdapter.submitList(messagesRecords)
-                    // TODO
-                    chatAdapter.notifyDataSetChanged()
+                    chatAdapter.submitList(messagesRecords.toList())
+                    // TODO - Check with Matko whether the list change works in all conditions
+                    // chatAdapter.notifyDataSetChanged()
                     if (firstEnter) {
                         bindingSetup.rvChat.scrollToPosition(0)
                         firstEnter = false
@@ -286,7 +286,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun addMessageReaction(reaction: ReactionMessage) {
         // POST reaction to server:
-        Timber.d("reactions: ${reaction.reaction}, ${reaction.messageId}")
+        // Timber.d("reactions: ${reaction.reaction}, ${reaction.messageId}")
         /*if (!reaction.clicked) {*/
         val jsonObject = JsonObject()
         jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
