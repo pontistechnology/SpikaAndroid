@@ -336,8 +336,7 @@
             <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/tv_reacted_emoji"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="1dp"/>
+                android:layout_height="match_parent" />
         </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

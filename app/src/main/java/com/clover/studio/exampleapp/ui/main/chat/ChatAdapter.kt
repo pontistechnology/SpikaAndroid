@@ -202,7 +202,7 @@ class ChatAdapter(
                 }
 
                 /* Reactions section: */
-                //All commented lines of code in the reactions section refer to removing reactions
+                // All commented lines of code in the reactions section refer to removing reactions
 
                 // Listener - remove reaction layouts
                 holder.binding.clMessage.setOnTouchListener { _, _ ->
@@ -472,12 +472,11 @@ class ChatAdapter(
     ): String {
         var reactionText = ""
         // var reactionId = 0
+        var flag = true
         val sortedList = messageAndRecords.records!!.sortedBy { it.userId }
-        Timber.d("sorted list: $sortedList")
         try {
             var id = sortedList.first().userId
             var reaction = ""
-            var flag = true
             for (record in sortedList) {
                 if (!record.reaction.isNullOrEmpty()) {
                     if (id == record.userId) {
@@ -496,6 +495,7 @@ class ChatAdapter(
                 getAllReactions(reaction, reactions)
             }
             reactionText = getGroupReactions(reactions)
+            // Timber.d("reaction text: $reactionText")
         } catch (e: Exception) {
             Timber.d(e.toString())
         }
@@ -525,7 +525,7 @@ class ChatAdapter(
                 reactions.cryingFaceEmoji++
             }
             else -> {
-                Timber.d("not found")
+                Timber.d("Not found")
             }
         }
     }
@@ -573,7 +573,7 @@ class ChatAdapter(
                 reactionText += reactions.relievedEmoji.toString() + " "
             }
         }
-
+        // Timber.d("reaction method: $reactionText")
         return reactionText
     }
 
@@ -584,7 +584,6 @@ class ChatAdapter(
         /*reactionId: Int,*/
         messageAndRecords: MessageAndRecords,
     ) {
-        // TODO - remove my reaction for new one
         holder.binding.reactions.clEmoji.children.forEach { child ->
             child.setOnClickListener {
                 when (child) {
@@ -621,12 +620,12 @@ class ChatAdapter(
                     }
                 }
 
-                reactionMessage.reaction = REACTION
-                reactionMessage.messageId = messageId
                 //reactionMessage.reactionId = reactionId
                 //reactionMessage.userId = myUserId
 
                 if (REACTION.isNotEmpty()) {
+                    reactionMessage.reaction = REACTION
+                    reactionMessage.messageId = messageId
                     addReaction.invoke(reactionMessage)
                     val reactions = Reactions(0, 0, 0, 0, 0, 0)
 
@@ -660,11 +659,9 @@ class ChatAdapter(
             child.setOnClickListener {
                 when (child) {
                     holder.binding.reactions.tvThumbsUpEmoji -> {
-                        /*
-                        For removing reactions
+                        /* For removing reactions
                         if (reactionMessage.activeReaction!!.thumbsUp) {
                             // Active reaction is already thumbs up -> remove it
-                            Timber.d("reactionid3: $reactionId")
                             reactionMessage.clicked = true
                             reactionMessage.activeReaction!!.thumbsUp = false
                         } else {
@@ -692,15 +689,15 @@ class ChatAdapter(
                     }
                 }
 
-                reactionMessage.reaction = REACTION
-                reactionMessage.messageId = messageId
                 //reactionMessage.reactionId = reactionId
                 //reactionMessage.userId = myUserId
 
                 if (REACTION.isNotEmpty()) {
+                    reactionMessage.reaction = REACTION
+                    reactionMessage.messageId = messageId
                     addReaction.invoke(reactionMessage)
-                    val reactions = Reactions(0, 0, 0, 0, 0, 0)
 
+                    val reactions = Reactions(0, 0, 0, 0, 0, 0)
                     holder.binding.tvReactedEmoji.text =
                         getDatabaseReaction(messageAndRecords, reactions)
                     holder.binding.cvReactedEmoji.visibility = View.VISIBLE
@@ -761,7 +758,7 @@ class ChatAdapter(
             oldItem: MessageAndRecords,
             newItem: MessageAndRecords
         ): Boolean {
-            return oldItem == newItem
+            return oldItem.message.id == newItem.message.id
         }
 
         override fun areContentsTheSame(
