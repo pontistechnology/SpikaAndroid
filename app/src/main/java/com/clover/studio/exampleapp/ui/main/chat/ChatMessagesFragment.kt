@@ -20,7 +20,6 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -260,7 +259,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.rvChat.layoutManager = layoutManager
 
         // Add callback for item swipe handling
-        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
+        /*val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(
                 0,
                 ItemTouchHelper.RIGHT
@@ -284,7 +283,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
-        itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
+        itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)*/
 
         // Notify backend of messages seen
         viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
