@@ -413,6 +413,7 @@ class ChatAdapter(
                     return@setOnTouchListener true
                 }
 
+                // Get reactions from database
                 val reactions = Reactions(0, 0, 0, 0, 0, 0)
                 val reactionText = getDatabaseReaction(it, reactions)
 
@@ -574,7 +575,7 @@ class ChatAdapter(
             }
         }
         // Timber.d("reaction method: $reactionText")
-        return reactionText
+        return reactionText.trim()
     }
 
     // TODO - same listeners method for both holders
@@ -699,7 +700,7 @@ class ChatAdapter(
 
                     val reactions = Reactions(0, 0, 0, 0, 0, 0)
                     holder.binding.tvReactedEmoji.text =
-                        getDatabaseReaction(messageAndRecords, reactions)
+                        getDatabaseReaction(messageAndRecords, reactions).trim()
                     holder.binding.cvReactedEmoji.visibility = View.VISIBLE
 
                     /*if (reactionMessage.clicked) {
