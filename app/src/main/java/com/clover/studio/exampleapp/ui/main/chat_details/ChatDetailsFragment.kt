@@ -232,6 +232,32 @@ class ChatDetailsFragment : BaseFragment() {
                 }
             }
         }
+
+        binding.tvDelete.setOnClickListener {
+            if (isAdmin) {
+                DialogError.getInstance(requireActivity(),
+                    getString(R.string.delete_chat),
+                    getString(R.string.delete_chat_description),
+                    getString(
+                        R.string.yes
+                    ),
+                    getString(R.string.no),
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            roomId?.let { id -> viewModel.deleteRoom(id) }
+                            activity?.finish()
+                        }
+                    })
+            } else {
+                DialogError.getInstance(
+                    requireActivity(),
+                    getString(R.string.error),
+                    getString(R.string.room_delete_admin_error),
+                    null,
+                    getString(R.string.ok),
+                    object : DialogInteraction {})
+            }
+        }
     }
 
     private fun setAvatarAndUsername(avatarUrl: String, username: String) {

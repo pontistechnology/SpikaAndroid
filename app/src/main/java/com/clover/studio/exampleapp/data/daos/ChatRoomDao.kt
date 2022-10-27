@@ -31,6 +31,9 @@ interface ChatRoomDao {
     @Delete
     suspend fun deleteRoom(chatRoom: ChatRoom)
 
+   @Query("DELETE FROM room WHERE room_id = :roomId")
+   suspend fun deleteRoom(roomId: Int)
+
     @Query("DELETE FROM room")
     suspend fun removeRooms()
 

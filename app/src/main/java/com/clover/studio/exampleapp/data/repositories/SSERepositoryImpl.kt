@@ -163,32 +163,35 @@ class SSERepositoryImpl @Inject constructor(
                         val roomUsers: MutableList<RoomUser> = ArrayList()
                         val chatRooms: MutableList<ChatRoomUpdate> = ArrayList()
                         for (room in response.data.rooms) {
-                            val oldData = chatRoomDao.getRoomById(room.roomId)
-                            chatRooms.add(ChatRoomUpdate(oldData, room))
-                            rooms.add(room)
+                            if (!room.deleted) {
+                                Timber.d("Adding room ${room.name}")
+                                val oldData = chatRoomDao.getRoomById(room.roomId)
+                                chatRooms.add(ChatRoomUpdate(oldData, room))
+                                rooms.add(room)
 
-                            for (user in room.users) {
-                                user.user?.let { users.add(it) }
-                                roomUsers.add(
-                                    RoomUser(
-                                        room.roomId,
-                                        user.userId,
-                                        user.isAdmin
+                                for (user in room.users) {
+                                    user.user?.let { users.add(it) }
+                                    roomUsers.add(
+                                        RoomUser(
+                                            room.roomId,
+                                            user.userId,
+                                            user.isAdmin
+                                        )
                                     )
-                                )
+                                }
                             }
-                        }
-                        chatRoomDao.updateRoomTable(chatRooms)
-                        userDao.insert(users)
-                        chatRoomDao.insertRoomWithUsers(roomUsers)
+                            chatRoomDao.updateRoomTable(chatRooms)
+                            userDao.insert(users)
+                            chatRoomDao.insertRoomWithUsers(roomUsers)
 
-                        if (rooms.isNotEmpty()) {
-                            val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
-                            Timber.d("MaxTimestamp rooms: $maxTimestamp")
-                            rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt?.let {
-                                sharedPrefs.writeRoomTimestamp(
-                                    it
-                                )
+                            if (rooms.isNotEmpty()) {
+                                val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
+                                Timber.d("MaxTimestamp rooms: $maxTimestamp")
+                                rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt?.let {
+                                    sharedPrefs.writeRoomTimestamp(
+                                        it
+                                    )
+                                }
                             }
                         }
                     }
@@ -248,9 +251,8 @@ class SSERepositoryImpl @Inject constructor(
         messageRecordsDao.deleteMessageRecord(messageRecords)
     }
 
-    override suspend fun deleteRoom(room: ChatRoom) {
-        chatRoomDao.deleteRoom(room)
-    }
+    override suspend fun deleteRoom(roomId: Int) =
+        chatRoomDao.deleteRoom(roomId)
 }
 
 interface SSERepository {
@@ -264,7 +266,7 @@ interface SSERepository {
     suspend fun writeUser(user: User)
     suspend fun writeRoom(room: ChatRoom)
     suspend fun deleteMessageRecord(messageRecords: MessageRecords)
-    suspend fun deleteRoom(room: ChatRoom)
+    suspend fun deleteRoom(roomId: Int)
     suspend fun deleteMessage(message: Message)
 }
 
