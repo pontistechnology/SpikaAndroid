@@ -352,9 +352,16 @@ class ChatAdapter(
                 if (position > 0) {
                     try {
                         val nextItem = getItem(position + 1).fromUserId
+                        val previousItem = getItem(position - 1).fromUserId
 
                         val currentItem = it.fromUserId
                         Timber.d("Items : $nextItem, $currentItem ${nextItem == currentItem}")
+
+                        if (previousItem == currentItem) {
+                            holder.binding.cvUserImage.visibility = View.INVISIBLE
+                        } else {
+                            holder.binding.cvUserImage.visibility = View.VISIBLE
+                        }
 
                         if (nextItem == currentItem) {
                             holder.binding.tvUsername.visibility = View.GONE
@@ -364,9 +371,11 @@ class ChatAdapter(
                     } catch (ex: IndexOutOfBoundsException) {
                         Tools.checkError(ex)
                         holder.binding.tvUsername.visibility = View.VISIBLE
+                        holder.binding.cvUserImage.visibility = View.VISIBLE
                     }
                 } else {
                     holder.binding.tvUsername.visibility = View.VISIBLE
+                    holder.binding.cvUserImage.visibility = View.VISIBLE
                 }
             }
         }
