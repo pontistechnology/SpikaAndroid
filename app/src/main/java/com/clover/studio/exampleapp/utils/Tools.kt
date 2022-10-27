@@ -32,6 +32,7 @@ import java.security.NoSuchAlgorithmException
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 
@@ -308,6 +309,24 @@ object Tools {
 
     fun generateDeviceId(): String {
         return UUID.randomUUID().toString().substring(0, 13)
+    }
+
+    fun convertDurationMillis(time: Int): String {
+        val millis: Long = time.toLong()
+        //val hour = TimeUnit.MILLISECONDS.toHours(millis)
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(
+            TimeUnit.MILLISECONDS.toHours(
+                time.toLong()
+            )
+        )
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(
+            TimeUnit.MILLISECONDS.toMinutes(
+                time.toLong()
+            )
+
+        )
+        return String.format("%02d:%02d", minutes, seconds)
+
     }
 
     fun createCustomNotification(
