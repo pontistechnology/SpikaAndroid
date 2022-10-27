@@ -136,6 +136,13 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
         roomDao.getSingleRoomData(roomId)
+
+    override suspend fun deleteRoom(roomId: Int) {
+        val response = chatService.deleteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+        if (response.data?.room?.deleted == true) {
+            roomDao.deleteRoom(roomId)
+        }
+    }
 }
 
 interface ChatRepository {
@@ -156,4 +163,5 @@ interface ChatRepository {
     suspend fun unmuteRoom(roomId: Int)
     suspend fun getUserSettings(): List<Settings>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
+    suspend fun deleteRoom(roomId: Int)
 }

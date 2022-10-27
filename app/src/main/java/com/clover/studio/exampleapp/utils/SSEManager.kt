@@ -134,7 +134,7 @@ class SSEManager @Inject constructor(
                                         response.data?.room?.let { repo.writeRoom(it) }
                                     }
                                     Const.JsonFields.DELETE_ROOM -> {
-                                        response.data?.room?.let { repo.deleteRoom(it) }
+                                        response.data?.room?.let { repo.deleteRoom(it.roomId) }
                                     }
                                 }
                             }

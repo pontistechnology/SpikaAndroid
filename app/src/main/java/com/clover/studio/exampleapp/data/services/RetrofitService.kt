@@ -82,10 +82,4 @@ interface RetrofitService {
     suspend fun getSettings(
         @HeaderMap headers: Map<String, String?>
     ): SettingsResponse
-
-    @DELETE(Const.Networking.API_UPDATE_ROOM)
-    suspend fun deleteRoom(
-        @HeaderMap headers: Map<String, String?>,
-        @Path(Const.Networking.ROOM_ID) roomId: Int
-    )
 }

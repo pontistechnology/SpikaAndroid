@@ -231,9 +231,6 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun getUserSettings(): List<Settings> =
         retrofitService.getSettings(getHeaderMap(sharedPrefs.readToken())).data.settings
-
-    override suspend fun deleteRoom(roomId: Int) =
-        retrofitService.deleteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
 }
 
 interface MainRepository {
@@ -256,5 +253,4 @@ interface MainRepository {
     suspend fun getMessageRecords()
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
     suspend fun getUserSettings(): List<Settings>
-    suspend fun deleteRoom(roomId: Int)
 }

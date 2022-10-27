@@ -58,8 +58,6 @@ class MainActivity : BaseActivity() {
         initializeObservers()
         sendPushTokenToServer()
         checkIntentExtras()
-
-//        deleteRooms()
     }
 
     private fun checkIntentExtras() {
@@ -72,17 +70,6 @@ class MainActivity : BaseActivity() {
                 // ignore
             }
             intent.removeExtra(Const.IntentExtras.ROOM_ID_EXTRA)
-        }
-    }
-
-    /**
-     * Mock function for deleting rooms if you have any unwanted rooms in the local database.
-     */
-    private fun deleteRooms() {
-        val roomIds = listOf<Int>(540)
-
-        for (id in roomIds) {
-            viewModel.deleteRoom(id)
         }
     }
 
