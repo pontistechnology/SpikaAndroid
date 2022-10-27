@@ -6,13 +6,13 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_photo_picker"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
+        android:layout_width="@dimen/forty_two_dp"
+        android:layout_height="@dimen/forty_two_dp"
         android:layout_margin="@dimen/twenty_dp_margin"
         android:background="@drawable/img_selector_background"
         android:backgroundTint="@color/light_blue"
         android:elevation="0dp"
-        app:cardCornerRadius="50dp"
+        app:cardCornerRadius="@dimen/fifty_dp_margin"
         app:cardPreventCornerOverlap="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,7 +33,7 @@
         android:layout_margin="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/enter_username"
-        android:textSize="14sp"
+        android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintStart_toEndOf="@id/cv_photo_picker"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -55,7 +55,7 @@
         android:fontFamily="@font/montserrat"
         android:text="@string/outgoing"
         android:textColor="@color/text_tertiary"
-        android:textSize="9sp"
+        android:textSize="@dimen/nine_sp_text"
         app:layout_constraintStart_toEndOf="@id/iv_call_icon"
         app:layout_constraintTop_toBottomOf="@id/tv_username" />
 
@@ -66,15 +66,15 @@
         android:layout_margin="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/time_placeholder"
-        android:textSize="14sp"
+        android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/iv_call_type"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/iv_call_type"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
+        android:layout_width="@dimen/thirty_four_dp"
+        android:layout_height="@dimen/thirty_four_dp"
         android:layout_margin="@dimen/twenty_dp_margin"
         android:src="@drawable/img_video_selected"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -64,7 +64,9 @@ class AccountCreationFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), currentPhotoLocation)
                 val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
+                Glide.with(this).load(bitmap)
+                    .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
+                    .into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
             } else {

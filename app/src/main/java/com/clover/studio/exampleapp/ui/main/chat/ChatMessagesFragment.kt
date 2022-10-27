@@ -148,6 +148,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.tvChatName.text = userName
         Glide.with(this)
             .load(avatarUrl.let { Tools.getFileUrl(it) })
+            .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
             .into(bindingSetup.ivUserImage)
     }
 

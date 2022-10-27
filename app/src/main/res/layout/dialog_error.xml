@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/ten_dp_margin"
-    app:cardCornerRadius="10dp"
+    app:cardCornerRadius="@dimen/ten_dp_margin"
     app:cardElevation="0dp"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
@@ -26,7 +26,7 @@
             android:padding="@dimen/twenty_dp_margin"
             android:text="@string/placeholder_title"
             android:textColor="@color/text_primary"
-            android:textSize="14sp" />
+            android:textSize="@dimen/fourteen_sp_text" />
 
         <TextView
             android:id="@+id/tv_text_description"
@@ -37,7 +37,7 @@
             android:padding="@dimen/twenty_dp_margin"
             android:text="@string/placeholder_title"
             android:textColor="@color/text_tertiary"
-            android:textSize="12sp" />
+            android:textSize="@dimen/twelve_sp_text" />
 
         <View
             android:layout_width="match_parent"
@@ -64,7 +64,7 @@
                 android:text="@string/action"
                 android:textAllCaps="false"
                 android:textColor="@color/text_tertiary"
-                android:textSize="15sp" />
+                android:textSize="@dimen/fifteen_sp_text" />
 
             <Button
                 android:id="@+id/btn_second_option"
@@ -80,7 +80,7 @@
                 android:text="@string/action"
                 android:textAllCaps="false"
                 android:textColor="@color/primary_color"
-                android:textSize="15sp" />
+                android:textSize="@dimen/fifteen_sp_text" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

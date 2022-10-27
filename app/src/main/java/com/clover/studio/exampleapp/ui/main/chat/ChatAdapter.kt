@@ -342,6 +342,7 @@ class ChatAdapter(
                                     avatarUrl
                                 )
                             })
+                            .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                             .into(holder.binding.ivUserImage)
                         break
                     }

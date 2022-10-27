@@ -44,14 +44,14 @@
 
                 <ImageView
                     android:id="@+id/iv_play_button"
-                    android:layout_width="78dp"
-                    android:layout_height="78dp"
+                    android:layout_width="@dimen/seventy_eight_dp"
+                    android:layout_height="@dimen/seventy_eight_dp"
                     android:layout_marginStart="@dimen/eight_dp_margin"
                     android:layout_marginTop="@dimen/eight_dp_margin"
                     android:layout_marginEnd="@dimen/eight_dp_margin"
                     android:layout_marginBottom="@dimen/eight_dp_margin"
                     android:adjustViewBounds="true"
-                    android:elevation="4dp"
+                    android:elevation="@dimen/four_dp"
                     app:layout_constraintBottom_toBottomOf="@+id/cv_video"
                     app:layout_constraintEnd_toEndOf="@+id/cv_video"
                     app:layout_constraintStart_toStartOf="@+id/cv_video"
@@ -100,7 +100,7 @@
                 android:padding="@dimen/ten_dp_margin"
                 android:text="@string/some_message"
                 android:textColorLink="@color/primary_color"
-                android:textSize="14sp"
+                android:textSize="@dimen/fourteen_sp_text"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -188,7 +188,7 @@
                     android:fontFamily="@font/montserrat_bold"
                     android:maxLines="1"
                     android:text="@string/placeholder_title"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/fourteen_sp_text"
                     app:layout_constrainedWidth="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/iv_file_type"
@@ -203,7 +203,7 @@
                     android:layout_marginBottom="@dimen/ten_dp_margin"
                     android:fontFamily="@font/montserrat"
                     android:text="@string/number_example"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/fourteen_sp_text"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/iv_file_type"
                     app:layout_constraintTop_toBottomOf="@id/tv_file_title" />
@@ -233,9 +233,9 @@
 
             <ImageView
                 android:id="@+id/iv_user_image"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                tools:srcCompat="@drawable/img_account_filled" />
+                android:layout_width="@dimen/twenty_dp_margin"
+                android:layout_height="@dimen/twenty_dp_margin"
+                tools:srcCompat="@drawable/img_user_placeholder" />
         </androidx.cardview.widget.CardView>
 
         <TextView
@@ -246,7 +246,7 @@
             android:fontFamily="@font/montserrat"
             android:text="@string/username"
             android:textColor="@color/text_tertiary"
-            android:textSize="12sp"
+            android:textSize="@dimen/twelve_sp_text"
             app:layout_constraintBottom_toTopOf="@+id/cl_container"
             app:layout_constraintStart_toStartOf="@+id/cl_container"
             app:layout_constraintTop_toBottomOf="@+id/tv_section_header" />

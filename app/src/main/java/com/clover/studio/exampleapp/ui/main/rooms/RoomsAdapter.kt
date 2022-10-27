@@ -52,8 +52,10 @@ class RoomsAdapter(
                     userAvatar = roomItem.roomWithUsers.room.avatarUrl.toString()
                 }
                 binding.tvRoomName.text = userName
+
                 Glide.with(context)
-                    .load(userAvatar.let { getFileUrl(it) })
+                    .load(getFileUrl(userAvatar))
+                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivRoomImage)
 
                 if (!roomItem.message.isNullOrEmpty()) {

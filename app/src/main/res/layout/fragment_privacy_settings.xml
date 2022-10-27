@@ -23,7 +23,7 @@
         android:layout_marginStart="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/privacy"
-        android:textSize="14sp"
+        android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintBottom_toBottomOf="@id/iv_back"
         app:layout_constraintStart_toEndOf="@id/iv_back"
         app:layout_constraintTop_toTopOf="@id/iv_back" />
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat"
             android:text="@string/pin_chat"
-            android:textSize="14sp"
+            android:textSize="@dimen/fourteen_sp_text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -63,7 +63,7 @@
         android:fontFamily="@font/montserrat"
         android:text="@string/privacy_explanation"
         android:textColor="@color/text_secondary"
-        android:textSize="9sp"
+        android:textSize="@dimen/nine_sp_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_pin_chat" />

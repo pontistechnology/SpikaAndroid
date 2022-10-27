@@ -15,7 +15,7 @@
         android:layout_margin="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/call_history"
-        android:textSize="28sp"
+        android:textSize="@dimen/twenty_eight_sp_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,7 +26,7 @@
         android:fontFamily="@font/montserrat"
         android:text="@string/no_calls_yet"
         android:textColor="@color/text_tertiary"
-        android:textSize="16sp"
+        android:textSize="@dimen/sixteen_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

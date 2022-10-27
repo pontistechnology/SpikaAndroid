@@ -23,7 +23,7 @@
         android:layout_marginStart="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/chat"
-        android:textSize="14sp"
+        android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintBottom_toBottomOf="@id/iv_back"
         app:layout_constraintStart_toEndOf="@id/iv_back"
         app:layout_constraintTop_toTopOf="@id/iv_back" />
@@ -43,7 +43,7 @@
             android:layout_marginStart="@dimen/ten_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/save_to_camera_roll"
-            android:textSize="14sp"
+            android:textSize="@dimen/fourteen_sp_text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
