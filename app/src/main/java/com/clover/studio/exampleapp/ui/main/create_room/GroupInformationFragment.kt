@@ -36,11 +36,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class GroupInformationFragment : BaseFragment() {
-    @Inject
+
     lateinit var uploadDownloadManager: UploadDownloadManager
 
     private val viewModel: MainViewModel by activityViewModels()

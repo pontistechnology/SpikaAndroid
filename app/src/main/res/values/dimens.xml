@@ -8,6 +8,7 @@
     <dimen name="seventy_dp">70dp</dimen>
     <dimen name="sixty_four_dp">64dp</dimen>
     <dimen name="fifty_dp_margin">50dp</dimen>
+    <dimen name="forty_eight_dp_margin">48dp</dimen>
     <dimen name="forty_two_dp">42dp</dimen>
     <dimen name="forty_dp_margin">40dp</dimen>
     <dimen name="thirty_four_dp">34dp</dimen>
@@ -22,9 +23,10 @@
     <dimen name="ten_dp_margin">10dp</dimen>
     <dimen name="eight_dp_margin">8dp</dimen>
     <dimen name="five_dp_margin">5dp</dimen>
-    <dimen name="four_dp">4dp</dimen>
-    <dimen name="three_dp">3dp</dimen>
-    <dimen name="one_dp">1dp</dimen>
+    <dimen name="four_dp_margin">4dp</dimen>
+    <dimen name="three_dp_margin">3dp</dimen>
+    <dimen name="two_dp_margin">2dp</dimen>
+    <dimen name="one_dp_margin">1dp</dimen>
 
     <!-- TEXT -->
     <dimen name="thirty_sp_text">30sp</dimen>

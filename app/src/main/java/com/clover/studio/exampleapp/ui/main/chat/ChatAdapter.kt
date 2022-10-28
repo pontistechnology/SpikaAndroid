@@ -437,16 +437,16 @@ class ChatAdapter(
                 // TODO - show avatar only on last message and name on first message
                 if (position > 0) {
                     try {
-                        val nextItem = getItem(position + 1).fromUserId
-                        val previousItem = getItem(position - 1).fromUserId
+                        val nextItem = getItem(position + 1).message.fromUserId
+                        val previousItem = getItem(position - 1).message.fromUserId
 
                         val currentItem = it.message.fromUserId
                         //Timber.d("Items : $nextItem, $currentItem ${nextItem == currentItem}")
 
                         if (previousItem == currentItem) {
-                            holder.binding.cvUserImage.visibility = View.INVISIBLE
+                            holder.binding.cvUserAvatar.visibility = View.INVISIBLE
                         } else {
-                            holder.binding.cvUserImage.visibility = View.VISIBLE
+                            holder.binding.cvUserAvatar.visibility = View.VISIBLE
                         }
 
                         if (nextItem == currentItem) {
@@ -457,11 +457,11 @@ class ChatAdapter(
                     } catch (ex: IndexOutOfBoundsException) {
                         Tools.checkError(ex)
                         holder.binding.tvUsername.visibility = View.VISIBLE
-                        holder.binding.cvUserImage.visibility = View.VISIBLE
+                        holder.binding.cvUserAvatar.visibility = View.VISIBLE
                     }
                 } else {
                     holder.binding.tvUsername.visibility = View.VISIBLE
-                    holder.binding.cvUserImage.visibility = View.VISIBLE
+                    holder.binding.cvUserAvatar.visibility = View.VISIBLE
                 }
             }
         }
