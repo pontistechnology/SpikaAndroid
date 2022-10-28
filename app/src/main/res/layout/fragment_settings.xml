@@ -4,28 +4,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.chat.ChatFragment">
+    android:clickable="true"
+    android:focusableInTouchMode="true"
+    tools:context=".ui.main.rooms.RoomsFragment">
 
     <TextView
         android:id="@+id/tv_screen_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/settings"
-        android:textSize="28sp"
+        android:textSize="@dimen/twenty_eight_sp_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/tv_done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/twenty_dp_margin"
+        android:fontFamily="@font/montserrat"
+        android:padding="@dimen/twenty_dp_margin"
+        android:text="@string/done"
+        android:textColor="@color/primary_color"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/tv_screen_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_screen_name" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_photo_picker"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_margin="20dp"
+        android:layout_width="@dimen/one_hundred_dp"
+        android:layout_height="@dimen/one_hundred_dp"
+        android:layout_margin="@dimen/twenty_dp_margin"
         android:background="@drawable/img_selector_background"
         android:backgroundTint="@color/light_blue"
         android:elevation="0dp"
-        app:cardCornerRadius="50dp"
+        app:cardCornerRadius="@dimen/fifty_dp_margin"
         app:cardPreventCornerOverlap="false"
         app:layout_constraintBottom_toTopOf="@id/tv_username"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,18 +57,49 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_progress_screen"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:elevation="@dimen/five_dp_margin"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/cv_photo_picker"
+        app:layout_constraintEnd_toEndOf="@id/cv_photo_picker"
+        app:layout_constraintStart_toStartOf="@id/cv_photo_picker"
+        app:layout_constraintTop_toTopOf="@id/cv_photo_picker">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/img_selector_background"
+            android:backgroundTint="@color/dark_background_transp" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="@dimen/seventy_dp"
+            android:layout_height="@dimen/seventy_dp"
+            android:indeterminate="false"
+            android:progress="0"
+            android:progressDrawable="@drawable/custom_circular_progress"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_small_camera_picker"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
+        android:layout_width="@dimen/twenty_eight_dp"
+        android:layout_height="@dimen/twenty_eight_dp"
         android:background="@drawable/img_selector_background"
-        android:elevation="5dp"
+        android:elevation="@dimen/five_dp_margin"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/cv_photo_picker"
         app:layout_constraintEnd_toEndOf="@id/cv_photo_picker">
 
         <ImageView
-            android:layout_width="12dp"
-            android:layout_height="12dp"
+            android:layout_width="@dimen/twelve_dp"
+            android:layout_height="@dimen/twelve_dp"
             android:src="@drawable/img_camera"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -60,15 +107,34 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <EditText
+        android:id="@+id/et_enter_username"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/thirty_dp_margin"
+        android:layout_marginTop="@dimen/twenty_dp_margin"
+        android:layout_marginEnd="@dimen/thirty_dp_margin"
+        android:layout_marginBottom="@dimen/twenty_dp_margin"
+        android:background="@drawable/bg_text_field"
+        android:fontFamily="@font/montserrat"
+        android:hint="@string/enter_username"
+        android:padding="@dimen/ten_dp_margin"
+        android:textSize="@dimen/fourteen_sp_text"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/cl_privacy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_photo_picker" />
+
     <TextView
         android:id="@+id/tv_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/enter_username"
         android:textColor="@color/primary_color"
-        android:textSize="16sp"
+        android:textSize="@dimen/sixteen_sp_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cv_photo_picker" />
@@ -77,7 +143,7 @@
         android:id="@+id/tv_phone_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/ten_dp_margin"
         android:text="@string/number_example"
         android:textColor="@color/text_tertiary"
         app:layout_constraintEnd_toEndOf="parent"
@@ -88,8 +154,8 @@
         android:id="@+id/cl_privacy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:padding="20dp"
+        android:layout_margin="@dimen/ten_dp_margin"
+        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_phone_number">
@@ -116,8 +182,8 @@
         android:id="@+id/cl_chat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:padding="20dp"
+        android:layout_margin="@dimen/ten_dp_margin"
+        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_privacy">
@@ -144,8 +210,8 @@
         android:id="@+id/cl_notifications"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:padding="20dp"
+        android:layout_margin="@dimen/ten_dp_margin"
+        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_chat">
@@ -172,8 +238,8 @@
         android:id="@+id/cl_media_download"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:padding="20dp"
+        android:layout_margin="@dimen/ten_dp_margin"
+        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_notifications">
@@ -200,11 +266,11 @@
         android:id="@+id/cl_invite_friend"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:padding="20dp"
+        android:layout_marginStart="@dimen/ten_dp_margin"
+        android:layout_marginTop="@dimen/twenty_dp_margin"
+        android:layout_marginEnd="@dimen/ten_dp_margin"
+        android:layout_marginBottom="@dimen/ten_dp_margin"
+        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_media_download">
@@ -215,7 +281,7 @@
             android:fontFamily="@font/montserrat"
             android:text="@string/invite_a_friend"
             android:textColor="@color/primary_color"
-            android:textSize="16sp"
+            android:textSize="@dimen/sixteen_sp_text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -227,5 +293,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

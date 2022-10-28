@@ -57,11 +57,46 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/action_mainFragment_to_contactDetailsFragment"
-            app:destination="@id/contactDetailsFragment" />
+            app:destination="@id/contactDetailsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_mainFragment_to_newRoomFragment"
+            app:destination="@id/newRoomFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/contactDetailsFragment"
-        android:name="com.clover.studio.exampleapp.ui.main.ContactDetailsFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.contact_details.ContactDetailsFragment"
         android:label="fragment_contact_details"
         tools:layout="@layout/fragment_contact_details" />
+    <fragment
+        android:id="@+id/newRoomFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.create_room.NewRoomFragment"
+        android:label="fragment_new_room"
+        tools:layout="@layout/fragment_new_room" >
+        <action
+            android:id="@+id/action_newRoomFragment_to_groupInformationFragment"
+            app:destination="@id/groupInformationFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/groupInformationFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.create_room.GroupInformationFragment"
+        android:label="fragment_group_information"
+        tools:layout="@layout/fragment_group_information" >
+        <action
+            android:id="@+id/action_groupInformationFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>

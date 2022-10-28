@@ -59,6 +59,127 @@ class SharedPreferencesRepositoryImpl(
         }
     }
 
+    override suspend fun writePushToken(token: String) {
+        with(getPrefs().edit()) {
+            putString(Const.PrefsData.PUSH_TOKEN, token)
+            commit()
+        }
+    }
+
+    override suspend fun readPushToken(): String? =
+        getPrefs().getString(Const.PrefsData.PUSH_TOKEN, null)
+
+    override suspend fun isNewUser(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.NEW_USER, false)
+
+    override suspend fun setNewUser(newUser: Boolean) {
+        with(getPrefs().edit()) {
+            putBoolean(Const.PrefsData.NEW_USER, newUser)
+            commit()
+        }
+    }
+
+    override suspend fun writeFirstSSELaunch() {
+        with(getPrefs().edit()) {
+            putBoolean(
+                Const.PrefsData.DATA_SYNCED,
+                false
+            )
+            commit()
+        }
+    }
+
+    override suspend fun isFirstSSELaunch(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.DATA_SYNCED, true)
+
+    override suspend fun writeMessageRecordTimestamp(messageRecordTimestamp: Long) {
+        with(getPrefs().edit()) {
+            putLong(Const.PrefsData.MESSAGE_RECORD_SYNC, messageRecordTimestamp)
+            commit()
+        }
+    }
+
+    override suspend fun readMessageRecordTimestamp(): Long =
+        getPrefs().getLong(Const.PrefsData.MESSAGE_RECORD_SYNC, 0)
+
+    override suspend fun writeMessageTimestamp(messageTimestamp: Long) {
+        with(getPrefs().edit()) {
+            putLong(Const.PrefsData.MESSAGE_SYNC, messageTimestamp)
+            commit()
+        }
+    }
+
+    override suspend fun readMessageTimestamp(): Long =
+        getPrefs().getLong(Const.PrefsData.MESSAGE_SYNC, 0)
+
+    override suspend fun writeUserTimestamp(userTimestamp: Long) {
+        with(getPrefs().edit()) {
+            putLong(Const.PrefsData.USER_SYNC, userTimestamp)
+            commit()
+        }
+    }
+
+    override suspend fun readUserTimestamp(): Long =
+        getPrefs().getLong(Const.PrefsData.USER_SYNC, 0)
+
+    override suspend fun writeRoomTimestamp(roomTimestamp: Long) {
+        with(getPrefs().edit()) {
+            putLong(Const.PrefsData.ROOM_SYNC, roomTimestamp)
+            commit()
+        }
+    }
+
+    override suspend fun readRoomTimestamp(): Long =
+        getPrefs().getLong(Const.PrefsData.ROOM_SYNC, 0)
+
+    override suspend fun writeFirstAppStart(firstAppStart: Boolean) {
+        with(getPrefs().edit()) {
+            putBoolean(
+                Const.PrefsData.FIRST_START,
+                firstAppStart
+            )
+            commit()
+        }
+    }
+
+    override suspend fun isFirstAppStart(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.FIRST_START, false)
+
+    override suspend fun writeUserPhoneDetails(
+        phoneNumber: String,
+        deviceId: String,
+        countryCode: String
+    ) {
+        with(getPrefs().edit()) {
+            putString(Const.PrefsData.PHONE_NUMBER, phoneNumber)
+            putString(Const.PrefsData.DEVICE_ID, deviceId)
+            putString(Const.PrefsData.COUNTRY_CODE, countryCode)
+            commit()
+        }
+    }
+
+    override suspend fun readPhoneNumber(): String? =
+        getPrefs().getString(Const.PrefsData.PHONE_NUMBER, null)
+
+    override suspend fun readCountryCode(): String? =
+        getPrefs().getString(Const.PrefsData.COUNTRY_CODE, null)
+
+    override suspend fun readDeviceId(): String? =
+        getPrefs().getString(Const.PrefsData.DEVICE_ID, null)
+
+    override suspend fun writeRegistered(registeredFlag: Boolean) {
+        with(getPrefs().edit()) {
+            putBoolean(
+                Const.PrefsData.REGISTERED,
+                registeredFlag
+            )
+            commit()
+        }
+    }
+
+    override suspend fun readRegistered(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.REGISTERED, false)
+
     private fun getPrefs(): SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
 }
@@ -72,4 +193,31 @@ interface SharedPreferencesRepository {
     suspend fun readUserId(): Int?
     suspend fun isAccountCreated(): Boolean
     suspend fun accountCreated(created: Boolean)
+    suspend fun writePushToken(token: String)
+    suspend fun readPushToken(): String?
+    suspend fun isNewUser(): Boolean
+    suspend fun setNewUser(newUser: Boolean)
+    suspend fun writeFirstSSELaunch()
+    suspend fun isFirstSSELaunch(): Boolean
+
+    // Sync
+    suspend fun writeMessageRecordTimestamp(messageRecordTimestamp: Long)
+    suspend fun readMessageRecordTimestamp(): Long?
+    suspend fun writeMessageTimestamp(messageTimestamp: Long)
+    suspend fun readMessageTimestamp(): Long?
+    suspend fun writeUserTimestamp(userTimestamp: Long)
+    suspend fun readUserTimestamp(): Long?
+    suspend fun writeRoomTimestamp(roomTimestamp: Long)
+    suspend fun readRoomTimestamp(): Long?
+
+    suspend fun writeFirstAppStart(firstAppStart: Boolean)
+    suspend fun isFirstAppStart(): Boolean
+
+    suspend fun writeUserPhoneDetails(phoneNumber: String, deviceId: String, countryCode: String)
+    suspend fun readPhoneNumber(): String?
+    suspend fun readDeviceId(): String?
+    suspend fun readCountryCode(): String?
+
+    suspend fun writeRegistered(registeredFlag: Boolean)
+    suspend fun readRegistered(): Boolean
 }

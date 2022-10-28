@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.databinding.FragmentDownloadSettingsBinding
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 
-class DownloadSettingsFragment : Fragment() {
+class DownloadSettingsFragment : BaseFragment() {
     private var bindingSetup: FragmentDownloadSettingsBinding? = null
 
     private val binding get() = bindingSetup!!

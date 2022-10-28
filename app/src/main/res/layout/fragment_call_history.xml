@@ -4,16 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.chat.ChatFragment">
+    android:clickable="true"
+    android:focusableInTouchMode="true"
+    tools:context=".ui.main.rooms.RoomsFragment">
 
     <TextView
         android:id="@+id/tv_screen_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/call_history"
-        android:textSize="28sp"
+        android:textSize="@dimen/twenty_eight_sp_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -24,7 +26,7 @@
         android:fontFamily="@font/montserrat"
         android:text="@string/no_calls_yet"
         android:textColor="@color/text_tertiary"
-        android:textSize="16sp"
+        android:textSize="@dimen/sixteen_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +36,7 @@
         android:id="@+id/sv_history_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/twenty_dp_margin"
         android:background="@drawable/bg_search_field"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

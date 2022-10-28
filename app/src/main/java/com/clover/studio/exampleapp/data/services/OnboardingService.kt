@@ -1,33 +1,29 @@
 package com.clover.studio.exampleapp.data.services
 
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
+import com.clover.studio.exampleapp.data.models.networking.FileResponse
 import com.clover.studio.exampleapp.utils.Const
+import com.google.gson.JsonObject
 import retrofit2.http.*
 
 interface OnboardingService {
-    @FormUrlEncoded
     @POST(value = Const.Networking.API_AUTH)
     suspend fun sendUserData(
         @HeaderMap headers: Map<String, String?>,
-        @Field("telephoneNumber") phoneNumber: String,
-        @Field("telephoneNumberHashed") phoneNumberHashed: String,
-        @Field("countryCode") countryCode: String,
-        @Field("deviceId") deviceId: String
+        @Body jsonObject: JsonObject
     ): AuthResponse
 
-    @FormUrlEncoded
     @POST(value = Const.Networking.API_VERIFY_CODE)
     suspend fun verifyUserCode(
         @HeaderMap headers: Map<String, String?>,
-        @Field("code") code: String,
-        @Field("deviceId") deviceId: String
+        @Body jsonObject: JsonObject
     ): AuthResponse
 
     @FormUrlEncoded
     @POST(value = Const.Networking.API_CONTACTS)
     suspend fun sendContacts(
         @HeaderMap headers: Map<String, String?>,
-        @Field("contacts") contacts: List<String>
+        @Field(Const.Networking.CONTACTS) contacts: List<String>
     ): AuthResponse
 
     @FormUrlEncoded
@@ -36,4 +32,16 @@ interface OnboardingService {
         @HeaderMap headers: Map<String, String?>,
         @FieldMap userMap: Map<String, String>
     ): AuthResponse
+
+    @POST(value = Const.Networking.API_UPLOAD_FILE)
+    suspend fun uploadFiles(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject
+    ): FileResponse
+
+    @POST(value = Const.Networking.API_VERIFY_FILE)
+    suspend fun verifyFile(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject
+    ): FileResponse
 }
