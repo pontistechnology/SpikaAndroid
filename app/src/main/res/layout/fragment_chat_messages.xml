@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/dark_background_transp"
-            android:elevation="@dimen/three_dp"
+            android:elevation="@dimen/three_dp_margin"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/iv_add"
             app:layout_constraintTop_toTopOf="parent" />
@@ -115,7 +115,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
-            android:elevation="@dimen/one_dp"
+            android:elevation="@dimen/one_dp_margin"
             app:layout_constraintBottom_toTopOf="@id/iv_add"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -146,7 +146,7 @@
             android:fillViewport="true"
             android:visibility="visible"
             android:windowSoftInputMode="adjustResize"
-            app:layout_constraintBottom_toTopOf="@id/cl_typing"
+            app:layout_constraintBottom_toTopOf="@id/divider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cl_header" />
@@ -246,9 +246,9 @@
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/one_dp"
+            android:layout_height="@dimen/one_dp_margin"
             android:layout_marginBottom="@dimen/ten_dp_margin"
-            android:background="@color/text_secondary"
+            android:background="@color/navigation"
             app:layout_constraintBottom_toTopOf="@id/cl_typing"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -257,7 +257,7 @@
             android:id="@+id/cl_bottom_sheet"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:elevation="@dimen/four_dp"
+            android:elevation="@dimen/four_dp_margin"
             app:layout_constraintBottom_toTopOf="@id/iv_add"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">

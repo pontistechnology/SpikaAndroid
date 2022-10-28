@@ -8,8 +8,6 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.clover.studio.exampleapp.utils.CHANNEL_ID
-import com.vanniktech.emoji.EmojiManager
-import com.vanniktech.emoji.google.GoogleEmojiProvider
 import com.clover.studio.exampleapp.utils.helpers.AppLifecycleManager
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider

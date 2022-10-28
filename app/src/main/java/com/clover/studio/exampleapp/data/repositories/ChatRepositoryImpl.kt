@@ -144,7 +144,7 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun sendReaction(jsonObject: JsonObject) =
         chatService.postReaction(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
 
-    override suspend fun deleteReaction(recordId: Int, userId: Int) {
+    /*override suspend fun deleteReaction(recordId: Int, userId: Int) {
         chatService.deleteReaction(getHeaderMap(sharedPrefsRepo.readToken()), recordId)
         chatRoomDao.deleteReactionRecord(recordId, userId)
         Timber.d("id:::::: $recordId")
@@ -152,8 +152,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun deleteAllReactions(messageId: Int) {
         chatRoomDao.deleteAllReactions(messageId)
-    }
-    override suspend fun sendReaction(jsonObject: JsonObject) = chatService.postReaction(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
+    }*/
 
     override suspend fun deleteRoom(roomId: Int) {
         val response = chatService.deleteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
@@ -183,8 +182,9 @@ interface ChatRepository {
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords>
     suspend fun sendReaction(jsonObject: JsonObject)
-    suspend fun deleteReaction(recordId: Int, userId: Int)
-    suspend fun deleteAllReactions(messageId: Int)
-    suspend fun deleteReaction(id: Int)
+
+    // suspend fun deleteReaction(recordId: Int, userId: Int)
+    // suspend fun deleteAllReactions(messageId: Int)
+    // suspend fun deleteReaction(id: Int)
     suspend fun deleteRoom(roomId: Int)
 }

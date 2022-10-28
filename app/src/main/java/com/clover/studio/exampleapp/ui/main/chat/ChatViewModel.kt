@@ -237,7 +237,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun deleteReaction(recordId: Int, userId: Int) = viewModelScope.launch {
+    /*fun deleteReaction(recordId: Int, userId: Int) = viewModelScope.launch {
         try {
             repository.deleteReaction(recordId, userId)
         } catch (ex: Exception) {
@@ -259,8 +259,7 @@ class ChatViewModel @Inject constructor(
                 Timber.d("Exception: $ex")
             }
         }
-    }
-
+    }*/
 
 
     fun deleteRoom(roomId: Int) = viewModelScope.launch {

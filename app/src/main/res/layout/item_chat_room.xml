@@ -9,7 +9,6 @@
         android:id="@+id/cv_user_image"
         android:layout_width="@dimen/forty_two_dp"
         android:layout_height="@dimen/forty_two_dp"
-        android:layout_margin="@dimen/twenty_dp_margin"
         android:background="@drawable/img_selector_background"
         android:backgroundTint="@color/light_blue"
         android:elevation="0dp"
