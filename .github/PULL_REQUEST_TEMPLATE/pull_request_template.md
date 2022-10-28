@@ -25,7 +25,6 @@ special ways that things need to be tested they will be mentioned below.
 
 * Firmware version:
 * Hardware:
-* Toolchain:
 * SDK:
 
 # Checklist:
