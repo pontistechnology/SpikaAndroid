@@ -10,14 +10,23 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(message: Message): Long
 
-    @Query("SELECT * FROM message")
-    fun getMessages(): LiveData<List<Message>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(messages: List<Message>)
+
+    @Query("SELECT * FROM message WHERE room_id LIKE :messageId")
+    fun getMessages(messageId: Int): LiveData<List<Message>>
 
     @Query("SELECT * FROM message WHERE id LIKE :messageId LIMIT 1")
     fun getMessageById(messageId: String): LiveData<Message>
 
+    @Query("SELECT * FROM message")
+    suspend fun getMessagesLocally(): List<Message>
+
     @Delete
     suspend fun deleteMessage(message: Message)
+
+    @Query("DELETE FROM message WHERE id IN (:messageId)")
+    suspend fun deleteMessage(messageId: List<Long>)
 
     @Query("DELETE FROM message")
     suspend fun removeMessages()

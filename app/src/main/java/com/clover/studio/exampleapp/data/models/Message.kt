@@ -1,63 +1,85 @@
 package com.clover.studio.exampleapp.data.models
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_MESSAGE)
-data class Message(
+data class Message @JvmOverloads constructor(
 
     @PrimaryKey
     @ColumnInfo(name = AppDatabase.TablesInfo.ID)
-    val id: String,
+    val id: Int,
 
-    @SerializedName("user_id")
-    @ColumnInfo(name = "user_id")
-    val userId: String,
+    @SerializedName("fromUserId")
+    @ColumnInfo(name = "from_user_id")
+    val fromUserId: Int?,
 
-    @SerializedName("chat_id")
-    @ColumnInfo(name = "chat_id")
-    val chatId: String,
+    @SerializedName("fromDeviceId")
+    @ColumnInfo(name = "from_device_id")
+    val fromDeviceId: Int?,
 
-    @SerializedName("message")
-    @ColumnInfo(name = "message")
-    val message: String,
+    @SerializedName("totalDeviceCount")
+    @ColumnInfo(name = "total_device_count")
+    val totalDeviceCount: Int?,
 
-    @SerializedName("message_type")
-    @ColumnInfo(name = "message_type")
-    val messageType: String,
+    @SerializedName("totalUserCount")
+    @ColumnInfo(name = "total_user_count")
+    val totalUserCount: Int?,
 
-    @SerializedName("from_device_type")
-    @ColumnInfo(name = "from_device_type")
-    val fromDeviceType: String,
+    @SerializedName("deliveredCount")
+    @ColumnInfo(name = "delivered_count")
+    val deliveredCount: Int?,
 
-    @SerializedName("to_device_type")
-    @ColumnInfo(name = "to_device_type")
-    val toDeviceType: String,
+    @SerializedName("seenCount")
+    @ColumnInfo(name = "seen_count")
+    val seenCount: Int?,
 
-    @SerializedName("file_path")
-    @ColumnInfo(name = "file_path")
-    val filePath: String,
+    @SerializedName("roomId")
+    @ColumnInfo(name = "room_id")
+    val roomId: Int?,
 
-    @SerializedName("file_mime_type")
-    @ColumnInfo(name = "file_mime_type")
-    val fileMimeType: String,
+    @SerializedName("type")
+    @ColumnInfo(name = "type")
+    val type: String?,
 
-    @SerializedName("state")
-    @ColumnInfo(name = "state")
-    val state: String,
+    @SerializedName("body")
+    @ColumnInfo(name = "body")
+    @TypeConverters(TypeConverter::class)
+    val body: MessageBody?,
 
-    @SerializedName("reply_message_id")
-    @ColumnInfo(name = "reply_message_id")
-    val replyMessageId: String,
-
-    @SerializedName("created_at")
+    @SerializedName("createdAt")
     @ColumnInfo(name = "created_at")
-    val createdAt: String,
+    val createdAt: Long?,
 
-    @SerializedName("modified_at")
+    @SerializedName("modifiedAt")
     @ColumnInfo(name = "modified_at")
-    val modifiedAt: String
+    val modifiedAt: Long?,
+
+    // Two field below are used for firebase messaging and are not needed in the local db
+    @Ignore
+    @SerializedName("fromUserName")
+    val userName: String = "",
+
+    @Ignore
+    val groupName: String? = "",
+
+    @Ignore
+    val muted: Boolean? = false
 )
+
+data class MessageBody(
+    var text: String?,
+    var fileId: Long?,
+    var thumbId: Long?,
+    var file: MessageFile?,
+    var thumb: MessageFile?
+)
+
+data class MessageFile(
+    val fileName: String,
+    val mimeType: String,
+    val path: String,
+    val size: Long
+)
+

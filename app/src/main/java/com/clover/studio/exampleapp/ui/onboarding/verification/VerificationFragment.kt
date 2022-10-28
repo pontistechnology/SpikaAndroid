@@ -1,6 +1,5 @@
 package com.clover.studio.exampleapp.ui.onboarding.verification
 
-import android.content.Context
 import android.content.IntentFilter
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -10,24 +9,23 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentVerificationBinding
+import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
-import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.SmsListener
-import com.clover.studio.exampleapp.utils.SmsReceiver
+import com.clover.studio.exampleapp.utils.*
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.android.gms.auth.api.phone.SmsRetriever
+import com.google.gson.JsonObject
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 
-class VerificationFragment : Fragment() {
+class VerificationFragment : BaseFragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var phoneNumber: String
     private lateinit var phoneNumberHashed: String
@@ -35,6 +33,7 @@ class VerificationFragment : Fragment() {
     private lateinit var deviceId: String
     private lateinit var intentFilter: IntentFilter
     private lateinit var smsReceiver: SmsReceiver
+    private lateinit var timer: CountDownTimer
 
     private var bindingSetup: FragmentVerificationBinding? = null
 
@@ -63,8 +62,33 @@ class VerificationFragment : Fragment() {
         initBroadCast()
         setClickListeners()
         setObservers()
+        initCountdownTimer()
 
         return binding.root
+    }
+
+    private fun initCountdownTimer() {
+        timer = object : CountDownTimer(120000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                var timeInMinutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished).toString()
+                var timeInSeconds =
+                    (TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) % 60).toString()
+
+                if (timeInMinutes.length < 2) {
+                    timeInMinutes = "0$timeInMinutes"
+                }
+
+                if (timeInSeconds.length < 2) {
+                    timeInSeconds = "0$timeInSeconds"
+                }
+                binding.tvTimer.text = "$timeInMinutes:$timeInSeconds"
+            }
+
+            override fun onFinish() {
+                binding.tvTimer.text = getString(R.string.timeout)
+            }
+        }
+        timer.start()
     }
 
     override fun onResume() {
@@ -87,6 +111,11 @@ class VerificationFragment : Fragment() {
                 OnboardingStates.CODE_VERIFIED -> {
                     binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
                     binding.ivCheckmark.visibility = View.VISIBLE
+                    goToMainActivity()
+                }
+                OnboardingStates.CODE_VERIFIED_NEW_USER -> {
+                    binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
+                    binding.ivCheckmark.visibility = View.VISIBLE
                     goToAccountCreation()
                 }
                 OnboardingStates.CODE_ERROR -> {
@@ -101,12 +130,32 @@ class VerificationFragment : Fragment() {
 
     private fun setClickListeners() {
         binding.btnNext.setOnClickListener {
-            viewModel.sendCodeVerification(getVerificationCode(), deviceId)
+            viewModel.sendCodeVerification(getVerificationJsonObject())
         }
 
         binding.tvResendCode.setOnClickListener {
-            viewModel.sendNewUserData(phoneNumber, phoneNumberHashed, countryCode, deviceId)
+            viewModel.sendNewUserData(getPhoneJsonObject())
         }
+    }
+
+    private fun getVerificationJsonObject(): JsonObject {
+        val jsonObject = JsonObject()
+
+        jsonObject.addProperty(Const.JsonFields.CODE, getVerificationCode())
+        jsonObject.addProperty(Const.JsonFields.DEVICE_ID, deviceId)
+
+        return jsonObject
+    }
+
+    private fun getPhoneJsonObject(): JsonObject {
+        val jsonObject = JsonObject()
+
+        jsonObject.addProperty(Const.JsonFields.TELEPHONE_NUMBER, phoneNumber)
+        jsonObject.addProperty(Const.JsonFields.TELEPHONE_NUMBER_HASHED, phoneNumberHashed)
+        jsonObject.addProperty(Const.JsonFields.COUNTRY_CODE, countryCode)
+        jsonObject.addProperty(Const.JsonFields.DEVICE_ID, deviceId)
+
+        return jsonObject
     }
 
     private fun initBroadCast() {
@@ -123,6 +172,19 @@ class VerificationFragment : Fragment() {
                 binding.etInputSix.setText(messageText?.get(5).toString())
             }
         })
+    }
+
+    private fun goToMainActivity() {
+        val timer = object : CountDownTimer(2000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                Timber.d("Timer tick $millisUntilFinished")
+            }
+
+            override fun onFinish() {
+                startMainActivity(requireActivity())
+            }
+        }
+        timer.start()
     }
 
     private fun goToAccountCreation() {
@@ -201,6 +263,54 @@ class VerificationFragment : Fragment() {
                 binding.etInputFive
             )
         )
+
+        binding.etInputOne.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
+
+        binding.etInputTwo.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
+
+        binding.etInputThree.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
+
+        binding.etInputFour.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
+
+        binding.etInputFive.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputSix.hasFocus()) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
+
+        binding.etInputSix.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus()) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
+            }
+        }
     }
 
     private fun startSmsRetriever() {
@@ -238,10 +348,10 @@ class VerificationFragment : Fragment() {
         private val previousView: EditText?
     ) : View.OnKeyListener {
         override fun onKey(p0: View?, keyCode: Int, event: KeyEvent?): Boolean {
-            if (event!!.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DEL && currentView.id != binding.etInputOne.id && currentView.text.isEmpty()) {
+            if (event?.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DEL && currentView.id != binding.etInputOne.id && currentView.text.isEmpty()) {
                 //If current is empty then previous EditText's number will also be deleted
-                previousView!!.text = null
-                previousView.requestFocus()
+                previousView?.text = null
+                previousView?.requestFocus()
                 return true
             }
             return false
@@ -262,17 +372,15 @@ class VerificationFragment : Fragment() {
                 binding.etInputFour.id -> if (text.length == 1) nextView!!.requestFocus()
                 binding.etInputFive.id -> if (text.length == 1) nextView!!.requestFocus()
                 binding.etInputSix.id -> if (text.length == 1) {
-                    val imm =
-                        activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(binding.etInputSix.windowToken, 0)
 
+                    Tools.hideKeyboard(requireActivity(), binding.etInputSix)
                     val timer = object : CountDownTimer(500, 100) {
                         override fun onTick(millisUntilFinished: Long) {
                             Timber.d("Timer tick $millisUntilFinished")
                         }
 
                         override fun onFinish() {
-                            viewModel.sendCodeVerification(getVerificationCode(), deviceId)
+                            viewModel.sendCodeVerification(getVerificationJsonObject())
                         }
                     }
                     timer.start()
@@ -295,5 +403,10 @@ class VerificationFragment : Fragment() {
             arg3: Int
         ) { // TODO Auto-generated method stub
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        timer.cancel()
     }
 }

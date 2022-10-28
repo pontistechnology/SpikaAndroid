@@ -4,19 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.FragmentCallHistoryBinding
-import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import timber.log.Timber
-import kotlin.random.Random
 
-class CallHistoryFragment : Fragment() {
-    private val viewModel: MainViewModel by activityViewModels()
+class CallHistoryFragment : BaseFragment() {
     private lateinit var callHistoryAdapter: CallHistoryAdapter
     private lateinit var userList: List<User>
     private var filteredList: MutableList<User> = ArrayList()
@@ -31,33 +27,10 @@ class CallHistoryFragment : Fragment() {
     ): View {
         bindingSetup = FragmentCallHistoryBinding.inflate(inflater, container, false)
 
-        // TODO get user list and check state
-        userList = mutableListOf(
-            User(
-                1,
-                "Matom",
-                Tools.getRandomImageUrl(Random.nextInt(5)),
-                "+384945556666",
-                "someHash",
-                "mojemail@lol.com",
-                "Time"
-            ),
-
-            User(
-                2,
-                "Markan",
-                Tools.getRandomImageUrl(Random.nextInt(5)),
-                "+384945556666",
-                "someHash",
-                "drugimai@aol.com",
-                "time"
-            )
-        )
-
         setupAdapter()
         setupSearchView()
 
-        if (userList.isEmpty()) {
+        if (!this::userList.isInitialized || userList.isEmpty()) {
             binding.svHistorySearch.visibility = View.GONE
             binding.rvCallHistory.visibility = View.GONE
         } else {
@@ -76,45 +49,57 @@ class CallHistoryFragment : Fragment() {
         binding.rvCallHistory.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
-        callHistoryAdapter.submitList(
-            userList
-        )
+        if (this::userList.isInitialized && userList.isNotEmpty()) {
+            callHistoryAdapter.submitList(
+                userList
+            )
+        }
     }
 
     private fun setupSearchView() {
         // SearchView is immediately acting as if selected
-        binding.svHistorySearch.setIconifiedByDefault(false)
-        binding.svHistorySearch.setOnQueryTextListener(object :
-            androidx.appcompat.widget.SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null) {
-                    Timber.d("Query: $query")
-                    for (user in userList) {
-                        if (user.displayName?.contains(query, ignoreCase = true) == true) {
-                            filteredList.add(user)
+        if (this::userList.isInitialized) {
+            binding.svHistorySearch.setIconifiedByDefault(false)
+            binding.svHistorySearch.setOnQueryTextListener(object :
+                androidx.appcompat.widget.SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    if (query != null) {
+                        Timber.d("Query: $query")
+                        for (user in userList) {
+                            if (user.displayName?.contains(query, ignoreCase = true) == true) {
+                                filteredList.add(user)
+                            }
                         }
+                        Timber.d("Filtered List: $filteredList")
+                        callHistoryAdapter.submitList(ArrayList(filteredList))
+                        filteredList.clear()
                     }
-                    Timber.d("Filtered List: $filteredList")
-                    callHistoryAdapter.submitList(ArrayList(filteredList))
-                    filteredList.clear()
+                    return true
                 }
-                return true
-            }
 
-            override fun onQueryTextChange(query: String?): Boolean {
-                if (query != null) {
-                    Timber.d("Query: $query")
-                    for (user in userList) {
-                        if (user.displayName?.contains(query, ignoreCase = true) == true) {
-                            filteredList.add(user)
+                override fun onQueryTextChange(query: String?): Boolean {
+                    if (query != null) {
+                        Timber.d("Query: $query")
+                        for (user in userList) {
+                            if (user.displayName?.contains(query, ignoreCase = true) == true) {
+                                filteredList.add(user)
+                            }
                         }
+                        Timber.d("Filtered List: $filteredList")
+                        callHistoryAdapter.submitList(ArrayList(filteredList))
+                        filteredList.clear()
                     }
-                    Timber.d("Filtered List: $filteredList")
-                    callHistoryAdapter.submitList(ArrayList(filteredList))
-                    filteredList.clear()
+                    return true
                 }
-                return true
+            })
+        }
+        binding.svHistorySearch.setOnFocusChangeListener { view, hasFocus ->
+            run {
+                view.clearFocus()
+                if (!hasFocus) {
+                    Tools.hideKeyboard(requireActivity(), view)
+                }
             }
-        })
+        }
     }
 }
