@@ -251,17 +251,6 @@ class MainViewModel @Inject constructor(
             return@launch
         }
     }
-
-    fun deleteRoom(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.deleteRoom(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
-    }
 }
 
 sealed class MainStates

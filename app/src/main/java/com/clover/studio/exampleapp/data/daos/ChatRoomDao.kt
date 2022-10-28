@@ -31,6 +31,13 @@ interface ChatRoomDao {
     @Delete
     suspend fun deleteRoom(chatRoom: ChatRoom)
 
+    /**
+     * Use this method to delete rooms from local db. We cannot rely on the above one because
+     * chat rooms might come with a field that is ignored.
+     */
+   @Query("DELETE FROM room WHERE room_id = :roomId")
+   suspend fun deleteRoom(roomId: Int)
+
     @Query("DELETE FROM room")
     suspend fun removeRooms()
 
