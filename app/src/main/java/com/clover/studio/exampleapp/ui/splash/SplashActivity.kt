@@ -4,17 +4,17 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.clover.studio.exampleapp.databinding.ActivitySplashBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : BaseActivity() {
 
     private val viewModel: SplashViewModel by viewModels()
 
@@ -34,34 +34,34 @@ class SplashActivity : AppCompatActivity() {
             when (it) {
                 SplashStates.NAVIGATE_ONBOARDING -> goToOnboarding()
                 SplashStates.NAVIGATE_MAIN -> goToMainActivity()
-                else -> Timber.d("Unknown error, should never happen")
+                SplashStates.NAVIGATE_ACCOUNT_CREATION -> goToAccountCreation()
+                else -> Timber.d("Some error")
             }
         })
 
         viewModel.checkToken()
     }
 
-    private fun goToOnboarding() {
-        val timer = object : CountDownTimer(5000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                Timber.d("Timer tick $millisUntilFinished")
-            }
+    private fun goToAccountCreation() {
+        startTimerAndNavigate { startOnboardingActivity(this@SplashActivity, true) }
+    }
 
-            override fun onFinish() {
-                startOnboardingActivity(this@SplashActivity)
-            }
-        }
-        timer.start()
+    private fun goToOnboarding() {
+        startTimerAndNavigate { startOnboardingActivity(this@SplashActivity, false) }
     }
 
     private fun goToMainActivity() {
-        val timer = object : CountDownTimer(5000, 1000) {
+        startTimerAndNavigate { startMainActivity(this@SplashActivity) }
+    }
+
+    private fun startTimerAndNavigate(location: () -> Unit) {
+        val timer = object : CountDownTimer(2000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 Timber.d("Timer tick $millisUntilFinished")
             }
 
             override fun onFinish() {
-                startMainActivity(this@SplashActivity)
+                location()
             }
         }
         timer.start()

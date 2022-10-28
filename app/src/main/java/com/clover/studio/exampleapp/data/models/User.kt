@@ -3,8 +3,10 @@ package com.clover.studio.exampleapp.data.models
 import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.clover.studio.exampleapp.data.AppDatabase
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -32,4 +34,14 @@ data class User(
 
     @ColumnInfo(name = "created_at")
     val createdAt: String?,
-) : Parcelable
+
+    @ColumnInfo(name = "modified_at")
+    val modifiedAt: Long?,
+
+    @ColumnInfo(name = "selected")
+    var selected: Boolean = false
+) : Parcelable {
+    @Ignore
+    @IgnoredOnParcel
+    var isAdmin: Boolean = false
+}

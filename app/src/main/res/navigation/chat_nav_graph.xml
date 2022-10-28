@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_nav_graph"
+    app:startDestination="@id/chatMessagesFragment">
+
+    <fragment
+        android:id="@+id/newRoomFragment2"
+        android:name="com.clover.studio.exampleapp.ui.main.create_room.NewRoomFragment"
+        android:label="fragment_new_room"
+        tools:layout="@layout/fragment_new_room">
+        <action
+            android:id="@+id/action_newRoomFragment2_to_chatDetailsFragment"
+            app:destination="@id/chatDetailsFragment" />
+        <argument
+            android:name="userIds"
+            android:defaultValue="@null"
+            app:argType="integer[]"
+            app:nullable="true" />
+        <argument
+            android:name="roomId"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatDetailsFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.chat_details.ChatDetailsFragment"
+        android:label="ChatDetailsFragment"
+        tools:layout="@layout/fragment_chat_details">
+        <action
+            android:id="@+id/action_chatDetailsFragment_to_newRoomFragment2"
+            app:destination="@id/newRoomFragment2" />
+        <argument
+            android:name="roomId"
+            app:argType="integer"
+            android:defaultValue="0" />
+        <argument
+            android:name="isAdmin"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <action
+            android:id="@+id/action_chatDetailsFragment_to_chatMessagesFragment2"
+            app:destination="@id/chatMessagesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatMessagesFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.chat.ChatMessagesFragment"
+        android:label="fragment_chat_messages"
+        tools:layout="@layout/fragment_chat_messages" >
+        <action
+            android:id="@+id/action_chatMessagesFragment2_to_videoFragment2"
+            app:destination="@id/mediaFragment" />
+        <action
+            android:id="@+id/action_chatMessagesFragment_to_chatDetailsFragment"
+            app:destination="@id/chatDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mediaFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.chat.MediaFragment"
+        android:label="fragment_media"
+        tools:layout="@layout/fragment_media">
+        <argument
+            android:name="videoPath"
+            android:defaultValue="null"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_videoFragment_to_chatMessagesFragment"
+            app:destination="@id/chatMessagesFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/chatMessagesFragment" />
+        <argument
+            android:name="picturePath"
+            android:defaultValue="null"
+            app:argType="string" />
+    </fragment>
+</navigation>

@@ -1,16 +1,18 @@
 package com.clover.studio.exampleapp.ui.onboarding
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.clover.studio.exampleapp.BaseViewModel
+import com.clover.studio.exampleapp.data.models.PhoneUser
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
 import com.clover.studio.exampleapp.data.repositories.OnboardingRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.Tools
-import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
+import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -18,21 +20,19 @@ import javax.inject.Inject
 class OnboardingViewModel @Inject constructor(
     private val onboardingRepository: OnboardingRepositoryImpl,
     private val sharedPrefs: SharedPreferencesRepository
-) : ViewModel() {
+) : BaseViewModel() {
 
     var codeVerificationListener = MutableLiveData<Event<OnboardingStates>>()
     var registrationListener = MutableLiveData<Event<OnboardingStates>>()
     var accountCreationListener = MutableLiveData<Event<OnboardingStates>>()
     var userUpdateListener = MutableLiveData<Event<OnboardingStates>>()
+    var userPhoneNumberListener = MutableLiveData<String>()
 
     fun sendNewUserData(
-        phoneNumber: String,
-        phoneNumberHashed: String,
-        countryCode: String,
-        deviceId: String
+        jsonObject: JsonObject
     ) = viewModelScope.launch {
         try {
-            onboardingRepository.sendUserData(phoneNumber, phoneNumberHashed, countryCode, deviceId)
+            onboardingRepository.sendUserData(jsonObject)
         } catch (ex: Exception) {
             Tools.checkError(ex)
             registrationListener.postValue(Event(OnboardingStates.REGISTERING_ERROR))
@@ -43,13 +43,12 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun sendCodeVerification(
-        code: String,
-        deviceId: String
+        jsonObject: JsonObject
     ) = viewModelScope.launch {
         codeVerificationListener.postValue(Event(OnboardingStates.VERIFYING))
         val authResponse: AuthResponse
         try {
-            authResponse = onboardingRepository.verifyUserCode(code, deviceId)
+            authResponse = onboardingRepository.verifyUserCode(jsonObject)
         } catch (ex: Exception) {
             Tools.checkError(ex)
             codeVerificationListener.postValue(Event(OnboardingStates.CODE_ERROR))
@@ -58,7 +57,13 @@ class OnboardingViewModel @Inject constructor(
 
         Timber.d("Token ${authResponse.data.device.token}")
         authResponse.data.device.token?.let { sharedPrefs.writeToken(it) }
-        codeVerificationListener.postValue(Event(OnboardingStates.CODE_VERIFIED))
+
+        if (sharedPrefs.isNewUser())
+            codeVerificationListener.postValue(Event((OnboardingStates.CODE_VERIFIED_NEW_USER)))
+        else {
+            sharedPrefs.accountCreated(true)
+            codeVerificationListener.postValue(Event(OnboardingStates.CODE_VERIFIED))
+        }
     }
 
     fun readToken() {
@@ -123,6 +128,60 @@ class OnboardingViewModel @Inject constructor(
 
         userUpdateListener.postValue(Event(OnboardingStates.USER_UPDATED))
     }
+
+    fun writePhoneUsers(phoneUsers: List<PhoneUser>) = viewModelScope.launch {
+        try {
+            onboardingRepository.writePhoneUsers(phoneUsers)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            return@launch
+        }
+    }
+
+    fun writeFirstAppStart() = viewModelScope.launch {
+        sharedPrefs.writeFirstAppStart(true)
+    }
+
+    fun isAppStarted(): Boolean {
+        var flag: Boolean
+        runBlocking {
+            flag = sharedPrefs.isFirstAppStart()
+        }
+        return flag
+    }
+
+    fun writePhoneAndDeviceId(phoneNumber: String, deviceId: String, countryCode: String) =
+        viewModelScope.launch {
+            sharedPrefs.writeUserPhoneDetails(phoneNumber, deviceId, countryCode)
+        }
+
+    fun readPhoneNumber(): String {
+        var number: String
+        runBlocking {
+            number = sharedPrefs.readPhoneNumber().toString()
+        }
+        return number
+    }
+
+    fun readCountryCode(): String {
+        var countryCode: String
+        runBlocking {
+            countryCode = sharedPrefs.readCountryCode().toString()
+        }
+        return countryCode
+    }
+
+    fun registerFlag(flag: Boolean) = viewModelScope.launch {
+        sharedPrefs.writeRegistered(flag)
+    }
+
+    fun readDeviceId(): String {
+        var deviceId: String
+        runBlocking {
+            deviceId = sharedPrefs.readDeviceId().toString()
+        }
+        return deviceId
+    }
 }
 
-enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR }
+enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_VERIFIED_NEW_USER, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR }
