@@ -411,6 +411,19 @@ class ChatViewModel @Inject constructor(
             )
         }
     }
+
+
+    fun deleteRoom(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.deleteRoom(roomId)
+
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
 }
 
 class RoomNotificationData(val response: Resource<RoomWithUsers>, val message: Message)

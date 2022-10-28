@@ -15,29 +15,35 @@
             android:id="@+id/iv_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/sixteen_dp_margin"
-            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:layout_margin="@dimen/twenty_dp_margin"
             android:padding="@dimen/ten_dp_margin"
             android:rotation="180"
             android:src="@drawable/img_arrow_forward"
-            app:layout_constraintEnd_toStartOf="@id/iv_user_image"
+            app:layout_constraintEnd_toStartOf="@id/cv_chat_image"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/primary_color" />
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/iv_user_image"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_chat_image"
             android:layout_width="@dimen/forty_two_dp"
             android:layout_height="@dimen/forty_two_dp"
-            android:layout_marginStart="@dimen/eight_dp_margin"
             android:background="@drawable/img_selector_background"
             android:backgroundTint="@color/light_blue"
-            android:scaleType="fitXY"
-            android:src="@drawable/img_user_placeholder"
+            android:elevation="0dp"
+            app:cardCornerRadius="@dimen/twenty_dp_margin"
+            app:cardPreventCornerOverlap="false"
             app:layout_constraintBottom_toBottomOf="@id/iv_back"
             app:layout_constraintStart_toEndOf="@id/iv_back"
-            app:layout_constraintTop_toTopOf="@id/iv_back"
-            app:shapeAppearanceOverlay="@style/circle" />
+            app:layout_constraintTop_toTopOf="@id/iv_back">
+
+            <ImageView
+                android:id="@+id/iv_user_image"
+                android:layout_width="@dimen/forty_two_dp"
+                android:layout_height="@dimen/forty_two_dp"
+                android:scaleType="center"
+                android:src="@drawable/img_user_placeholder" />
+        </androidx.cardview.widget.CardView>
 
         <TextView
             android:id="@+id/tv_chat_name"
@@ -48,43 +54,39 @@
             android:text="@string/enter_username"
             android:textSize="@dimen/fourteen_sp_text"
             app:layout_constraintEnd_toStartOf="@+id/iv_video_call"
-            app:layout_constraintStart_toEndOf="@id/iv_user_image"
-            app:layout_constraintTop_toTopOf="@id/iv_user_image" />
+            app:layout_constraintStart_toEndOf="@id/cv_chat_image"
+            app:layout_constraintTop_toTopOf="@id/cv_chat_image" />
 
         <TextView
             android:id="@+id/tv_title"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/enter_username"
             android:textSize="@dimen/fourteen_sp_text"
             android:visibility="visible"
-            app:layout_constraintEnd_toStartOf="@+id/iv_video_call"
-            app:layout_constraintStart_toEndOf="@id/iv_user_image"
+            app:layout_constraintStart_toEndOf="@id/cv_chat_image"
             app:layout_constraintTop_toBottomOf="@id/tv_chat_name" />
 
         <ImageView
             android:id="@+id/iv_call_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/sixteen_dp_margin"
-            android:layout_marginEnd="@dimen/sixteen_dp_margin"
             android:padding="@dimen/ten_dp_margin"
             android:src="@drawable/img_phone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/cv_chat_image" />
 
         <ImageView
             android:id="@+id/iv_video_call"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:padding="@dimen/ten_dp_margin"
             android:src="@drawable/img_video"
+            app:layout_constraintBottom_toBottomOf="@id/iv_call_user"
             app:layout_constraintEnd_toStartOf="@id/iv_call_user"
-            app:layout_constraintStart_toEndOf="@+id/tv_chat_name"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/iv_call_user" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -95,23 +97,31 @@
             android:textColor="@color/primary_color"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/iv_user_image" />
+            app:layout_constraintTop_toTopOf="@id/cv_chat_image" />
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/iv_pick_avatar"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_avatar"
             android:layout_width="@dimen/one_hundred_dp"
             android:layout_height="@dimen/one_hundred_dp"
             android:layout_margin="@dimen/twenty_dp_margin"
             android:layout_marginTop="@dimen/eight_dp_margin"
             android:background="@drawable/img_selector_background"
             android:backgroundTint="@color/light_blue"
-            android:scaleType="center"
-            android:src="@drawable/img_camera"
+            android:elevation="0dp"
+            app:cardCornerRadius="@dimen/fifty_dp_margin"
+            app:cardPreventCornerOverlap="false"
             app:layout_constraintBottom_toTopOf="@id/tv_group_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title"
-            app:shapeAppearanceOverlay="@style/circle" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_title">
+
+            <ImageView
+                android:id="@+id/iv_pick_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="center"
+                android:src="@drawable/img_camera" />
+        </androidx.cardview.widget.CardView>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_small_camera_picker"
@@ -120,8 +130,8 @@
             android:background="@drawable/img_selector_background"
             android:elevation="@dimen/five_dp_margin"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
-            app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar">
+            app:layout_constraintBottom_toBottomOf="@id/cv_avatar"
+            app:layout_constraintEnd_toEndOf="@id/cv_avatar">
 
             <ImageView
                 android:layout_width="@dimen/twelve_dp"
@@ -139,10 +149,10 @@
             android:layout_height="0dp"
             android:elevation="@dimen/five_dp_margin"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
-            app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar"
-            app:layout_constraintStart_toStartOf="@id/iv_pick_avatar"
-            app:layout_constraintTop_toTopOf="@id/iv_pick_avatar">
+            app:layout_constraintBottom_toBottomOf="@id/cv_avatar"
+            app:layout_constraintEnd_toEndOf="@id/cv_avatar"
+            app:layout_constraintStart_toStartOf="@id/cv_avatar"
+            app:layout_constraintTop_toTopOf="@id/cv_avatar">
 
             <View
                 android:layout_width="match_parent"
@@ -190,10 +200,10 @@
             android:padding="@dimen/ten_dp_margin"
             android:textSize="@dimen/fourteen_sp_text"
             android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/cl_shared_media"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_pick_avatar" />
-        <!--        app:layout_constraintBottom_toTopOf="@id/cl_shared_media"-->
+            app:layout_constraintTop_toBottomOf="@id/cv_avatar" />
 
         <TextView
             android:id="@+id/tv_group_name"
@@ -206,102 +216,101 @@
             android:textSize="@dimen/sixteen_sp_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_pick_avatar" />
+            app:layout_constraintTop_toBottomOf="@id/cv_avatar" />
 
-        <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
-        <!--            android:id="@+id/cl_shared_media"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/ten_dp_margin"-->
-        <!--            android:padding="@dimen/twenty_dp_margin"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/et_enter_group_name">-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_shared_media"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/ten_dp_margin"
+            android:padding="@dimen/twenty_dp_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_enter_group_name">
 
-        <!--            <TextView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:fontFamily="@font/montserrat"-->
-        <!--                android:text="@string/shared_media_links_and_docs"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                app:layout_constraintStart_toStartOf="parent"-->
-        <!--                app:layout_constraintTop_toTopOf="parent" />-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
+                android:text="@string/shared_media_links_and_docs"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <!--            <ImageView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:src="@drawable/img_arrow_forward"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                app:layout_constraintEnd_toEndOf="parent"-->
-        <!--                app:layout_constraintTop_toTopOf="parent" />-->
-        <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/img_arrow_forward"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
-        <!--            android:id="@+id/cl_chat_search"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/ten_dp_margin"-->
-        <!--            android:padding="@dimen/twenty_dp_margin"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/cl_shared_media">-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_chat_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/ten_dp_margin"
+            android:padding="@dimen/twenty_dp_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_shared_media">
 
-        <!--            <TextView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:fontFamily="@font/montserrat"-->
-        <!--                android:text="@string/chat_search"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                app:layout_constraintStart_toStartOf="parent"-->
-        <!--                app:layout_constraintTop_toTopOf="parent" />-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
+                android:text="@string/chat_search"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <!--            <ImageView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:src="@drawable/img_arrow_forward"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                app:layout_constraintEnd_toEndOf="parent"-->
-        <!--                app:layout_constraintTop_toTopOf="parent" />-->
-        <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/img_arrow_forward"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
-        <!--            android:id="@+id/cl_call_history"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/ten_dp_margin"-->
-        <!--            android:padding="@dimen/twenty_dp_margin"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/cl_chat_search">-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_call_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/ten_dp_margin"
+            android:padding="@dimen/twenty_dp_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_chat_search">
 
-        <!--            <TextView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:fontFamily="@font/montserrat"-->
-        <!--                android:text="@string/call_history"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                app:layout_constraintStart_toStartOf="parent"-->
-        <!--                app:layout_constraintTop_toTopOf="parent" />-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
+                android:text="@string/call_history"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <!--            <ImageView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:src="@drawable/img_arrow_forward"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                app:layout_constraintEnd_toEndOf="parent"-->
-        <!--                app:layout_constraintTop_toTopOf="parent" />-->
-        <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/img_arrow_forward"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_notes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/ten_dp_margin"
-            android:background="?android:selectableItemBackground"
             android:padding="@dimen/twenty_dp_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/et_enter_group_name">
+            app:layout_constraintTop_toBottomOf="@id/cl_call_history">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -321,42 +330,44 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
-        <!--            android:id="@+id/cl_favorite_message"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/ten_dp_margin"-->
-        <!--            android:padding="@dimen/twenty_dp_margin"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/cl_notes">-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_favorite_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/ten_dp_margin"
+            android:padding="@dimen/twenty_dp_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_notes">
 
-        <!--            <TextView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:fontFamily="@font/montserrat"-->
-        <!--                android:text="@string/favourite_messages"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                app:layout_constraintStart_toStartOf="parent"-->
-        <!--                app:layout_constraintTop_toTopOf="parent" />-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
+                android:text="@string/favourite_messages"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <!--            <ImageView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:src="@drawable/img_arrow_forward"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                app:layout_constraintEnd_toEndOf="parent"-->
-        <!--                app:layout_constraintTop_toTopOf="parent" />-->
-        <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/img_arrow_forward"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_pin_chat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/twenty_dp_margin"
+            android:layout_marginStart="@dimen/twenty_dp_margin"
+            android:layout_marginTop="@dimen/thirty_two_dp_margin"
+            android:layout_marginEnd="@dimen/twenty_dp_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cl_notes">
+            app:layout_constraintTop_toBottomOf="@id/cl_favorite_message">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -373,7 +384,6 @@
                 android:id="@+id/sw_pin_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:theme="@style/CustomSwitch"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -382,7 +392,7 @@
             android:id="@+id/cl_mute"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/twenty_dp_margin"
+            android:layout_margin="@dimen/twenty_dp_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cl_pin_chat">
@@ -398,11 +408,10 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/sw_mute"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:theme="@style/CustomSwitch"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -412,11 +421,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
-            android:visibility="gone"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/tv_block"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cl_mute">
-            <!--            app:layout_constraintBottom_toTopOf="@id/tv_block"-->
 
             <TextView
                 android:id="@+id/tv_members_number"
@@ -435,7 +444,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/img_add"
-                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -443,45 +451,15 @@
                 android:id="@+id/rv_group_members"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/eight_dp_margin"
                 android:paddingStart="@dimen/ten_dp_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_members_number"
-                tools:listitem="@layout/item_people_selected" />
+                app:layout_constraintTop_toBottomOf="@id/tv_members_number" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!--        <TextView-->
-        <!--            android:id="@+id/tv_block"-->
-        <!--            android:layout_width="0dp"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/twenty_dp_margin"-->
-        <!--            android:fontFamily="@font/montserrat"-->
-        <!--            android:paddingStart="@dimen/ten_dp_margin"-->
-        <!--            android:text="@string/exit_group"-->
-        <!--            android:textColor="@color/style_red"-->
-        <!--            android:textSize="@dimen/sixteen_sp_text"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/cl_member_list" />-->
-
-        <!--        <TextView-->
-        <!--            android:id="@+id/tv_report"-->
-        <!--            android:layout_width="0dp"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/twenty_dp_margin"-->
-        <!--            android:fontFamily="@font/montserrat"-->
-        <!--            android:paddingStart="@dimen/ten_dp_margin"-->
-        <!--            android:text="@string/report_group"-->
-        <!--            android:textColor="@color/style_red"-->
-        <!--            android:textSize="@dimen/sixteen_sp_text"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/tv_block" />-->
-
         <TextView
-            android:id="@+id/tv_exit_group"
+            android:id="@+id/tv_block"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
@@ -490,26 +468,23 @@
             android:text="@string/exit_group"
             android:textColor="@color/style_red"
             android:textSize="@dimen/sixteen_sp_text"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/tv_delete"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_see_more_less" />
+            app:layout_constraintTop_toBottomOf="@id/cl_member_list" />
 
-        <!--        <TextView-->
-        <!--            android:id="@+id/tv_report"-->
-        <!--            android:layout_width="0dp"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/twenty_dp_margin"-->
-        <!--            android:fontFamily="@font/montserrat"-->
-        <!--            android:paddingStart="@dimen/ten_dp_margin"-->
-        <!--            android:text="@string/report_group"-->
-        <!--            android:textColor="@color/style_red"-->
-        <!--            android:textSize="@dimen/sixteen_sp_text"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/tv_block" />-->
+        <TextView
+            android:id="@+id/tv_report"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/twenty_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:paddingStart="@dimen/ten_dp_margin"
+            android:text="@string/report_group"
+            android:textColor="@color/style_red"
+            android:textSize="@dimen/sixteen_sp_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_block" />
 
         <TextView
             android:id="@+id/tv_delete"
@@ -522,23 +497,9 @@
             android:text="@string/delete_chat"
             android:textColor="@color/style_red"
             android:textSize="@dimen/sixteen_sp_text"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_see_more_less"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/eight_dp_margin"
-            android:text="@string/see_more"
-            android:visibility="gone"
-            android:textSize="@dimen/fourteen_sp_text"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cl_member_list" />
-        <!--        app:layout_constraintTop_toBottomOf="@id/tv_report"-->
+            app:layout_constraintTop_toBottomOf="@id/tv_report" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
