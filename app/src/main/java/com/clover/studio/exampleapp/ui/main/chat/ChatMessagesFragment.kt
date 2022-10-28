@@ -225,8 +225,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                     // messagesRecords.toList -> for DiffUtil class
                     chatAdapter.submitList(messagesRecords.toList())
-                    // TODO - Check with Matko whether the list change works in all conditions
-                    // chatAdapter.notifyDataSetChanged()
+                    // TODO - change scroll
+                    // https://app.productive.io/9193-clover-studio/projects/114002/tasks/task/3489702?filter=MjM2NTc2
                     if (firstEnter) {
                         bindingSetup.rvChat.scrollToPosition(0)
                         firstEnter = false
