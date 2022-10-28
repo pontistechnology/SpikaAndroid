@@ -233,6 +233,8 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
+        // Rooms can only be deleted by room admins. A basic user will get an error if he tries
+        // to delete a room
         binding.tvDelete.setOnClickListener {
             if (isAdmin) {
                 DialogError.getInstance(requireActivity(),

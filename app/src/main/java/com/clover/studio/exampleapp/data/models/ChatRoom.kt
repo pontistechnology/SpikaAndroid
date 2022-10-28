@@ -25,6 +25,7 @@ data class ChatRoom @JvmOverloads constructor(
     @ColumnInfo(name = "type")
     val type: String?,
 
+    // Used only for local db insert logic
     @Ignore
     val deleted: Boolean = false,
 
