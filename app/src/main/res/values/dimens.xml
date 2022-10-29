@@ -1,17 +1,12 @@
 <resources>
-    <!-- Layout -->
-    <dimen name="two_hundred_seventy_two_dp">272dp</dimen>
-    <dimen name="two_hundred_fourteen_dp">214dp</dimen>
-    <dimen name="two_hundred">200dp</dimen>
+    <!-- LAYOUT -->
     <dimen name="one_hundred_seventy_dp">170dp</dimen>
-    <dimen name="one_hundred_twenty_eight">128dp</dimen>
     <dimen name="one_hundred_dp">100dp</dimen>
     <dimen name="eighty_eight_dp_margin">88dp</dimen>
     <dimen name="seventy_eight_dp">78dp</dimen>
     <dimen name="seventy_five_dp">75dp</dimen>
     <dimen name="seventy_dp">70dp</dimen>
     <dimen name="sixty_four_dp">64dp</dimen>
-    <dimen name="fifty_two_dp">52dp</dimen>
     <dimen name="fifty_dp_margin">50dp</dimen>
     <dimen name="forty_eight_dp_margin">48dp</dimen>
     <dimen name="forty_two_dp">42dp</dimen>
@@ -23,9 +18,7 @@
     <dimen name="twenty_five_dp_margin">25dp</dimen>
     <dimen name="twenty_four_dp_margin">24dp</dimen>
     <dimen name="twenty_dp_margin">20dp</dimen>
-    <dimen name="eighteen_dp_margin">18dp</dimen>
     <dimen name="sixteen_dp_margin">16dp</dimen>
-    <dimen name="fourteen_dp_margin">14dp</dimen>
     <dimen name="twelve_dp">12dp</dimen>
     <dimen name="ten_dp_margin">10dp</dimen>
     <dimen name="eight_dp_margin">8dp</dimen>
@@ -35,21 +28,16 @@
     <dimen name="two_dp_margin">2dp</dimen>
     <dimen name="one_dp_margin">1dp</dimen>
 
-    <!-- Text -->
+    <!-- TEXT -->
     <dimen name="thirty_eight_sp_text">38sp</dimen>
     <dimen name="thirty_sp_text">30sp</dimen>
     <dimen name="twenty_eight_sp_text">28sp</dimen>
     <dimen name="twenty_sp_text">20sp</dimen>
-    <dimen name="eighteen_sp_text">18sp</dimen>
     <dimen name="sixteen_sp_text">16sp</dimen>
     <dimen name="fifteen_sp_text">15sp</dimen>
     <dimen name="fourteen_sp_text">14sp</dimen>
     <dimen name="twelve_sp_text">12sp</dimen>
     <dimen name="eleven_sp_text">11sp</dimen>
     <dimen name="nine_sp_text">9sp</dimen>
-
-    <!--Images-->
-    <dimen name="image_max_width">300dp</dimen>
-    <dimen name="thirty_five_dp">35dp</dimen>
 
 </resources>

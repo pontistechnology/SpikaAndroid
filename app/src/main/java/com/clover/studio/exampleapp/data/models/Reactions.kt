@@ -9,11 +9,11 @@ data class Reactions(
     var cryingFaceEmoji: Int,
 )
 
-data class ReactionActive(
+/*data class ReactionActive(
     var thumbsUp: Boolean,
     var heart: Boolean,
     var prayingHandsEmoji: Boolean,
     var astonishedEmoji: Boolean,
     var relievedEmoji: Boolean,
     var cryingFaceEmoji: Boolean,
-)
+)*/
