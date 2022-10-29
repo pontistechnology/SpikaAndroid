@@ -83,7 +83,7 @@
             android:layout_marginBottom="@dimen/ten_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/users_selected"
-            android:textSize="11sp"
+            android:textSize="@dimen/eleven_sp_text"
             app:layout_constraintBottom_toTopOf="@id/rv_selected"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
