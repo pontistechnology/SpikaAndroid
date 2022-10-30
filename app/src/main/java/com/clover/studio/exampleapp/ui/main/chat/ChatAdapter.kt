@@ -2,7 +2,6 @@ package com.clover.studio.exampleapp.ui.main.chat
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -18,6 +17,9 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.core.view.children
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -97,7 +99,7 @@ class ChatAdapter(
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        getItem(position).let {
+        getItem(position).let { it ->
 
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.message.createdAt!!
@@ -211,46 +213,73 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.VISIBLE
 
-                        Timber.d("audio")
+                        // lastPosition = position
+                        // Timber.d("last: $lastPosition")
+
+                        // TODO pause audio on scroll, detect scrolling
                         val audioPath = it.body?.file?.path?.let { audioPath ->
                             Tools.getFileUrl(
                                 audioPath
                             )
                         }
 
-
-                        // Runnable :
                         val handler = Handler(Looper.getMainLooper())
-                        val mediaPlayer = MediaPlayer.create(this.context, Uri.parse(audioPath))
-
-                        holder.binding.tvAudioDuration.text =
-                            Tools.convertDurationMillis(mediaPlayer.duration)
-                        var time = mediaPlayer.duration
+                        val mediaItem: MediaItem = MediaItem.fromUri(Uri.parse(audioPath))
+                        player.setMediaItem(mediaItem)
+                        player.prepare()
+                        var setTime = true
+                        // val animator: ValueAnimator =  ValueAnimator.ofInt(0, holder.binding.sbAudio.max)
 
                         val runnable = object : Runnable {
                             override fun run() {
-                                holder.binding.sbAudio.progress = mediaPlayer.currentPosition
+                                holder.binding.sbAudio.progress = player.currentPosition.toInt()
                                 holder.binding.tvAudioDuration.text =
-                                    Tools.convertDurationMillis(time)
-                                time -= MILLIS
+                                    Tools.convertDurationMillis(player.currentPosition)
                                 handler.postDelayed(this, 1000)
                             }
                         }
 
+                        player.addListener(object : Player.Listener {
+                            override fun onPlaybackStateChanged(state: Int) {
+                                if (state == Player.STATE_READY) {
+                                    if (setTime) {
+                                        holder.binding.tvAudioDuration.text =
+                                            Tools.convertDurationMillis(player.duration)
+                                        setTime = false
+                                    }
+
+                                }
+                                if (state == Player.STATE_ENDED) {
+                                    holder.binding.ivPauseAudio.visibility = View.GONE
+                                    holder.binding.ivPlayAudio.visibility = View.VISIBLE
+                                    holder.binding.tvAudioDuration.text =
+                                        Tools.convertDurationMillis(player.duration)
+                                    player.seekTo(0)
+                                    player.stop()
+                                    // player.release()
+                                    handler.removeCallbacks(runnable)
+                                }
+                            }
+                        })
+
                         holder.binding.ivPlayAudio.setOnClickListener {
                             holder.binding.ivPlayAudio.visibility = View.GONE
                             holder.binding.ivPauseAudio.visibility = View.VISIBLE
-                            holder.binding.sbAudio.max = mediaPlayer.duration
-                            mediaPlayer.start()
+                            holder.binding.sbAudio.max = player.duration.toInt()
+                            player.play()
+                            // animator.start()
                             handler.postDelayed(runnable, 0)
+
                         }
 
 
                         holder.binding.ivPauseAudio.setOnClickListener {
                             holder.binding.ivPlayAudio.visibility = View.VISIBLE
                             holder.binding.ivPauseAudio.visibility = View.GONE
-                            mediaPlayer.pause()
+                            player.pause()
+                            // animator.pause()
                             handler.removeCallbacks(runnable)
+
                         }
 
                         holder.binding.sbAudio.setOnSeekBarChangeListener(object :
@@ -261,7 +290,9 @@ class ChatAdapter(
                                 fromUser: Boolean
                             ) {
                                 if (fromUser) {
-                                    mediaPlayer.seekTo(progress)
+                                    player.seekTo(progress.toLong())
+                                    holder.binding.tvAudioDuration.text =
+                                        Tools.convertDurationMillis(player.currentPosition)
                                 }
                             }
 
@@ -272,23 +303,14 @@ class ChatAdapter(
                             }
                         })
 
-                        mediaPlayer.setOnCompletionListener {
-                            holder.binding.ivPauseAudio.visibility = View.GONE
-                            holder.binding.ivPlayAudio.visibility = View.VISIBLE
-                            mediaPlayer.seekTo(0)
-                            time = mediaPlayer.duration
-                            holder.binding.tvAudioDuration.text = Tools.convertDurationMillis(time)
-                            handler.removeCallbacks(runnable)
-                        }
-
-                        /*val animator =
-                            ValueAnimator.ofInt(holder.binding.sbAudio.max, 0)
-                        animator.duration = mediaPlayer.duration.toLong()
-                        animator.addUpdateListener { animation ->
-                            holder.binding.sbAudio.progress =
-                                animation.animatedValue as Int
-                        }
-                        animator.start()*/
+                        /*Timber.d("animation max: ${holder.binding.sbAudio.max}")
+                         animator.addUpdateListener { animation ->
+                             run {
+                                 holder.binding.sbAudio.progress = animation.animatedValue as Int
+                                 Timber.d("animation: ${animation.animatedValue}")
+                                 Timber.d("position: ${player.currentPosition}")
+                             }
+                        }*/
                     }
 
                     else -> {

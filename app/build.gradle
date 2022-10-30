@@ -175,7 +175,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
 
     // Emoji
-    implementation "com.vanniktech:emoji-google:0.15.0"
+    def emojiVersion = "0.15.0"
+    implementation "com.vanniktech:emoji-google:$emojiVersion"
 
     // TouchImageView
     implementation 'com.github.MikeOrtiz:TouchImageView:1.4.1'
