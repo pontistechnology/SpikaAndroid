@@ -2,7 +2,6 @@ package com.clover.studio.exampleapp.ui.main.chat
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -18,6 +17,9 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.core.view.children
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -98,7 +100,7 @@ class ChatAdapter(
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        getItem(position).let {
+        getItem(position).let { it ->
 
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.message.createdAt!!
@@ -232,13 +234,35 @@ class ChatAdapter(
 
                         val runnable = object : Runnable {
                             override fun run() {
-                                holder.binding.sbAudio.progress = exoPlayer.currentPosition.toInt()
+                                holder.binding.sbAudio.progress = player.currentPosition.toInt()
                                 holder.binding.tvAudioDuration.text =
-                                    Tools.convertDurationMillis(exoPlayer.currentPosition)
-                                // DelayMillis was 1000 (every second) but its was slow for short audio tracks
-                                handler.postDelayed(this, 100)
+                                    Tools.convertDurationMillis(player.currentPosition)
+                                handler.postDelayed(this, 1000)
                             }
                         }
+
+                        player.addListener(object : Player.Listener {
+                            override fun onPlaybackStateChanged(state: Int) {
+                                if (state == Player.STATE_READY) {
+                                    if (setTime) {
+                                        holder.binding.tvAudioDuration.text =
+                                            Tools.convertDurationMillis(player.duration)
+                                        setTime = false
+                                    }
+
+                                }
+                                if (state == Player.STATE_ENDED) {
+                                    holder.binding.ivPauseAudio.visibility = View.GONE
+                                    holder.binding.ivPlayAudio.visibility = View.VISIBLE
+                                    holder.binding.tvAudioDuration.text =
+                                        Tools.convertDurationMillis(player.duration)
+                                    player.seekTo(0)
+                                    player.stop()
+                                    // player.release()
+                                    handler.removeCallbacks(runnable)
+                                }
+                            }
+                        })
 
                         holder.binding.ivPlayAudio.setOnClickListener {
                             holder.binding.ivPlayAudio.visibility = View.GONE
@@ -252,15 +276,22 @@ class ChatAdapter(
                                 exoPlayer.prepare()
                             }
                             exoPlayer.play()
+                            holder.binding.sbAudio.max = player.duration.toInt()
+                            player.play()
+                            // animator.start()
                             handler.postDelayed(runnable, 0)
+
                         }
 
 
                         holder.binding.ivPauseAudio.setOnClickListener {
                             holder.binding.ivPlayAudio.visibility = View.VISIBLE
                             holder.binding.ivPauseAudio.visibility = View.GONE
+                            player.pause()
+                            // animator.pause()
                             exoPlayer.pause()
                             handler.removeCallbacks(runnable)
+
                         }
 
                         exoPlayer.addListener(object : Player.Listener {
@@ -294,6 +325,9 @@ class ChatAdapter(
                                 fromUser: Boolean
                             ) {
                                 if (fromUser) {
+                                    player.seekTo(progress.toLong())
+                                    holder.binding.tvAudioDuration.text =
+                                        Tools.convertDurationMillis(player.currentPosition)
                                     exoPlayer.seekTo(progress.toLong())
                                 }
                             }
@@ -304,6 +338,15 @@ class ChatAdapter(
                             override fun onStopTrackingTouch(seekBar: SeekBar) {
                             }
                         })
+
+                        /*Timber.d("animation max: ${holder.binding.sbAudio.max}")
+                         animator.addUpdateListener { animation ->
+                             run {
+                                 holder.binding.sbAudio.progress = animation.animatedValue as Int
+                                 Timber.d("animation: ${animation.animatedValue}")
+                                 Timber.d("position: ${player.currentPosition}")
+                             }
+                        }*/
                     }
 
                     else -> {
