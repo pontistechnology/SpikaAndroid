@@ -33,12 +33,12 @@
                 android:id="@+id/cv_audio"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="24dp"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginEnd="@dimen/twenty_four_dp_margin"
                 android:background="@drawable/bg_message_user"
                 android:backgroundTint="@color/message_me"
                 android:visibility="gone"
-                app:cardCornerRadius="8dp"
+                app:cardCornerRadius="@dimen/eight_dp_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -101,7 +101,6 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:srcCompat="@drawable/ic_baseline_pause_circle_filled_24" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
