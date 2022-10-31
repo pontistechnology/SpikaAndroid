@@ -211,12 +211,9 @@ class ChatAdapter(
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.VISIBLE
 
-                        // lastPosition = position
-                        // Timber.d("last: $lastPosition")
-
-                        // TODO pause audio on scroll, detect scrolling
                         val audioPath = it.body?.file?.path?.let { audioPath ->
                             Tools.getFileUrl(
                                 audioPath
@@ -224,39 +221,40 @@ class ChatAdapter(
                         }
 
                         val handler = Handler(Looper.getMainLooper())
+                        val exoPlayer = ExoPlayer.Builder(context).build()
                         val mediaItem: MediaItem = MediaItem.fromUri(Uri.parse(audioPath))
-                        player.setMediaItem(mediaItem)
-                        player.prepare()
                         var setTime = true
+                        var time = ""
+                        exoPlayer.setMediaItem(mediaItem)
+                        exoPlayer.prepare()
+
                         // val animator: ValueAnimator =  ValueAnimator.ofInt(0, holder.binding.sbAudio.max)
 
                         val runnable = object : Runnable {
                             override fun run() {
-                                holder.binding.sbAudio.progress = player.currentPosition.toInt()
+                                holder.binding.sbAudio.progress = exoPlayer.currentPosition.toInt()
                                 holder.binding.tvAudioDuration.text =
-                                    Tools.convertDurationMillis(player.currentPosition)
-                                handler.postDelayed(this, 1000)
+                                    Tools.convertDurationMillis(exoPlayer.currentPosition)
+                                // DelayMillis was 1000 (every second) but its was slow for short audio tracks
+                                handler.postDelayed(this, 100)
                             }
                         }
 
-                        player.addListener(object : Player.Listener {
+                        exoPlayer.addListener(object : Player.Listener {
                             override fun onPlaybackStateChanged(state: Int) {
                                 if (state == Player.STATE_READY) {
                                     if (setTime) {
-                                        holder.binding.tvAudioDuration.text =
-                                            Tools.convertDurationMillis(player.duration)
+                                        time = Tools.convertDurationMillis(exoPlayer.duration)
+                                        holder.binding.tvAudioDuration.text = time
+                                        holder.binding.sbAudio.max = exoPlayer.duration.toInt()
                                         setTime = false
                                     }
-
                                 }
                                 if (state == Player.STATE_ENDED) {
                                     holder.binding.ivPauseAudio.visibility = View.GONE
                                     holder.binding.ivPlayAudio.visibility = View.VISIBLE
-                                    holder.binding.tvAudioDuration.text =
-                                        Tools.convertDurationMillis(player.duration)
-                                    player.seekTo(0)
-                                    player.stop()
-                                    // player.release()
+                                    exoPlayer.seekTo(0)
+                                    exoPlayer.pause()
                                     handler.removeCallbacks(runnable)
                                 }
                             }
@@ -265,23 +263,19 @@ class ChatAdapter(
                         holder.binding.ivPlayAudio.setOnClickListener {
                             holder.binding.ivPlayAudio.visibility = View.GONE
                             holder.binding.ivPauseAudio.visibility = View.VISIBLE
-                            holder.binding.sbAudio.max = player.duration.toInt()
-                            player.play()
-                            // animator.start()
+                            exoPlayer.play()
                             handler.postDelayed(runnable, 0)
-
                         }
 
 
                         holder.binding.ivPauseAudio.setOnClickListener {
                             holder.binding.ivPlayAudio.visibility = View.VISIBLE
                             holder.binding.ivPauseAudio.visibility = View.GONE
-                            player.pause()
-                            // animator.pause()
+                            exoPlayer.pause()
                             handler.removeCallbacks(runnable)
-
                         }
 
+                        // Seek through audio
                         holder.binding.sbAudio.setOnSeekBarChangeListener(object :
                             SeekBar.OnSeekBarChangeListener {
                             override fun onProgressChanged(
@@ -290,9 +284,7 @@ class ChatAdapter(
                                 fromUser: Boolean
                             ) {
                                 if (fromUser) {
-                                    player.seekTo(progress.toLong())
-                                    holder.binding.tvAudioDuration.text =
-                                        Tools.convertDurationMillis(player.currentPosition)
+                                    exoPlayer.seekTo(progress.toLong())
                                 }
                             }
 
@@ -302,15 +294,6 @@ class ChatAdapter(
                             override fun onStopTrackingTouch(seekBar: SeekBar) {
                             }
                         })
-
-                        /*Timber.d("animation max: ${holder.binding.sbAudio.max}")
-                         animator.addUpdateListener { animation ->
-                             run {
-                                 holder.binding.sbAudio.progress = animation.animatedValue as Int
-                                 Timber.d("animation: ${animation.animatedValue}")
-                                 Timber.d("position: ${player.currentPosition}")
-                             }
-                        }*/
                     }
 
                     else -> {
@@ -455,9 +438,7 @@ class ChatAdapter(
                                 )
                             view.findNavController().navigate(action)
                         }
-
                     }
-
                     Const.JsonFields.VIDEO -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.clImages.visibility = View.GONE
@@ -490,7 +471,6 @@ class ChatAdapter(
                             view.findNavController().navigate(action)
                         }
                     }
-
                     Const.JsonFields.FILE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
@@ -506,6 +486,96 @@ class ChatAdapter(
                         holder.binding.tvFileSize.text = megabyteText
 
                         addFiles(it.message, holder.binding.ivFileType)
+                    }
+                    Const.JsonFields.AUDIO -> {
+                        holder.binding.tvMessage.visibility = View.GONE
+                        holder.binding.cvImage.visibility = View.GONE
+                        holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
+                        holder.binding.cvAudio.visibility = View.VISIBLE
+
+                        val audioPath = it.body?.file?.path?.let { audioPath ->
+                            Tools.getFileUrl(
+                                audioPath
+                            )
+                        }
+
+                        val handler = Handler(Looper.getMainLooper())
+                        var setTime = true
+                        val exoPlayer = ExoPlayer.Builder(context).build()
+                        val mediaItem: MediaItem = MediaItem.fromUri(Uri.parse(audioPath))
+                        exoPlayer.setMediaItem(mediaItem)
+                        exoPlayer.prepare()
+
+                        // val animator: ValueAnimator =  ValueAnimator.ofInt(0, holder.binding.sbAudio.max)
+
+                        val runnable = object : Runnable {
+                            override fun run() {
+                                holder.binding.sbAudio.progress = exoPlayer.currentPosition.toInt()
+                                holder.binding.tvAudioDuration.text =
+                                    Tools.convertDurationMillis(exoPlayer.currentPosition)
+                                handler.postDelayed(this, 1000)
+                            }
+                        }
+
+
+                        exoPlayer.addListener(object : Player.Listener {
+                            override fun onPlaybackStateChanged(state: Int) {
+                                if (state == Player.STATE_READY) {
+                                    if (setTime) {
+                                        holder.binding.tvAudioDuration.text =
+                                            Tools.convertDurationMillis(exoPlayer.duration)
+                                        setTime = false
+                                    }
+                                }
+                                if (state == Player.STATE_ENDED) {
+                                    holder.binding.ivPauseAudio.visibility = View.GONE
+                                    holder.binding.ivPlayAudio.visibility = View.VISIBLE
+                                    holder.binding.tvAudioDuration.text =
+                                        Tools.convertDurationMillis(exoPlayer.duration)
+                                    exoPlayer.seekTo(0)
+                                    exoPlayer.pause()
+                                    handler.removeCallbacks(runnable)
+                                }
+                            }
+                        })
+
+                        holder.binding.ivPlayAudio.setOnClickListener {
+                            holder.binding.ivPlayAudio.visibility = View.GONE
+                            holder.binding.ivPauseAudio.visibility = View.VISIBLE
+                            holder.binding.sbAudio.max = exoPlayer.duration.toInt()
+                            exoPlayer.play()
+                            handler.postDelayed(runnable, 0)
+
+                        }
+
+
+                        holder.binding.ivPauseAudio.setOnClickListener {
+                            holder.binding.ivPlayAudio.visibility = View.VISIBLE
+                            holder.binding.ivPauseAudio.visibility = View.GONE
+                            exoPlayer.pause()
+                            handler.removeCallbacks(runnable)
+                        }
+
+                        // Seek through audio
+                        holder.binding.sbAudio.setOnSeekBarChangeListener(object :
+                            SeekBar.OnSeekBarChangeListener {
+                            override fun onProgressChanged(
+                                seekBar: SeekBar,
+                                progress: Int,
+                                fromUser: Boolean
+                            ) {
+                                if (fromUser) {
+                                    exoPlayer.seekTo(progress.toLong())
+                                }
+                            }
+
+                            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                            }
+
+                            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                            }
+                        })
                     }
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
@@ -933,4 +1003,5 @@ class ChatAdapter(
                 }
         }
     }
+
 }
