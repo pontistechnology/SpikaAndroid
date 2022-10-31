@@ -1,16 +1,25 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
+import android.Manifest
+import android.app.DownloadManager
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.navigation.findNavController
@@ -732,6 +741,29 @@ class ChatAdapter(
     }
 
 
+    private fun downloadFile(filePath: String?) {
+        try {
+            val request = DownloadManager.Request(Uri.parse(filePath))
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+            request.setTitle("Download")
+            request.setDescription("The file is downloading")
+            request.allowScanningByMediaScanner()
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS,
+                "${System.currentTimeMillis()}"
+            )
+
+            val manager =
+                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            manager.enqueue(request)
+        }
+        catch (e: Exception){
+            Timber.d("$e")
+        }
+    }
+
+
     private fun addFiles(message: Message, ivFileType: ImageView) {
         when (message.body?.file?.fileName?.substringAfterLast(".")) {
             Const.FileExtensions.PDF -> ivFileType.setImageDrawable(
@@ -811,4 +843,15 @@ class ChatAdapter(
         }
 
     }
+    /*override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResult: Int){
+        when(requestCode){
+            STORAGE_PERMISSION_CODE -> {
+                if (grantResult.isNotEmpty() && grantResult[0] == PackageManager.PERMISSION_GRANTED){
+                    downloadFile(filePath = null)
+                } else {
+                    Toast.makeText(this, "Permission denied!", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }*/
 }
