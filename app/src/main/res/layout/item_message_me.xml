@@ -47,6 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/eight_dp_margin"
                 android:layout_marginEnd="@dimen/twenty_four_dp_margin"
+                android:layout_marginBottom="@dimen/two_dp_margin"
                 android:background="@drawable/bg_message_user"
                 android:backgroundTint="@color/message_me"
                 android:visibility="gone"
@@ -69,6 +70,7 @@
                         android:layout_marginEnd="@dimen/eight_dp_margin"
                         android:fontFamily="@font/montserrat"
                         android:foregroundTint="@color/color1"
+                        android:text="@string/audio_duration"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/sb_audio" />
 
@@ -87,16 +89,18 @@
 
                     <SeekBar
                         android:id="@+id/sb_audio"
-                        android:layout_width="120dp"
+                        android:layout_width="128dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/thirty_two_dp_margin"
                         android:layout_marginTop="@dimen/eight_dp_margin"
                         android:layout_marginBottom="@dimen/eight_dp_margin"
+                        android:max="100"
                         android:progressBackgroundTint="@color/color1"
                         android:progressTint="@color/color1"
                         android:thumbTint="@color/color1"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/tv_audio_duration"
+                        app:layout_constraintHorizontal_bias="0.13"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
