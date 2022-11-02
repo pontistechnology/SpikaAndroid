@@ -66,7 +66,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: FragmentChatMessagesBinding
     private lateinit var chatAdapter: ChatAdapter
-    private var messages: MutableList<Message> = mutableListOf()
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
     private var unsentMessages: MutableList<Message> = ArrayList()
 
@@ -191,7 +190,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         })
 
         // TODO
-        viewModel.getMessagesTimestampListener.observe(viewLifecycleOwner, EventObserver {
+        /*viewModel.getMessagesTimestampListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is MessagesTimestampFetched -> {
                     Timber.d("Messages timestamp fetched")
@@ -201,7 +200,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 is MessageTimestampFetchFail -> Timber.d("Failed to fetch messages timestamp")
                 else -> Timber.d("Other error")
             }
-        })
+        })*/
+
         viewModel.sendMessageDeliveredListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 ChatStatesEnum.MESSAGE_DELIVERED -> {
@@ -268,7 +268,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 // Get swiped message text and add to message EditText
                 // After that, return item to correct position
                 val position = viewHolder.absoluteAdapterPosition
-                bindingSetup.etMessage.setText(messages[position].body?.text)
+                bindingSetup.etMessage.setText(messagesRecords[position].message.body?.text)
                 chatAdapter.notifyItemChanged(position)
             }
         }

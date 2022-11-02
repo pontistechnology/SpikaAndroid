@@ -33,7 +33,6 @@ object RepositoryModule {
         chatService: ChatService,
         roomDao: ChatRoomDao,
         messageDao: MessageDao,
-        chatRoomDao: ChatRoomDao,
         userDao: UserDao,
         appDatabase: AppDatabase,
         sharedPrefs: SharedPreferencesRepository
@@ -42,7 +41,6 @@ object RepositoryModule {
             chatService,
             roomDao,
             messageDao,
-            chatRoomDao,
             userDao,
             appDatabase,
             sharedPrefs

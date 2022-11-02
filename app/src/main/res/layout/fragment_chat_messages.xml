@@ -178,7 +178,7 @@
                 android:id="@+id/et_message"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:emojiSize="20sp"
+                app:emojiSize="@dimen/twenty_sp_text"
                 android:textColor="@android:color/black"
                 android:layout_marginStart="@dimen/ten_dp_margin"
                 android:background="@null"

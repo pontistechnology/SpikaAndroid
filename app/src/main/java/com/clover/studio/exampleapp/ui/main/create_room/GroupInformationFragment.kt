@@ -33,10 +33,11 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class GroupInformationFragment : BaseFragment() {
-
+    @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
 
     private val viewModel: MainViewModel by activityViewModels()
