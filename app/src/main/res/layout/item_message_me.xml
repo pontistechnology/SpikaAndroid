@@ -262,7 +262,7 @@
             android:id="@+id/cv_reacted_emoji"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="24dp"
+            android:layout_marginEnd="@dimen/twenty_four_dp_margin"
             android:layout_marginBottom="@dimen/two_dp_margin"
             android:visibility="gone"
             app:cardCornerRadius="@dimen/eight_dp_margin"

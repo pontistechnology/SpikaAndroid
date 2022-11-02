@@ -1070,6 +1070,3 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         } else true
     }
 }
-
-
-
