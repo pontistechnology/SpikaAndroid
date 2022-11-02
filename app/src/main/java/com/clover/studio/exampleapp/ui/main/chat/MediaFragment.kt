@@ -47,11 +47,10 @@ class MediaFragment : Fragment() {
         bindingSetup = FragmentMediaBinding.inflate(inflater, container, false)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         initializeListeners()
-        if (imagePath!!.isEmpty()) {
+        if (imagePath?.isEmpty() == true) {
             initializeVideo()
         } else {
             initializePicture()
-
         }
 
         return binding.root
@@ -140,12 +139,16 @@ class MediaFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        initializeVideo()
+        if (imagePath?.isEmpty() == true) {
+            initializeVideo()
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        initializeVideo()
+        if (imagePath?.isEmpty() == true) {
+            initializeVideo()
+        }
     }
 
     override fun onPause() {
