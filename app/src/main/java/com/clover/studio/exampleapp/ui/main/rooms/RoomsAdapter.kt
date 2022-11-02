@@ -52,8 +52,6 @@ class RoomsAdapter(
                     userName = roomItem.roomWithUsers.room.name.toString()
                     userAvatar = roomItem.roomWithUsers.room.avatarUrl.toString()
                 }
-
-
                 binding.tvRoomName.text = userName
 
                 Glide.with(context)

@@ -237,7 +237,8 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    /*fun deleteReaction(recordId: Int, userId: Int) = viewModelScope.launch {
+    /* TODO: Commented methods can later be used to delete reactions
+    fun deleteReaction(recordId: Int, userId: Int) = viewModelScope.launch {
         try {
             repository.deleteReaction(recordId, userId)
         } catch (ex: Exception) {

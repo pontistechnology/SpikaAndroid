@@ -496,7 +496,6 @@ class ChatAdapter(
                 getAllReactions(reaction, reactions)
             }
             reactionText = getGroupReactions(reactions)
-            // Timber.d("reaction text: $reactionText")
         } catch (e: Exception) {
             Timber.d(e.toString())
         }
@@ -506,7 +505,6 @@ class ChatAdapter(
     // Get number of reactions for each one
     private fun getAllReactions(reaction: String, reactions: Reactions) {
         when (reaction) {
-            // TODO - Some reactions from web not showing, ask for emoji unicode
             context.getString(R.string.praying_hands_emoji) -> {
                 reactions.prayingHandsEmoji++
             }
@@ -752,7 +750,6 @@ class ChatAdapter(
         }
     }
 
-    // TODO - without notifyDataSetChanged() not working
     private class MessageAndRecordsDiffCallback : DiffUtil.ItemCallback<MessageAndRecords>() {
 
         override fun areItemsTheSame(
