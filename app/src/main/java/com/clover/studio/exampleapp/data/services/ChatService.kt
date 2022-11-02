@@ -69,6 +69,20 @@ interface ChatService {
         @HeaderMap headers: Map<String, String?>
     ): SettingsResponse
 
+    // Post reaction:
+    @POST(Const.Networking.API_POST_REACTION)
+    suspend fun postReaction(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject
+    )
+
+    // Delete reaction:
+    @DELETE(Const.Networking.API_DELETE_REACTION)
+    suspend fun deleteReaction(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ID) id: Int
+    )
+
     @DELETE(Const.Networking.API_UPDATE_ROOM)
     suspend fun deleteRoom(
         @HeaderMap headers: Map<String, String?>,

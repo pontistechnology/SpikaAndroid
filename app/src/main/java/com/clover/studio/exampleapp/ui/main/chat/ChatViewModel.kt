@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -150,6 +151,10 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun getChatRoomAndMessageAndRecordsById(roomId: Int) = liveData {
+        emitSource(repository.getChatRoomAndMessageAndRecordsById(roomId))
+    }
+
     fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
         try {
             roomDataListener.postValue(Event(SingleRoomData(repository.getSingleRoomData(roomId))))
@@ -219,6 +224,43 @@ class ChatViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun sendReaction(jsonObject: JsonObject) = viewModelScope.launch {
+        try {
+            repository.sendReaction(jsonObject)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                Timber.d("Exception: $ex")
+            }
+        }
+    }
+
+    /* TODO: Commented methods can later be used to delete reactions
+    fun deleteReaction(recordId: Int, userId: Int) = viewModelScope.launch {
+        try {
+            repository.deleteReaction(recordId, userId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                Timber.d("Exception: $ex")
+            }
+        }
+    }
+
+    fun deleteAllReactions(messageId: Int) = viewModelScope.launch {
+        try {
+            repository.deleteAllReactions(messageId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                Timber.d("Exception: $ex")
+            }
+        }
+    }*/
 
 
     fun deleteRoom(roomId: Int) = viewModelScope.launch {

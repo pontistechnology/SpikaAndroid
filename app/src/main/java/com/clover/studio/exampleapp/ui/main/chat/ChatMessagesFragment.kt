@@ -26,7 +26,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.MessageBody
+import com.clover.studio.exampleapp.data.models.ReactionMessage
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
@@ -64,7 +66,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: FragmentChatMessagesBinding
     private lateinit var chatAdapter: ChatAdapter
-    private var messages: MutableList<Message> = mutableListOf()
+    private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
     private var unsentMessages: MutableList<Message> = ArrayList()
 
     private var currentPhotoLocation: MutableList<Uri> = ArrayList()
@@ -81,6 +83,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var avatarUrl = ""
     private var userName = ""
+    private var firstEnter = true
     private lateinit var emojiPopup: EmojiPopup
 
     @Inject
@@ -136,8 +139,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
-        initViews()
         setUpAdapter()
+        initViews()
         initializeObservers()
         checkIsUserAdmin()
 
@@ -186,18 +189,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
-        // TODO
-        viewModel.getMessagesTimestampListener.observe(viewLifecycleOwner, EventObserver {
+        /*viewModel.getMessagesTimestampListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is MessagesTimestampFetched -> {
                     Timber.d("Messages timestamp fetched")
                     messages = it.messages as MutableList<Message>
-                    chatAdapter.submitList(it.messages)
+                    //chatAdapter.submitList(it.messages)
                 }
                 is MessageTimestampFetchFail -> Timber.d("Failed to fetch messages timestamp")
                 else -> Timber.d("Other error")
             }
-        })
+        })*/
+
         viewModel.sendMessageDeliveredListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 ChatStatesEnum.MESSAGE_DELIVERED -> {
@@ -209,20 +212,37 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 else -> Timber.d("Other error")
             }
         })
+        viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
+            .observe(viewLifecycleOwner) {
+                messagesRecords.clear()
 
-        viewModel.getLocalMessages(roomWithUsers.room.roomId).observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                messages = it as MutableList<Message>
-                messages.sortByDescending { message -> message.createdAt }
-                chatAdapter.submitList(messages) {
-                    bindingSetup.rvChat.scrollToPosition(0)
+                if (it.message?.isNotEmpty() == true) {
+                    it.message.forEach { msg ->
+                        messagesRecords.add(msg)
+                    }
+                    messagesRecords.sortByDescending { messages -> messages.message.createdAt }
+
+                    // messagesRecords.toList -> for DiffUtil class
+                    chatAdapter.submitList(messagesRecords.toList())
+                    // TODO - change scroll
+                    // https://app.productive.io/9193-clover-studio/projects/114002/tasks/task/3489702?filter=MjM2NTc2
+                    if (firstEnter) {
+                        bindingSetup.rvChat.scrollToPosition(0)
+                        firstEnter = false
+                    }
                 }
             }
-        }
     }
 
     private fun setUpAdapter() {
-        chatAdapter = ChatAdapter(context!!, viewModel.getLocalUserId()!!, roomWithUsers.users)
+        chatAdapter = ChatAdapter(
+            context!!,
+            viewModel.getLocalUserId()!!,
+            roomWithUsers.users,
+            roomWithUsers.room.type!!
+        ) {
+            addMessageReaction(it)
+        }
         bindingSetup.rvChat.adapter = chatAdapter
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         layoutManager.stackFromEnd = true
@@ -247,7 +267,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 // Get swiped message text and add to message EditText
                 // After that, return item to correct position
                 val position = viewHolder.absoluteAdapterPosition
-                bindingSetup.etMessage.setText(messages[position].body?.text)
+                bindingSetup.etMessage.setText(messagesRecords[position].message.body?.text)
                 chatAdapter.notifyItemChanged(position)
             }
         }
@@ -261,6 +281,28 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // Update room visited
         roomWithUsers.room.visitedRoom = System.currentTimeMillis()
         viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
+    }
+
+    private fun addMessageReaction(reaction: ReactionMessage) {
+        // POST reaction to server:
+        // Timber.d("reactions: ${reaction.reaction}, ${reaction.messageId}")
+        /*if (!reaction.clicked) {*/
+        val jsonObject = JsonObject()
+        jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
+        jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
+        jsonObject.addProperty(Const.JsonFields.REACTION, reaction.reaction)
+        viewModel.sendReaction(jsonObject)
+        /*} else {
+            // Remove reaction
+            val jsonObject = JsonObject()
+            jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
+            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
+            if (roomWithUsers.room.type == Const.JsonFields.PRIVATE){
+                viewModel.deleteAllReactions(reaction.messageId)
+            } else {
+                viewModel.deleteReaction(reaction.reactionId, reaction.userId)
+            }
+        }*/
     }
 
     private fun initViews() {
@@ -417,7 +459,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
             endToStart = bindingSetup.ivButtonSend.id
         }
-        bindingSetup.ivAdd.rotation = ROTATION_ON
+        bindingSetup.ivAdd.rotation = ROTATION_OFF
     }
 
     private fun sendMessage() {
