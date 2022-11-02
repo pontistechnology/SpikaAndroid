@@ -7,6 +7,7 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 
+
 android {
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -28,7 +29,7 @@ android {
             keyPassword 'spika1234'
         }
     }
-    compileSdk 33
+    compileSdk 31
 
     buildFeatures {
         viewBinding true
@@ -37,15 +38,9 @@ android {
     defaultConfig {
         applicationId "com.clover.studio.exampleapp"
         minSdk 24
-        targetSdk 33
-        versionCode 100019
+        targetSdk 31
+        versionCode 100004
         versionName "1.0.0"
-
-        kapt {
-            arguments {
-                arg("room.schemaLocation", "$projectDir/schemas")
-            }
-        }
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -53,12 +48,12 @@ android {
     buildTypes {
         // debug variant is used for development
         debug {
-            applicationIdSuffix ".dev"
+            applicationIdSuffix ".debug"
             versionNameSuffix "_debug"
 
             debuggable true
 
-            resValue "string", "APP_NAME", "Spika3 Dev"
+            resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.debug
@@ -70,35 +65,30 @@ android {
 
             debuggable true
 
-            resValue "string", "APP_NAME", "Spika3 Dev"
+            resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.debug
         }
 
         releaseDebug {
-            applicationIdSuffix ".debug"
-            versionNameSuffix "_releaseDebug"
-
             debuggable true
             minifyEnabled false
 
             resValue "string", "APP_NAME", "Spika3"
-            buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.release
         }
 
         release {
-            applicationIdSuffix ".debug"
-
             debuggable false
             minifyEnabled false
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             resValue "string", "APP_NAME", "Spika3"
-            buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.release
         }
@@ -114,15 +104,15 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.6.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.firebase:firebase-messaging-ktx:23.1.1'
+    implementation 'com.google.firebase:firebase-messaging-ktx:23.0.5'
     testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     //Crashlytics
     implementation platform('com.google.firebase:firebase-bom:30.0.0')
@@ -137,7 +127,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2'
 
     //Lifecycle
-    def lifecycle_version = "2.5.1"
+    def lifecycle_version = "2.4.1"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
@@ -149,29 +139,27 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_android_version"
 
     //Hilt
-    implementation 'com.google.dagger:hilt-android:2.40.5'
+    implementation 'com.google.dagger:hilt-android:2.38.1'
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
-    kapt 'com.google.dagger:hilt-android-compiler:2.40.5'
+    kapt 'com.google.dagger:hilt-android-compiler:2.38.1'
     kapt "androidx.hilt:hilt-compiler:1.0.0"
 
     //Room
-    def room_version = "2.5.0"
+    def room_version = "2.4.2"
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
-    implementation "androidx.paging:paging-runtime-ktx:3.1.1"
     androidTestImplementation "androidx.room:room-testing:$room_version"
 
     //Navigation
-    def nav_version = "2.5.3"
+    def nav_version = "2.4.2"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
     //Glide
-    def glide_version = "4.12.0"
-    implementation "com.github.bumptech.glide:glide:$glide_version"
-    implementation "com.github.bumptech.glide:annotations:$glide_version"
-    kapt "com.github.bumptech.glide:compiler:$glide_version"
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation 'com.github.bumptech.glide:annotations:4.11.0'
+    kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     //Timber
     implementation 'com.jakewharton.timber:timber:5.0.1'
@@ -180,24 +168,18 @@ dependencies {
     implementation 'com.googlecode.libphonenumber:libphonenumber:8.12.41'
 
     // SmsVerificationAPI
-    implementation 'com.google.android.gms:play-services-auth:20.4.1'
+    implementation 'com.google.android.gms:play-services-auth:20.2.0'
     implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
 
     // Emoji
-    def emojiVersion = "0.15.0"
-    implementation "com.vanniktech:emoji-google:$emojiVersion"
-
-    // TouchImageView
-    implementation 'com.github.MikeOrtiz:TouchImageView:1.4.1'
+    implementation "com.vanniktech:emoji-google:0.15.0"
 
     // Exo Player
-    def mediaVersion = "1.0.0-rc01"
+    def mediaVersion = "1.0.0-beta02"
     dependencies {
         implementation "androidx.media3:media3-exoplayer:$mediaVersion"
         implementation "androidx.media3:media3-ui:$mediaVersion"
         implementation "androidx.media3:media3-exoplayer-dash:$mediaVersion"
     }
 
-    // Markdown
-    implementation "io.noties.markwon:core:4.6.2"
 }
