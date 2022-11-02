@@ -189,7 +189,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
-        // TODO
         /*viewModel.getMessagesTimestampListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is MessagesTimestampFetched -> {
