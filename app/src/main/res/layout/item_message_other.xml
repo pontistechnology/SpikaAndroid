@@ -230,8 +230,8 @@
 
             <ImageView
                 android:id="@+id/iv_user_image"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="@dimen/twenty_dp_margin"
+                android:layout_height="@dimen/twenty_dp_margin"
                 tools:srcCompat="@drawable/img_account_filled" />
         </androidx.cardview.widget.CardView>
 

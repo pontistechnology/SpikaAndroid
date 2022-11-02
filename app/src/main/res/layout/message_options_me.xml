@@ -153,10 +153,10 @@
 
     <ImageView
         android:id="@+id/imageView7"
-        android:layout_width="14dp"
-        android:layout_height="18dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
+        android:layout_width="@dimen/fourteen_dp_margin"
+        android:layout_height="@dimen/eighteen_dp_margin"
+        android:layout_marginStart="@dimen/eight_dp_margin"
+        android:layout_marginTop="@dimen/four_dp_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_edit"
         app:srcCompat="@drawable/ic_outline_edit_24" />
