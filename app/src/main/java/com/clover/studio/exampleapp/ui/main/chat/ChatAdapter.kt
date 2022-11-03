@@ -426,7 +426,6 @@ class ChatAdapter(
                 val reactions = Reactions(0, 0, 0, 0, 0, 0)
                 val reactionText = getDatabaseReaction(it, reactions)
 
-
                 if (reactionText.isNotEmpty()) {
                     holder.binding.tvReactedEmoji.text = getGroupReactions(reactions)
                     holder.binding.cvReactedEmoji.visibility = View.VISIBLE
@@ -481,16 +480,18 @@ class ChatAdapter(
         messageAndRecords: MessageAndRecords,
         reactions: Reactions
     ): String {
-        val filteredList = messageAndRecords.records!!.filter { it.reaction != null }
-        val sortedList = filteredList.sortedByDescending { it.createdAt }
-        val reactionList = sortedList.distinctBy { it.userId }
+        val filteredList = messageAndRecords.records?.filter { it.reaction != null }
+        val sortedList = filteredList?.sortedByDescending { it.createdAt }
+        val reactionList = sortedList?.distinctBy { it.userId }
 
         try {
             var reaction: String
-            for (record in reactionList) {
-                reaction = record.reaction.toString()
-                getAllReactions(reaction, reactions)
-                // reactionId = record.id
+            if (reactionList != null) {
+                for (record in reactionList) {
+                    reaction = record.reaction.toString()
+                    getAllReactions(reaction, reactions)
+                    // reactionId = record.id
+                }
             }
         } catch (e: Exception) {
             Timber.d(e.toString())
