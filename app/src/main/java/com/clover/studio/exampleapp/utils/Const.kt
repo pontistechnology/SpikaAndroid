@@ -18,6 +18,14 @@ class Const {
         }
     }
 
+    class UserActions {
+        companion object {
+            const val DELETE_MESSAGE_ME = "user"
+            const val DELETE_MESSAGE_ALL = "all"
+            const val DELETE = "delete"
+        }
+    }
+
     class IntentExtras {
         companion object {
             const val ROOM_ID_EXTRA = "room_id_extra"
@@ -95,7 +103,6 @@ class Const {
             const val BODY = "body"
             const val MESSAGE_IDS = "messagesIds"
             const val REACTION = "reaction"
-
         }
     }
 
@@ -129,6 +136,7 @@ class Const {
             const val API_MUTE_ROOM = "api/messenger/rooms/{roomId}/mute"
             const val API_UNMUTE_ROOM = "api/messenger/rooms/{roomId}/unmute"
             const val API_GET_SETTINGS = "api/messenger/me/settings"
+            const val API_UPDATE_MESSAGE = "api/messenger/messages/{id}"
 
             // Queries
             const val TIMESTAMP = "timestamp"
@@ -140,6 +148,7 @@ class Const {
             const val LAST_UPDATE = "lastUpdate"
             const val PAGE = "page"
             const val ID = "id"
+            const val TARGET = "target"
         }
     }
 

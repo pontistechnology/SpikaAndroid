@@ -9,7 +9,7 @@ import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 
 class ChooserDialog(
     context: Context?,
-    private val title: String,
+    private val title: String?,
     private val description: String?,
     private val firstOption: String,
     private val secondOption: String,
@@ -26,7 +26,7 @@ class ChooserDialog(
         @Synchronized
         fun getInstance(
             context: Context,
-            title: String,
+            title: String?,
             description: String?,
             firstOption: String,
             secondOption: String,
@@ -55,7 +55,10 @@ class ChooserDialog(
     }
 
     private fun initViews() {
-        binding.tvTextTitle.text = title
+        if (title != null && title.isNotEmpty())
+            binding.tvTextTitle.text = title
+        else
+            binding.tvTextTitle.visibility = View.GONE
 
         if (description != null && description.isNotEmpty())
             binding.tvTextDescription.text = description

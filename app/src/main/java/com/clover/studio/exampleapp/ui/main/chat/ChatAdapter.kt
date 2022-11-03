@@ -54,6 +54,7 @@ class ChatAdapter(
     private val users: List<User>,
     private val chatType: String,
     private val addReaction: ((reaction: ReactionMessage) -> Unit),
+    private val onMessageInteraction: ((event: String, messageId: Int) -> Unit)
 ) :
     ListAdapter<MessageAndRecords, RecyclerView.ViewHolder>(MessageAndRecordsDiffCallback()) {
 
@@ -208,7 +209,7 @@ class ChatAdapter(
                 holder.binding.clMessage.setOnTouchListener { _, _ ->
                     if (holder.binding.cvReactions.visibility == View.VISIBLE) {
                         holder.binding.cvReactions.visibility = View.GONE
-                        //holder.binding.cvMessageOptions.visibility = View.GONE
+                        holder.binding.cvMessageOptions.visibility = View.GONE
                     }
                     return@setOnTouchListener true
                 }
@@ -234,8 +235,16 @@ class ChatAdapter(
                     } else {
                         listeners(holder, it.message.id, it /*reactionId,*/)
                     }
+                    holder.binding.cvMessageOptions.visibility = View.VISIBLE
 
                     true
+                }
+
+                // Delete message option clicked
+                holder.binding.messageOptions.tvDelete.setOnClickListener { _ ->
+                    onMessageInteraction.invoke(Const.UserActions.DELETE, it.message.id)
+                    holder.binding.cvMessageOptions.visibility = View.GONE
+                    holder.binding.cvReactions.visibility = View.GONE
                 }
 
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
@@ -408,7 +417,7 @@ class ChatAdapter(
                 holder.binding.clMessageOther.setOnTouchListener { _, _ ->
                     if (holder.binding.cvReactions.visibility == View.VISIBLE) {
                         holder.binding.cvReactions.visibility = View.GONE
-                        //holder.binding.cvMessageOptions.visibility = View.GONE
+                        holder.binding.cvMessageOptions.visibility = View.GONE
                     }
                     return@setOnTouchListener true
                 }

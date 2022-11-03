@@ -239,10 +239,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             context!!,
             viewModel.getLocalUserId()!!,
             roomWithUsers.users,
-            roomWithUsers.room.type!!
-        ) {
-            addMessageReaction(it)
-        }
+            roomWithUsers.room.type!!,
+            addReaction = { addMessageReaction(it) },
+            onMessageInteraction = { event, messageId ->
+                run {
+                    when (event) {
+                        Const.UserActions.DELETE -> showDeleteMessageDialog(messageId)
+                        else -> Timber.d("No other action currently")
+                    }
+                }
+            }
+        )
         bindingSetup.rvChat.adapter = chatAdapter
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         layoutManager.stackFromEnd = true
@@ -462,6 +469,27 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.ivAdd.rotation = ROTATION_OFF
     }
 
+    private fun showDeleteMessageDialog(messageId: Int) {
+        ChooserDialog.getInstance(requireContext(),
+            null,
+            null,
+            getString(R.string.delete_for_everyone),
+            getString(R.string.delete_for_me),
+            object : DialogInteraction {
+                override fun onFirstOptionClicked() {
+                    deleteMessage(messageId, Const.UserActions.DELETE_MESSAGE_ALL)
+                }
+
+                override fun onSecondOptionClicked() {
+                    deleteMessage(messageId, Const.UserActions.DELETE_MESSAGE_ME)
+                }
+            })
+    }
+
+    private fun deleteMessage(messageId: Int, target: String) {
+        viewModel.deleteMessage(messageId, target)
+    }
+
     private fun sendMessage() {
         sendMessage(isImage = false, isFile = false, isVideo = false, 0, 0)
     }
@@ -511,6 +539,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Const.JsonFields.TEXT,
             MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null),
             System.currentTimeMillis(),
+            null,
             null
         )
 
