@@ -56,7 +56,6 @@ private var reactionMessage: ReactionMessage =
         ),
         0,*/
     )
-private const val MILLIS = 1000
 
 class ChatAdapter(
     private val context: Context,
@@ -99,7 +98,7 @@ class ChatAdapter(
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        getItem(position).let { it ->
+        getItem(position).let {
 
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.message.createdAt!!
@@ -214,7 +213,7 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.VISIBLE
 
-                        val audioPath = it.body?.file?.path?.let { audioPath ->
+                        val audioPath = it.message.body?.file?.path?.let { audioPath ->
                             Tools.getFileUrl(
                                 audioPath
                             )
@@ -224,7 +223,7 @@ class ChatAdapter(
                         val exoPlayer = ExoPlayer.Builder(context).build()
                         val mediaItem: MediaItem = MediaItem.fromUri(Uri.parse(audioPath))
                         var setTime = true
-                        var time = ""
+                        var time : String
                         exoPlayer.setMediaItem(mediaItem)
                         exoPlayer.prepare()
 
@@ -503,7 +502,7 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.VISIBLE
 
-                        val audioPath = it.body?.file?.path?.let { audioPath ->
+                        val audioPath = it.message.body?.file?.path?.let { audioPath ->
                             Tools.getFileUrl(
                                 audioPath
                             )
@@ -808,7 +807,7 @@ class ChatAdapter(
                         For removing reactions
                         if (reactionMessage.activeReaction!!.thumbsUp) {
                             // Active reaction is already thumbs up -> remove it
-                            Timber.d("reactionId3: $reactionId")
+                            Timber.d("reactionid3: $reactionId")
                             reactionMessage.clicked = true
                             reactionMessage.activeReaction!!.thumbsUp = false
                         } else {
