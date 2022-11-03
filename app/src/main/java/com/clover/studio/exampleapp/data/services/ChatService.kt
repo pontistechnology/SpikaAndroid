@@ -94,5 +94,5 @@ interface ChatService {
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ID) messageId: Int,
         @Query(Const.JsonFields.TARGET) target: String
-    )
+    ): MessageResponse
 }

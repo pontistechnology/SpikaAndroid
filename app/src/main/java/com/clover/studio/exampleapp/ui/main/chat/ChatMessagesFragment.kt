@@ -539,6 +539,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Const.JsonFields.TEXT,
             MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null),
             System.currentTimeMillis(),
+            null,
             null
         )
 
