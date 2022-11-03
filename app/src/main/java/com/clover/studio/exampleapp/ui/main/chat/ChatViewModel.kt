@@ -266,7 +266,17 @@ class ChatViewModel @Inject constructor(
     fun deleteRoom(roomId: Int) = viewModelScope.launch {
         try {
             repository.deleteRoom(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
 
+    fun deleteMessage(messageId: Int, target: String) = viewModelScope.launch {
+        try {
+            repository.deleteMessage(messageId, target)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()

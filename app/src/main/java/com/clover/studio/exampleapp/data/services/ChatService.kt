@@ -88,4 +88,11 @@ interface ChatService {
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
     ): RoomResponse
+
+    @DELETE(Const.Networking.API_UPDATE_MESSAGE)
+    suspend fun deleteMessage(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ID) messageId: Int,
+        @Query(Const.JsonFields.TARGET) target: String
+    )
 }

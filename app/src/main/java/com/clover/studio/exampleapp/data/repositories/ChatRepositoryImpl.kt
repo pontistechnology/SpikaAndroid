@@ -160,6 +160,12 @@ class ChatRepositoryImpl @Inject constructor(
             roomDao.deleteRoom(roomId)
         }
     }
+
+    override suspend fun deleteMessage(messageId: Int, target: String) {
+        val response =
+            chatService.deleteMessage(getHeaderMap(sharedPrefsRepo.readToken()), messageId, target)
+        // TODO handle response
+    }
 }
 
 interface ChatRepository {
@@ -187,4 +193,5 @@ interface ChatRepository {
     // suspend fun deleteAllReactions(messageId: Int)
     // suspend fun deleteReaction(id: Int)
     suspend fun deleteRoom(roomId: Int)
+    suspend fun deleteMessage(messageId: Int, target: String)
 }
