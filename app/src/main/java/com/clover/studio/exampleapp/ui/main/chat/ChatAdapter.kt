@@ -480,35 +480,23 @@ class ChatAdapter(
         messageAndRecords: MessageAndRecords,
         reactions: Reactions
     ): String {
-        var reactionText = ""
-        // var reactionId = 0
-        var flag = true
-        val sortedList = messageAndRecords.records!!.sortedBy { it.userId }
+        val filteredList = messageAndRecords.records?.filter { it.reaction != null }
+        val sortedList = filteredList?.sortedByDescending { it.createdAt }
+        val reactionList = sortedList?.distinctBy { it.userId }
+
         try {
-            var id = sortedList.first().userId
-            var reaction = ""
-            for (record in sortedList) {
-                if (!record.reaction.isNullOrEmpty()) {
-                    if (id == record.userId) {
-                        reaction = record.reaction.toString()
-                        // reactionId = record.id
-                    } else {
-                        getAllReactions(reaction, reactions)
-                        reaction = record.reaction.toString()
-                        id = record.userId
-                        // reactionId = record.id
-                        flag = false
-                    }
+            var reaction: String
+            if (reactionList != null) {
+                for (record in reactionList) {
+                    reaction = record.reaction.toString()
+                    getAllReactions(reaction, reactions)
+                    // reactionId = record.id
                 }
             }
-            if (!flag) {
-                getAllReactions(reaction, reactions)
-            }
-            reactionText = getGroupReactions(reactions)
         } catch (e: Exception) {
             Timber.d(e.toString())
         }
-        return reactionText
+        return getGroupReactions(reactions)
     }
 
     // Get number of reactions for each one
@@ -581,8 +569,7 @@ class ChatAdapter(
                 reactionText += reactions.relievedEmoji.toString() + " "
             }
         }
-        // Timber.d("reaction method: $reactionText")
-        return reactionText.trim()
+        return reactionText
     }
 
     // TODO - same listeners method for both holders
