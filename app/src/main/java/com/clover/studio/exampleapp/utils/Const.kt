@@ -103,7 +103,6 @@ class Const {
             const val BODY = "body"
             const val MESSAGE_IDS = "messagesIds"
             const val REACTION = "reaction"
-            const val TARGET = "target"
         }
     }
 
@@ -149,6 +148,7 @@ class Const {
             const val LAST_UPDATE = "lastUpdate"
             const val PAGE = "page"
             const val ID = "id"
+            const val TARGET = "target"
         }
     }
 

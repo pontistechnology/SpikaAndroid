@@ -93,6 +93,6 @@ interface ChatService {
     suspend fun deleteMessage(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ID) messageId: Int,
-        @Query(Const.JsonFields.TARGET) target: String
+        @Query(Const.Networking.TARGET) target: String
     ): MessageResponse
 }
