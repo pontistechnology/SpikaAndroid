@@ -51,8 +51,6 @@ object RepositoryModule {
     fun provideMainRepository(
         retrofitService: RetrofitService,
         userDao: UserDao,
-        messageDao: MessageDao,
-        messageRecordsDao: MessageRecordsDao,
         chatRoomDao: ChatRoomDao,
         appDatabase: AppDatabase,
         sharedPrefs: SharedPreferencesRepository
@@ -60,8 +58,6 @@ object RepositoryModule {
         MainRepositoryImpl(
             retrofitService,
             userDao,
-            messageDao,
-            messageRecordsDao,
             chatRoomDao,
             appDatabase,
             sharedPrefs

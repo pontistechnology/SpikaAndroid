@@ -40,28 +40,6 @@ class MainViewModel @Inject constructor(
     val userSettingsListener = MutableLiveData<Event<MainStates>>()
     val roomNotificationListener = MutableLiveData<Event<MainStates>>()
 
-    fun getContacts() = viewModelScope.launch {
-        var page = 1
-        try {
-            var count: Double? = repository.getUsers(page).data?.count?.toDouble()
-            if (count != null) {
-                while (count!! / 10 > page) {
-                    page++
-                    count = repository.getUsers(page).data?.count?.toDouble()
-                    Timber.d("Count = $count")
-                }
-                usersListener.postValue(Event(UsersFetched))
-            }
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                usersListener.postValue(Event(UsersError))
-            }
-            return@launch
-        }
-    }
-
     fun getLocalUser() = liveData {
         val localUserId = sharedPrefsRepo.readUserId()
 
@@ -79,27 +57,6 @@ class MainViewModel @Inject constructor(
             userId = sharedPrefsRepo.readUserId()
         }
         return userId
-    }
-
-    fun getRooms() = viewModelScope.launch {
-        var page = 1
-        try {
-            var count = repository.getRooms(page).data?.count?.toDouble()
-            if (count != null) {
-                while (count!! / 10 > page) {
-                    page++
-                    count = repository.getRooms(page).data?.count?.toDouble()
-                    Timber.d("Count = $count")
-                }
-                roomsListener.postValue(Event(RoomsFetched))
-            }
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                roomsListener.postValue(Event(RoomFetchFail))
-            }
-        }
     }
 
     fun checkIfRoomExists(userId: Int) = viewModelScope.launch {

@@ -211,10 +211,6 @@ class SSERepositoryImpl @Inject constructor(
         messageDao.insert(message)
     }
 
-    override suspend fun deleteMessage(message: Message) {
-        messageDao.deleteMessage(message)
-    }
-
     override suspend fun writeMessageRecord(messageRecords: MessageRecords) {
         messageRecordsDao.insert(messageRecords)
     }
@@ -267,7 +263,6 @@ interface SSERepository {
     suspend fun writeRoom(room: ChatRoom)
     suspend fun deleteMessageRecord(messageRecords: MessageRecords)
     suspend fun deleteRoom(roomId: Int)
-    suspend fun deleteMessage(message: Message)
 }
 
 private fun getMessageIdJson(messageIds: List<Int?>): JsonObject {
