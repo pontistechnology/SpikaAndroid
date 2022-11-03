@@ -160,6 +160,16 @@ class ChatRepositoryImpl @Inject constructor(
             roomDao.deleteRoom(roomId)
         }
     }
+
+    override suspend fun deleteMessage(messageId: Int, target: String) {
+        val response =
+            chatService.deleteMessage(getHeaderMap(sharedPrefsRepo.readToken()), messageId, target)
+
+        // Just replace old message with new one. Deleted message just has a body with new text
+        if (response.data?.message != null) {
+            messageDao.insert(response.data.message)
+        }
+    }
 }
 
 interface ChatRepository {
@@ -187,4 +197,5 @@ interface ChatRepository {
     // suspend fun deleteAllReactions(messageId: Int)
     // suspend fun deleteReaction(id: Int)
     suspend fun deleteRoom(roomId: Int)
+    suspend fun deleteMessage(messageId: Int, target: String)
 }
