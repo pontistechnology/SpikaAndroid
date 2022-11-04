@@ -89,7 +89,7 @@ class ChatAdapter(
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        getItem(position).let { it ->
+        getItem(position).let {
 
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.message.createdAt!!
@@ -200,6 +200,14 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                     }
+                }
+
+                // Show/hide message edited layout. If createdAt field doesn't correspond to the
+                // modifiedAt field, we can conclude that the message was edited.
+                if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
+                    holder.binding.clMessageEdited.visibility = View.VISIBLE
+                } else {
+                    holder.binding.clMessageEdited.visibility = View.GONE
                 }
 
                 /* Reactions section: */
@@ -386,6 +394,14 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                     }
+                }
+
+                // Show/hide message edited layout. If createdAt field doesn't correspond to the
+                // modifiedAt field, we can conclude that the message was edited.
+                if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
+                    holder.binding.clMessageEdited.visibility = View.VISIBLE
+                } else {
+                    holder.binding.clMessageEdited.visibility = View.GONE
                 }
 
                 if (it.message.body?.text.isNullOrEmpty()) {
@@ -594,7 +610,7 @@ class ChatAdapter(
                         For removing reactions
                         if (reactionMessage.activeReaction!!.thumbsUp) {
                             // Active reaction is already thumbs up -> remove it
-                            Timber.d("reactionid3: $reactionId")
+                            Timber.d("reactionId3: $reactionId")
                             reactionMessage.clicked = true
                             reactionMessage.activeReaction!!.thumbsUp = false
                         } else {
