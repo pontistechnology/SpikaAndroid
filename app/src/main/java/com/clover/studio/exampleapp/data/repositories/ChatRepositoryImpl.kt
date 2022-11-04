@@ -11,8 +11,6 @@ import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
-import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
-import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -37,27 +35,6 @@ class ChatRepositoryImpl @Inject constructor(
         Timber.d("Response message $response")
         response.data?.message?.let { messageDao.insert(it) }
     }
-
-    override suspend fun getMessages(roomId: String) {
-        val response = chatService.getMessages(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
-
-        val messages: MutableList<Message> = ArrayList()
-        if (response.data?.messages != null) {
-            for (message in response.data.messages) {
-                messages.add(message)
-            }
-            messageDao.insert(messages)
-        }
-    }
-
-    override suspend fun getMessagesLiveData(roomId: Int): LiveData<List<Message>> =
-        messageDao.getMessages(roomId)
-
-    override suspend fun getMessagesTimestamp(timestamp: Int): MessageResponse =
-        chatService.getMessagesTimestamp(getHeaderMap(sharedPrefsRepo.readToken()), timestamp)
-
-    override suspend fun sendMessageDelivered(jsonObject: JsonObject) =
-        chatService.sendMessageDelivered(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
 
     override suspend fun storeMessageLocally(message: Message) {
         messageDao.insert(message)
@@ -185,10 +162,6 @@ class ChatRepositoryImpl @Inject constructor(
 
 interface ChatRepository {
     suspend fun sendMessage(jsonObject: JsonObject)
-    suspend fun getMessages(roomId: String)
-    suspend fun getMessagesLiveData(roomId: Int): LiveData<List<Message>>
-    suspend fun getMessagesTimestamp(timestamp: Int): MessageResponse
-    suspend fun sendMessageDelivered(jsonObject: JsonObject): MessageRecordsResponse
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
     suspend fun sendMessagesSeen(roomId: Int)
