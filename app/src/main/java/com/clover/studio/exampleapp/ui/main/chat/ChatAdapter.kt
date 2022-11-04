@@ -54,7 +54,7 @@ class ChatAdapter(
     private val users: List<User>,
     private val chatType: String,
     private val addReaction: ((reaction: ReactionMessage) -> Unit),
-    private val onMessageInteraction: ((event: String, messageId: Int) -> Unit)
+    private val onMessageInteraction: ((event: String, message: Message) -> Unit)
 ) :
     ListAdapter<MessageAndRecords, RecyclerView.ViewHolder>(MessageAndRecordsDiffCallback()) {
 
@@ -242,7 +242,14 @@ class ChatAdapter(
 
                 // Delete message option clicked
                 holder.binding.messageOptions.tvDelete.setOnClickListener { _ ->
-                    onMessageInteraction.invoke(Const.UserActions.DELETE, it.message.id)
+                    onMessageInteraction.invoke(Const.UserActions.DELETE, it.message)
+                    holder.binding.cvMessageOptions.visibility = View.GONE
+                    holder.binding.cvReactions.visibility = View.GONE
+                }
+
+                // Edit message option clicked
+                holder.binding.messageOptions.tvEdit.setOnClickListener { _ ->
+                    onMessageInteraction.invoke(Const.UserActions.EDIT, it.message)
                     holder.binding.cvMessageOptions.visibility = View.GONE
                     holder.binding.cvReactions.visibility = View.GONE
                 }

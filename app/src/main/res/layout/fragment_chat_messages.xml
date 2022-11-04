@@ -6,10 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:fitsSystemWindows="true"
     app:contentInsetEnd="0dp"
     app:contentInsetStart="0dp"
     app:layout_dodgeInsetEdges="bottom"
-    android:fitsSystemWindows="true"
     tools:context=".ui.main.chat.ChatMessagesFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -178,8 +178,6 @@
                 android:id="@+id/et_message"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:emojiSize="@dimen/twenty_sp_text"
-                android:textColor="@android:color/black"
                 android:layout_marginStart="@dimen/ten_dp_margin"
                 android:background="@null"
                 android:fontFamily="@font/montserrat"
@@ -188,6 +186,8 @@
                 android:inputType="textMultiLine|textCapSentences"
                 android:maxLines="5"
                 android:paddingEnd="@dimen/thirty_dp_margin"
+                android:textColor="@android:color/black"
+                app:emojiSize="@dimen/twenty_sp_text"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -242,6 +242,23 @@
             app:layout_constraintEnd_toStartOf="@id/iv_microphone"
             app:layout_constraintStart_toEndOf="@id/cl_typing"
             app:layout_constraintTop_toTopOf="@id/divider" />
+
+        <TextView
+            android:id="@+id/tv_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat"
+            android:gravity="center"
+            android:text="@string/save"
+            android:textColor="@color/primary_color"
+            android:textSize="@dimen/sixteen_sp_text"
+            android:visibility="gone"
+            android:padding="@dimen/twenty_dp_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/cl_typing"
+            app:layout_constraintTop_toTopOf="@id/divider" />
+
 
         <View
             android:id="@+id/divider"

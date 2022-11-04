@@ -134,6 +134,7 @@
     <string name="delete">Delete</string>
     <string name="delete_for_everyone">Delete for everyone</string>
     <string name="delete_for_me">Delete for me</string>
+    <string name="save">Save</string>
 
 
 </resources>

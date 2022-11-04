@@ -170,6 +170,17 @@ class ChatRepositoryImpl @Inject constructor(
             messageDao.insert(response.data.message)
         }
     }
+
+    override suspend fun editMessage(messageId: Int, jsonObject: JsonObject) {
+        val response = chatService.editMessage(
+            getHeaderMap(sharedPrefsRepo.readToken()),
+            messageId,
+            jsonObject
+        )
+        if (response.data?.message != null) {
+            messageDao.insert(response.data.message)
+        }
+    }
 }
 
 interface ChatRepository {
@@ -198,4 +209,5 @@ interface ChatRepository {
     // suspend fun deleteReaction(id: Int)
     suspend fun deleteRoom(roomId: Int)
     suspend fun deleteMessage(messageId: Int, target: String)
+    suspend fun editMessage(messageId: Int, jsonObject: JsonObject)
 }

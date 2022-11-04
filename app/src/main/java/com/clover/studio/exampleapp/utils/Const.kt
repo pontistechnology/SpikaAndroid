@@ -23,6 +23,7 @@ class Const {
             const val DELETE_MESSAGE_ME = "user"
             const val DELETE_MESSAGE_ALL = "all"
             const val DELETE = "delete"
+            const val EDIT = "edit"
         }
     }
 
