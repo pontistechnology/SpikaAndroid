@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
@@ -35,7 +34,6 @@ class ChatViewModel @Inject constructor(
 ) : BaseViewModel() {
     val messageSendListener = MutableLiveData<Event<ChatStatesEnum>>()
     val getMessagesListener = MutableLiveData<Event<ChatStates>>()
-    val getMessagesTimestampListener = MutableLiveData<Event<ChatStates>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
     val roomWithUsersListener = MutableLiveData<Event<ChatStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
@@ -64,10 +62,6 @@ class ChatViewModel @Inject constructor(
         }
 
         messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SENT))
-    }
-
-    fun getLocalMessages(roomId: Int) = liveData {
-        emitSource(repository.getMessagesLiveData(roomId))
     }
 
     fun getLocalUserId(): Int? {
@@ -299,15 +293,11 @@ class ChatViewModel @Inject constructor(
 
 sealed class ChatStates
 object MessagesFetched : ChatStates()
-data class MessagesTimestampFetched(val messages: List<Message>) : ChatStates()
 object MessageFetchFail : ChatStates()
-object MessageTimestampFetchFail : ChatStates()
 class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
 object RoomWithUsersFailed : ChatStates()
 class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : ChatStates()
 class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
-class SingleRoomData(val roomData: RoomAndMessageAndRecords) : ChatStates()
-object SingleRoomFetchFailed : ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }
