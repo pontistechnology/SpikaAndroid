@@ -18,6 +18,15 @@ class Const {
         }
     }
 
+    class UserActions {
+        companion object {
+            const val DELETE_MESSAGE_ME = "user"
+            const val DELETE_MESSAGE_ALL = "all"
+            const val DELETE = "delete"
+            const val EDIT = "edit"
+        }
+    }
+
     class IntentExtras {
         companion object {
             const val ROOM_ID_EXTRA = "room_id_extra"
@@ -94,7 +103,7 @@ class Const {
             const val GROUP = "group"
             const val BODY = "body"
             const val MESSAGE_IDS = "messagesIds"
-
+            const val REACTION = "reaction"
         }
     }
 
@@ -103,6 +112,8 @@ class Const {
             // Sync Data
             const val API_SYNC_MESSAGES = "api/messenger/messages/sync/{lastUpdate}"
             const val API_SYNC_MESSAGE_RECORDS = "api/messenger/message-records/sync/{lastUpdate}"
+            const val API_POST_REACTION = "api/messenger/message-records"
+            const val API_DELETE_REACTION = "api/messenger/message-records/{id}"
             const val API_SYNC_USERS = "api/messenger/users/sync/{lastUpdate}"
             const val API_SYNC_ROOMS = "api/messenger/rooms/sync/{lastUpdate}"
 
@@ -126,6 +137,7 @@ class Const {
             const val API_MUTE_ROOM = "api/messenger/rooms/{roomId}/mute"
             const val API_UNMUTE_ROOM = "api/messenger/rooms/{roomId}/unmute"
             const val API_GET_SETTINGS = "api/messenger/me/settings"
+            const val API_UPDATE_MESSAGE = "api/messenger/messages/{id}"
 
             // Queries
             const val TIMESTAMP = "timestamp"
@@ -136,6 +148,8 @@ class Const {
             const val MESSAGE_ID = "messageId"
             const val LAST_UPDATE = "lastUpdate"
             const val PAGE = "page"
+            const val ID = "id"
+            const val TARGET = "target"
         }
     }
 

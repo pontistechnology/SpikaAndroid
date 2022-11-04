@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.ChatRoom
 import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
@@ -24,6 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,7 +34,6 @@ class ChatViewModel @Inject constructor(
 ) : BaseViewModel() {
     val messageSendListener = MutableLiveData<Event<ChatStatesEnum>>()
     val getMessagesListener = MutableLiveData<Event<ChatStates>>()
-    val getMessagesTimestampListener = MutableLiveData<Event<ChatStates>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
     val roomWithUsersListener = MutableLiveData<Event<ChatStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
@@ -63,10 +62,6 @@ class ChatViewModel @Inject constructor(
         }
 
         messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SENT))
-    }
-
-    fun getLocalMessages(roomId: Int) = liveData {
-        emitSource(repository.getMessagesLiveData(roomId))
     }
 
     fun getLocalUserId(): Int? {
@@ -150,6 +145,10 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun getChatRoomAndMessageAndRecordsById(roomId: Int) = liveData {
+        emitSource(repository.getChatRoomAndMessageAndRecordsById(roomId))
+    }
+
     fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
         try {
             roomDataListener.postValue(Event(SingleRoomData(repository.getSingleRoomData(roomId))))
@@ -219,19 +218,86 @@ class ChatViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun sendReaction(jsonObject: JsonObject) = viewModelScope.launch {
+        try {
+            repository.sendReaction(jsonObject)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                Timber.d("Exception: $ex")
+            }
+        }
+    }
+
+    /* TODO: Commented methods can later be used to delete reactions
+    fun deleteReaction(recordId: Int, userId: Int) = viewModelScope.launch {
+        try {
+            repository.deleteReaction(recordId, userId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                Timber.d("Exception: $ex")
+            }
+        }
+    }
+
+    fun deleteAllReactions(messageId: Int) = viewModelScope.launch {
+        try {
+            repository.deleteAllReactions(messageId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                Timber.d("Exception: $ex")
+            }
+        }
+    }*/
+
+
+    fun deleteRoom(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.deleteRoom(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun deleteMessage(messageId: Int, target: String) = viewModelScope.launch {
+        try {
+            repository.deleteMessage(messageId, target)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun editMessage(messageId: Int, jsonObject: JsonObject) = viewModelScope.launch {
+        try {
+            repository.editMessage(messageId, jsonObject)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
 }
 
 sealed class ChatStates
 object MessagesFetched : ChatStates()
-data class MessagesTimestampFetched(val messages: List<Message>) : ChatStates()
 object MessageFetchFail : ChatStates()
-object MessageTimestampFetchFail : ChatStates()
 class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
 object RoomWithUsersFailed : ChatStates()
 class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : ChatStates()
 class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
-class SingleRoomData(val roomData: RoomAndMessageAndRecords) : ChatStates()
-object SingleRoomFetchFailed : ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }

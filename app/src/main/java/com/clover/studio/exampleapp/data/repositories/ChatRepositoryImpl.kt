@@ -11,8 +11,6 @@ import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
-import com.clover.studio.exampleapp.data.models.networking.MessageRecordsResponse
-import com.clover.studio.exampleapp.data.models.networking.MessageResponse
 import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -37,27 +35,6 @@ class ChatRepositoryImpl @Inject constructor(
         Timber.d("Response message $response")
         response.data?.message?.let { messageDao.insert(it) }
     }
-
-    override suspend fun getMessages(roomId: String) {
-        val response = chatService.getMessages(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
-
-        val messages: MutableList<Message> = ArrayList()
-        if (response.data?.messages != null) {
-            for (message in response.data.messages) {
-                messages.add(message)
-            }
-            messageDao.insert(messages)
-        }
-    }
-
-    override suspend fun getMessagesLiveData(roomId: Int): LiveData<List<Message>> =
-        messageDao.getMessages(roomId)
-
-    override suspend fun getMessagesTimestamp(timestamp: Int): MessageResponse =
-        chatService.getMessagesTimestamp(getHeaderMap(sharedPrefsRepo.readToken()), timestamp)
-
-    override suspend fun sendMessageDelivered(jsonObject: JsonObject) =
-        chatService.sendMessageDelivered(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
 
     override suspend fun storeMessageLocally(message: Message) {
         messageDao.insert(message)
@@ -124,6 +101,9 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean? =
         roomDao.getRoomUserById(roomId, userId).isAdmin
 
+    override suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords> =
+        roomDao.getChatRoomAndMessageAndRecordsById(roomId)
+
     override suspend fun muteRoom(roomId: Int) =
         chatService.muteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
@@ -136,14 +116,52 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
         roomDao.getSingleRoomData(roomId)
+
+    override suspend fun sendReaction(jsonObject: JsonObject) =
+        chatService.postReaction(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
+
+    /* TODO: Commented methods can later be used to delete reactions
+    override suspend fun deleteReaction(recordId: Int, userId: Int) {
+        chatService.deleteReaction(getHeaderMap(sharedPrefsRepo.readToken()), recordId)
+        chatRoomDao.deleteReactionRecord(recordId, userId)
+        Timber.d("id:::::: $recordId")
+    }
+
+    override suspend fun deleteAllReactions(messageId: Int) {
+        chatRoomDao.deleteAllReactions(messageId)
+    }*/
+
+    override suspend fun deleteRoom(roomId: Int) {
+        val response = chatService.deleteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+        if (response.data?.room?.deleted == true) {
+            roomDao.deleteRoom(roomId)
+        }
+    }
+
+    override suspend fun deleteMessage(messageId: Int, target: String) {
+        val response =
+            chatService.deleteMessage(getHeaderMap(sharedPrefsRepo.readToken()), messageId, target)
+
+        // Just replace old message with new one. Deleted message just has a body with new text
+        if (response.data?.message != null) {
+            messageDao.insert(response.data.message)
+        }
+    }
+
+    override suspend fun editMessage(messageId: Int, jsonObject: JsonObject) {
+        val response = chatService.editMessage(
+            getHeaderMap(sharedPrefsRepo.readToken()),
+            messageId,
+            jsonObject
+        )
+        if (response.data?.message != null) {
+            messageDao.insert(response.data.message)
+        }
+    }
 }
 
 interface ChatRepository {
     suspend fun sendMessage(jsonObject: JsonObject)
-    suspend fun getMessages(roomId: String)
-    suspend fun getMessagesLiveData(roomId: Int): LiveData<List<Message>>
-    suspend fun getMessagesTimestamp(timestamp: Int): MessageResponse
-    suspend fun sendMessageDelivered(jsonObject: JsonObject): MessageRecordsResponse
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
     suspend fun sendMessagesSeen(roomId: Int)
@@ -156,4 +174,13 @@ interface ChatRepository {
     suspend fun unmuteRoom(roomId: Int)
     suspend fun getUserSettings(): List<Settings>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
+    suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords>
+    suspend fun sendReaction(jsonObject: JsonObject)
+
+    // suspend fun deleteReaction(recordId: Int, userId: Int)
+    // suspend fun deleteAllReactions(messageId: Int)
+    // suspend fun deleteReaction(id: Int)
+    suspend fun deleteRoom(roomId: Int)
+    suspend fun deleteMessage(messageId: Int, target: String)
+    suspend fun editMessage(messageId: Int, jsonObject: JsonObject)
 }

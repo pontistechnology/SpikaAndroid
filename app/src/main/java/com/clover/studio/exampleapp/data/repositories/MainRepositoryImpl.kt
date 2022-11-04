@@ -3,13 +3,16 @@ package com.clover.studio.exampleapp.data.repositories
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
-import com.clover.studio.exampleapp.data.daos.MessageDao
-import com.clover.studio.exampleapp.data.daos.MessageRecordsDao
 import com.clover.studio.exampleapp.data.daos.UserDao
-import com.clover.studio.exampleapp.data.models.*
+import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
-import com.clover.studio.exampleapp.data.models.networking.*
+import com.clover.studio.exampleapp.data.models.networking.AuthResponse
+import com.clover.studio.exampleapp.data.models.networking.FileResponse
+import com.clover.studio.exampleapp.data.models.networking.RoomResponse
+import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
@@ -21,93 +24,15 @@ import javax.inject.Inject
 class MainRepositoryImpl @Inject constructor(
     private val retrofitService: RetrofitService,
     private val userDao: UserDao,
-    private val messageDao: MessageDao,
-    private val messageRecordsDao: MessageRecordsDao,
     private val chatRoomDao: ChatRoomDao,
     private val appDatabase: AppDatabase,
     private val sharedPrefs: SharedPreferencesRepository
 ) : MainRepository {
-    override suspend fun getUsers(page: Int): ContactResponse {
-        val userData = retrofitService.getUsers(getHeaderMap(sharedPrefs.readToken()), page)
-
-        val users: MutableList<User> = ArrayList()
-        if (userData.data?.list != null) {
-            for (user in userData.data.list) {
-                users.add(user)
-            }
-        }
-        userDao.insert(users)
-        return userData
-    }
-
     override suspend fun getUserByID(id: Int) =
         userDao.getUserById(id)
 
-    override suspend fun getUserLiveData(): LiveData<List<User>> =
-        userDao.getUsers()
-
     override suspend fun getRoomById(userId: Int) =
         retrofitService.getRoomById(getHeaderMap(sharedPrefs.readToken()), userId)
-
-    override suspend fun getRooms(page: Int): RoomResponse {
-        val roomData = retrofitService.getRooms(getHeaderMap(sharedPrefs.readToken()), page)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            appDatabase.runInTransaction {
-                CoroutineScope(Dispatchers.IO).launch {
-                    if (roomData.data?.list != null) {
-                        val users: MutableList<User> = ArrayList()
-                        val roomUsers: MutableList<RoomUser> = ArrayList()
-                        val chatRooms: MutableList<ChatRoomUpdate> = ArrayList()
-                        for (room in roomData.data.list) {
-                            val oldData = chatRoomDao.getRoomById(room.roomId)
-                            chatRooms.add(ChatRoomUpdate(oldData, room))
-
-                            for (user in room.users) {
-                                user.user?.let { users.add(it) }
-                                roomUsers.add(
-                                    RoomUser(
-                                        room.roomId,
-                                        user.userId,
-                                        user.isAdmin
-                                    )
-                                )
-                            }
-                        }
-                        chatRoomDao.updateRoomTable(chatRooms)
-                        userDao.insert(users)
-                        chatRoomDao.insertRoomWithUsers(roomUsers)
-                    }
-                }
-            }
-        }
-        return roomData
-    }
-
-    override suspend fun getMessages() {
-        val roomIds: MutableList<Int> = ArrayList()
-        chatRoomDao.getRoomsLocally().forEach { roomIds.add(it.roomId) }
-
-        if (roomIds.isNotEmpty()) {
-            val messages: MutableList<Message> = ArrayList()
-            for (id in roomIds) {
-                val messageData = retrofitService.getMessages(
-                    getHeaderMap(sharedPrefs.readToken()),
-                    id.toString()
-                )
-
-                if (messageData.data?.messages != null) {
-                    for (message in messageData.data.messages) {
-                        messages.add(message)
-                    }
-                }
-            }
-            messageDao.insert(messages)
-        }
-    }
-
-    override suspend fun getRoomsLiveData(): LiveData<List<ChatRoom>> =
-        chatRoomDao.getRooms()
 
     override suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse {
         val response =
@@ -171,28 +96,6 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun verifyFile(jsonObject: JsonObject): FileResponse =
         retrofitService.verifyFile(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
-    override suspend fun getMessageRecords() {
-        val messageIds: MutableList<Int> = ArrayList()
-        messageDao.getMessagesLocally().forEach { messageIds.add(it.id) }
-
-        val messageRecords: MutableList<MessageRecords> = ArrayList()
-        if (messageIds.isNotEmpty()) {
-            for (messageId in messageIds) {
-                val recordsData = retrofitService.getMessageRecords(
-                    getHeaderMap(sharedPrefs.readToken()),
-                    messageId.toString()
-                )
-
-                if (recordsData.data.messageRecords.isNotEmpty()) {
-                    for (messageRecord in recordsData.data.messageRecords) {
-                        messageRecords.add(messageRecord)
-                    }
-                }
-            }
-            messageRecordsDao.insert(messageRecords)
-        }
-    }
-
     override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) {
         val response =
             retrofitService.updateRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject, roomId)
@@ -231,19 +134,11 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun getUserSettings(): List<Settings> =
         retrofitService.getSettings(getHeaderMap(sharedPrefs.readToken())).data.settings
-
-    override suspend fun deleteRoom(roomId: Int) =
-        retrofitService.deleteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
 }
 
 interface MainRepository {
-    suspend fun getUsers(page: Int): ContactResponse
     suspend fun getUserByID(id: Int): LiveData<User>
-    suspend fun getUserLiveData(): LiveData<List<User>>
     suspend fun getRoomById(userId: Int): RoomResponse
-    suspend fun getRooms(page: Int): RoomResponse
-    suspend fun getMessages()
-    suspend fun getRoomsLiveData(): LiveData<List<ChatRoom>>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
     suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>
     suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
@@ -253,8 +148,6 @@ interface MainRepository {
     suspend fun updateUserData(data: Map<String, String>): AuthResponse
     suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
     suspend fun verifyFile(jsonObject: JsonObject): FileResponse
-    suspend fun getMessageRecords()
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
     suspend fun getUserSettings(): List<Settings>
-    suspend fun deleteRoom(roomId: Int)
 }
