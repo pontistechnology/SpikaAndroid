@@ -284,6 +284,17 @@ class ChatViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun editMessage(messageId: Int, jsonObject: JsonObject) = viewModelScope.launch {
+        try {
+            repository.editMessage(messageId, jsonObject)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
 }
 
 sealed class ChatStates

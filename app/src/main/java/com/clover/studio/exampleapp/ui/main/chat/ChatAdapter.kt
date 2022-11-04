@@ -54,7 +54,7 @@ class ChatAdapter(
     private val users: List<User>,
     private val chatType: String,
     private val addReaction: ((reaction: ReactionMessage) -> Unit),
-    private val onMessageInteraction: ((event: String, messageId: Int) -> Unit)
+    private val onMessageInteraction: ((event: String, message: Message) -> Unit)
 ) :
     ListAdapter<MessageAndRecords, RecyclerView.ViewHolder>(MessageAndRecordsDiffCallback()) {
 
@@ -89,7 +89,7 @@ class ChatAdapter(
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        getItem(position).let { it ->
+        getItem(position).let {
 
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.message.createdAt!!
@@ -202,6 +202,14 @@ class ChatAdapter(
                     }
                 }
 
+                // Show/hide message edited layout. If createdAt field doesn't correspond to the
+                // modifiedAt field, we can conclude that the message was edited.
+                if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
+                    holder.binding.clMessageEdited.visibility = View.VISIBLE
+                } else {
+                    holder.binding.clMessageEdited.visibility = View.GONE
+                }
+
                 /* Reactions section: */
                 // All commented lines of code in the reactions section refer to removing reactions
 
@@ -242,7 +250,14 @@ class ChatAdapter(
 
                 // Delete message option clicked
                 holder.binding.messageOptions.tvDelete.setOnClickListener { _ ->
-                    onMessageInteraction.invoke(Const.UserActions.DELETE, it.message.id)
+                    onMessageInteraction.invoke(Const.UserActions.DELETE, it.message)
+                    holder.binding.cvMessageOptions.visibility = View.GONE
+                    holder.binding.cvReactions.visibility = View.GONE
+                }
+
+                // Edit message option clicked
+                holder.binding.messageOptions.tvEdit.setOnClickListener { _ ->
+                    onMessageInteraction.invoke(Const.UserActions.EDIT, it.message)
                     holder.binding.cvMessageOptions.visibility = View.GONE
                     holder.binding.cvReactions.visibility = View.GONE
                 }
@@ -379,6 +394,14 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                     }
+                }
+
+                // Show/hide message edited layout. If createdAt field doesn't correspond to the
+                // modifiedAt field, we can conclude that the message was edited.
+                if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
+                    holder.binding.clMessageEdited.visibility = View.VISIBLE
+                } else {
+                    holder.binding.clMessageEdited.visibility = View.GONE
                 }
 
                 if (it.message.body?.text.isNullOrEmpty()) {
@@ -587,7 +610,7 @@ class ChatAdapter(
                         For removing reactions
                         if (reactionMessage.activeReaction!!.thumbsUp) {
                             // Active reaction is already thumbs up -> remove it
-                            Timber.d("reactionid3: $reactionId")
+                            Timber.d("reactionId3: $reactionId")
                             reactionMessage.clicked = true
                             reactionMessage.activeReaction!!.thumbsUp = false
                         } else {
