@@ -84,6 +84,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var avatarUrl = ""
     private var userName = ""
     private var firstEnter = true
+    private var isEditing = false
+    private var originalText = ""
+    private var editedMessageId = 0
     private lateinit var emojiPopup: EmojiPopup
 
     @Inject
@@ -241,10 +244,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             roomWithUsers.users,
             roomWithUsers.room.type!!,
             addReaction = { addMessageReaction(it) },
-            onMessageInteraction = { event, messageId ->
+            onMessageInteraction = { event, message ->
                 run {
                     when (event) {
-                        Const.UserActions.DELETE -> showDeleteMessageDialog(messageId)
+                        Const.UserActions.DELETE -> showDeleteMessageDialog(message)
+                        Const.UserActions.EDIT -> handleMessageEdit(message)
                         else -> Timber.d("No other action currently")
                     }
                 }
@@ -386,11 +390,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         bindingSetup.etMessage.addTextChangedListener {
-            if (it?.isNotEmpty() == true) {
-                showSendButton()
-                bindingSetup.ivAdd.rotation = ROTATION_OFF
-            } else {
-                hideSendButton()
+            if (!isEditing) {
+                if (it?.isNotEmpty() == true) {
+                    showSendButton()
+                    bindingSetup.ivAdd.rotation = ROTATION_OFF
+                } else {
+                    hideSendButton()
+                }
             }
         }
 
@@ -418,10 +424,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         bindingSetup.ivAdd.setOnClickListener {
-            if (bottomSheetBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
-                bindingSetup.ivAdd.rotation = ROTATION_ON
-                bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
-                bindingSetup.vTransparent.visibility = View.VISIBLE
+            if (!isEditing) {
+                if (bottomSheetBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
+                    bindingSetup.ivAdd.rotation = ROTATION_ON
+                    bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
+                    bindingSetup.vTransparent.visibility = View.VISIBLE
+                }
+            } else {
+                resetEditingFields()
             }
         }
 
@@ -441,6 +451,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.bottomSheet.btnContact.setOnClickListener {
             rotationAnimation()
         }
+
+        bindingSetup.tvSave.setOnClickListener {
+            editMessage()
+            resetEditingFields()
+        }
+    }
+
+    private fun resetEditingFields() {
+        editedMessageId = 0
+        isEditing = false
+        originalText = ""
+        bindingSetup.etMessage.setText("")
+        bindingSetup.ivAdd.rotation = ROTATION_OFF
+        bindingSetup.tvSave.visibility = View.GONE
+        bindingSetup.ivCamera.visibility = View.VISIBLE
+        bindingSetup.ivMicrophone.visibility = View.VISIBLE
     }
 
     private fun rotationAnimation() {
@@ -460,8 +486,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun showSendButton() {
-        bindingSetup.ivCamera.visibility = View.GONE
-        bindingSetup.ivMicrophone.visibility = View.GONE
+        bindingSetup.ivCamera.visibility = View.INVISIBLE
+        bindingSetup.ivMicrophone.visibility = View.INVISIBLE
         bindingSetup.ivButtonSend.visibility = View.VISIBLE
         bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
             endToStart = bindingSetup.ivButtonSend.id
@@ -469,7 +495,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.ivAdd.rotation = ROTATION_OFF
     }
 
-    private fun showDeleteMessageDialog(messageId: Int) {
+    private fun showDeleteMessageDialog(message: Message) {
         ChooserDialog.getInstance(requireContext(),
             null,
             null,
@@ -477,17 +503,50 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             getString(R.string.delete_for_me),
             object : DialogInteraction {
                 override fun onFirstOptionClicked() {
-                    deleteMessage(messageId, Const.UserActions.DELETE_MESSAGE_ALL)
+                    deleteMessage(message.id, Const.UserActions.DELETE_MESSAGE_ALL)
                 }
 
                 override fun onSecondOptionClicked() {
-                    deleteMessage(messageId, Const.UserActions.DELETE_MESSAGE_ME)
+                    deleteMessage(message.id, Const.UserActions.DELETE_MESSAGE_ME)
                 }
             })
     }
 
     private fun deleteMessage(messageId: Int, target: String) {
         viewModel.deleteMessage(messageId, target)
+    }
+
+    private fun handleMessageEdit(message: Message) {
+        isEditing = true
+        originalText = message.body?.text.toString()
+        editedMessageId = message.id
+        bindingSetup.etMessage.setText(message.body?.text)
+        bindingSetup.ivAdd.rotation = ROTATION_ON
+
+        bindingSetup.etMessage.addTextChangedListener {
+            if (isEditing) {
+                if (!originalText.equals(it)) {
+                    // Show save button
+                    bindingSetup.tvSave.visibility = View.VISIBLE
+                    bindingSetup.ivCamera.visibility = View.INVISIBLE
+                    bindingSetup.ivMicrophone.visibility = View.INVISIBLE
+                } else {
+                    // Hide save button
+                    bindingSetup.tvSave.visibility = View.GONE
+                    bindingSetup.ivCamera.visibility = View.VISIBLE
+                    bindingSetup.ivMicrophone.visibility = View.VISIBLE
+                }
+            }
+        }
+    }
+
+    private fun editMessage() {
+        if (editedMessageId != 0) {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty(Const.JsonFields.TEXT, bindingSetup.etMessage.text.toString())
+
+            viewModel.editMessage(editedMessageId, jsonObject)
+        }
     }
 
     private fun sendMessage() {

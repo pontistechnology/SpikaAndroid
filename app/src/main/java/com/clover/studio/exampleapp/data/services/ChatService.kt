@@ -95,4 +95,11 @@ interface ChatService {
         @Path(Const.Networking.ID) messageId: Int,
         @Query(Const.Networking.TARGET) target: String
     ): MessageResponse
+
+    @PUT(Const.Networking.API_UPDATE_MESSAGE)
+    suspend fun editMessage(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ID) messageId: Int,
+        @Body jsonObject: JsonObject
+    ): MessageResponse
 }
