@@ -6,8 +6,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.MediaController
 import androidx.fragment.app.Fragment
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
@@ -21,7 +24,12 @@ class MediaFragment : Fragment() {
     private val args: MediaFragmentArgs by navArgs()
 
     private var clicked = true
-    private var mediaController: MediaController? = null
+    private var player: ExoPlayer? = null
+
+    private var playWhenReady = true
+    private var currentItem = 0
+    private var playbackPosition = 0L
+    private val playbackStateListener: Player.Listener = playbackStateListener()
 
     private var videoPath: String? = null
     private var imagePath: String? = null
@@ -39,11 +47,10 @@ class MediaFragment : Fragment() {
         bindingSetup = FragmentMediaBinding.inflate(inflater, container, false)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         initializeListeners()
-        if (imagePath!!.isEmpty()) {
+        if (imagePath?.isEmpty() == true) {
             initializeVideo()
         } else {
             initializePicture()
-
         }
 
         return binding.root
@@ -91,16 +98,78 @@ class MediaFragment : Fragment() {
             .load(videoPath)
             .into(binding.ivVideoHolder)
 
-        val videoView = binding.vvVideo
-        mediaController = MediaController(context)
-        mediaController!!.setAnchorView(binding.clVideoContainer)
+        val trackSelector = DefaultTrackSelector(requireContext()).apply {
+            setParameters(buildUponParameters().setMaxVideoSizeSd())
+        }
 
-        videoView.setMediaController(mediaController)
-        videoView.setVideoURI(Uri.parse(videoPath))
-        videoView.setOnPreparedListener {
-            binding.clVideoLoading.visibility = View.GONE
+        player = context?.let {
+            ExoPlayer.Builder(it)
+                .setTrackSelector(trackSelector)
+                .build()
+                .also { exoPlayer ->
+                    binding.vvVideo.player = exoPlayer
+
+                    // TODO adaptive streaming, look at this later
+//                    val mediaItem = MediaItem.Builder()
+//                        .setUri(Uri.parse(videoPath))
+//                        .setMimeType(MimeTypes.APPLICATION_MPD)
+//                        .build()
+
+                    val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
+                    exoPlayer.setMediaItem(mediaItem)
+                    exoPlayer.playWhenReady = playWhenReady
+                    exoPlayer.seekTo(currentItem, playbackPosition)
+                    exoPlayer.addListener(playbackStateListener)
+                    exoPlayer.prepare()
+                    binding.clVideoLoading.visibility = View.GONE
+                }
         }
         binding.clVideoContainer.visibility = View.VISIBLE
-        videoView.start()
+    }
+
+    private fun releasePlayer() {
+        player?.let { exoPlayer ->
+            playbackPosition = exoPlayer.currentPosition
+            currentItem = exoPlayer.currentMediaItemIndex
+            playWhenReady = exoPlayer.playWhenReady
+            exoPlayer.removeListener(playbackStateListener)
+            exoPlayer.release()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (imagePath?.isEmpty() == true) {
+            initializeVideo()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (imagePath?.isEmpty() == true) {
+            initializeVideo()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        releasePlayer()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        releasePlayer()
+    }
+}
+
+private fun playbackStateListener() = object : Player.Listener {
+    override fun onPlaybackStateChanged(playbackState: Int) {
+        val stateString: String = when (playbackState) {
+            ExoPlayer.STATE_IDLE -> "ExoPlayer.STATE_IDLE      -"
+            ExoPlayer.STATE_BUFFERING -> "ExoPlayer.STATE_BUFFERING -"
+            ExoPlayer.STATE_READY -> "ExoPlayer.STATE_READY     -"
+            ExoPlayer.STATE_ENDED -> "ExoPlayer.STATE_ENDED     -"
+            else -> "UNKNOWN_STATE             -"
+        }
     }
 }

@@ -108,7 +108,9 @@ class SSEManager @Inject constructor(
                                         response.data?.message?.let { repo.writeMessages(it) }
                                     }
                                     Const.JsonFields.DELETE_MESSAGE -> {
-                                        response.data?.message?.let { repo.deleteMessage(it) }
+                                        // We replace old message with new one displaying "Deleted
+                                        // message" in its text field
+                                        response.data?.message?.let { repo.writeMessages(it) }
                                     }
                                     Const.JsonFields.NEW_MESSAGE_RECORD -> {
                                         response.data?.messageRecord?.let {
@@ -134,7 +136,7 @@ class SSEManager @Inject constructor(
                                         response.data?.room?.let { repo.writeRoom(it) }
                                     }
                                     Const.JsonFields.DELETE_ROOM -> {
-                                        response.data?.room?.let { repo.deleteRoom(it) }
+                                        response.data?.room?.let { repo.deleteRoom(it.roomId) }
                                     }
                                 }
                             }

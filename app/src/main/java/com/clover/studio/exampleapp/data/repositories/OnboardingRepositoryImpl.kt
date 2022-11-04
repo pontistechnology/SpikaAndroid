@@ -4,7 +4,6 @@ import com.clover.studio.exampleapp.data.daos.PhoneUserDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.PhoneUser
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
-import com.clover.studio.exampleapp.data.models.networking.FileResponse
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
@@ -57,13 +56,6 @@ class OnboardingRepositoryImpl @Inject constructor(
 
         return responseData
     }
-
-    override suspend fun uploadFiles(
-        jsonObject: JsonObject
-    ) = retrofitService.uploadFiles(getHeaderMap(sharedPrefs.readToken()), jsonObject)
-
-    override suspend fun verifyFile(jsonObject: JsonObject): FileResponse =
-        retrofitService.verifyFile(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 }
 
 interface OnboardingRepository {
@@ -72,6 +64,4 @@ interface OnboardingRepository {
     suspend fun sendUserContacts(contacts: List<String>): AuthResponse
     suspend fun writePhoneUsers(phoneUsers: List<PhoneUser>)
     suspend fun updateUser(userMap: Map<String, String>): AuthResponse
-    suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
-    suspend fun verifyFile(jsonObject: JsonObject): FileResponse
 }

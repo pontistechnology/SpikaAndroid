@@ -56,6 +56,10 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "modified_at")
     val modifiedAt: Long?,
 
+    @SerializedName("deleted")
+    @ColumnInfo(name = "deleted")
+    val deleted: Boolean?,
+
     // Two field below are used for firebase messaging and are not needed in the local db
     @Ignore
     @SerializedName("fromUserName")

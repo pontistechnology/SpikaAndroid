@@ -9,7 +9,7 @@ import com.clover.studio.exampleapp.data.models.networking.RoomUsers
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_CHAT_ROOM)
-data class ChatRoom(
+data class ChatRoom @JvmOverloads constructor(
 
     @PrimaryKey
     @SerializedName("id")
@@ -24,6 +24,10 @@ data class ChatRoom(
 
     @ColumnInfo(name = "type")
     val type: String?,
+
+    // Used only for local db insert logic
+    @Ignore
+    val deleted: Boolean = false,
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long?,

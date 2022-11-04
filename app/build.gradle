@@ -173,4 +173,13 @@ dependencies {
 
     // Emoji
     implementation "com.vanniktech:emoji-google:0.15.0"
+
+    // Exo Player
+    def mediaVersion = "1.0.0-beta02"
+    dependencies {
+        implementation "androidx.media3:media3-exoplayer:$mediaVersion"
+        implementation "androidx.media3:media3-ui:$mediaVersion"
+        implementation "androidx.media3:media3-exoplayer-dash:$mediaVersion"
+    }
+
 }

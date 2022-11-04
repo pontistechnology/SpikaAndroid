@@ -31,6 +31,13 @@ interface ChatRoomDao {
     @Delete
     suspend fun deleteRoom(chatRoom: ChatRoom)
 
+    /**
+     * Use this method to delete rooms from local db. We cannot rely on the above one because
+     * chat rooms might come with a field that is ignored.
+     */
+   @Query("DELETE FROM room WHERE room_id = :roomId")
+   suspend fun deleteRoom(roomId: Int)
+
     @Query("DELETE FROM room")
     suspend fun removeRooms()
 
@@ -41,6 +48,10 @@ interface ChatRoomDao {
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
+
+    @Transaction
+    @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
+    fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords>
 
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
@@ -80,4 +91,13 @@ interface ChatRoomDao {
 
     @Query("SELECT * FROM room_user WHERE room_id LIKE :roomId AND id LIKE :userId LIMIT 1")
     suspend fun getRoomUserById(roomId: Int, userId: Int): RoomUser
+
+    @Transaction
+    @Query("DELETE FROM message_records WHERE id LIKE :id AND user_id LIKE :userId")
+    suspend fun deleteReactionRecord(id: Int, userId: Int)
+
+    // Private chat: delete all records
+    @Transaction
+    @Query("DELETE FROM message_records WHERE message_id LIKE :id AND type='reaction'")
+    suspend fun deleteAllReactions(id: Int)
 }

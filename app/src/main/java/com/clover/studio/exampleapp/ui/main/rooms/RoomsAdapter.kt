@@ -15,6 +15,7 @@ import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getFileUrl
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
+import timber.log.Timber
 
 class RoomsAdapter(
     private val context: Context,
@@ -78,8 +79,14 @@ class RoomsAdapter(
                                 .replaceFirstChar { it.uppercase() })
                     } else binding.tvLastMessage.text = textUserName + lastMessage?.text.toString()
 
-                    binding.tvMessageTime.text = roomItem.message.last().message.createdAt?.let {
+                    val time = roomItem.message.last().message.createdAt?.let {
                         getRelativeTimeSpan(it)
+                    }
+
+                    if (time?.get(0) == '0') {
+                        binding.tvMessageTime.text = context.getString(R.string.now)
+                    } else {
+                        binding.tvMessageTime.text = time
                     }
 
                     val unreadMessages = ArrayList<MessageAndRecords>()
@@ -94,6 +101,7 @@ class RoomsAdapter(
                                 }
                             }
                         }
+                        Timber.d("tmp::::::: $unreadMessages")
                     }
 
                     if (unreadMessages.isNotEmpty()) {
