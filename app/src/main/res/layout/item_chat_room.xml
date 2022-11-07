@@ -35,7 +35,7 @@
         android:ellipsize="end"
         android:fontFamily="@font/montserrat"
         android:maxLines="1"
-        android:textSize="@dimen/fourteen_sp_text"
+        android:textSize="@dimen/sixteen_sp_text"
         app:layout_constraintEnd_toStartOf="@id/tv_message_time"
         app:layout_constraintStart_toEndOf="@id/cv_user_image"
         app:layout_constraintTop_toTopOf="@+id/cv_user_image" />

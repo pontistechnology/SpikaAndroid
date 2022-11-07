@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.clover.studio.exampleapp">
+    package="com.clover.studio.exampleapp"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -13,6 +14,7 @@
     <application
         android:name=".MainApplication"
         android:allowBackup="false"
+        tools:replace="android:allowBackup, android:label"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher_round"
         android:label="@string/APP_NAME"
@@ -24,8 +26,6 @@
             android:exported="false"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"/>
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
         <activity
             android:name=".ui.splash.SplashActivity"
             android:exported="true"

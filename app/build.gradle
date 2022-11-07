@@ -7,7 +7,6 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 
-
 android {
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -173,6 +172,9 @@ dependencies {
 
     // Emoji
     implementation "com.vanniktech:emoji-google:0.15.0"
+
+    // TouchImageView
+    implementation 'com.github.MikeOrtiz:TouchImageView:1.4.1'
 
     // Exo Player
     def mediaVersion = "1.0.0-beta02"
