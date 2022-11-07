@@ -38,10 +38,4 @@ interface SSEService {
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
     ): MessageRecordsResponse
-
-    @GET(Const.Networking.API_GET_MESSAGES)
-    suspend fun getMessagesForRooms(
-        @HeaderMap headers: Map<String, String?>,
-        @Path(Const.Networking.ROOM_ID) roomId: String
-    ): MessageResponse
 }

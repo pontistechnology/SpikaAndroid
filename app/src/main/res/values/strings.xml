@@ -101,6 +101,7 @@
     <string name="failed_file_upload">Failed to upload file</string>
     <string name="files_mb_text"> MB</string>
     <string name="generic_shared">%s shared</string>
+    <string name="now">Now</string>
 
     <!--Alert dialog text-->
     <string name="warning">Warning</string>
@@ -109,6 +110,32 @@
     <string name="failed_room_creation">Failed to create room</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="error_room_exists">Error while checking if room exists</string>
+    <string name="delete_chat">Delete Chat</string>
+    <string name="delete_chat_description">Are you sure you want to delete this conversation?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="room_delete_admin_error">Only admins can delete conversations.</string>
+
+    <!--Emoji-->
+    <string name="thumbs_up_emoji">&#x1F44D;</string>
+    <string name="praying_hands_emoji">&#x1F64F;</string>
+    <string name="crying_face_emoji">&#x1F602;</string>
+    <string name="heart_emoji">&#x2764;</string>
+    <string name="astonished_emoji">&#x1F632;</string>
+    <string name="disappointed_relieved_emoji">&#x1F625;</string>
+
+    <!--Message options-->
+    <string name="reply">Reply</string>
+    <string name="forward">Forward</string>
+    <string name="copy">Copy</string>
+    <string name="edit">Edit</string>
+    <string name="details">Details</string>
+    <string name="favorite">Favorite</string>
+    <string name="delete">Delete</string>
+    <string name="delete_for_everyone">Delete for everyone</string>
+    <string name="delete_for_me">Delete for me</string>
+    <string name="save">Save</string>
+    <string name="edited">edited</string>
 
 
 </resources>

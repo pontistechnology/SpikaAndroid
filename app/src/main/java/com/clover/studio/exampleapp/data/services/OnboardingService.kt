@@ -1,7 +1,6 @@
 package com.clover.studio.exampleapp.data.services
 
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
-import com.clover.studio.exampleapp.data.models.networking.FileResponse
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
 import retrofit2.http.*
@@ -32,16 +31,4 @@ interface OnboardingService {
         @HeaderMap headers: Map<String, String?>,
         @FieldMap userMap: Map<String, String>
     ): AuthResponse
-
-    @POST(value = Const.Networking.API_UPLOAD_FILE)
-    suspend fun uploadFiles(
-        @HeaderMap headers: Map<String, String?>,
-        @Body jsonObject: JsonObject
-    ): FileResponse
-
-    @POST(value = Const.Networking.API_VERIFY_FILE)
-    suspend fun verifyFile(
-        @HeaderMap headers: Map<String, String?>,
-        @Body jsonObject: JsonObject
-    ): FileResponse
 }
