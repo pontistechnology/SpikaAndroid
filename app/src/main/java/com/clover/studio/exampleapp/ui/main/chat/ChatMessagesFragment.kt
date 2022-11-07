@@ -830,6 +830,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 Timber.d("Video upload failed on piece")
                                 uploadIndex = 0
                                 currentVideoLocation.clear()
+                                thumbnailUris.clear()
                                 uploadInProgress = false
                             }
                         }
@@ -846,6 +847,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     } else {
                                         uploadIndex = 0
                                         currentVideoLocation.clear()
+                                        thumbnailUris.clear()
                                     }
 
                                     Toast.makeText(
@@ -861,6 +863,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 Timber.d("Video upload failed on error")
                                 uploadIndex = 0
                                 currentVideoLocation.clear()
+                                thumbnailUris.clear()
                                 uploadInProgress = false
                             }
                         }
@@ -889,6 +892,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                         } else {
                                             uploadIndex = 0
                                             currentVideoLocation.clear()
+                                            thumbnailUris.clear()
                                             uploadInProgress = false
                                         }
                                     } else {
@@ -905,6 +909,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 Timber.d("Video upload failed on verify")
                                 uploadIndex = 0
                                 currentVideoLocation.clear()
+                                thumbnailUris.clear()
                                 uploadInProgress = false
                             }
                         }
@@ -912,6 +917,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             } catch (ex: Exception) {
                 uploadIndex = 0
                 currentVideoLocation.clear()
+                thumbnailUris.clear()
                 uploadInProgress = false
             }
         }
@@ -957,6 +963,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 Timber.d("File upload failed on piece")
                                 uploadIndex = 0
                                 currentPhotoLocation.clear()
+                                thumbnailUris.clear()
                                 uploadInProgress = false
                             }
                         }
@@ -973,6 +980,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     } else {
                                         uploadIndex = 0
                                         currentPhotoLocation.clear()
+                                        thumbnailUris.clear()
                                     }
 
                                     Toast.makeText(
@@ -988,6 +996,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 Timber.d("File upload failed on error")
                                 uploadIndex = 0
                                 currentPhotoLocation.clear()
+                                thumbnailUris.clear()
                                 uploadInProgress = false
                             }
                         }
@@ -1016,6 +1025,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                         } else {
                                             uploadIndex = 0
                                             currentPhotoLocation.clear()
+                                            thumbnailUris.clear()
                                             uploadInProgress = false
                                         }
                                     } else {
@@ -1032,6 +1042,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 Timber.d("File upload failed on verified")
                                 uploadIndex = 0
                                 currentPhotoLocation.clear()
+                                thumbnailUris.clear()
                                 uploadInProgress = false
                             }
                         }
@@ -1039,6 +1050,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             } catch (ex: Exception) {
                 uploadIndex = 0
                 currentPhotoLocation.clear()
+                thumbnailUris.clear()
                 uploadInProgress = false
             }
         }
