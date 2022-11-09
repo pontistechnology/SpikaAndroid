@@ -78,7 +78,7 @@ android {
             minifyEnabled false
 
             resValue "string", "APP_NAME", "Spika3"
-            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
 
             signingConfig signingConfigs.release
         }
@@ -92,7 +92,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             resValue "string", "APP_NAME", "Spika3"
-            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
 
             signingConfig signingConfigs.release
         }
