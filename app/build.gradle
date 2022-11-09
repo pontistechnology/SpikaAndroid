@@ -60,7 +60,7 @@ android {
         }
 
         dev {
-            applicationIdSuffix ".dev"
+            applicationIdSuffix ".debug"
             versionNameSuffix "_dev"
 
             debuggable true
@@ -72,6 +72,8 @@ android {
         }
 
         releaseDebug {
+            applicationIdSuffix ".debug"
+
             debuggable true
             minifyEnabled false
 
@@ -82,6 +84,8 @@ android {
         }
 
         release {
+            applicationIdSuffix ".debug"
+
             debuggable false
             minifyEnabled false
 
@@ -181,5 +185,4 @@ dependencies {
         implementation "androidx.media3:media3-ui:$mediaVersion"
         implementation "androidx.media3:media3-exoplayer-dash:$mediaVersion"
     }
-
 }
