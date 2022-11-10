@@ -8,25 +8,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.content.pm.PackageInfoCompat
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.databinding.FragmentSettingsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
+import com.clover.studio.exampleapp.ui.main.UserUpdateFailed
+import com.clover.studio.exampleapp.ui.main.UserUpdated
 import com.clover.studio.exampleapp.utils.*
-import com.clover.studio.exampleapp.utils.Tools.getFilePathUrl
+import com.clover.studio.exampleapp.utils.Tools.getFileUrl
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
-import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,10 +31,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-
 @AndroidEntryPoint
 class SettingsFragment : BaseFragment() {
-    // TODO move this to viewModel
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
 
@@ -45,7 +40,6 @@ class SettingsFragment : BaseFragment() {
     private var bindingSetup: FragmentSettingsBinding? = null
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var progress: Long = 1L
-    private var avatarId: Long? = 0L
 
     private val binding get() = bindingSetup!!
 
@@ -53,7 +47,7 @@ class SettingsFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.GetContent()) {
             if (it != null) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
+                    Tools.handleSamplingAndRotationBitmap(requireActivity(), it)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
@@ -69,11 +63,7 @@ class SettingsFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(
-                        requireActivity(),
-                        currentPhotoLocation,
-                        false
-                    )
+                    Tools.handleSamplingAndRotationBitmap(requireActivity(), currentPhotoLocation)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
@@ -93,19 +83,7 @@ class SettingsFragment : BaseFragment() {
 
         setupClickListeners()
         initializeObservers()
-        initializeViews()
         addTextListeners()
-
-        // Display version code on bottom of the screen
-        val packageInfo =
-            requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
-        // Bug fix for older devices
-        binding.tvVersionNumber.text =
-            "${getString(R.string.app_version)} ${packageInfo.versionName} ${
-                PackageInfoCompat.getLongVersionCode(
-                    packageInfo
-                )
-            }"
 
         return binding.root
     }
@@ -132,7 +110,7 @@ class SettingsFragment : BaseFragment() {
         binding.etEnterUsername.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
-                    hideKeyboard(view)
+                    Tools.hideKeyboard(requireActivity(), view)
                 }
             }
         }
@@ -140,21 +118,16 @@ class SettingsFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
-            val response = it.responseData
-            if (response != null) {
-                binding.tvUsername.text = response.displayName ?: getString(R.string.no_username)
-                binding.tvPhoneNumber.text = response.telephoneNumber
-                avatarId = response.avatarFileId
+            binding.tvUsername.text = it.displayName ?: getString(R.string.no_username)
+            binding.tvPhoneNumber.text = it.telephoneNumber
 
-                Glide.with(requireActivity())
-                    .load(response.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
-                    .placeholder(R.drawable.img_user_placeholder)
-                    .centerCrop()
-                    .into(binding.ivPickPhoto)
-            }
+            Glide.with(requireActivity())
+                .load(it.avatarUrl?.let { imageUrl -> getFileUrl(imageUrl) })
+                .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
+                .into(binding.ivPickPhoto)
         }
 
-        /*viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
+        viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 UserUpdated -> {
                     showUserDetails()
@@ -162,7 +135,7 @@ class SettingsFragment : BaseFragment() {
                 UserUpdateFailed -> Timber.d("User update failed")
                 else -> Timber.d("Other error")
             }
-        })*/
+        })
     }
 
     private fun showUserDetails() {
@@ -172,22 +145,12 @@ class SettingsFragment : BaseFragment() {
         binding.tvDone.visibility = View.GONE
     }
 
-    private fun initializeViews() {
-        when (viewModel.getUserTheme()) {
-            AppCompatDelegate.MODE_NIGHT_NO -> binding.tvActiveTheme.text =
-                getString(R.string.light_theme)
-            AppCompatDelegate.MODE_NIGHT_YES -> binding.tvActiveTheme.text =
-                getString(R.string.dark_theme)
-            else -> binding.tvActiveTheme.text = getString(R.string.system_theme)
-        }
-    }
-
     private fun setupClickListeners() {
 
         // Removed and waiting for each respective screen to be implemented
-        binding.clPrivacy.setOnClickListener {
-            goToPrivacySettings()
-        }
+//        binding.clPrivacy.setOnClickListener {
+//            goToPrivacySettings()
+//        }
 //
 //        binding.clChat.setOnClickListener {
 //            goToChatSettings()
@@ -201,7 +164,7 @@ class SettingsFragment : BaseFragment() {
 //            goToDownloadSettings()
 //        }
 
-        binding.ivPickPhoto.setOnClickListener {
+        binding.cvPhotoPicker.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
@@ -229,10 +192,6 @@ class SettingsFragment : BaseFragment() {
         binding.tvDone.setOnClickListener {
             updateUsername()
         }
-
-        binding.clAppearance.setOnClickListener {
-            goToAppearanceSettings()
-        }
     }
 
     private fun updateUserImage() {
@@ -246,20 +205,20 @@ class SettingsFragment : BaseFragment() {
                 activity?.contentResolver?.getType(currentPhotoLocation)!!
             )
             val uploadPieces =
-                if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
-                    (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
-                else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
+                if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
+                    fileStream.length() / CHUNK_SIZE + 1
+                else fileStream.length() / CHUNK_SIZE
 
-            binding.progressBar.max = uploadPieces
+            binding.progressBar.max = uploadPieces.toInt()
             Timber.d("File upload start")
             CoroutineScope(Dispatchers.IO).launch {
                 uploadDownloadManager.uploadFile(
                     requireActivity(),
                     currentPhotoLocation,
-                    Const.JsonFields.AVATAR_TYPE,
+                    Const.JsonFields.IMAGE,
+                    Const.JsonFields.AVATAR,
                     uploadPieces,
                     fileStream,
-                    null,
                     false,
                     object :
                         FileUploadListener {
@@ -277,25 +236,16 @@ class SettingsFragment : BaseFragment() {
                             }
                         }
 
-                        override fun fileUploadVerified(
-                            path: String,
-                            mimeType: String,
-                            thumbId: Long,
-                            fileId: Long,
-                            fileType: String,
-                            messageBody: MessageBody?
-                        ) {
+                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
                                 binding.clProgressScreen.visibility = View.GONE
                             }
 
-                            val jsonObject = JsonObject()
-                            jsonObject.addProperty(Const.UserData.AVATAR_FILE_ID, fileId)
-//                            val userData = hashMapOf(
-//                                Const.UserData.AVATAR_FILE_ID to fileId
-//                            )
-                            viewModel.updateUserData(jsonObject)
+                            val userData = hashMapOf(
+                                Const.UserData.AVATAR_URL to path
+                            )
+                            viewModel.updateUserData(userData)
                         }
 
                     })
@@ -306,19 +256,10 @@ class SettingsFragment : BaseFragment() {
 
     private fun updateUsername() {
         if (binding.etEnterUsername.text.toString().isNotEmpty()) {
-            val jsonObject = JsonObject()
-            jsonObject.addProperty(
-                Const.UserData.DISPLAY_NAME,
-                binding.etEnterUsername.text.toString()
-            )
-            jsonObject.addProperty(
-                Const.JsonFields.AVATAR_FILE_ID,
-                avatarId
-            )
-            viewModel.updateUserData(jsonObject)
+            viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
+        } else {
+            return
         }
-        binding.etEnterUsername.visibility = View.GONE
-        binding.tvUsername.visibility = View.VISIBLE
     }
 
     private fun showUsernameUpdate() {
@@ -335,7 +276,7 @@ class SettingsFragment : BaseFragment() {
     private fun takePhoto() {
         currentPhotoLocation = FileProvider.getUriForFile(
             requireActivity(),
-            BuildConfig.APPLICATION_ID + ".fileprovider",
+            "com.clover.studio.exampleapp.fileprovider",
             Tools.createImageFile(requireActivity())
         )
         Timber.d("$currentPhotoLocation")
@@ -374,10 +315,6 @@ class SettingsFragment : BaseFragment() {
     // screens
     private fun goToPrivacySettings() {
         findNavController().navigate(R.id.action_mainFragment_to_privacySettingsFragment22)
-    }
-
-    private fun goToAppearanceSettings() {
-        findNavController().navigate(R.id.action_mainFragment_to_appearanceSettings)
     }
 
     private fun goToChatSettings() {
