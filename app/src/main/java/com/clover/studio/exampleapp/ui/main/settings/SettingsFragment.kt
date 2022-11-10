@@ -121,7 +121,8 @@ class SettingsFragment : BaseFragment() {
             binding.tvUsername.text = it.displayName ?: getString(R.string.no_username)
             binding.tvPhoneNumber.text = it.telephoneNumber
 
-            Glide.with(requireActivity()).load(it.avatarUrl?.let { imageUrl -> getFileUrl(imageUrl) })
+            Glide.with(requireActivity())
+                .load(it.avatarUrl?.let { imageUrl -> getFileUrl(imageUrl) })
                 .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
                 .into(binding.ivPickPhoto)
         }
@@ -129,10 +130,7 @@ class SettingsFragment : BaseFragment() {
         viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 UserUpdated -> {
-                    binding.tvUsername.visibility = View.VISIBLE
-                    binding.tvPhoneNumber.visibility = View.VISIBLE
-                    binding.etEnterUsername.visibility = View.INVISIBLE
-                    binding.tvDone.visibility = View.GONE
+                    showUserDetails()
                 }
                 UserUpdateFailed -> Timber.d("User update failed")
                 else -> Timber.d("Other error")
@@ -140,22 +138,31 @@ class SettingsFragment : BaseFragment() {
         })
     }
 
+    private fun showUserDetails() {
+        binding.tvUsername.visibility = View.VISIBLE
+        binding.tvPhoneNumber.visibility = View.VISIBLE
+        binding.etEnterUsername.visibility = View.INVISIBLE
+        binding.tvDone.visibility = View.GONE
+    }
+
     private fun setupClickListeners() {
-        binding.clPrivacy.setOnClickListener {
-            goToPrivacySettings()
-        }
 
-        binding.clChat.setOnClickListener {
-            goToChatSettings()
-        }
-
-        binding.clNotifications.setOnClickListener {
-            goToNotificationSettings()
-        }
-
-        binding.clMediaDownload.setOnClickListener {
-            goToDownloadSettings()
-        }
+        // Removed and waiting for each respective screen to be implemented
+//        binding.clPrivacy.setOnClickListener {
+//            goToPrivacySettings()
+//        }
+//
+//        binding.clChat.setOnClickListener {
+//            goToChatSettings()
+//        }
+//
+//        binding.clNotifications.setOnClickListener {
+//            goToNotificationSettings()
+//        }
+//
+//        binding.clMediaDownload.setOnClickListener {
+//            goToDownloadSettings()
+//        }
 
         binding.cvPhotoPicker.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
@@ -304,6 +311,8 @@ class SettingsFragment : BaseFragment() {
         binding.clSmallCameraPicker.visibility = View.GONE
     }
 
+    // Below navigation methods are unused until we implement all other functionality of settings
+    // screens
     private fun goToPrivacySettings() {
         findNavController().navigate(R.id.action_mainFragment_to_privacySettingsFragment22)
     }
@@ -318,5 +327,10 @@ class SettingsFragment : BaseFragment() {
 
     private fun goToDownloadSettings() {
         findNavController().navigate(R.id.action_mainFragment_to_downloadSettingsFragment2)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        showUserDetails()
     }
 }
