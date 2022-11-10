@@ -105,9 +105,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 // Filter message if its from my user, don't show notification for it
                 if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted == false && !AppLifecycleManager.isInForeground) {
                     Timber.d("Extras: ${response.message.roomId}")
-                    val intent = Intent(baseContext, MainActivity::class.java)
-                    intent.putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                    val intent = Intent(baseContext, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
+                    }
                     val resultPendingIntent: PendingIntent? =
                         TaskStackBuilder.create(baseContext).run {
                             addNextIntentWithParentStack(intent)
@@ -124,6 +125,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         .setContentText(content)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setContentIntent(resultPendingIntent)
+                        .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                        .setAutoCancel(true)
                     with(NotificationManagerCompat.from(baseContext)) {
                         // notificationId is a unique int for each notification that you must define
                         response.message.roomId?.let { notify(it, builder.build()) }
