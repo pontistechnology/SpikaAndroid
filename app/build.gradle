@@ -60,7 +60,7 @@ android {
         }
 
         dev {
-            applicationIdSuffix ".dev"
+            applicationIdSuffix ".debug"
             versionNameSuffix "_dev"
 
             debuggable true
@@ -72,23 +72,27 @@ android {
         }
 
         releaseDebug {
+            applicationIdSuffix ".debug"
+
             debuggable true
             minifyEnabled false
 
             resValue "string", "APP_NAME", "Spika3"
-            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
 
             signingConfig signingConfigs.release
         }
 
         release {
+            applicationIdSuffix ".debug"
+
             debuggable false
             minifyEnabled false
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             resValue "string", "APP_NAME", "Spika3"
-            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
 
             signingConfig signingConfigs.release
         }
@@ -181,5 +185,4 @@ dependencies {
         implementation "androidx.media3:media3-ui:$mediaVersion"
         implementation "androidx.media3:media3-exoplayer-dash:$mediaVersion"
     }
-
 }
