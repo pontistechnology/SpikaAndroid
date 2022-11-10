@@ -13,7 +13,7 @@
         android:layout_marginBottom="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/category_placeholder"
-        android:textFontWeight="700"
+        android:textFontWeight="@string/seven_hundred"
         android:textSize="@dimen/sixteen_sp_text"
         app:layout_constraintBottom_toTopOf="@id/cv_user_image"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,7 +47,7 @@
         android:layout_margin="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/enter_username"
-        android:textFontWeight="700"
+        android:textFontWeight="@string/seven_hundred"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintStart_toEndOf="@id/cv_user_image"
         app:layout_constraintTop_toBottomOf="@id/tv_header" />
