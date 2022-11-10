@@ -16,10 +16,10 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.children
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.core.view.children
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -177,6 +177,7 @@ class ChatAdapter(
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
 
                         val videoPath = it.message.body?.file?.path?.let { videoPath ->
@@ -220,14 +221,14 @@ class ChatAdapter(
                         }
 
                         val handler = Handler(Looper.getMainLooper())
-                        val exoPlayer = ExoPlayer.Builder(context).build()
+                        var exoPlayer = ExoPlayer.Builder(context).build()
                         val mediaItem: MediaItem = MediaItem.fromUri(Uri.parse(audioPath))
                         var setTime = true
-                        var time : String
+                        var time: String
+
                         exoPlayer.setMediaItem(mediaItem)
                         exoPlayer.prepare()
 
-                        // val animator: ValueAnimator =  ValueAnimator.ofInt(0, holder.binding.sbAudio.max)
 
                         val runnable = object : Runnable {
                             override fun run() {
@@ -239,8 +240,32 @@ class ChatAdapter(
                             }
                         }
 
+                        holder.binding.ivPlayAudio.setOnClickListener {
+                            holder.binding.ivPlayAudio.visibility = View.GONE
+                            holder.binding.ivPauseAudio.visibility = View.VISIBLE
+
+                            Timber.d("player state2: ${exoPlayer.playbackState} ")
+
+                            if (exoPlayer.playbackState == ExoPlayer.STATE_IDLE || exoPlayer.playbackState == ExoPlayer.STATE_ENDED) {
+                                exoPlayer = ExoPlayer.Builder(context).build()
+                                exoPlayer.setMediaItem(MediaItem.fromUri(Uri.parse(audioPath)))
+                                exoPlayer.prepare()
+                            }
+                            exoPlayer.play()
+                            handler.postDelayed(runnable, 0)
+                        }
+
+
+                        holder.binding.ivPauseAudio.setOnClickListener {
+                            holder.binding.ivPlayAudio.visibility = View.VISIBLE
+                            holder.binding.ivPauseAudio.visibility = View.GONE
+                            exoPlayer.pause()
+                            handler.removeCallbacks(runnable)
+                        }
+
                         exoPlayer.addListener(object : Player.Listener {
                             override fun onPlaybackStateChanged(state: Int) {
+                                Timber.d("main state: $state")
                                 if (state == Player.STATE_READY) {
                                     if (setTime) {
                                         time = Tools.convertDurationMillis(exoPlayer.duration)
@@ -253,26 +278,12 @@ class ChatAdapter(
                                     holder.binding.ivPauseAudio.visibility = View.GONE
                                     holder.binding.ivPlayAudio.visibility = View.VISIBLE
                                     exoPlayer.seekTo(0)
-                                    exoPlayer.pause()
+                                    exoPlayer.release()
+                                    Timber.d("player state1: ${exoPlayer.playbackState}")
                                     handler.removeCallbacks(runnable)
                                 }
                             }
                         })
-
-                        holder.binding.ivPlayAudio.setOnClickListener {
-                            holder.binding.ivPlayAudio.visibility = View.GONE
-                            holder.binding.ivPauseAudio.visibility = View.VISIBLE
-                            exoPlayer.play()
-                            handler.postDelayed(runnable, 0)
-                        }
-
-
-                        holder.binding.ivPauseAudio.setOnClickListener {
-                            holder.binding.ivPlayAudio.visibility = View.VISIBLE
-                            holder.binding.ivPauseAudio.visibility = View.GONE
-                            exoPlayer.pause()
-                            handler.removeCallbacks(runnable)
-                        }
 
                         // Seek through audio
                         holder.binding.sbAudio.setOnSeekBarChangeListener(object :
@@ -300,6 +311,7 @@ class ChatAdapter(
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
+                        holder.binding.cvAudio.visibility = View.GONE
                     }
                 }
 
@@ -415,6 +427,7 @@ class ChatAdapter(
                         holder.binding.clImages.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
+                        holder.binding.cvAudio.visibility = View.GONE
 
                         val imagePath = it.message.body?.file?.path?.let { imagePath ->
                             Tools.getFileUrl(
@@ -443,6 +456,7 @@ class ChatAdapter(
                         holder.binding.clImages.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.VISIBLE
+                        holder.binding.cvAudio.visibility = View.GONE
 
                         val videoPath = it.message.body?.file?.path?.let { videoPath ->
                             Tools.getFileUrl(
@@ -475,6 +489,7 @@ class ChatAdapter(
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.VISIBLE
                         holder.binding.clVideos.visibility = View.GONE
+                        holder.binding.cvAudio.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
                         val megabyteText =
@@ -513,7 +528,7 @@ class ChatAdapter(
                                 holder.binding.sbAudio.progress = exoPlayer.currentPosition.toInt()
                                 holder.binding.tvAudioDuration.text =
                                     Tools.convertDurationMillis(exoPlayer.currentPosition)
-                                handler.postDelayed(this, 1000)
+                                handler.postDelayed(this, 100)
                             }
                         }
 

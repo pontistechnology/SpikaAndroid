@@ -31,7 +31,7 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cv_audio"
-                android:layout_width="200dp"
+                android:layout_width="@dimen/two_hundred"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/eight_dp_margin"
                 android:layout_marginEnd="@dimen/twenty_four_dp_margin"
@@ -77,7 +77,7 @@
 
                     <SeekBar
                         android:id="@+id/sb_audio"
-                        android:layout_width="128dp"
+                        android:layout_width="@dimen/one_hundred_twenty_eight"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/thirty_two_dp_margin"
                         android:layout_marginTop="@dimen/eight_dp_margin"
