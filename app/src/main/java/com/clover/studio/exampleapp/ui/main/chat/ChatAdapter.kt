@@ -17,6 +17,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.children
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -223,7 +224,7 @@ class ChatAdapter(
                         }
 
                         val handler = Handler(Looper.getMainLooper())
-                        val exoPlayer = ExoPlayer.Builder(context).build()
+                        var exoPlayer = ExoPlayer.Builder(context).build()
                         val mediaItem: MediaItem = MediaItem.fromUri(Uri.parse(audioPath))
                         var setTime = true
                         var time: String
@@ -242,8 +243,32 @@ class ChatAdapter(
                             }
                         }
 
+                        holder.binding.ivPlayAudio.setOnClickListener {
+                            holder.binding.ivPlayAudio.visibility = View.GONE
+                            holder.binding.ivPauseAudio.visibility = View.VISIBLE
+
+                            Timber.d("player state2: ${exoPlayer.playbackState} ")
+
+                            if (exoPlayer.playbackState == ExoPlayer.STATE_IDLE || exoPlayer.playbackState == ExoPlayer.STATE_ENDED) {
+                                exoPlayer = ExoPlayer.Builder(context).build()
+                                exoPlayer.setMediaItem(MediaItem.fromUri(Uri.parse(audioPath)))
+                                exoPlayer.prepare()
+                            }
+                            exoPlayer.play()
+                            handler.postDelayed(runnable, 0)
+                        }
+
+
+                        holder.binding.ivPauseAudio.setOnClickListener {
+                            holder.binding.ivPlayAudio.visibility = View.VISIBLE
+                            holder.binding.ivPauseAudio.visibility = View.GONE
+                            exoPlayer.pause()
+                            handler.removeCallbacks(runnable)
+                        }
+
                         exoPlayer.addListener(object : Player.Listener {
                             override fun onPlaybackStateChanged(state: Int) {
+                                Timber.d("main state: $state")
                                 if (state == Player.STATE_READY) {
                                     if (setTime) {
                                         time = Tools.convertDurationMillis(exoPlayer.duration)
@@ -256,7 +281,8 @@ class ChatAdapter(
                                     holder.binding.ivPauseAudio.visibility = View.GONE
                                     holder.binding.ivPlayAudio.visibility = View.VISIBLE
                                     exoPlayer.seekTo(0)
-                                    exoPlayer.pause()
+                                    exoPlayer.release()
+                                    Timber.d("player state1: ${exoPlayer.playbackState}")
                                     handler.removeCallbacks(runnable)
                                 }
                             }
@@ -651,7 +677,7 @@ class ChatAdapter(
                                 holder.binding.sbAudio.progress = exoPlayer.currentPosition.toInt()
                                 holder.binding.tvAudioDuration.text =
                                     Tools.convertDurationMillis(exoPlayer.currentPosition)
-                                handler.postDelayed(this, 1000)
+                                handler.postDelayed(this, 100)
                             }
                         }
 
