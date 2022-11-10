@@ -101,7 +101,6 @@ class RoomsAdapter(
                                 }
                             }
                         }
-                        Timber.d("tmp::::::: $unreadMessages")
                     }
 
                     if (unreadMessages.isNotEmpty()) {

@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.utils
 
 import android.app.PendingIntent
+import android.app.TaskStackBuilder
 import android.content.Intent
 import android.text.TextUtils
 import androidx.core.app.NotificationCompat
@@ -104,24 +105,31 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 // Filter message if its from my user, don't show notification for it
                 if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted == false && !AppLifecycleManager.isInForeground) {
                     Timber.d("Extras: ${response.message.roomId}")
-                    val intent = Intent(baseContext, MainActivity::class.java)
-                    intent.putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
+                    val intent = Intent(baseContext, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
+                    }
+                    val resultPendingIntent: PendingIntent? =
+                        TaskStackBuilder.create(baseContext).run {
+                            addNextIntentWithParentStack(intent)
+                            response.message.roomId?.let {
+                                getPendingIntent(
+                                    it,
+                                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                                )
+                            }
+                        }
                     val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                         .setSmallIcon(R.drawable.img_spika_logo)
                         .setContentTitle(title)
                         .setContentText(content)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
-                        .setContentIntent(
-                            PendingIntent.getActivity(
-                                baseContext,
-                                response.message.roomId!!,
-                                intent,
-                                PendingIntent.FLAG_MUTABLE
-                            )
-                        )
+                        .setContentIntent(resultPendingIntent)
+                        .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                        .setAutoCancel(true)
                     with(NotificationManagerCompat.from(baseContext)) {
                         // notificationId is a unique int for each notification that you must define
-                        response.message.roomId.let { notify(it, builder.build()) }
+                        response.message.roomId?.let { notify(it, builder.build()) }
                     }
                 }
             }
