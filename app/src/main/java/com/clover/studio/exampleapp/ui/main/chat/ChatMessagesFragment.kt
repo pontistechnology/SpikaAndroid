@@ -1,9 +1,11 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
+import android.Manifest
 import android.app.DownloadManager
 import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
@@ -15,8 +17,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.get
 import androidx.core.view.updateLayoutParams
@@ -91,11 +95,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var originalText = ""
     private var editedMessageId = 0
     private lateinit var emojiPopup: EmojiPopup
-    private var permission = 0
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            permission = if (it) 1 else 0
-        }
+    private lateinit var storagePermission: ActivityResultLauncher<String>
+
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -150,6 +151,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
+        checkStoragePermission()
         setUpAdapter()
         initViews()
         initializeObservers()
@@ -1171,12 +1173,31 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         currentPhotoLocation.add(bitmapUri)
     }
 
+    private fun checkStoragePermission() {
+        storagePermission =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                if (!it) {
+                    Timber.d("Couldn't download file. No permission granted.")
+                }
+            }
+    }
+
     private fun handleDownloadFile(message: Message) {
-        requestPermissionLauncher.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        if (permission == 1) {
-            downloadFile(message)
-        } else {
-            Timber.d("Permission not granted")
+        when {
+            context?.let {
+                ContextCompat.checkSelfPermission(
+                    it,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            } == PackageManager.PERMISSION_GRANTED -> {
+                downloadFile(message)
+            }
+
+            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
+                // TODO show why permission is needed
+            }
+
+            else -> storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
 
     }
