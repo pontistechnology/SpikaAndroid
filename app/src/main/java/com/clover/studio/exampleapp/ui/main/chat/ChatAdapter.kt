@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.text.format.DateUtils
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -143,22 +144,21 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
-                        val megabyteText =
-                            "${
-                                Tools.calculateToMegabyte(it.message.body?.file?.size!!)
-                                    .toString()
-                            } ${holder.itemView.context.getString(R.string.files_mb_text)}"
-                        holder.binding.tvFileSize.text = megabyteText
+                        val sizeText =
+                            Tools.calculateFileSize(it.message.body?.file?.size!!)
+                                .toString()
+                        holder.binding.tvFileSize.text = sizeText
                         addFiles(it.message, holder.binding.ivFileType)
 
-                        // TODO implement file handling when clicked on in chat
-                        /*val filePath = it.message.body.file?.path?.let { filePath ->
-                            Tools.getFileUrl(
-                                filePath
-                            )
-                        }*/
-                        holder.binding.tvFileTitle.setOnClickListener {
-
+                        val message = it.message
+                        holder.binding.clFileMessage.setOnTouchListener { _, event ->
+                            if (event.action == MotionEvent.ACTION_UP) {
+                                onMessageInteraction.invoke(
+                                    Const.UserActions.DOWNLOAD_FILE,
+                                    message
+                                )
+                            }
+                            true
                         }
                     }
 
@@ -379,14 +379,23 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
-                        val megabyteText =
-                            "${
-                                Tools.calculateToMegabyte(it.message.body?.file?.size!!)
-                                    .toString()
-                            } ${holder.itemView.context.getString(R.string.files_mb_text)}"
-                        holder.binding.tvFileSize.text = megabyteText
+                        val sizeText =
+                            Tools.calculateFileSize(it.message.body?.file?.size!!)
+                                .toString()
+                        holder.binding.tvFileSize.text = sizeText
 
                         addFiles(it.message, holder.binding.ivFileType)
+
+                        val message = it.message
+                        holder.binding.clFileMessage.setOnTouchListener { _, event ->
+                            if (event.action == MotionEvent.ACTION_UP) {
+                                onMessageInteraction.invoke(
+                                    Const.UserActions.DOWNLOAD_FILE,
+                                    message
+                                )
+                            }
+                            true
+                        }
                     }
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
@@ -813,5 +822,6 @@ class ChatAdapter(
                     getRelativeTimeSpan(it)
                 }
         }
+
     }
 }
