@@ -1,11 +1,9 @@
 package com.clover.studio.exampleapp.utils
 
 import android.app.Activity
-import android.app.DownloadManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.media.*
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -13,38 +11,27 @@ import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.text.TextUtils
 import android.text.format.DateUtils
-import android.util.Log
-import android.util.TypedValue
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.RemoteViews
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.exampleapp.BuildConfig
-import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.entity.Message
-import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
 import java.math.BigInteger
-import java.nio.ByteBuffer
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.math.ceil
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 
@@ -53,19 +40,17 @@ const val BITMAP_HEIGHT = 512
 const val TO_MEGABYTE = 1000000
 const val TO_KILOBYTE = 1000
 const val TOKEN_EXPIRED_CODE = 401
-const val TOKEN_INVALID_CODE = 403
 
 object Tools {
-
-    private var density = 1f
+    var fileName: String = ""
 
     fun checkError(ex: Exception): Boolean {
         when (ex) {
             is IllegalArgumentException -> Timber.d("IllegalArgumentException ${ex.message}")
             is IOException -> Timber.d("IOException ${ex.message}")
             is HttpException ->
-                if (TOKEN_EXPIRED_CODE == ex.code() || TOKEN_INVALID_CODE == ex.code()) {
-                    Timber.d("Token error: ${ex.code()} ${ex.message}")
+                if (ex.code() == TOKEN_EXPIRED_CODE) {
+                    Timber.d("Token Expired: ${ex.code()} ${ex.message}")
                     return true
                 } else {
                     Timber.d("HttpException: ${ex.code()} ${ex.message}")
@@ -120,18 +105,11 @@ object Tools {
         return map
     }
 
-    fun copyStreamToFile(
-        activity: Activity,
-        inputStream: InputStream,
-        extension: String,
-        fileName: String = ""
-    ): File {
-        var tempFileName = fileName
-        if (tempFileName.isEmpty()) {
-            tempFileName =
-                "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}"
+    fun copyStreamToFile(activity: Activity, inputStream: InputStream, extension: String): File {
+        if (fileName.isEmpty()) {
+            fileName = "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}"
         }
-        val outputFile = File(activity.cacheDir, tempFileName)
+        val outputFile = File(activity.cacheDir, fileName)
         inputStream.use { input ->
             val outputStream = FileOutputStream(outputFile)
             outputStream.use { output ->
@@ -160,13 +138,11 @@ object Tools {
         // Create an image file name
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val storageDir: File? = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val file = File.createTempFile(
+        return File.createTempFile(
             "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
         )
-        file.deleteOnExit()
-        return file
     }
 
     fun convertBitmapToUri(activity: Activity, bitmap: Bitmap): Uri {
@@ -183,7 +159,7 @@ object Tools {
 
         return FileProvider.getUriForFile(
             activity,
-            BuildConfig.APPLICATION_ID + ".fileprovider",
+            "com.clover.studio.exampleapp.fileprovider",
             file
         )
     }
@@ -224,60 +200,24 @@ object Tools {
         }
     }
 
-    /**
-     * Method handles resizing of provided Bitmap depending on if it is a thumbnail or image file.
-     * Image files will be resized so that the shorter side doesn't exceed 1080dp and the longer
-     * side conforms to the aspect ratio.
-     *
-     * Thumbnails are the same as above, but they shouldn't exceed 256dp on the shorter side.
-     *
-     * After the resize work, the image will get rotated if necessary.
-     *
-     * @param context Context of the fragment or activity
-     * @param selectedImage Uri of the image that needs to be modified
-     * @param thumbnail Boolean which decides if file or thumbnail operations should be carried out
-     */
     @Throws(IOException::class)
-    fun handleSamplingAndRotationBitmap(
-        context: Context,
-        selectedImage: Uri?,
-        thumbnail: Boolean
-    ): Bitmap? {
-        val maxValue = if (thumbnail) 256f else 1080f
-        val maxShorterSide = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            maxValue,
-            context.resources.displayMetrics
-        )
-        val bitmap: Bitmap = when (selectedImage) {
-            is Uri -> {
-                val inputStream = context.contentResolver.openInputStream(selectedImage)
-                BitmapFactory.decodeStream(inputStream)
-            }
-            else -> null
-        } ?: return null
+    fun handleSamplingAndRotationBitmap(context: Context, selectedImage: Uri?): Bitmap? {
+        // First decode with inJustDecodeBounds=true to check dimensions
+        val options = BitmapFactory.Options()
+        options.inJustDecodeBounds = true
+        var imageStream = context.contentResolver.openInputStream(selectedImage!!)
+        BitmapFactory.decodeStream(imageStream, null, options)
+        imageStream?.close()
 
-        // Determine the new dimensions of the image based on the maximum shorter side and the aspect ratio
-        val originalWidth = bitmap.width
-        val originalHeight = bitmap.height
-        val aspectRatio = originalWidth.toFloat() / originalHeight.toFloat()
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options)
 
-        val newWidth: Int
-        val newHeight: Int
-        if (min(originalWidth, originalHeight) > maxShorterSide) {
-            if (originalWidth < originalHeight) {
-                newWidth = (maxShorterSide * aspectRatio).toInt()
-                newHeight = maxShorterSide.toInt()
-            } else {
-                newWidth = maxShorterSide.toInt()
-                newHeight = (maxShorterSide / aspectRatio).toInt()
-            }
-        } else {
-            newWidth = originalWidth
-            newHeight = originalHeight
-        }
-        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
-        return rotateImageIfRequired(context, resizedBitmap, selectedImage!!)
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false
+        imageStream = context.contentResolver.openInputStream(selectedImage)
+        var img = BitmapFactory.decodeStream(imageStream, null, options)
+        img = img?.let { rotateImageIfRequired(context, it, selectedImage) }
+        return img
     }
 
     private fun calculateInSampleSize(
@@ -343,9 +283,14 @@ object Tools {
         return sha256FileHash
     }
 
-    fun getFilePathUrl(fileId: Long): String {
-        return "${BuildConfig.SERVER_URL}${Const.Networking.API_GET_FILE_FROM_ID}$fileId"
+    fun getFileUrl(url: String): String {
+        return when {
+            url.startsWith(BuildConfig.SERVER_URL) -> url
+            url.startsWith("/") -> BuildConfig.SERVER_URL + url.substring(1)
+            else -> BuildConfig.SERVER_URL + "/" + url
+        }
     }
+
 
     fun getRelativeTimeSpan(startDate: Long): CharSequence? {
         return DateUtils.getRelativeTimeSpanString(
@@ -353,26 +298,14 @@ object Tools {
         )
     }
 
-    fun generateRandomId(): String {
-        return UUID.randomUUID().toString().substring(0, 13)
+    fun hideKeyboard(activity: Activity, view: View) {
+        val inputMethodManager: InputMethodManager =
+            activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    fun convertDurationMillis(time: Long): String {
-        val millis: Long = time
-        //val hour = TimeUnit.MILLISECONDS.toHours(millis)
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(
-            TimeUnit.MILLISECONDS.toHours(
-                time
-            )
-        )
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(
-            TimeUnit.MILLISECONDS.toMinutes(
-                time
-            )
-
-        )
-        return String.format("%02d:%02d", minutes, seconds)
-
+    fun generateDeviceId(): String {
+        return UUID.randomUUID().toString().substring(0, 13)
     }
 
     fun createCustomNotification(
@@ -397,182 +330,5 @@ object Tools {
             // notificationId is a unique int for each notification that you must define
             roomId?.let { notify(it, builder.build()) }
         }
-    }
-
-    fun downloadFile(context: Context, message: Message) {
-        try {
-            val tmp = this.getFilePathUrl(message.body!!.fileId!!)
-            val request = DownloadManager.Request(Uri.parse(tmp))
-            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-            request.setTitle(message.body.file!!.fileName)
-            request.setDescription("The file is downloading")
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            request.setDestinationInExternalPublicDir(
-                Environment.DIRECTORY_DOWNLOADS,
-                message.body.file!!.fileName
-            )
-            val manager =
-                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            manager.enqueue(request)
-            Toast.makeText(context, "File is downloading", Toast.LENGTH_LONG).show()
-        } catch (e: Exception) {
-            Timber.d("$e")
-        }
-    }
-
-    fun createTemporaryMessage(
-        counter: Int,
-        localUserId: Int?,
-        roomId: Int,
-        messageType: String,
-        messageBody: MessageBody
-    ): Message {
-        // Time added will secure that the temporary items are at the bottom of the list
-        var timeAdded = 100000
-        if (counter > 0) {
-            timeAdded += (counter + 1) * timeAdded
-        }
-
-        return Message(
-            counter,
-            localUserId,
-            0,
-            -1,
-            0,
-            roomId,
-            messageType,
-            messageBody,
-            System.currentTimeMillis() + timeAdded,
-            null,
-            null,
-            null,
-            generateRandomId()
-        )
-    }
-
-    fun fullDateFormat(dateTime: Long): String? {
-        val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy. HH:mm aa", Locale.getDefault())
-        return simpleDateFormat.format(dateTime)
-    }
-
-    /**
-     * Code generates video file in mp4 format by decoding it piece by piece
-     *
-     * @param srcUri Source URI to be converted to mp4 format
-     * @param dstPath Destination path for the converted video file
-     * @param startMs Can be used for start time when trimming a video
-     * @param endMs Can be used for end time when trimming video
-     * @param useAudio Boolean which decides if new file will have audio
-     * @param useVideo Boolean which decides if new file will have video
-     */
-    @Throws(IOException::class)
-    fun genVideoUsingMuxer(
-        srcUri: Uri?,
-        dstPath: String?,
-        startMs: Long = 0L,
-        endMs: Long = 0L,
-        useAudio: Boolean = true,
-        useVideo: Boolean = true
-    ) {
-        // Set up MediaExtractor to read from the source.
-        val extractor = MediaExtractor()
-        extractor.setDataSource(MainApplication.appContext, srcUri!!, null)
-        val trackCount = extractor.trackCount
-        // Set up MediaMuxer for the destination.
-        val muxer = MediaMuxer(dstPath!!, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
-        // Set up the tracks and retrieve the max buffer size for selected
-        // tracks.
-        val indexMap: HashMap<Int, Int> = HashMap(trackCount)
-        var bufferSize = -1
-        for (i in 0 until trackCount) {
-            val format = extractor.getTrackFormat(i)
-            val mime = format.getString(MediaFormat.KEY_MIME)
-            var selectCurrentTrack = false
-            if (mime!!.startsWith("audio/") && useAudio) {
-                selectCurrentTrack = true
-            } else if (mime.startsWith("video/") && useVideo) {
-                selectCurrentTrack = true
-            }
-            if (selectCurrentTrack) {
-                extractor.selectTrack(i)
-                val dstIndex = muxer.addTrack(format)
-                indexMap[i] = dstIndex
-                if (format.containsKey(MediaFormat.KEY_MAX_INPUT_SIZE)) {
-                    val newSize = format.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE)
-                    bufferSize = newSize.coerceAtLeast(bufferSize)
-                }
-            }
-        }
-        if (bufferSize < 0) {
-            bufferSize = DEFAULT_BUFFER_SIZE
-        }
-        // Set up the orientation and starting time for extractor.
-        val retrieverSrc = MediaMetadataRetriever()
-        retrieverSrc.setDataSource(MainApplication.appContext, srcUri)
-        val degreesString = retrieverSrc.extractMetadata(
-            MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION
-        )
-        if (degreesString != null) {
-            val degrees = degreesString.toInt()
-            if (degrees >= 0) {
-                muxer.setOrientationHint(degrees)
-            }
-        }
-
-        if (startMs > 0) {
-            extractor.seekTo(startMs * 1000L, MediaExtractor.SEEK_TO_CLOSEST_SYNC)
-        }
-        // Copy the samples from MediaExtractor to MediaMuxer. We will loop
-        // for copying each sample and stop when we get to the end of the source
-        // file or exceed the end time of the trimming.
-        val offset = 0
-        var trackIndex: Int
-        val dstBuf: ByteBuffer = ByteBuffer.allocate(bufferSize)
-        val bufferInfo = MediaCodec.BufferInfo()
-        muxer.start()
-        while (true) {
-            bufferInfo.offset = offset
-            bufferInfo.size = extractor.readSampleData(dstBuf, offset)
-            if (bufferInfo.size < 0) {
-                Log.d("LOGTAG", "Saw input EOS.")
-                bufferInfo.size = 0
-                break
-            } else {
-                bufferInfo.presentationTimeUs = extractor.sampleTime
-                // Code used when trimming videos
-                if (endMs > 0 && bufferInfo.presentationTimeUs > endMs * 1000L) {
-                    Log.d("LOGTAG", "The current sample is over the trim end time.")
-                    break
-                } else {
-                    bufferInfo.flags = extractor.sampleFlags
-                    trackIndex = extractor.sampleTrackIndex
-                    muxer.writeSampleData(
-                        indexMap[trackIndex]!!, dstBuf,
-                        bufferInfo
-                    )
-                    extractor.advance()
-                }
-            }
-        }
-        muxer.stop()
-        muxer.release()
-    }
-
-    fun dp(value: Float, context: Context): Int {
-        if (density == 1f) {
-            checkDisplaySize(context)
-        }
-        return if (value == 0f) {
-            0
-        } else ceil((density * value).toDouble()).toInt()
-    }
-
-    private fun checkDisplaySize(context: Context) {
-        try {
-            density = context.resources.displayMetrics.density
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
     }
 }
