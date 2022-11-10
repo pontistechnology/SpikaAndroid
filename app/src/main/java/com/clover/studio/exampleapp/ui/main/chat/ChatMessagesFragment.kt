@@ -1,11 +1,14 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
+import android.app.DownloadManager
 import android.content.ContentResolver
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -88,6 +91,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var originalText = ""
     private var editedMessageId = 0
     private lateinit var emojiPopup: EmojiPopup
+    private var permission = 0
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            permission = if (it) 1 else 0
+        }
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -249,6 +257,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     when (event) {
                         Const.UserActions.DELETE -> showDeleteMessageDialog(message)
                         Const.UserActions.EDIT -> handleMessageEdit(message)
+                        Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
                         else -> Timber.d("No other action currently")
                     }
                 }
@@ -1160,6 +1169,37 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // Create thumbnail for the image which will also be sent to the backend
         thumbnailUris.add(thumbnailUri)
         currentPhotoLocation.add(bitmapUri)
+    }
+
+    private fun handleDownloadFile(message: Message) {
+        requestPermissionLauncher.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (permission == 1) {
+            downloadFile(message)
+        } else {
+            Timber.d("Permission not granted")
+        }
+
+    }
+
+    private fun downloadFile(message: Message) {
+        try {
+            val tmp = Tools.getFileUrl(message.body!!.file!!.path)
+            val request = DownloadManager.Request(Uri.parse(tmp))
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+            request.setTitle(message.body.file!!.fileName)
+            request.setDescription("The file is downloading")
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS,
+                message.body.file!!.fileName
+            )
+            val manager =
+                context!!.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            manager.enqueue(request)
+            Toast.makeText(context, "File is downloading", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Timber.d("$e")
+        }
     }
 
     override fun onBackPressed(): Boolean {
