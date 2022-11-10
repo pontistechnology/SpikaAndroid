@@ -1,25 +1,16 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
-import android.Manifest
-import android.app.DownloadManager
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
-import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.navigation.findNavController
@@ -152,34 +143,15 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
-                        val megabyteText =
-                            "${
-                                Tools.calculateToMegabyte(it.message.body?.file?.size!!)
-                                    .toString()
-                            } ${holder.itemView.context.getString(R.string.files_mb_text)}"
-                        holder.binding.tvFileSize.text = megabyteText
+                        val sizeText =
+                            Tools.calculateFileSize(it.message.body?.file?.size!!)
+                                .toString()
+                        holder.binding.tvFileSize.text = sizeText
                         addFiles(it.message, holder.binding.ivFileType)
 
-                        // TODO implement file handling when clicked on in chat
-                        /*val filePath = it.message.body.file?.path?.let { filePath ->
-                            Tools.getFileUrl(
-                                filePath
-                            )
-                        }
-
-                        // TODO - Permissions
-                        }*/
-                        holder.binding.tvFileTitle.setOnClickListener {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                                if(checkSelfPermission(context,Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
-                                    // request permission
-                                    requestPermissions(this as ChatScreenActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), STORAGE_PERMISSION_CODE)
-                                } else {
-                                    downloadFile(filePath)
-                                }
-                            } else {
-                                downloadFile(filePath)
-                            }
+                        val message = it.message
+                        holder.binding.ivDownloadFile.setOnClickListener {
+                            onMessageInteraction.invoke(Const.UserActions.DOWNLOAD_FILE, message)
                         }
                     }
 
@@ -400,14 +372,17 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
-                        val megabyteText =
-                            "${
-                                Tools.calculateToMegabyte(it.message.body?.file?.size!!)
-                                    .toString()
-                            } ${holder.itemView.context.getString(R.string.files_mb_text)}"
-                        holder.binding.tvFileSize.text = megabyteText
+                        val sizeText =
+                            Tools.calculateFileSize(it.message.body?.file?.size!!)
+                                .toString()
+                        holder.binding.tvFileSize.text = sizeText
 
                         addFiles(it.message, holder.binding.ivFileType)
+
+                        val message = it.message
+                        holder.binding.ivDownloadFile.setOnClickListener {
+                            onMessageInteraction.invoke(Const.UserActions.DOWNLOAD_FILE, message)
+                        }
                     }
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
@@ -757,29 +732,6 @@ class ChatAdapter(
     }
 
 
-    private fun downloadFile(filePath: String?) {
-        try {
-            val request = DownloadManager.Request(Uri.parse(filePath))
-            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-            request.setTitle("Download")
-            request.setDescription("The file is downloading")
-            request.allowScanningByMediaScanner()
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            request.setDestinationInExternalPublicDir(
-                Environment.DIRECTORY_DOWNLOADS,
-                "${System.currentTimeMillis()}"
-            )
-
-            val manager =
-                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            manager.enqueue(request)
-        }
-        catch (e: Exception){
-            Timber.d("$e")
-        }
-    }
-
-
     private fun addFiles(message: Message, ivFileType: ImageView) {
         when (message.body?.file?.fileName?.substringAfterLast(".")) {
             Const.FileExtensions.PDF -> ivFileType.setImageDrawable(
@@ -859,15 +811,4 @@ class ChatAdapter(
         }
 
     }
-    /*override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResult: Int){
-        when(requestCode){
-            STORAGE_PERMISSION_CODE -> {
-                if (grantResult.isNotEmpty() && grantResult[0] == PackageManager.PERMISSION_GRANTED){
-                    downloadFile(filePath = null)
-                } else {
-                    Toast.makeText(this, "Permission denied!", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }*/
 }
