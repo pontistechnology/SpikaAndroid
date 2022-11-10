@@ -52,7 +52,7 @@
                 android:gravity="center"
                 android:text="@string/edited"
                 android:textColor="@color/text_tertiary"
-                android:textSize="9sp"
+                android:textSize="@dimen/nine_sp_text"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/iv_message_edited" />
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -73,7 +73,7 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cv_audio"
-                android:layout_width="200dp"
+                android:layout_width="@dimen/two_hundred"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/eight_dp_margin"
                 android:layout_marginEnd="@dimen/twenty_four_dp_margin"
@@ -99,6 +99,7 @@
                         android:layout_marginEnd="@dimen/eight_dp_margin"
                         android:fontFamily="@font/montserrat"
                         android:foregroundTint="@color/color1"
+                        android:text="@string/audio_duration"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/sb_audio" />
 
@@ -117,7 +118,7 @@
 
                     <SeekBar
                         android:id="@+id/sb_audio"
-                        android:layout_width="128dp"
+                        android:layout_width="@dimen/one_hundred_twenty_eight"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/thirty_two_dp_margin"
                         android:layout_marginTop="@dimen/eight_dp_margin"
