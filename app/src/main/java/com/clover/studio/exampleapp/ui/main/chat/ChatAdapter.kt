@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.text.format.DateUtils
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -150,8 +151,14 @@ class ChatAdapter(
                         addFiles(it.message, holder.binding.ivFileType)
 
                         val message = it.message
-                        holder.binding.ivDownloadFile.setOnClickListener {
-                            onMessageInteraction.invoke(Const.UserActions.DOWNLOAD_FILE, message)
+                        holder.binding.clFileMessage.setOnTouchListener { _, event ->
+                            if (event.action == MotionEvent.ACTION_UP) {
+                                onMessageInteraction.invoke(
+                                    Const.UserActions.DOWNLOAD_FILE,
+                                    message
+                                )
+                            }
+                            true
                         }
                     }
 
@@ -380,8 +387,14 @@ class ChatAdapter(
                         addFiles(it.message, holder.binding.ivFileType)
 
                         val message = it.message
-                        holder.binding.ivDownloadFile.setOnClickListener {
-                            onMessageInteraction.invoke(Const.UserActions.DOWNLOAD_FILE, message)
+                        holder.binding.clFileMessage.setOnTouchListener { _, event ->
+                            if (event.action == MotionEvent.ACTION_UP) {
+                                onMessageInteraction.invoke(
+                                    Const.UserActions.DOWNLOAD_FILE,
+                                    message
+                                )
+                            }
+                            true
                         }
                     }
                     else -> {

@@ -96,6 +96,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var editedMessageId = 0
     private lateinit var emojiPopup: EmojiPopup
     private lateinit var storagePermission: ActivityResultLauncher<String>
+    private lateinit var storedMessage: Message
 
 
     @Inject
@@ -1176,7 +1177,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun checkStoragePermission() {
         storagePermission =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-                if (!it) {
+                if (it) {
+                    downloadFile(storedMessage)
+                } else {
                     Timber.d("Couldn't download file. No permission granted.")
                 }
             }
@@ -1197,7 +1200,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 // TODO show why permission is needed
             }
 
-            else -> storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            else -> {
+                storedMessage = message
+                storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
         }
 
     }
