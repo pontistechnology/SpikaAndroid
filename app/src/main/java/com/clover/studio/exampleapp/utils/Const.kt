@@ -24,6 +24,7 @@ class Const {
             const val DELETE_MESSAGE_ALL = "all"
             const val DELETE = "delete"
             const val EDIT = "edit"
+            const val DOWNLOAD_FILE = "download_file"
         }
     }
 

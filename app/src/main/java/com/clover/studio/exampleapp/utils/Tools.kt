@@ -38,13 +38,11 @@ import kotlin.math.roundToInt
 const val BITMAP_WIDTH = 512
 const val BITMAP_HEIGHT = 512
 const val TO_MEGABYTE = 1000000
-const val DEVICE_ID_LENGTH = 13
+const val TO_KILOBYTE = 1000
 const val TOKEN_EXPIRED_CODE = 401
 
 object Tools {
     var fileName: String = ""
-    var pictureHeight: Int = 0
-    var videoHeight: Int = 0
 
     fun checkError(ex: Exception): Boolean {
         when (ex) {
@@ -127,9 +125,12 @@ object Tools {
         return outputFile
     }
 
-    fun calculateToMegabyte(size: Long): String? {
+    fun calculateFileSize(size: Long): String? {
         val df = DecimalFormat("#.##")
-        return df.format(size.toFloat().div(TO_MEGABYTE))
+        if (size > TO_MEGABYTE) {
+            return df.format(size.toFloat().div(TO_MEGABYTE)) + "MB"
+        }
+        return df.format(size.toFloat().div(TO_KILOBYTE)) + "KB"
     }
 
     @Throws(IOException::class)
