@@ -62,6 +62,8 @@ import javax.inject.Inject
         startActivity(intent)
     }
 */
+private const val SCROLL_DISTANCE_NEGATIVE = -200
+private const val SCROLL_DISTANCE_POSITIVE = 200
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
 
@@ -99,7 +101,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var emojiPopup: EmojiPopup
     private lateinit var storagePermission: ActivityResultLauncher<String>
     private lateinit var storedMessage: Message
-
+    private var oldPosition = 0
+    private var scrollYDistance = 0
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -231,23 +234,57 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
             .observe(viewLifecycleOwner) {
                 messagesRecords.clear()
-
                 if (it.message?.isNotEmpty() == true) {
                     it.message.forEach { msg ->
                         messagesRecords.add(msg)
                     }
                     messagesRecords.sortByDescending { messages -> messages.message.createdAt }
-
                     // messagesRecords.toList -> for DiffUtil class
                     chatAdapter.submitList(messagesRecords.toList())
-                    // TODO - change scroll
-                    // https://app.productive.io/9193-clover-studio/projects/114002/tasks/task/3489702?filter=MjM2NTc2
                     if (firstEnter) {
+                        oldPosition = messagesRecords.size
                         bindingSetup.rvChat.scrollToPosition(0)
                         firstEnter = false
                     }
                 }
+                if (oldPosition != messagesRecords.size) {
+                    showNewMessage()
+                }
             }
+    }
+
+    private fun showNewMessage() {
+        // Here we can adjust distance of scroll
+        Timber.d("scroll dis: $scrollYDistance")
+        if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)) {
+            oldPosition = messagesRecords.size
+            scrollToPosition()
+        }
+        // This condition is for dy = 148 -> when recyclerview adds new item
+        // TODO check with Matko sizes of keyboard
+        else if ((scrollYDistance > 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE) || ((scrollYDistance > 600) && (scrollYDistance < 800))) {
+            oldPosition = messagesRecords.size
+            scrollYDistance = 0
+            scrollToPosition()
+        }
+        // If we are somewhere up in chat, show new message dialog
+        else {
+            bindingSetup.cvNewMessages.visibility = View.VISIBLE
+            val newMessages = messagesRecords.size - oldPosition
+            if (newMessages == 1) {
+                bindingSetup.tvNewMessage.text =
+                    getString(R.string.new_messages, newMessages.toString(), "")
+            } else {
+                bindingSetup.tvNewMessage.text =
+                    getString(R.string.new_messages, newMessages.toString(), "s")
+            }
+        }
+        return
+    }
+
+    private fun scrollToPosition() {
+        bindingSetup.rvChat.smoothScrollToPosition(0)
+        scrollYDistance = 0
     }
 
     private fun setUpAdapter() {
@@ -401,6 +438,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             if (bottom < oldBottom) {
                 bindingSetup.rvChat.smoothScrollToPosition(0)
             }
+        }
+
+        bindingSetup.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                scrollYDistance += dy
+            }
+        })
+
+        bindingSetup.cvNewMessages.setOnClickListener {
+            bindingSetup.rvChat.scrollToPosition(0)
+            bindingSetup.cvNewMessages.visibility = View.GONE
+            scrollYDistance = 0
+            oldPosition = messagesRecords.size
         }
 
         bindingSetup.etMessage.addTextChangedListener {

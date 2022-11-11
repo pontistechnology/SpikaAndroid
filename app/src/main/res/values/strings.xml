@@ -102,6 +102,7 @@
     <string name="files_mb_text"> MB</string>
     <string name="generic_shared">%s shared</string>
     <string name="now">Now</string>
+    <string name="new_messages">You have %s new message%s</string>
 
     <!--Alert dialog text-->
     <string name="warning">Warning</string>

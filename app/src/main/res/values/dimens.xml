@@ -1,5 +1,6 @@
 <resources>
     <!-- LAYOUT -->
+    <dimen name="two_hundred_seventy_two_dp">272dp</dimen>
     <dimen name="one_hundred_seventy_dp">170dp</dimen>
     <dimen name="one_hundred_dp">100dp</dimen>
     <dimen name="eighty_eight_dp_margin">88dp</dimen>
