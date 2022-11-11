@@ -138,11 +138,13 @@ object Tools {
         // Create an image file name
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val storageDir: File? = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
+        val file = File.createTempFile(
             "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
         )
+        file.deleteOnExit()
+        return file
     }
 
     fun convertBitmapToUri(activity: Activity, bitmap: Bitmap): Uri {
@@ -330,5 +332,33 @@ object Tools {
             // notificationId is a unique int for each notification that you must define
             roomId?.let { notify(it, builder.build()) }
         }
+    }
+
+    fun trimCache(context: Context) {
+        try {
+            val dir = context.cacheDir
+            if (dir != null && dir.isDirectory) {
+                deleteDir(dir)
+            }
+        } catch (e: java.lang.Exception) {
+            Timber.d("Trimming cache error")
+        }
+    }
+
+    private fun deleteDir(dir: File): Boolean {
+        if (dir.isDirectory) {
+            val children = dir.list()
+            if (children != null) {
+                for (i in children.indices) {
+                    val success = deleteDir(File(dir, children[i]))
+                    if (!success) {
+                        return false
+                    }
+                }
+            }
+        }
+
+        // The directory is now empty so delete it
+        return dir.delete()
     }
 }

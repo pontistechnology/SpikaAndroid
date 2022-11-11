@@ -844,6 +844,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 currentVideoLocation.clear()
                                 thumbnailUris.clear()
                                 uploadInProgress = false
+                                context?.let { Tools.trimCache(it) }
                             }
                         }
 
@@ -870,6 +871,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 //                            showUploadError(description)
 //                            imageContainer.hideProgressScreen()
                                     uploadInProgress = false
+                                    context?.let { Tools.trimCache(it) }
                                 }
                             } catch (ex: Exception) {
                                 Timber.d("Video upload failed on error")
@@ -877,6 +879,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 currentVideoLocation.clear()
                                 thumbnailUris.clear()
                                 uploadInProgress = false
+                                context?.let { Tools.trimCache(it) }
                             }
                         }
 
@@ -906,6 +909,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                             currentVideoLocation.clear()
                                             thumbnailUris.clear()
                                             uploadInProgress = false
+                                            context?.let { Tools.trimCache(it) }
                                         }
                                     } else {
                                         if (thumbId > 0) messageBody.thumbId = thumbId
@@ -923,6 +927,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 currentVideoLocation.clear()
                                 thumbnailUris.clear()
                                 uploadInProgress = false
+                                context?.let { Tools.trimCache(it) }
                             }
                         }
                     })
@@ -931,6 +936,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 currentVideoLocation.clear()
                 thumbnailUris.clear()
                 uploadInProgress = false
+                context?.let { Tools.trimCache(it) }
             }
         }
     }
@@ -977,6 +983,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 currentPhotoLocation.clear()
                                 thumbnailUris.clear()
                                 uploadInProgress = false
+                                context?.let { Tools.trimCache(it) }
                             }
                         }
 
@@ -1001,6 +1008,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     uploadInProgress = false
+                                    context?.let { Tools.trimCache(it) }
 //                            showUploadError(description)
 //                            imageContainer.hideProgressScreen()
                                 }
@@ -1010,6 +1018,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 currentPhotoLocation.clear()
                                 thumbnailUris.clear()
                                 uploadInProgress = false
+                                context?.let { Tools.trimCache(it) }
                             }
                         }
 
@@ -1039,6 +1048,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                             currentPhotoLocation.clear()
                                             thumbnailUris.clear()
                                             uploadInProgress = false
+                                            context?.let { Tools.trimCache(it) }
                                         }
                                     } else {
                                         if (thumbId > 0) messageBody.thumbId = thumbId
@@ -1056,6 +1066,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 currentPhotoLocation.clear()
                                 thumbnailUris.clear()
                                 uploadInProgress = false
+                                context?.let { Tools.trimCache(it) }
                             }
                         }
                     })
@@ -1064,6 +1075,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 currentPhotoLocation.clear()
                 thumbnailUris.clear()
                 uploadInProgress = false
+                context?.let { Tools.trimCache(it) }
             }
         }
     }
