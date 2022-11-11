@@ -333,32 +333,4 @@ object Tools {
             roomId?.let { notify(it, builder.build()) }
         }
     }
-
-    fun trimCache(context: Context) {
-        try {
-            val dir = context.cacheDir
-            if (dir != null && dir.isDirectory) {
-                deleteDir(dir)
-            }
-        } catch (e: java.lang.Exception) {
-            Timber.d("Trimming cache error")
-        }
-    }
-
-    private fun deleteDir(dir: File): Boolean {
-        if (dir.isDirectory) {
-            val children = dir.list()
-            if (children != null) {
-                for (i in children.indices) {
-                    val success = deleteDir(File(dir, children[i]))
-                    if (!success) {
-                        return false
-                    }
-                }
-            }
-        }
-
-        // The directory is now empty so delete it
-        return dir.delete()
-    }
 }
