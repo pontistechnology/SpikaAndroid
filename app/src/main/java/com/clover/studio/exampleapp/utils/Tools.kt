@@ -138,11 +138,13 @@ object Tools {
         // Create an image file name
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val storageDir: File? = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
+        val file = File.createTempFile(
             "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
         )
+        file.deleteOnExit()
+        return file
     }
 
     fun convertBitmapToUri(activity: Activity, bitmap: Bitmap): Uri {
