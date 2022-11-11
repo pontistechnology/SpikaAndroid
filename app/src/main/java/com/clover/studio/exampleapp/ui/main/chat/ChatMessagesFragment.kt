@@ -255,12 +255,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun showNewMessage() {
         // Here we can adjust distance of scroll
+        Timber.d("scroll dis: $scrollYDistance")
         if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)) {
             oldPosition = messagesRecords.size
             scrollToPosition()
         }
         // This condition is for dy = 148 -> when recyclerview adds new item
-        else if ((scrollYDistance > 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)) {
+        // TODO check with Matko sizes of keyboard
+        else if ((scrollYDistance > 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE) || ((scrollYDistance > 600) && (scrollYDistance < 800))) {
+            oldPosition = messagesRecords.size
+            scrollYDistance = 0
             scrollToPosition()
         }
         // If we are somewhere up in chat, show new message dialog
