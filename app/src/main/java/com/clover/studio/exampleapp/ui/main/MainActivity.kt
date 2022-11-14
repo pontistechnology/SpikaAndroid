@@ -209,6 +209,8 @@ class MainActivity : BaseActivity() {
                             }
                         }
 
+                        // Remove old instance of runnable if any is active. Prevents older
+                        // notifications from removing newer ones.
                         Timber.d("Starting handler 1")
                         handler.removeCallbacks(runnable)
 
