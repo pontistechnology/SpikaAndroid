@@ -98,7 +98,7 @@
         android:layout_marginTop="@dimen/four_dp_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_delete"
-        app:srcCompat="@drawable/ic_delete_24px" />
+        app:srcCompat="@drawable/img_delete" />
 
     <ImageView
         android:id="@+id/iv_reply"
@@ -108,7 +108,7 @@
         android:layout_marginTop="@dimen/four_dp_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_reply"
-        app:srcCompat="@drawable/ic_forward_24px" />
+        app:srcCompat="@drawable/img_forward" />
 
     <ImageView
         android:id="@+id/iv_forward"
@@ -119,7 +119,7 @@
         android:rotationY="180"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_forward"
-        app:srcCompat="@drawable/ic_forward_24px" />
+        app:srcCompat="@drawable/img_forward" />
 
     <ImageView
         android:id="@+id/iv_copy"
@@ -129,7 +129,7 @@
         android:layout_marginTop="@dimen/four_dp_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_copy"
-        app:srcCompat="@drawable/ic_content_copy_24px" />
+        app:srcCompat="@drawable/img_copy" />
 
     <ImageView
         android:id="@+id/iv_details"
@@ -139,7 +139,7 @@
         android:layout_marginTop="@dimen/four_dp_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_details"
-        app:srcCompat="@drawable/ic_info_24px" />
+        app:srcCompat="@drawable/img_info" />
 
     <ImageView
         android:id="@+id/iv_favorite"
@@ -149,7 +149,7 @@
         android:layout_marginTop="@dimen/four_dp_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_favorite"
-        app:srcCompat="@drawable/ic_favorite_border_24px" />
+        app:srcCompat="@drawable/img_favorite" />
 
     <ImageView
         android:id="@+id/imageView7"
@@ -159,5 +159,5 @@
         android:layout_marginTop="@dimen/four_dp_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_edit"
-        app:srcCompat="@drawable/ic_outline_edit_24" />
+        app:srcCompat="@drawable/img_edit_black" />
 </androidx.constraintlayout.widget.ConstraintLayout>
