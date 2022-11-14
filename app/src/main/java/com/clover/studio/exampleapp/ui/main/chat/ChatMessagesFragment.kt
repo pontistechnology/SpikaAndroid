@@ -256,18 +256,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // Here we can adjust distance of scroll
         Timber.d("scroll dis: $scrollYDistance")
         if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)) {
+            Timber.d("bottom of recycler view: $scrollYDistance")
             oldPosition = messagesRecords.size
             scrollToPosition()
         }
         // This condition is for dy = 148 -> when recyclerview adds new item
         // TODO check with Matko sizes of keyboard
         else if ((scrollYDistance > 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE) || ((scrollYDistance > 600) && (scrollYDistance < 800))) {
+            Timber.d("scroll with keyboard: $scrollYDistance")
             oldPosition = messagesRecords.size
             scrollYDistance = 0
             scrollToPosition()
         }
         // If we are somewhere up in chat, show new message dialog
         else {
+            Timber.d("scroll new messages: $scrollYDistance")
             bindingSetup.cvNewMessages.visibility = View.VISIBLE
             val newMessages = messagesRecords.size - oldPosition
             if (newMessages == 1) {
