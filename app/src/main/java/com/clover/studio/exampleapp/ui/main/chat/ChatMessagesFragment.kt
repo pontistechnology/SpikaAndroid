@@ -35,7 +35,6 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
 import com.clover.studio.exampleapp.data.models.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.MessageBody
-import com.clover.studio.exampleapp.data.models.ReactionMessage
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
@@ -292,14 +291,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             context!!,
             viewModel.getLocalUserId()!!,
             roomWithUsers.users,
-            roomWithUsers.room.type!!,
-            addReaction = { addMessageReaction(it) },
             onMessageInteraction = { event, message ->
                 run {
                     when (event) {
                         Const.UserActions.DELETE -> showDeleteMessageDialog(message)
                         Const.UserActions.EDIT -> handleMessageEdit(message)
                         Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
+                        Const.UserActions.ADD_REACTION -> handleMessageReaction(message)
                         else -> Timber.d("No other action currently")
                     }
                 }
@@ -345,14 +343,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
     }
 
-    private fun addMessageReaction(reaction: ReactionMessage) {
-        // POST reaction to server:
-        // Timber.d("reactions: ${reaction.reaction}, ${reaction.messageId}")
+    private fun handleMessageReaction(message: Message) {
         /*if (!reaction.clicked) {*/
         val jsonObject = JsonObject()
-        jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
+        jsonObject.addProperty(Const.Networking.MESSAGE_ID, message.id)
         jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
-        jsonObject.addProperty(Const.JsonFields.REACTION, reaction.reaction)
+        jsonObject.addProperty(Const.JsonFields.REACTION, message.reaction)
         viewModel.sendReaction(jsonObject)
         /*} else {
             // Remove reaction
