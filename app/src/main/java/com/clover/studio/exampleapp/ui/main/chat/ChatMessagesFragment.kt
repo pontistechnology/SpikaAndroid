@@ -63,6 +63,7 @@ import javax.inject.Inject
 */
 private const val SCROLL_DISTANCE_NEGATIVE = -300
 private const val SCROLL_DISTANCE_POSITIVE = 300
+private const val MIN_HEIGHT_DIFF = 150
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
 
@@ -264,10 +265,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             scrollToPosition()
         } else {
             // If we received message and keyboard is open:
-            if (heightDiff >= 150 && scrollYDistance > SCROLL_DISTANCE_POSITIVE) {
+            if (heightDiff >= MIN_HEIGHT_DIFF && scrollYDistance > SCROLL_DISTANCE_POSITIVE) {
                 scrollYDistance -= heightDiff
-                Timber.d("heig: $heightDiff, scroll: $scrollYDistance")
-                Timber.d("scroll: $scrollYDistance")
             }
             // We need to check where we are in recycler view:
             // If we are somewhere bottom
@@ -294,7 +293,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun scrollToPosition() {
-        //TimeUnit.MILLISECONDS.sleep(200)
         oldPosition = messagesRecords.size
         bindingSetup.rvChat.smoothScrollToPosition(0)
         scrollYDistance = 0
@@ -451,15 +449,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                //Timber.d("scroll distance $dy")
-                Timber.d("scroll y $scrollYDistance")
                 scrollYDistance += dy
             }
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
+                // This condition checks if the RecyclerView is at the bottom
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    Timber.d("-----")
                     bindingSetup.cvNewMessages.visibility = View.GONE
                     oldPosition = messagesRecords.size
                     scrollYDistance = 0
@@ -470,8 +466,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.root.viewTreeObserver.addOnGlobalLayoutListener {
             heightDiff = bindingSetup.root.rootView.height - bindingSetup.root.height
-            Timber.d("height diff: $heightDiff")
-            // IF height diff is more then 150, consider keyboard as visible.
         }
 
         bindingSetup.cvNewMessages.setOnClickListener {
