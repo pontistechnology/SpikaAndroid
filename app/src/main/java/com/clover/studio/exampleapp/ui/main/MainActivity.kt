@@ -201,14 +201,21 @@ class MainActivity : BaseActivity() {
 
                         val roomId = it.message.roomId
                         bindingSetup.cvNotification.cvRoot.setOnClickListener {
-                            roomId?.let { roomId -> viewModel.getSingleRoomData(roomId) }
+                            roomId?.let { roomId ->
+                                run {
+                                    viewModel.getSingleRoomData(roomId)
+                                    bindingSetup.cvNotification.cvRoot.visibility = View.GONE
+                                }
+                            }
                         }
 
-                        Timber.d("Starting handler")
-                        runnable.let { runnable -> handler.removeCallbacks(runnable) }
+                        // Remove old instance of runnable if any is active. Prevents older
+                        // notifications from removing newer ones.
+                        Timber.d("Starting handler 1")
+                        handler.removeCallbacks(runnable)
 
                         handler = Handler(Looper.getMainLooper())
-                        Timber.d("Starting handler")
+                        Timber.d("Starting handler 2")
                         handler.postDelayed(runnable, 5000)
                     }
                 }
