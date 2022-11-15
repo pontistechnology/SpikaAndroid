@@ -26,6 +26,7 @@ import androidx.core.view.get
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -106,6 +107,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var scrollYDistance = 0
     private var sent = false
     private var heightDiff = 0
+    private var exoPlayer: ExoPlayer ?= null
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -298,10 +300,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun setUpAdapter() {
+
+        exoPlayer = ExoPlayer.Builder(this.context!!).build()
+
         chatAdapter = ChatAdapter(
             context!!,
             viewModel.getLocalUserId()!!,
             roomWithUsers.users,
+            exoPlayer!!,
             onMessageInteraction = { event, message ->
                 run {
                     when (event) {
@@ -690,6 +696,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun onBackArrowPressed() {
+        exoPlayer!!.release()
         if (uploadInProgress) {
             showUploadError()
         } else {
@@ -1194,6 +1201,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     override fun onBackPressed(): Boolean {
+        // TODO Matko
+        exoPlayer!!.release()
         return if (uploadInProgress) {
             showUploadError()
             false
