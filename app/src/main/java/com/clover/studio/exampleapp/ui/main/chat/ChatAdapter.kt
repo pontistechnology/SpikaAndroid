@@ -600,6 +600,96 @@ class ChatAdapter(
                             }
                         })
                     }
+                    Const.JsonFields.AUDIO -> {
+                        holder.binding.tvMessage.visibility = View.GONE
+                        holder.binding.cvImage.visibility = View.GONE
+                        holder.binding.clFileMessage.visibility = View.GONE
+                        holder.binding.clVideos.visibility = View.GONE
+                        holder.binding.cvAudio.visibility = View.VISIBLE
+
+                        val audioPath = it.message.body?.file?.path?.let { audioPath ->
+                            Tools.getFileUrl(
+                                audioPath
+                            )
+                        }
+
+                        val handler = Handler(Looper.getMainLooper())
+                        var setTime = true
+                        val exoPlayer = ExoPlayer.Builder(context).build()
+                        val mediaItem: MediaItem = MediaItem.fromUri(Uri.parse(audioPath))
+                        exoPlayer.setMediaItem(mediaItem)
+                        exoPlayer.prepare()
+
+                        // val animator: ValueAnimator =  ValueAnimator.ofInt(0, holder.binding.sbAudio.max)
+
+                        val runnable = object : Runnable {
+                            override fun run() {
+                                holder.binding.sbAudio.progress = exoPlayer.currentPosition.toInt()
+                                holder.binding.tvAudioDuration.text =
+                                    Tools.convertDurationMillis(exoPlayer.currentPosition)
+                                handler.postDelayed(this, 100)
+                            }
+                        }
+
+
+                        exoPlayer.addListener(object : Player.Listener {
+                            override fun onPlaybackStateChanged(state: Int) {
+                                if (state == Player.STATE_READY) {
+                                    if (setTime) {
+                                        holder.binding.tvAudioDuration.text =
+                                            Tools.convertDurationMillis(exoPlayer.duration)
+                                        setTime = false
+                                    }
+                                }
+                                if (state == Player.STATE_ENDED) {
+                                    holder.binding.ivPauseAudio.visibility = View.GONE
+                                    holder.binding.ivPlayAudio.visibility = View.VISIBLE
+                                    holder.binding.tvAudioDuration.text =
+                                        Tools.convertDurationMillis(exoPlayer.duration)
+                                    exoPlayer.seekTo(0)
+                                    exoPlayer.pause()
+                                    handler.removeCallbacks(runnable)
+                                }
+                            }
+                        })
+
+                        holder.binding.ivPlayAudio.setOnClickListener {
+                            holder.binding.ivPlayAudio.visibility = View.GONE
+                            holder.binding.ivPauseAudio.visibility = View.VISIBLE
+                            holder.binding.sbAudio.max = exoPlayer.duration.toInt()
+                            exoPlayer.play()
+                            handler.postDelayed(runnable, 0)
+
+                        }
+
+
+                        holder.binding.ivPauseAudio.setOnClickListener {
+                            holder.binding.ivPlayAudio.visibility = View.VISIBLE
+                            holder.binding.ivPauseAudio.visibility = View.GONE
+                            exoPlayer.pause()
+                            handler.removeCallbacks(runnable)
+                        }
+
+                        // Seek through audio
+                        holder.binding.sbAudio.setOnSeekBarChangeListener(object :
+                            SeekBar.OnSeekBarChangeListener {
+                            override fun onProgressChanged(
+                                seekBar: SeekBar,
+                                progress: Int,
+                                fromUser: Boolean
+                            ) {
+                                if (fromUser) {
+                                    exoPlayer.seekTo(progress.toLong())
+                                }
+                            }
+
+                            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                            }
+
+                            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                            }
+                        })
+                    }
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE

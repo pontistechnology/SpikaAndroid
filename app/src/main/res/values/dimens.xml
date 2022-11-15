@@ -2,6 +2,7 @@
     <!-- LAYOUT -->
     <dimen name="two_hundred_seventy_two_dp">272dp</dimen>
     <dimen name="two_hundred">200dp</dimen>
+    <dimen name="two_hundred">200dp</dimen>
     <dimen name="one_hundred_seventy_dp">170dp</dimen>
     <dimen name="one_hundred_twenty_eight">128dp</dimen>
     <dimen name="one_hundred_dp">100dp</dimen>
