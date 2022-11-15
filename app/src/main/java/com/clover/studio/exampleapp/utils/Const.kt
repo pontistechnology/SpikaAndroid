@@ -25,6 +25,7 @@ class Const {
             const val DELETE = "delete"
             const val EDIT = "edit"
             const val DOWNLOAD_FILE = "download_file"
+            const val ADD_REACTION = "add_reaction"
         }
     }
 

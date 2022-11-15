@@ -69,7 +69,10 @@ data class Message @JvmOverloads constructor(
     val groupName: String? = "",
 
     @Ignore
-    val muted: Boolean? = false
+    val muted: Boolean? = false,
+
+    @Ignore
+    var reaction: String = ""
 )
 
 data class MessageBody(

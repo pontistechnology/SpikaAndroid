@@ -35,7 +35,7 @@ import java.util.*
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 private var REACTION = ""
-private var reactionMessage: ReactionMessage =
+/*private var reactionMessage: ReactionMessage =
     ReactionMessage(
         "", 0, /*0, false,
         ReactionActive(
@@ -47,14 +47,12 @@ private var reactionMessage: ReactionMessage =
             cryingFaceEmoji = false
         ),
         0,*/
-    )
+    )*/
 
 class ChatAdapter(
     private val context: Context,
     private val myUserId: Int,
     private val users: List<User>,
-    private val chatType: String,
-    private val addReaction: ((reaction: ReactionMessage) -> Unit),
     private val onMessageInteraction: ((event: String, message: Message) -> Unit)
 ) :
     ListAdapter<MessageAndRecords, RecyclerView.ViewHolder>(MessageAndRecordsDiffCallback()) {
@@ -238,13 +236,8 @@ class ChatAdapter(
                 // Send new reaction:
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     holder.binding.cvReactions.visibility = View.VISIBLE
-                    if (chatType == Const.JsonFields.PRIVATE) {
-                        listeners(holder, it.message.id, it /*reactionId,*/)
-                    } else {
-                        listeners(holder, it.message.id, it /*reactionId,*/)
-                    }
+                    listeners(holder, it.message, it /*reactionId,*/)
                     holder.binding.cvMessageOptions.visibility = View.VISIBLE
-
                     true
                 }
 
@@ -465,11 +458,10 @@ class ChatAdapter(
                     holder.binding.cvReactedEmoji.visibility = View.GONE
                 }
 
-
                 // Send new reaction:
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     holder.binding.cvReactions.visibility = View.VISIBLE
-                    listeners(holder, it.message.id, /*reactionId*/ it)
+                    listeners(holder, it.message, /*reactionId*/ it)
                     true
                 }
 
@@ -607,7 +599,7 @@ class ChatAdapter(
     // TODO - same listeners method for both holders
     private fun listeners(
         holder: ReceivedMessageHolder,
-        messageId: Int,
+        message: Message,
         /*reactionId: Int,*/
         messageAndRecords: MessageAndRecords,
     ) {
@@ -651,11 +643,12 @@ class ChatAdapter(
                 //reactionMessage.userId = myUserId
 
                 if (REACTION.isNotEmpty()) {
-                    reactionMessage.reaction = REACTION
-                    reactionMessage.messageId = messageId
-                    addReaction.invoke(reactionMessage)
+                    message.reaction = REACTION
+                    onMessageInteraction.invoke(
+                        Const.UserActions.ADD_REACTION,
+                        message
+                    )
                     val reactions = Reactions(0, 0, 0, 0, 0, 0)
-
                     holder.binding.tvReactedEmoji.text =
                         getDatabaseReaction(messageAndRecords, reactions)
                     holder.binding.cvReactedEmoji.visibility = View.VISIBLE
@@ -677,7 +670,7 @@ class ChatAdapter(
 
     private fun listeners(
         holder: SentMessageHolder,
-        messageId: Int,
+        message: Message,
         messageAndRecords: MessageAndRecords,
         /*reactionId: Int,*/
     ) {
@@ -720,10 +713,11 @@ class ChatAdapter(
                 //reactionMessage.userId = myUserId
 
                 if (REACTION.isNotEmpty()) {
-                    reactionMessage.reaction = REACTION
-                    reactionMessage.messageId = messageId
-                    addReaction.invoke(reactionMessage)
-
+                    message.reaction = REACTION
+                    onMessageInteraction.invoke(
+                        Const.UserActions.ADD_REACTION,
+                        message
+                    )
                     val reactions = Reactions(0, 0, 0, 0, 0, 0)
                     holder.binding.tvReactedEmoji.text =
                         getDatabaseReaction(messageAndRecords, reactions).trim()
