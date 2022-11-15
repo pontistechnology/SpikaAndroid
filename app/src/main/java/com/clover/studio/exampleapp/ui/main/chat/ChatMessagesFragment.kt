@@ -62,8 +62,8 @@ import javax.inject.Inject
         startActivity(intent)
     }
 */
-private const val SCROLL_DISTANCE_NEGATIVE = -200
-private const val SCROLL_DISTANCE_POSITIVE = 200
+private const val SCROLL_DISTANCE_NEGATIVE = -300
+private const val SCROLL_DISTANCE_POSITIVE = 300
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
 
@@ -92,6 +92,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
 
+    private val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
+
     private var avatarUrl = ""
     private var userName = ""
     private var firstEnter = true
@@ -103,6 +105,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var storedMessage: Message
     private var oldPosition = 0
     private var scrollYDistance = 0
+    private var sent = false
+    private var heightDiff = 0
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -241,51 +245,58 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     messagesRecords.sortByDescending { messages -> messages.message.createdAt }
                     // messagesRecords.toList -> for DiffUtil class
                     chatAdapter.submitList(messagesRecords.toList())
+
+                    if (oldPosition != messagesRecords.size) {
+                        showNewMessage()
+                    }
+
                     if (firstEnter) {
                         oldPosition = messagesRecords.size
                         bindingSetup.rvChat.scrollToPosition(0)
                         firstEnter = false
                     }
                 }
-                if (oldPosition != messagesRecords.size) {
-                    showNewMessage()
-                }
             }
     }
 
     private fun showNewMessage() {
-        // Here we can adjust distance of scroll
-        Timber.d("scroll dis: $scrollYDistance")
-        if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)) {
-            Timber.d("bottom of recycler view: $scrollYDistance")
-            oldPosition = messagesRecords.size
+        // If we send message
+        if (sent) {
             scrollToPosition()
-        }
-        // This condition is for dy = 148 -> when recyclerview adds new item
-        // TODO check with Matko sizes of keyboard
-        else if ((scrollYDistance > 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE) || ((scrollYDistance > 600) && (scrollYDistance < 800))) {
-            Timber.d("scroll with keyboard: $scrollYDistance")
-            oldPosition = messagesRecords.size
-            scrollYDistance = 0
-            scrollToPosition()
-        }
-        // If we are somewhere up in chat, show new message dialog
-        else {
-            Timber.d("scroll new messages: $scrollYDistance")
-            bindingSetup.cvNewMessages.visibility = View.VISIBLE
-            val newMessages = messagesRecords.size - oldPosition
-            if (newMessages == 1) {
-                bindingSetup.tvNewMessage.text =
-                    getString(R.string.new_messages, newMessages.toString(), "")
-            } else {
-                bindingSetup.tvNewMessage.text =
-                    getString(R.string.new_messages, newMessages.toString(), "s")
+        } else {
+            // If we received message and keyboard is open:
+            if (heightDiff >= 150 && scrollYDistance > SCROLL_DISTANCE_POSITIVE) {
+                scrollYDistance -= heightDiff
+                Timber.d("heig: $heightDiff, scroll: $scrollYDistance")
+                Timber.d("scroll: $scrollYDistance")
+            }
+            // We need to check where we are in recycler view:
+            // If we are somewhere bottom
+            if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
+                || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
+            ) {
+                scrollToPosition()
+            }
+            // If we are somewhere up in chat, show new message dialog
+            else {
+                bindingSetup.cvNewMessages.visibility = View.VISIBLE
+                val newMessages = messagesRecords.size - oldPosition
+                if (newMessages == 1) {
+                    bindingSetup.tvNewMessage.text =
+                        getString(R.string.new_messages, newMessages.toString(), "")
+                } else {
+                    bindingSetup.tvNewMessage.text =
+                        getString(R.string.new_messages, newMessages.toString(), "s")
+                }
             }
         }
+        sent = false
         return
     }
 
     private fun scrollToPosition() {
+        //TimeUnit.MILLISECONDS.sleep(200)
+        oldPosition = messagesRecords.size
         bindingSetup.rvChat.smoothScrollToPosition(0)
         scrollYDistance = 0
     }
@@ -309,7 +320,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         )
         bindingSetup.rvChat.adapter = chatAdapter
-        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
 
@@ -445,9 +455,28 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                //Timber.d("scroll distance $dy")
+                Timber.d("scroll y $scrollYDistance")
                 scrollYDistance += dy
             }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    Timber.d("-----")
+                    bindingSetup.cvNewMessages.visibility = View.GONE
+                    oldPosition = messagesRecords.size
+                    scrollYDistance = 0
+                }
+            }
         })
+
+
+        bindingSetup.root.viewTreeObserver.addOnGlobalLayoutListener {
+            heightDiff = bindingSetup.root.rootView.height - bindingSetup.root.height
+            Timber.d("height diff: $heightDiff")
+            // IF height diff is more then 150, consider keyboard as visible.
+        }
 
         bindingSetup.cvNewMessages.setOnClickListener {
             bindingSetup.rvChat.scrollToPosition(0)
@@ -486,7 +515,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 createTempMessage()
                 sendMessage()
             }
-
+            sent = true
             hideSendButton()
         }
 
