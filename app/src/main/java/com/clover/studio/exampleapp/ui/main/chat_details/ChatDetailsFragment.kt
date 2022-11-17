@@ -360,6 +360,7 @@ class ChatDetailsFragment : BaseFragment() {
                 }
             })
 
+        binding.rvGroupMembers.itemAnimator = null
         binding.rvGroupMembers.adapter = adapter
         binding.rvGroupMembers.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)

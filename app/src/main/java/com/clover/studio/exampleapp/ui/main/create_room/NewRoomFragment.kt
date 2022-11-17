@@ -101,6 +101,13 @@ class NewRoomFragment : BaseFragment() {
             userIds.add(data.user.id)
         }
 
+        val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
+        if (userIdsInRoom?.isNotEmpty() == true) {
+            for (id in userIdsInRoom) {
+                userIds.add(id)
+            }
+        }
+
         if (userIds.size() > 0)
             jsonObject.add(Const.JsonFields.USER_IDS, userIds)
 
