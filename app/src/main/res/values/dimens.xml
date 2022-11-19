@@ -1,6 +1,7 @@
 <resources>
     <!-- LAYOUT -->
     <dimen name="two_hundred_seventy_two_dp">272dp</dimen>
+    <dimen name="two_hundred_fourteen_dp">214dp</dimen>
     <dimen name="two_hundred">200dp</dimen>
     <dimen name="one_hundred_seventy_dp">170dp</dimen>
     <dimen name="one_hundred_twenty_eight">128dp</dimen>
@@ -10,6 +11,7 @@
     <dimen name="seventy_five_dp">75dp</dimen>
     <dimen name="seventy_dp">70dp</dimen>
     <dimen name="sixty_four_dp">64dp</dimen>
+    <dimen name="fifty_two_dp">52dp</dimen>
     <dimen name="fifty_dp_margin">50dp</dimen>
     <dimen name="forty_eight_dp_margin">48dp</dimen>
     <dimen name="forty_two_dp">42dp</dimen>

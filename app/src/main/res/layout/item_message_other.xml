@@ -73,11 +73,13 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cv_audio"
-                android:layout_width="@dimen/two_hundred"
+                android:layout_width="@dimen/two_hundred_fourteen_dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginTop="@dimen/two_dp_margin"
                 android:layout_marginEnd="@dimen/twenty_four_dp_margin"
                 android:layout_marginBottom="@dimen/two_dp_margin"
+                android:saveEnabled="false"
                 android:visibility="gone"
                 app:cardCornerRadius="@dimen/eight_dp_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -90,6 +92,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/bg_message_received"
+                    android:padding="@dimen/two_dp_margin"
                     android:visibility="visible">
 
                     <TextView
@@ -100,53 +103,40 @@
                         android:fontFamily="@font/montserrat"
                         android:foregroundTint="@color/color1"
                         android:text="@string/audio_duration"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/sb_audio" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <ImageView
                         android:id="@+id/iv_play_audio"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/eight_dp_margin"
-                        android:layout_marginTop="@dimen/eight_dp_margin"
-                        android:layout_marginBottom="@dimen/eight_dp_margin"
+                        android:padding="@dimen/four_dp_margin"
                         android:visibility="visible"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/img_play_audio" />
+                        app:srcCompat="@drawable/img_play_audio_button" />
 
                     <SeekBar
                         android:id="@+id/sb_audio"
                         android:layout_width="@dimen/one_hundred_twenty_eight"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/thirty_two_dp_margin"
-                        android:layout_marginTop="@dimen/eight_dp_margin"
-                        android:layout_marginBottom="@dimen/eight_dp_margin"
+                        android:layout_marginStart="@dimen/fifty_two_dp"
                         android:max="100"
+                        android:min="0"
+                        android:progress="0"
                         android:progressBackgroundTint="@color/color1"
                         android:progressTint="@color/color1"
                         android:thumbTint="@color/color1"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/tv_audio_duration"
-                        app:layout_constraintHorizontal_bias="0.13"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <ImageView
-                        android:id="@+id/iv_pause_audio"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/eight_dp_margin"
-                        android:layout_marginTop="@dimen/eight_dp_margin"
-                        android:layout_marginBottom="@dimen/eight_dp_margin"
-                        android:visibility="gone"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/ic_baseline_pause_circle_filled_24" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        app:layout_constraintVertical_bias="0.578" />
 
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
             <androidx.constraintlayout.widget.ConstraintLayout

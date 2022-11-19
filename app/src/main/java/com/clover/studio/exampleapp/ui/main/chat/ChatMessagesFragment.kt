@@ -92,8 +92,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
 
-    private val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
-
     private var avatarUrl = ""
     private var userName = ""
     private var firstEnter = true
@@ -107,7 +105,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var scrollYDistance = 0
     private var sent = false
     private var heightDiff = 0
-    private var exoPlayer: ExoPlayer ?= null
+    private var exoPlayer: ExoPlayer? = null
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -300,9 +298,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun setUpAdapter() {
-
         exoPlayer = ExoPlayer.Builder(this.context!!).build()
-
         chatAdapter = ChatAdapter(
             context!!,
             viewModel.getLocalUserId()!!,
@@ -321,8 +317,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         )
         bindingSetup.rvChat.adapter = chatAdapter
+        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
+        bindingSetup.rvChat.itemAnimator = null
 
         // Add callback for item swipe handling
         /*val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :

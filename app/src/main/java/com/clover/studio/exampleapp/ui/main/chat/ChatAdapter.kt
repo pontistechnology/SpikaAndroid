@@ -29,7 +29,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.*
+import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.Reactions
+import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
 import com.clover.studio.exampleapp.utils.Const
@@ -37,7 +40,6 @@ import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
 import timber.log.Timber
 import java.util.*
-import java.util.concurrent.*
 
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
@@ -105,7 +107,6 @@ class ChatAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
         getItem(position).let { it ->
-
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.message.createdAt!!
             val date = calendar.get(Calendar.DAY_OF_MONTH)
@@ -114,8 +115,6 @@ class ChatAdapter(
             // TODO can two view holders use same method for binding if all views are the same?
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 holder as SentMessageHolder
-
-                holder.binding.sbAudio.progress = 0
 
                 when (it.message.type) {
                     Const.JsonFields.TEXT -> {
@@ -233,7 +232,7 @@ class ChatAdapter(
                         exoPlayer.clearMediaItems()
                         holder.binding.sbAudio.progress = 0
 
-                        var runnable = object : Runnable {
+                        val runnable = object : Runnable {
                             override fun run() {
                                 holder.binding.sbAudio.progress = exoPlayer.currentPosition.toInt()
                                 holder.binding.tvAudioDuration.text =
@@ -245,12 +244,12 @@ class ChatAdapter(
                         holder.binding.ivPlayAudio.setOnClickListener {
                             if (!exoPlayer.isPlaying) {
                                 if (oldPosition != holder.absoluteAdapterPosition) {
+                                    firstPlay = true
                                     exoPlayer.stop()
                                     exoPlayer.clearMediaItems()
-                                    holder.binding.sbAudio.progress = 0
-                                    holder.binding.tvAudioDuration.text = "00:00"
+                                    holder.binding.tvAudioDuration.text =
+                                        context.getString(R.string.audio_duration)
                                     handler.removeCallbacks(runnable)
-                                    firstPlay = true
                                     notifyItemChanged(oldPosition)
                                     oldPosition = holder.absoluteAdapterPosition
                                 }
@@ -275,13 +274,13 @@ class ChatAdapter(
                                     holder.binding.sbAudio.max = exoPlayer.duration.toInt()
                                 }
                                 if (state == Player.STATE_ENDED) {
-                                    holder.binding.ivPauseAudio.visibility = View.GONE
                                     holder.binding.ivPlayAudio.visibility = View.VISIBLE
+                                    firstPlay = true
                                     exoPlayer.pause()
                                     exoPlayer.clearMediaItems()
-                                    firstPlay = true
-                                    holder.binding.tvAudioDuration.text = "00:00"
                                     handler.removeCallbacks(runnable)
+                                    holder.binding.tvAudioDuration.text =
+                                        context.getString(R.string.audio_duration)
                                     holder.binding.ivPlayAudio.setImageResource(R.drawable.img_play_audio_button)
                                 }
                             }
@@ -507,7 +506,7 @@ class ChatAdapter(
                             true
                         }
                     }
-                    /*Const.JsonFields.AUDIO -> {
+                    Const.JsonFields.AUDIO -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
@@ -520,14 +519,9 @@ class ChatAdapter(
                             )
                         }
 
-                        val handler = Handler(Looper.getMainLooper())
-                        var setTime = true
-                        val exoPlayer = ExoPlayer.Builder(context).build()
                         val mediaItem: MediaItem = MediaItem.fromUri(Uri.parse(audioPath))
-                        exoPlayer.setMediaItem(mediaItem)
-                        exoPlayer.prepare()
-
-                        // val animator: ValueAnimator =  ValueAnimator.ofInt(0, holder.binding.sbAudio.max)
+                        exoPlayer.clearMediaItems()
+                        holder.binding.sbAudio.progress = 0
 
                         val runnable = object : Runnable {
                             override fun run() {
@@ -538,44 +532,50 @@ class ChatAdapter(
                             }
                         }
 
+                        holder.binding.ivPlayAudio.setOnClickListener {
+                            if (!exoPlayer.isPlaying) {
+                                if (oldPosition != holder.absoluteAdapterPosition) {
+                                    firstPlay = true
+                                    exoPlayer.stop()
+                                    exoPlayer.clearMediaItems()
+                                    holder.binding.tvAudioDuration.text =
+                                        context.getString(R.string.audio_duration)
+                                    handler.removeCallbacks(runnable)
+                                    notifyItemChanged(oldPosition)
+                                    oldPosition = holder.absoluteAdapterPosition
+                                }
+                                if (firstPlay) {
+                                    exoPlayer.prepare()
+                                    exoPlayer.setMediaItem(mediaItem)
+                                }
+                                exoPlayer.play()
+                                handler.postDelayed(runnable, 0)
+                                holder.binding.ivPlayAudio.setImageResource(R.drawable.img_pause_audio_button)
+                            } else {
+                                holder.binding.ivPlayAudio.setImageResource(R.drawable.img_play_audio_button)
+                                exoPlayer.pause()
+                                firstPlay = false
+                                handler.removeCallbacks(runnable)
+                            }
+                        }
 
                         exoPlayer.addListener(object : Player.Listener {
                             override fun onPlaybackStateChanged(state: Int) {
                                 if (state == Player.STATE_READY) {
-                                    if (setTime) {
-                                        holder.binding.tvAudioDuration.text =
-                                            Tools.convertDurationMillis(exoPlayer.duration)
-                                        setTime = false
-                                    }
+                                    holder.binding.sbAudio.max = exoPlayer.duration.toInt()
                                 }
                                 if (state == Player.STATE_ENDED) {
-                                    holder.binding.ivPauseAudio.visibility = View.GONE
                                     holder.binding.ivPlayAudio.visibility = View.VISIBLE
-                                    holder.binding.tvAudioDuration.text =
-                                        Tools.convertDurationMillis(exoPlayer.duration)
-                                    exoPlayer.seekTo(0)
+                                    firstPlay = true
                                     exoPlayer.pause()
+                                    exoPlayer.clearMediaItems()
                                     handler.removeCallbacks(runnable)
+                                    holder.binding.tvAudioDuration.text =
+                                        context.getString(R.string.audio_duration)
+                                    holder.binding.ivPlayAudio.setImageResource(R.drawable.img_play_audio_button)
                                 }
                             }
                         })
-
-                        holder.binding.ivPlayAudio.setOnClickListener {
-                            holder.binding.ivPlayAudio.visibility = View.GONE
-                            holder.binding.ivPauseAudio.visibility = View.VISIBLE
-                            holder.binding.sbAudio.max = exoPlayer.duration.toInt()
-                            exoPlayer.play()
-                            handler.postDelayed(runnable, 0)
-
-                        }
-
-
-                        holder.binding.ivPauseAudio.setOnClickListener {
-                            holder.binding.ivPlayAudio.visibility = View.VISIBLE
-                            holder.binding.ivPauseAudio.visibility = View.GONE
-                            exoPlayer.pause()
-                            handler.removeCallbacks(runnable)
-                        }
 
                         // Seek through audio
                         holder.binding.sbAudio.setOnSeekBarChangeListener(object :
@@ -596,7 +596,7 @@ class ChatAdapter(
                             override fun onStopTrackingTouch(seekBar: SeekBar) {
                             }
                         })
-                    }*/
+                    }
 
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
