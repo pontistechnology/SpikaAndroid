@@ -275,11 +275,11 @@
             app:layout_constraintEnd_toEndOf="@+id/cl_container"
             app:layout_constraintTop_toTopOf="parent">
 
-            <include
-                android:id="@+id/reactions"
-                layout="@layout/emoji"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/reactions_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent"
+                android:visibility="visible" />
 
         </androidx.cardview.widget.CardView>
 

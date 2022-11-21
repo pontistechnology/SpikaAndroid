@@ -13,7 +13,6 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.children
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -25,6 +24,7 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.*
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
+import com.clover.studio.exampleapp.ui.ReactionsContainer
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
@@ -34,7 +34,6 @@ import java.util.*
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
-private var REACTION = ""
 /*private var reactionMessage: ReactionMessage =
     ReactionMessage(
         "", 0, /*0, false,
@@ -134,7 +133,6 @@ class ChatAdapter(
                             view.findNavController().navigate(action)
                         }
                     }
-
                     Const.JsonFields.FILE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
@@ -159,7 +157,6 @@ class ChatAdapter(
                             true
                         }
                     }
-
                     Const.JsonFields.VIDEO -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
@@ -191,7 +188,6 @@ class ChatAdapter(
                             view.findNavController().navigate(action)
                         }
                     }
-
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
@@ -234,10 +230,31 @@ class ChatAdapter(
                 }
 
                 // Send new reaction:
+                val reactionsContainer = ReactionsContainer(context, null)
+                holder.binding.reactionsContainer.addView(reactionsContainer)
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     holder.binding.cvReactions.visibility = View.VISIBLE
-                    listeners(holder, it.message, it /*reactionId,*/)
                     holder.binding.cvMessageOptions.visibility = View.VISIBLE
+                    reactionsContainer.setButtonListener(object : ReactionsContainer.AddReaction {
+                        override fun addReaction(reaction: String) {
+                            if (reaction.isNotEmpty()) {
+                                it.message.reaction = reaction
+                                onMessageInteraction.invoke(
+                                    Const.UserActions.ADD_REACTION,
+                                    it.message
+                                )
+                                val newReactions = Reactions(0, 0, 0, 0, 0, 0)
+                                holder.binding.tvReactedEmoji.text =
+                                    getDatabaseReaction(it, newReactions)
+                                holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                                notifyItemChanged(holder.absoluteAdapterPosition)
+                                holder.binding.cvReactions.visibility = View.GONE
+                                holder.binding.cvMessageOptions.visibility = View.GONE
+                            } else {
+                                holder.binding.cvReactedEmoji.visibility = View.GONE
+                            }
+                        }
+                    })
                     true
                 }
 
@@ -459,9 +476,31 @@ class ChatAdapter(
                 }
 
                 // Send new reaction:
+                val reactionsContainer = ReactionsContainer(context, null)
+                holder.binding.reactionsContainer.addView(reactionsContainer)
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     holder.binding.cvReactions.visibility = View.VISIBLE
-                    listeners(holder, it.message, /*reactionId*/ it)
+                    holder.binding.cvMessageOptions.visibility = View.VISIBLE
+                    reactionsContainer.setButtonListener(object : ReactionsContainer.AddReaction {
+                        override fun addReaction(reaction: String) {
+                            if (reaction.isNotEmpty()) {
+                                it.message.reaction = reaction
+                                onMessageInteraction.invoke(
+                                    Const.UserActions.ADD_REACTION,
+                                    it.message
+                                )
+                                val newReactions = Reactions(0, 0, 0, 0, 0, 0)
+                                holder.binding.tvReactedEmoji.text =
+                                    getDatabaseReaction(it, newReactions)
+                                holder.binding.cvReactedEmoji.visibility = View.VISIBLE
+                                notifyItemChanged(holder.absoluteAdapterPosition)
+                                holder.binding.cvReactions.visibility = View.GONE
+                                holder.binding.cvMessageOptions.visibility = View.GONE
+                            } else {
+                                holder.binding.cvReactedEmoji.visibility = View.GONE
+                            }
+                        }
+                    })
                     true
                 }
 
@@ -595,149 +634,6 @@ class ChatAdapter(
         }
         return reactionText
     }
-
-    // TODO - same listeners method for both holders
-    private fun listeners(
-        holder: ReceivedMessageHolder,
-        message: Message,
-        /*reactionId: Int,*/
-        messageAndRecords: MessageAndRecords,
-    ) {
-        holder.binding.reactions.clEmoji.children.forEach { child ->
-            child.setOnClickListener {
-                when (child) {
-                    holder.binding.reactions.tvThumbsUpEmoji -> {
-                        /*
-                        For removing reactions
-                        if (reactionMessage.activeReaction!!.thumbsUp) {
-                            // Active reaction is already thumbs up -> remove it
-                            Timber.d("reactionId3: $reactionId")
-                            reactionMessage.clicked = true
-                            reactionMessage.activeReaction!!.thumbsUp = false
-                        } else {
-                            reactionMessage.activeReaction!!.thumbsUp = true*/
-                        REACTION = context.getString(R.string.thumbs_up_emoji)
-                    }
-                    holder.binding.reactions.tvHeartEmoji -> {
-                        REACTION = context.getString(R.string.heart_emoji)
-
-                    }
-                    holder.binding.reactions.tvCryingEmoji -> {
-                        REACTION = context.getString(R.string.crying_face_emoji)
-
-                    }
-                    holder.binding.reactions.tvAstonishedEmoji -> {
-                        REACTION = context.getString(R.string.astonished_emoji)
-
-                    }
-                    holder.binding.reactions.tvDisappointedRelievedEmoji -> {
-                        REACTION = context.getString(R.string.disappointed_relieved_emoji)
-
-                    }
-                    holder.binding.reactions.tvPrayingHandsEmoji -> {
-                        REACTION = context.getString(R.string.praying_hands_emoji)
-                    }
-                }
-
-                //reactionMessage.reactionId = reactionId
-                //reactionMessage.userId = myUserId
-
-                if (REACTION.isNotEmpty()) {
-                    message.reaction = REACTION
-                    onMessageInteraction.invoke(
-                        Const.UserActions.ADD_REACTION,
-                        message
-                    )
-                    val reactions = Reactions(0, 0, 0, 0, 0, 0)
-                    holder.binding.tvReactedEmoji.text =
-                        getDatabaseReaction(messageAndRecords, reactions)
-                    holder.binding.cvReactedEmoji.visibility = View.VISIBLE
-
-                    /*if (reactionMessage.clicked) {
-                        //holder.binding.cvReactedEmoji.visibility = View.GONE
-                        reactionMessage.clicked = false
-                    } else {
-                        holder.binding.cvReactedEmoji.visibility = View.VISIBLE
-                    }*/
-                } else {
-                    holder.binding.cvReactedEmoji.visibility = View.GONE
-                }
-                holder.binding.cvReactions.visibility = View.GONE
-                holder.binding.cvMessageOptions.visibility = View.GONE
-            }
-        }
-    }
-
-    private fun listeners(
-        holder: SentMessageHolder,
-        message: Message,
-        messageAndRecords: MessageAndRecords,
-        /*reactionId: Int,*/
-    ) {
-        // TODO - remove my reaction for new one
-        holder.binding.reactions.clEmoji.children.forEach { child ->
-            child.setOnClickListener {
-                when (child) {
-                    holder.binding.reactions.tvThumbsUpEmoji -> {
-                        /* For removing reactions
-                        if (reactionMessage.activeReaction!!.thumbsUp) {
-                            // Active reaction is already thumbs up -> remove it
-                            reactionMessage.clicked = true
-                            reactionMessage.activeReaction!!.thumbsUp = false
-                        } else {
-                            reactionMessage.activeReaction!!.thumbsUp = true*/
-                        REACTION = context.getString(R.string.thumbs_up_emoji)
-                    }
-                    holder.binding.reactions.tvHeartEmoji -> {
-                        REACTION = context.getString(R.string.heart_emoji)
-
-                    }
-                    holder.binding.reactions.tvCryingEmoji -> {
-                        REACTION = context.getString(R.string.crying_face_emoji)
-
-                    }
-                    holder.binding.reactions.tvAstonishedEmoji -> {
-                        REACTION = context.getString(R.string.astonished_emoji)
-
-                    }
-                    holder.binding.reactions.tvDisappointedRelievedEmoji -> {
-                        REACTION = context.getString(R.string.disappointed_relieved_emoji)
-
-                    }
-                    holder.binding.reactions.tvPrayingHandsEmoji -> {
-                        REACTION = context.getString(R.string.praying_hands_emoji)
-                    }
-                }
-
-                //reactionMessage.reactionId = reactionId
-                //reactionMessage.userId = myUserId
-
-                if (REACTION.isNotEmpty()) {
-                    message.reaction = REACTION
-                    onMessageInteraction.invoke(
-                        Const.UserActions.ADD_REACTION,
-                        message
-                    )
-                    val reactions = Reactions(0, 0, 0, 0, 0, 0)
-                    holder.binding.tvReactedEmoji.text =
-                        getDatabaseReaction(messageAndRecords, reactions).trim()
-                    holder.binding.cvReactedEmoji.visibility = View.VISIBLE
-
-                    /*if (reactionMessage.clicked) {
-                        //holder.binding.cvReactedEmoji.visibility = View.GONE
-                        reactionMessage.clicked = false
-                    } else {
-                        holder.binding.cvReactedEmoji.visibility = View.VISIBLE
-                    }*/
-                } else {
-                    holder.binding.cvReactedEmoji.visibility = View.GONE
-                }
-                holder.binding.cvReactions.visibility = View.GONE
-                holder.binding.cvMessageOptions.visibility = View.GONE
-            }
-        }
-    }
-
 
     private fun addFiles(message: Message, ivFileType: ImageView) {
         when (message.body?.file?.fileName?.substringAfterLast(".")) {

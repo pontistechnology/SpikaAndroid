@@ -318,6 +318,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.rvChat.adapter = chatAdapter
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
+        bindingSetup.rvChat.itemAnimator = null
+        // bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
 
         // Add callback for item swipe handling
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
