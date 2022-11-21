@@ -92,8 +92,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
 
-    private val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
-
     private var avatarUrl = ""
     private var userName = ""
     private var firstEnter = true
@@ -315,6 +313,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
         )
+        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         bindingSetup.rvChat.adapter = chatAdapter
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager

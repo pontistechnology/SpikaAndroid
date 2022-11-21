@@ -126,7 +126,7 @@ class ContactDetailsFragment : BaseFragment() {
                     Timber.d("Room data = $roomData")
                     viewModel.getRoomWithUsers(it.roomData.roomId)
                 }
-                is RoomFailed -> Timber.d("Failed to create room")
+                is RoomCreateFailed -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")
             }
         })

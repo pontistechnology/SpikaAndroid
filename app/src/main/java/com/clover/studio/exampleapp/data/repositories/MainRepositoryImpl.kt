@@ -96,7 +96,7 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun verifyFile(jsonObject: JsonObject): FileResponse =
         retrofitService.verifyFile(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
-    override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) {
+    override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse {
         val response =
             retrofitService.updateRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject, roomId)
 
@@ -111,25 +111,28 @@ class MainRepositoryImpl @Inject constructor(
                 chatRoomDao.deleteRoomUser(RoomUser(roomId, userId, false))
             }
 
-            appDatabase.runInTransaction {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val users: MutableList<User> = ArrayList()
-                    val roomUsers: MutableList<RoomUser> = ArrayList()
-                    for (user in room.users) {
-                        user.user?.let { users.add(it) }
-                        roomUsers.add(
-                            RoomUser(
-                                room.roomId,
-                                user.userId,
-                                user.isAdmin
+            CoroutineScope(Dispatchers.IO).launch {
+                appDatabase.runInTransaction {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val users: MutableList<User> = ArrayList()
+                        val roomUsers: MutableList<RoomUser> = ArrayList()
+                        for (user in room.users) {
+                            user.user?.let { users.add(it) }
+                            roomUsers.add(
+                                RoomUser(
+                                    room.roomId,
+                                    user.userId,
+                                    user.isAdmin
+                                )
                             )
-                        )
+                        }
+                        userDao.insert(users)
+                        chatRoomDao.insertRoomWithUsers(roomUsers)
                     }
-                    userDao.insert(users)
-                    chatRoomDao.insertRoomWithUsers(roomUsers)
                 }
             }
         }
+        return response
     }
 
     override suspend fun getUserSettings(): List<Settings> =
@@ -148,6 +151,6 @@ interface MainRepository {
     suspend fun updateUserData(data: Map<String, String>): AuthResponse
     suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
     suspend fun verifyFile(jsonObject: JsonObject): FileResponse
-    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
+    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse
     suspend fun getUserSettings(): List<Settings>
 }
