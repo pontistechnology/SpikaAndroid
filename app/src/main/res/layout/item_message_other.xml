@@ -386,11 +386,10 @@
             app:layout_constraintStart_toStartOf="@+id/tv_username"
             app:layout_constraintTop_toTopOf="parent">
 
-            <include
-                android:id="@+id/reactions"
-                layout="@layout/emoji"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/reactions_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
