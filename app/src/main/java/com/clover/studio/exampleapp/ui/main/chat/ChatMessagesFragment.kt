@@ -694,7 +694,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun onBackArrowPressed() {
-        exoPlayer!!.release()
         if (uploadInProgress) {
             showUploadError()
         } else {
@@ -1199,11 +1198,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     override fun onBackPressed(): Boolean {
-        // TODO Matko
-        exoPlayer!!.release()
         return if (uploadInProgress) {
             showUploadError()
             false
         } else true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        exoPlayer!!.release()
     }
 }
