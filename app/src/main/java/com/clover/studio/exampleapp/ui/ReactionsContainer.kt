@@ -10,7 +10,7 @@ import com.clover.studio.exampleapp.databinding.ReactionsBinding
 
 class ReactionsContainer(context: Context, attrs: AttributeSet?) :
     ConstraintLayout(context, attrs) {
-    private var addReaction: AddReaction? = null
+    private var listener: AddReaction? = null
     private var bindingSetup: ReactionsBinding = ReactionsBinding.inflate(
         LayoutInflater.from(context), this, true
     )
@@ -24,8 +24,8 @@ class ReactionsContainer(context: Context, attrs: AttributeSet?) :
         fun addReaction(reaction: String)
     }
 
-    fun setButtonListener(addReaction: AddReaction?) {
-        this.addReaction = addReaction
+    fun setButtonListener(listener: AddReaction?) {
+        this.listener = listener
     }
 
     private fun handleButtonClicks() {
@@ -33,22 +33,22 @@ class ReactionsContainer(context: Context, attrs: AttributeSet?) :
             child.setOnClickListener {
                 when (child) {
                     binding.tvThumbsUpEmoji -> {
-                        addReaction!!.addReaction(context.getString(R.string.thumbs_up_emoji))
+                        listener!!.addReaction(context.getString(R.string.thumbs_up_emoji))
                     }
                     binding.tvHeartEmoji -> {
-                        addReaction!!.addReaction(context.getString(R.string.heart_emoji))
+                        listener!!.addReaction(context.getString(R.string.heart_emoji))
                     }
                     binding.tvCryingEmoji -> {
-                        addReaction!!.addReaction(context.getString(R.string.crying_face_emoji))
+                        listener!!.addReaction(context.getString(R.string.crying_face_emoji))
                     }
                     binding.tvAstonishedEmoji -> {
-                        addReaction!!.addReaction(context.getString(R.string.astonished_emoji))
+                        listener!!.addReaction(context.getString(R.string.astonished_emoji))
                     }
                     binding.tvDisappointedRelievedEmoji -> {
-                        addReaction!!.addReaction(context.getString(R.string.disappointed_relieved_emoji))
+                        listener!!.addReaction(context.getString(R.string.disappointed_relieved_emoji))
                     }
                     binding.tvPrayingHandsEmoji -> {
-                        addReaction!!.addReaction(context.getString(R.string.praying_hands_emoji))
+                        listener!!.addReaction(context.getString(R.string.praying_hands_emoji))
                     }
                 }
             }
