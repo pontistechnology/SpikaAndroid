@@ -68,31 +68,33 @@ class ChatRepositoryImpl @Inject constructor(
         val response =
             chatService.updateRoom(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject, roomId)
 
-        appDatabase.runInTransaction {
-            CoroutineScope(Dispatchers.IO).launch {
-                val oldRoom = roomDao.getRoomById(roomId)
-                response.data?.room?.let { roomDao.updateRoomTable(oldRoom, it) }
+        CoroutineScope(Dispatchers.IO).launch {
+            appDatabase.runInTransaction {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val oldRoom = roomDao.getRoomById(roomId)
+                    response.data?.room?.let { roomDao.updateRoomTable(oldRoom, it) }
 
-                val users: MutableList<User> = ArrayList()
-                val roomUsers: MutableList<RoomUser> = ArrayList()
-                if (response.data?.room != null) {
-                    val room = response.data.room
+                    val users: MutableList<User> = ArrayList()
+                    val roomUsers: MutableList<RoomUser> = ArrayList()
+                    if (response.data?.room != null) {
+                        val room = response.data.room
 
-                    // Delete Room User if id has been passed through
-                    if (userId != 0) {
-                        roomDao.deleteRoomUser(RoomUser(roomId, userId, false))
-                    }
+                        // Delete Room User if id has been passed through
+                        if (userId != 0) {
+                            roomDao.deleteRoomUser(RoomUser(roomId, userId, false))
+                        }
 
-                    for (user in room.users) {
-                        user.user?.let { users.add(it) }
-                        roomUsers.add(
-                            RoomUser(
-                                room.roomId, user.userId, user.isAdmin
+                        for (user in room.users) {
+                            user.user?.let { users.add(it) }
+                            roomUsers.add(
+                                RoomUser(
+                                    room.roomId, user.userId, user.isAdmin
+                                )
                             )
-                        )
+                        }
+                        userDao.insert(users)
+                        roomDao.insertRoomWithUsers(roomUsers)
                     }
-                    userDao.insert(users)
-                    roomDao.insertRoomWithUsers(roomUsers)
                 }
             }
         }

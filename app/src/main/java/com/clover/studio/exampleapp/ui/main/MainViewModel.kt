@@ -81,7 +81,7 @@ class MainViewModel @Inject constructor(
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
             } else {
-                createRoomListener.postValue(Event(RoomFailed))
+                createRoomListener.postValue(Event(RoomCreateFailed))
             }
             return@launch
         }
@@ -186,10 +186,13 @@ class MainViewModel @Inject constructor(
     fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = viewModelScope.launch {
         try {
             Timber.d("RoomDataCalled")
-            repository.updateRoom(jsonObject, roomId, userId)
+            val roomData = repository.updateRoom(jsonObject, roomId, userId).data?.room
+            createRoomListener.postValue(Event(RoomCreated(roomData!!)))
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
+            } else {
+                createRoomListener.postValue(Event(RoomUpdateFailed))
             }
             return@launch
         }
@@ -216,7 +219,9 @@ object UsersError : MainStates()
 object RoomsFetched : MainStates()
 object RoomFetchFail : MainStates()
 class RoomCreated(val roomData: ChatRoom) : MainStates()
-object RoomFailed : MainStates()
+class RoomUpdated(val roomData: ChatRoom) : MainStates()
+object RoomCreateFailed : MainStates()
+object RoomUpdateFailed: MainStates()
 class RoomExists(val roomData: ChatRoom) : MainStates()
 object RoomNotFound : MainStates()
 object UserUpdated : MainStates()

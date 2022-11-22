@@ -21,7 +21,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentGroupInformationBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomCreated
-import com.clover.studio.exampleapp.ui.main.RoomFailed
+import com.clover.studio.exampleapp.ui.main.RoomCreateFailed
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
@@ -218,7 +218,7 @@ class GroupInformationFragment : BaseFragment() {
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
                     findNavController().popBackStack(R.id.mainFragment, false)
                 }
-                is RoomFailed -> {
+                is RoomCreateFailed -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))
                     Timber.d("Failed to create room")

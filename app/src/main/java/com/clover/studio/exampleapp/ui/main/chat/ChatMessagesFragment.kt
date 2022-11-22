@@ -316,6 +316,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
         )
+        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         bindingSetup.rvChat.adapter = chatAdapter
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         layoutManager.stackFromEnd = true
