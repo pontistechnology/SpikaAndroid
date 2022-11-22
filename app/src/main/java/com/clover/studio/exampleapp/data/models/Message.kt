@@ -72,7 +72,13 @@ data class Message @JvmOverloads constructor(
     val muted: Boolean? = false,
 
     @Ignore
-    var reaction: String = ""
+    var reaction: String = "",
+
+    @Ignore
+    var messagePosition: Int = 0,
+
+    @Ignore
+    var senderMessage: Boolean = false,
 )
 
 data class MessageBody(
