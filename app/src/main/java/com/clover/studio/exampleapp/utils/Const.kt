@@ -22,10 +22,8 @@ class Const {
         companion object {
             const val DELETE_MESSAGE_ME = "user"
             const val DELETE_MESSAGE_ALL = "all"
-            const val DELETE = "delete"
-            const val EDIT = "edit"
             const val DOWNLOAD_FILE = "download_file"
-            const val ADD_REACTION = "add_reaction"
+            const val MESSAGE_ACTION = "action"
         }
     }
 
