@@ -17,7 +17,6 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.children
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -35,7 +34,6 @@ import com.clover.studio.exampleapp.data.models.Reactions
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
-import com.clover.studio.exampleapp.ui.ReactionsContainer
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
@@ -45,7 +43,6 @@ import java.util.*
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
-private var REACTION = ""
 private var oldPosition = -1
 private var firstPlay = true
 
@@ -107,7 +104,7 @@ class ChatAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
-        getItem(position).let { it ->
+        getItem(position).let {
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.message.createdAt!!
             val date = calendar.get(Calendar.DAY_OF_MONTH)
@@ -324,17 +321,6 @@ class ChatAdapter(
                 }
 
                 /* Reactions section: */
-                // All commented lines of code in the reactions section refer to removing reactions
-
-                // Listener - remove reaction layouts
-                holder.binding.clMessage.setOnTouchListener { _, _ ->
-                    if (holder.binding.cvReactions.visibility == View.VISIBLE) {
-                        holder.binding.cvReactions.visibility = View.GONE
-                        holder.binding.cvMessageOptions.visibility = View.GONE
-                    }
-                    return@setOnTouchListener true
-                }
-
                 // Get reactions from database:
                 // var reactionId = 0
                 val reactions = Reactions(0, 0, 0, 0, 0, 0)
@@ -349,46 +335,11 @@ class ChatAdapter(
                 }
 
                 // Send new reaction:
-                val reactionsContainer = ReactionsContainer(context, null)
-                holder.binding.reactionsContainer.addView(reactionsContainer)
                 holder.binding.clContainer.setOnLongClickListener { _ ->
-                    holder.binding.cvReactions.visibility = View.VISIBLE
-                    holder.binding.cvMessageOptions.visibility = View.VISIBLE
-                    reactionsContainer.setButtonListener(object : ReactionsContainer.AddReaction {
-                        override fun addReaction(reaction: String) {
-                            if (reaction.isNotEmpty()) {
-                                it.message.reaction = reaction
-                                onMessageInteraction.invoke(
-                                    Const.UserActions.ADD_REACTION,
-                                    it.message
-                                )
-                                val newReactions = Reactions(0, 0, 0, 0, 0, 0)
-                                holder.binding.tvReactedEmoji.text =
-                                    getDatabaseReaction(it, newReactions)
-                                holder.binding.cvReactedEmoji.visibility = View.VISIBLE
-                                notifyItemChanged(holder.absoluteAdapterPosition)
-                                holder.binding.cvReactions.visibility = View.GONE
-                                holder.binding.cvMessageOptions.visibility = View.GONE
-                            } else {
-                                holder.binding.cvReactedEmoji.visibility = View.GONE
-                            }
-                        }
-                    })
+                    it.message.senderMessage = true
+                    it.message.messagePosition = holder.absoluteAdapterPosition
+                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it.message)
                     true
-                }
-
-                // Delete message option clicked
-                holder.binding.messageOptions.tvDelete.setOnClickListener { _ ->
-                    onMessageInteraction.invoke(Const.UserActions.DELETE, it.message)
-                    holder.binding.cvMessageOptions.visibility = View.GONE
-                    holder.binding.cvReactions.visibility = View.GONE
-                }
-
-                // Edit message option clicked
-                holder.binding.messageOptions.tvEdit.setOnClickListener { _ ->
-                    onMessageInteraction.invoke(Const.UserActions.EDIT, it.message)
-                    holder.binding.cvMessageOptions.visibility = View.GONE
-                    holder.binding.cvReactions.visibility = View.GONE
                 }
 
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
@@ -667,15 +618,6 @@ class ChatAdapter(
                 }
 
                 /* Reactions section: */
-                // Listener - remove reaction layouts
-                holder.binding.clMessageOther.setOnTouchListener { _, _ ->
-                    if (holder.binding.cvReactions.visibility == View.VISIBLE) {
-                        holder.binding.cvReactions.visibility = View.GONE
-                        holder.binding.cvMessageOptions.visibility = View.GONE
-                    }
-                    return@setOnTouchListener true
-                }
-
                 // Get reactions from database
                 val reactions = Reactions(0, 0, 0, 0, 0, 0)
                 val reactionText = getDatabaseReaction(it, reactions)
@@ -688,31 +630,10 @@ class ChatAdapter(
                 }
 
                 // Send new reaction:
-                val reactionsContainer = ReactionsContainer(context, null)
-                holder.binding.reactionsContainer.addView(reactionsContainer)
                 holder.binding.clContainer.setOnLongClickListener { _ ->
-                    holder.binding.cvReactions.visibility = View.VISIBLE
-                    holder.binding.cvMessageOptions.visibility = View.VISIBLE
-                    reactionsContainer.setButtonListener(object : ReactionsContainer.AddReaction {
-                        override fun addReaction(reaction: String) {
-                            if (reaction.isNotEmpty()) {
-                                it.message.reaction = reaction
-                                onMessageInteraction.invoke(
-                                    Const.UserActions.ADD_REACTION,
-                                    it.message
-                                )
-                                val newReactions = Reactions(0, 0, 0, 0, 0, 0)
-                                holder.binding.tvReactedEmoji.text =
-                                    getDatabaseReaction(it, newReactions)
-                                holder.binding.cvReactedEmoji.visibility = View.VISIBLE
-                                notifyItemChanged(holder.absoluteAdapterPosition)
-                                holder.binding.cvReactions.visibility = View.GONE
-                                holder.binding.cvMessageOptions.visibility = View.GONE
-                            } else {
-                                holder.binding.cvReactedEmoji.visibility = View.GONE
-                            }
-                        }
-                    })
+                    it.message.senderMessage = false
+                    it.message.messagePosition = holder.absoluteAdapterPosition
+                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it.message)
                     true
                 }
 

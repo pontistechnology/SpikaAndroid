@@ -38,6 +38,7 @@ import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
+import com.clover.studio.exampleapp.ui.ReactionsContainer
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
@@ -91,6 +92,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var uploadIndex = 0
     private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
+    private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
 
     private var avatarUrl = ""
     private var userName = ""
@@ -155,6 +157,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
+        bottomSheetMessageActions = BottomSheetBehavior.from(bindingSetup.messageActions.root)
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
 
@@ -307,10 +310,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             onMessageInteraction = { event, message ->
                 run {
                     when (event) {
-                        Const.UserActions.DELETE -> showDeleteMessageDialog(message)
-                        Const.UserActions.EDIT -> handleMessageEdit(message)
                         Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                        Const.UserActions.ADD_REACTION -> handleMessageReaction(message)
+                        Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                         else -> Timber.d("No other action currently")
                     }
                 }
@@ -318,7 +319,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         bindingSetup.rvChat.adapter = chatAdapter
-        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
         bindingSetup.rvChat.itemAnimator = null
@@ -359,7 +359,49 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
     }
 
-    private fun handleMessageReaction(message: Message) {
+    private fun handleMessageAction(message: Message) {
+        val reactionsContainer = ReactionsContainer(this.context!!, null)
+        bindingSetup.messageActions.reactionsContainer.addView(reactionsContainer)
+        bottomSheetMessageActions.state = BottomSheetBehavior.STATE_EXPANDED
+        bindingSetup.vTransparent.visibility = View.VISIBLE
+
+        // For now, only show delete and edit for sender
+        if (message.senderMessage) {
+            bindingSetup.messageActions.llEditMessage.visibility = View.VISIBLE
+            bindingSetup.messageActions.llDeleteMessage.visibility = View.VISIBLE
+        } else {
+            bindingSetup.messageActions.llEditMessage.visibility = View.GONE
+            bindingSetup.messageActions.llDeleteMessage.visibility = View.GONE
+        }
+
+        reactionsContainer.setButtonListener(object : ReactionsContainer.AddReaction {
+            override fun addReaction(reaction: String) {
+                if (reaction.isNotEmpty()) {
+                    message.reaction = reaction
+                    addReaction(message)
+                    chatAdapter.notifyItemChanged(message.messagePosition)
+                    closeMessageSheet()
+                }
+            }
+        })
+
+        bindingSetup.messageActions.llDeleteMessage.setOnClickListener {
+            closeMessageSheet()
+            showDeleteMessageDialog(message)
+        }
+
+        bindingSetup.messageActions.llEditMessage.setOnClickListener {
+            closeMessageSheet()
+            handleMessageEdit(message)
+        }
+    }
+
+    private fun closeMessageSheet() {
+        bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.vTransparent.visibility = View.GONE
+    }
+
+    private fun addReaction(message: Message) {
         /*if (!reaction.clicked) {*/
         val jsonObject = JsonObject()
         jsonObject.addProperty(Const.Networking.MESSAGE_ID, message.id)
@@ -512,6 +554,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
             sent = true
             hideSendButton()
+        }
+
+        bindingSetup.messageActions.ivRemove.setOnClickListener {
+            closeMessageSheet()
         }
 
         bindingSetup.ivAdd.setOnClickListener {

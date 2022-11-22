@@ -6,12 +6,12 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.databinding.EmojiBinding
+import com.clover.studio.exampleapp.databinding.ReactionsBinding
 
 class ReactionsContainer(context: Context, attrs: AttributeSet?) :
     ConstraintLayout(context, attrs) {
     private var addReaction: AddReaction? = null
-    private var bindingSetup: EmojiBinding = EmojiBinding.inflate(
+    private var bindingSetup: ReactionsBinding = ReactionsBinding.inflate(
         LayoutInflater.from(context), this, true
     )
     private val binding get() = bindingSetup
