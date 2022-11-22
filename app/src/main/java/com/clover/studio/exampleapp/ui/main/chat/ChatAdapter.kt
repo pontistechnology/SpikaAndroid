@@ -34,6 +34,7 @@ import com.clover.studio.exampleapp.data.models.Reactions
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
+import com.clover.studio.exampleapp.ui.ReactionsContainer
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
@@ -335,6 +336,8 @@ class ChatAdapter(
                 }
 
                 // Send new reaction:
+                val reactionsContainer = ReactionsContainer(context, null)
+                holder.binding.reactionsContainer.addView(reactionsContainer)
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     it.message.senderMessage = true
                     it.message.messagePosition = holder.absoluteAdapterPosition
@@ -630,6 +633,8 @@ class ChatAdapter(
                 }
 
                 // Send new reaction:
+                val reactionsContainer = ReactionsContainer(context, null)
+                holder.binding.reactionsContainer.addView(reactionsContainer)
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     it.message.senderMessage = false
                     it.message.messagePosition = holder.absoluteAdapterPosition
