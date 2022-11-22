@@ -118,6 +118,8 @@
     <string name="seven_hundred">700</string>
     <string name="room_delete_admin_error">Only admins can delete conversations.</string>
 
+    <!--Audio-->
+    <string name="audio_duration">00:00</string>
     <!--Emoji-->
     <string name="thumbs_up_emoji">&#x1F44D;</string>
     <string name="praying_hands_emoji">&#x1F64F;</string>
