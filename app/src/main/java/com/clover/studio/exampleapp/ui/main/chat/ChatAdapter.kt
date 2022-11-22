@@ -336,8 +336,6 @@ class ChatAdapter(
                 }
 
                 // Send new reaction:
-                val reactionsContainer = ReactionsContainer(context, null)
-                holder.binding.reactionsContainer.addView(reactionsContainer)
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     it.message.senderMessage = true
                     it.message.messagePosition = holder.absoluteAdapterPosition
@@ -633,8 +631,6 @@ class ChatAdapter(
                 }
 
                 // Send new reaction:
-                val reactionsContainer = ReactionsContainer(context, null)
-                holder.binding.reactionsContainer.addView(reactionsContainer)
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     it.message.senderMessage = false
                     it.message.messagePosition = holder.absoluteAdapterPosition
