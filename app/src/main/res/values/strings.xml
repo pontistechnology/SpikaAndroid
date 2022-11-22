@@ -140,6 +140,7 @@
     <string name="delete_for_me">Delete for me</string>
     <string name="save">Save</string>
     <string name="edited">edited</string>
+    <string name="failed_room_update">Failed to update room</string>
 
 
 </resources>

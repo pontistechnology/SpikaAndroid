@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -15,23 +14,27 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.entity.User
-import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
+import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentGroupInformationBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
+import com.clover.studio.exampleapp.ui.main.RoomCreated
+import com.clover.studio.exampleapp.ui.main.RoomCreateFailed
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
-import com.clover.studio.exampleapp.utils.helpers.Resource
+import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -45,8 +48,7 @@ class GroupInformationFragment : BaseFragment() {
     private var selectedUsers: MutableList<UserAndPhoneUser> = ArrayList()
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var progress: Long = 1L
-    private var uploadPieces: Int = 0
-    private var avatarFileId: Long? = null
+    private var avatarPath: String? = null
 
     private var bindingSetup: FragmentGroupInformationBinding? = null
 
@@ -56,10 +58,10 @@ class GroupInformationFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.GetContent()) {
             if (it != null) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
+                    Tools.handleSamplingAndRotationBitmap(requireActivity(), it)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickPhoto)
+                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
@@ -72,14 +74,10 @@ class GroupInformationFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(
-                        requireActivity(),
-                        currentPhotoLocation,
-                        false
-                    )
+                    Tools.handleSamplingAndRotationBitmap(requireActivity(), currentPhotoLocation)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickPhoto)
+                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
@@ -141,7 +139,7 @@ class GroupInformationFragment : BaseFragment() {
                 Const.JsonFields.NAME,
                 binding.etEnterUsername.text.toString()
             )
-            jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarFileId)
+            jsonObject.addProperty(Const.JsonFields.AVATAR_URL, avatarPath)
             jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
             jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
             jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.GROUP)
@@ -176,12 +174,12 @@ class GroupInformationFragment : BaseFragment() {
         binding.etEnterUsername.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
-                    hideKeyboard(view)
+                    Tools.hideKeyboard(requireActivity(), view)
                 }
             }
         }
 
-        binding.ivPickPhoto.setOnClickListener {
+        binding.cvPhotoPicker.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
@@ -205,20 +203,22 @@ class GroupInformationFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
+            when (it) {
+                is RoomCreated -> {
                     hideProgress()
                     val users = mutableListOf<User>()
-                    for (roomUser in it.responseData?.data?.room!!.users) {
+                    for (roomUser in it.roomData.users) {
                         roomUser.user?.let { user -> users.add(user) }
                     }
 
-                    val roomWithUsers = RoomWithUsers(it.responseData.data.room, users)
+                    val roomWithUsers = RoomWithUsers(it.roomData, users)
+                    val gson = Gson()
+                    val roomData = gson.toJson(roomWithUsers)
                     Timber.d("Room with users: $roomWithUsers")
-                    activity?.let { parent -> startChatScreenActivity(parent, roomWithUsers) }
+                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
                     findNavController().popBackStack(R.id.mainFragment, false)
                 }
-                Resource.Status.ERROR -> {
+                is RoomCreateFailed -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))
                     Timber.d("Failed to create room")
@@ -228,35 +228,6 @@ class GroupInformationFragment : BaseFragment() {
                     showRoomCreationError(getString(R.string.something_went_wrong))
                     Timber.d("Other error")
                 }
-            }
-        })
-
-        viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.LOADING -> {
-                    if (progress <= uploadPieces) {
-                        binding.progressBar.secondaryProgress = progress.toInt()
-                        progress++
-                    } else progress = 0
-                }
-                Resource.Status.SUCCESS -> {
-                    Timber.d("Upload verified")
-                    requireActivity().runOnUiThread {
-                        binding.clProgressScreen.visibility = View.GONE
-                    }
-                    avatarFileId = it.responseData?.fileId
-                }
-                Resource.Status.ERROR -> {
-                    Timber.d("Upload Error")
-                    requireActivity().runOnUiThread {
-                        showUploadError(it.message!!)
-                    }
-                }
-                else -> Toast.makeText(
-                    requireContext(),
-                    getString(R.string.something_went_wrong),
-                    Toast.LENGTH_SHORT
-                ).show()
             }
         })
     }
@@ -282,7 +253,7 @@ class GroupInformationFragment : BaseFragment() {
     private fun takePhoto() {
         currentPhotoLocation = FileProvider.getUriForFile(
             requireActivity(),
-            BuildConfig.APPLICATION_ID + ".fileprovider",
+            "com.clover.studio.exampleapp.fileprovider",
             Tools.createImageFile(requireActivity())
         )
         Timber.d("$currentPhotoLocation")
@@ -299,22 +270,48 @@ class GroupInformationFragment : BaseFragment() {
                 inputStream!!,
                 activity?.contentResolver?.getType(currentPhotoLocation)!!
             )
-            uploadPieces =
-                if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
-                    (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
-                else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
+            val uploadPieces =
+                if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
+                    fileStream.length() / CHUNK_SIZE + 1
+                else fileStream.length() / CHUNK_SIZE
 
-            binding.progressBar.max = uploadPieces
+            binding.progressBar.max = uploadPieces.toInt()
             Timber.d("File upload start")
-            viewModel.uploadMedia(
-                requireActivity(),
-                currentPhotoLocation,
-                Const.JsonFields.AVATAR_TYPE,
-                uploadPieces,
-                fileStream,
-                null,
-                false
-            )
+            CoroutineScope(Dispatchers.IO).launch {
+                uploadDownloadManager.uploadFile(
+                    requireActivity(),
+                    currentPhotoLocation,
+                    Const.JsonFields.IMAGE,
+                    Const.JsonFields.AVATAR,
+                    uploadPieces,
+                    fileStream,
+                    false,
+                    object :
+                        FileUploadListener {
+                        override fun filePieceUploaded() {
+                            if (progress <= uploadPieces) {
+                                binding.progressBar.secondaryProgress = progress.toInt()
+                                progress++
+                            } else progress = 0
+                        }
+
+                        override fun fileUploadError(description: String) {
+                            Timber.d("Upload Error")
+                            requireActivity().runOnUiThread {
+                                showUploadError(description)
+                            }
+                        }
+
+                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                            Timber.d("Upload verified")
+                            requireActivity().runOnUiThread {
+                                binding.clProgressScreen.visibility = View.GONE
+                            }
+                            avatarPath = path
+                        }
+
+                    })
+            }
             binding.clProgressScreen.visibility = View.VISIBLE
         }
     }
