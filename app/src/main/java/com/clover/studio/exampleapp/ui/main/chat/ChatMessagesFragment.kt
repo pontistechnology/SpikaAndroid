@@ -94,6 +94,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var photoImageUri: Uri? = null
     private var isAdmin = false
     private var uploadIndex = 0
+    private var tempMessagecounter = 0
     private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
@@ -869,8 +870,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
 
     private fun createTempMessage() {
+        tempMessagecounter--
         val tempMessage = Message(
-            0,
+            tempMessagecounter,
             viewModel.getLocalUserId(),
             0,
             0,

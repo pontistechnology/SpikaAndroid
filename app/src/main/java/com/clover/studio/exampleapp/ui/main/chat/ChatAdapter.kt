@@ -138,6 +138,9 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
+                        // TODO show progress screen when uploading image in dummy file
+//                        holder.binding.clProgressScreen.visibility = View.VISIBLE
+
                         val imagePath = it.message.body?.file?.path?.let { imagePath ->
                             Tools.getFileUrl(
                                 imagePath
