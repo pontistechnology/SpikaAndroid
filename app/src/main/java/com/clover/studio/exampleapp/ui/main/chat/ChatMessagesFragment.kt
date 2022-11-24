@@ -28,6 +28,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -75,6 +76,7 @@ enum class UploadMimeTypes {
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private val viewModel: ChatViewModel by activityViewModels()
+    private val args: ChatMessagesFragmentArgs by navArgs()
     private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: FragmentChatMessagesBinding
     private lateinit var chatAdapter: ChatAdapter
@@ -367,11 +369,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         // For now, only show delete and edit for sender
         if (message.senderMessage) {
-            bindingSetup.messageActions.llEditMessage.visibility = View.VISIBLE
-            bindingSetup.messageActions.llDeleteMessage.visibility = View.VISIBLE
+            bindingSetup.messageActions.tvEdit.visibility = View.VISIBLE
+            bindingSetup.messageActions.tvDelete.visibility = View.VISIBLE
         } else {
-            bindingSetup.messageActions.llEditMessage.visibility = View.GONE
-            bindingSetup.messageActions.llDeleteMessage.visibility = View.GONE
+            bindingSetup.messageActions.tvEdit.visibility = View.GONE
+            bindingSetup.messageActions.tvDelete.visibility = View.GONE
         }
 
         reactionsContainer.setButtonListener(object : ReactionsContainer.AddReaction {
@@ -385,12 +387,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
-        bindingSetup.messageActions.llDeleteMessage.setOnClickListener {
+        bindingSetup.messageActions.tvDelete.setOnClickListener {
             closeMessageSheet()
             showDeleteMessageDialog(message)
         }
 
-        bindingSetup.messageActions.llEditMessage.setOnClickListener {
+        bindingSetup.messageActions.tvEdit.setOnClickListener {
             closeMessageSheet()
             handleMessageEdit(message)
         }
@@ -1250,6 +1252,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             showUploadError()
             false
         } else true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        firstEnter = args.scrollDown
     }
 
     override fun onDestroy() {
