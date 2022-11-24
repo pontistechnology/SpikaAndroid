@@ -63,7 +63,7 @@
             android:fontFamily="@font/montserrat"
             android:text="@string/reply"
             android:textSize="@dimen/sixteen_sp_text"
-            android:visibility="gone"
+            android:visibility="visible"
             app:drawableLeftCompat="@drawable/img_reply"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

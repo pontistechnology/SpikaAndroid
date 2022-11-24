@@ -89,12 +89,27 @@ data class Message @JvmOverloads constructor(
 )
 
 data class MessageBody(
+    var referenceMessage: ReferenceMessage?,
     var text: String?,
     var fileId: Long?,
     var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?
 )
+
+data class ReferenceMessage(
+    var id: Int?,
+    var fromUserId: Int?,
+    var body: ReplyBody,
+    var text: String?,
+    var type: String?,
+)
+
+data class ReplyBody(
+    var text: String?,
+    var file: MessageFile?,
+)
+
 
 data class MessageFile(
     val fileName: String,

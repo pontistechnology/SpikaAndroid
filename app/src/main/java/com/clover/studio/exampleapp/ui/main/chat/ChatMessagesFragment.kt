@@ -33,9 +33,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.MessageAndRecords
-import com.clover.studio.exampleapp.data.models.MessageBody
+import com.clover.studio.exampleapp.data.models.*
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
@@ -756,7 +754,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             0,
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT,
-            MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null),
+            MessageBody(
+                ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", ""),
+                bindingSetup.etMessage.text.toString(),
+                1,
+                1,
+                null,
+                null
+            ),
             System.currentTimeMillis(),
             null,
             null,
@@ -807,18 +812,39 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun uploadImage() {
-        val messageBody = MessageBody("", 0, 0, null, null)
+        val messageBody = MessageBody(
+            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", ""),
+            "",
+            0,
+            0,
+            null,
+            null
+        )
         uploadThumbnail(messageBody, uploadIndex)
     }
 
     private fun uploadVideo() {
-        val messageBody = MessageBody("", 0, 0, null, null)
+        val messageBody = MessageBody(
+            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", ""),
+            "",
+            0,
+            0,
+            null,
+            null
+        )
         uploadVideoThumbnail(messageBody, uploadIndex)
     }
 
     private fun uploadFile(uri: Uri) {
         uploadInProgress = true
-        val messageBody = MessageBody("", 0, 0, null, null)
+        val messageBody = MessageBody(
+            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", ""),
+            "",
+            0,
+            0,
+            null,
+            null
+        )
         val inputStream =
             activity!!.contentResolver.openInputStream(uri)
 
