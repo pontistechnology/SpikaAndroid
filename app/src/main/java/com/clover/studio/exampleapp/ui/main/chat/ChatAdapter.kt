@@ -15,7 +15,6 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.media3.common.MediaItem
@@ -44,8 +43,6 @@ import java.util.*
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
-private const val TEXT_SIZE_BIG = 15
-private const val TEXT_SIZE_SMALL = 5
 private var oldPosition = -1
 private var firstPlay = true
 
@@ -116,7 +113,7 @@ class ChatAdapter(
             // TODO can two view holders use same method for binding if all views are the same?
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 holder as SentMessageHolder
-                holder.binding.clContainer.setBackgroundResource(R.drawable.bg_btn_white)
+
                 when (it.message.type) {
                     Const.JsonFields.TEXT -> {
                         holder.binding.tvMessage.text = it.message.body?.text
@@ -125,7 +122,6 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
-                        holder.binding.clReplyMessage.visibility = View.GONE
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
@@ -133,7 +129,6 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
-                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val imagePath = it.message.body?.file?.path?.let { imagePath ->
                             Tools.getFileUrl(
@@ -163,7 +158,6 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.VISIBLE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
-                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
                         val sizeText =
@@ -189,7 +183,6 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
-                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val videoPath = it.message.body?.file?.path?.let { videoPath ->
                             Tools.getFileUrl(
@@ -217,13 +210,13 @@ class ChatAdapter(
                             view.findNavController().navigate(action)
                         }
                     }
+
                     Const.JsonFields.AUDIO -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.VISIBLE
-                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val audioPath = it.message.body?.file?.path?.let { audioPath ->
                             Tools.getFileUrl(
@@ -309,127 +302,14 @@ class ChatAdapter(
                             }
                         })
                     }
+
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
-                        holder.binding.clReplyMessage.visibility = View.GONE
                     }
-                }
-
-                // Reply section
-                if (it.message.reply == true) {
-                    val params =
-                        holder.binding.clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
-                    params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-                    val original = it.message.body?.text?.length
-                    holder.binding.clReplyMessage.visibility = View.VISIBLE
-                    holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_user)
-                    for (roomUser in users) {
-                        if (it.message.body?.referenceMessage?.fromUserId == roomUser.id) {
-                            holder.binding.tvUsername.text = roomUser.displayName
-                            break
-                        }
-                    }
-                    when (it.message.body?.referenceMessage?.type) {
-                        Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO -> {
-                            if (original!! >= TEXT_SIZE_BIG) {
-                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                            }
-                            val imagePath =
-                                it.message.body.referenceMessage?.body?.file?.path?.let { imagePath ->
-                                    Tools.getFileUrl(
-                                        imagePath
-                                    )
-                                }
-                            holder.binding.tvMessageReply.visibility = View.GONE
-                            holder.binding.cvReplyMedia.visibility = View.VISIBLE
-                            holder.binding.tvReplyMedia.visibility = View.VISIBLE
-                            if (it.message.body.referenceMessage?.type == Const.JsonFields.CHAT_IMAGE) {
-                                holder.binding.tvReplyMedia.text = context.getString(
-                                    R.string.media,
-                                    context.getString(R.string.photo)
-                                )
-                                holder.binding.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                                    R.drawable.img_camera_reply,
-                                    0,
-                                    0,
-                                    0
-                                )
-                            } else {
-                                holder.binding.tvReplyMedia.text = context.getString(
-                                    R.string.media,
-                                    context.getString(R.string.video)
-                                )
-                                holder.binding.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                                    R.drawable.img_video_reply,
-                                    0,
-                                    0,
-                                    0
-                                )
-                            }
-                            Glide.with(context)
-                                .load(imagePath)
-                                .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
-                                .placeholder(R.drawable.img_image_placeholder)
-                                .dontTransform()
-                                .dontAnimate()
-                                .into(holder.binding.ivReplyImage)
-                        }
-                        Const.JsonFields.AUDIO -> {
-                            if (original!! >= TEXT_SIZE_SMALL) {
-                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                            }
-                            holder.binding.tvMessageReply.visibility = View.GONE
-                            holder.binding.tvReplyMedia.visibility = View.VISIBLE
-                            holder.binding.cvReplyMedia.visibility = View.GONE
-                            holder.binding.tvReplyMedia.text =
-                                context.getString(R.string.media, context.getString(R.string.audio))
-                            holder.binding.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                                R.drawable.img_audio_reply,
-                                0,
-                                0,
-                                0
-                            )
-                        }
-                        Const.JsonFields.FILE_TYPE -> {
-                            if (original!! >= TEXT_SIZE_SMALL) {
-                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                            }
-                            holder.binding.tvMessageReply.visibility = View.GONE
-                            holder.binding.tvReplyMedia.visibility = View.VISIBLE
-                            holder.binding.tvReplyMedia.text =
-                                context.getString(R.string.media, context.getString(R.string.file))
-                            holder.binding.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                                R.drawable.img_file_reply,
-                                0,
-                                0,
-                                0
-                            )
-                        }
-                        else -> {
-                            holder.binding.tvMessageReply.visibility = View.VISIBLE
-                            holder.binding.cvReplyMedia.visibility = View.GONE
-                            holder.binding.tvReplyMedia.visibility = View.GONE
-                            val replyText = it.message.body?.referenceMessage?.body?.text
-                            holder.binding.tvMessageReply.text = replyText
-
-                            // Check which layout is wider
-                            val reply = replyText?.length
-                            if (original != null && reply != null) {
-                                if (original >= reply) {
-                                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Find replied message
-                holder.binding.clReplyMessage.setOnClickListener { _ ->
-                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it.message)
                 }
 
                 // Show/hide message edited layout. If createdAt field doesn't correspond to the
@@ -501,7 +381,6 @@ class ChatAdapter(
             } else {
                 // View holder for messages from other users
                 holder as ReceivedMessageHolder
-                holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                 when (it.message.type) {
                     Const.JsonFields.TEXT -> {
                         holder.binding.tvMessage.text = it.message.body?.text
@@ -510,16 +389,13 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
-                        holder.binding.clReplyMessage.visibility = View.GONE
-
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.cvImage.visibility = View.VISIBLE
+                        holder.binding.clImages.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
-                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val imagePath = it.message.body?.file?.path?.let { imagePath ->
                             Tools.getFileUrl(
@@ -545,11 +421,10 @@ class ChatAdapter(
                     }
                     Const.JsonFields.VIDEO -> {
                         holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.cvImage.visibility = View.GONE
+                        holder.binding.clImages.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.VISIBLE
                         holder.binding.cvAudio.visibility = View.GONE
-                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val videoPath = it.message.body?.file?.path?.let { videoPath ->
                             Tools.getFileUrl(
@@ -583,7 +458,6 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.VISIBLE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
-                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
                         val sizeText =
@@ -610,7 +484,6 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.VISIBLE
-                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val audioPath = it.message.body?.file?.path?.let { audioPath ->
                             Tools.getFileUrl(
@@ -696,127 +569,16 @@ class ChatAdapter(
                             }
                         })
                     }
+
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
-                        holder.binding.clReplyMessage.visibility = View.GONE
+
+                        // Reply section
+                        Timber.d("reply: ${it.message.reply}")
                     }
-                }
-
-                // Reply section
-                if (it.message.reply == true) {
-                    val params =
-                        holder.binding.clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
-                    params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-                    val original = it.message.body?.text?.length
-                    holder.binding.clReplyMessage.visibility = View.VISIBLE
-                    holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
-                    for (roomUser in users) {
-                        if (it.message.body?.referenceMessage?.fromUserId == roomUser.id) {
-                            holder.binding.tvUsernameOther.text = roomUser.displayName.toString()
-                            break
-                        }
-                    }
-                    when (it.message.body?.referenceMessage?.type) {
-                        Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO -> {
-                            if (original!! >= TEXT_SIZE_BIG) {
-                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                            }
-                            holder.binding.tvMessageReply.visibility = View.GONE
-                            holder.binding.cvReplyMedia.visibility = View.VISIBLE
-                            holder.binding.tvReplyMedia.visibility = View.VISIBLE
-                            val imagePath =
-                                it.message.body.referenceMessage?.body?.file?.path?.let { imagePath ->
-                                    Tools.getFileUrl(
-                                        imagePath
-                                    )
-                                }
-                            if (it.message.body.referenceMessage?.type == Const.JsonFields.CHAT_IMAGE) {
-                                holder.binding.tvReplyMedia.text = context.getString(
-                                    R.string.media,
-                                    context.getString(R.string.photo)
-                                )
-                                holder.binding.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                                    R.drawable.img_camera_reply,
-                                    0,
-                                    0,
-                                    0
-                                )
-                            } else {
-                                holder.binding.tvReplyMedia.text = context.getString(
-                                    R.string.media,
-                                    context.getString(R.string.video)
-                                )
-                                holder.binding.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                                    R.drawable.img_video_reply,
-                                    0,
-                                    0,
-                                    0
-                                )
-                            }
-                            Glide.with(context)
-                                .load(imagePath)
-                                .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
-                                .placeholder(R.drawable.img_image_placeholder)
-                                .dontTransform()
-                                .dontAnimate()
-                                .into(holder.binding.ivReplyImage)
-                        }
-                        Const.JsonFields.AUDIO -> {
-                            if (original!! >= TEXT_SIZE_SMALL) {
-                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                            }
-                            holder.binding.tvMessageReply.visibility = View.GONE
-                            holder.binding.cvReplyMedia.visibility = View.GONE
-                            holder.binding.tvReplyMedia.visibility = View.VISIBLE
-                            holder.binding.tvReplyMedia.text =
-                                context.getString(R.string.media, context.getString(R.string.audio))
-                            holder.binding.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                                R.drawable.img_audio_reply,
-                                0,
-                                0,
-                                0
-                            )
-                        }
-                        Const.JsonFields.FILE_TYPE -> {
-                            if (original!! >= TEXT_SIZE_SMALL) {
-                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                            }
-                            holder.binding.tvMessageReply.visibility = View.GONE
-                            holder.binding.tvReplyMedia.visibility = View.VISIBLE
-                            holder.binding.tvReplyMedia.text =
-                                context.getString(R.string.media, context.getString(R.string.file))
-                            holder.binding.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                                R.drawable.img_file_reply,
-                                0,
-                                0,
-                                0
-                            )
-                        }
-
-                        else -> {
-                            holder.binding.tvMessageReply.visibility = View.VISIBLE
-                            holder.binding.cvReplyMedia.visibility = View.GONE
-                            holder.binding.tvReplyMedia.visibility = View.GONE
-                            val replyText = it.message.body?.referenceMessage?.body?.text
-                            holder.binding.tvMessageReply.text = replyText
-
-                            // Check which layout is wider
-                            val reply = replyText?.length
-                            if (original != null && reply != null) {
-                                if (original >= reply) {
-                                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Find replied message
-                holder.binding.clReplyMessage.setOnClickListener { _ ->
-                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it.message)
                 }
 
                 // Show/hide message edited layout. If createdAt field doesn't correspond to the
@@ -845,6 +607,7 @@ class ChatAdapter(
 
                 for (roomUser in users) {
                     if (it.message.fromUserId == roomUser.id) {
+                        it.message.roomUser = roomUser.displayName.toString()
                         holder.binding.tvUsername.text = roomUser.displayName
                         Glide.with(context)
                             .load(roomUser.avatarUrl?.let { avatarUrl ->
@@ -1041,7 +804,6 @@ class ChatAdapter(
             )
         }
     }
-
 
     private class MessageAndRecordsDiffCallback : DiffUtil.ItemCallback<MessageAndRecords>() {
 
