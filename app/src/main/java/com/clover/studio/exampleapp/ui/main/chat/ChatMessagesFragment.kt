@@ -1,16 +1,13 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
 import android.Manifest
-import android.app.DownloadManager
 import android.content.ContentResolver
-import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -1373,7 +1370,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         storagePermission =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) {
                 if (it) {
-                    downloadFile(storedMessage)
+                    context?.let { context -> Tools.downloadFile(context, storedMessage) }
                 } else {
                     Timber.d("Couldn't download file. No permission granted.")
                 }
@@ -1388,7 +1385,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                 )
             } == PackageManager.PERMISSION_GRANTED -> {
-                downloadFile(message)
+                Tools.downloadFile(context!!, message)
             }
 
             shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
@@ -1401,27 +1398,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-    }
-
-    private fun downloadFile(message: Message) {
-        try {
-            val tmp = Tools.getFileUrl(message.body!!.file!!.path)
-            val request = DownloadManager.Request(Uri.parse(tmp))
-            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-            request.setTitle(message.body.file!!.fileName)
-            request.setDescription("The file is downloading")
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            request.setDestinationInExternalPublicDir(
-                Environment.DIRECTORY_DOWNLOADS,
-                message.body.file!!.fileName
-            )
-            val manager =
-                context!!.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            manager.enqueue(request)
-            Toast.makeText(context, "File is downloading", Toast.LENGTH_LONG).show()
-        } catch (e: Exception) {
-            Timber.d("$e")
-        }
     }
 
     override fun onBackPressed(): Boolean {

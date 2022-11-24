@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.utils
 
 import android.app.Activity
+import android.app.DownloadManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -14,6 +15,7 @@ import android.text.format.DateUtils
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.RemoteViews
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
@@ -23,6 +25,7 @@ import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.data.models.Message
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -350,6 +353,27 @@ object Tools {
         with(NotificationManagerCompat.from(activity)) {
             // notificationId is a unique int for each notification that you must define
             roomId?.let { notify(it, builder.build()) }
+        }
+    }
+
+    fun downloadFile(context: Context, message: Message) {
+        try {
+            val tmp = getFileUrl(message.body!!.file!!.path)
+            val request = DownloadManager.Request(Uri.parse(tmp))
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+            request.setTitle(message.body.file!!.fileName)
+            request.setDescription("The file is downloading")
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS,
+                message.body.file!!.fileName
+            )
+            val manager =
+                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            manager.enqueue(request)
+            Toast.makeText(context, "File is downloading", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Timber.d("$e")
         }
     }
 }
