@@ -1400,6 +1400,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     }
 
+    /**
+     * update progress bar in recycler view
+     * get viewHolder from position and progress bar from that viewHolder
+     *  we are rapidly updating progressbar so we didn't use notify method as it always update whole row instead of only progress bar
+     *  @param position : position of list cell
+     *  @param progress : new progress value
+     */
+    private fun updateDownloadProgressBar(position: Int, progress: Int, maxProgress: Int) {
+
+        val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(position)
+
+        if ((viewHolder as ChatAdapter.SentMessageHolder).binding.progressBar.max == 0) {
+            viewHolder.binding.progressBar.max = maxProgress
+        }
+        viewHolder.binding.progressBar.secondaryProgress = progress
+    }
+
     override fun onBackPressed(): Boolean {
         return if (uploadInProgress) {
             showUploadError()
