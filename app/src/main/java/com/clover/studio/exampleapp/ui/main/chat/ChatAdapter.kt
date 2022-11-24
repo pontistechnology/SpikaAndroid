@@ -122,6 +122,7 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
+                        holder.binding.clReplyMessage.visibility = View.GONE
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
@@ -129,6 +130,7 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
+                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val imagePath = it.message.body?.file?.path?.let { imagePath ->
                             Tools.getFileUrl(
@@ -158,6 +160,7 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.VISIBLE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
+                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
                         val sizeText =
@@ -183,6 +186,7 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
+                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val videoPath = it.message.body?.file?.path?.let { videoPath ->
                             Tools.getFileUrl(
@@ -210,13 +214,13 @@ class ChatAdapter(
                             view.findNavController().navigate(action)
                         }
                     }
-
                     Const.JsonFields.AUDIO -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.VISIBLE
+                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val audioPath = it.message.body?.file?.path?.let { audioPath ->
                             Tools.getFileUrl(
@@ -302,14 +306,70 @@ class ChatAdapter(
                             }
                         })
                     }
-
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
+                        holder.binding.clReplyMessage.visibility = View.GONE
                     }
+                }
+
+                Timber.d("msg:: ${it.message.body?.referenceMessage.toString()}")
+                if (it.message.reply == true) {
+                    holder.binding.clReplyMessage.visibility = View.VISIBLE
+                    holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_user)
+                    for (roomUser in users) {
+                        if (it.message.body?.referenceMessage?.fromUserId == roomUser.id) {
+                            holder.binding.tvUsername.text = roomUser.displayName
+                            break
+                        }
+                    }
+
+                    /*
+                    *
+                    *
+                    * data: {"type":"NEW_MESSAGE","message":{"id":32266,"fromUserId":79,"totalUserCount":1,"deliveredCount":0,"seenCount":0,"roomId":441,
+                    * "type":"text","body":{"referenceMessage":{"id":32234,"fromUserId":79,"totalUserCount":1,"deliveredCount":0,"seenCount":0,"roomId":441,
+                    * "type":"image","body":{"fileId":2294,"thumbId":2295,"file":{"fileName":"1.png","mimeType":"image/png","path":"/uploads/files/36531341","size":72660},
+                    * "thumb":{"fileName":"thumb - 1.png","mimeType":"image/jpeg","path":"/uploads/files/51263332","size":58486}},"createdAt":1669293963925,
+                    * "modifiedAt":1669293963925,"localId":"361461494934133000000","deleted":false,"reply":false},"text":"aaaa"},
+                    * "createdAt":1669295810631,"modifiedAt":1669295810631,"localId":"908762648682164800000","deleted":false,"reply":true}}
+                    * */
+
+                    when (it.message.body?.referenceMessage?.type) {
+                        Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO -> {
+                            val imagePath =
+                                it.message.body.referenceMessage?.body?.file?.path?.let { imagePath ->
+                                    Tools.getFileUrl(
+                                        imagePath
+                                    )
+                                }
+                            holder.binding.tvMessageReply.visibility = View.GONE
+                            holder.binding.cvReplyMedia.visibility = View.VISIBLE
+                            Glide.with(context)
+                                .load(imagePath)
+                                .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                                .placeholder(R.drawable.img_image_placeholder)
+                                .dontTransform()
+                                .dontAnimate()
+                                .into(holder.binding.ivReplyImage)
+                        }
+                        // TODO add audio
+                        // TODO add files
+                        else -> {
+                            // Text
+                            holder.binding.tvMessageReply.visibility = View.VISIBLE
+                            holder.binding.cvReplyMedia.visibility = View.GONE
+                            holder.binding.tvMessageReply.text =
+                                it.message.body?.referenceMessage?.body?.text
+                        }
+                    }
+                }
+
+                holder.binding.clReplyMessage.setOnClickListener {
+                    // TODO find position of replied message
                 }
 
                 // Show/hide message edited layout. If createdAt field doesn't correspond to the
@@ -389,6 +449,8 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
+                        holder.binding.clReplyMessage.visibility = View.GONE
+
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
@@ -396,6 +458,7 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
+                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val imagePath = it.message.body?.file?.path?.let { imagePath ->
                             Tools.getFileUrl(
@@ -425,6 +488,7 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.VISIBLE
                         holder.binding.cvAudio.visibility = View.GONE
+                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val videoPath = it.message.body?.file?.path?.let { videoPath ->
                             Tools.getFileUrl(
@@ -458,6 +522,7 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.VISIBLE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
+                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
                         val sizeText =
@@ -484,6 +549,7 @@ class ChatAdapter(
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.VISIBLE
+                        holder.binding.clReplyMessage.visibility = View.GONE
 
                         val audioPath = it.message.body?.file?.path?.let { audioPath ->
                             Tools.getFileUrl(
@@ -575,11 +641,10 @@ class ChatAdapter(
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
-
-                        // Reply section
-                        Timber.d("reply: ${it.message.reply}")
+                        holder.binding.clReplyMessage.visibility = View.GONE
                     }
                 }
+
 
                 // Show/hide message edited layout. If createdAt field doesn't correspond to the
                 // modifiedAt field, we can conclude that the message was edited.
@@ -607,7 +672,6 @@ class ChatAdapter(
 
                 for (roomUser in users) {
                     if (it.message.fromUserId == roomUser.id) {
-                        it.message.roomUser = roomUser.displayName.toString()
                         holder.binding.tvUsername.text = roomUser.displayName
                         Glide.with(context)
                             .load(roomUser.avatarUrl?.let { avatarUrl ->
@@ -618,6 +682,34 @@ class ChatAdapter(
                             .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                             .into(holder.binding.ivUserImage)
                         break
+                    }
+                }
+
+                // Reply
+                when (it.message.body?.referenceMessage?.type) {
+                    "image", "video" -> {
+                        val imagePath =
+                            it.message.body.referenceMessage?.body?.file?.path?.let { imagePath ->
+                                Tools.getFileUrl(
+                                    imagePath
+                                )
+                            }
+                        holder.binding.tvMessageReply.visibility = View.GONE
+                        holder.binding.cvReplyMedia.visibility = View.VISIBLE
+                        Glide.with(context)
+                            .load(imagePath)
+                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                            .placeholder(R.drawable.img_image_placeholder)
+                            .dontTransform()
+                            .dontAnimate()
+                            .into(holder.binding.ivReplyImage)
+                    }
+                    else -> {
+                        // Text
+                        holder.binding.tvMessageReply.visibility = View.VISIBLE
+                        holder.binding.cvReplyMedia.visibility = View.GONE
+                        holder.binding.tvMessageReply.text =
+                            it.message.body?.referenceMessage?.body?.text
                     }
                 }
 
