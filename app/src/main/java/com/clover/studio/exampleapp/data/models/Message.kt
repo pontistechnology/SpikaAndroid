@@ -60,6 +60,10 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "deleted")
     val deleted: Boolean?,
 
+    @SerializedName("reply")
+    @ColumnInfo(name = "reply")
+    val reply: Boolean?,
+
     // Two field below are used for firebase messaging and are not needed in the local db
     @Ignore
     @SerializedName("fromUserName")
@@ -79,6 +83,9 @@ data class Message @JvmOverloads constructor(
 
     @Ignore
     var senderMessage: Boolean = false,
+
+    @Ignore
+    var roomUser: String = ""
 )
 
 data class MessageBody(

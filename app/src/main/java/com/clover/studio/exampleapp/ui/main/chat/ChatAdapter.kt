@@ -34,7 +34,6 @@ import com.clover.studio.exampleapp.data.models.Reactions
 import com.clover.studio.exampleapp.data.models.User
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
-import com.clover.studio.exampleapp.ui.ReactionsContainer
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
@@ -576,6 +575,9 @@ class ChatAdapter(
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
+
+                        // Reply section
+                        Timber.d("reply: ${it.message.reply}")
                     }
                 }
 
@@ -605,6 +607,7 @@ class ChatAdapter(
 
                 for (roomUser in users) {
                     if (it.message.fromUserId == roomUser.id) {
+                        it.message.roomUser = roomUser.displayName.toString()
                         holder.binding.tvUsername.text = roomUser.displayName
                         Glide.with(context)
                             .load(roomUser.avatarUrl?.let { avatarUrl ->

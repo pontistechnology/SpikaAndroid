@@ -95,6 +95,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
+    private lateinit var bottomSheetReplyAction: BottomSheetBehavior<ConstraintLayout>
 
     private var avatarUrl = ""
     private var userName = ""
@@ -160,6 +161,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
         bottomSheetMessageActions = BottomSheetBehavior.from(bindingSetup.messageActions.root)
+        bottomSheetReplyAction = BottomSheetBehavior.from(bindingSetup.replyAction.root)
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
 
@@ -396,6 +398,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             closeMessageSheet()
             handleMessageEdit(message)
         }
+
+        bindingSetup.messageActions.tvReply.setOnClickListener {
+            closeMessageSheet()
+            showMessageReply()
+            handleMessageReply(message)
+        }
+    }
+
+    private fun showMessageReply() {
+        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
     private fun closeMessageSheet() {
@@ -562,6 +574,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             closeMessageSheet()
         }
 
+        bindingSetup.replyAction.ivRemove.setOnClickListener {
+            if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+        }
+
         bindingSetup.ivAdd.setOnClickListener {
             if (!isEditing) {
                 if (bottomSheetBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
@@ -655,6 +673,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.deleteMessage(messageId, target)
     }
 
+    private fun handleMessageReply(message: Message) {
+        bindingSetup.replyAction.tvUsername.text = message.roomUser
+        bindingSetup.replyAction.tvMessage.text = message.body!!.text
+    }
+
     private fun handleMessageEdit(message: Message) {
         isEditing = true
         originalText = message.body?.text.toString()
@@ -735,6 +758,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Const.JsonFields.TEXT,
             MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null),
             System.currentTimeMillis(),
+            null,
             null,
             null
         )
