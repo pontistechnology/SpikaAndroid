@@ -129,6 +129,9 @@ class MediaFragment : Fragment() {
             playWhenReady = exoPlayer.playWhenReady
             exoPlayer.removeListener(playbackStateListener)
             exoPlayer.release()
+
+            // Since ExoPlayer is released, we need to reset the singleton instance to null. Instead
+            // we won't be able to use ExoPlayer instance anymore since it is released.
             MediaPlayer.resetPlayer()
         }
     }

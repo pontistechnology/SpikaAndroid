@@ -4,6 +4,11 @@ import android.content.Context
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 
+/**
+ * Creates a single instance of ExoPlayer which can be used throughout the app.
+ *
+ * Don't forget to call resetPlayer() when ExoPlayer is released.
+ */
 object MediaPlayer {
     private var instance: ExoPlayer? = null
 
