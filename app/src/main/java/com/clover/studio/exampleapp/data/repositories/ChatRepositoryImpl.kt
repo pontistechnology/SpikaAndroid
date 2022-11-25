@@ -13,6 +13,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.services.ChatService
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -146,7 +147,9 @@ class ChatRepositoryImpl @Inject constructor(
 
         // Just replace old message with new one. Deleted message just has a body with new text
         if (response.data?.message != null) {
-            messageDao.insert(response.data.message)
+            val deletedMessage = response.data.message
+            deletedMessage.type = Const.JsonFields.TEXT
+            messageDao.insert(deletedMessage)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.data.models.entity
 
+import android.graphics.Bitmap
 import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.google.gson.annotations.SerializedName
@@ -41,7 +42,7 @@ data class Message @JvmOverloads constructor(
 
     @SerializedName("type")
     @ColumnInfo(name = "type")
-    val type: String?,
+    var type: String?,
 
     @SerializedName("body")
     @ColumnInfo(name = "body")
@@ -122,6 +123,7 @@ data class MessageFile(
     val fileName: String,
     val mimeType: String,
     val path: String,
-    val size: Long
+    val size: Long,
+    val bitmap: Bitmap?
 )
 

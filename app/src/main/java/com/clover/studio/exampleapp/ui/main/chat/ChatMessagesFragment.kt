@@ -8,6 +8,8 @@ import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -50,6 +52,7 @@ import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -576,17 +579,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.tvTitle.text = roomWithUsers.room.type
 
         bindingSetup.ivButtonSend.setOnClickListener {
+            val imageContainer = bindingSetup.llImagesContainer
+            imageContainer.removeAllViews()
             if (currentPhotoLocation.isNotEmpty()) {
-                uploadImage()
-
+                createTempMediaMessage(thumbnailUris[0])
+                Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                    uploadImage()
+                }, 2000)
             } else if (filesSelected.isNotEmpty()) {
                 uploadFile(filesSelected[0])
-
             } else if (currentVideoLocation.isNotEmpty()) {
-                uploadVideo()
-
+                createTempMediaMessage(thumbnailUris[0])
+                Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                    uploadVideo()
+                }, 2000)
             } else {
-                createTempMessage()
+                createTempTextMessage()
                 sendMessage()
             }
             sent = true
@@ -865,31 +873,42 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.sendMessage(jsonObject)
     }
 
-
-    private fun createTempMessage() {
+    private fun createTempTextMessage() {
         tempMessagecounter--
-        val tempMessage = Message(
+        val messageBody = MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null)
+        val tempMessage = Tools.createTemporaryMessage(
             tempMessagecounter,
             viewModel.getLocalUserId(),
-            0,
-            0,
-            0,
-            -1,
-            0,
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT,
-            MessageBody(
-                null,
-                bindingSetup.etMessage.text.toString(),
-                1,
-                1,
-                null,
-                null
+            messageBody
+        )
+
+        unsentMessages.add(tempMessage)
+        viewModel.storeMessageLocally(tempMessage)
+    }
+
+    private fun createTempMediaMessage(mediaUri: Uri) {
+        tempMessagecounter--
+        val messageBody = MessageBody(
+            null,
+            1,
+            1,
+            MessageFile(
+                "",
+                "",
+                "",
+                0,
+                Tools.handleSamplingAndRotationBitmap(activity!!, mediaUri)
             ),
-            System.currentTimeMillis(),
-            null,
-            null,
             null
+        )
+        val tempMessage = Tools.createTemporaryMessage(
+            tempMessagecounter,
+            viewModel.getLocalUserId(),
+            roomWithUsers.room.roomId,
+            Const.JsonFields.MOCK_MESSAGE_MEDIA,
+            messageBody
         )
 
         unsentMessages.add(tempMessage)
@@ -1123,8 +1142,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             else fileStream.length() / CHUNK_SIZE
         var progress = 0
 
-        val imageContainer = bindingSetup.llImagesContainer[uploadIndex] as ImageSelectedContainer
-        imageContainer.setMaxProgress(uploadPieces.toInt())
+//        imageContainer.setMaxProgress(uploadPieces.toInt())
 
         val mimeType = if (mediaType == UploadMimeTypes.IMAGE) {
             Const.JsonFields.IMAGE
@@ -1146,7 +1164,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         override fun filePieceUploaded() {
                             try {
                                 if (progress <= uploadPieces) {
-                                    imageContainer.setUploadProgress(progress)
+                                    updateDownloadProgressBar(0, progress + 1, uploadPieces.toInt())
+//                                    imageContainer.setUploadProgress(progress)
                                     progress++
                                 } else progress = 0
                             } catch (ex: Exception) {
@@ -1158,9 +1177,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         override fun fileUploadError(description: String) {
                             try {
                                 activity!!.runOnUiThread {
-                                    if (imageContainer.childCount > 0) {
-                                        imageContainer.removeViewAt(0)
-                                    }
+//                                    if (imageContainer.childCount > 0) {
+//                                        imageContainer.removeViewAt(0)
+//                                    }
                                     uploadIndex++
 
                                     if (mimeType == Const.JsonFields.IMAGE) {
@@ -1203,11 +1222,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                             messageBody.thumbId!!
                                         )
 
-                                        imageContainer.hideProgressScreen()
-                                        // TODO think about changing this... Index changes for other views when removed
-                                        if (imageContainer.childCount > 0) {
-                                            imageContainer.removeViewAt(0)
-                                        }
+//                                        imageContainer.hideProgressScreen()
+//                                        // TODO think about changing this... Index changes for other views when removed
+//                                        if (imageContainer.childCount > 0) {
+//                                            imageContainer.removeViewAt(0)
+//                                        }
                                         uploadIndex++
                                         if (mimeType == Const.JsonFields.IMAGE && uploadIndex < currentPhotoLocation.size) {
                                             uploadImage()
@@ -1411,9 +1430,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(position)
 
-        if ((viewHolder as ChatAdapter.SentMessageHolder).binding.progressBar.max == 0) {
-            viewHolder.binding.progressBar.max = maxProgress
-        }
+        Timber.d("Setting max progress $maxProgress")
+        (viewHolder as ChatAdapter.SentMessageHolder).binding.progressBar.max = maxProgress
+
+        Timber.d("Updating with progress $progress")
         viewHolder.binding.progressBar.secondaryProgress = progress
     }
 

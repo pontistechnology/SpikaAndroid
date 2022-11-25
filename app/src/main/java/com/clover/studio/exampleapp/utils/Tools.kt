@@ -26,6 +26,7 @@ import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.MessageBody
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -375,5 +376,29 @@ object Tools {
         } catch (e: Exception) {
             Timber.d("$e")
         }
+    }
+
+    fun createTemporaryMessage(
+        counter: Int,
+        localUserId: Int?,
+        roomId: Int,
+        messageType: String,
+        messageBody: MessageBody
+    ): Message {
+        return Message(
+            counter,
+            localUserId,
+            0,
+            0,
+            0,
+            -1,
+            0,
+            roomId,
+            messageType,
+            messageBody,
+            System.currentTimeMillis(),
+            null,
+            null
+        )
     }
 }

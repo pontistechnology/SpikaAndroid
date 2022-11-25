@@ -79,6 +79,7 @@ class Const {
             const val VIDEO = "video"
             const val TEXT = "text"
             const val CHAT_IMAGE = "image"
+            const val MOCK_MESSAGE_MEDIA = "mock_message_media"
 
             // File upload
             const val CHUNK = "chunk"
