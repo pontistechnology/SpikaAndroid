@@ -314,6 +314,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     when (event) {
                         Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
                         Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
+                        Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                         else -> Timber.d("No other action currently")
                     }
                 }
@@ -324,7 +325,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
         bindingSetup.rvChat.itemAnimator = null
-        // bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
+        bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
 
         // Add callback for item swipe handling
         /*val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
@@ -359,6 +360,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // Update room visited
         roomWithUsers.room.visitedRoom = System.currentTimeMillis()
         viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
+    }
+
+    private fun handleMessageReplyClick(message: Message) {
+        // TODO maybe there is better solution to avoid for loop
+        val time = message.body?.referenceMessage?.createdAt
+        var position = -1
+        for (msg in messagesRecords) {
+            position++
+            if (msg.message.createdAt == time) {
+                break
+            }
+        }
+        if (position != messagesRecords.size - 1) {
+            bindingSetup.rvChat.scrollToPosition(position)
+        }
     }
 
     private fun handleMessageAction(message: Message) {
@@ -755,7 +771,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT,
             MessageBody(
-                ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", ""),
+                ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", "", 0L),
                 bindingSetup.etMessage.text.toString(),
                 1,
                 1,
@@ -813,7 +829,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun uploadImage() {
         val messageBody = MessageBody(
-            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", ""),
+            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", "", 0L),
             "",
             0,
             0,
@@ -825,7 +841,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun uploadVideo() {
         val messageBody = MessageBody(
-            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", ""),
+            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", "", 0L),
             "",
             0,
             0,
@@ -838,7 +854,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun uploadFile(uri: Uri) {
         uploadInProgress = true
         val messageBody = MessageBody(
-            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", ""),
+            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", "", 0L),
             "",
             0,
             0,
