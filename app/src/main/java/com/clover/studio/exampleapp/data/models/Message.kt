@@ -88,6 +88,13 @@ data class Message @JvmOverloads constructor(
     var roomUser: String = ""
 )
 
+/*
+* data: {"type":"NEW_MESSAGE","message":{"id":32983,"fromUserId":79,"totalUserCount":1,"deliveredCount":0,"seenCount":0,"roomId":441,"type":"text",
+* "body":{"referenceMessage":{"id":32980,"fromUserId":79,"totalUserCount":1,"deliveredCount":0,"seenCount":0,"roomId":441,"type":"text","body":
+* {"text":"Timber.d(\"msg:: ${it.message.body?.referenceMessage.toString()}\")","localId":"233489547750159300000"},"createdAt":1669465689888,"modifiedAt":1669465689888,"localId":
+* "233489547750159300000","deleted":false,"reply":false},"text":"log!!"},"createdAt":1669465709695,"modifiedAt":1669465709695,"localId":"182605970703041200000","deleted":false,"reply":true}}
+*/
+
 data class MessageBody(
     var referenceMessage: ReferenceMessage?,
     var text: String?,
@@ -103,6 +110,7 @@ data class ReferenceMessage(
     var body: ReplyBody,
     var text: String?,
     var type: String?,
+    var createdAt: Long?,
 )
 
 data class ReplyBody(
