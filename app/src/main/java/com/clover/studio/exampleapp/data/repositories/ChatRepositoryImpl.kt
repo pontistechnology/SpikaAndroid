@@ -47,6 +47,9 @@ class ChatRepositoryImpl @Inject constructor(
             for (message in messages) {
                 messagesIds.add(message.id.toLong())
             }
+//        messagesIds.add(0)
+//        messagesIds.add(-1)
+//        messagesIds.add(-2)
             messageDao.deleteMessage(messagesIds)
         }
     }

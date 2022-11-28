@@ -94,8 +94,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var photoImageUri: Uri? = null
     private var isAdmin = false
     private var uploadIndex = 0
-    private var tempMessagecounter = 0
-    private var tempMessagePosition = -1
+    private var tempMessageCounter = -1
     private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
@@ -174,6 +173,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
+//        viewModel.deleteLocalMessages(unsentMessages)
         checkStoragePermission()
         setUpAdapter()
         initViews()
@@ -584,22 +584,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             imageContainer.removeAllViews()
             if (currentPhotoLocation.isNotEmpty()) {
                 for (thumbnail in thumbnailUris) {
-                    tempMessagePosition += 1
                     createTempMediaMessage(thumbnail)
+                }
                     Handler(Looper.getMainLooper()).postDelayed(Runnable {
                         uploadImage()
                     }, 2000)
-                }
             } else if (filesSelected.isNotEmpty()) {
                 uploadFile(filesSelected[0])
             } else if (currentVideoLocation.isNotEmpty()) {
-                for (thumbnail in thumbnailUris) {
-                    tempMessagePosition += 1
+                for (thumbnail in thumbnailUris.reversed()) {
                     createTempMediaMessage(thumbnail)
+                }
                     Handler(Looper.getMainLooper()).postDelayed(Runnable {
                         uploadVideo()
                     }, 2000)
-                }
             } else {
                 createTempTextMessage()
                 sendMessage()
@@ -881,10 +879,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun createTempTextMessage() {
-        tempMessagecounter--
+        tempMessageCounter++
         val messageBody = MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null)
         val tempMessage = Tools.createTemporaryMessage(
-            tempMessagecounter,
+            tempMessageCounter,
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT,
@@ -896,7 +894,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun createTempMediaMessage(mediaUri: Uri) {
-        tempMessagecounter--
+        tempMessageCounter++
         val messageBody = MessageBody(
             null,
             1,
@@ -911,7 +909,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             null
         )
         val tempMessage = Tools.createTemporaryMessage(
-            tempMessagecounter,
+            tempMessageCounter,
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
             Const.JsonFields.MOCK_MESSAGE_MEDIA,
@@ -1171,7 +1169,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         override fun filePieceUploaded() {
                             try {
                                 if (progress <= uploadPieces) {
-                                    updateDownloadProgressBar(0, progress + 1, uploadPieces.toInt())
+                                    updateDownloadProgressBar(progress + 1, uploadPieces.toInt())
 //                                    imageContainer.setUploadProgress(progress)
                                     progress++
                                 } else progress = 0
@@ -1188,6 +1186,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 //                                        imageContainer.removeViewAt(0)
 //                                    }
                                     uploadIndex++
+
+                                    if (unsentMessages.isNotEmpty()) {
+                                        viewModel.deleteLocalMessages(unsentMessages)
+                                    }
 
                                     if (mimeType == Const.JsonFields.IMAGE) {
                                         if (uploadIndex < currentPhotoLocation.size) {
@@ -1235,6 +1237,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 //                                            imageContainer.removeViewAt(0)
 //                                        }
                                         uploadIndex++
+                                        tempMessageCounter--
                                         if (mimeType == Const.JsonFields.IMAGE && uploadIndex < currentPhotoLocation.size) {
                                             uploadImage()
                                         } else if (mimeType == Const.JsonFields.VIDEO && uploadIndex < currentVideoLocation.size) {
@@ -1301,6 +1304,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     // Update room visited
                     roomWithUsers.room.visitedRoom = System.currentTimeMillis()
                     viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
+                    if (unsentMessages.isNotEmpty()) {
+                        viewModel.deleteLocalMessages(unsentMessages)
+                    }
                     //
                     activity!!.finish()
                 }
@@ -1430,13 +1436,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      * update progress bar in recycler view
      * get viewHolder from position and progress bar from that viewHolder
      *  we are rapidly updating progressbar so we didn't use notify method as it always update whole row instead of only progress bar
-     *  @param position : position of list cell
      *  @param progress : new progress value
      */
-    private fun updateDownloadProgressBar(position: Int, progress: Int, maxProgress: Int) {
+    private fun updateDownloadProgressBar(progress: Int, maxProgress: Int) {
 
-        Timber.d("Temp message position: $tempMessagePosition")
-        val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(tempMessagePosition)
+        Timber.d("Temp message position: $tempMessageCounter")
+        val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(tempMessageCounter)
 
         Timber.d("Setting max progress $maxProgress")
         (viewHolder as ChatAdapter.SentMessageHolder).binding.progressBar.max = maxProgress
