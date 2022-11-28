@@ -95,6 +95,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var isAdmin = false
     private var uploadIndex = 0
     private var tempMessagecounter = 0
+    private var tempMessagePosition = -1
     private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
@@ -582,17 +583,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             val imageContainer = bindingSetup.llImagesContainer
             imageContainer.removeAllViews()
             if (currentPhotoLocation.isNotEmpty()) {
-                createTempMediaMessage(thumbnailUris[0])
-                Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    uploadImage()
-                }, 2000)
+                for (thumbnail in thumbnailUris) {
+                    tempMessagePosition += 1
+                    createTempMediaMessage(thumbnail)
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        uploadImage()
+                    }, 2000)
+                }
             } else if (filesSelected.isNotEmpty()) {
                 uploadFile(filesSelected[0])
             } else if (currentVideoLocation.isNotEmpty()) {
-                createTempMediaMessage(thumbnailUris[0])
-                Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    uploadVideo()
-                }, 2000)
+                for (thumbnail in thumbnailUris) {
+                    tempMessagePosition += 1
+                    createTempMediaMessage(thumbnail)
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        uploadVideo()
+                    }, 2000)
+                }
             } else {
                 createTempTextMessage()
                 sendMessage()
@@ -1428,7 +1435,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      */
     private fun updateDownloadProgressBar(position: Int, progress: Int, maxProgress: Int) {
 
-        val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(position)
+        Timber.d("Temp message position: $tempMessagePosition")
+        val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(tempMessagePosition)
 
         Timber.d("Setting max progress $maxProgress")
         (viewHolder as ChatAdapter.SentMessageHolder).binding.progressBar.max = maxProgress

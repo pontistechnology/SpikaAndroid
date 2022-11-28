@@ -385,6 +385,12 @@ object Tools {
         messageType: String,
         messageBody: MessageBody
     ): Message {
+        // Time added will secure that the temporary items are at the bottom of the list
+        var timeAdded = 100000
+        if (counter != 0) {
+            timeAdded -= (counter * timeAdded)
+        }
+
         return Message(
             counter,
             localUserId,
@@ -396,7 +402,7 @@ object Tools {
             roomId,
             messageType,
             messageBody,
-            System.currentTimeMillis(),
+            System.currentTimeMillis() + timeAdded,
             null,
             null
         )
