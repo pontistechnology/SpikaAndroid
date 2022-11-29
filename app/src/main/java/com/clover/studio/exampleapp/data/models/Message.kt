@@ -84,8 +84,8 @@ data class Message @JvmOverloads constructor(
     @Ignore
     var senderMessage: Boolean = false,
 
-    @Ignore
-    var roomUser: String = ""
+    // @Ignore
+    // var roomUser: String = ""
 )
 
 data class MessageBody(

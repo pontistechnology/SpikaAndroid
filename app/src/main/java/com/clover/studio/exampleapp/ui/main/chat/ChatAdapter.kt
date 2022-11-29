@@ -845,7 +845,6 @@ class ChatAdapter(
 
                 for (roomUser in users) {
                     if (it.message.fromUserId == roomUser.id) {
-                        it.message.roomUser = roomUser.displayName.toString()
                         holder.binding.tvUsername.text = roomUser.displayName
                         Glide.with(context)
                             .load(roomUser.avatarUrl?.let { avatarUrl ->
