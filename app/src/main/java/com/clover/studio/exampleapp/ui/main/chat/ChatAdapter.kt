@@ -327,17 +327,13 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clProgressScreen.visibility = View.VISIBLE
 
-                        try {
-                            Glide.with(context)
-                                .load(it.message.body?.file?.bitmap)
-                                .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
-                                .placeholder(R.drawable.img_image_placeholder)
-                                .dontTransform()
-                                .dontAnimate()
-                                .into(holder.binding.ivChatImage)
-                        } catch (ex: Exception) {
-                            // ignore
-                        }
+                        Glide.with(context)
+                            .load(it.message.body?.file?.bitmap)
+                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                            .placeholder(R.drawable.img_image_placeholder)
+                            .dontTransform()
+                            .dontAnimate()
+                            .into(holder.binding.ivChatImage)
                     }
 
                     else -> {

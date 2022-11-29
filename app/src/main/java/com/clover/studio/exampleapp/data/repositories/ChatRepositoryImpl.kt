@@ -47,11 +47,16 @@ class ChatRepositoryImpl @Inject constructor(
             for (message in messages) {
                 messagesIds.add(message.id.toLong())
             }
+            // TODO remove this later
 //        messagesIds.add(0)
-//        messagesIds.add(-1)
-//        messagesIds.add(-2)
+//        messagesIds.add(1)
+//        messagesIds.add(2)
             messageDao.deleteMessage(messagesIds)
         }
+    }
+
+    override suspend fun deleteLocalMessage(message: Message) {
+        messageDao.deleteMessage(message)
     }
 
     override suspend fun sendMessagesSeen(roomId: Int) =
@@ -172,6 +177,7 @@ interface ChatRepository {
     suspend fun sendMessage(jsonObject: JsonObject)
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
+    suspend fun deleteLocalMessage(message: Message)
     suspend fun sendMessagesSeen(roomId: Int)
     suspend fun updatedRoomVisitedTimestamp(chatRoom: ChatRoom)
     suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>

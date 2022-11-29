@@ -33,7 +33,6 @@ class ChatViewModel @Inject constructor(
     private val sseManager: SSEManager
 ) : BaseViewModel() {
     val messageSendListener = MutableLiveData<Event<ChatStatesEnum>>()
-    val getMessagesListener = MutableLiveData<Event<ChatStates>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
     val roomWithUsersListener = MutableLiveData<Event<ChatStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
@@ -77,6 +76,15 @@ class ChatViewModel @Inject constructor(
     fun deleteLocalMessages(messages: List<Message>) = viewModelScope.launch {
         try {
             repository.deleteLocalMessages(messages)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            return@launch
+        }
+    }
+
+    fun deleteLocalMessage(message: Message) = viewModelScope.launch {
+        try {
+            repository.deleteLocalMessage(message)
         } catch (ex: Exception) {
             Tools.checkError(ex)
             return@launch

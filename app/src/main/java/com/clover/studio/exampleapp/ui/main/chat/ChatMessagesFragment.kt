@@ -94,7 +94,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var photoImageUri: Uri? = null
     private var isAdmin = false
     private var uploadIndex = 0
-    private var tempMessageCounter = -1
+    private var tempMessageCounter = 0
     private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
@@ -173,6 +173,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
+        // TODO remove this later
 //        viewModel.deleteLocalMessages(unsentMessages)
         checkStoragePermission()
         setUpAdapter()
@@ -206,21 +207,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             when (it) {
                 ChatStatesEnum.MESSAGE_SENT -> {
                     bindingSetup.etMessage.setText("")
-                    viewModel.deleteLocalMessages(unsentMessages)
-                    unsentMessages.clear()
+                    if (tempMessageCounter >= 0) {
+                        viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
+                        tempMessageCounter--
+                    } else {
+                        viewModel.deleteLocalMessages(unsentMessages)
+                    }
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
-                else -> Timber.d("Other error")
-            }
-        })
-
-        viewModel.getMessagesListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is MessagesFetched -> {
-                    viewModel.deleteLocalMessages(unsentMessages)
-                    unsentMessages.clear()
-                }
-                is MessageFetchFail -> Timber.d("Failed to fetch messages")
                 else -> Timber.d("Other error")
             }
         })
@@ -242,12 +236,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 ChatStatesEnum.MESSAGE_DELIVERED -> {
                     Timber.d("Messages delivered")
                     unsentMessages.clear()
-
                 }
                 ChatStatesEnum.MESSAGE_DELIVER_FAIL -> Timber.d("Failed to deliver messages")
                 else -> Timber.d("Other error")
             }
         })
+
         viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
             .observe(viewLifecycleOwner) {
                 messagesRecords.clear()
@@ -583,21 +577,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             val imageContainer = bindingSetup.llImagesContainer
             imageContainer.removeAllViews()
             if (currentPhotoLocation.isNotEmpty()) {
-                for (thumbnail in thumbnailUris) {
+                for (thumbnail in thumbnailUris.reversed()) {
                     createTempMediaMessage(thumbnail)
                 }
-                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                        uploadImage()
-                    }, 2000)
+                Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                    uploadImage()
+                }, 2000)
             } else if (filesSelected.isNotEmpty()) {
                 uploadFile(filesSelected[0])
             } else if (currentVideoLocation.isNotEmpty()) {
                 for (thumbnail in thumbnailUris.reversed()) {
                     createTempMediaMessage(thumbnail)
                 }
-                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                        uploadVideo()
-                    }, 2000)
+                Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                    uploadVideo()
+                }, 2000)
             } else {
                 createTempTextMessage()
                 sendMessage()
@@ -879,7 +873,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun createTempTextMessage() {
-        tempMessageCounter++
         val messageBody = MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null)
         val tempMessage = Tools.createTemporaryMessage(
             tempMessageCounter,
@@ -891,10 +884,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
+        tempMessageCounter++
     }
 
     private fun createTempMediaMessage(mediaUri: Uri) {
-        tempMessageCounter++
         val messageBody = MessageBody(
             null,
             1,
@@ -918,6 +911,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
+        tempMessageCounter++
     }
 
     private fun onBackArrowPressed() {
@@ -1187,8 +1181,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 //                                    }
                                     uploadIndex++
 
-                                    if (unsentMessages.isNotEmpty()) {
-                                        viewModel.deleteLocalMessages(unsentMessages)
+                                    if (tempMessageCounter >= 0) {
+                                        viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
+                                        tempMessageCounter--
                                     }
 
                                     if (mimeType == Const.JsonFields.IMAGE) {
@@ -1211,7 +1206,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     uploadInProgress = false
-                                    context?.cacheDir?.deleteRecursively()
                                 }
                             } catch (ex: Exception) {
                                 Timber.d("File upload failed on error")
@@ -1231,13 +1225,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                             messageBody.thumbId!!
                                         )
 
+                                        if (tempMessageCounter >= 0) {
+                                            viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
+                                            tempMessageCounter--
+                                        }
+
 //                                        imageContainer.hideProgressScreen()
 //                                        // TODO think about changing this... Index changes for other views when removed
 //                                        if (imageContainer.childCount > 0) {
 //                                            imageContainer.removeViewAt(0)
 //                                        }
                                         uploadIndex++
-                                        tempMessageCounter--
                                         if (mimeType == Const.JsonFields.IMAGE && uploadIndex < currentPhotoLocation.size) {
                                             uploadImage()
                                         } else if (mimeType == Const.JsonFields.VIDEO && uploadIndex < currentVideoLocation.size) {
@@ -1278,6 +1276,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun resetUploadFields(mimeType: String) {
+        Timber.d("Resetting upload fields")
         uploadIndex = 0
         if (mimeType == Const.JsonFields.IMAGE) {
             currentPhotoLocation.clear()

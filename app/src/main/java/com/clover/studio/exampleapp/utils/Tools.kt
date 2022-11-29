@@ -387,8 +387,8 @@ object Tools {
     ): Message {
         // Time added will secure that the temporary items are at the bottom of the list
         var timeAdded = 100000
-        if (counter != 0) {
-            timeAdded -= (counter * timeAdded)
+        if (counter > 0) {
+            timeAdded += (counter + 1) * timeAdded
         }
 
         return Message(
