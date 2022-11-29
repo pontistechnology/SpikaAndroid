@@ -110,28 +110,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var heightDiff = 0
     private var exoPlayer: ExoPlayer? = null
 
-    private val referenceMessage = ReferenceMessage(
-        0, 0, 0, 0, 0, 0, "",
-        ReplyBody(
-            "",
-            MessageFile(
-                "",
-                "",
-                "",
-                0L,
-            ),
-            MessageFile(
-                "",
-                "",
-                "",
-                0L,
-            )
-        ),
-        0L, 0L,
-        deleted = false,
-        reply = false
-    )
-
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
 
@@ -347,7 +325,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
         bindingSetup.rvChat.itemAnimator = null
-        bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
+        //bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
 
         // Add callback for item swipe handling
         /*val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
@@ -709,7 +687,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMessageReply(message: Message) {
-        bindingSetup.replyAction.tvUsername.text = message.roomUser
+        for (user in roomWithUsers.users){
+            if (user.id ==  message.fromUserId){
+                bindingSetup.replyAction.tvUsername.text = user.displayName
+                break
+            }
+        }
         bindingSetup.replyAction.tvMessage.text = message.body!!.text
     }
 
@@ -792,7 +775,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT,
             MessageBody(
-                referenceMessage,
+                null,
                 bindingSetup.etMessage.text.toString(),
                 1,
                 1,
@@ -850,7 +833,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun uploadImage() {
         val messageBody = MessageBody(
-            referenceMessage,
+            null,
             "",
             0,
             0,
@@ -862,7 +845,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun uploadVideo() {
         val messageBody = MessageBody(
-            referenceMessage,
+            null,
             "",
             0,
             0,
@@ -875,7 +858,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun uploadFile(uri: Uri) {
         uploadInProgress = true
         val messageBody = MessageBody(
-            referenceMessage,
+            null,
             "",
             0,
             0,
