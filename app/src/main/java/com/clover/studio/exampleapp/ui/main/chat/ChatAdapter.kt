@@ -15,6 +15,7 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.media3.common.MediaItem
@@ -43,6 +44,8 @@ import java.util.*
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
+private const val TEXT_SIZE_BIG = 15
+private const val TEXT_SIZE_SMALL = 5
 private var oldPosition = -1
 private var firstPlay = true
 
@@ -318,6 +321,10 @@ class ChatAdapter(
 
                 // Reply section
                 if (it.message.reply == true) {
+                    val params =
+                        holder.binding.clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
+                    params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                    val original = it.message.body?.text?.length
                     holder.binding.clReplyMessage.visibility = View.VISIBLE
                     holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_user)
                     for (roomUser in users) {
@@ -326,9 +333,11 @@ class ChatAdapter(
                             break
                         }
                     }
-
                     when (it.message.body?.referenceMessage?.type) {
                         Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO -> {
+                            if (original!! >= TEXT_SIZE_BIG) {
+                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                            }
                             val imagePath =
                                 it.message.body.referenceMessage?.body?.file?.path?.let { imagePath ->
                                     Tools.getFileUrl(
@@ -361,7 +370,6 @@ class ChatAdapter(
                                     0
                                 )
                             }
-
                             Glide.with(context)
                                 .load(imagePath)
                                 .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
@@ -371,7 +379,12 @@ class ChatAdapter(
                                 .into(holder.binding.ivReplyImage)
                         }
                         Const.JsonFields.AUDIO -> {
+                            if (original!! >= TEXT_SIZE_SMALL) {
+                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                            }
+                            holder.binding.tvMessageReply.visibility = View.GONE
                             holder.binding.tvReplyMedia.visibility = View.VISIBLE
+                            holder.binding.cvReplyMedia.visibility = View.GONE
                             holder.binding.tvReplyMedia.text =
                                 context.getString(R.string.media, context.getString(R.string.audio))
                             holder.binding.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
@@ -381,7 +394,11 @@ class ChatAdapter(
                                 0
                             )
                         }
-                        Const.JsonFields.FILE -> {
+                        Const.JsonFields.FILE_TYPE -> {
+                            if (original!! >= TEXT_SIZE_SMALL) {
+                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                            }
+                            holder.binding.tvMessageReply.visibility = View.GONE
                             holder.binding.tvReplyMedia.visibility = View.VISIBLE
                             holder.binding.tvReplyMedia.text =
                                 context.getString(R.string.media, context.getString(R.string.file))
@@ -396,8 +413,16 @@ class ChatAdapter(
                             holder.binding.tvMessageReply.visibility = View.VISIBLE
                             holder.binding.cvReplyMedia.visibility = View.GONE
                             holder.binding.tvReplyMedia.visibility = View.GONE
-                            holder.binding.tvMessageReply.text =
-                                it.message.body?.referenceMessage?.body?.text
+                            val replyText = it.message.body?.referenceMessage?.body?.text
+                            holder.binding.tvMessageReply.text = replyText
+
+                            // Check which layout is wider
+                            val reply = replyText?.length
+                            if (original != null && reply != null) {
+                                if (original >= reply) {
+                                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                                }
+                            }
                         }
                     }
                 }
@@ -476,7 +501,7 @@ class ChatAdapter(
             } else {
                 // View holder for messages from other users
                 holder as ReceivedMessageHolder
-                //holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
+                holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                 when (it.message.type) {
                     Const.JsonFields.TEXT -> {
                         holder.binding.tvMessage.text = it.message.body?.text
@@ -671,7 +696,6 @@ class ChatAdapter(
                             }
                         })
                     }
-
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
@@ -683,6 +707,10 @@ class ChatAdapter(
 
                 // Reply section
                 if (it.message.reply == true) {
+                    val params =
+                        holder.binding.clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
+                    params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                    val original = it.message.body?.text?.length
                     holder.binding.clReplyMessage.visibility = View.VISIBLE
                     holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                     for (roomUser in users) {
@@ -691,20 +719,20 @@ class ChatAdapter(
                             break
                         }
                     }
-
                     when (it.message.body?.referenceMessage?.type) {
                         Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO -> {
+                            if (original!! >= TEXT_SIZE_BIG) {
+                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                            }
                             holder.binding.tvMessageReply.visibility = View.GONE
                             holder.binding.cvReplyMedia.visibility = View.VISIBLE
                             holder.binding.tvReplyMedia.visibility = View.VISIBLE
-
                             val imagePath =
                                 it.message.body.referenceMessage?.body?.file?.path?.let { imagePath ->
                                     Tools.getFileUrl(
                                         imagePath
                                     )
                                 }
-
                             if (it.message.body.referenceMessage?.type == Const.JsonFields.CHAT_IMAGE) {
                                 holder.binding.tvReplyMedia.text = context.getString(
                                     R.string.media,
@@ -728,7 +756,6 @@ class ChatAdapter(
                                     0
                                 )
                             }
-
                             Glide.with(context)
                                 .load(imagePath)
                                 .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
@@ -738,7 +765,11 @@ class ChatAdapter(
                                 .into(holder.binding.ivReplyImage)
                         }
                         Const.JsonFields.AUDIO -> {
+                            if (original!! >= TEXT_SIZE_SMALL) {
+                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                            }
                             holder.binding.tvMessageReply.visibility = View.GONE
+                            holder.binding.cvReplyMedia.visibility = View.GONE
                             holder.binding.tvReplyMedia.visibility = View.VISIBLE
                             holder.binding.tvReplyMedia.text =
                                 context.getString(R.string.media, context.getString(R.string.audio))
@@ -749,7 +780,10 @@ class ChatAdapter(
                                 0
                             )
                         }
-                        Const.JsonFields.FILE -> {
+                        Const.JsonFields.FILE_TYPE -> {
+                            if (original!! >= TEXT_SIZE_SMALL) {
+                                params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                            }
                             holder.binding.tvMessageReply.visibility = View.GONE
                             holder.binding.tvReplyMedia.visibility = View.VISIBLE
                             holder.binding.tvReplyMedia.text =
@@ -766,8 +800,16 @@ class ChatAdapter(
                             holder.binding.tvMessageReply.visibility = View.VISIBLE
                             holder.binding.cvReplyMedia.visibility = View.GONE
                             holder.binding.tvReplyMedia.visibility = View.GONE
-                            holder.binding.tvMessageReply.text =
-                                it.message.body?.referenceMessage?.body?.text
+                            val replyText = it.message.body?.referenceMessage?.body?.text
+                            holder.binding.tvMessageReply.text = replyText
+
+                            // Check which layout is wider
+                            val reply = replyText?.length
+                            if (original != null && reply != null) {
+                                if (original >= reply) {
+                                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                                }
+                            }
                         }
                     }
                 }

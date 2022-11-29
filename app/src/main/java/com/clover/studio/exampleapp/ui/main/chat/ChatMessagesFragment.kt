@@ -110,6 +110,28 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var heightDiff = 0
     private var exoPlayer: ExoPlayer? = null
 
+    private val referenceMessage = ReferenceMessage(
+        0, 0, 0, 0, 0, 0, "",
+        ReplyBody(
+            "",
+            MessageFile(
+                "",
+                "",
+                "",
+                0L,
+            ),
+            MessageFile(
+                "",
+                "",
+                "",
+                0L,
+            )
+        ),
+        0L, 0L,
+        deleted = false,
+        reply = false
+    )
+
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
 
@@ -363,7 +385,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMessageReplyClick(message: Message) {
-        // TODO maybe there is better solution to avoid for loop
         val time = message.body?.referenceMessage?.createdAt
         var position = -1
         for (msg in messagesRecords) {
@@ -771,7 +792,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT,
             MessageBody(
-                ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", "", 0L),
+                referenceMessage,
                 bindingSetup.etMessage.text.toString(),
                 1,
                 1,
@@ -829,7 +850,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun uploadImage() {
         val messageBody = MessageBody(
-            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", "", 0L),
+            referenceMessage,
             "",
             0,
             0,
@@ -841,7 +862,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun uploadVideo() {
         val messageBody = MessageBody(
-            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", "", 0L),
+            referenceMessage,
             "",
             0,
             0,
@@ -854,7 +875,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun uploadFile(uri: Uri) {
         uploadInProgress = true
         val messageBody = MessageBody(
-            ReferenceMessage(0, 0, ReplyBody("", MessageFile("", "", "", 0L)), "", "", 0L),
+            referenceMessage,
             "",
             0,
             0,
