@@ -94,7 +94,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var photoImageUri: Uri? = null
     private var isAdmin = false
     private var uploadIndex = 0
-    private var tempMessageCounter = 0
+    private var tempMessageCounter = -1
     private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
@@ -207,10 +207,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             when (it) {
                 ChatStatesEnum.MESSAGE_SENT -> {
                     bindingSetup.etMessage.setText("")
-                    if (tempMessageCounter >= 0) {
-                        viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
-                        tempMessageCounter--
-                    } else {
+                    // TODO fix to remove old text message
+                    if (tempMessageCounter != 0) {
                         viewModel.deleteLocalMessages(unsentMessages)
                     }
                 }
@@ -577,7 +575,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             val imageContainer = bindingSetup.llImagesContainer
             imageContainer.removeAllViews()
             if (currentPhotoLocation.isNotEmpty()) {
-                for (thumbnail in thumbnailUris.reversed()) {
+                for (thumbnail in thumbnailUris) {
                     createTempMediaMessage(thumbnail)
                 }
                 Handler(Looper.getMainLooper()).postDelayed(Runnable {
@@ -586,7 +584,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             } else if (filesSelected.isNotEmpty()) {
                 uploadFile(filesSelected[0])
             } else if (currentVideoLocation.isNotEmpty()) {
-                for (thumbnail in thumbnailUris.reversed()) {
+                for (thumbnail in thumbnailUris) {
                     createTempMediaMessage(thumbnail)
                 }
                 Handler(Looper.getMainLooper()).postDelayed(Runnable {
@@ -873,6 +871,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun createTempTextMessage() {
+        tempMessageCounter++
         val messageBody = MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null)
         val tempMessage = Tools.createTemporaryMessage(
             tempMessageCounter,
@@ -884,10 +883,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
-        tempMessageCounter++
     }
 
     private fun createTempMediaMessage(mediaUri: Uri) {
+        tempMessageCounter++
         val messageBody = MessageBody(
             null,
             1,
@@ -911,7 +910,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
-        tempMessageCounter++
     }
 
     private fun onBackArrowPressed() {
