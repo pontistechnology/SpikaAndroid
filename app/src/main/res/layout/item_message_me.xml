@@ -21,10 +21,9 @@
         android:id="@+id/cl_message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/thirty_two_dp_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.934"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_section_header"
         app:layout_constraintVertical_bias="0.25">
@@ -33,20 +32,147 @@
             android:id="@+id/cl_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sixty_four_dp"
             android:layout_marginTop="@dimen/eight_dp_margin"
+            android:layout_marginEnd="@dimen/twenty_four_dp_margin"
             android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/tv_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginEnd="@dimen/eight_dp_margin"
+                android:layout_marginBottom="@dimen/two_dp_margin"
+                android:autoLink="all"
+                android:background="@drawable/bg_message_user"
+                android:backgroundTint="@color/message_me"
+                android:fontFamily="@font/montserrat"
+                android:gravity="start"
+                android:maxEms="16"
+                android:padding="@dimen/ten_dp_margin"
+                android:text="@string/some_message"
+                android:textColorLink="@color/primary_color"
+                android:textSize="@dimen/fourteen_sp_text"
+                android:visibility="visible"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cl_reply_message" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_reply_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginTop="@dimen/eight_dp_margin"
+                android:layout_marginEnd="@dimen/eight_dp_margin"
+                android:layout_marginBottom="@dimen/two_dp_margin"
+                android:background="@drawable/bg_message_received"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@+id/tv_message"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/tv_username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/eight_dp_margin"
+                    android:layout_marginTop="@dimen/eight_dp_margin"
+                    android:fontFamily="@font/montserrat"
+                    android:paddingEnd="@dimen/four_dp_margin"
+                    android:text="@string/username"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="@dimen/eleven_sp_text"
+                    android:visibility="visible"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.vanniktech.emoji.EmojiTextView
+                    android:id="@+id/tv_message_reply"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/eight_dp_margin"
+                    android:layout_marginBottom="@dimen/eight_dp_margin"
+                    android:autoLink="all"
+                    android:fontFamily="@font/montserrat"
+                    android:maxEms="19"
+                    android:text="@string/some_message"
+                    android:paddingEnd="@dimen/ten_dp_margin"
+                    android:textColorLink="@color/primary_color"
+                    android:textSize="@dimen/eleven_sp_text"
+                    android:visibility="gone"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="@+id/tv_username"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_username"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_reply_media"
+                    android:layout_width="@dimen/forty_two_dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="@dimen/sixteen_dp_margin"
+                    android:visibility="gone"
+                    app:cardCornerRadius="@dimen/four_dp_margin"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toEndOf="@+id/tv_username"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/iv_reply_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:adjustViewBounds="true"
+                        android:scaleType="centerCrop"
+                        android:visibility="visible"
+                        tools:srcCompat="@tools:sample/avatars" />
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    android:id="@+id/tv_reply_media"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/eight_dp_margin"
+                    android:layout_marginEnd="@dimen/eight_dp_margin"
+                    android:layout_marginBottom="@dimen/eight_dp_margin"
+                    android:drawablePadding="@dimen/two_dp_margin"
+                    android:fontFamily="@font/montserrat"
+                    android:text="@string/media"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="@dimen/nine_sp_text"
+                    android:visibility="gone"
+                    app:drawableLeftCompat="@drawable/img_camera_reply"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/cv_reply_media"
+                    app:layout_constraintHorizontal_bias="0.02"
+                    app:layout_constraintStart_toStartOf="@+id/tv_username"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_username" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <!-- TODO change this placeholder height size -->
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/cv_audio"
                 android:layout_width="@dimen/two_hundred_fourteen_dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/eight_dp_margin"
-                android:layout_marginEnd="@dimen/twenty_four_dp_margin"
                 android:layout_marginBottom="@dimen/two_dp_margin"
                 android:background="@drawable/bg_message_user"
                 android:backgroundTint="@color/message_me"
@@ -114,9 +240,9 @@
                 android:id="@+id/cv_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginStart="@dimen/eighty_eight_dp_margin"
                 android:layout_marginTop="@dimen/eight_dp_margin"
-                android:layout_marginEnd="@dimen/twenty_four_dp_margin"
+                android:layout_marginEnd="@dimen/eight_dp_margin"
                 android:layout_marginBottom="@dimen/eight_dp_margin"
                 android:padding="@dimen/ten_dp_margin"
                 android:visibility="gone"
@@ -130,8 +256,8 @@
 
                 <ImageView
                     android:id="@+id/iv_chat_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:adjustViewBounds="true"
                     android:scaleType="fitCenter"
                     app:layout_constrainedHeight="true"
@@ -140,7 +266,8 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:srcCompat="@tools:sample/avatars" />
             </androidx.cardview.widget.CardView>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -175,7 +302,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/sixty_four_dp"
                     android:layout_marginTop="@dimen/eight_dp_margin"
-                    android:layout_marginEnd="@dimen/twenty_four_dp_margin"
                     android:layout_marginBottom="@dimen/eight_dp_margin"
                     android:padding="@dimen/ten_dp_margin"
                     app:cardCornerRadius="@dimen/eight_dp_margin"
@@ -183,7 +309,6 @@
                     app:layout_constrainedWidth="true"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -201,34 +326,12 @@
                 </androidx.cardview.widget.CardView>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <com.vanniktech.emoji.EmojiTextView
-                android:id="@+id/tv_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
-                android:layout_marginEnd="@dimen/twenty_four_dp_margin"
-                android:autoLink="all"
-                android:background="@drawable/bg_message_user"
-                android:backgroundTint="@color/message_me"
-                android:fontFamily="@font/montserrat"
-                android:padding="@dimen/ten_dp_margin"
-                android:text="@string/some_message"
-                android:textColorLink="@color/primary_color"
-                android:textSize="@dimen/fourteen_sp_text"
-                android:visibility="visible"
-                app:layout_constrainedWidth="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent" />
-
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_file_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/ten_dp_margin"
-                android:layout_marginEnd="@dimen/twenty_four_dp_margin"
                 android:background="@drawable/bg_message_user"
                 android:backgroundTint="@color/message_me"
                 android:visibility="gone"
@@ -290,14 +393,6 @@
                     app:srcCompat="@drawable/img_download_file" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <ImageView
-                android:id="@+id/iv_message_status"
-                android:layout_width="@dimen/sixteen_dp_margin"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/four_dp_margin"
-                android:src="@drawable/img_clock"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_message"
-                app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -336,7 +431,7 @@
             android:id="@+id/cv_reacted_emoji"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/twenty_four_dp_margin"
+            android:layout_marginEnd="@dimen/eight_dp_margin"
             android:layout_marginBottom="@dimen/two_dp_margin"
             android:visibility="gone"
             app:cardCornerRadius="@dimen/eight_dp_margin"
@@ -350,6 +445,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent" />
         </androidx.cardview.widget.CardView>
+
+        <ImageView
+            android:id="@+id/iv_message_status"
+            android:layout_width="@dimen/sixteen_dp_margin"
+            android:layout_height="wrap_content"
+            android:src="@drawable/img_clock"
+            app:layout_constraintBottom_toBottomOf="@+id/cl_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/cl_container"
+            app:layout_constraintTop_toTopOf="@+id/cl_container"
+            app:layout_constraintVertical_bias="1.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

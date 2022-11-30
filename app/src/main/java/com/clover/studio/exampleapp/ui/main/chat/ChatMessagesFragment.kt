@@ -33,9 +33,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.MessageAndRecords
-import com.clover.studio.exampleapp.data.models.MessageBody
+import com.clover.studio.exampleapp.data.models.*
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
@@ -95,6 +93,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var uploadInProgress = false
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
+    private lateinit var bottomSheetReplyAction: BottomSheetBehavior<ConstraintLayout>
 
     private var avatarUrl = ""
     private var userName = ""
@@ -160,6 +159,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
         bottomSheetMessageActions = BottomSheetBehavior.from(bindingSetup.messageActions.root)
+        bottomSheetReplyAction = BottomSheetBehavior.from(bindingSetup.replyAction.root)
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
 
@@ -314,6 +314,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     when (event) {
                         Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
                         Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
+                        Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                         else -> Timber.d("No other action currently")
                     }
                 }
@@ -324,7 +325,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
         bindingSetup.rvChat.itemAnimator = null
-        // bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
+        //bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
 
         // Add callback for item swipe handling
         /*val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
@@ -359,6 +360,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // Update room visited
         roomWithUsers.room.visitedRoom = System.currentTimeMillis()
         viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
+    }
+
+    private fun handleMessageReplyClick(message: Message) {
+        val time = message.body?.referenceMessage?.createdAt
+        var position = -1
+        for (msg in messagesRecords) {
+            position++
+            if (msg.message.createdAt == time) {
+                break
+            }
+        }
+        if (position != messagesRecords.size - 1) {
+            bindingSetup.rvChat.scrollToPosition(position)
+        }
     }
 
     private fun handleMessageAction(message: Message) {
@@ -396,6 +411,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             closeMessageSheet()
             handleMessageEdit(message)
         }
+
+        bindingSetup.messageActions.tvReply.setOnClickListener {
+            closeMessageSheet()
+            showMessageReply()
+            handleMessageReply(message)
+        }
+    }
+
+    private fun showMessageReply() {
+        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
     private fun closeMessageSheet() {
@@ -562,6 +587,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             closeMessageSheet()
         }
 
+        bindingSetup.replyAction.ivRemove.setOnClickListener {
+            if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+        }
+
         bindingSetup.ivAdd.setOnClickListener {
             if (!isEditing) {
                 if (bottomSheetBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
@@ -655,6 +686,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.deleteMessage(messageId, target)
     }
 
+    private fun handleMessageReply(message: Message) {
+        for (user in roomWithUsers.users){
+            if (user.id ==  message.fromUserId){
+                bindingSetup.replyAction.tvUsername.text = user.displayName
+                break
+            }
+        }
+        bindingSetup.replyAction.tvMessage.text = message.body!!.text
+    }
+
     private fun handleMessageEdit(message: Message) {
         isEditing = true
         originalText = message.body?.text.toString()
@@ -733,8 +774,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             0,
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT,
-            MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null),
+            MessageBody(
+                null,
+                bindingSetup.etMessage.text.toString(),
+                1,
+                1,
+                null,
+                null
+            ),
             System.currentTimeMillis(),
+            null,
             null,
             null
         )
@@ -783,18 +832,39 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun uploadImage() {
-        val messageBody = MessageBody("", 0, 0, null, null)
+        val messageBody = MessageBody(
+            null,
+            "",
+            0,
+            0,
+            null,
+            null
+        )
         uploadThumbnail(messageBody, uploadIndex)
     }
 
     private fun uploadVideo() {
-        val messageBody = MessageBody("", 0, 0, null, null)
+        val messageBody = MessageBody(
+            null,
+            "",
+            0,
+            0,
+            null,
+            null
+        )
         uploadVideoThumbnail(messageBody, uploadIndex)
     }
 
     private fun uploadFile(uri: Uri) {
         uploadInProgress = true
-        val messageBody = MessageBody("", 0, 0, null, null)
+        val messageBody = MessageBody(
+            null,
+            "",
+            0,
+            0,
+            null,
+            null
+        )
         val inputStream =
             activity!!.contentResolver.openInputStream(uri)
 
