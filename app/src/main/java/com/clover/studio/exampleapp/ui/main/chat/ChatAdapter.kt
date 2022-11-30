@@ -806,7 +806,7 @@ class ChatAdapter(
                             // Check which layout is wider
                             val reply = replyText?.length
                             if (original != null && reply != null) {
-                                if (original >= reply) {
+                                if (original > reply) {
                                     params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                                 }
                             }

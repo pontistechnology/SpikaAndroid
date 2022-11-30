@@ -32,8 +32,11 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.*
+import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
@@ -109,6 +112,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var sent = false
     private var heightDiff = 0
     private var exoPlayer: ExoPlayer? = null
+
+    private var replyFlag = false
+    private lateinit var referenceMessage: Message
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -363,9 +369,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMessageReplyClick(message: Message) {
+        Timber.d("here, ${message.body?.referenceMessage?.createdAt}")
         val time = message.body?.referenceMessage?.createdAt
         var position = -1
         for (msg in messagesRecords) {
+            Timber.d("position $position")
             position++
             if (msg.message.createdAt == time) {
                 break
@@ -590,10 +598,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.replyAction.ivRemove.setOnClickListener {
             if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+                replyFlag = false
             }
         }
 
         bindingSetup.ivAdd.setOnClickListener {
+            if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
+                replyFlag = false
+                bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
             if (!isEditing) {
                 if (bottomSheetBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
                     bindingSetup.ivAdd.rotation = ROTATION_ON
@@ -687,13 +700,106 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMessageReply(message: Message) {
-        for (user in roomWithUsers.users){
-            if (user.id ==  message.fromUserId){
+        referenceMessage = message
+        if (message.senderMessage) {
+            bindingSetup.replyAction.clReplyContainer.background =
+                context!!.getDrawable(R.drawable.bg_message_user)
+        } else {
+            bindingSetup.replyAction.clReplyContainer.background =
+                context!!.getDrawable(R.drawable.bg_message_received)
+        }
+
+        for (user in roomWithUsers.users) {
+            if (user.id == message.fromUserId) {
                 bindingSetup.replyAction.tvUsername.text = user.displayName
                 break
             }
         }
-        bindingSetup.replyAction.tvMessage.text = message.body!!.text
+
+        when (message.type) {
+            Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO -> {
+                bindingSetup.replyAction.tvMessage.visibility = View.GONE
+                bindingSetup.replyAction.cvReplyMedia.visibility = View.VISIBLE
+                bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
+                val imagePath =
+                    message.body?.file?.path?.let { imagePath ->
+                        Tools.getFileUrl(
+                            imagePath
+                        )
+                    }
+                if (message.type == Const.JsonFields.CHAT_IMAGE) {
+                    bindingSetup.replyAction.tvReplyMedia.text = getString(
+                        R.string.media,
+                        context!!.getString(R.string.photo)
+                    )
+                    bindingSetup.replyAction.tvMessage.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_camera_reply,
+                        0,
+                        0,
+                        0
+                    )
+                } else {
+                    bindingSetup.replyAction.tvReplyMedia.text = getString(
+                        R.string.media,
+                        context!!.getString(R.string.video)
+                    )
+                    bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_video_reply,
+                        0,
+                        0,
+                        0
+                    )
+                }
+                Glide.with(this)
+                    .load(imagePath)
+                    .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                    .placeholder(R.drawable.img_image_placeholder)
+                    .dontTransform()
+                    .dontAnimate()
+                    .into(bindingSetup.replyAction.ivReplyImage)
+            }
+            Const.JsonFields.AUDIO -> {
+                bindingSetup.replyAction.tvMessage.visibility = View.GONE
+                bindingSetup.replyAction.cvReplyMedia.visibility = View.GONE
+                bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
+                bindingSetup.replyAction.tvReplyMedia.text =
+                    getString(R.string.media, context!!.getString(R.string.audio))
+                bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                    R.drawable.img_audio_reply,
+                    0,
+                    0,
+                    0
+                )
+            }
+            Const.JsonFields.FILE_TYPE -> {
+                bindingSetup.replyAction.tvMessage.visibility = View.GONE
+                bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
+                bindingSetup.replyAction.tvReplyMedia.text =
+                    getString(R.string.media, context!!.getString(R.string.file))
+                bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                    R.drawable.img_file_reply,
+                    0,
+                    0,
+                    0
+                )
+            }
+            else -> {
+                bindingSetup.replyAction.cvReplyMedia.visibility = View.GONE
+                bindingSetup.replyAction.tvReplyMedia.visibility = View.GONE
+                bindingSetup.replyAction.tvMessage.visibility = View.VISIBLE
+                val replyText = message.body?.text
+                bindingSetup.replyAction.tvMessage.text = replyText
+                bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                    0,
+                    0,
+                    0,
+                    0
+                )
+            }
+        }
+
+        replyFlag = true
+
     }
 
     private fun handleMessageEdit(message: Message) {
@@ -740,9 +846,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     ) {
         val jsonObject = JsonObject()
         val innerObject = JsonObject()
+        val jsonRefObject = JsonObject()
+        val jsonInnerRefObject = JsonObject()
+        val jsonInnerFileObject = JsonObject()
+        val jsonInnerThumbObject = JsonObject()
+
         innerObject.addProperty(
             Const.JsonFields.TEXT,
             bindingSetup.etMessage.text.toString()
+        )
+        innerObject.add(
+            Const.JsonFields.REFERENCE_MESSAGE,
+            jsonRefObject,
         )
         if (UploadMimeTypes.IMAGE == mimeType) {
             innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
@@ -758,10 +873,81 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         } else jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.TEXT)
 
         jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomWithUsers.room.roomId)
-        jsonObject.add(Const.JsonFields.BODY, innerObject)
 
+        if (replyFlag) {
+            //
+            jsonInnerFileObject.addProperty(
+                Const.JsonFields.FILE_NAME,
+                referenceMessage.body?.file?.fileName
+            )
+            jsonInnerFileObject.addProperty(
+                Const.JsonFields.MIME_TYPE,
+                referenceMessage.body?.file?.mimeType
+            )
+            jsonInnerFileObject.addProperty(
+                Const.JsonFields.PATH,
+                referenceMessage.body?.file?.path
+            )
+            jsonInnerFileObject.addProperty(
+                Const.JsonFields.SIZE,
+                referenceMessage.body?.file?.size
+            )
+
+            //Thumb
+            /*jsonInnerThumbObject.addProperty(Const.JsonFields.FILE_NAME, referenceMessage.body?.file?.fileName)
+            jsonInnerThumbObject.addProperty(Const.JsonFields.MIME_TYPE, referenceMessage.body?.file?.mimeType)
+            jsonInnerThumbObject.addProperty(Const.JsonFields.PATH, referenceMessage.body?.file?.path)
+            jsonInnerThumbObject.addProperty(Const.JsonFields.SIZE, referenceMessage.body?.file?.size)*/
+
+            when (referenceMessage.type) {
+                Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO, Const.JsonFields.AUDIO -> {
+                    jsonInnerRefObject.addProperty(
+                        Const.JsonFields.FILE_ID,
+                        referenceMessage.body?.fileId
+                    )
+                    jsonInnerRefObject.addProperty(
+                        Const.JsonFields.THUMB_ID,
+                        referenceMessage.body?.thumbId
+                    )
+                    jsonInnerRefObject.add(Const.JsonFields.FILE_TYPE, jsonInnerFileObject)
+                    jsonInnerRefObject.add(Const.JsonFields.THUMB, jsonInnerThumbObject)
+                }
+                else -> {
+                    jsonInnerRefObject.addProperty(
+                        Const.JsonFields.TEXT,
+                        referenceMessage.body?.text
+                    )
+                    jsonInnerRefObject.addProperty(Const.JsonFields.LOCAL_ID, 0)
+                }
+            }
+
+            jsonRefObject.addProperty(Const.JsonFields.ID, referenceMessage.id)
+            jsonRefObject.addProperty(Const.JsonFields.FROM_USER_ID, referenceMessage.fromUserId)
+            jsonRefObject.addProperty(
+                Const.JsonFields.TOTAL_USER_COUNT,
+                referenceMessage.totalUserCount
+            )
+            jsonRefObject.addProperty(
+                Const.JsonFields.DELIVERED_COUNT,
+                referenceMessage.deliveredCount
+            )
+            jsonRefObject.addProperty(Const.JsonFields.SEEN_COUNT, referenceMessage.seenCount)
+            jsonRefObject.addProperty(Const.JsonFields.ROOM_ID, referenceMessage.roomId)
+            jsonRefObject.addProperty(Const.JsonFields.TYPE, referenceMessage.type)
+            jsonRefObject.add(Const.JsonFields.BODY, jsonInnerRefObject)
+            jsonRefObject.addProperty(Const.JsonFields.CREATED_AT, referenceMessage.createdAt)
+            jsonRefObject.addProperty(Const.JsonFields.MODIFIED_AT, referenceMessage.modifiedAt)
+            jsonRefObject.addProperty(Const.JsonFields.LOCAL_ID, referenceMessage.modifiedAt)
+
+            jsonObject.addProperty(Const.UserActions.MESSAGE_REPLY, true)
+
+            replyFlag = false
+            bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        jsonObject.add(Const.JsonFields.BODY, innerObject)
         viewModel.sendMessage(jsonObject)
     }
+
 
     private fun createTempMessage() {
         val tempMessage = Message(
