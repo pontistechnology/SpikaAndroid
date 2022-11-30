@@ -174,7 +174,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
         // TODO remove this later
-//        viewModel.deleteLocalMessages(unsentMessages)
+        viewModel.deleteLocalMessages(unsentMessages)
         checkStoragePermission()
         setUpAdapter()
         initViews()
@@ -208,8 +208,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 ChatStatesEnum.MESSAGE_SENT -> {
                     bindingSetup.etMessage.setText("")
                     // TODO fix to remove old text message
-                    if (tempMessageCounter != 0) {
+                    if (unsentMessages.size > 1) {
+                        viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
+                        tempMessageCounter--
+                    } else {
                         viewModel.deleteLocalMessages(unsentMessages)
+                        tempMessageCounter--
                     }
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
@@ -365,16 +369,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     )
                                 }
 
-                                if (tempMessageCounter >= 0) {
-                                    viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
-                                    tempMessageCounter--
-                                }
-
                                 uploadIndex++
                                 if (mimeType == Const.JsonFields.IMAGE && uploadIndex < currentPhotoLocation.size) {
-                                    uploadImage()
+                                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                                        uploadImage()
+                                    }, 1000)
                                 } else if (mimeType == Const.JsonFields.VIDEO && uploadIndex < currentVideoLocation.size) {
-                                    uploadVideo()
+                                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                                        uploadVideo()
+                                    }, 1000)
                                 } else {
                                     resetUploadFields(mimeType)
                                 }
@@ -382,19 +385,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 if (it.thumbId > 0) messageBody?.thumbId = it.thumbId
                                 if (mimeType == Const.JsonFields.IMAGE) {
                                     messageBody?.let {
-                                        uploadMedia(
-                                            false,
-                                            currentPhotoLocation[uploadIndex],
-                                            UploadMimeTypes.IMAGE
-                                        )
+                                        Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                                            uploadMedia(
+                                                false,
+                                                currentPhotoLocation[uploadIndex],
+                                                UploadMimeTypes.IMAGE
+                                            )
+                                        }, 1000)
                                     }
                                 } else {
-                                    messageBody?.let { body ->
-                                        uploadMedia(
-                                            false,
-                                            currentVideoLocation[uploadIndex],
-                                            UploadMimeTypes.VIDEO
-                                        )
+                                    messageBody?.let {
+                                        Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                                            uploadMedia(
+                                                false,
+                                                currentVideoLocation[uploadIndex],
+                                                UploadMimeTypes.VIDEO
+                                            )
+                                        }, 1000)
                                     }
                                 }
                             }
@@ -418,13 +425,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                             if (mimeType == Const.JsonFields.IMAGE) {
                                 if (uploadIndex < currentPhotoLocation.size) {
-                                    uploadImage()
+                                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                                        uploadImage()
+                                    }, 1000)
                                 } else {
                                     resetUploadFields(mimeType)
                                 }
                             } else {
                                 if (uploadIndex < currentVideoLocation.size) {
-                                    uploadVideo()
+                                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                                        uploadVideo()
+                                    }, 1000)
                                 } else {
                                     resetUploadFields(mimeType)
                                 }
@@ -507,11 +518,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
+        bindingSetup.rvChat.itemAnimator = null
         bindingSetup.rvChat.adapter = chatAdapter
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
-        bindingSetup.rvChat.itemAnimator = null
-        //bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
+        // bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
 
         // Add callback for item swipe handling
         /*val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :

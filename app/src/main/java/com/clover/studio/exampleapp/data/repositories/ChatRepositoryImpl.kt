@@ -42,17 +42,17 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteLocalMessages(messages: List<Message>) {
-        if (messages.isNotEmpty()) {
+//        if (messages.isNotEmpty()) {
             val messagesIds = mutableListOf<Long>()
             for (message in messages) {
                 messagesIds.add(message.id.toLong())
             }
             // TODO remove this later
-//        messagesIds.add(0)
-//        messagesIds.add(1)
-//        messagesIds.add(2)
+        messagesIds.add(0)
+        messagesIds.add(1)
+        messagesIds.add(2)
             messageDao.deleteMessage(messagesIds)
-        }
+//        }
     }
 
     override suspend fun deleteLocalMessage(message: Message) {
