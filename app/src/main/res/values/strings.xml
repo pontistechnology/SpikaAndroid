@@ -103,6 +103,8 @@
     <string name="generic_shared">%s shared</string>
     <string name="now">Now</string>
     <string name="new_messages">You have %s new message%s</string>
+    <string name="media">%s</string>
+    <string name="file">File</string>
 
     <!--Alert dialog text-->
     <string name="warning">Warning</string>
@@ -120,6 +122,7 @@
 
     <!--Audio-->
     <string name="audio_duration">00:00</string>
+
     <!--Emoji-->
     <string name="thumbs_up_emoji">&#x1F44D;</string>
     <string name="praying_hands_emoji">&#x1F64F;</string>
@@ -141,6 +144,4 @@
     <string name="save">Save</string>
     <string name="edited">edited</string>
     <string name="failed_room_update">Failed to update room</string>
-
-
 </resources>
