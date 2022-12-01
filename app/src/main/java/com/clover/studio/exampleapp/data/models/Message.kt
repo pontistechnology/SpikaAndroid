@@ -87,6 +87,113 @@ data class Message @JvmOverloads constructor(
     // @Ignore
     // var roomUser: String = ""
 )
+/*{
+    fun jsonMessageObject(
+        bindingSetup: FragmentChatMessagesBinding,
+        mimeType: UploadMimeTypes,
+        fileId: Long,
+        thumbId: Long,
+        roomId: Int?,
+        replyFlag: Boolean,
+        referenceMessage: Message,
+    ): JsonObject {
+        val jsonObject = JsonObject()
+        val innerObject = JsonObject()
+        val jsonRefObject = JsonObject()
+        val jsonInnerRefObject = JsonObject()
+        val jsonInnerFileObject = JsonObject()
+        val jsonInnerThumbObject = JsonObject()
+
+        innerObject.addProperty(
+            Const.JsonFields.TEXT,
+            bindingSetup.etMessage.text.toString()
+        )
+        innerObject.add(
+            Const.JsonFields.REFERENCE_MESSAGE,
+            jsonRefObject,
+        )
+        if (UploadMimeTypes.IMAGE == mimeType) {
+            innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
+            innerObject.addProperty(Const.JsonFields.THUMB_ID, thumbId)
+            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.CHAT_IMAGE)
+        } else if (UploadMimeTypes.FILE == mimeType) {
+            innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
+            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.FILE_TYPE)
+        } else if (UploadMimeTypes.VIDEO == mimeType) {
+            innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
+            innerObject.addProperty(Const.JsonFields.THUMB_ID, thumbId)
+            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.VIDEO)
+        } else jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.TEXT)
+
+        jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomId)
+
+        if (replyFlag) {
+            // Thumb
+            /*jsonInnerThumbObject.addProperty(Const.JsonFields.FILE_NAME, referenceMessage.body?.file?.fileName)
+            jsonInnerThumbObject.addProperty(Const.JsonFields.MIME_TYPE, referenceMessage.body?.file?.mimeType)
+            jsonInnerThumbObject.addProperty(Const.JsonFields.PATH, referenceMessage.body?.file?.path)
+            jsonInnerThumbObject.addProperty(Const.JsonFields.SIZE, referenceMessage.body?.file?.size)*/
+
+            when (referenceMessage.type) {
+                Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO, Const.JsonFields.AUDIO, Const.JsonFields.FILE_TYPE -> {
+                    jsonInnerFileObject.addProperty(
+                        Const.JsonFields.FILE_NAME,
+                        referenceMessage.body?.file?.fileName
+                    )
+                    jsonInnerFileObject.addProperty(
+                        Const.JsonFields.MIME_TYPE,
+                        referenceMessage.body?.file?.mimeType
+                    )
+                    jsonInnerFileObject.addProperty(
+                        Const.JsonFields.PATH,
+                        referenceMessage.body?.file?.path
+                    )
+                    jsonInnerFileObject.addProperty(
+                        Const.JsonFields.SIZE,
+                        referenceMessage.body?.file?.size
+                    )
+                    jsonInnerRefObject.addProperty(
+                        Const.JsonFields.FILE_ID,
+                        referenceMessage.body?.fileId
+                    )
+                    jsonInnerRefObject.addProperty(
+                        Const.JsonFields.THUMB_ID,
+                        referenceMessage.body?.thumbId
+                    )
+                    jsonInnerRefObject.add(Const.JsonFields.FILE_TYPE, jsonInnerFileObject)
+                    jsonInnerRefObject.add(Const.JsonFields.THUMB, jsonInnerThumbObject)
+                }
+                else -> {
+                    jsonInnerRefObject.addProperty(
+                        Const.JsonFields.TEXT,
+                        referenceMessage.body?.text
+                    )
+                    jsonInnerRefObject.addProperty(Const.JsonFields.LOCAL_ID, 0)
+                }
+            }
+
+            jsonRefObject.addProperty(Const.JsonFields.ID, referenceMessage.id)
+            jsonRefObject.addProperty(Const.JsonFields.FROM_USER_ID, referenceMessage.fromUserId)
+            jsonRefObject.addProperty(
+                Const.JsonFields.TOTAL_USER_COUNT,
+                referenceMessage.totalUserCount
+            )
+            jsonRefObject.addProperty(
+                Const.JsonFields.DELIVERED_COUNT,
+                referenceMessage.deliveredCount
+            )
+            jsonRefObject.addProperty(Const.JsonFields.SEEN_COUNT, referenceMessage.seenCount)
+            jsonRefObject.addProperty(Const.JsonFields.ROOM_ID, referenceMessage.roomId)
+            jsonRefObject.addProperty(Const.JsonFields.TYPE, referenceMessage.type)
+            jsonRefObject.add(Const.JsonFields.BODY, jsonInnerRefObject)
+            jsonRefObject.addProperty(Const.JsonFields.CREATED_AT, referenceMessage.createdAt)
+            jsonRefObject.addProperty(Const.JsonFields.MODIFIED_AT, referenceMessage.modifiedAt)
+            jsonRefObject.addProperty(Const.JsonFields.LOCAL_ID, referenceMessage.modifiedAt)
+
+            jsonObject.addProperty(Const.UserActions.MESSAGE_REPLY, true)
+        }
+        return jsonObject
+    }*/
 
 data class MessageBody(
     var referenceMessage: ReferenceMessage?,

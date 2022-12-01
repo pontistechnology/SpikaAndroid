@@ -369,11 +369,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMessageReplyClick(message: Message) {
-        Timber.d("here, ${message.body?.referenceMessage?.createdAt}")
         val time = message.body?.referenceMessage?.createdAt
         var position = -1
         for (msg in messagesRecords) {
-            Timber.d("position $position")
             position++
             if (msg.message.createdAt == time) {
                 break
@@ -875,32 +873,32 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomWithUsers.room.roomId)
 
         if (replyFlag) {
-            //
-            jsonInnerFileObject.addProperty(
-                Const.JsonFields.FILE_NAME,
-                referenceMessage.body?.file?.fileName
-            )
-            jsonInnerFileObject.addProperty(
-                Const.JsonFields.MIME_TYPE,
-                referenceMessage.body?.file?.mimeType
-            )
-            jsonInnerFileObject.addProperty(
-                Const.JsonFields.PATH,
-                referenceMessage.body?.file?.path
-            )
-            jsonInnerFileObject.addProperty(
-                Const.JsonFields.SIZE,
-                referenceMessage.body?.file?.size
-            )
+            // For now, the thumb json field is commented out because I'm not sure how much is needed for reply messages
+            // Also, I believe that some other fields are not necessary and will need to be removed later
 
-            //Thumb
             /*jsonInnerThumbObject.addProperty(Const.JsonFields.FILE_NAME, referenceMessage.body?.file?.fileName)
             jsonInnerThumbObject.addProperty(Const.JsonFields.MIME_TYPE, referenceMessage.body?.file?.mimeType)
             jsonInnerThumbObject.addProperty(Const.JsonFields.PATH, referenceMessage.body?.file?.path)
             jsonInnerThumbObject.addProperty(Const.JsonFields.SIZE, referenceMessage.body?.file?.size)*/
 
             when (referenceMessage.type) {
-                Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO, Const.JsonFields.AUDIO -> {
+                Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO, Const.JsonFields.AUDIO, Const.JsonFields.FILE_TYPE -> {
+                    jsonInnerFileObject.addProperty(
+                        Const.JsonFields.FILE_NAME,
+                        referenceMessage.body?.file?.fileName
+                    )
+                    jsonInnerFileObject.addProperty(
+                        Const.JsonFields.MIME_TYPE,
+                        referenceMessage.body?.file?.mimeType
+                    )
+                    jsonInnerFileObject.addProperty(
+                        Const.JsonFields.PATH,
+                        referenceMessage.body?.file?.path
+                    )
+                    jsonInnerFileObject.addProperty(
+                        Const.JsonFields.SIZE,
+                        referenceMessage.body?.file?.size
+                    )
                     jsonInnerRefObject.addProperty(
                         Const.JsonFields.FILE_ID,
                         referenceMessage.body?.fileId

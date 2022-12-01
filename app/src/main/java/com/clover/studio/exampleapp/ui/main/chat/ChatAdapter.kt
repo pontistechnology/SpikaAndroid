@@ -44,7 +44,7 @@ import java.util.*
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
-private const val TEXT_SIZE_BIG = 15
+private const val TEXT_SIZE_BIG = 11
 private const val TEXT_SIZE_SMALL = 5
 private var oldPosition = -1
 private var firstPlay = true
@@ -419,7 +419,7 @@ class ChatAdapter(
                             // Check which layout is wider
                             val reply = replyText?.length
                             if (original != null && reply != null) {
-                                if (original >= reply) {
+                                if (original >= reply && original >= TEXT_SIZE_SMALL) {
                                     params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                                 }
                             }
@@ -806,7 +806,7 @@ class ChatAdapter(
                             // Check which layout is wider
                             val reply = replyText?.length
                             if (original != null && reply != null) {
-                                if (original > reply) {
+                                if (original > reply && original >= TEXT_SIZE_SMALL) {
                                     params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                                 }
                             }
