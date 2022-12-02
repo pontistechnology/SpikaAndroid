@@ -39,6 +39,7 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
 import timber.log.Timber
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -68,6 +69,7 @@ class ChatAdapter(
     private val myUserId: Int,
     private val users: List<User>,
     private var exoPlayer: ExoPlayer,
+    private var roomType: String?,
     private val onMessageInteraction: ((event: String, message: Message) -> Unit)
 ) :
     ListAdapter<MessageAndRecords, RecyclerView.ViewHolder>(MessageAndRecordsDiffCallback()) {
@@ -117,6 +119,7 @@ class ChatAdapter(
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 holder as SentMessageHolder
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_btn_white)
+                holder.binding.tvTime.visibility = View.GONE
                 when (it.message.type) {
                     Const.JsonFields.TEXT -> {
                         holder.binding.tvMessage.text = it.message.body?.text
@@ -149,7 +152,7 @@ class ChatAdapter(
                             .dontAnimate()
                             .into(holder.binding.ivChatImage)
 
-                        holder.binding.clContainer.setOnClickListener { view ->
+                        holder.binding.cvImage.setOnClickListener { view ->
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
                                     "", imagePath!!
@@ -427,6 +430,17 @@ class ChatAdapter(
                     }
                 }
 
+                holder.binding.clMessage.setOnClickListener{  _ ->
+                    if(holder.binding.tvTime.visibility == View.GONE){
+                        holder.binding.tvTime.visibility = View.VISIBLE
+                        val simpleDateFormat = SimpleDateFormat("HH:mm")
+                        val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
+                        holder.binding.tvTime.text = dateTime
+                    } else {
+                        holder.binding.tvTime.visibility = View.GONE
+                    }
+                }
+
                 // Find replied message
                 holder.binding.clReplyMessage.setOnClickListener { _ ->
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it.message)
@@ -502,6 +516,7 @@ class ChatAdapter(
                 // View holder for messages from other users
                 holder as ReceivedMessageHolder
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
+                holder.binding.tvTime.visibility = View.GONE
                 when (it.message.type) {
                     Const.JsonFields.TEXT -> {
                         holder.binding.tvMessage.text = it.message.body?.text
@@ -814,6 +829,17 @@ class ChatAdapter(
                     }
                 }
 
+                holder.binding.clMessage.setOnClickListener{
+                    if(holder.binding.tvTime.visibility == View.GONE){
+                        holder.binding.tvTime.visibility = View.VISIBLE
+                        val simpleDateFormat = SimpleDateFormat("HH:mm")
+                        val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
+                        holder.binding.tvTime.text = dateTime
+                    } else {
+                        holder.binding.tvTime.visibility = View.GONE
+                    }
+                }
+
                 // Find replied message
                 holder.binding.clReplyMessage.setOnClickListener { _ ->
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it.message)
@@ -843,19 +869,26 @@ class ChatAdapter(
                     holder.binding.cvImage.visibility = View.GONE
                 }
 
-                for (roomUser in users) {
-                    if (it.message.fromUserId == roomUser.id) {
-                        holder.binding.tvUsername.text = roomUser.displayName
-                        Glide.with(context)
-                            .load(roomUser.avatarUrl?.let { avatarUrl ->
-                                Tools.getFileUrl(
-                                    avatarUrl
-                                )
-                            })
-                            .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
-                            .into(holder.binding.ivUserImage)
-                        break
+                if (roomType != Const.JsonFields.PRIVATE){
+                    for (roomUser in users) {
+                        if (it.message.fromUserId == roomUser.id) {
+                            holder.binding.tvUsername.text = roomUser.displayName
+                            Glide.with(context)
+                                .load(roomUser.avatarUrl?.let { avatarUrl ->
+                                    Tools.getFileUrl(
+                                        avatarUrl
+                                    )
+                                })
+                                .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                                .into(holder.binding.ivUserImage)
+                            break
+                        }
                     }
+                    holder.binding.cvUserAvatar.visibility = View.VISIBLE
+                    holder.binding.tvUsername.visibility = View.VISIBLE
+                } else {
+                    holder.binding.cvUserAvatar.visibility = View.GONE
+                    holder.binding.tvUsername.visibility = View.GONE
                 }
 
                 /* Reactions section: */
@@ -881,33 +914,35 @@ class ChatAdapter(
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
                 // TODO - show avatar only on last message and name on first message
-                if (position > 0) {
-                    try {
-                        val nextItem = getItem(position + 1).message.fromUserId
-                        val previousItem = getItem(position - 1).message.fromUserId
+                if (roomType != Const.JsonFields.PRIVATE){
+                    if (position > 0) {
+                        try {
+                            val nextItem = getItem(position + 1).message.fromUserId
+                            val previousItem = getItem(position - 1).message.fromUserId
 
-                        val currentItem = it.message.fromUserId
-                        //Timber.d("Items : $nextItem, $currentItem ${nextItem == currentItem}")
+                            val currentItem = it.message.fromUserId
+                            //Timber.d("Items : $nextItem, $currentItem ${nextItem == currentItem}")
 
-                        if (previousItem == currentItem) {
-                            holder.binding.cvUserAvatar.visibility = View.INVISIBLE
-                        } else {
+                            if (previousItem == currentItem) {
+                                holder.binding.cvUserAvatar.visibility = View.INVISIBLE
+                            } else {
+                                holder.binding.cvUserAvatar.visibility = View.VISIBLE
+                            }
+
+                            if (nextItem == currentItem) {
+                                holder.binding.tvUsername.visibility = View.GONE
+                            } else {
+                                holder.binding.tvUsername.visibility = View.VISIBLE
+                            }
+                        } catch (ex: IndexOutOfBoundsException) {
+                            Tools.checkError(ex)
+                            holder.binding.tvUsername.visibility = View.VISIBLE
                             holder.binding.cvUserAvatar.visibility = View.VISIBLE
                         }
-
-                        if (nextItem == currentItem) {
-                            holder.binding.tvUsername.visibility = View.GONE
-                        } else {
-                            holder.binding.tvUsername.visibility = View.VISIBLE
-                        }
-                    } catch (ex: IndexOutOfBoundsException) {
-                        Tools.checkError(ex)
+                    } else {
                         holder.binding.tvUsername.visibility = View.VISIBLE
                         holder.binding.cvUserAvatar.visibility = View.VISIBLE
                     }
-                } else {
-                    holder.binding.tvUsername.visibility = View.VISIBLE
-                    holder.binding.cvUserAvatar.visibility = View.VISIBLE
                 }
             }
         }
