@@ -83,8 +83,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
     private var unsentMessages: MutableList<Message> = ArrayList()
 
-    private var currentPhotoLocation: MutableList<Uri> = ArrayList()
-    private var currentVideoLocation: MutableList<Uri> = ArrayList()
+    private var currentMediaLocation: MutableList<Uri> = ArrayList()
 
     private var filesSelected: MutableList<Uri> = ArrayList()
 
@@ -208,13 +207,26 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 ChatStatesEnum.MESSAGE_SENT -> {
                     bindingSetup.etMessage.setText("")
                     // TODO fix to remove old text message
-                    if (unsentMessages.size > 1) {
-                        viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
-                        tempMessageCounter--
+                    if (tempMessageCounter > 0) {
+//                        viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
+                        tempMessageCounter -= 1
                     } else {
                         viewModel.deleteLocalMessages(unsentMessages)
-                        tempMessageCounter--
+                        tempMessageCounter = -1
                     }
+
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        uploadIndex++
+                        if (uploadIndex < currentMediaLocation.size) {
+                            if (mimeType == Const.JsonFields.IMAGE) {
+                                uploadImage()
+                            } else if (mimeType == Const.JsonFields.VIDEO) {
+                                uploadVideo()
+                            }
+                        } else {
+                            resetUploadFields()
+                        }
+                    }, 2000)
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
@@ -351,106 +363,55 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         } else progress = 0
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on piece")
-                        resetUploadFields(mimeType)
+                       handleUploadError()
                     }
                 }
 
                 is MediaUploadVerified -> {
                     try {
-                        activity!!.runOnUiThread {
-                            if (!it.isThumbnail) {
-                                if (it.fileId > 0) messageBody?.fileId = it.fileId
+                        if (!it.isThumbnail) {
+                            if (it.fileId > 0) messageBody?.fileId = it.fileId
 
-                                mediaType?.let { media ->
-                                    sendMessage(
-                                        media,
-                                        messageBody?.fileId!!,
-                                        messageBody?.thumbId!!
+                            sendMessage(
+                                mediaType!!,
+                                messageBody?.fileId!!,
+                                messageBody?.thumbId!!
+                            )
+                        } else {
+                            if (it.thumbId > 0) messageBody?.thumbId = it.thumbId
+                            if (mimeType == Const.JsonFields.IMAGE) {
+                                messageBody?.let {
+                                    uploadMedia(
+                                        false,
+                                        currentMediaLocation[uploadIndex],
+                                        UploadMimeTypes.IMAGE
                                     )
                                 }
-
-                                uploadIndex++
-                                if (mimeType == Const.JsonFields.IMAGE && uploadIndex < currentPhotoLocation.size) {
-                                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                                        uploadImage()
-                                    }, 1000)
-                                } else if (mimeType == Const.JsonFields.VIDEO && uploadIndex < currentVideoLocation.size) {
-                                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                                        uploadVideo()
-                                    }, 1000)
-                                } else {
-                                    resetUploadFields(mimeType)
-                                }
                             } else {
-                                if (it.thumbId > 0) messageBody?.thumbId = it.thumbId
-                                if (mimeType == Const.JsonFields.IMAGE) {
-                                    messageBody?.let {
-                                        Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                                            uploadMedia(
-                                                false,
-                                                currentPhotoLocation[uploadIndex],
-                                                UploadMimeTypes.IMAGE
-                                            )
-                                        }, 1000)
-                                    }
-                                } else {
-                                    messageBody?.let {
-                                        Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                                            uploadMedia(
-                                                false,
-                                                currentVideoLocation[uploadIndex],
-                                                UploadMimeTypes.VIDEO
-                                            )
-                                        }, 1000)
-                                    }
+                                messageBody?.let {
+                                    uploadMedia(
+                                        false,
+                                        currentMediaLocation[uploadIndex],
+                                        UploadMimeTypes.VIDEO
+                                    )
                                 }
                             }
                         }
                         // update room data
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on verified")
-                        resetUploadFields(mimeType)
+                        resetUploadFields()
                     }
                 }
 
                 is MediaUploadError -> {
                     try {
                         requireActivity().runOnUiThread {
-                            uploadIndex++
-
-                            if (tempMessageCounter >= 0) {
-                                viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
-                                tempMessageCounter--
-                            }
-
-                            if (mimeType == Const.JsonFields.IMAGE) {
-                                if (uploadIndex < currentPhotoLocation.size) {
-                                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                                        uploadImage()
-                                    }, 1000)
-                                } else {
-                                    resetUploadFields(mimeType)
-                                }
-                            } else {
-                                if (uploadIndex < currentVideoLocation.size) {
-                                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                                        uploadVideo()
-                                    }, 1000)
-                                } else {
-                                    resetUploadFields(mimeType)
-                                }
-                            }
-
-                            Toast.makeText(
-                                activity!!.baseContext,
-                                getString(R.string.failed_file_upload),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            uploadInProgress = false
+                           handleUploadError()
                         }
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on error")
-                        resetUploadFields(mimeType)
+                        handleUploadError()
                     }
                 }
 
@@ -761,30 +722,24 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        // TODO add send message button and handle UI when message is being entered
-        // Change required field after work has been done
-
         bindingSetup.tvTitle.text = roomWithUsers.room.type
 
         bindingSetup.ivButtonSend.setOnClickListener {
             val imageContainer = bindingSetup.llImagesContainer
             imageContainer.removeAllViews()
-            if (currentPhotoLocation.isNotEmpty()) {
+            if (currentMediaLocation.isNotEmpty()) {
                 for (thumbnail in thumbnailUris) {
                     createTempMediaMessage(thumbnail)
                 }
                 Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    uploadImage()
+                    if (mimeType == Const.JsonFields.CHAT_IMAGE) {
+                        uploadImage()
+                    } else {
+                        uploadVideo()
+                    }
                 }, 2000)
             } else if (filesSelected.isNotEmpty()) {
                 uploadFile(filesSelected[0])
-            } else if (currentVideoLocation.isNotEmpty()) {
-                for (thumbnail in thumbnailUris) {
-                    createTempMediaMessage(thumbnail)
-                }
-                Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    uploadVideo()
-                }, 2000)
             } else {
                 createTempTextMessage()
                 sendMessage()
@@ -1081,7 +1036,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun createTempMediaMessage(mediaUri: Uri) {
-        tempMessageCounter++
+        tempMessageCounter += 1
         messageBody = MessageBody(
             null,
             1,
@@ -1091,7 +1046,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 "",
                 "",
                 0,
-                Tools.handleSamplingAndRotationBitmap(activity!!, mediaUri)
+                mediaUri.toString()
             ),
             null
         )
@@ -1099,7 +1054,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             tempMessageCounter,
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
-            Const.JsonFields.MOCK_MESSAGE_MEDIA,
+            Const.JsonFields.CHAT_IMAGE,
             messageBody!!
         )
 
@@ -1236,17 +1191,40 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
     }
 
-    private fun resetUploadFields(mimeType: String) {
+    private fun resetUploadFields() {
         Timber.d("Resetting upload fields")
         uploadIndex = 0
-        if (mimeType == Const.JsonFields.IMAGE) {
-            currentPhotoLocation.clear()
-        } else {
-            currentVideoLocation.clear()
-        }
+        currentMediaLocation.clear()
         thumbnailUris.clear()
         uploadInProgress = false
         context?.cacheDir?.deleteRecursively()
+    }
+
+    private fun handleUploadError() {
+        uploadIndex++
+
+//        if (tempMessageCounter >= 0) {
+//            viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
+//            tempMessageCounter--
+//        }
+
+        tempMessageCounter -= 1
+        if (uploadIndex < currentMediaLocation.size) {
+            if (mimeType == Const.JsonFields.IMAGE) {
+                uploadImage()
+            } else {
+                uploadVideo()
+            }
+        } else {
+            resetUploadFields()
+        }
+
+        Toast.makeText(
+            activity!!.baseContext,
+            getString(R.string.failed_file_upload),
+            Toast.LENGTH_SHORT
+        ).show()
+        uploadInProgress = false
     }
 
     private fun showUploadError() {
@@ -1301,8 +1279,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val type = mime.getExtensionFromMimeType(cR.getType(uri))
 
         if (type.equals(Const.FileExtensions.MP4)) {
+            mimeType = Const.JsonFields.VIDEO
             convertVideo(uri)
         } else {
+            mimeType = Const.JsonFields.CHAT_IMAGE
             convertImageToBitmap(uri)
         }
     }
@@ -1329,7 +1309,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
 
         thumbnailUris.add(thumbnailUri)
-        currentVideoLocation.add(videoUri)
+        currentMediaLocation.add(videoUri)
     }
 
     private fun convertImageToBitmap(imageUri: Uri?) {
@@ -1355,7 +1335,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         // Create thumbnail for the image which will also be sent to the backend
         thumbnailUris.add(thumbnailUri)
-        currentPhotoLocation.add(bitmapUri)
+        currentMediaLocation.add(bitmapUri)
     }
 
     private fun checkStoragePermission() {

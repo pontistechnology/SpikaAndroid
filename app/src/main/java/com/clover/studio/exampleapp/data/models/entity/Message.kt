@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.data.models.entity
 
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.google.gson.annotations.SerializedName
@@ -124,6 +125,6 @@ data class MessageFile(
     val mimeType: String,
     val path: String,
     val size: Long,
-    val bitmap: Bitmap?
+    val uri: String?
 )
 

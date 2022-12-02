@@ -51,6 +51,7 @@ class ChatRepositoryImpl @Inject constructor(
         messagesIds.add(0)
         messagesIds.add(1)
         messagesIds.add(2)
+        messagesIds.add(3)
             messageDao.deleteMessage(messagesIds)
 //        }
     }

@@ -144,19 +144,30 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        val imagePath = it.message.body?.file?.path?.let { imagePath ->
-                            Tools.getFileUrl(
-                                imagePath
-                            )
-                        }
+                        if (it.message.body?.file?.uri != null) {
+                            holder.binding.clProgressScreen.visibility = View.VISIBLE
+                            Glide.with(context)
+                                .load(it.message.body.file?.uri)
+                                .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                                .placeholder(R.drawable.img_image_placeholder)
+                                .dontTransform()
+                                .dontAnimate()
+                                .into(holder.binding.ivChatImage)
+                        } else {
+                            holder.binding.clProgressScreen.visibility = View.GONE
+                            val imagePath = it.message.body?.file?.path?.let { imagePath ->
+                                Tools.getFileUrl(
+                                    imagePath
+                                )
+                            }
 
-                        Glide.with(context)
-                            .load(imagePath)
-                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
-                            .placeholder(R.drawable.img_image_placeholder)
-                            .dontTransform()
-                            .dontAnimate()
-                            .into(holder.binding.ivChatImage)
+                            Glide.with(context)
+                                .load(imagePath)
+                                .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                                .placeholder(R.drawable.img_image_placeholder)
+                                .dontTransform()
+                                .dontAnimate()
+                                .into(holder.binding.ivChatImage)
 
                         holder.binding.cvImage.setOnClickListener { view ->
                             val action =
@@ -317,23 +328,6 @@ class ChatAdapter(
                             override fun onStopTrackingTouch(seekBar: SeekBar) {
                             }
                         })
-                    }
-
-                    Const.JsonFields.MOCK_MESSAGE_MEDIA -> {
-                        holder.binding.tvMessage.visibility = View.GONE
-                        holder.binding.cvImage.visibility = View.VISIBLE
-                        holder.binding.clFileMessage.visibility = View.GONE
-                        holder.binding.clVideos.visibility = View.GONE
-                        holder.binding.cvAudio.visibility = View.GONE
-                        holder.binding.clProgressScreen.visibility = View.VISIBLE
-
-                        Glide.with(context)
-                            .load(it.message.body?.file?.bitmap)
-                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
-                            .placeholder(R.drawable.img_image_placeholder)
-                            .dontTransform()
-                            .dontAnimate()
-                            .into(holder.binding.ivChatImage)
                     }
 
                     else -> {
