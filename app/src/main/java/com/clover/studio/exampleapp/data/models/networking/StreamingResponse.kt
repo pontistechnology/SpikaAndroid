@@ -1,9 +1,9 @@
 package com.clover.studio.exampleapp.data.models.networking
 
-import com.clover.studio.exampleapp.data.models.ChatRoom
-import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.MessageRecords
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.entity.ChatRoom
+import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageRecords
+import com.clover.studio.exampleapp.data.models.entity.User
 
 data class StreamingResponse(
     val data: DataResponse?

@@ -1,4 +1,4 @@
-package com.clover.studio.exampleapp.data.models
+package com.clover.studio.exampleapp.data.models.entity
 
 import android.os.Parcelable
 import androidx.room.Entity

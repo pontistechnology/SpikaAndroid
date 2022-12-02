@@ -1,99 +1,18 @@
 package com.clover.studio.exampleapp.data.models
 
-import androidx.room.*
-import com.clover.studio.exampleapp.data.AppDatabase
-import com.google.gson.annotations.SerializedName
+import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.ui.main.chat.UploadMimeTypes
+import com.clover.studio.exampleapp.utils.Const
+import com.google.gson.JsonObject
 
-@Entity(tableName = AppDatabase.TablesInfo.TABLE_MESSAGE)
-data class Message @JvmOverloads constructor(
-
-    @PrimaryKey
-    @ColumnInfo(name = AppDatabase.TablesInfo.ID)
-    val id: Int,
-
-    @SerializedName("fromUserId")
-    @ColumnInfo(name = "from_user_id")
-    val fromUserId: Int?,
-
-    @SerializedName("fromDeviceId")
-    @ColumnInfo(name = "from_device_id")
-    val fromDeviceId: Int?,
-
-    @SerializedName("totalDeviceCount")
-    @ColumnInfo(name = "total_device_count")
-    val totalDeviceCount: Int?,
-
-    @SerializedName("totalUserCount")
-    @ColumnInfo(name = "total_user_count")
-    val totalUserCount: Int?,
-
-    @SerializedName("deliveredCount")
-    @ColumnInfo(name = "delivered_count")
-    val deliveredCount: Int?,
-
-    @SerializedName("seenCount")
-    @ColumnInfo(name = "seen_count")
-    val seenCount: Int?,
-
-    @SerializedName("roomId")
-    @ColumnInfo(name = "room_id")
+data class MessageToJson(
+    val msgText: String?,
+    val mimeType: UploadMimeTypes?,
+    val fileId: Long?,
+    val thumbId: Long?,
     val roomId: Int?,
-
-    @SerializedName("type")
-    @ColumnInfo(name = "type")
-    val type: String?,
-
-    @SerializedName("body")
-    @ColumnInfo(name = "body")
-    @TypeConverters(TypeConverter::class)
-    val body: MessageBody?,
-
-    @SerializedName("createdAt")
-    @ColumnInfo(name = "created_at")
-    val createdAt: Long?,
-
-    @SerializedName("modifiedAt")
-    @ColumnInfo(name = "modified_at")
-    val modifiedAt: Long?,
-
-    @SerializedName("deleted")
-    @ColumnInfo(name = "deleted")
-    val deleted: Boolean?,
-
-    @SerializedName("reply")
-    @ColumnInfo(name = "reply")
-    val reply: Boolean?,
-
-    // Two field below are used for firebase messaging and are not needed in the local db
-    @Ignore
-    @SerializedName("fromUserName")
-    val userName: String = "",
-
-    @Ignore
-    val groupName: String? = "",
-
-    @Ignore
-    val muted: Boolean? = false,
-
-    @Ignore
-    var reaction: String = "",
-
-    @Ignore
-    var messagePosition: Int = 0,
-
-    @Ignore
-    var senderMessage: Boolean = false,
-
-    // @Ignore
-    // var roomUser: String = ""
-)
-/*{
+) {
     fun jsonMessageObject(
-        bindingSetup: FragmentChatMessagesBinding,
-        mimeType: UploadMimeTypes,
-        fileId: Long,
-        thumbId: Long,
-        roomId: Int?,
         replyFlag: Boolean,
         referenceMessage: Message,
     ): JsonObject {
@@ -106,7 +25,7 @@ data class Message @JvmOverloads constructor(
 
         innerObject.addProperty(
             Const.JsonFields.TEXT,
-            bindingSetup.etMessage.text.toString()
+            msgText
         )
         innerObject.add(
             Const.JsonFields.REFERENCE_MESSAGE,
@@ -128,7 +47,8 @@ data class Message @JvmOverloads constructor(
         jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomId)
 
         if (replyFlag) {
-            // Thumb
+            // For now, the thumb json field is commented out because I'm not sure how much is needed for reply messages
+            // Also, I believe that some other fields are not necessary and will need to be removed later
             /*jsonInnerThumbObject.addProperty(Const.JsonFields.FILE_NAME, referenceMessage.body?.file?.fileName)
             jsonInnerThumbObject.addProperty(Const.JsonFields.MIME_TYPE, referenceMessage.body?.file?.mimeType)
             jsonInnerThumbObject.addProperty(Const.JsonFields.PATH, referenceMessage.body?.file?.path)
@@ -192,43 +112,8 @@ data class Message @JvmOverloads constructor(
 
             jsonObject.addProperty(Const.UserActions.MESSAGE_REPLY, true)
         }
+        jsonObject.add(Const.JsonFields.BODY, innerObject)
+
         return jsonObject
-    }*/
-
-data class MessageBody(
-    var referenceMessage: ReferenceMessage?,
-    var text: String?,
-    var fileId: Long?,
-    var thumbId: Long?,
-    var file: MessageFile?,
-    var thumb: MessageFile?
-)
-
-data class ReferenceMessage(
-    var id: Int?,
-    var fromUserId: Int?,
-    var totalDeviceCount: Int?,
-    var deliveredCount: Int?,
-    var seenCount: Int?,
-    var roomId: Int?,
-    var type: String?,
-    var body: ReplyBody,
-    var createdAt: Long?,
-    val modifiedAt: Long?,
-    val deleted: Boolean?,
-    val reply: Boolean?,
-)
-
-data class ReplyBody(
-    var text: String?,
-    var file: MessageFile?,
-    var thumb: MessageFile?,
-)
-
-data class MessageFile(
-    val fileName: String,
-    val mimeType: String,
-    val path: String,
-    val size: Long
-)
-
+    }
+}

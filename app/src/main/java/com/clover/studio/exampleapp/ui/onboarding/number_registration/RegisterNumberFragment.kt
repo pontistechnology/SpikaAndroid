@@ -20,7 +20,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.PhoneUser
+import com.clover.studio.exampleapp.data.models.entity.PhoneUser
 import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel

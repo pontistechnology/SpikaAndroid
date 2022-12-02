@@ -29,10 +29,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.Reactions
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
 import com.clover.studio.exampleapp.utils.Const

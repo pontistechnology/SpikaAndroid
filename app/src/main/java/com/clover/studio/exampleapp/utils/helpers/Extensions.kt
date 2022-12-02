@@ -1,7 +1,7 @@
 package com.clover.studio.exampleapp.utils.helpers
 
 import android.content.Context
-import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
+import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import timber.log.Timber
 import java.text.Collator
 

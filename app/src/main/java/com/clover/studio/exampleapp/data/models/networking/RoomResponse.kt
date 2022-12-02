@@ -1,7 +1,7 @@
 package com.clover.studio.exampleapp.data.models.networking
 
-import com.clover.studio.exampleapp.data.models.ChatRoom
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.entity.ChatRoom
+import com.clover.studio.exampleapp.data.models.entity.User
 
 data class RoomResponse(
     val status: String?,

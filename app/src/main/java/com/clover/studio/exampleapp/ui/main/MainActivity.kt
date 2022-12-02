@@ -12,7 +12,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
