@@ -36,7 +36,7 @@ import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
-import com.clover.studio.exampleapp.data.models.MessageToJson
+import com.clover.studio.exampleapp.data.models.JsonMessage
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
@@ -115,27 +115,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var exoPlayer: ExoPlayer? = null
 
     private var replyFlag = false
-    private var referenceMessage: Message =
-        Message(0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            "",
-            null,
-            0,
-            0,
-            deleted = false,
-            reply = false,
-            "",
-            "",
-            false,
-            "",
-            0,
-            false)
+    private var referenceMessage: Message? = null
 
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
@@ -863,16 +843,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         thumbId: Long
     ) {
 
-        val messageToJson = MessageToJson(
+        val jsonMessage = JsonMessage(
             bindingSetup.etMessage.text.toString(),
             mimeType,
             fileId,
             thumbId,
             roomWithUsers.room.roomId
         )
-        val jsonObject = messageToJson.jsonMessageObject(
+        val jsonObject = jsonMessage.messageToJson(
             replyFlag,
-            referenceMessage,
+            referenceMessage!!,
         )
 
         if (replyFlag) {

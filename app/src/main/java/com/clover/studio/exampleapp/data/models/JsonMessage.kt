@@ -5,14 +5,14 @@ import com.clover.studio.exampleapp.ui.main.chat.UploadMimeTypes
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
 
-data class MessageToJson(
+data class JsonMessage(
     val msgText: String?,
     val mimeType: UploadMimeTypes?,
     val fileId: Long?,
     val thumbId: Long?,
     val roomId: Int?,
 ) {
-    fun jsonMessageObject(
+    fun messageToJson(
         replyFlag: Boolean,
         referenceMessage: Message,
     ): JsonObject {
@@ -28,7 +28,7 @@ data class MessageToJson(
             msgText
         )
         innerObject.add(
-            Const.JsonFields.REFERENCE_MESSAGE,
+            Const.JsonFields.REFERENCE_MESSAGE_REPLY,
             jsonRefObject,
         )
         if (UploadMimeTypes.IMAGE == mimeType) {
@@ -65,7 +65,7 @@ data class MessageToJson(
                         referenceMessage.body?.file?.mimeType
                     )
                     jsonInnerFileObject.addProperty(
-                        Const.JsonFields.PATH,
+                        Const.JsonFields.PATH_REPLY,
                         referenceMessage.body?.file?.path
                     )
                     jsonInnerFileObject.addProperty(
@@ -81,34 +81,34 @@ data class MessageToJson(
                         referenceMessage.body?.thumbId
                     )
                     jsonInnerRefObject.add(Const.JsonFields.FILE_TYPE, jsonInnerFileObject)
-                    jsonInnerRefObject.add(Const.JsonFields.THUMB, jsonInnerThumbObject)
+                    jsonInnerRefObject.add(Const.JsonFields.THUMB_REPLY, jsonInnerThumbObject)
                 }
                 else -> {
                     jsonInnerRefObject.addProperty(
                         Const.JsonFields.TEXT,
                         referenceMessage.body?.text
                     )
-                    jsonInnerRefObject.addProperty(Const.JsonFields.LOCAL_ID, 0)
+                    jsonInnerRefObject.addProperty(Const.JsonFields.LOCAL_ID_REPLY, 0)
                 }
             }
 
-            jsonRefObject.addProperty(Const.JsonFields.ID, referenceMessage.id)
-            jsonRefObject.addProperty(Const.JsonFields.FROM_USER_ID, referenceMessage.fromUserId)
+            jsonRefObject.addProperty(Const.Networking.ID, referenceMessage.id)
+            jsonRefObject.addProperty(Const.JsonFields.FROM_USER_ID_REPLY, referenceMessage.fromUserId)
             jsonRefObject.addProperty(
-                Const.JsonFields.TOTAL_USER_COUNT,
+                Const.JsonFields.TOTAL_USER_COUNT_REPLY,
                 referenceMessage.totalUserCount
             )
             jsonRefObject.addProperty(
-                Const.JsonFields.DELIVERED_COUNT,
+                Const.JsonFields.DELIVERED_COUNT_REPLY,
                 referenceMessage.deliveredCount
             )
-            jsonRefObject.addProperty(Const.JsonFields.SEEN_COUNT, referenceMessage.seenCount)
+            jsonRefObject.addProperty(Const.JsonFields.SEEN_COUNT_REPLY, referenceMessage.seenCount)
             jsonRefObject.addProperty(Const.JsonFields.ROOM_ID, referenceMessage.roomId)
             jsonRefObject.addProperty(Const.JsonFields.TYPE, referenceMessage.type)
             jsonRefObject.add(Const.JsonFields.BODY, jsonInnerRefObject)
-            jsonRefObject.addProperty(Const.JsonFields.CREATED_AT, referenceMessage.createdAt)
-            jsonRefObject.addProperty(Const.JsonFields.MODIFIED_AT, referenceMessage.modifiedAt)
-            jsonRefObject.addProperty(Const.JsonFields.LOCAL_ID, referenceMessage.modifiedAt)
+            jsonRefObject.addProperty(Const.JsonFields.CREATED_AT_REPLY, referenceMessage.createdAt)
+            jsonRefObject.addProperty(Const.JsonFields.MODIFIED_AT_REPLY, referenceMessage.modifiedAt)
+            jsonRefObject.addProperty(Const.JsonFields.LOCAL_ID_REPLY, referenceMessage.modifiedAt)
 
             jsonObject.addProperty(Const.UserActions.MESSAGE_REPLY, true)
         }
