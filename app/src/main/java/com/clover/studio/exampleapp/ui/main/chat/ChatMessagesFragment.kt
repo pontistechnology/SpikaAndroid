@@ -32,10 +32,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
-import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.data.models.JsonMessage
 import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.MessageBody
+import com.clover.studio.exampleapp.data.models.entity.MessageFile
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
@@ -172,8 +173,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
-        // TODO remove this later
-        viewModel.deleteLocalMessages(unsentMessages)
         checkStoragePermission()
         setUpAdapter()
         initViews()
@@ -206,14 +205,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             when (it) {
                 ChatStatesEnum.MESSAGE_SENT -> {
                     bindingSetup.etMessage.setText("")
-                    // TODO fix to remove old text message
-                    if (tempMessageCounter > 0) {
-//                        viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
-                        tempMessageCounter -= 1
-                    } else {
-                        viewModel.deleteLocalMessages(unsentMessages)
-                        tempMessageCounter = -1
-                    }
+                    tempMessageCounter -= 1
 
                     Handler(Looper.getMainLooper()).postDelayed(Runnable {
                         uploadIndex++
@@ -994,7 +986,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun sendMessage() {
-        sendMessage(mimeType = UploadMimeTypes.MESSAGE, 0, 0, unsentMessages[uploadIndex].localId!!)
+        sendMessage(mimeType = UploadMimeTypes.MESSAGE, 0, 0, unsentMessages[tempMessageCounter].localId!!)
     }
 
     private fun sendMessage(
@@ -1009,16 +1001,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             mimeType,
             fileId,
             thumbId,
-            roomWithUsers.room.roomId
+            roomWithUsers.room.roomId,
+            localId
         )
         val jsonObject = jsonMessage.messageToJson(
             replyFlag,
             referenceMessage,
         )
-
-        jsonObject.addProperty(Const.JsonFields.LOCAL_ID, localId)
-        jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomWithUsers.room.roomId)
-        jsonObject.add(Const.JsonFields.BODY, innerObject)
 
         if (replyFlag) {
             replyFlag = false
@@ -1028,8 +1017,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun createTempTextMessage() {
-        tempMessageCounter++
-        messageBody = MessageBody(bindingSetup.etMessage.text.toString(), 1, 1, null, null)
+        tempMessageCounter += 1
+        messageBody = MessageBody(null, bindingSetup.etMessage.text.toString(), 1, 1, null, null)
         val tempMessage = Tools.createTemporaryMessage(
             tempMessageCounter,
             viewModel.getLocalUserId(),
@@ -1038,6 +1027,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             messageBody!!
         )
 
+        Timber.d("Temporary message: $tempMessage")
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
     }
@@ -1045,6 +1035,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun createTempMediaMessage(mediaUri: Uri) {
         tempMessageCounter += 1
         messageBody = MessageBody(
+            null,
             null,
             1,
             1,
@@ -1057,6 +1048,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             ),
             null
         )
+
+        // Media file is always thumbnail first. Therefore, we are sending CHAT_IMAGE as type
         val tempMessage = Tools.createTemporaryMessage(
             tempMessageCounter,
             viewModel.getLocalUserId(),
@@ -1065,6 +1058,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             messageBody!!
         )
 
+        Timber.d("Temporary message: $tempMessage")
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
     }
@@ -1111,18 +1105,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun uploadImage() {
-        messageBody = MessageBody("", 0, 0, null, null)
+        messageBody = MessageBody(null, "", 0, 0, null, null)
         uploadThumbnail(uploadIndex)
     }
 
     private fun uploadVideo() {
-        messageBody = MessageBody("", 0, 0, null, null)
+        messageBody = MessageBody(null, "", 0, 0, null, null)
         uploadVideoThumbnail(uploadIndex)
     }
 
     private fun uploadFile(uri: Uri) {
         uploadInProgress = true
-        messageBody = MessageBody("", 0, 0, null, null)
+        messageBody = MessageBody(null, "", 0, 0, null, null)
         val inputStream =
             activity!!.contentResolver.openInputStream(uri)
 
@@ -1204,6 +1198,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         currentMediaLocation.clear()
         thumbnailUris.clear()
         uploadInProgress = false
+        unsentMessages.clear()
         context?.cacheDir?.deleteRecursively()
     }
 
@@ -1252,7 +1247,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     if (unsentMessages.isNotEmpty()) {
                         viewModel.deleteLocalMessages(unsentMessages)
                     }
-                    //
                     activity!!.finish()
                 }
             })

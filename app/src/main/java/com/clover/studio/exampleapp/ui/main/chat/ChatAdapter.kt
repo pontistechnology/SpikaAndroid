@@ -169,12 +169,13 @@ class ChatAdapter(
                                 .dontAnimate()
                                 .into(holder.binding.ivChatImage)
 
-                        holder.binding.cvImage.setOnClickListener { view ->
-                            val action =
-                                ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
-                                    "", imagePath!!
-                                )
-                            view.findNavController().navigate(action)
+                            holder.binding.cvImage.setOnClickListener { view ->
+                                val action =
+                                    ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
+                                        "", imagePath!!
+                                    )
+                                view.findNavController().navigate(action)
+                            }
                         }
                     }
                     Const.JsonFields.FILE_TYPE -> {

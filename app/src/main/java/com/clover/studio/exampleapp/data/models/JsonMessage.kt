@@ -11,6 +11,7 @@ data class JsonMessage(
     val fileId: Long?,
     val thumbId: Long?,
     val roomId: Int?,
+    val localId: String?
 ) {
     fun messageToJson(
         replyFlag: Boolean,
@@ -44,6 +45,7 @@ data class JsonMessage(
             jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.VIDEO)
         } else jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.TEXT)
 
+        jsonObject.addProperty(Const.JsonFields.LOCAL_ID, localId)
         jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomId)
 
         if (replyFlag) {
