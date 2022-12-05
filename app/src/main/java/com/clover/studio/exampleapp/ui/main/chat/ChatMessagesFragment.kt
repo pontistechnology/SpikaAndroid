@@ -857,7 +857,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
         val jsonObject = jsonMessage.messageToJson(
             replyFlag,
-            referenceMessage!!,
+            referenceMessage,
         )
 
         if (replyFlag) {
