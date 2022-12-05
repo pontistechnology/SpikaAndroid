@@ -34,7 +34,23 @@ class ChatRepositoryImpl @Inject constructor(
         val response =
             chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
         Timber.d("Response message $response")
-        response.data?.message?.let { messageDao.insert(it) }
+        response.data?.message?.let {
+            // Fields below should never be null. If null, there is a backend problem
+            messageDao.updateMessage(
+                it.id,
+                it.fromUserId!!,
+                it.totalUserCount!!,
+                it.deliveredCount!!,
+                it.seenCount!!,
+                it.roomId!!,
+                it.type!!,
+                it.body!!,
+                it.createdAt!!,
+                it.modifiedAt!!,
+                it.deleted!!,
+                it.localId!!
+            )
+        }
     }
 
     override suspend fun storeMessageLocally(message: Message) {
@@ -43,16 +59,16 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun deleteLocalMessages(messages: List<Message>) {
 //        if (messages.isNotEmpty()) {
-            val messagesIds = mutableListOf<Long>()
-            for (message in messages) {
-                messagesIds.add(message.id.toLong())
-            }
-            // TODO remove this later
+        val messagesIds = mutableListOf<Long>()
+        for (message in messages) {
+            messagesIds.add(message.id.toLong())
+        }
+        // TODO remove this later
         messagesIds.add(0)
         messagesIds.add(1)
         messagesIds.add(2)
         messagesIds.add(3)
-            messageDao.deleteMessage(messagesIds)
+        messageDao.deleteMessage(messagesIds)
 //        }
     }
 

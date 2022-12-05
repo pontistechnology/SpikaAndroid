@@ -155,7 +155,7 @@ class RegisterNumberFragment : BaseFragment() {
             if (phoneNumber.isEmpty()) {
                 phoneNumber = binding.etPhoneNumber.text.toString()
                 countryCode = binding.tvCountryCode.text.toString()
-                deviceId = Tools.generateDeviceId()
+                deviceId = Tools.generateRandomId()
                 viewModel.writePhoneAndDeviceId(phoneNumber, deviceId, countryCode)
             }
             viewModel.sendNewUserData(getJsonObject())

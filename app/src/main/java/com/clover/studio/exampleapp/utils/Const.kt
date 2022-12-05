@@ -94,6 +94,7 @@ class Const {
             const val CLIENT_ID = "clientId"
             const val FILE_ID = "fileId"
             const val THUMB_ID = "thumbId"
+            const val LOCAL_ID = "localId"
 
             // Chat
             const val ROOM_ID = "roomId"

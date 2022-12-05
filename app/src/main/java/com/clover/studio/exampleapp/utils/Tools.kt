@@ -311,7 +311,7 @@ object Tools {
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    fun generateDeviceId(): String {
+    fun generateRandomId(): String {
         return UUID.randomUUID().toString().substring(0, 13)
     }
 
@@ -395,8 +395,6 @@ object Tools {
             counter,
             localUserId,
             0,
-            0,
-            0,
             -1,
             0,
             roomId,
@@ -405,7 +403,7 @@ object Tools {
             System.currentTimeMillis() + timeAdded,
             null,
             null,
-            generateDeviceId()
+            generateRandomId()
         )
     }
 }

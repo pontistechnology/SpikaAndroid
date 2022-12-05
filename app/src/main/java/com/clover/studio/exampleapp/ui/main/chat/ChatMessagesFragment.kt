@@ -302,7 +302,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             sendMessage(
                                 UploadMimeTypes.FILE,
                                 messageBody?.fileId!!,
-                                0
+                                0,
+                                unsentMessages[uploadIndex].localId!!
                             )
 
                             uploadIndex++
@@ -363,7 +364,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         } else progress = 0
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on piece")
-                       handleUploadError()
+                        handleUploadError()
                     }
                 }
 
@@ -375,7 +376,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             sendMessage(
                                 mediaType!!,
                                 messageBody?.fileId!!,
-                                messageBody?.thumbId!!
+                                messageBody?.thumbId!!,
+                                unsentMessages[uploadIndex].localId!!
                             )
                         } else {
                             if (it.thumbId > 0) messageBody?.thumbId = it.thumbId
@@ -407,7 +409,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 is MediaUploadError -> {
                     try {
                         requireActivity().runOnUiThread {
-                           handleUploadError()
+                            handleUploadError()
                         }
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on error")
@@ -992,13 +994,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun sendMessage() {
-        sendMessage(mimeType = UploadMimeTypes.MESSAGE, 0, 0)
+        sendMessage(mimeType = UploadMimeTypes.MESSAGE, 0, 0, unsentMessages[uploadIndex].localId!!)
     }
 
     private fun sendMessage(
         mimeType: UploadMimeTypes,
         fileId: Long,
-        thumbId: Long
+        thumbId: Long,
+        localId: String
     ) {
 
         val jsonMessage = JsonMessage(
@@ -1012,6 +1015,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             replyFlag,
             referenceMessage,
         )
+
+        jsonObject.addProperty(Const.JsonFields.LOCAL_ID, localId)
+        jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomWithUsers.room.roomId)
+        jsonObject.add(Const.JsonFields.BODY, innerObject)
 
         if (replyFlag) {
             replyFlag = false

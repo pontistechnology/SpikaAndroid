@@ -17,13 +17,13 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "from_user_id")
     val fromUserId: Int?,
 
-    @SerializedName("fromDeviceId")
-    @ColumnInfo(name = "from_device_id")
-    val fromDeviceId: Int?,
-
-    @SerializedName("totalDeviceCount")
-    @ColumnInfo(name = "total_device_count")
-    val totalDeviceCount: Int?,
+//    @SerializedName("fromDeviceId")
+//    @ColumnInfo(name = "from_device_id")
+//    val fromDeviceId: Int?,
+//
+//    @SerializedName("totalDeviceCount")
+//    @ColumnInfo(name = "total_device_count")
+//    val totalDeviceCount: Int?,
 
     @SerializedName("totalUserCount")
     @ColumnInfo(name = "total_user_count")
@@ -68,7 +68,7 @@ data class Message @JvmOverloads constructor(
 
     @SerializedName("localId")
     @ColumnInfo(name = "local_id")
-    val localId: String,
+    val localId: String?,
 
     // Two field below are used for firebase messaging and are not needed in the local db
     @Ignore
