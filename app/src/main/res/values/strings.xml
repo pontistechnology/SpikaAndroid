@@ -105,6 +105,7 @@
     <string name="new_messages">You have %s new message%s</string>
     <string name="media">%s</string>
     <string name="file">File</string>
+    <string name="app_version">Version</string>
 
     <!--Alert dialog text-->
     <string name="warning">Warning</string>
