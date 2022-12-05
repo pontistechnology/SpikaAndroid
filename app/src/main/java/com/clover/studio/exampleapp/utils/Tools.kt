@@ -404,7 +404,8 @@ object Tools {
             messageBody,
             System.currentTimeMillis() + timeAdded,
             null,
-            null
+            null,
+            generateDeviceId()
         )
     }
 }
