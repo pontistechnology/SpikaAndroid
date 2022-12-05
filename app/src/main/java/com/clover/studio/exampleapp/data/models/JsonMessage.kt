@@ -14,7 +14,7 @@ data class JsonMessage(
 ) {
     fun messageToJson(
         replyFlag: Boolean,
-        referenceMessage: Message,
+        referenceMessage: Message?,
     ): JsonObject {
         val jsonObject = JsonObject()
         val innerObject = JsonObject()
@@ -54,7 +54,7 @@ data class JsonMessage(
             jsonInnerThumbObject.addProperty(Const.JsonFields.PATH, referenceMessage.body?.file?.path)
             jsonInnerThumbObject.addProperty(Const.JsonFields.SIZE, referenceMessage.body?.file?.size)*/
 
-            when (referenceMessage.type) {
+            when (referenceMessage?.type) {
                 Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO, Const.JsonFields.AUDIO, Const.JsonFields.FILE_TYPE -> {
                     jsonInnerFileObject.addProperty(
                         Const.JsonFields.FILE_NAME,
@@ -86,29 +86,29 @@ data class JsonMessage(
                 else -> {
                     jsonInnerRefObject.addProperty(
                         Const.JsonFields.TEXT,
-                        referenceMessage.body?.text
+                        referenceMessage?.body?.text
                     )
                     jsonInnerRefObject.addProperty(Const.JsonFields.LOCAL_ID_REPLY, 0)
                 }
             }
 
-            jsonRefObject.addProperty(Const.Networking.ID, referenceMessage.id)
-            jsonRefObject.addProperty(Const.JsonFields.FROM_USER_ID_REPLY, referenceMessage.fromUserId)
+            jsonRefObject.addProperty(Const.Networking.ID, referenceMessage?.id)
+            jsonRefObject.addProperty(Const.JsonFields.FROM_USER_ID_REPLY, referenceMessage?.fromUserId)
             jsonRefObject.addProperty(
                 Const.JsonFields.TOTAL_USER_COUNT_REPLY,
-                referenceMessage.totalUserCount
+                referenceMessage?.totalUserCount
             )
             jsonRefObject.addProperty(
                 Const.JsonFields.DELIVERED_COUNT_REPLY,
-                referenceMessage.deliveredCount
+                referenceMessage?.deliveredCount
             )
-            jsonRefObject.addProperty(Const.JsonFields.SEEN_COUNT_REPLY, referenceMessage.seenCount)
-            jsonRefObject.addProperty(Const.JsonFields.ROOM_ID, referenceMessage.roomId)
-            jsonRefObject.addProperty(Const.JsonFields.TYPE, referenceMessage.type)
+            jsonRefObject.addProperty(Const.JsonFields.SEEN_COUNT_REPLY, referenceMessage?.seenCount)
+            jsonRefObject.addProperty(Const.JsonFields.ROOM_ID, referenceMessage?.roomId)
+            jsonRefObject.addProperty(Const.JsonFields.TYPE, referenceMessage?.type)
             jsonRefObject.add(Const.JsonFields.BODY, jsonInnerRefObject)
-            jsonRefObject.addProperty(Const.JsonFields.CREATED_AT_REPLY, referenceMessage.createdAt)
-            jsonRefObject.addProperty(Const.JsonFields.MODIFIED_AT_REPLY, referenceMessage.modifiedAt)
-            jsonRefObject.addProperty(Const.JsonFields.LOCAL_ID_REPLY, referenceMessage.modifiedAt)
+            jsonRefObject.addProperty(Const.JsonFields.CREATED_AT_REPLY, referenceMessage?.createdAt)
+            jsonRefObject.addProperty(Const.JsonFields.MODIFIED_AT_REPLY, referenceMessage?.modifiedAt)
+            jsonRefObject.addProperty(Const.JsonFields.LOCAL_ID_REPLY, referenceMessage?.modifiedAt)
 
             jsonObject.addProperty(Const.UserActions.MESSAGE_REPLY, true)
         }

@@ -316,6 +316,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             viewModel.getLocalUserId()!!,
             roomWithUsers.users,
             exoPlayer!!,
+            roomWithUsers.room.type,
             onMessageInteraction = { event, message ->
                 run {
                     when (event) {
@@ -423,6 +424,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             closeMessageSheet()
             showMessageReply()
             handleMessageReply(message)
+        }
+
+        bindingSetup.messageActions.tvDetails.setOnClickListener {
+            // Ignore
         }
     }
 
@@ -852,7 +857,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
         val jsonObject = jsonMessage.messageToJson(
             replyFlag,
-            referenceMessage!!,
+            referenceMessage,
         )
 
         if (replyFlag) {

@@ -54,14 +54,14 @@
             android:id="@+id/cl_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/forty_eight_dp_margin"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
             android:layout_marginTop="@dimen/two_dp_margin"
             android:layout_marginEnd="@dimen/eighty_eight_dp_margin"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/cv_user_avatar"
             app:layout_constraintTop_toBottomOf="@+id/tv_username">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -416,8 +416,9 @@
             android:id="@+id/cv_user_avatar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginStart="@dimen/eight_dp_margin"
             android:layout_marginBottom="@dimen/two_dp_margin"
+            android:visibility="gone"
             app:cardCornerRadius="@dimen/ten_dp_margin"
             app:layout_constraintBottom_toBottomOf="@+id/cl_container"
             app:layout_constraintStart_toStartOf="parent">
@@ -439,6 +440,7 @@
             android:text="@string/username"
             android:textColor="@color/text_tertiary"
             android:textSize="@dimen/twelve_sp_text"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/cl_container"
             app:layout_constraintStart_toStartOf="@+id/cl_container"
             app:layout_constraintTop_toTopOf="parent" />
@@ -461,6 +463,19 @@
                 android:layout_height="match_parent" />
         </androidx.cardview.widget.CardView>
 
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/four_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/audio_duration"
+            android:textColor="@color/border"
+            android:textSize="@dimen/fourteen_sp_text"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/cl_container"
+            app:layout_constraintStart_toEndOf="@+id/cl_container"
+            app:layout_constraintTop_toTopOf="@+id/cl_container" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
