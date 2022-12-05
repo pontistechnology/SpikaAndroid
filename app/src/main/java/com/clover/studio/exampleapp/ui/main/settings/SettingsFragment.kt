@@ -86,6 +86,7 @@ class SettingsFragment : BaseFragment() {
         initializeObservers()
         addTextListeners()
 
+        // Display version code on bottom of the screen
         val packageInfo = requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
         binding.tvVersionNumber.text = "${getString(R.string.app_version)} ${packageInfo.versionName} ${packageInfo.longVersionCode}"
 
