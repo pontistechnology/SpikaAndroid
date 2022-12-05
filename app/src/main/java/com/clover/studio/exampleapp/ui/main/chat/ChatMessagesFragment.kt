@@ -426,6 +426,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             handleMessageReply(message)
         }
 
+        // Ignore
         bindingSetup.messageActions.tvDetails.setOnClickListener {
 
         }
