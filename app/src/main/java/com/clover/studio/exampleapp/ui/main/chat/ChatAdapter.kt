@@ -186,6 +186,10 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
+//                        if (it.message.body?.file?.path?.isEmpty() == true) {
+//                            holder.binding.clProgressScreen.visibility = View.VISIBLE
+//                        }
+
                         holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
                         val sizeText =
                             Tools.calculateFileSize(it.message.body?.file?.size!!)

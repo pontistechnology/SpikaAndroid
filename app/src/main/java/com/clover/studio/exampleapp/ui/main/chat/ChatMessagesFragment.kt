@@ -209,15 +209,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                     Handler(Looper.getMainLooper()).postDelayed(Runnable {
                         uploadIndex++
-                        if (uploadIndex < currentMediaLocation.size) {
-                            if (mimeType == Const.JsonFields.IMAGE) {
-                                uploadImage()
-                            } else if (mimeType == Const.JsonFields.VIDEO) {
-                                uploadVideo()
-                            }
-                        } else {
-                            resetUploadFields()
-                        }
+                        if (currentMediaLocation.isNotEmpty()) {
+                            if (uploadIndex < currentMediaLocation.size) {
+                                if (mimeType == Const.JsonFields.IMAGE)
+                                    uploadImage()
+                                else if (mimeType == Const.JsonFields.VIDEO)
+                                    uploadVideo()
+                            } else
+                                resetUploadFields()
+                        } else if (filesSelected.isNotEmpty()) {
+                            if (uploadIndex < filesSelected.size) uploadFile()
+                            else resetUploadFields()
+                        } else resetUploadFields()
                     }, 2000)
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
@@ -280,9 +283,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         } else progress = 0
                     } catch (ex: Exception) {
                         Timber.d("Video upload failed on piece")
-                        uploadIndex = 0
-                        filesSelected.clear()
-                        uploadInProgress = false
+                        handleUploadError()
                     }
                 }
 
@@ -300,7 +301,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                             uploadIndex++
                             if (uploadIndex < filesSelected.size) {
-                                uploadFile(filesSelected[uploadIndex])
+                                uploadFile()
                             } else {
                                 uploadIndex = 0
                                 filesSelected.clear()
@@ -309,36 +310,30 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
                         // update room data
                     } catch (ex: Exception) {
-                        Timber.d("Video upload failed on verify")
-                        uploadIndex = 0
-                        filesSelected.clear()
-                        uploadInProgress = false
+                        Timber.d("File upload failed on verify")
+                        handleUploadError()
                     }
                 }
 
                 is FileUploadError -> {
                     try {
-                        requireActivity().runOnUiThread {
-                            uploadIndex++
-                            if (uploadIndex < filesSelected.size) {
-                                uploadFile(filesSelected[uploadIndex])
-                            } else {
-                                uploadIndex = 0
-                                filesSelected.clear()
-                            }
-
-                            Toast.makeText(
-                                requireActivity().baseContext,
-                                getString(R.string.failed_file_upload),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            uploadInProgress = false
+                        uploadIndex++
+                        if (uploadIndex < filesSelected.size) {
+                            uploadFile()
+                        } else {
+                            uploadIndex = 0
+                            filesSelected.clear()
                         }
+
+                        Toast.makeText(
+                            requireActivity().baseContext,
+                            getString(R.string.failed_file_upload),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        uploadInProgress = false
                     } catch (ex: Exception) {
                         Timber.d("Video upload failed on error")
-                        uploadIndex = 0
-                        filesSelected.clear()
-                        uploadInProgress = false
+                        handleUploadError()
                     }
                 }
 
@@ -394,7 +389,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         // update room data
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on verified")
-                        resetUploadFields()
+                        handleUploadError()
                     }
                 }
 
@@ -733,7 +728,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                 }, 2000)
             } else if (filesSelected.isNotEmpty()) {
-                uploadFile(filesSelected[0])
+                for (file in filesSelected) {
+                    createTempFileMessage(file)
+                }
+                uploadFile()
             } else {
                 createTempTextMessage()
                 sendMessage()
@@ -1032,6 +1030,47 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.storeMessageLocally(tempMessage)
     }
 
+    private fun createTempFileMessage(uri: Uri) {
+        val inputStream =
+            activity!!.contentResolver.openInputStream(uri)
+        var fileName = ""
+        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
+
+        val cr = activity!!.contentResolver
+        cr.query(uri, projection, null, null, null)?.use { metaCursor ->
+            if (metaCursor.moveToFirst()) {
+                fileName = metaCursor.getString(0)
+            }
+        }
+
+        Tools.fileName = fileName
+
+        val fileStream = Tools.copyStreamToFile(
+            activity!!,
+            inputStream!!,
+            activity!!.contentResolver.getType(uri)!!
+        )
+
+        tempMessageCounter += 1
+        messageBody = MessageBody(
+            null,
+            null,
+            1,
+            1,
+            MessageFile(fileName, "", "", fileStream.length(), null),
+            null
+        )
+        val tempMessage = Tools.createTemporaryMessage(
+            tempMessageCounter,
+            viewModel.getLocalUserId(),
+            roomWithUsers.room.roomId,
+            Const.JsonFields.FILE_TYPE,
+            messageBody!!
+        )
+        unsentMessages.add(tempMessage)
+        viewModel.storeMessageLocally(tempMessage)
+    }
+
     private fun createTempMediaMessage(mediaUri: Uri) {
         tempMessageCounter += 1
         messageBody = MessageBody(
@@ -1114,17 +1153,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         uploadVideoThumbnail(uploadIndex)
     }
 
-    private fun uploadFile(uri: Uri) {
+    private fun uploadFile() {
         uploadInProgress = true
         messageBody = MessageBody(null, "", 0, 0, null, null)
         val inputStream =
-            activity!!.contentResolver.openInputStream(uri)
+            activity!!.contentResolver.openInputStream(filesSelected[uploadIndex])
 
         var fileName = ""
         val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
 
         val cr = activity!!.contentResolver
-        cr.query(uri, projection, null, null, null)?.use { metaCursor ->
+        cr.query(filesSelected[uploadIndex], projection, null, null, null)?.use { metaCursor ->
             if (metaCursor.moveToFirst()) {
                 fileName = metaCursor.getString(0)
             }
@@ -1135,8 +1174,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val fileStream = Tools.copyStreamToFile(
             activity!!,
             inputStream!!,
-            activity!!.contentResolver.getType(uri)!!
+            activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
         )
+
         uploadPieces =
             if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
                 fileStream.length() / CHUNK_SIZE + 1
@@ -1145,7 +1185,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         Timber.d("File upload start")
 
-        viewModel.uploadFile(requireActivity(), uri, uploadPieces, fileStream)
+        viewModel.uploadFile(
+            requireActivity(),
+            filesSelected[uploadIndex],
+            uploadPieces,
+            fileStream
+        )
     }
 
     /**
@@ -1194,8 +1239,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun resetUploadFields() {
         Timber.d("Resetting upload fields")
+        if (tempMessageCounter >= 0) {
+            viewModel.deleteLocalMessages(unsentMessages)
+            tempMessageCounter = 0
+        }
+
         uploadIndex = 0
         currentMediaLocation.clear()
+        filesSelected.clear()
         thumbnailUris.clear()
         uploadInProgress = false
         unsentMessages.clear()
@@ -1205,21 +1256,25 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleUploadError() {
         uploadIndex++
 
-//        if (tempMessageCounter >= 0) {
-//            viewModel.deleteLocalMessage(unsentMessages[tempMessageCounter])
-//            tempMessageCounter--
-//        }
-
         tempMessageCounter -= 1
-        if (uploadIndex < currentMediaLocation.size) {
-            if (mimeType == Const.JsonFields.IMAGE) {
-                uploadImage()
+
+        if (currentMediaLocation.isNotEmpty()) {
+            if (uploadIndex < currentMediaLocation.size) {
+                if (mimeType == Const.JsonFields.IMAGE) {
+                    uploadImage()
+                } else {
+                    uploadVideo()
+                }
             } else {
-                uploadVideo()
+                resetUploadFields()
             }
-        } else {
-            resetUploadFields()
-        }
+        } else if (filesSelected.isNotEmpty()) {
+            if (uploadIndex < filesSelected.size) {
+                uploadFile()
+            } else {
+                resetUploadFields()
+            }
+        } else resetUploadFields()
 
         Toast.makeText(
             activity!!.baseContext,

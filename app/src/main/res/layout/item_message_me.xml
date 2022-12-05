@@ -397,6 +397,7 @@
                     android:ellipsize="end"
                     android:fontFamily="@font/montserrat_bold"
                     android:maxLines="1"
+                    android:maxEms="10"
                     android:text="@string/placeholder_title"
                     android:textSize="@dimen/fourteen_sp_text"
                     app:layout_constrainedWidth="true"
