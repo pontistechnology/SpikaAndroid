@@ -13,6 +13,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentSettingsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
@@ -84,6 +85,10 @@ class SettingsFragment : BaseFragment() {
         setupClickListeners()
         initializeObservers()
         addTextListeners()
+
+        // Display version code on bottom of the screen
+        val packageInfo = requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
+        binding.tvVersionNumber.text = "${getString(R.string.app_version)} ${packageInfo.versionName} ${packageInfo.longVersionCode}"
 
         return binding.root
     }
