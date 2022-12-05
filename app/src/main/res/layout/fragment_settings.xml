@@ -151,6 +151,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_username" />
 
+    <TextView
+        android:id="@+id/tv_version_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/twenty_dp_margin"
+        android:fontFamily="@font/montserrat"
+        android:padding="@dimen/twenty_dp_margin"
+        android:text="@string/placeholder_title"
+        android:gravity="center"
+        android:textSize="@dimen/eleven_sp_text"
+        android:textColor="@color/text_secondary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
     <!--        android:id="@+id/cl_privacy"-->
     <!--        android:layout_width="match_parent"-->
