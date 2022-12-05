@@ -312,7 +312,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:elevation="@dimen/four_dp_margin"
-            app:layout_constraintBottom_toBottomOf="@+id/rv_chat"
+            app:layout_constraintBottom_toBottomOf="@+id/hsv_images"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 

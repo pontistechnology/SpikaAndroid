@@ -1,4 +1,4 @@
-package com.clover.studio.exampleapp.data.models
+package com.clover.studio.exampleapp.data.models.entity
 
 import androidx.room.Embedded
 import androidx.room.Relation

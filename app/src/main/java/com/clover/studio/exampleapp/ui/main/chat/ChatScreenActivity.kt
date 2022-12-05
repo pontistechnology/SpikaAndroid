@@ -13,7 +13,7 @@ import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.ui.main.SingleRoomData

@@ -29,10 +29,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.Reactions
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
 import com.clover.studio.exampleapp.utils.Const
@@ -44,7 +44,7 @@ import java.util.*
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
-private const val TEXT_SIZE_BIG = 15
+private const val TEXT_SIZE_BIG = 11
 private const val TEXT_SIZE_SMALL = 5
 private var oldPosition = -1
 private var firstPlay = true
@@ -419,7 +419,7 @@ class ChatAdapter(
                             // Check which layout is wider
                             val reply = replyText?.length
                             if (original != null && reply != null) {
-                                if (original >= reply) {
+                                if (original >= reply && original >= TEXT_SIZE_SMALL) {
                                     params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                                 }
                             }
@@ -806,7 +806,7 @@ class ChatAdapter(
                             // Check which layout is wider
                             val reply = replyText?.length
                             if (original != null && reply != null) {
-                                if (original >= reply) {
+                                if (original > reply && original >= TEXT_SIZE_SMALL) {
                                     params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                                 }
                             }

@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import com.clover.studio.exampleapp.data.AppDatabase.Companion.DATABASE_VERSION
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.models.*
+import com.clover.studio.exampleapp.data.models.entity.*
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.utils.helpers.TypeConverter
 
