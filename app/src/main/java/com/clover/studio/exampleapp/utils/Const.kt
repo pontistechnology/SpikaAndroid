@@ -105,6 +105,18 @@ class Const {
             const val BODY = "body"
             const val MESSAGE_IDS = "messagesIds"
             const val REACTION = "reaction"
+
+            // Reply
+            const val REFERENCE_MESSAGE_REPLY = "referenceMessage"
+            const val FROM_USER_ID_REPLY = "fromUserId"
+            const val TOTAL_USER_COUNT_REPLY = "totalUserCount"
+            const val DELIVERED_COUNT_REPLY = "deliveredCount"
+            const val SEEN_COUNT_REPLY = "seenCount"
+            const val CREATED_AT_REPLY = "createdAt"
+            const val MODIFIED_AT_REPLY = "modifiedAt"
+            const val LOCAL_ID_REPLY = "localID"
+            const val PATH_REPLY = "path"
+            const val THUMB_REPLY = "thumb"
         }
     }
 

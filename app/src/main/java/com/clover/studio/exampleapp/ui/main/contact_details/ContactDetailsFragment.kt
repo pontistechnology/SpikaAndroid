@@ -12,7 +12,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.databinding.FragmentContactDetailsBinding
 import com.clover.studio.exampleapp.ui.main.*
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity

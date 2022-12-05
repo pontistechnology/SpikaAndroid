@@ -1,13 +1,9 @@
 package com.clover.studio.exampleapp.data.models.entity
 
-import android.os.Parcelable
 import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
-import com.clover.studio.exampleapp.data.models.FileMetadata
 import com.google.gson.annotations.SerializedName
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_MESSAGE)
 data class Message @JvmOverloads constructor(
 
@@ -19,13 +15,13 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "from_user_id")
     val fromUserId: Int?,
 
-//    @SerializedName("fromDeviceId")
-//    @ColumnInfo(name = "from_device_id")
-//    val fromDeviceId: Int?,
-//
-//    @SerializedName("totalDeviceCount")
-//    @ColumnInfo(name = "total_device_count")
-//    val totalDeviceCount: Int?,
+    @SerializedName("fromDeviceId")
+    @ColumnInfo(name = "from_device_id")
+    val fromDeviceId: Int?,
+
+    @SerializedName("totalDeviceCount")
+    @ColumnInfo(name = "total_device_count")
+    val totalDeviceCount: Int?,
 
     @SerializedName("totalUserCount")
     @ColumnInfo(name = "total_user_count")
@@ -45,7 +41,7 @@ data class Message @JvmOverloads constructor(
 
     @SerializedName("type")
     @ColumnInfo(name = "type")
-    var type: String?,
+    val type: String?,
 
     @SerializedName("body")
     @ColumnInfo(name = "body")
@@ -64,13 +60,9 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "deleted")
     val deleted: Boolean?,
 
-    @SerializedName("replyId")
-    @ColumnInfo(name = "reply_id")
-    val replyId: Long?,
-
-    @SerializedName("localId")
-    @ColumnInfo(name = "local_id")
-    val localId: String?,
+    @SerializedName("reply")
+    @ColumnInfo(name = "reply")
+    val reply: Boolean?,
 
     // Two field below are used for firebase messaging and are not needed in the local db
     @Ignore
@@ -90,27 +82,25 @@ data class Message @JvmOverloads constructor(
     var messagePosition: Int = 0,
 
     @Ignore
-    var uploadProgress: Int = 0
+    var senderMessage: Boolean = false,
 
     // @Ignore
     // var roomUser: String = ""
-) : Parcelable
+)
 
-@Parcelize
 data class MessageBody(
     var referenceMessage: ReferenceMessage?,
     var text: String?,
     var fileId: Long?,
     var thumbId: Long?,
     var file: MessageFile?,
-    var thumb: MessageFile?,
-) : Parcelable
+    var thumb: MessageFile?
+)
 
-@Parcelize
 data class ReferenceMessage(
     var id: Int?,
     var fromUserId: Int?,
-    var totalUserCount: Int?,
+    var totalDeviceCount: Int?,
     var deliveredCount: Int?,
     var seenCount: Int?,
     var roomId: Int?,
@@ -120,23 +110,18 @@ data class ReferenceMessage(
     val modifiedAt: Long?,
     val deleted: Boolean?,
     val reply: Boolean?,
-) : Parcelable
+)
 
-@Parcelize
 data class ReplyBody(
     var text: String?,
-    var fileId: Long?,
-    var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?,
-) : Parcelable
+)
 
-@Parcelize
 data class MessageFile(
-    val id: Long,
     val fileName: String,
     val mimeType: String,
-    val size: Long,
-    val metadata: FileMetadata?,
-    val uri: String?
-) : Parcelable
+    val path: String,
+    val size: Long
+)
+

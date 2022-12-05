@@ -2,8 +2,8 @@ package com.clover.studio.exampleapp.data.daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.clover.studio.exampleapp.data.models.ChatRoom
-import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.ChatRoom
+import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate

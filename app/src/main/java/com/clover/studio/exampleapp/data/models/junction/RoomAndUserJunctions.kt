@@ -1,14 +1,11 @@
 package com.clover.studio.exampleapp.data.models.junction
 
-import android.os.Parcelable
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
 import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.User
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
 data class UserWithRooms(
     @Embedded val user: User,
     @Relation(
@@ -17,9 +14,8 @@ data class UserWithRooms(
         associateBy = Junction(RoomUser::class)
     )
     val chatRooms: List<ChatRoom>
-) : Parcelable
+)
 
-@Parcelize
 data class RoomWithUsers(
     @Embedded val room: ChatRoom,
     @Relation(
@@ -28,4 +24,4 @@ data class RoomWithUsers(
         associateBy = Junction(RoomUser::class)
     )
     val users: List<User>
-) : Parcelable
+)
