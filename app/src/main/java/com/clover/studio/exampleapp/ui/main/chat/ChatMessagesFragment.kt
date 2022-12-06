@@ -33,13 +33,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.JsonMessage
-import com.clover.studio.exampleapp.data.models.entity.Message
-import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
-import com.clover.studio.exampleapp.data.models.entity.MessageBody
-import com.clover.studio.exampleapp.data.models.entity.MessageFile
-import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
-import com.clover.studio.exampleapp.data.models.entity.MessageBody
-import com.clover.studio.exampleapp.data.models.entity.MessageRecords
+import com.clover.studio.exampleapp.data.models.entity.*
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
@@ -58,7 +52,6 @@ import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Runnable
 import timber.log.Timber
-
 
 /*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
