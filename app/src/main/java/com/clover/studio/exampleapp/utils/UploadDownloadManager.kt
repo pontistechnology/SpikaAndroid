@@ -3,8 +3,11 @@
 package com.clover.studio.exampleapp.utils
 
 import android.app.Activity
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Base64
+import com.clover.studio.exampleapp.data.models.FileMetadata
 import com.clover.studio.exampleapp.data.models.UploadFile
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import timber.log.Timber
@@ -12,6 +15,7 @@ import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
+
 
 const val CHUNK_SIZE = 64000
 
@@ -47,6 +51,30 @@ class UploadDownloadManager constructor(
         isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
     ) {
+        var fileMetadata: FileMetadata? = null
+        if (!isThumbnail) {
+            var time = 0
+            var width = 0
+            var height = 0
+            if (Const.JsonFields.VIDEO == mimeType)  {
+                val retriever = MediaMetadataRetriever()
+                retriever.setDataSource(activity, fileUri)
+                time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!.toInt()
+                width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!.toInt()
+                height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!.toInt()
+                retriever.release()
+            } else if (Const.JsonFields.IMAGE == mimeType) {
+                val o = BitmapFactory.Options()
+                o.inJustDecodeBounds = true
+                BitmapFactory.decodeFile(file.absolutePath, o)
+                height = o.outHeight
+                width = o.outWidth
+            }
+
+            fileMetadata = FileMetadata(width, height, time)
+            Timber.d("File metadata: $fileMetadata")
+        }
+
         chunkCount = 0
         BufferedInputStream(FileInputStream(file)).use { bis ->
             var len: Int
@@ -72,7 +100,8 @@ class UploadDownloadManager constructor(
                         fileUri,
                         activity.contentResolver.getType(fileUri)!!
                     ),
-                    fileType
+                    fileType,
+                    fileMetadata
                 )
 
                 Timber.d("Chunk count $chunkCount")

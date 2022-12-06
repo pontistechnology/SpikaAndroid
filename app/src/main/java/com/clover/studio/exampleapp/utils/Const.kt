@@ -95,6 +95,10 @@ class Const {
             const val FILE_ID = "fileId"
             const val THUMB_ID = "thumbId"
             const val LOCAL_ID = "localId"
+            const val METADATA = "metaData"
+            const val WIDTH = "width"
+            const val HEIGHT = "height"
+            const val DURATION = "duration"
 
             // Chat
             const val ROOM_ID = "roomId"
