@@ -129,6 +129,12 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
+
+                        // Code below removes click listener if message was media before
+                        // being deleted
+                        holder.binding.clContainer.setOnClickListener {
+                            // ignore
+                        }
                     }
                     Const.JsonFields.CHAT_IMAGE -> {
                         holder.binding.tvMessage.visibility = View.GONE
@@ -138,26 +144,38 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        val imagePath = it.message.body?.file?.path?.let { imagePath ->
-                            Tools.getFileUrl(
-                                imagePath
-                            )
-                        }
-
-                        Glide.with(context)
-                            .load(imagePath)
-                            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
-                            .placeholder(R.drawable.img_image_placeholder)
-                            .dontTransform()
-                            .dontAnimate()
-                            .into(holder.binding.ivChatImage)
-
-                        holder.binding.cvImage.setOnClickListener { view ->
-                            val action =
-                                ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
-                                    "", imagePath!!
+                        if (it.message.body?.file?.uri != null) {
+                            holder.binding.clProgressScreen.visibility = View.VISIBLE
+                            Glide.with(context)
+                                .load(it.message.body.file?.uri)
+                                .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                                .placeholder(R.drawable.img_image_placeholder)
+                                .dontTransform()
+                                .dontAnimate()
+                                .into(holder.binding.ivChatImage)
+                        } else {
+                            holder.binding.clProgressScreen.visibility = View.GONE
+                            val imagePath = it.message.body?.file?.path?.let { imagePath ->
+                                Tools.getFileUrl(
+                                    imagePath
                                 )
-                            view.findNavController().navigate(action)
+                            }
+
+                            Glide.with(context)
+                                .load(imagePath)
+                                .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                                .placeholder(R.drawable.img_image_placeholder)
+                                .dontTransform()
+                                .dontAnimate()
+                                .into(holder.binding.ivChatImage)
+
+                            holder.binding.cvImage.setOnClickListener { view ->
+                                val action =
+                                    ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
+                                        "", imagePath!!
+                                    )
+                                view.findNavController().navigate(action)
+                            }
                         }
                     }
                     Const.JsonFields.FILE_TYPE -> {
@@ -167,6 +185,10 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
+
+//                        if (it.message.body?.file?.path?.isEmpty() == true) {
+//                            holder.binding.clProgressScreen.visibility = View.VISIBLE
+//                        }
 
                         holder.binding.tvFileTitle.text = it.message.body?.file?.fileName
                         val sizeText =
@@ -312,6 +334,7 @@ class ChatAdapter(
                             }
                         })
                     }
+
                     else -> {
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE

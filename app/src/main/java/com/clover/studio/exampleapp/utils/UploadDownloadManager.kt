@@ -47,6 +47,7 @@ class UploadDownloadManager constructor(
         isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
     ) {
+        chunkCount = 0
         BufferedInputStream(FileInputStream(file)).use { bis ->
             var len: Int
             var piece = 0L
@@ -66,10 +67,15 @@ class UploadDownloadManager constructor(
                     mimeType,
                     file.name.toString(),
                     randomId,
-                    Tools.sha256HashFromUri(activity, fileUri, activity.contentResolver.getType(fileUri)!!),
+                    Tools.sha256HashFromUri(
+                        activity,
+                        fileUri,
+                        activity.contentResolver.getType(fileUri)!!
+                    ),
                     fileType
                 )
 
+                Timber.d("Chunk count $chunkCount")
                 startUploadAPI(uploadFile, filePieces, isThumbnail, fileUploadListener)
 
                 piece++
@@ -94,6 +100,7 @@ class UploadDownloadManager constructor(
         }
         chunkCount++
 
+        Timber.d("Should verify? $chunkCount, $chunks")
         if (chunkCount == chunks) {
             verifyFileUpload(uploadFile, isThumbnail, fileUploadListener)
             chunkCount = 0
