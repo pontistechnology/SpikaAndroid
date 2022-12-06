@@ -326,6 +326,27 @@
                 app:layout_behavior="@string/bottom_sheet_behavior" />
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/cl_details_action"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:elevation="@dimen/four_dp_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            android:nestedScrollingEnabled="true">
+
+            <include
+                android:id="@+id/details_action"
+                layout="@layout/message_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:behavior_peekHeight="0dp"
+                app:layout_anchorGravity="bottom"
+                app:layout_behavior="@string/bottom_sheet_behavior" />
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
         <androidx.cardview.widget.CardView
             android:id="@+id/cv_new_messages"
             android:layout_width="wrap_content"

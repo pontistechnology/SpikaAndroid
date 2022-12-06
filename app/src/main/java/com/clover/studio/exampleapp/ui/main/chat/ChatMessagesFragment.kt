@@ -81,7 +81,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: FragmentChatMessagesBinding
     private lateinit var chatAdapter: ChatAdapter
+    private lateinit var detailsMessageAdapter: MessageDetailsAdapter
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
+    private var messageDetails: MutableList<MessageRecords> = ArrayList()
     private var unsentMessages: MutableList<Message> = ArrayList()
 
     private var currentMediaLocation: MutableList<Uri> = ArrayList()
@@ -101,6 +103,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetReplyAction: BottomSheetBehavior<ConstraintLayout>
+    private lateinit var bottomSheetDetailsAction: BottomSheetBehavior<ConstraintLayout>
 
     private var avatarUrl = ""
     private var userName = ""
@@ -168,6 +171,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
         bottomSheetMessageActions = BottomSheetBehavior.from(bindingSetup.messageActions.root)
         bottomSheetReplyAction = BottomSheetBehavior.from(bindingSetup.replyAction.root)
+        bottomSheetDetailsAction = BottomSheetBehavior.from(bindingSetup.detailsAction.root)
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
 
@@ -540,17 +544,50 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.messageActions.tvReply.setOnClickListener {
             closeMessageSheet()
-            showMessageReply()
+            bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
             handleMessageReply(message)
         }
 
         bindingSetup.messageActions.tvDetails.setOnClickListener {
-            // Ignore
+            bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+            getDetailsList(message)
+            bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
-    private fun showMessageReply() {
-        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
+    private fun getDetailsList(detailsMessage: Message) {
+        setUpMessageDetailsAdapter()
+
+        val myId = viewModel.getLocalUserId()
+        for (message in messagesRecords) {
+            if (message.message.id == detailsMessage.id) {
+                for (record in message.records!!) {
+                    if (record.userId != myId) {
+                        if (record.type == Const.JsonFields.SEEN) {
+                            messageDetails.add(record)
+                        } else if (record.type == Const.JsonFields.DELIVERED) {
+                            messageDetails.add(record)
+                        }
+                    }
+                }
+                break
+            }
+        }
+        val sortedMessageDetails = messageDetails.sortedByDescending { it.type }
+        val filteredList = sortedMessageDetails.distinctBy { it.userId }
+        detailsMessageAdapter.submitList(ArrayList(filteredList))
+        messageDetails.clear()
+    }
+
+    private fun setUpMessageDetailsAdapter() {
+        detailsMessageAdapter = MessageDetailsAdapter(
+            context!!,
+            roomWithUsers,
+        )
+        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        bindingSetup.detailsAction.rvSeen.adapter = detailsMessageAdapter
+        bindingSetup.detailsAction.rvSeen.layoutManager = layoutManager
+        bindingSetup.detailsAction.rvSeen.itemAnimator = null
     }
 
     private fun closeMessageSheet() {
@@ -730,6 +767,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
+        bindingSetup.detailsAction.ivRemove.setOnClickListener {
+            if (bottomSheetDetailsAction.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
+                bindingSetup.vTransparent.visibility = View.GONE
+            }
+        }
+
         bindingSetup.ivAdd.setOnClickListener {
             if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
                 replyFlag = false
@@ -767,6 +811,40 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             editMessage()
             resetEditingFields()
         }
+
+        val bottomSheetBehaviorCallback =
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                        bindingSetup.vTransparent.visibility = View.GONE
+                    }
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                        bindingSetup.vTransparent.visibility = View.VISIBLE
+                    }
+
+                }
+            }
+
+        val bottomSheetBehaviorCallbackMessageAction =
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (bottomSheetDetailsAction.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                            bindingSetup.vTransparent.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+        bottomSheetMessageActions.addBottomSheetCallback(bottomSheetBehaviorCallbackMessageAction)
+        bottomSheetDetailsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
+        bottomSheetBehaviour.addBottomSheetCallback(bottomSheetBehaviorCallback)
+
     }
 
     private fun resetEditingFields() {
@@ -1473,6 +1551,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     override fun onResume() {
         super.onResume()
         firstEnter = args.scrollDown
+        bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
     override fun onDestroy() {
