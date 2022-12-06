@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.utils
 
 import android.app.Activity
+import android.app.DownloadManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -14,6 +15,7 @@ import android.text.format.DateUtils
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.RemoteViews
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
@@ -23,6 +25,8 @@ import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -43,7 +47,6 @@ const val TO_KILOBYTE = 1000
 const val TOKEN_EXPIRED_CODE = 401
 
 object Tools {
-    var fileName: String = ""
 
     fun checkError(ex: Exception): Boolean {
         when (ex) {
@@ -106,11 +109,12 @@ object Tools {
         return map
     }
 
-    fun copyStreamToFile(activity: Activity, inputStream: InputStream, extension: String): File {
-        if (fileName.isEmpty()) {
-            fileName = "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}"
+    fun copyStreamToFile(activity: Activity, inputStream: InputStream, extension: String, fileName: String = ""): File {
+        var tempFileName = fileName
+        if (tempFileName.isEmpty()) {
+            tempFileName = "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}"
         }
-        val outputFile = File(activity.cacheDir, fileName)
+        val outputFile = File(activity.cacheDir, tempFileName)
         inputStream.use { input ->
             val outputStream = FileOutputStream(outputFile)
             outputStream.use { output ->
@@ -307,7 +311,7 @@ object Tools {
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    fun generateDeviceId(): String {
+    fun generateRandomId(): String {
         return UUID.randomUUID().toString().substring(0, 13)
     }
 
@@ -351,5 +355,56 @@ object Tools {
             // notificationId is a unique int for each notification that you must define
             roomId?.let { notify(it, builder.build()) }
         }
+    }
+
+    fun downloadFile(context: Context, message: Message) {
+        try {
+            val tmp = getFileUrl(message.body!!.file!!.path)
+            val request = DownloadManager.Request(Uri.parse(tmp))
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+            request.setTitle(message.body.file!!.fileName)
+            request.setDescription("The file is downloading")
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS,
+                message.body.file!!.fileName
+            )
+            val manager =
+                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            manager.enqueue(request)
+            Toast.makeText(context, "File is downloading", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Timber.d("$e")
+        }
+    }
+
+    fun createTemporaryMessage(
+        counter: Int,
+        localUserId: Int?,
+        roomId: Int,
+        messageType: String,
+        messageBody: MessageBody
+    ): Message {
+        // Time added will secure that the temporary items are at the bottom of the list
+        var timeAdded = 100000
+        if (counter > 0) {
+            timeAdded += (counter + 1) * timeAdded
+        }
+
+        return Message(
+            counter,
+            localUserId,
+            0,
+            -1,
+            0,
+            roomId,
+            messageType,
+            messageBody,
+            System.currentTimeMillis() + timeAdded,
+            null,
+            null,
+            null,
+            generateRandomId()
+        )
     }
 }

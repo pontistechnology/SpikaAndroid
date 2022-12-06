@@ -22,6 +22,7 @@ import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.PhoneUser
 import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
+import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
@@ -31,7 +32,6 @@ import com.clover.studio.exampleapp.utils.Tools.hashString
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
-import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonObject
 import timber.log.Timber
 
@@ -43,7 +43,7 @@ class RegisterNumberFragment : BaseFragment() {
     private var bindingSetup: FragmentRegisterNumberBinding? = null
 
     private var phoneNumber: String = ""
-    private var deviceId: String? = null
+    private var deviceId: String = ""
     private val binding get() = bindingSetup!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,16 +81,16 @@ class RegisterNumberFragment : BaseFragment() {
             countryCode = viewModel.readCountryCode()
             deviceId = viewModel.readDeviceId()
 
-            Timber.d("Device id = $deviceId")
-            if (deviceId?.isNotEmpty() == true) {
-                binding.etPhoneNumber.visibility = View.GONE
-                binding.tvDefaultPhoneNumber.visibility = View.VISIBLE
-                binding.tvDefaultPhoneNumber.text = phoneNumber
-            }
+            binding.etPhoneNumber.visibility = View.GONE
+            binding.tvDefaultPhoneNumber.visibility = View.VISIBLE
+            binding.tvDefaultPhoneNumber.text = phoneNumber
+            binding.tvCountryCode.text = countryCode
 
             binding.btnNext.isEnabled = true
+
+        } else {
+            binding.tvCountryCode.text = countryCode
         }
-        binding.tvCountryCode.text = countryCode
     }
 
     override fun onDestroyView() {
@@ -100,8 +100,8 @@ class RegisterNumberFragment : BaseFragment() {
 
     private fun setObservers() {
         viewModel.registrationListener.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
+            when (it) {
+                OnboardingStates.REGISTERING_SUCCESS -> {
                     val bundle = bundleOf(
                         Const.Navigation.PHONE_NUMBER to countryCode + phoneNumber.toInt(),
                         Const.Navigation.PHONE_NUMBER_HASHED to hashString(
@@ -110,31 +110,26 @@ class RegisterNumberFragment : BaseFragment() {
                         Const.Navigation.COUNTRY_CODE to countryCode.substring(1),
                         Const.Navigation.DEVICE_ID to deviceId
                     )
+
                     viewModel.registerFlag(true)
                     viewModel.writeFirstAppStart()
                     findNavController().navigate(
                         R.id.action_splashFragment_to_verificationFragment, bundle
                     )
                 }
-                Resource.Status.LOADING -> {
-                    binding.btnNext.isEnabled = false
-                }
-                Resource.Status.ERROR -> {
-                    DialogError.getInstance(requireContext(),
-                        getString(R.string.registration_error),
-                        getString(R.string.registration_error_description),
-                        null, getString(R.string.ok), object : DialogInteraction {
-                            override fun onFirstOptionClicked() {
-                                // Ignore
-                            }
+                OnboardingStates.REGISTERING_ERROR -> DialogError.getInstance(requireContext(),
+                    "Registration error",
+                    "There was an error while registering to the app.",
+                    null, getString(R.string.ok), object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            // ignore
+                        }
 
-                            override fun onSecondOptionClicked() {
-                                // Ignore
-                            }
+                        override fun onSecondOptionClicked() {
+                            // ignore
+                        }
 
-                        })
-                    binding.btnNext.isEnabled = true
-                }
+                    })
                 else -> Timber.d("Other error")
             }
         })
@@ -160,7 +155,8 @@ class RegisterNumberFragment : BaseFragment() {
             if (phoneNumber.isEmpty()) {
                 phoneNumber = binding.etPhoneNumber.text.toString()
                 countryCode = binding.tvCountryCode.text.toString()
-                viewModel.writePhoneAndCountry(phoneNumber, countryCode)
+                deviceId = Tools.generateRandomId()
+                viewModel.writePhoneAndDeviceId(phoneNumber, deviceId, countryCode)
             }
             viewModel.sendNewUserData(getJsonObject())
         }
@@ -187,7 +183,7 @@ class RegisterNumberFragment : BaseFragment() {
         binding.etPhoneNumber.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
-                    hideKeyboard(view)
+                    Tools.hideKeyboard(requireActivity(), view)
                 }
             }
         }
@@ -206,11 +202,6 @@ class RegisterNumberFragment : BaseFragment() {
             )
         )
         jsonObject.addProperty(Const.JsonFields.COUNTRY_CODE, countryCode.substring(1))
-
-        Timber.d("Device id = $deviceId")
-        if (deviceId == null || deviceId?.isEmpty() == true) {
-            deviceId = Tools.generateRandomId()
-        }
         jsonObject.addProperty(Const.JsonFields.DEVICE_ID, deviceId)
 
         return jsonObject

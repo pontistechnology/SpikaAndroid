@@ -1,5 +1,7 @@
 package com.clover.studio.exampleapp.data.models.entity
 
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.google.gson.annotations.SerializedName
@@ -15,13 +17,13 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "from_user_id")
     val fromUserId: Int?,
 
-    @SerializedName("fromDeviceId")
-    @ColumnInfo(name = "from_device_id")
-    val fromDeviceId: Int?,
-
-    @SerializedName("totalDeviceCount")
-    @ColumnInfo(name = "total_device_count")
-    val totalDeviceCount: Int?,
+//    @SerializedName("fromDeviceId")
+//    @ColumnInfo(name = "from_device_id")
+//    val fromDeviceId: Int?,
+//
+//    @SerializedName("totalDeviceCount")
+//    @ColumnInfo(name = "total_device_count")
+//    val totalDeviceCount: Int?,
 
     @SerializedName("totalUserCount")
     @ColumnInfo(name = "total_user_count")
@@ -41,7 +43,7 @@ data class Message @JvmOverloads constructor(
 
     @SerializedName("type")
     @ColumnInfo(name = "type")
-    val type: String?,
+    var type: String?,
 
     @SerializedName("body")
     @ColumnInfo(name = "body")
@@ -63,6 +65,10 @@ data class Message @JvmOverloads constructor(
     @SerializedName("reply")
     @ColumnInfo(name = "reply")
     val reply: Boolean?,
+
+    @SerializedName("localId")
+    @ColumnInfo(name = "local_id")
+    val localId: String?,
 
     // Two field below are used for firebase messaging and are not needed in the local db
     @Ignore
@@ -122,6 +128,7 @@ data class MessageFile(
     val fileName: String,
     val mimeType: String,
     val path: String,
-    val size: Long
+    val size: Long,
+    val uri: String?
 )
 

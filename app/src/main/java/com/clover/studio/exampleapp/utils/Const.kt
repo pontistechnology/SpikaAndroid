@@ -79,6 +79,7 @@ class Const {
             const val VIDEO = "video"
             const val TEXT = "text"
             const val CHAT_IMAGE = "image"
+            const val MOCK_MESSAGE_MEDIA = "mock_message_media"
 
             // File upload
             const val CHUNK = "chunk"
@@ -93,6 +94,7 @@ class Const {
             const val CLIENT_ID = "clientId"
             const val FILE_ID = "fileId"
             const val THUMB_ID = "thumbId"
+            const val LOCAL_ID = "localId"
 
             // Chat
             const val ROOM_ID = "roomId"
