@@ -208,7 +208,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     tempMessageCounter -= 1
 
                     Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                        uploadIndex++
+                        uploadIndex += 1
                         if (currentMediaLocation.isNotEmpty()) {
                             if (uploadIndex < currentMediaLocation.size) {
                                 if (mimeType == Const.JsonFields.IMAGE)
@@ -282,7 +282,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             progress++
                         } else progress = 0
                     } catch (ex: Exception) {
-                        Timber.d("Video upload failed on piece")
+                        Timber.d("File upload failed on piece")
                         handleUploadError()
                     }
                 }
@@ -298,15 +298,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 0,
                                 unsentMessages[uploadIndex].localId!!
                             )
-
-                            uploadIndex++
-                            if (uploadIndex < filesSelected.size) {
-                                uploadFile()
-                            } else {
-                                uploadIndex = 0
-                                filesSelected.clear()
-                                uploadInProgress = false
-                            }
                         }
                         // update room data
                     } catch (ex: Exception) {
@@ -317,22 +308,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                 is FileUploadError -> {
                     try {
-                        uploadIndex++
-                        if (uploadIndex < filesSelected.size) {
-                            uploadFile()
-                        } else {
-                            uploadIndex = 0
-                            filesSelected.clear()
-                        }
-
-                        Toast.makeText(
-                            requireActivity().baseContext,
-                            getString(R.string.failed_file_upload),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        uploadInProgress = false
+                        handleUploadError()
                     } catch (ex: Exception) {
-                        Timber.d("Video upload failed on error")
+                        Timber.d("File upload failed on error")
                         handleUploadError()
                     }
                 }
@@ -984,7 +962,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun sendMessage() {
-        sendMessage(mimeType = UploadMimeTypes.MESSAGE, 0, 0, unsentMessages[tempMessageCounter].localId!!)
+        sendMessage(
+            mimeType = UploadMimeTypes.MESSAGE,
+            0,
+            0,
+            unsentMessages[tempMessageCounter].localId!!
+        )
     }
 
     private fun sendMessage(
@@ -1254,7 +1237,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleUploadError() {
-        uploadIndex++
+        uploadIndex += 1
 
         tempMessageCounter -= 1
 
@@ -1322,6 +1305,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         imageSelected.setFile(cr.getType(uri)!!, fileName)
         imageSelected.setButtonListener(object : ImageSelectedContainer.RemoveImageSelected {
             override fun removeImage() {
+                Timber.d("Files selected 1: $filesSelected")
+                filesSelected.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
+                Timber.d("Files selected 2: $filesSelected")
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
             }
@@ -1356,6 +1342,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         imageSelected.setButtonListener(object :
             ImageSelectedContainer.RemoveImageSelected {
             override fun removeImage() {
+                Timber.d("Media selected 1: $currentMediaLocation")
+                thumbnailUris.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
+                currentMediaLocation.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
+                Timber.d("Media selected 2: $currentMediaLocation")
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
             }
@@ -1381,6 +1371,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         imageSelected.setButtonListener(object :
             ImageSelectedContainer.RemoveImageSelected {
             override fun removeImage() {
+                Timber.d("Media selected 1: $currentMediaLocation")
+                thumbnailUris.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
+                currentMediaLocation.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
+                Timber.d("Media selected 2: $currentMediaLocation")
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
             }
