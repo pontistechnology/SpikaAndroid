@@ -1026,12 +1026,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        Tools.fileName = fileName
-
         val fileStream = Tools.copyStreamToFile(
             activity!!,
             inputStream!!,
-            activity!!.contentResolver.getType(uri)!!
+            activity!!.contentResolver.getType(uri)!!,
+            fileName
         )
 
         tempMessageCounter += 1
@@ -1152,12 +1151,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        Tools.fileName = fileName
-
         val fileStream = Tools.copyStreamToFile(
             activity!!,
             inputStream!!,
-            activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
+            activity!!.contentResolver.getType(filesSelected[uploadIndex])!!,
+            fileName
         )
 
         uploadPieces =

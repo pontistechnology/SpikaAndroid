@@ -47,7 +47,6 @@ const val TO_KILOBYTE = 1000
 const val TOKEN_EXPIRED_CODE = 401
 
 object Tools {
-    var fileName: String = ""
 
     fun checkError(ex: Exception): Boolean {
         when (ex) {
@@ -110,11 +109,12 @@ object Tools {
         return map
     }
 
-    fun copyStreamToFile(activity: Activity, inputStream: InputStream, extension: String): File {
-        if (fileName.isEmpty()) {
-            fileName = "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}"
+    fun copyStreamToFile(activity: Activity, inputStream: InputStream, extension: String, fileName: String = ""): File {
+        var tempFileName = fileName
+        if (tempFileName.isEmpty()) {
+            tempFileName = "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}"
         }
-        val outputFile = File(activity.cacheDir, fileName)
+        val outputFile = File(activity.cacheDir, tempFileName)
         inputStream.use { input ->
             val outputStream = FileOutputStream(outputFile)
             outputStream.use { output ->
