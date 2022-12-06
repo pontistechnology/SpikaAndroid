@@ -282,7 +282,7 @@ class GroupInformationFragment : BaseFragment() {
                     requireActivity(),
                     currentPhotoLocation,
                     Const.JsonFields.IMAGE,
-                    Const.JsonFields.AVATAR,
+                    Const.JsonFields.AVATAR_TYPE,
                     uploadPieces,
                     fileStream,
                     false,

@@ -213,9 +213,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         uploadIndex += 1
                         if (currentMediaLocation.isNotEmpty()) {
                             if (uploadIndex < currentMediaLocation.size) {
-                                if (mimeType == Const.JsonFields.IMAGE)
+                                if (Const.JsonFields.IMAGE == mimeType)
                                     uploadImage()
-                                else if (mimeType == Const.JsonFields.VIDEO)
+                                else if (Const.JsonFields.VIDEO == mimeType)
                                     uploadVideo()
                             } else
                                 resetUploadFields()
@@ -347,7 +347,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             )
                         } else {
                             if (it.thumbId > 0) messageBody?.thumbId = it.thumbId
-                            if (mimeType == Const.JsonFields.IMAGE) {
+                            if (Const.JsonFields.IMAGE == mimeType) {
                                 messageBody?.let {
                                     uploadMedia(
                                         false,
@@ -733,7 +733,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     createTempMediaMessage(thumbnail)
                 }
                 Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    if (mimeType == Const.JsonFields.CHAT_IMAGE) {
+                    if (Const.JsonFields.IMAGE == mimeType) {
                         uploadImage()
                     } else {
                         uploadVideo()
@@ -921,7 +921,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         when (message.type) {
-            Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO -> {
+            Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
                 bindingSetup.replyAction.cvReplyMedia.visibility = View.VISIBLE
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
@@ -931,7 +931,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             imagePath
                         )
                     }
-                if (message.type == Const.JsonFields.CHAT_IMAGE) {
+                if (message.type == Const.JsonFields.IMAGE_TYPE) {
                     bindingSetup.replyAction.tvReplyMedia.text = getString(
                         R.string.media,
                         context!!.getString(R.string.photo)
@@ -962,7 +962,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     .dontAnimate()
                     .into(bindingSetup.replyAction.ivReplyImage)
             }
-            Const.JsonFields.AUDIO -> {
+            Const.JsonFields.AUDIO_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
                 bindingSetup.replyAction.cvReplyMedia.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
@@ -1031,7 +1031,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun editMessage() {
         if (editedMessageId != 0) {
             val jsonObject = JsonObject()
-            jsonObject.addProperty(Const.JsonFields.TEXT, bindingSetup.etMessage.text.toString())
+            jsonObject.addProperty(
+                Const.JsonFields.TEXT_TYPE,
+                bindingSetup.etMessage.text.toString()
+            )
 
             viewModel.editMessage(editedMessageId, jsonObject)
         }
@@ -1080,7 +1083,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             tempMessageCounter,
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
-            Const.JsonFields.TEXT,
+            Const.JsonFields.TEXT_TYPE,
             messageBody!!
         )
 
@@ -1164,7 +1167,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             tempMessageCounter,
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
-            Const.JsonFields.CHAT_IMAGE,
+            Const.JsonFields.IMAGE_TYPE,
             messageBody!!
         )
 
@@ -1294,16 +1297,24 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             else fileStream.length() / CHUNK_SIZE
         progress = 0
 
-        mimeType = if (mediaType == UploadMimeTypes.IMAGE) {
-            Const.JsonFields.IMAGE
+        val fileType: String
+        if (mediaType == UploadMimeTypes.IMAGE) {
+            mimeType = Const.JsonFields.IMAGE
+            fileType = Const.JsonFields.IMAGE_TYPE
         } else {
-            Const.JsonFields.VIDEO
+            fileType = if (isThumbnail) {
+                Const.JsonFields.IMAGE_TYPE
+            } else {
+                Const.JsonFields.VIDEO_TYPE
+            }
+            mimeType = Const.JsonFields.VIDEO
         }
 
         viewModel.uploadMedia(
             requireActivity(),
             uri,
             mimeType,
+            fileType,
             uploadPieces,
             fileStream,
             isThumbnail
@@ -1341,7 +1352,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         if (currentMediaLocation.isNotEmpty()) {
             if (uploadIndex < currentMediaLocation.size) {
-                if (mimeType == Const.JsonFields.IMAGE) {
+                if (Const.JsonFields.IMAGE == mimeType) {
                     uploadImage()
                 } else {
                     uploadVideo()
@@ -1422,7 +1433,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             mimeType = Const.JsonFields.VIDEO
             convertVideo(uri)
         } else {
-            mimeType = Const.JsonFields.CHAT_IMAGE
+            mimeType = Const.JsonFields.IMAGE
             convertImageToBitmap(uri)
         }
     }
@@ -1442,7 +1453,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             override fun removeImage() {
                 Timber.d("Media selected 1: $currentMediaLocation")
                 thumbnailUris.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
-                currentMediaLocation.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
+                currentMediaLocation.removeAt(
+                    bindingSetup.llImagesContainer.indexOfChild(
+                        imageSelected
+                    )
+                )
                 Timber.d("Media selected 2: $currentMediaLocation")
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
@@ -1471,7 +1486,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             override fun removeImage() {
                 Timber.d("Media selected 1: $currentMediaLocation")
                 thumbnailUris.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
-                currentMediaLocation.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
+                currentMediaLocation.removeAt(
+                    bindingSetup.llImagesContainer.indexOfChild(
+                        imageSelected
+                    )
+                )
                 Timber.d("Media selected 2: $currentMediaLocation")
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF

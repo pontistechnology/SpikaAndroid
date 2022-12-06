@@ -52,24 +52,29 @@ class UploadDownloadManager constructor(
         fileUploadListener: FileUploadListener
     ) {
         var fileMetadata: FileMetadata? = null
-        if (!isThumbnail) {
-            var time = 0
-            var width = 0
-            var height = 0
-            if (Const.JsonFields.VIDEO == mimeType)  {
-                val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(activity, fileUri)
-                time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!.toInt()
-                width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!.toInt()
-                height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!.toInt()
-                retriever.release()
-            } else if (Const.JsonFields.IMAGE == mimeType) {
-                val o = BitmapFactory.Options()
-                o.inJustDecodeBounds = true
-                BitmapFactory.decodeFile(file.absolutePath, o)
-                height = o.outHeight
-                width = o.outWidth
-            }
+        val time: Int
+        val width: Int
+        val height: Int
+        if (Const.JsonFields.IMAGE == mimeType || isThumbnail) {
+            val o = BitmapFactory.Options()
+            o.inJustDecodeBounds = true
+            BitmapFactory.decodeFile(file.absolutePath, o)
+            height = o.outHeight
+            width = o.outWidth
+
+            fileMetadata = FileMetadata(width, height, null)
+            Timber.d("File metadata: $fileMetadata")
+        } else if (Const.JsonFields.VIDEO == mimeType) {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(activity, fileUri)
+            time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
+                .toInt()
+            width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
+                .toInt()
+            height =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!
+                    .toInt()
+            retriever.release()
 
             fileMetadata = FileMetadata(width, height, time)
             Timber.d("File metadata: $fileMetadata")

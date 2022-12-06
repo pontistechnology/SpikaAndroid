@@ -331,13 +331,13 @@ class ChatViewModel @Inject constructor(
             }
         }
 
-    fun uploadMedia(activity: Activity, uri: Uri, mimeType: String, uploadPieces: Long, fileStream: File, isThumbnail: Boolean) = viewModelScope.launch {
+    fun uploadMedia(activity: Activity, uri: Uri, mimeType: String, fileType: String, uploadPieces: Long, fileStream: File, isThumbnail: Boolean) = viewModelScope.launch {
         try {
             uploadDownloadManager.uploadFile(
                 activity,
                 uri,
                 mimeType,
-                Const.JsonFields.AVATAR,
+                fileType,
                 uploadPieces,
                 fileStream,
                 isThumbnail,
