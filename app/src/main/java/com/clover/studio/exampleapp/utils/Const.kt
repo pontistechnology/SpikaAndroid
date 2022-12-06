@@ -117,6 +117,10 @@ class Const {
             const val LOCAL_ID_REPLY = "localID"
             const val PATH_REPLY = "path"
             const val THUMB_REPLY = "thumb"
+
+            // Message details
+            const val SEEN = "seen"
+            const val DELIVERED = "delivered"
         }
     }
 
