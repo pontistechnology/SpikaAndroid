@@ -244,7 +244,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             when (it) {
                 ChatStatesEnum.MESSAGE_DELIVERED -> {
                     Timber.d("Messages delivered")
-                    unsentMessages.clear()
                 }
                 ChatStatesEnum.MESSAGE_DELIVER_FAIL -> Timber.d("Failed to deliver messages")
                 else -> Timber.d("Other error")
@@ -1220,9 +1219,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun resetUploadFields() {
         Timber.d("Resetting upload fields")
-        if (tempMessageCounter >= 0) {
+        if (tempMessageCounter >= -1) {
             viewModel.deleteLocalMessages(unsentMessages)
-            tempMessageCounter = 0
+            tempMessageCounter = -1
         }
 
         uploadIndex = 0
