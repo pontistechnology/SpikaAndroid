@@ -207,6 +207,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     bindingSetup.etMessage.setText("")
                     tempMessageCounter -= 1
 
+                    // Delay next message sending by 2 seconds for better user experience.
+                    // Could be removed if we deem it not needed.
                     Handler(Looper.getMainLooper()).postDelayed(Runnable {
                         uploadIndex += 1
                         if (currentMediaLocation.isNotEmpty()) {
@@ -1012,6 +1014,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.storeMessageLocally(tempMessage)
     }
 
+    /**
+     * Meehod creates temporary file message which will be displayed to the user inside of the
+     * chat adapter.
+     *
+     * @param uri Uri of the file being sent and with which the temporary message will be created.
+     */
     private fun createTempFileMessage(uri: Uri) {
         val inputStream =
             activity!!.contentResolver.openInputStream(uri)
@@ -1052,6 +1060,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.storeMessageLocally(tempMessage)
     }
 
+    /**
+     * Creating temporary media message which will be shown to the user inside of the
+     * chat adapter while the media file is uploading
+     *
+     * @param mediaUri uri of the media file for which a temporary image file will be created
+     * which will hold the bitmap thumbnail.
+     */
     private fun createTempMediaMessage(mediaUri: Uri) {
         tempMessageCounter += 1
         messageBody = MessageBody(
@@ -1134,6 +1149,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         uploadVideoThumbnail(uploadIndex)
     }
 
+    /**
+     * Method used for uploading files to the backend
+     */
     private fun uploadFile() {
         uploadInProgress = true
         messageBody = MessageBody(null, "", 0, 0, null, null)
@@ -1217,8 +1235,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
     }
 
+    /**
+     * Reset upload fields and clear local cache on success or critical fail
+     */
     private fun resetUploadFields() {
-        Timber.d("Resetting upload fields")
         if (tempMessageCounter >= -1) {
             viewModel.deleteLocalMessages(unsentMessages)
             tempMessageCounter = -1
@@ -1233,6 +1253,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         context?.cacheDir?.deleteRecursively()
     }
 
+    /**
+     * Method handles error for specific files and checks if it should continue uploading other
+     * files waiting in row, if there are any.
+     *
+     * Also displays a toast message for failed uploads.
+     */
     private fun handleUploadError() {
         uploadIndex += 1
 
