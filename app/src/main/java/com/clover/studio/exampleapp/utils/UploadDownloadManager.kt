@@ -59,11 +59,11 @@ class UploadDownloadManager constructor(
         // Check mime type of file being sent. If it is a media file get metadata for image or video
         // respectively
         if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || isThumbnail) {
-            val o = BitmapFactory.Options()
-            o.inJustDecodeBounds = true
-            BitmapFactory.decodeFile(file.absolutePath, o)
-            height = o.outHeight
-            width = o.outWidth
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            BitmapFactory.decodeFile(file.absolutePath, options)
+            height = options.outHeight
+            width = options.outWidth
 
             fileMetadata = FileMetadata(width, height, null)
             Timber.d("File metadata: $fileMetadata")
