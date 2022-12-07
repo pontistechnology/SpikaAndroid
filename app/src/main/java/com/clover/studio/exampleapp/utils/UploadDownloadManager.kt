@@ -55,7 +55,9 @@ class UploadDownloadManager constructor(
         val width: Int
         val height: Int
         val mimeType = activity.contentResolver.getType(fileUri)!!
-        Timber.d("Mime type = $mimeType")
+
+        // Check mime type of file being sent. If it is a media file get metadata for image or video
+        // respectively
         if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || isThumbnail) {
             val o = BitmapFactory.Options()
             o.inJustDecodeBounds = true
