@@ -71,15 +71,15 @@ class Const {
             // Mime types
             const val IMAGE = "image/*"
             const val FILE = "*/*"
+            const val VIDEO = "video/*"
 
             // File types
-            const val AVATAR = "avatar"
+            const val AVATAR_TYPE = "avatar"
             const val FILE_TYPE = "file"
-            const val AUDIO = "audio"
-            const val VIDEO = "video"
-            const val TEXT = "text"
-            const val CHAT_IMAGE = "image"
-            const val MOCK_MESSAGE_MEDIA = "mock_message_media"
+            const val AUDIO_TYPE = "audio"
+            const val VIDEO_TYPE = "video"
+            const val TEXT_TYPE = "text"
+            const val IMAGE_TYPE = "image"
 
             // File upload
             const val CHUNK = "chunk"
@@ -95,6 +95,10 @@ class Const {
             const val FILE_ID = "fileId"
             const val THUMB_ID = "thumbId"
             const val LOCAL_ID = "localId"
+            const val METADATA = "metaData"
+            const val WIDTH = "width"
+            const val HEIGHT = "height"
+            const val DURATION = "duration"
 
             // Chat
             const val ROOM_ID = "roomId"

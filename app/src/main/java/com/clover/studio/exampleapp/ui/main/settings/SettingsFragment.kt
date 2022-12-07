@@ -13,7 +13,6 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentSettingsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
@@ -220,8 +219,7 @@ class SettingsFragment : BaseFragment() {
                 uploadDownloadManager.uploadFile(
                     requireActivity(),
                     currentPhotoLocation,
-                    Const.JsonFields.IMAGE,
-                    Const.JsonFields.AVATAR,
+                    Const.JsonFields.AVATAR_TYPE,
                     uploadPieces,
                     fileStream,
                     false,
@@ -241,7 +239,7 @@ class SettingsFragment : BaseFragment() {
                             }
                         }
 
-                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                        override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
                                 binding.clProgressScreen.visibility = View.GONE

@@ -121,7 +121,7 @@ class ChatAdapter(
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_btn_white)
                 holder.binding.tvTime.visibility = View.GONE
                 when (it.message.type) {
-                    Const.JsonFields.TEXT -> {
+                    Const.JsonFields.TEXT_TYPE -> {
                         holder.binding.tvMessage.text = it.message.body?.text
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
@@ -136,7 +136,7 @@ class ChatAdapter(
                             // ignore
                         }
                     }
-                    Const.JsonFields.CHAT_IMAGE -> {
+                    Const.JsonFields.IMAGE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
@@ -208,7 +208,7 @@ class ChatAdapter(
                             true
                         }
                     }
-                    Const.JsonFields.VIDEO -> {
+                    Const.JsonFields.VIDEO_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
@@ -242,7 +242,7 @@ class ChatAdapter(
                             view.findNavController().navigate(action)
                         }
                     }
-                    Const.JsonFields.AUDIO -> {
+                    Const.JsonFields.AUDIO_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
@@ -360,7 +360,7 @@ class ChatAdapter(
                         }
                     }
                     when (it.message.body?.referenceMessage?.type) {
-                        Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO -> {
+                        Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
                             if (original!! >= TEXT_SIZE_BIG) {
                                 params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                             }
@@ -373,7 +373,7 @@ class ChatAdapter(
                             holder.binding.tvMessageReply.visibility = View.GONE
                             holder.binding.cvReplyMedia.visibility = View.VISIBLE
                             holder.binding.tvReplyMedia.visibility = View.VISIBLE
-                            if (it.message.body.referenceMessage?.type == Const.JsonFields.CHAT_IMAGE) {
+                            if (it.message.body.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
                                 holder.binding.tvReplyMedia.text = context.getString(
                                     R.string.media,
                                     context.getString(R.string.photo)
@@ -404,7 +404,7 @@ class ChatAdapter(
                                 .dontAnimate()
                                 .into(holder.binding.ivReplyImage)
                         }
-                        Const.JsonFields.AUDIO -> {
+                        Const.JsonFields.AUDIO_TYPE -> {
                             if (original!! >= TEXT_SIZE_SMALL) {
                                 params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                             }
@@ -541,7 +541,7 @@ class ChatAdapter(
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                 holder.binding.tvTime.visibility = View.GONE
                 when (it.message.type) {
-                    Const.JsonFields.TEXT -> {
+                    Const.JsonFields.TEXT_TYPE -> {
                         holder.binding.tvMessage.text = it.message.body?.text
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
@@ -551,7 +551,7 @@ class ChatAdapter(
                         holder.binding.clReplyMessage.visibility = View.GONE
 
                     }
-                    Const.JsonFields.CHAT_IMAGE -> {
+                    Const.JsonFields.IMAGE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.VISIBLE
                         holder.binding.clFileMessage.visibility = View.GONE
@@ -581,7 +581,7 @@ class ChatAdapter(
                             view.findNavController().navigate(action)
                         }
                     }
-                    Const.JsonFields.VIDEO -> {
+                    Const.JsonFields.VIDEO_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
@@ -642,7 +642,7 @@ class ChatAdapter(
                             true
                         }
                     }
-                    Const.JsonFields.AUDIO -> {
+                    Const.JsonFields.AUDIO_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
@@ -758,7 +758,7 @@ class ChatAdapter(
                         }
                     }
                     when (it.message.body?.referenceMessage?.type) {
-                        Const.JsonFields.CHAT_IMAGE, Const.JsonFields.VIDEO -> {
+                        Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
                             if (original!! >= TEXT_SIZE_BIG) {
                                 params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                             }
@@ -771,7 +771,7 @@ class ChatAdapter(
                                         imagePath
                                     )
                                 }
-                            if (it.message.body.referenceMessage?.type == Const.JsonFields.CHAT_IMAGE) {
+                            if (it.message.body.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
                                 holder.binding.tvReplyMedia.text = context.getString(
                                     R.string.media,
                                     context.getString(R.string.photo)
@@ -802,7 +802,7 @@ class ChatAdapter(
                                 .dontAnimate()
                                 .into(holder.binding.ivReplyImage)
                         }
-                        Const.JsonFields.AUDIO -> {
+                        Const.JsonFields.AUDIO_TYPE -> {
                             if (original!! >= TEXT_SIZE_SMALL) {
                                 params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                             }
