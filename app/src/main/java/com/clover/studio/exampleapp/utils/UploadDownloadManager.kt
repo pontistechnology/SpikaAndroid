@@ -44,7 +44,6 @@ class UploadDownloadManager constructor(
     suspend fun uploadFile(
         activity: Activity,
         fileUri: Uri,
-        mimeType: String,
         fileType: String,
         filePieces: Long,
         file: File,
@@ -55,7 +54,9 @@ class UploadDownloadManager constructor(
         val time: Int
         val width: Int
         val height: Int
-        if (Const.JsonFields.IMAGE == mimeType || isThumbnail) {
+        val mimeType = activity.contentResolver.getType(fileUri)!!
+        Timber.d("Mime type = $mimeType")
+        if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || isThumbnail) {
             val o = BitmapFactory.Options()
             o.inJustDecodeBounds = true
             BitmapFactory.decodeFile(file.absolutePath, o)
@@ -64,7 +65,7 @@ class UploadDownloadManager constructor(
 
             fileMetadata = FileMetadata(width, height, null)
             Timber.d("File metadata: $fileMetadata")
-        } else if (Const.JsonFields.VIDEO == mimeType) {
+        } else if (mimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(activity, fileUri)
             time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
@@ -103,14 +104,14 @@ class UploadDownloadManager constructor(
                     Tools.sha256HashFromUri(
                         activity,
                         fileUri,
-                        activity.contentResolver.getType(fileUri)!!
+                        mimeType
                     ),
                     fileType,
                     fileMetadata
                 )
 
                 Timber.d("Chunk count $chunkCount")
-                startUploadAPI(uploadFile, filePieces, isThumbnail, fileUploadListener)
+                startUploadAPI(uploadFile, mimeType, filePieces, isThumbnail, fileUploadListener)
 
                 piece++
             }
@@ -119,6 +120,7 @@ class UploadDownloadManager constructor(
 
     private suspend fun startUploadAPI(
         uploadFile: UploadFile,
+        mimeType: String,
         chunks: Long,
         isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
@@ -136,27 +138,30 @@ class UploadDownloadManager constructor(
 
         Timber.d("Should verify? $chunkCount, $chunks")
         if (chunkCount == chunks) {
-            verifyFileUpload(uploadFile, isThumbnail, fileUploadListener)
+            verifyFileUpload(uploadFile, mimeType, isThumbnail, fileUploadListener)
             chunkCount = 0
         }
     }
 
     private suspend fun verifyFileUpload(
         uploadFile: UploadFile,
+        mimeType: String,
         isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
     ) {
         try {
             val file = repository.verifyFile(uploadFile.fileToJson()).data?.file
             Timber.d("UploadDownload FilePath = ${file?.path}")
+            Timber.d("Mime type = $mimeType")
             if (isThumbnail) file?.path?.let {
                 fileUploadListener.fileUploadVerified(
                     it,
+                    mimeType,
                     file.id.toLong(),
                     0
                 )
             }
-            else file?.path?.let { fileUploadListener.fileUploadVerified(it, 0, file.id.toLong()) }
+            else file?.path?.let { fileUploadListener.fileUploadVerified(it, mimeType,0, file.id.toLong()) }
 
         } catch (ex: Exception) {
             Tools.checkError(ex)
@@ -169,5 +174,5 @@ class UploadDownloadManager constructor(
 interface FileUploadListener {
     fun filePieceUploaded()
     fun fileUploadError(description: String)
-    fun fileUploadVerified(path: String, thumbId: Long = 0, fileId: Long = 0)
+    fun fileUploadVerified(path: String, mimeType: String, thumbId: Long = 0, fileId: Long = 0)
 }

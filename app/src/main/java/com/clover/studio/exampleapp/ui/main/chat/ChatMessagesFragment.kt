@@ -14,7 +14,6 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -92,7 +91,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var uploadIndex = 0
     private var progress = 0
     private var uploadPieces = 0L
-    private var mimeType: String = ""
+    private var fileType: String = ""
     private var mediaType: UploadMimeTypes? = null
     private var tempMessageCounter = -1
     private var uploadInProgress = false
@@ -213,9 +212,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         uploadIndex += 1
                         if (currentMediaLocation.isNotEmpty()) {
                             if (uploadIndex < currentMediaLocation.size) {
-                                if (Const.JsonFields.IMAGE == mimeType)
+                                if (Const.JsonFields.IMAGE_TYPE == fileType)
                                     uploadImage()
-                                else if (Const.JsonFields.VIDEO == mimeType)
+                                else if (Const.JsonFields.VIDEO_TYPE == fileType)
                                     uploadVideo()
                             } else
                                 resetUploadFields()
@@ -294,7 +293,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             Timber.d("Successfully sent file")
                             if (it.fileId > 0) messageBody?.fileId = it.fileId
                             sendMessage(
-                                UploadMimeTypes.FILE,
+                                fileType,
                                 messageBody?.fileId!!,
                                 0,
                                 unsentMessages[uploadIndex].localId!!
@@ -340,14 +339,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             if (it.fileId > 0) messageBody?.fileId = it.fileId
 
                             sendMessage(
-                                mediaType!!,
+                                fileType,
                                 messageBody?.fileId!!,
                                 messageBody?.thumbId!!,
                                 unsentMessages[uploadIndex].localId!!
                             )
                         } else {
                             if (it.thumbId > 0) messageBody?.thumbId = it.thumbId
-                            if (Const.JsonFields.IMAGE == mimeType) {
+                            if (Const.JsonFields.IMAGE_TYPE == fileType) {
                                 messageBody?.let {
                                     uploadMedia(
                                         false,
@@ -733,7 +732,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     createTempMediaMessage(thumbnail)
                 }
                 Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    if (Const.JsonFields.IMAGE == mimeType) {
+                    if (Const.JsonFields.IMAGE_TYPE == fileType) {
                         uploadImage()
                     } else {
                         uploadVideo()
@@ -1042,7 +1041,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun sendMessage() {
         sendMessage(
-            mimeType = UploadMimeTypes.MESSAGE,
+            messageFileType = Const.JsonFields.TEXT_TYPE,
             0,
             0,
             unsentMessages[tempMessageCounter].localId!!
@@ -1050,7 +1049,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun sendMessage(
-        mimeType: UploadMimeTypes,
+        messageFileType: String,
         fileId: Long,
         thumbId: Long,
         localId: String
@@ -1058,7 +1057,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         val jsonMessage = JsonMessage(
             bindingSetup.etMessage.text.toString(),
-            mimeType,
+            messageFileType,
             fileId,
             thumbId,
             roomWithUsers.room.roomId,
@@ -1260,6 +1259,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         progress = 0
 
         Timber.d("File upload start")
+        fileType = Const.JsonFields.FILE_TYPE
 
         viewModel.uploadFile(
             requireActivity(),
@@ -1299,7 +1299,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         val fileType: String
         if (mediaType == UploadMimeTypes.IMAGE) {
-            mimeType = Const.JsonFields.IMAGE
+            this.fileType = Const.JsonFields.IMAGE_TYPE
             fileType = Const.JsonFields.IMAGE_TYPE
         } else {
             fileType = if (isThumbnail) {
@@ -1307,13 +1307,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             } else {
                 Const.JsonFields.VIDEO_TYPE
             }
-            mimeType = Const.JsonFields.VIDEO
+            this.fileType = Const.JsonFields.VIDEO_TYPE
         }
 
         viewModel.uploadMedia(
             requireActivity(),
             uri,
-            mimeType,
             fileType,
             uploadPieces,
             fileStream,
@@ -1352,7 +1351,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         if (currentMediaLocation.isNotEmpty()) {
             if (uploadIndex < currentMediaLocation.size) {
-                if (Const.JsonFields.IMAGE == mimeType) {
+                if (Const.JsonFields.IMAGE_TYPE == fileType) {
                     uploadImage()
                 } else {
                     uploadVideo()
@@ -1426,14 +1425,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun getImageOrVideo(uri: Uri) {
         val cR: ContentResolver = context!!.contentResolver
-        val mime = MimeTypeMap.getSingleton()
-        val type = mime.getExtensionFromMimeType(cR.getType(uri))
+        val mime = cR.getType(uri)
 
-        if (type.equals(Const.FileExtensions.MP4)) {
-            mimeType = Const.JsonFields.VIDEO
+        if (mime?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
+            fileType = Const.JsonFields.VIDEO_TYPE
             convertVideo(uri)
         } else {
-            mimeType = Const.JsonFields.IMAGE
+            fileType = Const.JsonFields.IMAGE_TYPE
             convertImageToBitmap(uri)
         }
     }

@@ -281,7 +281,6 @@ class GroupInformationFragment : BaseFragment() {
                 uploadDownloadManager.uploadFile(
                     requireActivity(),
                     currentPhotoLocation,
-                    Const.JsonFields.IMAGE,
                     Const.JsonFields.AVATAR_TYPE,
                     uploadPieces,
                     fileStream,
@@ -302,7 +301,7 @@ class GroupInformationFragment : BaseFragment() {
                             }
                         }
 
-                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                        override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
                                 binding.clProgressScreen.visibility = View.GONE

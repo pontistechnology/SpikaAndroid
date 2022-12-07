@@ -307,7 +307,6 @@ class ChatViewModel @Inject constructor(
                 uploadDownloadManager.uploadFile(
                     activity,
                     uri,
-                    Const.JsonFields.FILE,
                     Const.JsonFields.FILE_TYPE,
                     uploadPieces,
                     fileStream,
@@ -321,9 +320,9 @@ class ChatViewModel @Inject constructor(
                             fileUploadListener.postValue(Event(FileUploadError(description)))
                         }
 
-                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                        override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
                             fileUploadListener.postValue(
-                                Event(FileUploadVerified(path, thumbId, fileId)))
+                                Event(FileUploadVerified(path, mimeType, thumbId, fileId)))
                         }
                     })
             } catch (ex: Exception) {
@@ -331,12 +330,11 @@ class ChatViewModel @Inject constructor(
             }
         }
 
-    fun uploadMedia(activity: Activity, uri: Uri, mimeType: String, fileType: String, uploadPieces: Long, fileStream: File, isThumbnail: Boolean) = viewModelScope.launch {
+    fun uploadMedia(activity: Activity, uri: Uri, fileType: String, uploadPieces: Long, fileStream: File, isThumbnail: Boolean) = viewModelScope.launch {
         try {
             uploadDownloadManager.uploadFile(
                 activity,
                 uri,
-                mimeType,
                 fileType,
                 uploadPieces,
                 fileStream,
@@ -350,8 +348,8 @@ class ChatViewModel @Inject constructor(
                         mediaUploadListener.postValue(Event(MediaUploadError(description)))
                     }
 
-                    override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
-                        mediaUploadListener.postValue(Event(MediaUploadVerified(path, thumbId, fileId, isThumbnail)))
+                    override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
+                        mediaUploadListener.postValue(Event(MediaUploadVerified(path, mimeType, thumbId, fileId, isThumbnail)))
                     }
                 })
         } catch (ex: Exception) {
@@ -368,9 +366,9 @@ class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
 object FilePieceUploaded : ChatStates()
 class FileUploadError(val description: String) : ChatStates()
-class FileUploadVerified(val path: String, val thumbId: Long, val fileId: Long) : ChatStates()
+class FileUploadVerified(val path: String, val mimeType: String, val thumbId: Long, val fileId: Long) : ChatStates()
 object MediaPieceUploaded : ChatStates()
 class MediaUploadError(val description: String) :ChatStates()
-class MediaUploadVerified(val path: String, val thumbId: Long, val fileId: Long, val isThumbnail: Boolean): ChatStates()
+class MediaUploadVerified(val path: String, val mimeType: String, val thumbId: Long, val fileId: Long, val isThumbnail: Boolean): ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }
