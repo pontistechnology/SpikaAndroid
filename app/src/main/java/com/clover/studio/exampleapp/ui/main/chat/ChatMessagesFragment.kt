@@ -827,6 +827,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val bottomSheetBehaviorCallbackMessageAction =
             object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    // Ignore
                 }
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
