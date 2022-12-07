@@ -179,7 +179,7 @@ class GroupInformationFragment : BaseFragment() {
             }
         }
 
-        binding.cvPhotoPicker.setOnClickListener {
+        binding.ivPickPhoto.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,

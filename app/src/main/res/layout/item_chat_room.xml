@@ -5,26 +5,18 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/sixteen_dp_margin">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cv_user_image"
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_room_image"
         android:layout_width="@dimen/forty_two_dp"
         android:layout_height="@dimen/forty_two_dp"
+        android:scaleType="center"
+        android:src="@drawable/img_user_placeholder"
         android:background="@drawable/img_selector_background"
         android:backgroundTint="@color/light_blue"
-        android:elevation="0dp"
-        app:cardCornerRadius="@dimen/twenty_dp_margin"
-        app:cardPreventCornerOverlap="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/iv_room_image"
-            android:layout_width="@dimen/forty_two_dp"
-            android:layout_height="@dimen/forty_two_dp"
-            android:scaleType="center"
-            android:src="@drawable/img_user_placeholder" />
-    </androidx.cardview.widget.CardView>
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/circle"/>
 
     <TextView
         android:id="@+id/tv_room_name"
@@ -38,8 +30,8 @@
         android:textFontWeight="@string/seven_hundred"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintEnd_toStartOf="@id/tv_message_time"
-        app:layout_constraintStart_toEndOf="@id/cv_user_image"
-        app:layout_constraintTop_toTopOf="@+id/cv_user_image" />
+        app:layout_constraintStart_toEndOf="@id/iv_room_image"
+        app:layout_constraintTop_toTopOf="@+id/iv_room_image" />
 
     <com.vanniktech.emoji.EmojiTextView
         android:id="@+id/tv_last_message"
@@ -54,7 +46,7 @@
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tv_message_time"
-        app:layout_constraintStart_toEndOf="@id/cv_user_image"
+        app:layout_constraintStart_toEndOf="@id/iv_room_image"
         app:layout_constraintTop_toBottomOf="@id/tv_room_name" />
 
     <TextView

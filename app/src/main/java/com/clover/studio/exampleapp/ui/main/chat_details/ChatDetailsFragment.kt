@@ -119,8 +119,8 @@ class ChatDetailsFragment : BaseFragment() {
             binding.tvGroupName.isClickable = false
             binding.tvDone.isFocusable = false
 
-            binding.cvAvatar.isClickable = false
-            binding.cvAvatar.isFocusable = false
+            binding.ivPickAvatar.isClickable = false
+            binding.ivPickAvatar.isFocusable = false
 
             binding.ivAddMember.visibility = View.INVISIBLE
         }
@@ -193,7 +193,7 @@ class ChatDetailsFragment : BaseFragment() {
             binding.tvGroupName.visibility = View.VISIBLE
         }
 
-        binding.cvAvatar.setOnClickListener {
+        binding.ivPickAvatar.setOnClickListener {
             if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && isAdmin) {
                 ChooserDialog.getInstance(requireContext(),
                     getString(R.string.placeholder_title),

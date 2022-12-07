@@ -907,10 +907,10 @@ class ChatAdapter(
                             break
                         }
                     }
-                    holder.binding.cvUserAvatar.visibility = View.VISIBLE
+                    holder.binding.ivUserImage.visibility = View.VISIBLE
                     holder.binding.tvUsername.visibility = View.VISIBLE
                 } else {
-                    holder.binding.cvUserAvatar.visibility = View.GONE
+                    holder.binding.ivUserImage.visibility = View.GONE
                     holder.binding.tvUsername.visibility = View.GONE
                 }
 
@@ -947,9 +947,9 @@ class ChatAdapter(
                             //Timber.d("Items : $nextItem, $currentItem ${nextItem == currentItem}")
 
                             if (previousItem == currentItem) {
-                                holder.binding.cvUserAvatar.visibility = View.INVISIBLE
+                                holder.binding.ivUserImage.visibility = View.INVISIBLE
                             } else {
-                                holder.binding.cvUserAvatar.visibility = View.VISIBLE
+                                holder.binding.ivUserImage.visibility = View.VISIBLE
                             }
 
                             if (nextItem == currentItem) {
@@ -960,11 +960,11 @@ class ChatAdapter(
                         } catch (ex: IndexOutOfBoundsException) {
                             Tools.checkError(ex)
                             holder.binding.tvUsername.visibility = View.VISIBLE
-                            holder.binding.cvUserAvatar.visibility = View.VISIBLE
+                            holder.binding.ivUserImage.visibility = View.VISIBLE
                         }
                     } else {
                         holder.binding.tvUsername.visibility = View.VISIBLE
-                        holder.binding.cvUserAvatar.visibility = View.VISIBLE
+                        holder.binding.ivUserImage.visibility = View.VISIBLE
                     }
                 }
             }
