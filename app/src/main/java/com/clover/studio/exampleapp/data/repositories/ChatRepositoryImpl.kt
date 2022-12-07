@@ -168,7 +168,7 @@ class ChatRepositoryImpl @Inject constructor(
         // Just replace old message with new one. Deleted message just has a body with new text
         if (response.data?.message != null) {
             val deletedMessage = response.data.message
-            deletedMessage.type = Const.JsonFields.TEXT
+            deletedMessage.type = Const.JsonFields.TEXT_TYPE
             messageDao.insert(deletedMessage)
         }
     }

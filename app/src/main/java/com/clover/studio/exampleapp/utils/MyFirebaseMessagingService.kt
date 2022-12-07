@@ -83,7 +83,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 val title: String
                 val content: String
                 if (response.message.groupName?.isEmpty() == true) {
-                    content = if (response.message.type != Const.JsonFields.TEXT) {
+                    content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
                         getString(
                             R.string.generic_shared,
                             response.message.type.toString().replaceFirstChar { it.uppercase() })
@@ -92,7 +92,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     }
                     title = response.message.userName
                 } else {
-                    content = if (response.message.type != Const.JsonFields.TEXT) {
+                    content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
                         response.message.userName + ": " + getString(
                             R.string.generic_shared,
                             response.message.type.toString().replaceFirstChar { it.uppercase() })

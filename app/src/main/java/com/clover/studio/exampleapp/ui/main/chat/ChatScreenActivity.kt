@@ -161,7 +161,7 @@ class ChatScreenActivity : BaseActivity() {
                             for (user in it.roomWithUsers.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     val content: String =
-                                        if (it.message.type != Const.JsonFields.TEXT) {
+                                        if (it.message.type != Const.JsonFields.TEXT_TYPE) {
                                             user.displayName + ": " + getString(
                                                 R.string.generic_shared,
                                                 it.message.type.toString()
@@ -187,7 +187,7 @@ class ChatScreenActivity : BaseActivity() {
                                         .placeholder(getDrawable(R.drawable.img_user_placeholder))
                                         .into(bindingSetup.cvNotification.ivUserImage)
                                     val content: String =
-                                        if (it.message.type != Const.JsonFields.TEXT) {
+                                        if (it.message.type != Const.JsonFields.TEXT_TYPE) {
                                             getString(
                                                 R.string.generic_shared,
                                                 it.message.type.toString()

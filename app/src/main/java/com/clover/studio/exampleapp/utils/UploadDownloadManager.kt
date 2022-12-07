@@ -3,8 +3,11 @@
 package com.clover.studio.exampleapp.utils
 
 import android.app.Activity
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Base64
+import com.clover.studio.exampleapp.data.models.FileMetadata
 import com.clover.studio.exampleapp.data.models.UploadFile
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import timber.log.Timber
@@ -12,6 +15,7 @@ import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
+
 
 const val CHUNK_SIZE = 64000
 
@@ -40,13 +44,45 @@ class UploadDownloadManager constructor(
     suspend fun uploadFile(
         activity: Activity,
         fileUri: Uri,
-        mimeType: String,
         fileType: String,
         filePieces: Long,
         file: File,
         isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
     ) {
+        var fileMetadata: FileMetadata? = null
+        val time: Int
+        val width: Int
+        val height: Int
+        val mimeType = activity.contentResolver.getType(fileUri)!!
+
+        // Check mime type of file being sent. If it is a media file get metadata for image or video
+        // respectively
+        if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || isThumbnail) {
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            BitmapFactory.decodeFile(file.absolutePath, options)
+            height = options.outHeight
+            width = options.outWidth
+
+            fileMetadata = FileMetadata(width, height, null)
+            Timber.d("File metadata: $fileMetadata")
+        } else if (mimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(activity, fileUri)
+            time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
+                .toInt()
+            width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
+                .toInt()
+            height =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!
+                    .toInt()
+            retriever.release()
+
+            fileMetadata = FileMetadata(width, height, time)
+            Timber.d("File metadata: $fileMetadata")
+        }
+
         chunkCount = 0
         BufferedInputStream(FileInputStream(file)).use { bis ->
             var len: Int
@@ -70,13 +106,14 @@ class UploadDownloadManager constructor(
                     Tools.sha256HashFromUri(
                         activity,
                         fileUri,
-                        activity.contentResolver.getType(fileUri)!!
+                        mimeType
                     ),
-                    fileType
+                    fileType,
+                    fileMetadata
                 )
 
                 Timber.d("Chunk count $chunkCount")
-                startUploadAPI(uploadFile, filePieces, isThumbnail, fileUploadListener)
+                startUploadAPI(uploadFile, mimeType, filePieces, isThumbnail, fileUploadListener)
 
                 piece++
             }
@@ -85,6 +122,7 @@ class UploadDownloadManager constructor(
 
     private suspend fun startUploadAPI(
         uploadFile: UploadFile,
+        mimeType: String,
         chunks: Long,
         isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
@@ -102,27 +140,30 @@ class UploadDownloadManager constructor(
 
         Timber.d("Should verify? $chunkCount, $chunks")
         if (chunkCount == chunks) {
-            verifyFileUpload(uploadFile, isThumbnail, fileUploadListener)
+            verifyFileUpload(uploadFile, mimeType, isThumbnail, fileUploadListener)
             chunkCount = 0
         }
     }
 
     private suspend fun verifyFileUpload(
         uploadFile: UploadFile,
+        mimeType: String,
         isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
     ) {
         try {
             val file = repository.verifyFile(uploadFile.fileToJson()).data?.file
             Timber.d("UploadDownload FilePath = ${file?.path}")
+            Timber.d("Mime type = $mimeType")
             if (isThumbnail) file?.path?.let {
                 fileUploadListener.fileUploadVerified(
                     it,
+                    mimeType,
                     file.id.toLong(),
                     0
                 )
             }
-            else file?.path?.let { fileUploadListener.fileUploadVerified(it, 0, file.id.toLong()) }
+            else file?.path?.let { fileUploadListener.fileUploadVerified(it, mimeType,0, file.id.toLong()) }
 
         } catch (ex: Exception) {
             Tools.checkError(ex)
@@ -135,5 +176,5 @@ class UploadDownloadManager constructor(
 interface FileUploadListener {
     fun filePieceUploaded()
     fun fileUploadError(description: String)
-    fun fileUploadVerified(path: String, thumbId: Long = 0, fileId: Long = 0)
+    fun fileUploadVerified(path: String, mimeType: String, thumbId: Long = 0, fileId: Long = 0)
 }
