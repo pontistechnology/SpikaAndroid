@@ -169,7 +169,7 @@ class ChatAdapter(
                                 .dontAnimate()
                                 .into(holder.binding.ivChatImage)
 
-                            holder.binding.cvImage.setOnClickListener { view ->
+                            holder.binding.clContainer.setOnClickListener { view ->
                                 val action =
                                     ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
                                         "", imagePath!!

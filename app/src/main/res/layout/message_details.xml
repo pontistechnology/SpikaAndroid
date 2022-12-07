@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_rounded_corners_top"
-    android:paddingBottom="@dimen/ten_dp_margin"
-    android:backgroundTint="@color/inputs">
+    android:paddingBottom="@dimen/ten_dp_margin">
 
     <ImageView
         android:id="@+id/iv_remove"
@@ -15,10 +14,11 @@
         android:padding="@dimen/twenty_five_dp_margin"
         android:src="@drawable/img_close"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/color1" />
 
     <TextView
-        android:id="@+id/tv_reactions"
+        android:id="@+id/tv_message_details"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/sixteen_dp_margin"
@@ -30,7 +30,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_reactions_details"
+        android:id="@+id/rv_seen"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constrainedHeight="true"
@@ -39,5 +39,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_remove"
         tools:listitem="@layout/message_details_item" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
