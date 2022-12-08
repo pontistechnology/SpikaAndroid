@@ -923,7 +923,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
                 bindingSetup.replyAction.cvReplyMedia.visibility = View.VISIBLE
-                bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
                 val imagePath =
                     message.body?.file?.path?.let { imagePath ->
                         Tools.getFileUrl(
@@ -935,13 +934,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         R.string.media,
                         context!!.getString(R.string.photo)
                     )
-                    bindingSetup.replyAction.tvMessage.setCompoundDrawablesWithIntrinsicBounds(
+                    bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
                         R.drawable.img_camera_reply,
                         0,
                         0,
                         0
                     )
-                } else {
+                }
+                if (message.type == Const.JsonFields.VIDEO_TYPE){
                     bindingSetup.replyAction.tvReplyMedia.text = getString(
                         R.string.media,
                         context!!.getString(R.string.video)
@@ -953,6 +953,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         0
                     )
                 }
+                bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
                 Glide.with(this)
                     .load(imagePath)
                     .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
@@ -977,6 +978,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Const.JsonFields.FILE_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
+                bindingSetup.replyAction.cvReplyMedia.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.text =
                     getString(R.string.media, context!!.getString(R.string.file))
                 bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(

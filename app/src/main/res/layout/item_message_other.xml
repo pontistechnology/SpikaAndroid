@@ -91,7 +91,7 @@
                     android:fontFamily="@font/montserrat"
                     android:paddingEnd="@dimen/four_dp_margin"
                     android:text="@string/username"
-                    android:textColor="@color/text_tertiary"
+                    android:textFontWeight="600"
                     android:textSize="@dimen/eleven_sp_text"
                     android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -141,7 +141,6 @@
                         android:layout_height="match_parent"
                         android:adjustViewBounds="true"
                         android:scaleType="centerCrop"
-                        android:visibility="visible"
                         tools:srcCompat="@tools:sample/avatars" />
                 </androidx.cardview.widget.CardView>
 
@@ -155,7 +154,6 @@
                     android:drawablePadding="@dimen/two_dp_margin"
                     android:fontFamily="@font/montserrat"
                     android:text="@string/media"
-                    android:textColor="@color/text_tertiary"
                     android:textSize="@dimen/eleven_sp_text"
                     android:visibility="gone"
                     app:drawableLeftCompat="@drawable/img_camera_reply"
