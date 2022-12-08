@@ -352,7 +352,6 @@
                 android:id="@+id/cl_file_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/twenty_four_dp_margin"
                 android:background="@drawable/bg_message_received"
                 android:visibility="gone"
                 app:layout_constrainedWidth="true"
@@ -379,13 +378,13 @@
                     android:layout_marginTop="@dimen/ten_dp_margin"
                     android:ellipsize="end"
                     android:fontFamily="@font/montserrat_bold"
-                    android:maxLines="1"
+                    android:maxEms="8"
+                    android:maxLines="3"
                     android:text="@string/placeholder_title"
                     android:textSize="@dimen/fourteen_sp_text"
                     app:layout_constrainedWidth="true"
                     app:layout_constraintStart_toEndOf="@id/iv_file_type"
                     app:layout_constraintTop_toTopOf="parent" />
-
 
                 <TextView
                     android:id="@+id/tv_file_size"
@@ -403,9 +402,10 @@
                     android:id="@+id/iv_download_file"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/eight_dp_margin"
-                    android:layout_marginTop="@dimen/eight_dp_margin"
+                    android:layout_marginStart="@dimen/two_dp_margin"
                     android:layout_marginEnd="@dimen/eight_dp_margin"
+                    android:padding="@dimen/four_dp_margin"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_file_size"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/tv_file_title"
                     app:layout_constraintTop_toTopOf="@+id/tv_file_title"

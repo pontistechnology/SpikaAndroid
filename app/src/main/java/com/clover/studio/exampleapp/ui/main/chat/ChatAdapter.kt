@@ -198,7 +198,7 @@ class ChatAdapter(
                         addFiles(it.message, holder.binding.ivFileType)
 
                         val message = it.message
-                        holder.binding.clFileMessage.setOnTouchListener { _, event ->
+                        holder.binding.ivDownloadFile.setOnTouchListener { _, event ->
                             if (event.action == MotionEvent.ACTION_UP) {
                                 onMessageInteraction.invoke(
                                     Const.UserActions.DOWNLOAD_FILE,
@@ -632,7 +632,7 @@ class ChatAdapter(
                         addFiles(it.message, holder.binding.ivFileType)
 
                         val message = it.message
-                        holder.binding.clFileMessage.setOnTouchListener { _, event ->
+                        holder.binding.ivDownloadFile.setOnTouchListener { _, event ->
                             if (event.action == MotionEvent.ACTION_UP) {
                                 onMessageInteraction.invoke(
                                     Const.UserActions.DOWNLOAD_FILE,
