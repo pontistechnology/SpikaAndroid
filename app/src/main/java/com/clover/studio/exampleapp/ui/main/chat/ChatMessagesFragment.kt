@@ -938,7 +938,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             imagePath
                         )
                     }
-                if (message.type == Const.JsonFields.IMAGE_TYPE) {
+                if (Const.JsonFields.IMAGE_TYPE == message.type) {
                     bindingSetup.replyAction.tvReplyMedia.text = getString(
                         R.string.media,
                         context!!.getString(R.string.photo)
@@ -950,7 +950,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         0
                     )
                 }
-                if (message.type == Const.JsonFields.VIDEO_TYPE){
+                if (Const.JsonFields.VIDEO_TYPE == message.type){
                     bindingSetup.replyAction.tvReplyMedia.text = getString(
                         R.string.media,
                         context!!.getString(R.string.video)
