@@ -807,9 +807,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             resetEditingFields()
         }
 
+        // Bottom sheet listeners
         val bottomSheetBehaviorCallback =
             object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    // Ignore
                 }
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -835,12 +837,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             bindingSetup.vTransparent.visibility = View.GONE
                         }
                     }
+                    if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED){
+                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                            bindingSetup.vTransparent.visibility = View.VISIBLE
+                        }
+                    }
                 }
             }
+
         bottomSheetMessageActions.addBottomSheetCallback(bottomSheetBehaviorCallbackMessageAction)
         bottomSheetDetailsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
         bottomSheetBehaviour.addBottomSheetCallback(bottomSheetBehaviorCallback)
-
+        bottomSheetReplyAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
     }
 
     private fun resetEditingFields() {
@@ -903,6 +911,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMessageReply(message: Message) {
+        bindingSetup.vTransparent.visibility = View.VISIBLE
         referenceMessage = message
         if (message.senderMessage) {
             bindingSetup.replyAction.clReplyContainer.background =

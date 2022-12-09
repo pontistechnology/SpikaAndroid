@@ -23,6 +23,8 @@
             android:layout_height="0dp"
             android:background="@color/dark_background_transp"
             android:elevation="@dimen/three_dp_margin"
+            android:focusable="true"
+            android:clickable="true"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/iv_add"
             app:layout_constraintTop_toTopOf="parent" />
@@ -325,11 +327,11 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:elevation="@dimen/four_dp_margin"
+            android:nestedScrollingEnabled="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            android:nestedScrollingEnabled="true">
+            app:layout_constraintStart_toStartOf="parent">
 
             <include
                 android:id="@+id/details_action"
