@@ -85,6 +85,10 @@ class SettingsFragment : BaseFragment() {
         initializeObservers()
         addTextListeners()
 
+        // Display version code on bottom of the screen
+        val packageInfo = requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
+        binding.tvVersionNumber.text = "${getString(R.string.app_version)} ${packageInfo.versionName} ${packageInfo.longVersionCode}"
+
         return binding.root
     }
 
@@ -121,7 +125,8 @@ class SettingsFragment : BaseFragment() {
             binding.tvUsername.text = it.displayName ?: getString(R.string.no_username)
             binding.tvPhoneNumber.text = it.telephoneNumber
 
-            Glide.with(requireActivity()).load(it.avatarUrl?.let { imageUrl -> getFileUrl(imageUrl) })
+            Glide.with(requireActivity())
+                .load(it.avatarUrl?.let { imageUrl -> getFileUrl(imageUrl) })
                 .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
                 .into(binding.ivPickPhoto)
         }
@@ -129,10 +134,7 @@ class SettingsFragment : BaseFragment() {
         viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 UserUpdated -> {
-                    binding.tvUsername.visibility = View.VISIBLE
-                    binding.tvPhoneNumber.visibility = View.VISIBLE
-                    binding.etEnterUsername.visibility = View.INVISIBLE
-                    binding.tvDone.visibility = View.GONE
+                    showUserDetails()
                 }
                 UserUpdateFailed -> Timber.d("User update failed")
                 else -> Timber.d("Other error")
@@ -140,22 +142,31 @@ class SettingsFragment : BaseFragment() {
         })
     }
 
+    private fun showUserDetails() {
+        binding.tvUsername.visibility = View.VISIBLE
+        binding.tvPhoneNumber.visibility = View.VISIBLE
+        binding.etEnterUsername.visibility = View.INVISIBLE
+        binding.tvDone.visibility = View.GONE
+    }
+
     private fun setupClickListeners() {
-        binding.clPrivacy.setOnClickListener {
-            goToPrivacySettings()
-        }
 
-        binding.clChat.setOnClickListener {
-            goToChatSettings()
-        }
-
-        binding.clNotifications.setOnClickListener {
-            goToNotificationSettings()
-        }
-
-        binding.clMediaDownload.setOnClickListener {
-            goToDownloadSettings()
-        }
+        // Removed and waiting for each respective screen to be implemented
+//        binding.clPrivacy.setOnClickListener {
+//            goToPrivacySettings()
+//        }
+//
+//        binding.clChat.setOnClickListener {
+//            goToChatSettings()
+//        }
+//
+//        binding.clNotifications.setOnClickListener {
+//            goToNotificationSettings()
+//        }
+//
+//        binding.clMediaDownload.setOnClickListener {
+//            goToDownloadSettings()
+//        }
 
         binding.cvPhotoPicker.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
@@ -208,8 +219,7 @@ class SettingsFragment : BaseFragment() {
                 uploadDownloadManager.uploadFile(
                     requireActivity(),
                     currentPhotoLocation,
-                    Const.JsonFields.IMAGE,
-                    Const.JsonFields.AVATAR,
+                    Const.JsonFields.AVATAR_TYPE,
                     uploadPieces,
                     fileStream,
                     false,
@@ -229,7 +239,7 @@ class SettingsFragment : BaseFragment() {
                             }
                         }
 
-                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                        override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
                                 binding.clProgressScreen.visibility = View.GONE
@@ -304,6 +314,8 @@ class SettingsFragment : BaseFragment() {
         binding.clSmallCameraPicker.visibility = View.GONE
     }
 
+    // Below navigation methods are unused until we implement all other functionality of settings
+    // screens
     private fun goToPrivacySettings() {
         findNavController().navigate(R.id.action_mainFragment_to_privacySettingsFragment22)
     }
@@ -318,5 +330,10 @@ class SettingsFragment : BaseFragment() {
 
     private fun goToDownloadSettings() {
         findNavController().navigate(R.id.action_mainFragment_to_downloadSettingsFragment2)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        showUserDetails()
     }
 }

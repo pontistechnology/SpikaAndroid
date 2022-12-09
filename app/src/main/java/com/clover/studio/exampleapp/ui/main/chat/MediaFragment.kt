@@ -10,11 +10,11 @@ import androidx.fragment.app.Fragment
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.databinding.FragmentMediaBinding
+import com.clover.studio.exampleapp.utils.helpers.MediaPlayer
 
 
 class MediaFragment : Fragment() {
@@ -98,14 +98,8 @@ class MediaFragment : Fragment() {
             .load(videoPath)
             .into(binding.ivVideoHolder)
 
-        val trackSelector = DefaultTrackSelector(requireContext()).apply {
-            setParameters(buildUponParameters().setMaxVideoSizeSd())
-        }
-
         player = context?.let {
-            ExoPlayer.Builder(it)
-                .setTrackSelector(trackSelector)
-                .build()
+            MediaPlayer.getInstance(it)
                 .also { exoPlayer ->
                     binding.vvVideo.player = exoPlayer
 
@@ -129,11 +123,16 @@ class MediaFragment : Fragment() {
 
     private fun releasePlayer() {
         player?.let { exoPlayer ->
+            exoPlayer.stop()
             playbackPosition = exoPlayer.currentPosition
             currentItem = exoPlayer.currentMediaItemIndex
             playWhenReady = exoPlayer.playWhenReady
             exoPlayer.removeListener(playbackStateListener)
             exoPlayer.release()
+
+            // Since ExoPlayer is released, we need to reset the singleton instance to null. Instead
+            // we won't be able to use ExoPlayer instance anymore since it is released.
+            MediaPlayer.resetPlayer()
         }
     }
 

@@ -102,6 +102,10 @@
     <string name="files_mb_text"> MB</string>
     <string name="generic_shared">%s shared</string>
     <string name="now">Now</string>
+    <string name="new_messages">You have %s new message%s</string>
+    <string name="media">%s</string>
+    <string name="file">File</string>
+    <string name="app_version">Version</string>
 
     <!--Alert dialog text-->
     <string name="warning">Warning</string>
@@ -114,7 +118,11 @@
     <string name="delete_chat_description">Are you sure you want to delete this conversation?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="seven_hundred">700</string>
     <string name="room_delete_admin_error">Only admins can delete conversations.</string>
+
+    <!--Audio-->
+    <string name="audio_duration">00:00</string>
 
     <!--Emoji-->
     <string name="thumbs_up_emoji">&#x1F44D;</string>
@@ -136,6 +144,8 @@
     <string name="delete_for_me">Delete for me</string>
     <string name="save">Save</string>
     <string name="edited">edited</string>
-
-
+    <string name="failed_room_update">Failed to update room</string>
+    <string name="read_by">Read by</string>
+    <string name="delivered_to">Delivered to</string>
+    <string name="date">Date</string>
 </resources>

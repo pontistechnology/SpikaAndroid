@@ -1,8 +1,7 @@
 package com.clover.studio.exampleapp.utils.helpers
 
 import androidx.room.TypeConverter
-import com.clover.studio.exampleapp.data.models.MessageBody
-import com.clover.studio.exampleapp.data.models.networking.RoomUsers
+import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type

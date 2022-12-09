@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.databinding.FragmentChatDetailsBinding
@@ -360,6 +360,7 @@ class ChatDetailsFragment : BaseFragment() {
                 }
             })
 
+        binding.rvGroupMembers.itemAnimator = null
         binding.rvGroupMembers.adapter = adapter
         binding.rvGroupMembers.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
@@ -409,8 +410,7 @@ class ChatDetailsFragment : BaseFragment() {
                 uploadDownloadManager.uploadFile(
                     requireActivity(),
                     currentPhotoLocation,
-                    Const.JsonFields.IMAGE,
-                    Const.JsonFields.AVATAR,
+                    Const.JsonFields.AVATAR_TYPE,
                     uploadPieces,
                     fileStream,
                     false,
@@ -430,7 +430,12 @@ class ChatDetailsFragment : BaseFragment() {
                             }
                         }
 
-                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                        override fun fileUploadVerified(
+                            path: String,
+                            mimeType: String,
+                            thumbId: Long,
+                            fileId: Long
+                        ) {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
                                 binding.clProgressScreen.visibility = View.GONE

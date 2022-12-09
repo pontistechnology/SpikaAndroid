@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_rounded_corners_top"
+    android:paddingBottom="@dimen/ten_dp_margin">
+
+    <ImageView
+        android:id="@+id/iv_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/twenty_five_dp_margin"
+        android:src="@drawable/img_close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/color1" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/reactions_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:visibility="visible"
+        app:layout_constraintEnd_toStartOf="@+id/iv_remove"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_message_options"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        app:layout_constraintEnd_toStartOf="@+id/iv_remove"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reactions_container">
+
+        <TextView
+            android:id="@+id/tv_forward"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:drawablePadding="@dimen/eight_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/forward"
+            android:textSize="@dimen/sixteen_sp_text"
+            android:visibility="gone"
+            app:drawableLeftCompat="@drawable/img_forward"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_reply" />
+
+        <TextView
+            android:id="@+id/tv_reply"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/eight_dp_margin"
+            android:drawablePadding="@dimen/eight_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/reply"
+            android:textSize="@dimen/sixteen_sp_text"
+            android:visibility="visible"
+            app:drawableLeftCompat="@drawable/img_reply"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_copy"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:drawablePadding="@dimen/eight_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/copy"
+            android:textSize="@dimen/sixteen_sp_text"
+            android:visibility="gone"
+            app:drawableLeftCompat="@drawable/img_copy"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_forward" />
+
+        <TextView
+            android:id="@+id/tv_details"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:drawablePadding="@dimen/eight_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/details"
+            android:textSize="@dimen/sixteen_sp_text"
+            android:visibility="visible"
+            app:drawableLeftCompat="@drawable/img_info"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_edit" />
+
+        <TextView
+            android:id="@+id/tv_favorite"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:drawablePadding="@dimen/eight_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/favorite"
+            android:textSize="@dimen/sixteen_sp_text"
+            android:visibility="gone"
+            app:drawableLeftCompat="@drawable/img_favorite"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_details" />
+
+        <TextView
+            android:id="@+id/tv_delete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:drawablePadding="@dimen/eight_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/delete"
+            android:textColor="@color/style_red"
+            android:textSize="@dimen/sixteen_sp_text"
+            app:drawableLeftCompat="@drawable/img_delete"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_favorite" />
+
+        <TextView
+            android:id="@+id/tv_edit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:drawablePadding="@dimen/eight_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/edit"
+            android:textSize="@dimen/sixteen_sp_text"
+            app:drawableLeftCompat="@drawable/img_edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_copy" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

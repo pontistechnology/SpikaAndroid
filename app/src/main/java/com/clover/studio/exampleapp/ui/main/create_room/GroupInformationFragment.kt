@@ -15,13 +15,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.User
-import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
+import com.clover.studio.exampleapp.data.models.entity.User
+import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentGroupInformationBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomCreated
-import com.clover.studio.exampleapp.ui.main.RoomFailed
+import com.clover.studio.exampleapp.ui.main.RoomCreateFailed
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
@@ -218,7 +218,7 @@ class GroupInformationFragment : BaseFragment() {
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
                     findNavController().popBackStack(R.id.mainFragment, false)
                 }
-                is RoomFailed -> {
+                is RoomCreateFailed -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))
                     Timber.d("Failed to create room")
@@ -281,8 +281,7 @@ class GroupInformationFragment : BaseFragment() {
                 uploadDownloadManager.uploadFile(
                     requireActivity(),
                     currentPhotoLocation,
-                    Const.JsonFields.IMAGE,
-                    Const.JsonFields.AVATAR,
+                    Const.JsonFields.AVATAR_TYPE,
                     uploadPieces,
                     fileStream,
                     false,
@@ -302,7 +301,7 @@ class GroupInformationFragment : BaseFragment() {
                             }
                         }
 
-                        override fun fileUploadVerified(path: String, thumbId: Long, fileId: Long) {
+                        override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
                                 binding.clProgressScreen.visibility = View.GONE
