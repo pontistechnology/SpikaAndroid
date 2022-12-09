@@ -2,7 +2,7 @@ package com.clover.studio.exampleapp.data.daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.clover.studio.exampleapp.data.models.Reaction
+import com.clover.studio.exampleapp.data.models.entity.Reaction
 
 @Dao
 interface ReactionDao {

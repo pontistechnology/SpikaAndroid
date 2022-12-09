@@ -9,7 +9,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.FragmentChatBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomFetchFail

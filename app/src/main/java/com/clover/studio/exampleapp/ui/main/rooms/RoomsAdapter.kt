@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.MessageAndRecords
-import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getFileUrl

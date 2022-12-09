@@ -1,11 +1,13 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
+import android.app.Activity
+import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
-import com.clover.studio.exampleapp.data.models.ChatRoom
-import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.entity.ChatRoom
+import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
@@ -13,10 +15,7 @@ import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepositor
 import com.clover.studio.exampleapp.ui.main.MainStates
 import com.clover.studio.exampleapp.ui.main.SingleRoomData
 import com.clover.studio.exampleapp.ui.main.SingleRoomFetchFailed
-import com.clover.studio.exampleapp.utils.Event
-import com.clover.studio.exampleapp.utils.SSEListener
-import com.clover.studio.exampleapp.utils.SSEManager
-import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.*
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -24,21 +23,24 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val repository: ChatRepositoryImpl,
     private val sharedPrefs: SharedPreferencesRepository,
-    private val sseManager: SSEManager
+    private val sseManager: SSEManager,
+    private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel() {
     val messageSendListener = MutableLiveData<Event<ChatStatesEnum>>()
-    val getMessagesListener = MutableLiveData<Event<ChatStates>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
     val roomWithUsersListener = MutableLiveData<Event<ChatStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
     val userSettingsListener = MutableLiveData<Event<ChatStates>>()
     val roomNotificationListener = MutableLiveData<Event<ChatStates>>()
+    val fileUploadListener = MutableLiveData<Event<ChatStates>>()
+    val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
         try {
@@ -77,6 +79,15 @@ class ChatViewModel @Inject constructor(
     fun deleteLocalMessages(messages: List<Message>) = viewModelScope.launch {
         try {
             repository.deleteLocalMessages(messages)
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+            return@launch
+        }
+    }
+
+    fun deleteLocalMessage(message: Message) = viewModelScope.launch {
+        try {
+            repository.deleteLocalMessage(message)
         } catch (ex: Exception) {
             Tools.checkError(ex)
             return@launch
@@ -289,15 +300,75 @@ class ChatViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun uploadFile(activity: Activity, uri: Uri, uploadPieces: Long, fileStream: File) =
+        viewModelScope.launch {
+            try {
+                uploadDownloadManager.uploadFile(
+                    activity,
+                    uri,
+                    Const.JsonFields.FILE_TYPE,
+                    uploadPieces,
+                    fileStream,
+                    false,
+                    object : FileUploadListener {
+                        override fun filePieceUploaded() {
+                            fileUploadListener.postValue(Event(FilePieceUploaded))
+                        }
+
+                        override fun fileUploadError(description: String) {
+                            fileUploadListener.postValue(Event(FileUploadError(description)))
+                        }
+
+                        override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
+                            fileUploadListener.postValue(
+                                Event(FileUploadVerified(path, mimeType, thumbId, fileId)))
+                        }
+                    })
+            } catch (ex: Exception) {
+                fileUploadListener.postValue(Event(FileUploadError(ex.message.toString())))
+            }
+        }
+
+    fun uploadMedia(activity: Activity, uri: Uri, fileType: String, uploadPieces: Long, fileStream: File, isThumbnail: Boolean) = viewModelScope.launch {
+        try {
+            uploadDownloadManager.uploadFile(
+                activity,
+                uri,
+                fileType,
+                uploadPieces,
+                fileStream,
+                isThumbnail,
+                object : FileUploadListener {
+                    override fun filePieceUploaded() {
+                        mediaUploadListener.postValue(Event(MediaPieceUploaded))
+                    }
+
+                    override fun fileUploadError(description: String) {
+                        mediaUploadListener.postValue(Event(MediaUploadError(description)))
+                    }
+
+                    override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
+                        mediaUploadListener.postValue(Event(MediaUploadVerified(path, mimeType, thumbId, fileId, isThumbnail)))
+                    }
+                })
+        } catch (ex: Exception) {
+            mediaUploadListener.postValue(Event(MediaUploadError(ex.message.toString())))
+        }
+    }
 }
 
 sealed class ChatStates
-object MessagesFetched : ChatStates()
-object MessageFetchFail : ChatStates()
 class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
 object RoomWithUsersFailed : ChatStates()
 class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : ChatStates()
 class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
+object FilePieceUploaded : ChatStates()
+class FileUploadError(val description: String) : ChatStates()
+class FileUploadVerified(val path: String, val mimeType: String, val thumbId: Long, val fileId: Long) : ChatStates()
+object MediaPieceUploaded : ChatStates()
+class MediaUploadError(val description: String) :ChatStates()
+class MediaUploadVerified(val path: String, val mimeType: String, val thumbId: Long, val fileId: Long, val isThumbnail: Boolean): ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }

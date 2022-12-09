@@ -2,8 +2,8 @@ package com.clover.studio.exampleapp.data.daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.clover.studio.exampleapp.data.models.User
-import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
+import com.clover.studio.exampleapp.data.models.entity.User
+import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.UserWithRooms
 
 @Dao

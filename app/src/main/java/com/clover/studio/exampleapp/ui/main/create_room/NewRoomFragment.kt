@@ -11,9 +11,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.User
-import com.clover.studio.exampleapp.data.models.UserAndPhoneUser
-import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
+import com.clover.studio.exampleapp.data.models.entity.ChatRoom
+import com.clover.studio.exampleapp.data.models.entity.User
+import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.databinding.FragmentNewRoomBinding
 import com.clover.studio.exampleapp.ui.main.*
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
@@ -41,6 +41,7 @@ class NewRoomFragment : BaseFragment() {
     private var selectedUsers: MutableList<UserAndPhoneUser> = ArrayList()
     private var filteredList: MutableList<UserAndPhoneUser> = ArrayList()
     private var user: User? = null
+    private var isRoomUpdate = false
 
     private var bindingSetup: FragmentNewRoomBinding? = null
 
@@ -78,6 +79,7 @@ class NewRoomFragment : BaseFragment() {
 
             if (args?.roomId != null && args?.roomId != 0) {
                 updateRoom()
+                isRoomUpdate = true
             } else findNavController().navigate(
                 R.id.action_newRoomFragment_to_groupInformationFragment,
                 bundle
@@ -99,6 +101,13 @@ class NewRoomFragment : BaseFragment() {
 
         for (data in selectedUsers) {
             userIds.add(data.user.id)
+        }
+
+        val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
+        if (userIdsInRoom?.isNotEmpty() == true) {
+            for (id in userIdsInRoom) {
+                userIds.add(id)
+            }
         }
 
         if (userIds.size() > 0)
@@ -218,8 +227,13 @@ class NewRoomFragment : BaseFragment() {
                     hideProgress()
                     val gson = Gson()
                     val roomData = gson.toJson(it.roomWithUsers)
-                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
-                    findNavController().popBackStack(R.id.mainFragment, false)
+                    if (isRoomUpdate) {
+                        findNavController().popBackStack(R.id.chatDetailsFragment, false)
+                        isRoomUpdate = false
+                    } else {
+                        activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                        findNavController().popBackStack(R.id.mainFragment, false)
+                    }
                 }
                 else -> {
                     hideProgress()
@@ -260,23 +274,20 @@ class NewRoomFragment : BaseFragment() {
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is RoomCreated -> {
-                    hideProgress()
-                    val users = mutableListOf<User>()
-                    for (roomUser in it.roomData.users) {
-                        roomUser.user?.let { user -> users.add(user) }
-                    }
-
-                    val roomWithUsers = RoomWithUsers(it.roomData, users)
-                    val gson = Gson()
-                    val roomData = gson.toJson(roomWithUsers)
-                    Timber.d("Room with users: $roomWithUsers")
-                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
-                    findNavController().popBackStack(R.id.mainFragment, false)
+                    handleRoomData(it.roomData)
                 }
-                is RoomFailed -> {
+                is RoomUpdated -> {
+                    handleRoomData(it.roomData)
+                }
+                is RoomCreateFailed -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))
                     Timber.d("Failed to create room")
+                }
+                is RoomUpdateFailed -> {
+                    hideProgress()
+                    showRoomCreationError(getString(R.string.failed_room_update))
+                    Timber.d("Failed to update room")
                 }
                 else -> {
                     hideProgress()
@@ -285,6 +296,14 @@ class NewRoomFragment : BaseFragment() {
                 }
             }
         })
+    }
+
+    private fun handleRoomData(chatRoom: ChatRoom) {
+        hideProgress()
+        val gson = Gson()
+        val roomData = gson.toJson(chatRoom)
+        Timber.d("Room data = $roomData")
+        viewModel.getRoomWithUsers(chatRoom.roomId)
     }
 
     private fun setupSearchView() {

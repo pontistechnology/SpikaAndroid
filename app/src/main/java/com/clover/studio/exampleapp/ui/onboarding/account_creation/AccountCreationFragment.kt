@@ -224,8 +224,7 @@ class AccountCreationFragment : BaseFragment() {
                     uploadDownloadManager.uploadFile(
                         requireActivity(),
                         currentPhotoLocation,
-                        Const.JsonFields.IMAGE,
-                        Const.JsonFields.AVATAR,
+                        Const.JsonFields.AVATAR_TYPE,
                         uploadPieces,
                         fileStream,
                         false,
@@ -246,6 +245,7 @@ class AccountCreationFragment : BaseFragment() {
 
                             override fun fileUploadVerified(
                                 path: String,
+                                mimeType: String,
                                 thumbId: Long,
                                 fileId: Long
                             ) {
