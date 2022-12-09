@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="contentDescription"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.main.create_room.GroupInformationFragment">
@@ -39,28 +40,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cv_photo_picker"
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_pick_photo"
         android:layout_width="@dimen/one_hundred_dp"
         android:layout_height="@dimen/one_hundred_dp"
         android:layout_margin="@dimen/twenty_dp_margin"
+        android:scaleType="center"
+        android:src="@drawable/img_camera"
         android:background="@drawable/img_selector_background"
         android:backgroundTint="@color/light_blue"
-        android:elevation="0dp"
-        app:cardCornerRadius="@dimen/fifty_dp_margin"
-        app:cardPreventCornerOverlap="false"
         app:layout_constraintBottom_toTopOf="@id/et_enter_username"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title">
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        app:shapeAppearanceOverlay="@style/circle"/>
 
-        <ImageView
-            android:id="@+id/iv_pick_photo"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="center"
-            android:src="@drawable/img_camera" />
-    </androidx.cardview.widget.CardView>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_progress_screen"
@@ -68,10 +63,10 @@
         android:layout_height="0dp"
         android:elevation="@dimen/five_dp_margin"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/cv_photo_picker"
-        app:layout_constraintEnd_toEndOf="@id/cv_photo_picker"
-        app:layout_constraintStart_toStartOf="@id/cv_photo_picker"
-        app:layout_constraintTop_toTopOf="@id/cv_photo_picker">
+        app:layout_constraintBottom_toBottomOf="@id/iv_pick_photo"
+        app:layout_constraintEnd_toEndOf="@id/iv_pick_photo"
+        app:layout_constraintStart_toStartOf="@id/iv_pick_photo"
+        app:layout_constraintTop_toTopOf="@id/iv_pick_photo">
 
         <View
             android:layout_width="match_parent"
@@ -100,8 +95,8 @@
         android:background="@drawable/img_selector_background"
         android:elevation="@dimen/five_dp_margin"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/cv_photo_picker"
-        app:layout_constraintEnd_toEndOf="@id/cv_photo_picker">
+        app:layout_constraintBottom_toBottomOf="@id/iv_pick_photo"
+        app:layout_constraintEnd_toEndOf="@id/iv_pick_photo">
 
         <ImageView
             android:layout_width="@dimen/twelve_dp"
@@ -129,7 +124,7 @@
         app:layout_constraintBottom_toTopOf="@id/tv_people_selected"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cv_photo_picker" />
+        app:layout_constraintTop_toBottomOf="@id/iv_pick_photo" />
 
     <TextView
         android:id="@+id/tv_people_selected"
