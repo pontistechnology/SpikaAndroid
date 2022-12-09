@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="contentDescription"
     android:id="@+id/cl_message_me"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -92,7 +93,7 @@
                     android:fontFamily="@font/montserrat"
                     android:paddingEnd="@dimen/four_dp_margin"
                     android:text="@string/username"
-                    android:textColor="@color/text_tertiary"
+                    android:textFontWeight="600"
                     android:textSize="@dimen/eleven_sp_text"
                     android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -142,7 +143,6 @@
                         android:layout_height="match_parent"
                         android:adjustViewBounds="true"
                         android:scaleType="centerCrop"
-                        android:visibility="visible"
                         tools:srcCompat="@tools:sample/avatars" />
                 </androidx.cardview.widget.CardView>
 
@@ -156,7 +156,6 @@
                     android:drawablePadding="@dimen/two_dp_margin"
                     android:fontFamily="@font/montserrat"
                     android:text="@string/media"
-                    android:textColor="@color/text_tertiary"
                     android:textSize="@dimen/nine_sp_text"
                     android:visibility="gone"
                     app:drawableLeftCompat="@drawable/img_camera_reply"
@@ -268,6 +267,11 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:srcCompat="@tools:sample/avatars" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/cl_progress_screen"
@@ -396,8 +400,8 @@
                     android:layout_marginEnd="@dimen/thirty_two_dp_margin"
                     android:ellipsize="end"
                     android:fontFamily="@font/montserrat_bold"
-                    android:maxLines="1"
-                    android:maxEms="10"
+                    android:maxEms="8"
+                    android:maxLines="3"
                     android:text="@string/placeholder_title"
                     android:textSize="@dimen/fourteen_sp_text"
                     app:layout_constrainedWidth="true"
@@ -422,9 +426,10 @@
                     android:id="@+id/iv_download_file"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/eight_dp_margin"
-                    android:layout_marginTop="@dimen/eight_dp_margin"
+                    android:layout_marginStart="@dimen/two_dp_margin"
                     android:layout_marginEnd="@dimen/eight_dp_margin"
+                    android:padding="@dimen/four_dp_margin"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_file_size"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/tv_file_title"
                     app:layout_constraintTop_toTopOf="@+id/tv_file_title"
