@@ -27,9 +27,12 @@ data class UploadFile(
 
     // type: The name of the other model to which the file refers to(avatar, message, group)
     var type: String?,
+
+    var metaData: FileMetadata?
 ) {
     fun fileToJson(): JsonObject {
         val jsonObject = JsonObject()
+        val metadataObject = JsonObject()
 
         jsonObject.addProperty(Const.JsonFields.TOTAL, total)
         jsonObject.addProperty(Const.JsonFields.SIZE, size)
@@ -38,6 +41,13 @@ data class UploadFile(
         jsonObject.addProperty(Const.JsonFields.CLIENT_ID, clientId)
         jsonObject.addProperty(Const.JsonFields.FILE_HASH, fileHash)
         jsonObject.addProperty(Const.JsonFields.TYPE, type)
+
+        if (metaData != null) {
+            metadataObject.addProperty(Const.JsonFields.WIDTH, metaData?.width)
+            metadataObject.addProperty(Const.JsonFields.HEIGHT, metaData?.height)
+            metadataObject.addProperty(Const.JsonFields.DURATION, metaData?.duration)
+            jsonObject.add(Const.JsonFields.METADATA, metadataObject)
+        }
 
         return jsonObject
     }
@@ -52,3 +62,9 @@ data class UploadFile(
         return jsonObject
     }
 }
+
+data class FileMetadata(
+    var width: Int?,
+    var height: Int?,
+    var duration: Int?
+)

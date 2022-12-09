@@ -3,8 +3,8 @@ package com.clover.studio.exampleapp.data.models.junction
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
-import com.clover.studio.exampleapp.data.models.ChatRoom
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.entity.ChatRoom
+import com.clover.studio.exampleapp.data.models.entity.User
 
 data class UserWithRooms(
     @Embedded val user: User,

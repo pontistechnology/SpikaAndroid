@@ -22,8 +22,9 @@ class Const {
         companion object {
             const val DELETE_MESSAGE_ME = "user"
             const val DELETE_MESSAGE_ALL = "all"
-            const val DELETE = "delete"
-            const val EDIT = "edit"
+            const val DOWNLOAD_FILE = "download_file"
+            const val MESSAGE_ACTION = "action"
+            const val MESSAGE_REPLY = "reply"
         }
     }
 
@@ -70,14 +71,15 @@ class Const {
             // Mime types
             const val IMAGE = "image/*"
             const val FILE = "*/*"
+            const val VIDEO = "video/*"
 
             // File types
-            const val AVATAR = "avatar"
+            const val AVATAR_TYPE = "avatar"
             const val FILE_TYPE = "file"
-            const val AUDIO = "audio"
-            const val VIDEO = "video"
-            const val TEXT = "text"
-            const val CHAT_IMAGE = "image"
+            const val AUDIO_TYPE = "audio"
+            const val VIDEO_TYPE = "video"
+            const val TEXT_TYPE = "text"
+            const val IMAGE_TYPE = "image"
 
             // File upload
             const val CHUNK = "chunk"
@@ -92,6 +94,11 @@ class Const {
             const val CLIENT_ID = "clientId"
             const val FILE_ID = "fileId"
             const val THUMB_ID = "thumbId"
+            const val LOCAL_ID = "localId"
+            const val METADATA = "metaData"
+            const val WIDTH = "width"
+            const val HEIGHT = "height"
+            const val DURATION = "duration"
 
             // Chat
             const val ROOM_ID = "roomId"
@@ -104,6 +111,22 @@ class Const {
             const val BODY = "body"
             const val MESSAGE_IDS = "messagesIds"
             const val REACTION = "reaction"
+
+            // Reply
+            const val REFERENCE_MESSAGE_REPLY = "referenceMessage"
+            const val FROM_USER_ID_REPLY = "fromUserId"
+            const val TOTAL_USER_COUNT_REPLY = "totalUserCount"
+            const val DELIVERED_COUNT_REPLY = "deliveredCount"
+            const val SEEN_COUNT_REPLY = "seenCount"
+            const val CREATED_AT_REPLY = "createdAt"
+            const val MODIFIED_AT_REPLY = "modifiedAt"
+            const val LOCAL_ID_REPLY = "localID"
+            const val PATH_REPLY = "path"
+            const val THUMB_REPLY = "thumb"
+
+            // Message details
+            const val SEEN = "seen"
+            const val DELIVERED = "delivered"
         }
     }
 

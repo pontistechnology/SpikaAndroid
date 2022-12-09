@@ -5,14 +5,15 @@ import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.daos.UserDao
-import com.clover.studio.exampleapp.data.models.ChatRoom
-import com.clover.studio.exampleapp.data.models.Message
-import com.clover.studio.exampleapp.data.models.RoomAndMessageAndRecords
-import com.clover.studio.exampleapp.data.models.User
+import com.clover.studio.exampleapp.data.models.entity.ChatRoom
+import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.services.ChatService
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +34,23 @@ class ChatRepositoryImpl @Inject constructor(
         val response =
             chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
         Timber.d("Response message $response")
-        response.data?.message?.let { messageDao.insert(it) }
+        response.data?.message?.let {
+            // Fields below should never be null. If null, there is a backend problem
+            messageDao.updateMessage(
+                it.id,
+                it.fromUserId!!,
+                it.totalUserCount!!,
+                it.deliveredCount!!,
+                it.seenCount!!,
+                it.type!!,
+                it.body!!,
+                it.createdAt!!,
+                it.modifiedAt!!,
+                it.deleted!!,
+                it.reply!!,
+                it.localId!!
+            )
+        }
     }
 
     override suspend fun storeMessageLocally(message: Message) {
@@ -48,6 +65,10 @@ class ChatRepositoryImpl @Inject constructor(
             }
             messageDao.deleteMessage(messagesIds)
         }
+    }
+
+    override suspend fun deleteLocalMessage(message: Message) {
+        messageDao.deleteMessage(message)
     }
 
     override suspend fun sendMessagesSeen(roomId: Int) =
@@ -68,31 +89,33 @@ class ChatRepositoryImpl @Inject constructor(
         val response =
             chatService.updateRoom(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject, roomId)
 
-        appDatabase.runInTransaction {
-            CoroutineScope(Dispatchers.IO).launch {
-                val oldRoom = roomDao.getRoomById(roomId)
-                response.data?.room?.let { roomDao.updateRoomTable(oldRoom, it) }
+        CoroutineScope(Dispatchers.IO).launch {
+            appDatabase.runInTransaction {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val oldRoom = roomDao.getRoomById(roomId)
+                    response.data?.room?.let { roomDao.updateRoomTable(oldRoom, it) }
 
-                val users: MutableList<User> = ArrayList()
-                val roomUsers: MutableList<RoomUser> = ArrayList()
-                if (response.data?.room != null) {
-                    val room = response.data.room
+                    val users: MutableList<User> = ArrayList()
+                    val roomUsers: MutableList<RoomUser> = ArrayList()
+                    if (response.data?.room != null) {
+                        val room = response.data.room
 
-                    // Delete Room User if id has been passed through
-                    if (userId != 0) {
-                        roomDao.deleteRoomUser(RoomUser(roomId, userId, false))
-                    }
+                        // Delete Room User if id has been passed through
+                        if (userId != 0) {
+                            roomDao.deleteRoomUser(RoomUser(roomId, userId, false))
+                        }
 
-                    for (user in room.users) {
-                        user.user?.let { users.add(it) }
-                        roomUsers.add(
-                            RoomUser(
-                                room.roomId, user.userId, user.isAdmin
+                        for (user in room.users) {
+                            user.user?.let { users.add(it) }
+                            roomUsers.add(
+                                RoomUser(
+                                    room.roomId, user.userId, user.isAdmin
+                                )
                             )
-                        )
+                        }
+                        userDao.insert(users)
+                        roomDao.insertRoomWithUsers(roomUsers)
                     }
-                    userDao.insert(users)
-                    roomDao.insertRoomWithUsers(roomUsers)
                 }
             }
         }
@@ -144,7 +167,9 @@ class ChatRepositoryImpl @Inject constructor(
 
         // Just replace old message with new one. Deleted message just has a body with new text
         if (response.data?.message != null) {
-            messageDao.insert(response.data.message)
+            val deletedMessage = response.data.message
+            deletedMessage.type = Const.JsonFields.TEXT_TYPE
+            messageDao.insert(deletedMessage)
         }
     }
 
@@ -164,6 +189,7 @@ interface ChatRepository {
     suspend fun sendMessage(jsonObject: JsonObject)
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
+    suspend fun deleteLocalMessage(message: Message)
     suspend fun sendMessagesSeen(roomId: Int)
     suspend fun updatedRoomVisitedTimestamp(chatRoom: ChatRoom)
     suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>

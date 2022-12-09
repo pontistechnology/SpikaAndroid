@@ -2,7 +2,7 @@ package com.clover.studio.exampleapp.data.repositories
 
 import com.clover.studio.exampleapp.data.daos.PhoneUserDao
 import com.clover.studio.exampleapp.data.daos.UserDao
-import com.clover.studio.exampleapp.data.models.PhoneUser
+import com.clover.studio.exampleapp.data.models.entity.PhoneUser
 import com.clover.studio.exampleapp.data.models.networking.AuthResponse
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap

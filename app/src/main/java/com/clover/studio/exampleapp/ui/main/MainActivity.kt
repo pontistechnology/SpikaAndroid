@@ -12,7 +12,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.Message
+import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
@@ -154,7 +154,7 @@ class MainActivity : BaseActivity() {
                             bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
                             for (user in it.roomWithUsers.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
-                                    val content = if (it.message.type != Const.JsonFields.TEXT) {
+                                    val content = if (it.message.type != Const.JsonFields.TEXT_TYPE) {
                                         user.displayName + ": " + getString(
                                             R.string.generic_shared,
                                             it.message.type.toString()
@@ -179,7 +179,7 @@ class MainActivity : BaseActivity() {
                                         })
                                         .placeholder(getDrawable(R.drawable.img_user_placeholder))
                                         .into(bindingSetup.cvNotification.ivUserImage)
-                                    val content = if (it.message.type != Const.JsonFields.TEXT) {
+                                    val content = if (it.message.type != Const.JsonFields.TEXT_TYPE) {
                                         getString(
                                             R.string.generic_shared,
                                             it.message.type.toString()
@@ -201,14 +201,21 @@ class MainActivity : BaseActivity() {
 
                         val roomId = it.message.roomId
                         bindingSetup.cvNotification.cvRoot.setOnClickListener {
-                            roomId?.let { roomId -> viewModel.getSingleRoomData(roomId) }
+                            roomId?.let { roomId ->
+                                run {
+                                    viewModel.getSingleRoomData(roomId)
+                                    bindingSetup.cvNotification.cvRoot.visibility = View.GONE
+                                }
+                            }
                         }
 
-                        Timber.d("Starting handler")
-                        runnable.let { runnable -> handler.removeCallbacks(runnable) }
+                        // Remove old instance of runnable if any is active. Prevents older
+                        // notifications from removing newer ones.
+                        Timber.d("Starting handler 1")
+                        handler.removeCallbacks(runnable)
 
                         handler = Handler(Looper.getMainLooper())
-                        Timber.d("Starting handler")
+                        Timber.d("Starting handler 2")
                         handler.postDelayed(runnable, 5000)
                     }
                 }

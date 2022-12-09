@@ -7,7 +7,6 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 
-
 android {
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -39,7 +38,7 @@ android {
         applicationId "com.clover.studio.exampleapp"
         minSdk 24
         targetSdk 31
-        versionCode 100004
+        versionCode 100007
         versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -60,7 +59,7 @@ android {
         }
 
         dev {
-            applicationIdSuffix ".dev"
+            applicationIdSuffix ".debug"
             versionNameSuffix "_dev"
 
             debuggable true
@@ -72,23 +71,28 @@ android {
         }
 
         releaseDebug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "_releaseDebug"
+
             debuggable true
             minifyEnabled false
 
             resValue "string", "APP_NAME", "Spika3"
-            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
 
             signingConfig signingConfigs.release
         }
 
         release {
+            applicationIdSuffix ".debug"
+
             debuggable false
             minifyEnabled false
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             resValue "string", "APP_NAME", "Spika3"
-            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
 
             signingConfig signingConfigs.release
         }
@@ -172,7 +176,11 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
 
     // Emoji
-    implementation "com.vanniktech:emoji-google:0.15.0"
+    def emojiVersion = "0.15.0"
+    implementation "com.vanniktech:emoji-google:$emojiVersion"
+
+    // TouchImageView
+    implementation 'com.github.MikeOrtiz:TouchImageView:1.4.1'
 
     // Exo Player
     def mediaVersion = "1.0.0-beta02"
@@ -181,5 +189,4 @@ dependencies {
         implementation "androidx.media3:media3-ui:$mediaVersion"
         implementation "androidx.media3:media3-exoplayer-dash:$mediaVersion"
     }
-
 }

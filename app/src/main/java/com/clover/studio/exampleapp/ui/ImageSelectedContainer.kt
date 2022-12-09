@@ -60,7 +60,7 @@ class ImageSelectedContainer(context: Context, attrs: AttributeSet?) :
             Const.FileExtensions.MP3, Const.FileExtensions.WAW -> binding.ivFile.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     context.resources,
-                    R.drawable.ic_baseline_audio_file_blue_24,
+                    R.drawable.img_audio_file_blue,
                     null
                 )
             )

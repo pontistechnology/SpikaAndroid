@@ -53,6 +53,10 @@
         <action
             android:id="@+id/action_chatMessagesFragment_to_chatDetailsFragment"
             app:destination="@id/chatDetailsFragment" />
+        <argument
+            android:name="scrollDown"
+            app:argType="boolean"
+            android:defaultValue="true" />
     </fragment>
     <fragment
         android:id="@+id/mediaFragment"
