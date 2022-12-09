@@ -86,8 +86,10 @@ class SettingsFragment : BaseFragment() {
         addTextListeners()
 
         // Display version code on bottom of the screen
-        val packageInfo = requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
-        binding.tvVersionNumber.text = "${getString(R.string.app_version)} ${packageInfo.versionName} ${packageInfo.longVersionCode}"
+        val packageInfo =
+            requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
+        binding.tvVersionNumber.text =
+            "${getString(R.string.app_version)} ${packageInfo.versionName} ${packageInfo.longVersionCode}"
 
         return binding.root
     }
@@ -168,7 +170,7 @@ class SettingsFragment : BaseFragment() {
 //            goToDownloadSettings()
 //        }
 
-        binding.cvPhotoPicker.setOnClickListener {
+        binding.ivPickPhoto.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
