@@ -45,6 +45,7 @@ class Const {
             const val MKV = "mkv"
             const val JPEG = "jpeg"
             const val PNG = "png"
+            const val AUDIO = "audio/mpeg"
         }
     }
 
@@ -72,6 +73,7 @@ class Const {
             const val IMAGE = "image/*"
             const val FILE = "*/*"
             const val VIDEO = "video/*"
+            const val AUDIO = "audio/*"
 
             // File types
             const val AVATAR_TYPE = "avatar"

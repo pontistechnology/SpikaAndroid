@@ -1137,11 +1137,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             MessageFile(fileName, "", "", fileStream.length(), null),
             null
         )
+
+        val type = activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
+        fileType = if (type == Const.FileExtensions.AUDIO){
+            Const.JsonFields.AUDIO_TYPE
+        } else {
+            Const.JsonFields.FILE_TYPE
+        }
+
         val tempMessage = Tools.createTemporaryMessage(
             tempMessageCounter,
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
-            Const.JsonFields.FILE_TYPE,
+            type,
             messageBody!!
         )
         unsentMessages.add(tempMessage)
@@ -1269,14 +1277,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             else fileStream.length() / CHUNK_SIZE
         progress = 0
 
-        Timber.d("File upload start")
-        fileType = Const.JsonFields.FILE_TYPE
+        val type = activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
+        fileType = if (type == Const.FileExtensions.AUDIO){
+            Const.JsonFields.AUDIO_TYPE
+        } else {
+            Const.JsonFields.FILE_TYPE
+        }
 
         viewModel.uploadFile(
             requireActivity(),
             filesSelected[uploadIndex],
             uploadPieces,
-            fileStream
+            fileStream,
+            type
         )
     }
 
