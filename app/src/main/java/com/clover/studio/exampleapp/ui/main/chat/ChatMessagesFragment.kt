@@ -483,8 +483,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
 
         // Update room visited
-        roomWithUsers.room.visitedRoom = System.currentTimeMillis()
-        viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
+        viewModel.updateRoomVisitedTimestamp(System.currentTimeMillis(), roomWithUsers.room.roomId)
     }
 
     private fun handleMessageReplyClick(message: Message) {
@@ -837,7 +836,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             bindingSetup.vTransparent.visibility = View.GONE
                         }
                     }
-                    if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED){
+                    if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
                         if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                             bindingSetup.vTransparent.visibility = View.VISIBLE
                         }
@@ -950,7 +949,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         0
                     )
                 }
-                if (Const.JsonFields.VIDEO_TYPE == message.type){
+                if (Const.JsonFields.VIDEO_TYPE == message.type) {
                     bindingSetup.replyAction.tvReplyMedia.text = getString(
                         R.string.media,
                         context!!.getString(R.string.video)
@@ -1192,7 +1191,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         } else {
             // Update room visited
             roomWithUsers.room.visitedRoom = System.currentTimeMillis()
-            viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
+            viewModel.updateRoomVisitedTimestamp(
+                System.currentTimeMillis(),
+                roomWithUsers.room.roomId
+            )
             //
             activity!!.finish()
         }
@@ -1400,7 +1402,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 override fun onSecondOptionClicked() {
                     // Update room visited
                     roomWithUsers.room.visitedRoom = System.currentTimeMillis()
-                    viewModel.updateRoomVisitedTimestamp(roomWithUsers.room)
+                    viewModel.updateRoomVisitedTimestamp(
+                        System.currentTimeMillis(),
+                        roomWithUsers.room.roomId
+                    )
                     if (unsentMessages.isNotEmpty()) {
                         viewModel.deleteLocalMessages(unsentMessages)
                     }

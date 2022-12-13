@@ -57,6 +57,9 @@ class Const {
             const val COUNTRY_CODE = "countryCode"
             const val PUSH_TOKEN = "pushToken"
 
+            // Mute/Unmute
+            const val SUCCESS = "success"
+
             // SSE
             const val NEW_MESSAGE = "NEW_MESSAGE"
             const val UPDATE_MESSAGE = "UPDATE_MESSAGE"
