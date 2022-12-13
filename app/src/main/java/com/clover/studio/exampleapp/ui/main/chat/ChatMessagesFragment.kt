@@ -1149,7 +1149,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             tempMessageCounter,
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
-            type,
+            fileType,
             messageBody!!
         )
         unsentMessages.add(tempMessage)
@@ -1278,7 +1278,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         progress = 0
 
         val type = activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
-        fileType = if (type == Const.FileExtensions.AUDIO){
+        fileType = if ( Const.FileExtensions.AUDIO == type){
             Const.JsonFields.AUDIO_TYPE
         } else {
             Const.JsonFields.FILE_TYPE
@@ -1289,7 +1289,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             filesSelected[uploadIndex],
             uploadPieces,
             fileStream,
-            type
+            fileType
         )
     }
 
