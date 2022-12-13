@@ -67,6 +67,7 @@
     <string name="action">Action</string>
     <string name="error">Error</string>
     <string name="upload_in_progress">There is an upload in progress. If you leave the screen the upload will automatically fail.</string>
+    <string name="upload_file_in_progress">There is an upload in progress. Are you sure you want to cancel the upload?</string>
     <string name="image_failed_upload">Image could not be uploaded. Try again or continue without image. %s</string>
     <string name="ok">Ok</string>
     <string name="back">Back</string>
