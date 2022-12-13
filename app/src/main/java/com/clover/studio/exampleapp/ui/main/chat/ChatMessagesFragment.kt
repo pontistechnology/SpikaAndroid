@@ -279,7 +279,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 is FilePieceUploaded -> {
                     try {
                         if (progress <= uploadPieces) {
-                            updateUploadFileProgressBar(progress + 1, uploadPieces.toInt(), fileType)
+                            updateUploadFileProgressBar(
+                                progress + 1,
+                                uploadPieces.toInt(),
+                                fileType
+                            )
                             progress++
                         } else progress = 0
                     } catch (ex: Exception) {
@@ -840,7 +844,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             bindingSetup.vTransparent.visibility = View.GONE
                         }
                     }
-                    if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED){
+                    if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
                         if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                             bindingSetup.vTransparent.visibility = View.VISIBLE
                         }
@@ -953,7 +957,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         0
                     )
                 }
-                if (Const.JsonFields.VIDEO_TYPE == message.type){
+                if (Const.JsonFields.VIDEO_TYPE == message.type) {
                     bindingSetup.replyAction.tvReplyMedia.text = getString(
                         R.string.media,
                         context!!.getString(R.string.video)
@@ -1142,7 +1146,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
 
         val type = activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
-        fileType = if (type == Const.FileExtensions.AUDIO){
+        fileType = if (type == Const.FileExtensions.AUDIO) {
             Const.JsonFields.AUDIO_TYPE
         } else {
             Const.JsonFields.FILE_TYPE
@@ -1281,7 +1285,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         progress = 0
 
         val type = activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
-        fileType = if ( Const.FileExtensions.AUDIO == type){
+        fileType = if (Const.FileExtensions.AUDIO == type) {
             Const.JsonFields.AUDIO_TYPE
         } else {
             Const.JsonFields.FILE_TYPE
@@ -1582,9 +1586,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewHolder.binding.progressBar.secondaryProgress = progress
     }
 
-    private fun updateUploadFileProgressBar(progress: Int, maxProgress: Int, type: String){
+    private fun updateUploadFileProgressBar(progress: Int, maxProgress: Int, type: String) {
         val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(tempMessageCounter)
-        if (Const.JsonFields.AUDIO_TYPE == type){
+        if (Const.JsonFields.AUDIO_TYPE == type) {
             (viewHolder as ChatAdapter.SentMessageHolder).binding.pbAudio.visibility = View.VISIBLE
             viewHolder.binding.ivCancelAudio.visibility = View.VISIBLE
             viewHolder.binding.ivPlayAudio.visibility = View.GONE
