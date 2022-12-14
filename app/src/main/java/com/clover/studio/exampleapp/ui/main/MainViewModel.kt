@@ -58,10 +58,6 @@ class MainViewModel @Inject constructor(
         return userId
     }
 
-    fun getAvatarFile(avatarFileId: Int) {
-        viewModelScope.launch { repository.getAvatar(avatarFileId) }
-    }
-
     fun checkIfRoomExists(userId: Int) = viewModelScope.launch {
         try {
             val roomData = repository.getRoomById(userId).data?.room

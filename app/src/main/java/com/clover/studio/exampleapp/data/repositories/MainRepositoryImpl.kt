@@ -137,9 +137,6 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun getUserSettings(): List<Settings> =
         retrofitService.getSettings(getHeaderMap(sharedPrefs.readToken())).data.settings
-
-    override suspend fun getAvatar(avatarFileId: Int) =
-        retrofitService.getAvatar(getHeaderMap(sharedPrefs.readToken()), avatarFileId)
 }
 
 interface MainRepository {
@@ -156,5 +153,4 @@ interface MainRepository {
     suspend fun verifyFile(jsonObject: JsonObject): FileResponse
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse
     suspend fun getUserSettings(): List<Settings>
-    suspend fun getAvatar(avatarFileId: Int)
 }
