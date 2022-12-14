@@ -279,6 +279,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 is FilePieceUploaded -> {
                     try {
                         if (progress <= uploadPieces) {
+                            updateUploadFileProgressBar(
+                                progress + 1,
+                                uploadPieces.toInt(),
+                                fileType
+                            )
                             progress++
                         } else progress = 0
                     } catch (ex: Exception) {
@@ -438,6 +443,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 run {
                     when (event) {
                         Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
+                        Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
                         Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                         Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                         else -> Timber.d("No other action currently")
@@ -548,6 +554,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             getDetailsList(message)
             bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
         }
+    }
+
+    private fun handleDownloadCancelFile(message: Message){
+        // For now, message object is not necessary but maybe we can use it later
+        showUploadError(getString(R.string.upload_file_in_progress))
     }
 
     private fun getDetailsList(detailsMessage: Message) {
@@ -742,7 +753,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 for (file in filesSelected) {
                     createTempFileMessage(file)
                 }
-                uploadFile()
+                Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                    uploadFile()
+                }, 2000)
             } else {
                 createTempTextMessage()
                 sendMessage()
@@ -837,7 +850,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             bindingSetup.vTransparent.visibility = View.GONE
                         }
                     }
-                    if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED){
+                    if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
                         if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                             bindingSetup.vTransparent.visibility = View.VISIBLE
                         }
@@ -950,7 +963,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         0
                     )
                 }
-                if (Const.JsonFields.VIDEO_TYPE == message.type){
+                if (Const.JsonFields.VIDEO_TYPE == message.type) {
                     bindingSetup.replyAction.tvReplyMedia.text = getString(
                         R.string.media,
                         context!!.getString(R.string.video)
@@ -1137,11 +1150,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             MessageFile(fileName, "", "", fileStream.length(), null),
             null
         )
+
+        val type = activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
+        fileType = if (type == Const.FileExtensions.AUDIO) {
+            Const.JsonFields.AUDIO_TYPE
+        } else {
+            Const.JsonFields.FILE_TYPE
+        }
+
         val tempMessage = Tools.createTemporaryMessage(
             tempMessageCounter,
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
-            Const.JsonFields.FILE_TYPE,
+            fileType,
             messageBody!!
         )
         unsentMessages.add(tempMessage)
@@ -1188,7 +1209,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun onBackArrowPressed() {
         if (uploadInProgress) {
-            showUploadError()
+            showUploadError(getString(R.string.upload_in_progress))
         } else {
             // Update room visited
             roomWithUsers.room.visitedRoom = System.currentTimeMillis()
@@ -1269,14 +1290,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             else fileStream.length() / CHUNK_SIZE
         progress = 0
 
-        Timber.d("File upload start")
-        fileType = Const.JsonFields.FILE_TYPE
+        val type = activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
+        fileType = if (Const.FileExtensions.AUDIO == type) {
+            Const.JsonFields.AUDIO_TYPE
+        } else {
+            Const.JsonFields.FILE_TYPE
+        }
 
         viewModel.uploadFile(
             requireActivity(),
             filesSelected[uploadIndex],
             uploadPieces,
-            fileStream
+            fileStream,
+            fileType
         )
     }
 
@@ -1386,10 +1412,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         uploadInProgress = false
     }
 
-    private fun showUploadError() {
+    private fun showUploadError(errorMessage: String) {
         DialogError.getInstance(activity!!,
             getString(R.string.warning),
-            getString(R.string.upload_in_progress),
+            errorMessage,
             getString(R.string.back),
             getString(R.string.ok),
             object : DialogInteraction {
@@ -1566,9 +1592,26 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewHolder.binding.progressBar.secondaryProgress = progress
     }
 
+    private fun updateUploadFileProgressBar(progress: Int, maxProgress: Int, type: String) {
+        val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(tempMessageCounter)
+        if (Const.JsonFields.AUDIO_TYPE == type) {
+            (viewHolder as ChatAdapter.SentMessageHolder).binding.pbAudio.visibility = View.VISIBLE
+            viewHolder.binding.ivCancelAudio.visibility = View.VISIBLE
+            viewHolder.binding.ivPlayAudio.visibility = View.GONE
+            viewHolder.binding.pbAudio.max = maxProgress
+            viewHolder.binding.pbAudio.secondaryProgress = progress
+        } else {
+            (viewHolder as ChatAdapter.SentMessageHolder).binding.pbFile.visibility = View.VISIBLE
+            viewHolder.binding.ivCancelFile.visibility = View.VISIBLE
+            viewHolder.binding.ivDownloadFile.visibility = View.GONE
+            viewHolder.binding.pbFile.max = maxProgress
+            viewHolder.binding.pbFile.secondaryProgress = progress
+        }
+    }
+
     override fun onBackPressed(): Boolean {
         return if (uploadInProgress) {
-            showUploadError()
+            showUploadError(getString(R.string.upload_in_progress))
             false
         } else true
     }

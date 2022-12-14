@@ -301,13 +301,13 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun uploadFile(activity: Activity, uri: Uri, uploadPieces: Long, fileStream: File) =
+    fun uploadFile(activity: Activity, uri: Uri, uploadPieces: Long, fileStream: File, type: String) =
         viewModelScope.launch {
             try {
                 uploadDownloadManager.uploadFile(
                     activity,
                     uri,
-                    Const.JsonFields.FILE_TYPE,
+                    type,
                     uploadPieces,
                     fileStream,
                     false,
