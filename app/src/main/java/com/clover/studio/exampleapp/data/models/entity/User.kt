@@ -21,7 +21,7 @@ data class User(
     val displayName: String?,
 
     @ColumnInfo(name = "avatar_file_id")
-    val avatarFileId: Int?,
+    val avatarFileId: Long?,
 
     @ColumnInfo(name = "telephone_number")
     val telephoneNumber: String?,

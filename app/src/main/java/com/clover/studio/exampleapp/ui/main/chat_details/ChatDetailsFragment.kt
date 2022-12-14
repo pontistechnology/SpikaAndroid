@@ -53,12 +53,12 @@ class ChatDetailsFragment : BaseFragment() {
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var roomUsers: MutableList<User> = ArrayList()
     private var progress: Long = 1L
-    private var avatarPath: String? = null
+    private var avatarPath: Long? = null
     private var roomId: Int? = null
     private var isAdmin = false
 
     private var userName = ""
-    private var avatarFileId = 0
+    private var avatarFileId = 0L
 
     private var bindingSetup: FragmentChatDetailsBinding? = null
     private val binding get() = bindingSetup!!
@@ -182,7 +182,7 @@ class ChatDetailsFragment : BaseFragment() {
                 jsonObject.addProperty(Const.JsonFields.NAME, roomName)
             }
 
-            if (avatarPath?.isNotEmpty() == true) {
+            if (avatarPath != 0L) {
                 jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarPath)
             }
 
@@ -267,8 +267,8 @@ class ChatDetailsFragment : BaseFragment() {
         }
     }
 
-    private fun setAvatarAndUsername(avatarFileId: Int, username: String) {
-        if (avatarFileId != 0) {
+    private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
+        if (avatarFileId != 0L) {
             Glide.with(this)
                 .load(avatarFileId.let { Tools.getAvatarUrl(it) })
                 .into(binding.ivPickAvatar)
@@ -423,7 +423,7 @@ class ChatDetailsFragment : BaseFragment() {
                                 binding.ivCallUser.visibility = View.GONE
                                 binding.tvDone.visibility = View.VISIBLE
                             }
-                            avatarPath = path
+                            avatarPath = fileId
                         }
 
                     })

@@ -100,7 +100,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var bottomSheetReplyAction: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetDetailsAction: BottomSheetBehavior<ConstraintLayout>
 
-    private var avatarFileId = 0
+    private var avatarFileId = 0L
     private var userName = ""
     private var firstEnter = true
     private var isEditing = false
@@ -181,7 +181,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         return bindingSetup.root
     }
 
-    private fun setAvatarAndName(avatarFileId: Int, userName: String) {
+    private fun setAvatarAndName(avatarFileId: Long, userName: String) {
         bindingSetup.tvChatName.text = userName
         Glide.with(this)
             .load(avatarFileId.let { Tools.getAvatarUrl(it) })

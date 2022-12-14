@@ -25,6 +25,7 @@ import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -253,17 +254,25 @@ class AccountCreationFragment : BaseFragment() {
                                     binding.clProgressScreen.visibility = View.GONE
                                 }
 
-                                val userData = hashMapOf(
-                                    Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString(),
-                                    Const.UserData.AVATAR_FILE_ID to path
+                                val jsonObject = JsonObject()
+                                jsonObject.addProperty(
+                                    Const.UserData.DISPLAY_NAME,
+                                    binding.etEnterUsername.text.toString()
                                 )
-                                viewModel.updateUserData(userData)
+                                jsonObject.addProperty(Const.UserData.AVATAR_FILE_ID, fileId)
+
+                                viewModel.updateUserData(jsonObject)
                             }
                         })
                 }
                 binding.clProgressScreen.visibility = View.VISIBLE
             } else {
-                viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
+                val jsonObject = JsonObject()
+                jsonObject.addProperty(
+                    Const.UserData.DISPLAY_NAME,
+                    binding.etEnterUsername.text.toString()
+                )
+                viewModel.updateUserData(jsonObject)
             }
         }
     }

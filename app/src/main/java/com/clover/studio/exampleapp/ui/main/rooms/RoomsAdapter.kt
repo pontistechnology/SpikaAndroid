@@ -34,7 +34,7 @@ class RoomsAdapter(
         with(holder) {
             getItem(position).let { roomItem ->
                 var userName = ""
-                var avatarFileId = 0
+                var avatarFileId = 0L
                 //Timber.d("Room data = $roomItem, ${roomItem.roomWithUsers.room.name}")
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
                     for (roomUser in roomItem.roomWithUsers.users) {

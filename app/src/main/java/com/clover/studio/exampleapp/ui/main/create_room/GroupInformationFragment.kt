@@ -48,7 +48,7 @@ class GroupInformationFragment : BaseFragment() {
     private var selectedUsers: MutableList<UserAndPhoneUser> = ArrayList()
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var progress: Long = 1L
-    private var avatarPath: String? = null
+    private var avatarFileId: Long? = null
 
     private var bindingSetup: FragmentGroupInformationBinding? = null
 
@@ -139,7 +139,7 @@ class GroupInformationFragment : BaseFragment() {
                 Const.JsonFields.NAME,
                 binding.etEnterUsername.text.toString()
             )
-            jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarPath)
+            jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarFileId)
             jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
             jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
             jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.GROUP)
@@ -306,7 +306,7 @@ class GroupInformationFragment : BaseFragment() {
                             requireActivity().runOnUiThread {
                                 binding.clProgressScreen.visibility = View.GONE
                             }
-                            avatarPath = path
+                            avatarFileId = fileId
                         }
 
                     })

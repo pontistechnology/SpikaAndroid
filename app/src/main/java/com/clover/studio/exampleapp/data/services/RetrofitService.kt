@@ -24,11 +24,10 @@ interface RetrofitService {
         @Body jsonObject: JsonObject
     )
 
-    @FormUrlEncoded
     @PUT(value = Const.Networking.API_UPDATE_USER)
     suspend fun updateUser(
         @HeaderMap headers: Map<String, String?>,
-        @FieldMap userMap: Map<String, String>
+        @Body jsonObject: JsonObject
     ): AuthResponse
 
     @POST(value = Const.Networking.API_UPLOAD_FILE)

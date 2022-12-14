@@ -296,7 +296,7 @@ object Tools {
         return sha256FileHash
     }
 
-    fun getAvatarUrl(avatarFileId: Int): String {
+    fun getAvatarUrl(avatarFileId: Long): String {
         return "${BuildConfig.SERVER_URL}${Const.Networking.API_GET_AVATAR}$avatarFileId"
     }
 

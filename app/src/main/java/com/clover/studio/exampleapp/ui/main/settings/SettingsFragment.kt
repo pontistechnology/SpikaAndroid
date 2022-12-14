@@ -24,6 +24,7 @@ import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -252,10 +253,12 @@ class SettingsFragment : BaseFragment() {
                                 binding.clProgressScreen.visibility = View.GONE
                             }
 
-                            val userData = hashMapOf(
-                                Const.UserData.AVATAR_FILE_ID to path
-                            )
-                            viewModel.updateUserData(userData)
+                            val jsonObject = JsonObject()
+                            jsonObject.addProperty(Const.UserData.AVATAR_FILE_ID, fileId)
+//                            val userData = hashMapOf(
+//                                Const.UserData.AVATAR_FILE_ID to fileId
+//                            )
+                            viewModel.updateUserData(jsonObject)
                         }
 
                     })
@@ -266,7 +269,12 @@ class SettingsFragment : BaseFragment() {
 
     private fun updateUsername() {
         if (binding.etEnterUsername.text.toString().isNotEmpty()) {
-            viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
+            val jsonObject = JsonObject()
+            jsonObject.addProperty(
+                Const.UserData.DISPLAY_NAME,
+                binding.etEnterUsername.text.toString()
+            )
+            viewModel.updateUserData(jsonObject)
         } else {
             return
         }
