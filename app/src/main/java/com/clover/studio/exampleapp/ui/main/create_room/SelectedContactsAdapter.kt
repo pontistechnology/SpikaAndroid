@@ -32,7 +32,7 @@ class SelectedContactsAdapter(
             getItem(position).let { userItem ->
                 binding.tvUserName.text = userItem.phoneUser?.name ?: userItem.user.displayName
                 // Remove first / with substring from avatarUrl
-                Glide.with(context).load(userItem.user.avatarUrl?.let { Tools.getFileUrl(it) })
+                Glide.with(context).load(userItem.user.avatarFileId?.let { Tools.getAvatarUrl(it) })
                     .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivUserImage)
 

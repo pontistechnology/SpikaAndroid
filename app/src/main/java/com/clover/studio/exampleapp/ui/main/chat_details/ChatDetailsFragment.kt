@@ -58,7 +58,7 @@ class ChatDetailsFragment : BaseFragment() {
     private var isAdmin = false
 
     private var userName = ""
-    private var avatarUr = ""
+    private var avatarFileId = 0
 
     private var bindingSetup: FragmentChatDetailsBinding? = null
     private val binding get() = bindingSetup!!
@@ -133,18 +133,18 @@ class ChatDetailsFragment : BaseFragment() {
             for (roomUser in roomWithUsers.users) {
                 if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
                     userName = roomUser.displayName.toString()
-                    avatarUr = roomUser.avatarUrl.toString()
+                    avatarFileId = roomUser.avatarFileId!!
                     break
                 } else {
                     userName = roomUser.displayName.toString()
-                    avatarUr = roomUser.avatarUrl.toString()
+                    avatarFileId = roomUser.avatarFileId!!
                 }
             }
         } else {
             userName = roomWithUsers.room.name.toString()
-            avatarUr = roomWithUsers.room.avatarUrl.toString()
+            avatarFileId = roomWithUsers.room.avatarFileId!!
         }
-        setAvatarAndUsername(avatarUr, userName)
+        setAvatarAndUsername(avatarFileId, userName)
 
         binding.ivAddMember.setOnClickListener {
             val userIds = ArrayList<Int>()
@@ -267,13 +267,13 @@ class ChatDetailsFragment : BaseFragment() {
         }
     }
 
-    private fun setAvatarAndUsername(avatarUrl: String, username: String) {
-        if (avatarUrl.isNotEmpty()) {
+    private fun setAvatarAndUsername(avatarFileId: Int, username: String) {
+        if (avatarFileId != 0) {
             Glide.with(this)
-                .load(avatarUrl.let { Tools.getFileUrl(it) })
+                .load(avatarFileId.let { Tools.getAvatarUrl(it) })
                 .into(binding.ivPickAvatar)
             Glide.with(this)
-                .load(avatarUrl.let { Tools.getFileUrl(it) })
+                .load(avatarFileId.let { Tools.getAvatarUrl(it) })
                 .into(binding.ivUserImage)
         }
         binding.tvGroupName.text = username

@@ -122,10 +122,11 @@ class MainActivity : BaseActivity() {
                         animator.start()
 
                         if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
+                            Timber.d("Showing room image")
                             Glide.with(this@MainActivity)
-                                .load(it.roomWithUsers.room.avatarUrl?.let { avatarUrl ->
-                                    Tools.getFileUrl(
-                                        avatarUrl
+                                .load(it.roomWithUsers.room.avatarFileId?.let { fileId ->
+                                    Tools.getAvatarUrl(
+                                        fileId
                                     )
                                 })
                                 .placeholder(getDrawable(R.drawable.img_user_placeholder))
@@ -152,9 +153,9 @@ class MainActivity : BaseActivity() {
                             for (user in it.roomWithUsers.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     Glide.with(this@MainActivity)
-                                        .load(user.avatarUrl?.let { avatarUrl ->
-                                            Tools.getFileUrl(
-                                                avatarUrl
+                                        .load(user.avatarFileId?.let { fileId ->
+                                            Tools.getAvatarUrl(
+                                                fileId
                                             )
                                         })
                                         .placeholder(getDrawable(R.drawable.img_user_placeholder))

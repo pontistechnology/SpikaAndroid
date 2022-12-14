@@ -54,4 +54,10 @@ interface RetrofitService {
     suspend fun getSettings(
         @HeaderMap headers: Map<String, String?>
     ): SettingsResponse
+
+    @GET(Const.Networking.API_GET_AVATAR)
+    suspend fun getAvatar(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.AVATAR_ID) avatarFileId: Int
+    )
 }

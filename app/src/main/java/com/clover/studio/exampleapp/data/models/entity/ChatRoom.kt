@@ -29,6 +29,9 @@ data class ChatRoom @JvmOverloads constructor(
     @Ignore
     val deleted: Boolean = false,
 
+    @ColumnInfo(name = "avatar_file_id")
+    val avatarFileId: Int?,
+
     @ColumnInfo(name = "created_at")
     val createdAt: Long?,
 
