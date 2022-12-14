@@ -443,6 +443,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 run {
                     when (event) {
                         Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
+                        Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
                         Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                         Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                         else -> Timber.d("No other action currently")
@@ -553,6 +554,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             getDetailsList(message)
             bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
         }
+    }
+
+    private fun handleDownloadCancelFile(message: Message){
+        // For now, message object is not necessary but maybe we can use it later
+        showUploadError(getString(R.string.upload_file_in_progress))
     }
 
     private fun getDetailsList(detailsMessage: Message) {
@@ -1600,14 +1606,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             viewHolder.binding.ivDownloadFile.visibility = View.GONE
             viewHolder.binding.pbFile.max = maxProgress
             viewHolder.binding.pbFile.secondaryProgress = progress
-        }
-
-        viewHolder.binding.ivCancelAudio.setOnClickListener {
-            showUploadError(getString(R.string.upload_file_in_progress))
-        }
-
-        viewHolder.binding.ivCancelFile.setOnClickListener {
-            showUploadError(getString(R.string.upload_file_in_progress))
         }
     }
 

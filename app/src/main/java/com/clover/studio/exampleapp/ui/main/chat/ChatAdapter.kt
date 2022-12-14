@@ -196,6 +196,9 @@ class ChatAdapter(
                             holder.binding.ivDownloadFile.visibility = View.GONE
                             holder.binding.ivCancelFile.visibility = View.VISIBLE
                             holder.binding.pbFile.visibility = View.VISIBLE
+                            holder.binding.ivCancelFile.setOnClickListener { _ ->
+                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it.message)
+                            }
                         } else {
                             holder.binding.ivDownloadFile.visibility = View.VISIBLE
                             addFiles(it.message, holder.binding.ivFileType)
@@ -257,6 +260,9 @@ class ChatAdapter(
                             holder.binding.pbAudio.visibility = View.VISIBLE
                             holder.binding.ivPlayAudio.visibility = View.GONE
                             holder.binding.ivCancelAudio.visibility = View.GONE
+                            holder.binding.ivCancelAudio.setOnClickListener { _ ->
+                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it.message)
+                            }
                         } else {
                             holder.binding.ivPlayAudio.visibility = View.VISIBLE
                             holder.binding.pbAudio.visibility = View.GONE
