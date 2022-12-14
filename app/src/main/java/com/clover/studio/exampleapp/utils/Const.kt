@@ -23,6 +23,7 @@ class Const {
             const val DELETE_MESSAGE_ME = "user"
             const val DELETE_MESSAGE_ALL = "all"
             const val DOWNLOAD_FILE = "download_file"
+            const val DOWNLOAD_CANCEL = "download_cancel"
             const val MESSAGE_ACTION = "action"
             const val MESSAGE_REPLY = "reply"
         }
@@ -45,6 +46,7 @@ class Const {
             const val MKV = "mkv"
             const val JPEG = "jpeg"
             const val PNG = "png"
+            const val AUDIO = "audio/mpeg"
         }
     }
 
@@ -72,6 +74,7 @@ class Const {
             const val IMAGE = "image/*"
             const val FILE = "*/*"
             const val VIDEO = "video/*"
+            const val AUDIO = "audio/*"
 
             // File types
             const val AVATAR_TYPE = "avatar"

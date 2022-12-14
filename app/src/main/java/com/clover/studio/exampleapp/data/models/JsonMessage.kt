@@ -1,7 +1,6 @@
 package com.clover.studio.exampleapp.data.models
 
 import com.clover.studio.exampleapp.data.models.entity.Message
-import com.clover.studio.exampleapp.ui.main.chat.UploadMimeTypes
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
 
@@ -36,7 +35,7 @@ data class JsonMessage(
             innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
             innerObject.addProperty(Const.JsonFields.THUMB_ID, thumbId)
             jsonObject.addProperty(Const.JsonFields.TYPE, mimeType)
-        } else if (mimeType.contains(Const.JsonFields.FILE_TYPE)) {
+        } else if (mimeType.contains(Const.JsonFields.FILE_TYPE) || mimeType.contains(Const.JsonFields.AUDIO_TYPE)) {
             innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
             jsonObject.addProperty(Const.JsonFields.TYPE, mimeType)
         } else if (mimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
@@ -95,7 +94,10 @@ data class JsonMessage(
             }
 
             jsonRefObject.addProperty(Const.Networking.ID, referenceMessage?.id)
-            jsonRefObject.addProperty(Const.JsonFields.FROM_USER_ID_REPLY, referenceMessage?.fromUserId)
+            jsonRefObject.addProperty(
+                Const.JsonFields.FROM_USER_ID_REPLY,
+                referenceMessage?.fromUserId
+            )
             jsonRefObject.addProperty(
                 Const.JsonFields.TOTAL_USER_COUNT_REPLY,
                 referenceMessage?.totalUserCount
@@ -104,12 +106,21 @@ data class JsonMessage(
                 Const.JsonFields.DELIVERED_COUNT_REPLY,
                 referenceMessage?.deliveredCount
             )
-            jsonRefObject.addProperty(Const.JsonFields.SEEN_COUNT_REPLY, referenceMessage?.seenCount)
+            jsonRefObject.addProperty(
+                Const.JsonFields.SEEN_COUNT_REPLY,
+                referenceMessage?.seenCount
+            )
             jsonRefObject.addProperty(Const.JsonFields.ROOM_ID, referenceMessage?.roomId)
             jsonRefObject.addProperty(Const.JsonFields.TYPE, referenceMessage?.type)
             jsonRefObject.add(Const.JsonFields.BODY, jsonInnerRefObject)
-            jsonRefObject.addProperty(Const.JsonFields.CREATED_AT_REPLY, referenceMessage?.createdAt)
-            jsonRefObject.addProperty(Const.JsonFields.MODIFIED_AT_REPLY, referenceMessage?.modifiedAt)
+            jsonRefObject.addProperty(
+                Const.JsonFields.CREATED_AT_REPLY,
+                referenceMessage?.createdAt
+            )
+            jsonRefObject.addProperty(
+                Const.JsonFields.MODIFIED_AT_REPLY,
+                referenceMessage?.modifiedAt
+            )
             jsonRefObject.addProperty(Const.JsonFields.LOCAL_ID_REPLY, referenceMessage?.modifiedAt)
 
             jsonObject.addProperty(Const.UserActions.MESSAGE_REPLY, true)
