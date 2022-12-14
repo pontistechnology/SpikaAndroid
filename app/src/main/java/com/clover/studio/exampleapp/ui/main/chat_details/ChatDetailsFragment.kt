@@ -183,7 +183,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
 
             if (avatarPath?.isNotEmpty() == true) {
-                jsonObject.addProperty(Const.JsonFields.AVATAR_URL, avatarPath)
+                jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarPath)
             }
 
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)

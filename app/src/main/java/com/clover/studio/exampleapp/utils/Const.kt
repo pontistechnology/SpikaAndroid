@@ -109,7 +109,7 @@ class Const {
             // Chat
             const val ROOM_ID = "roomId"
             const val NAME = "name"
-            const val AVATAR_URL = "avatarUrl"
+            const val AVATAR_FILE_ID = "avatarFileId"
             const val USER_IDS = "userIds"
             const val ADMIN_USER_IDS = "adminUserIds"
             const val PRIVATE = "private"
@@ -225,7 +225,7 @@ class Const {
     class UserData {
         companion object {
             const val DISPLAY_NAME: String = "displayName"
-            const val AVATAR_URL: String = "avatarUrl"
+            const val AVATAR_FILE_ID: String = "avatarFileId"
         }
     }
 }

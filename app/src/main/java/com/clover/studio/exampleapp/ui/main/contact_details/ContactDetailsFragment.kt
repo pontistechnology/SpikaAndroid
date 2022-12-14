@@ -107,7 +107,7 @@ class ContactDetailsFragment : BaseFragment() {
 //                    adminUserIds.add(3)
 
                     jsonObject.addProperty(Const.JsonFields.NAME, user?.displayName)
-                    jsonObject.addProperty(Const.JsonFields.AVATAR_URL, user?.avatarUrl)
+                    jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, user?.avatarFileId)
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
 //                    jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
                     jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)

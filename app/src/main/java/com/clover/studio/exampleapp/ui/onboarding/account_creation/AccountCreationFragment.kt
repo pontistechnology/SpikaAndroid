@@ -255,7 +255,7 @@ class AccountCreationFragment : BaseFragment() {
 
                                 val userData = hashMapOf(
                                     Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString(),
-                                    Const.UserData.AVATAR_URL to path
+                                    Const.UserData.AVATAR_FILE_ID to path
                                 )
                                 viewModel.updateUserData(userData)
                             }

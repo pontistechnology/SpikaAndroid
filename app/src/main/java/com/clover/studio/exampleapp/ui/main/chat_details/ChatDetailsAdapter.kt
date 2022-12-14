@@ -34,7 +34,6 @@ class ChatDetailsAdapter(
             getItem(position).let { userItem ->
                 binding.tvUsername.text = userItem.displayName
                 binding.tvTitle.text = userItem.telephoneNumber
-                // Remove first / with substring from avatarUrl
                 Glide.with(context).load(userItem.avatarFileId?.let { Tools.getAvatarUrl(it) })
                     .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivUserImage)

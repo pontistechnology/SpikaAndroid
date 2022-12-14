@@ -253,7 +253,7 @@ class SettingsFragment : BaseFragment() {
                             }
 
                             val userData = hashMapOf(
-                                Const.UserData.AVATAR_URL to path
+                                Const.UserData.AVATAR_FILE_ID to path
                             )
                             viewModel.updateUserData(userData)
                         }

@@ -19,9 +19,6 @@ data class ChatRoom @JvmOverloads constructor(
     @ColumnInfo(name = "name")
     val name: String?,
 
-    @ColumnInfo(name = "avatar_url")
-    val avatarUrl: String?,
-
     @ColumnInfo(name = "type")
     val type: String?,
 

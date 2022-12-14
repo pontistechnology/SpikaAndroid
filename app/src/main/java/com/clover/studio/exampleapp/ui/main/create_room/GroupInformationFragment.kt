@@ -139,7 +139,7 @@ class GroupInformationFragment : BaseFragment() {
                 Const.JsonFields.NAME,
                 binding.etEnterUsername.text.toString()
             )
-            jsonObject.addProperty(Const.JsonFields.AVATAR_URL, avatarPath)
+            jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarPath)
             jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
             jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
             jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.GROUP)
