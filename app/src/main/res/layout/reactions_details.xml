@@ -24,7 +24,7 @@
         android:layout_marginStart="@dimen/sixteen_dp_margin"
         android:layout_marginTop="@dimen/sixteen_dp_margin"
         android:fontFamily="@font/montserrat_bold"
-        android:text="@string/details"
+        android:text="@string/reactions"
         android:textSize="@dimen/sixteen_sp_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -38,5 +38,5 @@
         app:layout_constraintEnd_toEndOf="@+id/iv_remove"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_remove"
-        tools:listitem="@layout/message_details_item" />
+        tools:listitem="@layout/reactions_details_item" />
 </androidx.constraintlayout.widget.ConstraintLayout>

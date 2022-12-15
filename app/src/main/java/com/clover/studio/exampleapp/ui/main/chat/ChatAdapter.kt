@@ -32,6 +32,7 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.Reactions
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.MessageRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.databinding.ItemMessageMeBinding
 import com.clover.studio.exampleapp.databinding.ItemMessageOtherBinding
@@ -70,7 +71,7 @@ class ChatAdapter(
     private val users: List<User>,
     private var exoPlayer: ExoPlayer,
     private var roomType: String?,
-    private val onMessageInteraction: ((event: String, message: Message) -> Unit)
+    private val onMessageInteraction: ((event: String, message: MessageAndRecords) -> Unit)
 ) :
     ListAdapter<MessageAndRecords, RecyclerView.ViewHolder>(MessageAndRecordsDiffCallback()) {
 
@@ -109,7 +110,7 @@ class ChatAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
-        getItem(position).let {
+        getItem(position).let { it ->
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = it.message.createdAt!!
             val date = calendar.get(Calendar.DAY_OF_MONTH)
@@ -197,17 +198,16 @@ class ChatAdapter(
                             holder.binding.ivCancelFile.visibility = View.VISIBLE
                             holder.binding.pbFile.visibility = View.VISIBLE
                             holder.binding.ivCancelFile.setOnClickListener { _ ->
-                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it.message)
+                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
                             }
                         } else {
                             holder.binding.ivDownloadFile.visibility = View.VISIBLE
                             addFiles(it.message, holder.binding.ivFileType)
-                            val message = it.message
                             holder.binding.ivDownloadFile.setOnTouchListener { _, event ->
                                 if (event.action == MotionEvent.ACTION_UP) {
                                     onMessageInteraction.invoke(
                                         Const.UserActions.DOWNLOAD_FILE,
-                                        message
+                                        it
                                     )
                                 }
                                 true
@@ -261,7 +261,7 @@ class ChatAdapter(
                             holder.binding.ivPlayAudio.visibility = View.GONE
                             holder.binding.ivCancelAudio.visibility = View.GONE
                             holder.binding.ivCancelAudio.setOnClickListener { _ ->
-                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it.message)
+                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
                             }
                         } else {
                             holder.binding.ivPlayAudio.visibility = View.VISIBLE
@@ -488,7 +488,7 @@ class ChatAdapter(
 
                 // Find replied message
                 holder.binding.clReplyMessage.setOnClickListener { _ ->
-                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it.message)
+                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it)
                 }
 
                 // Show/hide message edited layout. If createdAt field doesn't correspond to the
@@ -503,7 +503,10 @@ class ChatAdapter(
                 // Get reactions from database:
                 // var reactionId = 0
                 val reactions = Reactions(0, 0, 0, 0, 0, 0)
-                val reactionText = getDatabaseReaction(it, reactions)
+                val filteredList = it.records?.filter { it.reaction != null }
+                val sortedList = filteredList?.sortedByDescending { it.createdAt }
+                val reactionList = sortedList?.distinctBy { it.userId }
+                val reactionText = getDatabaseReaction(reactions, reactionList)
 
                 // Show reactions if there are any in the database
                 if (reactionText.isNotEmpty()) {
@@ -513,11 +516,15 @@ class ChatAdapter(
                     holder.binding.cvReactedEmoji.visibility = View.GONE
                 }
 
+                holder.binding.cvReactedEmoji.setOnClickListener { _ ->
+                    onMessageInteraction.invoke(Const.UserActions.SHOW_MESSAGE_REACTIONS, it)
+                }
+
                 // Send new reaction:
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     it.message.senderMessage = true
                     it.message.messagePosition = holder.absoluteAdapterPosition
-                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it.message)
+                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
                     true
                 }
 
@@ -653,12 +660,11 @@ class ChatAdapter(
 
                         addFiles(it.message, holder.binding.ivFileType)
 
-                        val message = it.message
                         holder.binding.ivDownloadFile.setOnTouchListener { _, event ->
                             if (event.action == MotionEvent.ACTION_UP) {
                                 onMessageInteraction.invoke(
                                     Const.UserActions.DOWNLOAD_FILE,
-                                    message
+                                    it
                                 )
                             }
                             true
@@ -887,7 +893,7 @@ class ChatAdapter(
 
                 // Find replied message
                 holder.binding.clReplyMessage.setOnClickListener { _ ->
-                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it.message)
+                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it)
                 }
 
                 // Show/hide message edited layout. If createdAt field doesn't correspond to the
@@ -939,7 +945,10 @@ class ChatAdapter(
                 /* Reactions section: */
                 // Get reactions from database
                 val reactions = Reactions(0, 0, 0, 0, 0, 0)
-                val reactionText = getDatabaseReaction(it, reactions)
+                val filteredList = it.records?.filter { it.reaction != null }
+                val sortedList = filteredList?.sortedByDescending { it.createdAt }
+                val reactionList = sortedList?.distinctBy { it.userId }
+                val reactionText = getDatabaseReaction(reactions, reactionList)
 
                 if (reactionText.isNotEmpty()) {
                     holder.binding.tvReactedEmoji.text = getGroupReactions(reactions)
@@ -952,8 +961,12 @@ class ChatAdapter(
                 holder.binding.clContainer.setOnLongClickListener { _ ->
                     it.message.senderMessage = false
                     it.message.messagePosition = holder.absoluteAdapterPosition
-                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it.message)
+                    onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
                     true
+                }
+
+                holder.binding.cvReactedEmoji.setOnClickListener { _ ->
+                    onMessageInteraction.invoke(Const.UserActions.SHOW_MESSAGE_REACTIONS, it)
                 }
 
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
@@ -994,13 +1007,9 @@ class ChatAdapter(
     }
 
     private fun getDatabaseReaction(
-        messageAndRecords: MessageAndRecords,
-        reactions: Reactions
+        reactions: Reactions,
+        reactionList: List<MessageRecords>?
     ): String {
-        val filteredList = messageAndRecords.records?.filter { it.reaction != null }
-        val sortedList = filteredList?.sortedByDescending { it.createdAt }
-        val reactionList = sortedList?.distinctBy { it.userId }
-
         try {
             var reaction: String
             if (reactionList != null) {
