@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.data.services
 
 import com.clover.studio.exampleapp.data.models.networking.MessageResponse
+import com.clover.studio.exampleapp.data.models.networking.MuteResponse
 import com.clover.studio.exampleapp.data.models.networking.RoomResponse
 import com.clover.studio.exampleapp.data.models.networking.SettingsResponse
 import com.clover.studio.exampleapp.utils.Const
@@ -31,13 +32,13 @@ interface ChatService {
     suspend fun muteRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    )
+    ): MuteResponse
 
     @POST(Const.Networking.API_UNMUTE_ROOM)
     suspend fun unmuteRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    )
+    ): MuteResponse
 
     @GET(Const.Networking.API_GET_SETTINGS)
     suspend fun getSettings(

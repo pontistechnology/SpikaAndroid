@@ -11,7 +11,6 @@ import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
-import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -74,10 +73,8 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun sendMessagesSeen(roomId: Int) =
         chatService.sendMessagesSeen(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
-    override suspend fun updatedRoomVisitedTimestamp(chatRoom: ChatRoom) {
-        val oldRoom = roomDao.getRoomById(chatRoom.roomId)
-        roomDao.updateRoomTable(oldRoom, chatRoom)
-    }
+    override suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int) =
+        roomDao.updateRoomVisited(visitedTimestamp, roomId)
 
     override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
         roomDao.getRoomAndUsersLiveData(roomId)
@@ -127,15 +124,21 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords> =
         roomDao.getChatRoomAndMessageAndRecordsById(roomId)
 
-    override suspend fun muteRoom(roomId: Int) =
-        chatService.muteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+    override suspend fun muteRoom(roomId: Int) {
+        val response = chatService.muteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
-    override suspend fun unmuteRoom(roomId: Int) =
-        chatService.unmuteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+        if (Const.JsonFields.SUCCESS == response.status) {
+            roomDao.updateRoomMuted(true, roomId)
+        }
+    }
 
-    override suspend fun getUserSettings(): List<Settings> =
-        chatService.getSettings(getHeaderMap(sharedPrefsRepo.readToken())).data.settings
+    override suspend fun unmuteRoom(roomId: Int) {
+        val response = chatService.unmuteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
+        if (Const.JsonFields.SUCCESS == response.status) {
+            roomDao.updateRoomMuted(false, roomId)
+        }
+    }
 
     override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
         roomDao.getSingleRoomData(roomId)
@@ -191,14 +194,13 @@ interface ChatRepository {
     suspend fun deleteLocalMessages(messages: List<Message>)
     suspend fun deleteLocalMessage(message: Message)
     suspend fun sendMessagesSeen(roomId: Int)
-    suspend fun updatedRoomVisitedTimestamp(chatRoom: ChatRoom)
+    suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int)
     suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
     suspend fun muteRoom(roomId: Int)
     suspend fun unmuteRoom(roomId: Int)
-    suspend fun getUserSettings(): List<Settings>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords>
     suspend fun sendReaction(jsonObject: JsonObject)

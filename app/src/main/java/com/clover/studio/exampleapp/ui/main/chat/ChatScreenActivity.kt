@@ -48,7 +48,6 @@ fun replaceChatScreenActivity(fromActivity: Activity, roomData: String) =
 @AndroidEntryPoint
 class ChatScreenActivity : BaseActivity() {
     var roomWithUsers: RoomWithUsers? = null
-    private var mutedRooms: MutableList<String> = ArrayList()
 
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private val viewModel: ChatViewModel by viewModels()
@@ -100,19 +99,6 @@ class ChatScreenActivity : BaseActivity() {
             }
         })
 
-        viewModel.userSettingsListener.observe(this, EventObserver {
-            when (it) {
-                is UserSettingsFetched -> {
-                    for (setting in it.settings) {
-                        mutedRooms.add(setting.key)
-                    }
-                }
-
-                UserSettingsFetchFailed -> Timber.d("Failed to fetch user settings")
-                else -> Timber.d("Other error")
-            }
-        })
-
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it) {
                 is SingleRoomData -> {
@@ -129,18 +115,14 @@ class ChatScreenActivity : BaseActivity() {
             when (it) {
                 is RoomNotificationData -> {
                     val myUserId = viewModel.getLocalUserId()
-                    var isRoomMuted = false
-                    for (key in mutedRooms) {
-                        if (key.contains(it.message.roomId.toString())) {
-                            isRoomMuted = true
-                            break
-                        }
-                    }
 
-                    if (myUserId == it.message.fromUserId || roomWithUsers?.room?.roomId == it.message.roomId || isRoomMuted) return@EventObserver
+                    if (myUserId == it.message.fromUserId || roomWithUsers?.room?.roomId == it.message.roomId || it.roomWithUsers.room.muted) return@EventObserver
                     runOnUiThread {
                         val animator =
-                            ValueAnimator.ofInt(bindingSetup.cvNotification.pbTimeout.max, 0)
+                            ValueAnimator.ofInt(
+                                bindingSetup.cvNotification.pbTimeout.max,
+                                0
+                            )
                         animator.duration = 5000
                         animator.addUpdateListener { animation ->
                             bindingSetup.cvNotification.pbTimeout.progress =
@@ -157,7 +139,8 @@ class ChatScreenActivity : BaseActivity() {
                                 })
                                 .placeholder(getDrawable(R.drawable.img_user_placeholder))
                                 .into(bindingSetup.cvNotification.ivUserImage)
-                            bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
+                            bindingSetup.cvNotification.tvTitle.text =
+                                it.roomWithUsers.room.name
                             for (user in it.roomWithUsers.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     val content: String =
@@ -196,7 +179,8 @@ class ChatScreenActivity : BaseActivity() {
                                             it.message.body?.text.toString()
                                         }
 
-                                    bindingSetup.cvNotification.tvTitle.text = user.displayName
+                                    bindingSetup.cvNotification.tvTitle.text =
+                                        user.displayName
                                     bindingSetup.cvNotification.tvMessage.text =
                                         content
                                     break
@@ -227,7 +211,6 @@ class ChatScreenActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.getUserSettings()
         viewModel.getPushNotificationStream(object : SSEListener {
             override fun newMessageReceived(message: Message) {
                 Timber.d("Message received")

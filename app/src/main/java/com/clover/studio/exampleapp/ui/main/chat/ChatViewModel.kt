@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
-import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.Settings
@@ -37,7 +36,6 @@ class ChatViewModel @Inject constructor(
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
     val roomWithUsersListener = MutableLiveData<Event<ChatStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
-    val userSettingsListener = MutableLiveData<Event<ChatStates>>()
     val roomNotificationListener = MutableLiveData<Event<ChatStates>>()
     val fileUploadListener = MutableLiveData<Event<ChatStates>>()
     val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
@@ -105,9 +103,9 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun updateRoomVisitedTimestamp(chatRoom: ChatRoom) = viewModelScope.launch {
+    fun updateRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int) = viewModelScope.launch {
         try {
-            repository.updatedRoomVisitedTimestamp(chatRoom)
+            repository.updatedRoomVisitedTimestamp(visitedTimestamp, roomId)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
@@ -216,20 +214,6 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun getUserSettings() = viewModelScope.launch {
-        try {
-            val data = repository.getUserSettings()
-            userSettingsListener.postValue(Event(UserSettingsFetched(data)))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                userSettingsListener.postValue(Event(UserSettingsFetchFailed))
-            }
-            return@launch
-        }
-    }
-
     fun sendReaction(jsonObject: JsonObject) = viewModelScope.launch {
         try {
             repository.sendReaction(jsonObject)
@@ -320,9 +304,15 @@ class ChatViewModel @Inject constructor(
                             fileUploadListener.postValue(Event(FileUploadError(description)))
                         }
 
-                        override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
+                        override fun fileUploadVerified(
+                            path: String,
+                            mimeType: String,
+                            thumbId: Long,
+                            fileId: Long
+                        ) {
                             fileUploadListener.postValue(
-                                Event(FileUploadVerified(path, mimeType, thumbId, fileId)))
+                                Event(FileUploadVerified(path, mimeType, thumbId, fileId))
+                            )
                         }
                     })
             } catch (ex: Exception) {
@@ -330,7 +320,14 @@ class ChatViewModel @Inject constructor(
             }
         }
 
-    fun uploadMedia(activity: Activity, uri: Uri, fileType: String, uploadPieces: Long, fileStream: File, isThumbnail: Boolean) = viewModelScope.launch {
+    fun uploadMedia(
+        activity: Activity,
+        uri: Uri,
+        fileType: String,
+        uploadPieces: Long,
+        fileStream: File,
+        isThumbnail: Boolean
+    ) = viewModelScope.launch {
         try {
             uploadDownloadManager.uploadFile(
                 activity,
@@ -348,8 +345,23 @@ class ChatViewModel @Inject constructor(
                         mediaUploadListener.postValue(Event(MediaUploadError(description)))
                     }
 
-                    override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
-                        mediaUploadListener.postValue(Event(MediaUploadVerified(path, mimeType, thumbId, fileId, isThumbnail)))
+                    override fun fileUploadVerified(
+                        path: String,
+                        mimeType: String,
+                        thumbId: Long,
+                        fileId: Long
+                    ) {
+                        mediaUploadListener.postValue(
+                            Event(
+                                MediaUploadVerified(
+                                    path,
+                                    mimeType,
+                                    thumbId,
+                                    fileId,
+                                    isThumbnail
+                                )
+                            )
+                        )
                     }
                 })
         } catch (ex: Exception) {
@@ -366,9 +378,21 @@ class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
 object FilePieceUploaded : ChatStates()
 class FileUploadError(val description: String) : ChatStates()
-class FileUploadVerified(val path: String, val mimeType: String, val thumbId: Long, val fileId: Long) : ChatStates()
+class FileUploadVerified(
+    val path: String,
+    val mimeType: String,
+    val thumbId: Long,
+    val fileId: Long
+) : ChatStates()
+
 object MediaPieceUploaded : ChatStates()
-class MediaUploadError(val description: String) :ChatStates()
-class MediaUploadVerified(val path: String, val mimeType: String, val thumbId: Long, val fileId: Long, val isThumbnail: Boolean): ChatStates()
+class MediaUploadError(val description: String) : ChatStates()
+class MediaUploadVerified(
+    val path: String,
+    val mimeType: String,
+    val thumbId: Long,
+    val fileId: Long,
+    val isThumbnail: Boolean
+) : ChatStates()
 
 enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }
