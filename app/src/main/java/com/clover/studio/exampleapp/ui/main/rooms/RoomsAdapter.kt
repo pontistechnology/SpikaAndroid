@@ -8,12 +8,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.Tools.getFileUrl
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
 
 class RoomsAdapter(
@@ -34,27 +34,27 @@ class RoomsAdapter(
         with(holder) {
             getItem(position).let { roomItem ->
                 var userName = ""
-                var userAvatar = ""
+                var avatarFileId = 0L
                 //Timber.d("Room data = $roomItem, ${roomItem.roomWithUsers.room.name}")
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
                     for (roomUser in roomItem.roomWithUsers.users) {
                         if (myUserId != roomUser.id.toString()) {
                             userName = roomUser.displayName.toString()
-                            userAvatar = roomUser.avatarUrl.toString()
+                            avatarFileId = roomUser.avatarFileId!!
                             break
                         } else {
                             userName = roomUser.displayName.toString()
-                            userAvatar = roomUser.avatarUrl.toString()
+                            avatarFileId = roomUser.avatarFileId!!
                         }
                     }
                 } else {
                     userName = roomItem.roomWithUsers.room.name.toString()
-                    userAvatar = roomItem.roomWithUsers.room.avatarUrl.toString()
+                    avatarFileId = roomItem.roomWithUsers.room.avatarFileId!!
                 }
                 binding.tvRoomName.text = userName
 
                 Glide.with(context)
-                    .load(getFileUrl(userAvatar))
+                    .load("${BuildConfig.SERVER_URL}${Const.Networking.API_GET_AVATAR}$avatarFileId")
                     .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivRoomImage)
 

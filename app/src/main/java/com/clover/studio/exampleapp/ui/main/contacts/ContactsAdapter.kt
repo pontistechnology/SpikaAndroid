@@ -11,7 +11,7 @@ import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.databinding.ItemContactBinding
-import com.clover.studio.exampleapp.utils.Tools.getFileUrl
+import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
 import timber.log.Timber
 
 class ContactsAdapter(
@@ -57,8 +57,7 @@ class ContactsAdapter(
                 binding.tvUsername.text = userItem.phoneUser?.name ?: userItem.user.displayName
                 binding.tvTitle.text = userItem.user.telephoneNumber
 
-                // Remove first / with substring from avatarUrl
-                Glide.with(context).load(userItem.user.avatarUrl?.let { getFileUrl(it) })
+                Glide.with(context).load(userItem.user.avatarFileId?.let { getAvatarUrl(it) })
                     .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivUserImage)
 

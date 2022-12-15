@@ -109,10 +109,16 @@ object Tools {
         return map
     }
 
-    fun copyStreamToFile(activity: Activity, inputStream: InputStream, extension: String, fileName: String = ""): File {
+    fun copyStreamToFile(
+        activity: Activity,
+        inputStream: InputStream,
+        extension: String,
+        fileName: String = ""
+    ): File {
         var tempFileName = fileName
         if (tempFileName.isEmpty()) {
-            tempFileName = "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}"
+            tempFileName =
+                "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}"
         }
         val outputFile = File(activity.cacheDir, tempFileName)
         inputStream.use { input ->
@@ -290,14 +296,17 @@ object Tools {
         return sha256FileHash
     }
 
-    fun getFileUrl(url: String): String {
+    fun getAvatarUrl(avatarFileId: Long): String {
+        return "${BuildConfig.SERVER_URL}${Const.Networking.API_GET_AVATAR}$avatarFileId"
+    }
+
+    fun getFilePathUrl(url: String): String {
         return when {
             url.startsWith(BuildConfig.SERVER_URL) -> url
             url.startsWith("/") -> BuildConfig.SERVER_URL + url.substring(1)
             else -> BuildConfig.SERVER_URL + "/" + url
         }
     }
-
 
     fun getRelativeTimeSpan(startDate: Long): CharSequence? {
         return DateUtils.getRelativeTimeSpanString(
@@ -359,7 +368,7 @@ object Tools {
 
     fun downloadFile(context: Context, message: Message) {
         try {
-            val tmp = getFileUrl(message.body!!.file!!.path)
+            val tmp = getFilePathUrl(message.body!!.file!!.path)
             val request = DownloadManager.Request(Uri.parse(tmp))
             request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
             request.setTitle(message.body.file!!.fileName)

@@ -46,10 +46,10 @@ class OnboardingRepositoryImpl @Inject constructor(
 
 
     override suspend fun updateUser(
-        userMap: Map<String, String>
+       jsonObject: JsonObject
     ): AuthResponse {
         val responseData =
-            retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), userMap)
+            retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
         userDao.insert(responseData.data.user)
         sharedPrefs.writeUserId(responseData.data.user.id)
@@ -63,5 +63,5 @@ interface OnboardingRepository {
     suspend fun verifyUserCode(jsonObject: JsonObject): AuthResponse
     suspend fun sendUserContacts(contacts: List<String>): AuthResponse
     suspend fun writePhoneUsers(phoneUsers: List<PhoneUser>)
-    suspend fun updateUser(userMap: Map<String, String>): AuthResponse
+    suspend fun updateUser(jsonObject: JsonObject): AuthResponse
 }

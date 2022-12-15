@@ -165,9 +165,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun updateUserData(userMap: HashMap<String, String>) = viewModelScope.launch {
+    fun updateUserData(jsonObject: JsonObject) = viewModelScope.launch {
         try {
-            repository.updateUserData(userMap)
+            repository.updateUserData(jsonObject)
             sharedPrefsRepo.accountCreated(true)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {

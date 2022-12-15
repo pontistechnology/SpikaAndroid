@@ -20,8 +20,8 @@ data class User(
     @ColumnInfo(name = "display_name")
     val displayName: String?,
 
-    @ColumnInfo(name = "avatar_url")
-    val avatarUrl: String?,
+    @ColumnInfo(name = "avatar_file_id")
+    val avatarFileId: Long?,
 
     @ColumnInfo(name = "telephone_number")
     val telephoneNumber: String?,

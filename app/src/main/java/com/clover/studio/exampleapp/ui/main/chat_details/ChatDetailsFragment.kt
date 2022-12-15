@@ -53,12 +53,12 @@ class ChatDetailsFragment : BaseFragment() {
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var roomUsers: MutableList<User> = ArrayList()
     private var progress: Long = 1L
-    private var avatarPath: String? = null
+    private var avatarPath: Long? = null
     private var roomId: Int? = null
     private var isAdmin = false
 
     private var userName = ""
-    private var avatarUr = ""
+    private var avatarFileId = 0L
 
     private var bindingSetup: FragmentChatDetailsBinding? = null
     private val binding get() = bindingSetup!!
@@ -133,18 +133,18 @@ class ChatDetailsFragment : BaseFragment() {
             for (roomUser in roomWithUsers.users) {
                 if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
                     userName = roomUser.displayName.toString()
-                    avatarUr = roomUser.avatarUrl.toString()
+                    avatarFileId = roomUser.avatarFileId!!
                     break
                 } else {
                     userName = roomUser.displayName.toString()
-                    avatarUr = roomUser.avatarUrl.toString()
+                    avatarFileId = roomUser.avatarFileId!!
                 }
             }
         } else {
             userName = roomWithUsers.room.name.toString()
-            avatarUr = roomWithUsers.room.avatarUrl.toString()
+            avatarFileId = roomWithUsers.room.avatarFileId!!
         }
-        setAvatarAndUsername(avatarUr, userName)
+        setAvatarAndUsername(avatarFileId, userName)
 
         binding.ivAddMember.setOnClickListener {
             val userIds = ArrayList<Int>()
@@ -182,8 +182,8 @@ class ChatDetailsFragment : BaseFragment() {
                 jsonObject.addProperty(Const.JsonFields.NAME, roomName)
             }
 
-            if (avatarPath?.isNotEmpty() == true) {
-                jsonObject.addProperty(Const.JsonFields.AVATAR_URL, avatarPath)
+            if (avatarPath != 0L) {
+                jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarPath)
             }
 
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
@@ -267,13 +267,13 @@ class ChatDetailsFragment : BaseFragment() {
         }
     }
 
-    private fun setAvatarAndUsername(avatarUrl: String, username: String) {
-        if (avatarUrl.isNotEmpty()) {
+    private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
+        if (avatarFileId != 0L) {
             Glide.with(this)
-                .load(avatarUrl.let { Tools.getFileUrl(it) })
+                .load(avatarFileId.let { Tools.getAvatarUrl(it) })
                 .into(binding.ivPickAvatar)
             Glide.with(this)
-                .load(avatarUrl.let { Tools.getFileUrl(it) })
+                .load(avatarFileId.let { Tools.getAvatarUrl(it) })
                 .into(binding.ivUserImage)
         }
         binding.tvGroupName.text = username
@@ -423,7 +423,7 @@ class ChatDetailsFragment : BaseFragment() {
                                 binding.ivCallUser.visibility = View.GONE
                                 binding.tvDone.visibility = View.VISIBLE
                             }
-                            avatarPath = path
+                            avatarPath = fileId
                         }
 
                     })

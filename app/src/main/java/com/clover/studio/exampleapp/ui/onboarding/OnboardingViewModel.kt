@@ -116,9 +116,9 @@ class OnboardingViewModel @Inject constructor(
         return contactsFilled
     }
 
-    fun updateUserData(userMap: Map<String, String>) = viewModelScope.launch {
+    fun updateUserData(jsonObject: JsonObject) = viewModelScope.launch {
         try {
-            onboardingRepository.updateUser(userMap)
+            onboardingRepository.updateUser(jsonObject)
             sharedPrefs.accountCreated(true)
         } catch (ex: Exception) {
             Tools.checkError(ex)
