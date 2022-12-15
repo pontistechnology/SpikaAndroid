@@ -31,12 +31,18 @@ interface ChatRoomDao {
     @Delete
     suspend fun deleteRoom(chatRoom: ChatRoom)
 
+    @Query("UPDATE room SET muted = :muted WHERE room_id LIKE :roomId")
+    suspend fun updateRoomMuted(muted: Boolean, roomId: Int)
+
+    @Query("UPDATE room SET visited_room =:visitedRoom WHERE room_id LIKE :roomId")
+    suspend fun updateRoomVisited(visitedRoom: Long, roomId: Int)
+
     /**
      * Use this method to delete rooms from local db. We cannot rely on the above one because
      * chat rooms might come with a field that is ignored.
      */
-   @Query("DELETE FROM room WHERE room_id = :roomId")
-   suspend fun deleteRoom(roomId: Int)
+    @Query("DELETE FROM room WHERE room_id = :roomId")
+    suspend fun deleteRoom(roomId: Int)
 
     @Query("DELETE FROM room")
     suspend fun removeRooms()

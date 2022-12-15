@@ -39,7 +39,6 @@ fun startMainActivity(fromActivity: Activity) = fromActivity.apply {
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
-    private var mutedRooms: MutableList<String> = ArrayList()
 
     private val viewModel: MainViewModel by viewModels()
     private lateinit var bindingSetup: ActivityMainBinding
@@ -94,19 +93,6 @@ class MainActivity : BaseActivity() {
             }
         })
 
-        viewModel.userSettingsListener.observe(this, EventObserver {
-            when (it) {
-                is UserSettingsFetched -> {
-                    for (setting in it.settings) {
-                        mutedRooms.add(setting.key)
-                    }
-                }
-
-                UserSettingsFetchFailed -> Timber.d("Failed to fetch user settings")
-                else -> Timber.d("Other error")
-            }
-        })
-
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it) {
                 is SingleRoomData -> {
@@ -123,15 +109,8 @@ class MainActivity : BaseActivity() {
             when (it) {
                 is RoomNotificationData -> {
                     val myUserId = viewModel.getLocalUserId()
-                    var isRoomMuted = false
-                    for (key in mutedRooms) {
-                        if (key.contains(it.message.roomId.toString())) {
-                            isRoomMuted = true
-                            break
-                        }
-                    }
 
-                    if (myUserId == it.message.fromUserId || isRoomMuted) return@EventObserver
+                    if (myUserId == it.message.fromUserId || it.roomWithUsers.room.muted) return@EventObserver
                     runOnUiThread {
                         val animator =
                             ValueAnimator.ofInt(bindingSetup.cvNotification.pbTimeout.max, 0)
@@ -154,14 +133,15 @@ class MainActivity : BaseActivity() {
                             bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
                             for (user in it.roomWithUsers.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
-                                    val content = if (it.message.type != Const.JsonFields.TEXT_TYPE) {
-                                        user.displayName + ": " + getString(
-                                            R.string.generic_shared,
-                                            it.message.type.toString()
-                                                .replaceFirstChar { type -> type.uppercase() })
-                                    } else {
-                                        user.displayName + ": " + it.message.body?.text.toString()
-                                    }
+                                    val content =
+                                        if (it.message.type != Const.JsonFields.TEXT_TYPE) {
+                                            user.displayName + ": " + getString(
+                                                R.string.generic_shared,
+                                                it.message.type.toString()
+                                                    .replaceFirstChar { type -> type.uppercase() })
+                                        } else {
+                                            user.displayName + ": " + it.message.body?.text.toString()
+                                        }
 
                                     bindingSetup.cvNotification.tvMessage.text =
                                         content
@@ -179,14 +159,15 @@ class MainActivity : BaseActivity() {
                                         })
                                         .placeholder(getDrawable(R.drawable.img_user_placeholder))
                                         .into(bindingSetup.cvNotification.ivUserImage)
-                                    val content = if (it.message.type != Const.JsonFields.TEXT_TYPE) {
-                                        getString(
-                                            R.string.generic_shared,
-                                            it.message.type.toString()
-                                                .replaceFirstChar { type -> type.uppercase() })
-                                    } else {
-                                        it.message.body?.text.toString()
-                                    }
+                                    val content =
+                                        if (it.message.type != Const.JsonFields.TEXT_TYPE) {
+                                            getString(
+                                                R.string.generic_shared,
+                                                it.message.type.toString()
+                                                    .replaceFirstChar { type -> type.uppercase() })
+                                        } else {
+                                            it.message.body?.text.toString()
+                                        }
 
                                     bindingSetup.cvNotification.tvTitle.text = user.displayName
                                     bindingSetup.cvNotification.tvMessage.text =
@@ -244,7 +225,6 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.getUserSettings()
         viewModel.getPushNotificationStream(object : SSEListener {
             override fun newMessageReceived(message: Message) {
                 Timber.d("Message received")

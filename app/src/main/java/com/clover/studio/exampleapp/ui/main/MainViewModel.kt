@@ -37,7 +37,6 @@ class MainViewModel @Inject constructor(
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
     val roomWithUsersListener = MutableLiveData<Event<MainStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
-    val userSettingsListener = MutableLiveData<Event<MainStates>>()
     val roomNotificationListener = MutableLiveData<Event<MainStates>>()
 
     fun getLocalUser() = liveData {
@@ -197,20 +196,6 @@ class MainViewModel @Inject constructor(
             return@launch
         }
     }
-
-    fun getUserSettings() = viewModelScope.launch {
-        try {
-            val data = repository.getUserSettings()
-            userSettingsListener.postValue(Event(UserSettingsFetched(data)))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                userSettingsListener.postValue(Event(UserSettingsFetchFailed))
-            }
-            return@launch
-        }
-    }
 }
 
 sealed class MainStates
@@ -221,7 +206,7 @@ object RoomFetchFail : MainStates()
 class RoomCreated(val roomData: ChatRoom) : MainStates()
 class RoomUpdated(val roomData: ChatRoom) : MainStates()
 object RoomCreateFailed : MainStates()
-object RoomUpdateFailed: MainStates()
+object RoomUpdateFailed : MainStates()
 class RoomExists(val roomData: ChatRoom) : MainStates()
 object RoomNotFound : MainStates()
 object UserUpdated : MainStates()

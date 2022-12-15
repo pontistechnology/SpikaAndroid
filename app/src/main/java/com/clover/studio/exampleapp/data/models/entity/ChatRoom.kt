@@ -36,7 +36,10 @@ data class ChatRoom @JvmOverloads constructor(
     val modifiedAt: Long?,
 
     @ColumnInfo(name = "visited_room")
-    var visitedRoom: Long?
+    var visitedRoom: Long?,
+
+    @ColumnInfo(name = "muted")
+    var muted: Boolean
 ) {
     @Ignore
     val users: List<RoomUsers> = ArrayList()
