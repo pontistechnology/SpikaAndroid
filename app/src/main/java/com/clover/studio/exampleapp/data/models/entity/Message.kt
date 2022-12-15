@@ -61,7 +61,7 @@ data class Message @JvmOverloads constructor(
     val deleted: Boolean?,
 
     @SerializedName("replyId")
-    @ColumnInfo(name = "replyId")
+    @ColumnInfo(name = "reply_id")
     val replyId: Long?,
 
     @SerializedName("localId")

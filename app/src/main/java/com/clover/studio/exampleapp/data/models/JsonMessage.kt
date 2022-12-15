@@ -10,7 +10,7 @@ data class JsonMessage(
     val thumbId: Long?,
     val roomId: Int?,
     val localId: String?,
-    val replyId: Long?,
+    var replyId: Long?,
 ) {
     fun messageToJson(): JsonObject {
         val jsonObject = JsonObject()
@@ -33,6 +33,10 @@ data class JsonMessage(
             innerObject.addProperty(Const.JsonFields.THUMB_ID, thumbId)
             jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.VIDEO_TYPE)
         } else jsonObject.addProperty(Const.JsonFields.TYPE, mimeType)
+
+        if (replyId == 0L){
+            replyId = null
+        }
 
         jsonObject.addProperty(Const.JsonFields.REPLY_ID, replyId)
         jsonObject.addProperty(Const.JsonFields.LOCAL_ID, localId)

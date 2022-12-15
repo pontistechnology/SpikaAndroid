@@ -116,7 +116,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var heightDiff = 0
     private var exoPlayer: ExoPlayer? = null
 
-    private var replyId: Long? = null
+    private var replyId: Long? = 0L
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
@@ -769,7 +769,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.replyAction.ivRemove.setOnClickListener {
             if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
-                replyId = null
+                replyId = 0L
             }
         }
 
@@ -782,7 +782,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.ivAdd.setOnClickListener {
             if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
-                replyId = null
+                replyId = 0L
                 bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
             }
             if (!isEditing) {
@@ -1088,7 +1088,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.sendMessage(jsonObject)
 
         if (replyId != 0L) {
-            replyId = null
+            replyId = 0L
         }
     }
 
