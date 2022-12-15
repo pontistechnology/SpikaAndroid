@@ -25,7 +25,7 @@ data class JsonMessage(
             innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
             innerObject.addProperty(Const.JsonFields.THUMB_ID, thumbId)
             jsonObject.addProperty(Const.JsonFields.TYPE, mimeType)
-        } else if (mimeType.contains(Const.JsonFields.FILE_TYPE)) {
+        } else if (mimeType.contains(Const.JsonFields.FILE_TYPE) || mimeType.contains(Const.JsonFields.AUDIO_TYPE)) {
             innerObject.addProperty(Const.JsonFields.FILE_ID, fileId)
             jsonObject.addProperty(Const.JsonFields.TYPE, mimeType)
         } else if (mimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
