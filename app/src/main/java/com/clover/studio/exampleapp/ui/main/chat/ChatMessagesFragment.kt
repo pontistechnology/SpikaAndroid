@@ -100,7 +100,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var bottomSheetReplyAction: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetDetailsAction: BottomSheetBehavior<ConstraintLayout>
 
-    private var avatarUrl = ""
+    private var avatarFileId = 0L
     private var userName = ""
     private var firstEnter = true
     private var isEditing = false
@@ -181,10 +181,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         return bindingSetup.root
     }
 
-    private fun setAvatarAndName(avatarUrl: String, userName: String) {
+    private fun setAvatarAndName(avatarFileId: Long, userName: String) {
         bindingSetup.tvChatName.text = userName
         Glide.with(this)
-            .load(avatarUrl.let { Tools.getFileUrl(it) })
+            .load(avatarFileId.let { Tools.getAvatarUrl(it) })
             .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
             .into(bindingSetup.ivUserImage)
     }
@@ -624,19 +624,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             for (user in roomWithUsers.users) {
                 if (user.id.toString() != viewModel.getLocalUserId().toString()) {
-                    avatarUrl = user.avatarUrl.toString()
+                    avatarFileId = user.avatarFileId!!
                     userName = user.displayName.toString()
                     break
                 } else {
-                    avatarUrl = user.avatarUrl.toString()
+                    avatarFileId = user.avatarFileId!!
                     userName = user.displayName.toString()
                 }
             }
         } else {
-            avatarUrl = roomWithUsers.room.avatarUrl.toString()
+            avatarFileId = roomWithUsers.room.avatarFileId!!
             userName = roomWithUsers.room.name.toString()
         }
-        setAvatarAndName(avatarUrl, userName)
+        setAvatarAndName(avatarFileId, userName)
 
         bindingSetup.clHeader.setOnClickListener {
             val action =
@@ -946,7 +946,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.replyAction.cvReplyMedia.visibility = View.VISIBLE
                 val imagePath =
                     message.body?.file?.path?.let { imagePath ->
-                        Tools.getFileUrl(
+                        Tools.getFilePathUrl(
                             imagePath
                         )
                     }

@@ -109,7 +109,7 @@ class Const {
             // Chat
             const val ROOM_ID = "roomId"
             const val NAME = "name"
-            const val AVATAR_URL = "avatarUrl"
+            const val AVATAR_FILE_ID = "avatarFileId"
             const val USER_IDS = "userIds"
             const val ADMIN_USER_IDS = "adminUserIds"
             const val PRIVATE = "private"
@@ -150,6 +150,7 @@ class Const {
             const val API_VERIFY_CODE = "api/messenger/auth/verify"
             const val API_CONTACTS = "api/messenger/contacts"  // Fix
             const val API_UPDATE_USER = "api/messenger/me" // Fix
+            const val API_GET_AVATAR = "api/upload/files/"
             const val API_UPLOAD_FILE = "api/upload/files" // Fix
             const val API_VERIFY_FILE = "api/upload/files/verify" // Fix
             const val API_POST_MESSAGE = "api/messenger/messages"
@@ -179,6 +180,7 @@ class Const {
             const val PAGE = "page"
             const val ID = "id"
             const val TARGET = "target"
+            const val AVATAR_ID = "avatarFileId"
         }
     }
 
@@ -223,7 +225,7 @@ class Const {
     class UserData {
         companion object {
             const val DISPLAY_NAME: String = "displayName"
-            const val AVATAR_URL: String = "avatarUrl"
+            const val AVATAR_FILE_ID: String = "avatarFileId"
         }
     }
 }

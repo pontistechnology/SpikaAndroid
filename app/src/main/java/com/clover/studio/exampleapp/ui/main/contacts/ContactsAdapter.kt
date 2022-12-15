@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,7 +11,8 @@ import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.databinding.ItemContactBinding
-import com.clover.studio.exampleapp.utils.Tools.getFilePathUrl
+import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
+import timber.log.Timber
 
 class ContactsAdapter(
     private val context: Context,
@@ -57,17 +57,9 @@ class ContactsAdapter(
                 binding.tvUsername.text = userItem.phoneUser?.name ?: userItem.user.displayName
                 binding.tvTitle.text = userItem.user.telephoneNumber
 
-                if (userItem.user.hasAvatar) {
-                    Glide.with(context).load(userItem.user.avatarFileId?.let { getFilePathUrl(it) })
-                        .placeholder(R.drawable.img_user_placeholder)
-                        .centerCrop()
-                        .into(binding.ivUserImage)
-                } else binding.ivUserImage.setImageDrawable(
-                    AppCompatResources.getDrawable(
-                        context,
-                        R.drawable.img_user_placeholder
-                    )
-                )
+                Glide.with(context).load(userItem.user.avatarFileId?.let { getAvatarUrl(it) })
+                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                    .into(binding.ivUserImage)
 
                 // if not first item, check if item above has the same header
                 if (position > 0) {
@@ -77,6 +69,7 @@ class ContactsAdapter(
 
                     val currentItem = userItem.phoneUser?.name?.lowercase()?.substring(0, 1)
                         ?: userItem.user.displayName?.lowercase()?.substring(0, 1)
+                    Timber.d("Items : $previousItem, $currentItem ${previousItem == currentItem}")
 
                     if (previousItem == currentItem) {
                         binding.tvHeader.visibility = View.GONE

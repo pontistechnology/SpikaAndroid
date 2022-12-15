@@ -14,11 +14,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
-import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
+import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.Tools.convertBitmapToUri
@@ -26,7 +25,6 @@ import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
-import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +47,7 @@ class AccountCreationFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.GetContent()) {
             if (it != null) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
+                    Tools.handleSamplingAndRotationBitmap(requireActivity(), it)
                 val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
@@ -64,16 +62,11 @@ class AccountCreationFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(
-                        requireActivity(),
-                        currentPhotoLocation,
-                        false
-                    )
+                    Tools.handleSamplingAndRotationBitmap(requireActivity(), currentPhotoLocation)
                 val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap)
-                    .placeholder(R.drawable.img_user_placeholder)
-                    .centerCrop()
+                    .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
@@ -103,19 +96,19 @@ class AccountCreationFragment : BaseFragment() {
 
     private fun addObservers() {
         viewModel.accountCreationListener.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.SUCCESS -> Timber.d("Contacts sent successfully")
-                Resource.Status.ERROR -> Timber.d("Failed to send contacts")
+            when (it) {
+                OnboardingStates.CONTACTS_SENT -> Timber.d("Contacts sent successfully")
+                OnboardingStates.CONTACTS_ERROR -> Timber.d("Failed to send contacts")
                 else -> Timber.d("Other error")
             }
         })
 
         viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
+            when (it) {
+                OnboardingStates.USER_UPDATED -> {
                     startMainActivity(requireActivity())
                 }
-                Resource.Status.ERROR -> Timber.d("Error updating user")
+                OnboardingStates.USER_UPDATE_ERROR -> Timber.d("Error updating user")
                 else -> Timber.d("Other error")
             }
         })
@@ -173,7 +166,7 @@ class AccountCreationFragment : BaseFragment() {
         binding.etEnterUsername.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
-                    hideKeyboard(view)
+                    Tools.hideKeyboard(requireActivity(), view)
                 }
             }
         }
@@ -222,11 +215,11 @@ class AccountCreationFragment : BaseFragment() {
                     activity?.contentResolver?.getType(currentPhotoLocation)!!
                 )
                 val uploadPieces =
-                    if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
-                        (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
-                    else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
+                    if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
+                        fileStream.length() / CHUNK_SIZE + 1
+                    else fileStream.length() / CHUNK_SIZE
 
-                binding.progressBar.max = uploadPieces
+                binding.progressBar.max = uploadPieces.toInt()
                 Timber.d("File upload start")
                 CoroutineScope(Dispatchers.IO).launch {
                     uploadDownloadManager.uploadFile(
@@ -235,7 +228,6 @@ class AccountCreationFragment : BaseFragment() {
                         Const.JsonFields.AVATAR_TYPE,
                         uploadPieces,
                         fileStream,
-                        null,
                         false,
                         object : FileUploadListener {
                             override fun filePieceUploaded() {
@@ -256,9 +248,7 @@ class AccountCreationFragment : BaseFragment() {
                                 path: String,
                                 mimeType: String,
                                 thumbId: Long,
-                                fileId: Long,
-                                fileType: String,
-                                messageBody: MessageBody?
+                                fileId: Long
                             ) {
                                 requireActivity().runOnUiThread {
                                     binding.clProgressScreen.visibility = View.GONE
@@ -294,7 +284,7 @@ class AccountCreationFragment : BaseFragment() {
     private fun takePhoto() {
         currentPhotoLocation = FileProvider.getUriForFile(
             requireActivity(),
-            BuildConfig.APPLICATION_ID + ".fileprovider",
+            "com.clover.studio.exampleapp.fileprovider",
             Tools.createImageFile(requireActivity())
         )
         Timber.d("$currentPhotoLocation")

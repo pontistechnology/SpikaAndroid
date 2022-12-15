@@ -11,14 +11,12 @@ import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.databinding.ItemPeopleSelectedBinding
-import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 
 class ChatDetailsAdapter(
     private val context: Context,
     private val isAdmin: Boolean,
-    private val roomType: String,
-    private val onUserInteraction: ((event: String, user: User) -> Unit)
+    private val listener: DetailsAdapterListener
 ) :
     ListAdapter<User, ChatDetailsAdapter.ChatDetailsViewHolder>(ChatDetailsCallback()) {
 
@@ -36,30 +34,30 @@ class ChatDetailsAdapter(
             getItem(position).let { userItem ->
                 binding.tvUsername.text = userItem.displayName
                 binding.tvTitle.text = userItem.telephoneNumber
-                Glide.with(context).load(userItem.avatarFileId?.let { Tools.getFilePathUrl(it) })
-                    .placeholder(R.drawable.img_user_placeholder)
-                    .centerCrop()
+                Glide.with(context).load(userItem.avatarFileId?.let { Tools.getAvatarUrl(it) })
+                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivUserImage)
 
-                if (Const.JsonFields.PRIVATE == roomType) {
-                    binding.ivRemoveUser.visibility = View.GONE
-                    binding.tvAdmin.visibility = View.GONE
+                if (isAdmin) binding.ivRemoveUser.visibility = View.VISIBLE
+                else binding.ivRemoveUser.visibility = View.INVISIBLE
+
+                if (userItem.isAdmin) {
+                    binding.tvAdmin.visibility = View.VISIBLE
+                    binding.ivRemoveUser.visibility = View.INVISIBLE
                 } else {
-                    binding.ivRemoveUser.visibility = if (isAdmin) View.VISIBLE else View.INVISIBLE
-                    if (userItem.isAdmin) {
-                        binding.tvAdmin.visibility = View.VISIBLE
-                        binding.ivRemoveUser.visibility = View.INVISIBLE
-                    } else {
-                        binding.tvAdmin.visibility = View.GONE
-                    }
+                    binding.tvAdmin.visibility = View.GONE
                 }
 
                 itemView.setOnClickListener {
-                    onUserInteraction(Const.UserActions.USER_OPTIONS, userItem)
+                    userItem.let {
+                        listener.onItemClicked(it)
+                    }
                 }
 
                 binding.ivRemoveUser.setOnClickListener {
-                    onUserInteraction(Const.UserActions.USER_REMOVE, userItem)
+                    userItem.let {
+                        listener.onViewClicked(position, it)
+                    }
                 }
             }
         }
@@ -71,5 +69,10 @@ class ChatDetailsAdapter(
 
         override fun areContentsTheSame(oldItem: User, newItem: User) =
             oldItem == newItem
+    }
+
+    interface DetailsAdapterListener {
+        fun onItemClicked(user: User)
+        fun onViewClicked(position: Int, user: User)
     }
 }

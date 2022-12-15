@@ -19,11 +19,12 @@ import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.UserUpdateFailed
 import com.clover.studio.exampleapp.ui.main.UserUpdated
 import com.clover.studio.exampleapp.utils.*
-import com.clover.studio.exampleapp.utils.Tools.getFileUrl
+import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -126,7 +127,7 @@ class SettingsFragment : BaseFragment() {
             binding.tvPhoneNumber.text = it.telephoneNumber
 
             Glide.with(requireActivity())
-                .load(it.avatarUrl?.let { imageUrl -> getFileUrl(imageUrl) })
+                .load(it.avatarFileId?.let { fileId -> getAvatarUrl(fileId) })
                 .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
                 .into(binding.ivPickPhoto)
         }
@@ -239,16 +240,23 @@ class SettingsFragment : BaseFragment() {
                             }
                         }
 
-                        override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
+                        override fun fileUploadVerified(
+                            path: String,
+                            mimeType: String,
+                            thumbId: Long,
+                            fileId: Long
+                        ) {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
                                 binding.clProgressScreen.visibility = View.GONE
                             }
 
-                            val userData = hashMapOf(
-                                Const.UserData.AVATAR_URL to path
-                            )
-                            viewModel.updateUserData(userData)
+                            val jsonObject = JsonObject()
+                            jsonObject.addProperty(Const.UserData.AVATAR_FILE_ID, fileId)
+//                            val userData = hashMapOf(
+//                                Const.UserData.AVATAR_FILE_ID to fileId
+//                            )
+                            viewModel.updateUserData(jsonObject)
                         }
 
                     })
@@ -259,7 +267,12 @@ class SettingsFragment : BaseFragment() {
 
     private fun updateUsername() {
         if (binding.etEnterUsername.text.toString().isNotEmpty()) {
-            viewModel.updateUserData(hashMapOf(Const.UserData.DISPLAY_NAME to binding.etEnterUsername.text.toString()))
+            val jsonObject = JsonObject()
+            jsonObject.addProperty(
+                Const.UserData.DISPLAY_NAME,
+                binding.etEnterUsername.text.toString()
+            )
+            viewModel.updateUserData(jsonObject)
         } else {
             return
         }

@@ -79,9 +79,9 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun updatePushToken(jsonObject: JsonObject) =
         retrofitService.updatePushToken(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
-    override suspend fun updateUserData(data: Map<String, String>): AuthResponse {
+    override suspend fun updateUserData(jsonObject: JsonObject): AuthResponse {
         val responseData =
-            retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), data)
+            retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
         userDao.insert(responseData.data.user)
         sharedPrefs.writeUserId(responseData.data.user.id)
@@ -148,7 +148,7 @@ interface MainRepository {
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
     suspend fun updatePushToken(jsonObject: JsonObject)
-    suspend fun updateUserData(data: Map<String, String>): AuthResponse
+    suspend fun updateUserData(jsonObject: JsonObject): AuthResponse
     suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
     suspend fun verifyFile(jsonObject: JsonObject): FileResponse
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse

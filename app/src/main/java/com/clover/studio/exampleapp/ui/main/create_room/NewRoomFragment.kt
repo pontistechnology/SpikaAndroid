@@ -257,7 +257,7 @@ class NewRoomFragment : BaseFragment() {
                     userIdsArray.add(user?.id)
 
                     jsonObject.addProperty(Const.JsonFields.NAME, user?.displayName)
-                    jsonObject.addProperty(Const.JsonFields.AVATAR_URL, user?.avatarUrl)
+                    jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, user?.avatarFileId)
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
                     jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
 

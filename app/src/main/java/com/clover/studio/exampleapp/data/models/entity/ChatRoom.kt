@@ -19,15 +19,15 @@ data class ChatRoom @JvmOverloads constructor(
     @ColumnInfo(name = "name")
     val name: String?,
 
-    @ColumnInfo(name = "avatar_url")
-    val avatarUrl: String?,
-
     @ColumnInfo(name = "type")
     val type: String?,
 
     // Used only for local db insert logic
     @Ignore
     val deleted: Boolean = false,
+
+    @ColumnInfo(name = "avatar_file_id")
+    val avatarFileId: Long?,
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long?,
