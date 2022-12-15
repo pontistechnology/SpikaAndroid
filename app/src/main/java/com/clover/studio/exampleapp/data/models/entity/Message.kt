@@ -1,7 +1,5 @@
 package com.clover.studio.exampleapp.data.models.entity
 
-import android.graphics.Bitmap
-import android.net.Uri
 import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.google.gson.annotations.SerializedName
@@ -62,9 +60,9 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "deleted")
     val deleted: Boolean?,
 
-    @SerializedName("reply")
-    @ColumnInfo(name = "reply")
-    val reply: Boolean?,
+    @SerializedName("replyId")
+    @ColumnInfo(name = "replyId")
+    val replyId: Long?,
 
     @SerializedName("localId")
     @ColumnInfo(name = "local_id")
@@ -100,7 +98,7 @@ data class MessageBody(
     var fileId: Long?,
     var thumbId: Long?,
     var file: MessageFile?,
-    var thumb: MessageFile?
+    var thumb: MessageFile?,
 )
 
 data class ReferenceMessage(

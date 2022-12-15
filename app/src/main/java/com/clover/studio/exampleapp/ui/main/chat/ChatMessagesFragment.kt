@@ -116,8 +116,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var heightDiff = 0
     private var exoPlayer: ExoPlayer? = null
 
-    private var replyFlag = false
-    private var referenceMessage: Message? = null
+    private var replyId: Long? = null
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
@@ -770,7 +769,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.replyAction.ivRemove.setOnClickListener {
             if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
-                replyFlag = false
+                replyId = null
             }
         }
 
@@ -783,7 +782,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.ivAdd.setOnClickListener {
             if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
-                replyFlag = false
+                replyId = null
                 bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
             }
             if (!isEditing) {
@@ -924,7 +923,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun handleMessageReply(message: Message) {
         bindingSetup.vTransparent.visibility = View.VISIBLE
-        referenceMessage = message
+        replyId = message.id.toLong()
         if (message.senderMessage) {
             bindingSetup.replyAction.clReplyContainer.background =
                 context!!.getDrawable(R.drawable.bg_message_user)
@@ -943,7 +942,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         when (message.type) {
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
-                bindingSetup.replyAction.cvReplyMedia.visibility = View.VISIBLE
+                bindingSetup.replyAction.ivReplyImage.visibility = View.VISIBLE
                 val imagePath =
                     message.body?.file?.path?.let { imagePath ->
                         Tools.getFilePathUrl(
@@ -985,8 +984,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
             Const.JsonFields.AUDIO_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
-                bindingSetup.replyAction.cvReplyMedia.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
+                bindingSetup.replyAction.ivReplyImage.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.text =
                     getString(R.string.media, context!!.getString(R.string.audio))
                 bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
@@ -998,8 +997,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
             Const.JsonFields.FILE_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
+                bindingSetup.replyAction.ivReplyImage.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
-                bindingSetup.replyAction.cvReplyMedia.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.text =
                     getString(R.string.media, context!!.getString(R.string.file))
                 bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
@@ -1010,7 +1009,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 )
             }
             else -> {
-                bindingSetup.replyAction.cvReplyMedia.visibility = View.GONE
+                bindingSetup.replyAction.ivReplyImage.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.GONE
                 bindingSetup.replyAction.tvMessage.visibility = View.VISIBLE
                 val replyText = message.body?.text
@@ -1023,7 +1022,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 )
             }
         }
-        replyFlag = true
     }
 
     private fun handleMessageEdit(message: Message) {
@@ -1077,25 +1075,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         thumbId: Long,
         localId: String
     ) {
-
         val jsonMessage = JsonMessage(
             bindingSetup.etMessage.text.toString(),
             messageFileType,
             fileId,
             thumbId,
             roomWithUsers.room.roomId,
-            localId
+            localId,
+            replyId
         )
-        val jsonObject = jsonMessage.messageToJson(
-            replyFlag,
-            referenceMessage,
-        )
-
-        if (replyFlag) {
-            replyFlag = false
-        }
-
+        val jsonObject = jsonMessage.messageToJson()
         viewModel.sendMessage(jsonObject)
+
+        if (replyId != 0L) {
+            replyId = null
+        }
     }
 
     private fun createTempTextMessage() {
@@ -1115,7 +1109,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     /**
-     * Meehod creates temporary file message which will be displayed to the user inside of the
+     * Method creates temporary file message which will be displayed to the user inside of the
      * chat adapter.
      *
      * @param uri Uri of the file being sent and with which the temporary message will be created.
@@ -1147,7 +1141,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             1,
             1,
             MessageFile(fileName, "", "", fileStream.length(), null),
-            null
+            null,
         )
 
         val type = activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
@@ -1189,7 +1183,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 0,
                 mediaUri.toString()
             ),
-            null
+            null,
         )
 
         // Media file is always thumbnail first. Therefore, we are sending CHAT_IMAGE as type
