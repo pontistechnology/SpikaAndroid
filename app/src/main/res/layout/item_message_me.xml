@@ -125,8 +125,8 @@
                     app:layout_constraintTop_toBottomOf="@+id/tv_username"
                     app:layout_constraintVertical_bias="0.0" />
 
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cv_reply_media"
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_reply_image"
                     android:layout_width="@dimen/forty_two_dp"
                     android:layout_height="0dp"
                     android:layout_marginStart="@dimen/sixteen_dp_margin"
@@ -136,16 +136,11 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toEndOf="@+id/tv_username"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:id="@+id/iv_reply_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:adjustViewBounds="true"
-                        android:scaleType="centerCrop"
-                        tools:srcCompat="@tools:sample/avatars" />
-                </androidx.cardview.widget.CardView>
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    tools:srcCompat="@tools:sample/avatars"
+                    app:shapeAppearanceOverlay="@style/round"/>
 
                 <TextView
                     android:id="@+id/tv_reply_media"
@@ -161,7 +156,7 @@
                     android:visibility="gone"
                     app:drawableLeftCompat="@drawable/img_camera_reply"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/cv_reply_media"
+                    app:layout_constraintEnd_toStartOf="@+id/iv_reply_image"
                     app:layout_constraintHorizontal_bias="0.02"
                     app:layout_constraintStart_toStartOf="@+id/tv_username"
                     app:layout_constraintTop_toBottomOf="@+id/tv_username" />

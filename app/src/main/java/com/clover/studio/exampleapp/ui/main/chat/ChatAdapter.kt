@@ -365,7 +365,10 @@ class ChatAdapter(
                 }
 
                 // Reply section
-                if (it.message.reply == true) {
+                holder.binding.ivReplyImage.visibility = View.GONE
+                holder.binding.tvReplyMedia.visibility = View.GONE
+                holder.binding.tvMessageReply.visibility = View.GONE
+                if (it.message.replyId != null && it.message.replyId != 0L) {
                     val params =
                         holder.binding.clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
                     params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
@@ -390,7 +393,7 @@ class ChatAdapter(
                                     )
                                 }
                             holder.binding.tvMessageReply.visibility = View.GONE
-                            holder.binding.cvReplyMedia.visibility = View.VISIBLE
+                            holder.binding.ivReplyImage.visibility = View.VISIBLE
                             holder.binding.tvReplyMedia.visibility = View.VISIBLE
                             if (it.message.body.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
                                 holder.binding.tvReplyMedia.text = context.getString(
@@ -428,8 +431,8 @@ class ChatAdapter(
                                 params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                             }
                             holder.binding.tvMessageReply.visibility = View.GONE
+                            holder.binding.ivReplyImage.visibility = View.GONE
                             holder.binding.tvReplyMedia.visibility = View.VISIBLE
-                            holder.binding.cvReplyMedia.visibility = View.GONE
                             holder.binding.tvReplyMedia.text =
                                 context.getString(R.string.media, context.getString(R.string.audio))
                             holder.binding.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
@@ -456,7 +459,7 @@ class ChatAdapter(
                         }
                         else -> {
                             holder.binding.tvMessageReply.visibility = View.VISIBLE
-                            holder.binding.cvReplyMedia.visibility = View.GONE
+                            holder.binding.ivReplyImage.visibility = View.GONE
                             holder.binding.tvReplyMedia.visibility = View.GONE
                             val replyText = it.message.body?.referenceMessage?.body?.text
                             holder.binding.tvMessageReply.text = replyText
@@ -472,7 +475,7 @@ class ChatAdapter(
                     }
                 }
 
-                holder.binding.clMessage.setOnClickListener { _ ->
+                holder.binding.clMessage.setOnClickListener {
                     if (holder.binding.tvTime.visibility == View.GONE) {
                         holder.binding.tvTime.visibility = View.VISIBLE
                         val simpleDateFormat = SimpleDateFormat("HH:mm")
@@ -763,7 +766,7 @@ class ChatAdapter(
                 }
 
                 // Reply section
-                if (it.message.reply == true) {
+                if (it.message.replyId != null && it.message.replyId != 0L) {
                     val params =
                         holder.binding.clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
                     params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT

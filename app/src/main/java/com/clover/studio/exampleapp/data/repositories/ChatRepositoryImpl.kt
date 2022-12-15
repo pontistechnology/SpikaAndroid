@@ -34,7 +34,8 @@ class ChatRepositoryImpl @Inject constructor(
             chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
         Timber.d("Response message $response")
         response.data?.message?.let {
-            // Fields below should never be null. If null, there is a backend problem
+            // Fields below should never be null except replyId. If null, there is a backend problem
+            val replyId = it.replyId ?: 0L
             messageDao.updateMessage(
                 it.id,
                 it.fromUserId!!,
@@ -46,7 +47,7 @@ class ChatRepositoryImpl @Inject constructor(
                 it.createdAt!!,
                 it.modifiedAt!!,
                 it.deleted!!,
-                it.reply!!,
+                replyId,
                 it.localId!!
             )
         }
