@@ -31,19 +31,17 @@ class MessageReactionAdapter(
     }
 
     override fun onBindViewHolder(holder: MessageReactionViewHolder, position: Int) {
-        with(holder) {
-            getItem(position).let {
-                holder.binding.tvUserReaction.text = it.reaction
-                for (user in roomWithUsers.users) {
-                    if (it.userId == user.id) {
-                        holder.binding.tvUsernameReaction.text = user.displayName
-                        Glide.with(context)
-                            .load(user.avatarFileId?.let { fileId -> Tools.getAvatarUrl(fileId) })
-                            .placeholder(R.drawable.img_image_placeholder)
-                            .dontTransform()
-                            .dontAnimate()
-                            .into(holder.binding.ivUserReactionAvatar)
-                    }
+        getItem(position).let {
+            holder.binding.tvUserReaction.text = it.reaction
+            for (user in roomWithUsers.users) {
+                if (it.userId == user.id) {
+                    holder.binding.tvUsernameReaction.text = user.displayName
+                    Glide.with(context)
+                        .load(user.avatarFileId?.let { fileId -> Tools.getAvatarUrl(fileId) })
+                        .placeholder(R.drawable.img_user_placeholder)
+                        .dontTransform()
+                        .dontAnimate()
+                        .into(holder.binding.ivUserReactionAvatar)
                 }
             }
         }

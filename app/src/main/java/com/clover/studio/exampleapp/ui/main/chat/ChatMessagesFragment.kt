@@ -496,11 +496,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleShowReactions(message: MessageAndRecords) {
-        bindingSetup.vTransparent.visibility =  View.VISIBLE
+        bindingSetup.vTransparent.visibility = View.VISIBLE
         bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_EXPANDED
 
         setUpMessageReactionAdapter()
 
+        // A temporary solution until we come up with a better way to store message records in the database
+        // With this, we search in the list if there are reactions, sort them by the time of creation, and get one reaction for each user
         val filteredList = message.records?.filter { it.reaction != null }
         val sortedList = filteredList?.sortedByDescending { it.createdAt }
         val reactionList = sortedList?.distinctBy { it.userId }
@@ -572,7 +574,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
     }
 
-    private fun handleDownloadCancelFile(message: MessageAndRecords){
+    private fun handleDownloadCancelFile(message: MessageAndRecords) {
         // For now, message object is not necessary but maybe we can use it later
         showUploadError(getString(R.string.upload_file_in_progress))
     }
