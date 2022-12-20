@@ -159,6 +159,7 @@ class RegisterNumberFragment : BaseFragment() {
                 viewModel.writePhoneAndDeviceId(phoneNumber, deviceId, countryCode)
             }
             viewModel.sendNewUserData(getJsonObject())
+            binding.btnNext.isEnabled = false
         }
     }
 
