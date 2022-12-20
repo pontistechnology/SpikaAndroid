@@ -45,6 +45,7 @@ const val BITMAP_HEIGHT = 512
 const val TO_MEGABYTE = 1000000
 const val TO_KILOBYTE = 1000
 const val TOKEN_EXPIRED_CODE = 401
+const val TOKEN_INVALID_CODE = 403
 
 object Tools {
 
@@ -53,8 +54,8 @@ object Tools {
             is IllegalArgumentException -> Timber.d("IllegalArgumentException ${ex.message}")
             is IOException -> Timber.d("IOException ${ex.message}")
             is HttpException ->
-                if (ex.code() == TOKEN_EXPIRED_CODE) {
-                    Timber.d("Token Expired: ${ex.code()} ${ex.message}")
+                if (TOKEN_EXPIRED_CODE == ex.code() || TOKEN_INVALID_CODE == ex.code()) {
+                    Timber.d("Token error: ${ex.code()} ${ex.message}")
                     return true
                 } else {
                     Timber.d("HttpException: ${ex.code()} ${ex.message}")
