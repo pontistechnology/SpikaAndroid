@@ -11,12 +11,13 @@ import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.databinding.ItemPeopleSelectedBinding
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 
 class ChatDetailsAdapter(
     private val context: Context,
     private val isAdmin: Boolean,
-    private val listener: DetailsAdapterListener
+    private val onUserInteraction: ((event: String, user: User) -> Unit)
 ) :
     ListAdapter<User, ChatDetailsAdapter.ChatDetailsViewHolder>(ChatDetailsCallback()) {
 
@@ -49,15 +50,11 @@ class ChatDetailsAdapter(
                 }
 
                 itemView.setOnClickListener {
-                    userItem.let {
-                        listener.onItemClicked(it)
-                    }
+                    onUserInteraction(Const.UserActions.USER_OPTIONS, userItem)
                 }
 
                 binding.ivRemoveUser.setOnClickListener {
-                    userItem.let {
-                        listener.onViewClicked(position, it)
-                    }
+                    onUserInteraction(Const.UserActions.USER_REMOVE, userItem)
                 }
             }
         }
@@ -69,10 +66,5 @@ class ChatDetailsAdapter(
 
         override fun areContentsTheSame(oldItem: User, newItem: User) =
             oldItem == newItem
-    }
-
-    interface DetailsAdapterListener {
-        fun onItemClicked(user: User)
-        fun onViewClicked(position: Int, user: User)
     }
 }

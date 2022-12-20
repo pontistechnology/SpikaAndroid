@@ -306,44 +306,78 @@ class ChatDetailsFragment : BaseFragment() {
         adapter = ChatDetailsAdapter(
             requireContext(),
             isAdmin,
-            object : ChatDetailsAdapter.DetailsAdapterListener {
-                override fun onItemClicked(user: User) {
-                    Timber.d("User item clicked = $user")
-                    user.displayName?.let {
-                        ChooserDialog.getInstance(requireContext(),
-                            it,
-                            null,
-                            getString(R.string.info),
-                            getString(R.string.make_group_admin),
-                            object : DialogInteraction {
-                                override fun onFirstOptionClicked() {
-                                    // TODO("Not yet implemented")
-                                }
-
-                                override fun onSecondOptionClicked() {
-                                    // TODO("Not yet implemented")
-                                }
-
-                            })
+            onUserInteraction = { event, user ->
+                run {
+                    when (event) {
+                        Const.UserActions.USER_OPTIONS -> userActions(user)
+                        Const.UserActions.USER_REMOVE -> removeUser(user)
+                        else -> Timber.d("No other action currently")
                     }
                 }
-
-                override fun onViewClicked(position: Int, user: User) {
-                    Timber.d("Remove user item clicked = $user, $position")
-                    Timber.d("${roomUsers.size}")
-                    roomUsers.remove(user)
-                    updateRoomUsers(user.id)
-                    val modifiedList =
-                        roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
-                    adapter.submitList(modifiedList)
-                    adapter.notifyDataSetChanged()
-                }
-            })
+            }
+        )
 
         binding.rvGroupMembers.itemAnimator = null
         binding.rvGroupMembers.adapter = adapter
         binding.rvGroupMembers.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+    }
+
+    private fun userActions(user: User){
+        val adminText: String? = if (isAdmin){
+            getString(R.string.make_group_admin)
+        } else {
+            null
+        }
+        user.displayName?.let {
+            ChooserDialog.getInstance(requireContext(),
+                it,
+                null,
+                getString(R.string.info),
+                adminText,
+                object : DialogInteraction {
+                    override fun onFirstOptionClicked() {
+                        // TODO("Not yet implemented")
+                    }
+                    override fun onSecondOptionClicked() {
+                        user.isAdmin = true
+                        makeAdmin()
+                        val modifiedList =
+                            roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
+                        adapter.submitList(modifiedList.toList())
+                        adapter.notifyDataSetChanged()
+                    }
+
+                })
+        }
+    }
+
+    private fun removeUser(user: User){
+        // Timber.d("Remove user item clicked = $user, $position")
+        Timber.d("${roomUsers.size}")
+        roomUsers.remove(user)
+        updateRoomUsers(user.id)
+        val modifiedList =
+            roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
+        Timber.d("roomUsers removed: $modifiedList")
+        adapter.submitList(modifiedList.toList())
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun makeAdmin() {
+        val jsonObject = JsonObject()
+        val adminIds = JsonArray()
+
+        for (user in roomUsers) {
+            if (user.isAdmin)
+                adminIds.add(user.id)
+        }
+
+        if (adminIds.size() > 0)
+            jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminIds)
+
+        roomId?.let { viewModel.updateRoom(jsonObject, it, 0) }
+
     }
 
     private fun muteRoom() {
@@ -364,7 +398,7 @@ class ChatDetailsFragment : BaseFragment() {
                 }
             }
             val modifiedList = roomUsers.sortedBy { user -> user.isAdmin }.reversed()
-            adapter.submitList(modifiedList)
+            adapter.submitList(modifiedList.toList())
             adapter.notifyDataSetChanged()
         }
     }
