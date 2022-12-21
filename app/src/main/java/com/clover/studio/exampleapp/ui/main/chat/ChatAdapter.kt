@@ -503,9 +503,9 @@ class ChatAdapter(
                 // Get reactions from database:
                 // var reactionId = 0
                 val reactions = Reactions(0, 0, 0, 0, 0, 0)
-                val filteredList = it.records?.filter { it.reaction != null }
-                val sortedList = filteredList?.sortedByDescending { it.createdAt }
-                val reactionList = sortedList?.distinctBy { it.userId }
+                val reactionList =
+                    it.records?.filter { it.reaction != null }!!.sortedByDescending { it.createdAt }
+                        .distinctBy { it.userId }
                 val reactionText = getDatabaseReaction(reactions, reactionList)
 
                 // Show reactions if there are any in the database
@@ -945,9 +945,9 @@ class ChatAdapter(
                 /* Reactions section: */
                 // Get reactions from database
                 val reactions = Reactions(0, 0, 0, 0, 0, 0)
-                val filteredList = it.records?.filter { it.reaction != null }
-                val sortedList = filteredList?.sortedByDescending { it.createdAt }
-                val reactionList = sortedList?.distinctBy { it.userId }
+                val reactionList =
+                    it.records?.filter { it.reaction != null }!!.sortedByDescending { it.createdAt }
+                        .distinctBy { it.userId }
                 val reactionText = getDatabaseReaction(reactions, reactionList)
 
                 if (reactionText.isNotEmpty()) {

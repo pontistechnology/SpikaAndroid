@@ -176,6 +176,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         checkStoragePermission()
         setUpAdapter()
+        setUpMessageDetailsAdapter()
         initViews()
         initializeObservers()
         checkIsUserAdmin()
@@ -503,10 +504,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         // A temporary solution until we come up with a better way to store message records in the database
         // With this, we search in the list if there are reactions, sort them by the time of creation, and get one reaction for each user
-        val filteredList = message.records?.filter { it.reaction != null }
-        val sortedList = filteredList?.sortedByDescending { it.createdAt }
-        val reactionList = sortedList?.distinctBy { it.userId }
-
+        val reactionList = message.records?.filter { it.reaction != null }!!.sortedByDescending { it.createdAt }.distinctBy { it.userId }
         messageReactionAdapter.submitList(reactionList)
 
     }
@@ -580,8 +578,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun getDetailsList(detailsMessage: Message) {
-        setUpMessageDetailsAdapter()
-
         val myId = viewModel.getLocalUserId()
         for (message in messagesRecords) {
             if (message.message.id == detailsMessage.id) {
@@ -609,9 +605,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             roomWithUsers,
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        bindingSetup.detailsAction.rvMessageDetails.adapter = detailsMessageAdapter
-        bindingSetup.detailsAction.rvMessageDetails.layoutManager = layoutManager
-        bindingSetup.detailsAction.rvMessageDetails.itemAnimator = null
+        bindingSetup.detailsAction.rvReactionsDetails.adapter = detailsMessageAdapter
+        bindingSetup.detailsAction.rvReactionsDetails.layoutManager = layoutManager
+        bindingSetup.detailsAction.rvReactionsDetails.itemAnimator = null
     }
 
     private fun setUpMessageReactionAdapter() {
@@ -620,9 +616,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             roomWithUsers,
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        bindingSetup.reactionsDetails.rvMessageDetails.adapter = messageReactionAdapter
-        bindingSetup.reactionsDetails.rvMessageDetails.layoutManager = layoutManager
-        bindingSetup.reactionsDetails.rvMessageDetails.itemAnimator = null
+        bindingSetup.reactionsDetails.rvReactionsDetails.adapter = messageReactionAdapter
+        bindingSetup.reactionsDetails.rvReactionsDetails.layoutManager = layoutManager
+        bindingSetup.reactionsDetails.rvReactionsDetails.itemAnimator = null
     }
 
     private fun closeMessageSheet() {
