@@ -26,6 +26,7 @@ class Const {
             const val DOWNLOAD_CANCEL = "download_cancel"
             const val MESSAGE_ACTION = "action"
             const val MESSAGE_REPLY = "reply"
+            const val SHOW_MESSAGE_REACTIONS = "show_message_reactions"
         }
     }
 

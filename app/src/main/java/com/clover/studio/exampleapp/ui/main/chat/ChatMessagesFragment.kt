@@ -77,6 +77,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var bindingSetup: FragmentChatMessagesBinding
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var detailsMessageAdapter: MessageDetailsAdapter
+    private lateinit var messageReactionAdapter: MessageReactionAdapter
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
     private var messageDetails: MutableList<MessageRecords> = ArrayList()
     private var unsentMessages: MutableList<Message> = ArrayList()
@@ -99,6 +100,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetReplyAction: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetDetailsAction: BottomSheetBehavior<ConstraintLayout>
+    private lateinit var bottomSheetReactionsAction: BottomSheetBehavior<ConstraintLayout>
 
     private var avatarFileId = 0L
     private var userName = ""
@@ -166,6 +168,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheetMessageActions = BottomSheetBehavior.from(bindingSetup.messageActions.root)
         bottomSheetReplyAction = BottomSheetBehavior.from(bindingSetup.replyAction.root)
         bottomSheetDetailsAction = BottomSheetBehavior.from(bindingSetup.detailsAction.root)
+        bottomSheetReactionsAction = BottomSheetBehavior.from(bindingSetup.reactionsDetails.root)
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
 
@@ -173,6 +176,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         checkStoragePermission()
         setUpAdapter()
+        setUpMessageDetailsAdapter()
         initViews()
         initializeObservers()
         checkIsUserAdmin()
@@ -445,6 +449,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
                         Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                         Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
+                        Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
                         else -> Timber.d("No other action currently")
                     }
                 }
@@ -491,12 +496,25 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.updateRoomVisitedTimestamp(System.currentTimeMillis(), roomWithUsers.room.roomId)
     }
 
-    private fun handleMessageReplyClick(message: Message) {
-        val time = message.body?.referenceMessage?.createdAt
+    private fun handleShowReactions(message: MessageAndRecords) {
+        bindingSetup.vTransparent.visibility = View.VISIBLE
+        bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_EXPANDED
+
+        setUpMessageReactionAdapter()
+
+        // A temporary solution until we come up with a better way to store message records in the database
+        // With this, we search in the list if there are reactions, sort them by the time of creation, and get one reaction for each user
+        val reactionList = message.records?.filter { it.reaction != null }!!.sortedByDescending { it.createdAt }.distinctBy { it.userId }
+        messageReactionAdapter.submitList(reactionList)
+
+    }
+
+    private fun handleMessageReplyClick(msg: MessageAndRecords) {
+        val time = msg.message.body?.referenceMessage?.createdAt
         var position = -1
-        for (msg in messagesRecords) {
+        for (messageRecord in messagesRecords) {
             position++
-            if (msg.message.createdAt == time) {
+            if (messageRecord.message.createdAt == time) {
                 break
             }
         }
@@ -505,14 +523,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
     }
 
-    private fun handleMessageAction(message: Message) {
+    private fun handleMessageAction(msg: MessageAndRecords) {
         val reactionsContainer = ReactionsContainer(this.context!!, null)
         bindingSetup.messageActions.reactionsContainer.addView(reactionsContainer)
         bottomSheetMessageActions.state = BottomSheetBehavior.STATE_EXPANDED
         bindingSetup.vTransparent.visibility = View.VISIBLE
 
         // For now, only show delete and edit for sender
-        if (message.senderMessage) {
+        if (msg.message.senderMessage) {
             bindingSetup.messageActions.tvEdit.visibility = View.VISIBLE
             bindingSetup.messageActions.tvDelete.visibility = View.VISIBLE
         } else {
@@ -523,9 +541,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         reactionsContainer.setButtonListener(object : ReactionsContainer.AddReaction {
             override fun addReaction(reaction: String) {
                 if (reaction.isNotEmpty()) {
-                    message.reaction = reaction
-                    addReaction(message)
-                    chatAdapter.notifyItemChanged(message.messagePosition)
+                    msg.message.reaction = reaction
+                    addReaction(msg.message)
+                    chatAdapter.notifyItemChanged(msg.message.messagePosition)
                     closeMessageSheet()
                 }
             }
@@ -533,35 +551,33 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.messageActions.tvDelete.setOnClickListener {
             closeMessageSheet()
-            showDeleteMessageDialog(message)
+            showDeleteMessageDialog(msg.message)
         }
 
         bindingSetup.messageActions.tvEdit.setOnClickListener {
             closeMessageSheet()
-            handleMessageEdit(message)
+            handleMessageEdit(msg.message)
         }
 
         bindingSetup.messageActions.tvReply.setOnClickListener {
             closeMessageSheet()
             bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
-            handleMessageReply(message)
+            handleMessageReply(msg.message)
         }
 
         bindingSetup.messageActions.tvDetails.setOnClickListener {
             bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
-            getDetailsList(message)
+            getDetailsList(msg.message)
             bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
-    private fun handleDownloadCancelFile(message: Message){
+    private fun handleDownloadCancelFile(message: MessageAndRecords) {
         // For now, message object is not necessary but maybe we can use it later
         showUploadError(getString(R.string.upload_file_in_progress))
     }
 
     private fun getDetailsList(detailsMessage: Message) {
-        setUpMessageDetailsAdapter()
-
         val myId = viewModel.getLocalUserId()
         for (message in messagesRecords) {
             if (message.message.id == detailsMessage.id) {
@@ -589,9 +605,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             roomWithUsers,
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        bindingSetup.detailsAction.rvSeen.adapter = detailsMessageAdapter
-        bindingSetup.detailsAction.rvSeen.layoutManager = layoutManager
-        bindingSetup.detailsAction.rvSeen.itemAnimator = null
+        bindingSetup.detailsAction.rvReactionsDetails.adapter = detailsMessageAdapter
+        bindingSetup.detailsAction.rvReactionsDetails.layoutManager = layoutManager
+        bindingSetup.detailsAction.rvReactionsDetails.itemAnimator = null
+    }
+
+    private fun setUpMessageReactionAdapter() {
+        messageReactionAdapter = MessageReactionAdapter(
+            context!!,
+            roomWithUsers,
+        )
+        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        bindingSetup.reactionsDetails.rvReactionsDetails.adapter = messageReactionAdapter
+        bindingSetup.reactionsDetails.rvReactionsDetails.layoutManager = layoutManager
+        bindingSetup.reactionsDetails.rvReactionsDetails.itemAnimator = null
     }
 
     private fun closeMessageSheet() {
@@ -766,6 +793,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             closeMessageSheet()
         }
 
+        bindingSetup.reactionsDetails.ivRemove.setOnClickListener {
+            bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
         bindingSetup.replyAction.ivRemove.setOnClickListener {
             if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -860,6 +891,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheetDetailsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
         bottomSheetBehaviour.addBottomSheetCallback(bottomSheetBehaviorCallback)
         bottomSheetReplyAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
+        bottomSheetReactionsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
     }
 
     private fun resetEditingFields() {
@@ -1550,7 +1582,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
     }
 
-    private fun handleDownloadFile(message: Message) {
+    private fun handleDownloadFile(message: MessageAndRecords) {
         when {
             context?.let {
                 ContextCompat.checkSelfPermission(
@@ -1558,7 +1590,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                 )
             } == PackageManager.PERMISSION_GRANTED -> {
-                Tools.downloadFile(context!!, message)
+                Tools.downloadFile(context!!, message.message)
             }
 
             shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
@@ -1566,7 +1598,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
 
             else -> {
-                storedMessage = message
+                storedMessage = message.message
                 storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         }

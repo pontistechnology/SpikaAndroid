@@ -139,6 +139,7 @@
     <string name="copy">Copy</string>
     <string name="edit">Edit</string>
     <string name="details">Details</string>
+    <string name="reactions">Reactions</string>
     <string name="favorite">Favorite</string>
     <string name="delete">Delete</string>
     <string name="delete_for_everyone">Delete for everyone</string>
