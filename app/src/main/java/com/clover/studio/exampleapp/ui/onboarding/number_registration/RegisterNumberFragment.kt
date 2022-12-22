@@ -110,14 +110,17 @@ class RegisterNumberFragment : BaseFragment() {
                         Const.Navigation.COUNTRY_CODE to countryCode.substring(1),
                         Const.Navigation.DEVICE_ID to deviceId
                     )
-
                     viewModel.registerFlag(true)
                     viewModel.writeFirstAppStart()
                     findNavController().navigate(
                         R.id.action_splashFragment_to_verificationFragment, bundle
                     )
                 }
-                OnboardingStates.REGISTERING_ERROR -> DialogError.getInstance(requireContext(),
+                OnboardingStates.REGISTERING_IN_PROGRESS -> {
+                    binding.btnNext.isEnabled = false
+                }
+                OnboardingStates.REGISTERING_ERROR -> {
+                    DialogError.getInstance(requireContext(),
                     "Registration error",
                     "There was an error while registering to the app.",
                     null, getString(R.string.ok), object : DialogInteraction {
@@ -130,6 +133,8 @@ class RegisterNumberFragment : BaseFragment() {
                         }
 
                     })
+                    binding.btnNext.isEnabled = true
+                }
                 else -> Timber.d("Other error")
             }
         })
@@ -159,7 +164,6 @@ class RegisterNumberFragment : BaseFragment() {
                 viewModel.writePhoneAndDeviceId(phoneNumber, deviceId, countryCode)
             }
             viewModel.sendNewUserData(getJsonObject())
-            binding.btnNext.isEnabled = false
         }
     }
 

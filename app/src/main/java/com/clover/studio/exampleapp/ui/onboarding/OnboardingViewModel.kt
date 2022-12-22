@@ -32,6 +32,7 @@ class OnboardingViewModel @Inject constructor(
         jsonObject: JsonObject
     ) = viewModelScope.launch {
         try {
+            registrationListener.postValue(Event(OnboardingStates.REGISTERING_IN_PROGRESS))
             onboardingRepository.sendUserData(jsonObject)
         } catch (ex: Exception) {
             Tools.checkError(ex)
@@ -184,4 +185,4 @@ class OnboardingViewModel @Inject constructor(
     }
 }
 
-enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_VERIFIED_NEW_USER, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR }
+enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_VERIFIED_NEW_USER, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_IN_PROGRESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR }
