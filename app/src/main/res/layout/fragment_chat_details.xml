@@ -15,7 +15,8 @@
             android:id="@+id/iv_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/twenty_dp_margin"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
             android:padding="@dimen/ten_dp_margin"
             android:rotation="180"
             android:src="@drawable/img_arrow_forward"
@@ -28,14 +29,15 @@
             android:id="@+id/iv_user_image"
             android:layout_width="@dimen/forty_two_dp"
             android:layout_height="@dimen/forty_two_dp"
+            android:layout_marginStart="@dimen/eight_dp_margin"
             android:background="@drawable/img_selector_background"
             android:backgroundTint="@color/light_blue"
-            android:scaleType="centerCrop"
+            android:scaleType="center"
             android:src="@drawable/img_user_placeholder"
             app:layout_constraintBottom_toBottomOf="@id/iv_back"
             app:layout_constraintStart_toEndOf="@id/iv_back"
             app:layout_constraintTop_toTopOf="@id/iv_back"
-            app:shapeAppearanceOverlay="@style/circle"/>
+            app:shapeAppearanceOverlay="@style/circle" />
 
         <TextView
             android:id="@+id/tv_chat_name"
@@ -51,13 +53,14 @@
 
         <TextView
             android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/enter_username"
             android:textSize="@dimen/fourteen_sp_text"
             android:visibility="visible"
+            app:layout_constraintEnd_toStartOf="@+id/iv_video_call"
             app:layout_constraintStart_toEndOf="@id/iv_user_image"
             app:layout_constraintTop_toBottomOf="@id/tv_chat_name" />
 
@@ -65,20 +68,23 @@
             android:id="@+id/iv_call_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
             android:padding="@dimen/ten_dp_margin"
             android:src="@drawable/img_phone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/iv_user_image" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/iv_video_call"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:padding="@dimen/ten_dp_margin"
             android:src="@drawable/img_video"
-            app:layout_constraintBottom_toBottomOf="@id/iv_call_user"
             app:layout_constraintEnd_toStartOf="@id/iv_call_user"
-            app:layout_constraintTop_toTopOf="@id/iv_call_user" />
+            app:layout_constraintStart_toEndOf="@+id/tv_chat_name"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -395,6 +401,9 @@
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/sw_mute"
+                android:thumbTint="@color/primary_color"
+                android:trackTint="@color/white"
+                app:useMaterialThemeColors="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -406,7 +415,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/tv_delete"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -430,6 +439,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/img_add"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -437,11 +447,13 @@
                 android:id="@+id/rv_group_members"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/eight_dp_margin"
                 android:paddingStart="@dimen/ten_dp_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_members_number" />
+                app:layout_constraintTop_toBottomOf="@id/tv_members_number"
+                tools:listitem="@layout/item_people_selected" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!--        <TextView-->
@@ -483,6 +495,7 @@
             android:text="@string/delete_chat"
             android:textColor="@color/style_red"
             android:textSize="@dimen/sixteen_sp_text"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

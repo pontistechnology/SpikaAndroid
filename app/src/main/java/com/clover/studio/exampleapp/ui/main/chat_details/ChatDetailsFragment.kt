@@ -111,7 +111,6 @@ class ChatDetailsFragment : BaseFragment() {
 
         initializeObservers()
         handleUserStatusViews(isAdmin)
-        setupAdapter(isAdmin)
 
         return binding.root
     }
@@ -124,11 +123,17 @@ class ChatDetailsFragment : BaseFragment() {
             binding.ivPickAvatar.isClickable = false
             binding.ivPickAvatar.isFocusable = false
 
-            binding.ivAddMember.visibility = View.INVISIBLE
+            binding.ivAddMember.visibility = View.GONE
         }
     }
 
     private fun initializeViews(roomWithUsers: RoomWithUsers) {
+        if (Const.JsonFields.GROUP == roomWithUsers.room.type){
+            setupAdapter(isAdmin, roomWithUsers.room.type)
+            binding.clMemberList.visibility = View.VISIBLE
+        } else{
+            binding.clMemberList.visibility = View.GONE
+        }
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             for (roomUser in roomWithUsers.users) {
                 if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
@@ -140,9 +145,15 @@ class ChatDetailsFragment : BaseFragment() {
                     avatarFileId = roomUser.avatarFileId!!
                 }
             }
+            binding.ivAddMember.visibility = View.GONE
+            binding.tvDelete.visibility = View.GONE
         } else {
             userName = roomWithUsers.room.name.toString()
             avatarFileId = roomWithUsers.room.avatarFileId!!
+            if (isAdmin) {
+                binding.tvDelete.visibility = View.VISIBLE
+                binding.ivAddMember.visibility = View.VISIBLE
+            }
         }
         setAvatarAndUsername(avatarFileId, userName)
 
@@ -285,7 +296,9 @@ class ChatDetailsFragment : BaseFragment() {
             viewModel.getRoomAndUsers(it).observe(viewLifecycleOwner) { roomWithUsers ->
                 if (roomWithUsers != null) {
                     initializeViews(roomWithUsers)
-                    updateRoomUserList(roomWithUsers)
+                    if (Const.JsonFields.GROUP == roomWithUsers.room.type ){
+                        updateRoomUserList(roomWithUsers)
+                    }
                 }
             }
         }
@@ -302,14 +315,15 @@ class ChatDetailsFragment : BaseFragment() {
         })
     }
 
-    private fun setupAdapter(isAdmin: Boolean) {
+    private fun setupAdapter(isAdmin: Boolean, roomType: String) {
         adapter = ChatDetailsAdapter(
             requireContext(),
             isAdmin,
+            roomType,
             onUserInteraction = { event, user ->
                 run {
                     when (event) {
-                        Const.UserActions.USER_OPTIONS -> userActions(user)
+                        Const.UserActions.USER_OPTIONS -> userActions(user, roomType)
                         Const.UserActions.USER_REMOVE -> removeUser(user)
                         else -> Timber.d("No other action currently")
                     }
@@ -323,12 +337,14 @@ class ChatDetailsFragment : BaseFragment() {
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
     }
 
-    private fun userActions(user: User){
-        val adminText: String? = if (isAdmin){
-            getString(R.string.make_group_admin)
-        } else {
-            null
+    private fun userActions(user: User, roomType: String) {
+        val adminText: String? = null
+        if (Const.JsonFields.GROUP == roomType){
+            if (isAdmin && !user.isAdmin) {
+                getString(R.string.make_group_admin)
+            }
         }
+
         user.displayName?.let {
             ChooserDialog.getInstance(requireContext(),
                 it,
@@ -339,6 +355,7 @@ class ChatDetailsFragment : BaseFragment() {
                     override fun onFirstOptionClicked() {
                         // TODO("Not yet implemented")
                     }
+
                     override fun onSecondOptionClicked() {
                         user.isAdmin = true
                         makeAdmin()
@@ -352,14 +369,11 @@ class ChatDetailsFragment : BaseFragment() {
         }
     }
 
-    private fun removeUser(user: User){
-        // Timber.d("Remove user item clicked = $user, $position")
-        Timber.d("${roomUsers.size}")
+    private fun removeUser(user: User) {
         roomUsers.remove(user)
         updateRoomUsers(user.id)
         val modifiedList =
             roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
-        Timber.d("roomUsers removed: $modifiedList")
         adapter.submitList(modifiedList.toList())
         adapter.notifyDataSetChanged()
     }
@@ -517,7 +531,7 @@ class ChatDetailsFragment : BaseFragment() {
                 userIds.add(user.id)
         }
 
-        if (userIds.size() > 0)
+        if (userIds.size() >= 0)
             jsonObject.add(Const.JsonFields.USER_IDS, userIds)
 
         roomId?.let { viewModel.updateRoom(jsonObject, it, idToRemove) }

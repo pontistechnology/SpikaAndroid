@@ -17,6 +17,7 @@ import com.clover.studio.exampleapp.utils.Tools
 class ChatDetailsAdapter(
     private val context: Context,
     private val isAdmin: Boolean,
+    private val roomType: String,
     private val onUserInteraction: ((event: String, user: User) -> Unit)
 ) :
     ListAdapter<User, ChatDetailsAdapter.ChatDetailsViewHolder>(ChatDetailsCallback()) {
@@ -39,14 +40,18 @@ class ChatDetailsAdapter(
                     .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivUserImage)
 
-                if (isAdmin) binding.ivRemoveUser.visibility = View.VISIBLE
-                else binding.ivRemoveUser.visibility = View.INVISIBLE
-
-                if (userItem.isAdmin) {
-                    binding.tvAdmin.visibility = View.VISIBLE
-                    binding.ivRemoveUser.visibility = View.INVISIBLE
-                } else {
+                if (Const.JsonFields.PRIVATE == roomType) {
+                    binding.ivRemoveUser.visibility = View.GONE
                     binding.tvAdmin.visibility = View.GONE
+                } else {
+                    if (isAdmin) binding.ivRemoveUser.visibility = View.VISIBLE
+                    else binding.ivRemoveUser.visibility = View.INVISIBLE
+                    if (userItem.isAdmin) {
+                        binding.tvAdmin.visibility = View.VISIBLE
+                        binding.ivRemoveUser.visibility = View.INVISIBLE
+                    } else {
+                        binding.tvAdmin.visibility = View.GONE
+                    }
                 }
 
                 itemView.setOnClickListener {
