@@ -128,12 +128,6 @@ class ChatDetailsFragment : BaseFragment() {
     }
 
     private fun initializeViews(roomWithUsers: RoomWithUsers) {
-        if (Const.JsonFields.GROUP == roomWithUsers.room.type){
-            setupAdapter(isAdmin, roomWithUsers.room.type)
-            binding.clMemberList.visibility = View.VISIBLE
-        } else{
-            binding.clMemberList.visibility = View.GONE
-        }
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             for (roomUser in roomWithUsers.users) {
                 if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
@@ -145,18 +139,40 @@ class ChatDetailsFragment : BaseFragment() {
                     avatarFileId = roomUser.avatarFileId!!
                 }
             }
+            binding.clMemberList.visibility = View.GONE
+            binding.tvExitGroup.visibility = View.GONE
             binding.ivAddMember.visibility = View.GONE
             binding.tvDelete.visibility = View.GONE
         } else {
+            setupAdapter(isAdmin, roomWithUsers.room.type.toString())
+            binding.clMemberList.visibility = View.VISIBLE
             userName = roomWithUsers.room.name.toString()
             avatarFileId = roomWithUsers.room.avatarFileId!!
+            binding.tvMembersNumber.text =
+                getString(R.string.number_of_members, roomWithUsers.users.size)
+
             if (isAdmin) {
                 binding.tvDelete.visibility = View.VISIBLE
                 binding.ivAddMember.visibility = View.VISIBLE
             }
-        }
-        setAvatarAndUsername(avatarFileId, userName)
 
+            if (roomWithUsers.room.roomExit != true) {
+                binding.tvExitGroup.visibility = View.VISIBLE
+            } else {
+                binding.tvExitGroup.visibility = View.GONE
+            }
+
+        }
+        binding.tvTitle.text = roomWithUsers.room.type
+
+        // Set room muted or not muted on switch
+        binding.swMute.isChecked = roomWithUsers.room.muted
+
+        setAvatarAndUsername(avatarFileId, userName)
+        initializeListeners(roomWithUsers)
+    }
+
+    private fun initializeListeners(roomWithUsers: RoomWithUsers) {
         binding.ivAddMember.setOnClickListener {
             val userIds = ArrayList<Int>()
             for (user in roomWithUsers.users) {
@@ -171,8 +187,6 @@ class ChatDetailsFragment : BaseFragment() {
             )
         }
 
-        binding.tvTitle.text = roomWithUsers.room.type
-
         binding.tvGroupName.setOnClickListener {
             if (roomWithUsers.room.type.toString() == Const.JsonFields.GROUP && isAdmin) {
                 binding.etEnterGroupName.visibility = View.VISIBLE
@@ -185,9 +199,7 @@ class ChatDetailsFragment : BaseFragment() {
 
         binding.tvDone.setOnClickListener {
             val roomName = binding.etEnterGroupName.text.toString()
-
-//            val adminIds: MutableList<Int> = ArrayList()
-
+//          val adminIds: MutableList<Int> = ArrayList()
             val jsonObject = JsonObject()
             if (roomName.isNotEmpty()) {
                 jsonObject.addProperty(Const.JsonFields.NAME, roomName)
@@ -225,18 +237,12 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        binding.tvMembersNumber.text =
-            getString(R.string.number_of_members, roomWithUsers.users.size)
-
         binding.ivBack.setOnClickListener {
             val action =
                 ChatDetailsFragmentDirections.actionChatDetailsFragmentToChatMessagesFragment2()
             findNavController().navigate(action)
 
         }
-
-        // Set room muted or not muted on switch
-        binding.swMute.isChecked = roomWithUsers.room.muted
 
         binding.swMute.setOnCheckedChangeListener { compoundButton, isChecked ->
             // Check if user event or set programmatically.
@@ -276,6 +282,41 @@ class ChatDetailsFragment : BaseFragment() {
                     object : DialogInteraction {})
             }
         }
+
+        binding.tvExitGroup.setOnClickListener {
+            val adminIds = ArrayList<Int>()
+            for (user in roomUsers) {
+                if (user.isAdmin)
+                    adminIds.add(user.id)
+            }
+            if (!isAdmin || (adminIds.size > 1) && isAdmin) {
+                DialogError.getInstance(requireActivity(),
+                    getString(R.string.exit_group),
+                    getString(R.string.exit_group_description),
+                    getString(
+                        R.string.yes
+                    ),
+                    getString(R.string.no),
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            roomId?.let { id -> viewModel.leaveRoom(id) }
+                            // Remove if admin
+                            activity?.finish()
+                        }
+                    })
+            } else {
+                DialogError.getInstance(requireActivity(),
+                    getString(R.string.exit_group),
+                    getString(R.string.exit_group_error),
+                    null,
+                    getString(R.string.ok),
+                    object : DialogInteraction {
+                        override fun onSecondOptionClicked() {
+                            // Ignore
+                        }
+                    })
+            }
+        }
     }
 
     private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
@@ -296,7 +337,7 @@ class ChatDetailsFragment : BaseFragment() {
             viewModel.getRoomAndUsers(it).observe(viewLifecycleOwner) { roomWithUsers ->
                 if (roomWithUsers != null) {
                     initializeViews(roomWithUsers)
-                    if (Const.JsonFields.GROUP == roomWithUsers.room.type ){
+                    if (Const.JsonFields.GROUP == roomWithUsers.room.type) {
                         updateRoomUserList(roomWithUsers)
                     }
                 }
@@ -338,10 +379,12 @@ class ChatDetailsFragment : BaseFragment() {
     }
 
     private fun userActions(user: User, roomType: String) {
-        val adminText: String? = null
-        if (Const.JsonFields.GROUP == roomType){
-            if (isAdmin && !user.isAdmin) {
+        var adminText: String? = null
+        if (Const.JsonFields.GROUP == roomType) {
+            adminText = if (isAdmin && !user.isAdmin) {
                 getString(R.string.make_group_admin)
+            } else {
+                null
             }
         }
 

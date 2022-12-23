@@ -3,9 +3,13 @@ package com.clover.studio.exampleapp.utils.dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.DialogErrorBinding
 import com.clover.studio.exampleapp.utils.extendables.BaseDialog
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import timber.log.Timber
+
 
 class DialogError(
     context: Context,
@@ -66,6 +70,17 @@ class DialogError(
             binding.btnFirstOption.text = firstOption
         else
             binding.btnFirstOption.visibility = View.INVISIBLE
+
+        if (firstOption == null && secondOption == context.getString(R.string.ok)) {
+            binding.btnFirstOption.visibility = View.GONE
+            val param = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                2.0f
+            )
+            param.gravity = LinearLayout.TEXT_ALIGNMENT_CENTER
+            binding.btnSecondOption.layoutParams = param
+        }
 
         binding.btnSecondOption.text = secondOption
 

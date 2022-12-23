@@ -5,7 +5,6 @@ import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
 import com.clover.studio.exampleapp.data.daos.UserDao
-import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.User
@@ -165,6 +164,13 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun leaveRoom(roomId: Int) {
+        val response = chatService.leaveRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+        if (Const.JsonFields.SUCCESS == response.status) {
+            roomDao.updateRoomExit(roomId, true)
+        }
+    }
+
     override suspend fun deleteMessage(messageId: Int, target: String) {
         val response =
             chatService.deleteMessage(getHeaderMap(sharedPrefsRepo.readToken()), messageId, target)
@@ -210,6 +216,7 @@ interface ChatRepository {
     // suspend fun deleteAllReactions(messageId: Int)
     // suspend fun deleteReaction(id: Int)
     suspend fun deleteRoom(roomId: Int)
+    suspend fun leaveRoom(roomId: Int)
     suspend fun deleteMessage(messageId: Int, target: String)
     suspend fun editMessage(messageId: Int, jsonObject: JsonObject)
 }
