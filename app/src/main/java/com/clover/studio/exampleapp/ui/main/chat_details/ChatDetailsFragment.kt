@@ -119,10 +119,8 @@ class ChatDetailsFragment : BaseFragment() {
         if (!isAdmin) {
             binding.tvGroupName.isClickable = false
             binding.tvDone.isFocusable = false
-
             binding.ivPickAvatar.isClickable = false
             binding.ivPickAvatar.isFocusable = false
-
             binding.ivAddMember.visibility = View.GONE
         }
     }
@@ -255,8 +253,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        // Rooms can only be deleted by room admins. A basic user will get an error if he tries
-        // to delete a room
+        // Rooms can only be deleted by room admins.
         binding.tvDelete.setOnClickListener {
             if (isAdmin) {
                 DialogError.getInstance(requireActivity(),
@@ -272,14 +269,6 @@ class ChatDetailsFragment : BaseFragment() {
                             activity?.finish()
                         }
                     })
-            } else {
-                DialogError.getInstance(
-                    requireActivity(),
-                    getString(R.string.error),
-                    getString(R.string.room_delete_admin_error),
-                    null,
-                    getString(R.string.ok),
-                    object : DialogInteraction {})
             }
         }
 
@@ -289,6 +278,10 @@ class ChatDetailsFragment : BaseFragment() {
                 if (user.isAdmin)
                     adminIds.add(user.id)
             }
+
+            // Exit condition:
+            // If current user is not admin
+            // Or current user is admin and and there are other admins
             if (!isAdmin || (adminIds.size > 1) && isAdmin) {
                 DialogError.getInstance(requireActivity(),
                     getString(R.string.exit_group),
@@ -299,8 +292,12 @@ class ChatDetailsFragment : BaseFragment() {
                     getString(R.string.no),
                     object : DialogInteraction {
                         override fun onFirstOptionClicked() {
+                            val myId = viewModel.getLocalUserId()
                             roomId?.let { id -> viewModel.leaveRoom(id) }
                             // Remove if admin
+                            if (isAdmin) {
+                                roomId?.let { id -> viewModel.updateAdmin(id, myId!!) }
+                            }
                             activity?.finish()
                         }
                     })

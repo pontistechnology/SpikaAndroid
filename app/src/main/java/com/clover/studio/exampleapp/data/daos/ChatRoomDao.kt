@@ -109,4 +109,8 @@ interface ChatRoomDao {
 
     @Query("UPDATE room SET room_exit =:roomExit WHERE room_id LIKE :roomId")
     suspend fun updateRoomExit(roomId: Int, roomExit: Boolean)
+
+    @Query("UPDATE room_user SET isAdmin = 0 WHERE room_id LIKE :roomId AND id LIKE :userId")
+    suspend fun updateAdmin(roomId: Int, userId: Int)
+
 }
