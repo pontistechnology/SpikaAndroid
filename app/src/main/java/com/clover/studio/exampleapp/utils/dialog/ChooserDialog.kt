@@ -12,7 +12,7 @@ class ChooserDialog(
     private val title: String?,
     private val description: String?,
     private val firstOption: String,
-    private val secondOption: String,
+    private val secondOption: String?,
     private val listener: DialogInteraction,
 ) : BaseDialog(context) {
     private var bindingSetup: DialogChooserBinding? = null
@@ -29,7 +29,7 @@ class ChooserDialog(
             title: String?,
             description: String?,
             firstOption: String,
-            secondOption: String,
+            secondOption: String?,
             listener: DialogInteraction
         ): ChooserDialog = INSTANCE
             ?: ChooserDialog(
@@ -65,8 +65,12 @@ class ChooserDialog(
         else
             binding.tvTextDescription.visibility = View.GONE
 
+        if (secondOption != null && secondOption.isNotEmpty())
+            binding.btnSecondOption.text = secondOption
+        else
+            binding.btnSecondOption.visibility = View.GONE
+
         binding.btnFirstOption.text = firstOption
-        binding.btnSecondOption.text = secondOption
 
         binding.btnSecondOption.setOnClickListener {
             listener.onSecondOptionClicked()

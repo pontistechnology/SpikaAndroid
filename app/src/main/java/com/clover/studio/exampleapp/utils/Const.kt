@@ -26,6 +26,8 @@ class Const {
             const val DOWNLOAD_CANCEL = "download_cancel"
             const val MESSAGE_ACTION = "action"
             const val MESSAGE_REPLY = "reply"
+            const val USER_REMOVE = "remove_user"
+            const val USER_OPTIONS = "user_options"
             const val SHOW_MESSAGE_REACTIONS = "show_message_reactions"
         }
     }
@@ -160,6 +162,7 @@ class Const {
             const val API_UNMUTE_ROOM = "api/messenger/rooms/{roomId}/unmute"
             const val API_GET_SETTINGS = "api/messenger/me/settings"
             const val API_UPDATE_MESSAGE = "api/messenger/messages/{id}"
+            const val API_LEAVE_ROOM = "api/messenger/rooms/{id}/leave"
 
             // Queries
             const val TIMESTAMP = "timestamp"

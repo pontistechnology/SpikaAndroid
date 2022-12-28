@@ -171,15 +171,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheetReactionsAction = BottomSheetBehavior.from(bindingSetup.reactionsDetails.root)
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
-
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
-        checkStoragePermission()
-        setUpAdapter()
-        setUpMessageDetailsAdapter()
+        // Check if we have left the room, if so, disable bottom message interaction
+        if (roomWithUsers.room.roomExit == true) {
+            bindingSetup.clRoomExit.visibility = View.VISIBLE
+        } else {
+            bindingSetup.clRoomExit.visibility = View.GONE
+            checkStoragePermission()
+            setUpAdapter()
+            setUpMessageDetailsAdapter()
+            initializeObservers()
+            checkIsUserAdmin()
+        }
         initViews()
-        initializeObservers()
-        checkIsUserAdmin()
+        initListeners()
 
         return bindingSetup.root
     }
@@ -504,7 +510,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         // A temporary solution until we come up with a better way to store message records in the database
         // With this, we search in the list if there are reactions, sort them by the time of creation, and get one reaction for each user
-        val reactionList = message.records?.filter { it.reaction != null }!!.sortedByDescending { it.createdAt }.distinctBy { it.userId }
+        val reactionList =
+            message.records?.filter { it.reaction != null }!!.sortedByDescending { it.createdAt }
+                .distinctBy { it.userId }
         messageReactionAdapter.submitList(reactionList)
 
     }
@@ -664,6 +672,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
         setAvatarAndName(avatarFileId, userName)
 
+        if (roomWithUsers.room.roomExit == true) {
+            bindingSetup.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
+            bindingSetup.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
+            bindingSetup.ivVideoCall.isEnabled = false
+            bindingSetup.ivCallUser.isEnabled = false
+        }
+
+        bindingSetup.tvTitle.text = roomWithUsers.room.type
+    }
+
+    private fun initListeners() {
         bindingSetup.clHeader.setOnClickListener {
             val action =
                 ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
@@ -699,7 +718,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 })
         }
 
-        // Emoji section:
         bindingSetup.ivBtnEmoji.setOnClickListener {
             emojiPopup.toggle() // Toggles visibility of the Popup.
             emojiPopup.dismiss() // Dismisses the Popup.
@@ -757,8 +775,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
         }
-
-        bindingSetup.tvTitle.text = roomWithUsers.room.type
 
         bindingSetup.ivButtonSend.setOnClickListener {
             val imageContainer = bindingSetup.llImagesContainer
@@ -1658,6 +1674,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     override fun onDestroy() {
         super.onDestroy()
-        exoPlayer!!.release()
+        if (exoPlayer != null) {
+            exoPlayer!!.release()
+        }
     }
 }

@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -87,8 +88,15 @@ class SettingsFragment : BaseFragment() {
         addTextListeners()
 
         // Display version code on bottom of the screen
-        val packageInfo = requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
-        binding.tvVersionNumber.text = "${getString(R.string.app_version)} ${packageInfo.versionName} ${packageInfo.longVersionCode}"
+        val packageInfo =
+            requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
+        // Bug fix for older devices
+        binding.tvVersionNumber.text =
+            "${getString(R.string.app_version)} ${packageInfo.versionName} ${
+                PackageInfoCompat.getLongVersionCode(
+                    packageInfo
+                )
+            }"
 
         return binding.root
     }
@@ -169,7 +177,7 @@ class SettingsFragment : BaseFragment() {
 //            goToDownloadSettings()
 //        }
 
-        binding.cvPhotoPicker.setOnClickListener {
+        binding.ivPickPhoto.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,

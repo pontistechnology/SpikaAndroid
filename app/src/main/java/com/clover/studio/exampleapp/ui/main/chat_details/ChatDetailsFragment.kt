@@ -111,7 +111,6 @@ class ChatDetailsFragment : BaseFragment() {
 
         initializeObservers()
         handleUserStatusViews(isAdmin)
-        setupAdapter(isAdmin)
 
         return binding.root
     }
@@ -120,11 +119,9 @@ class ChatDetailsFragment : BaseFragment() {
         if (!isAdmin) {
             binding.tvGroupName.isClickable = false
             binding.tvDone.isFocusable = false
-
-            binding.cvAvatar.isClickable = false
-            binding.cvAvatar.isFocusable = false
-
-            binding.ivAddMember.visibility = View.INVISIBLE
+            binding.ivPickAvatar.isClickable = false
+            binding.ivPickAvatar.isFocusable = false
+            binding.ivAddMember.visibility = View.GONE
         }
     }
 
@@ -140,12 +137,40 @@ class ChatDetailsFragment : BaseFragment() {
                     avatarFileId = roomUser.avatarFileId!!
                 }
             }
+            binding.clMemberList.visibility = View.GONE
+            binding.tvExitGroup.visibility = View.GONE
+            binding.ivAddMember.visibility = View.GONE
+            binding.tvDelete.visibility = View.GONE
         } else {
+            setupAdapter(isAdmin, roomWithUsers.room.type.toString())
+            binding.clMemberList.visibility = View.VISIBLE
             userName = roomWithUsers.room.name.toString()
             avatarFileId = roomWithUsers.room.avatarFileId!!
-        }
-        setAvatarAndUsername(avatarFileId, userName)
+            binding.tvMembersNumber.text =
+                getString(R.string.number_of_members, roomWithUsers.users.size)
 
+            if (isAdmin) {
+                binding.tvDelete.visibility = View.VISIBLE
+                binding.ivAddMember.visibility = View.VISIBLE
+            }
+
+            if (roomWithUsers.room.roomExit != true) {
+                binding.tvExitGroup.visibility = View.VISIBLE
+            } else {
+                binding.tvExitGroup.visibility = View.GONE
+            }
+
+        }
+        binding.tvTitle.text = roomWithUsers.room.type
+
+        // Set room muted or not muted on switch
+        binding.swMute.isChecked = roomWithUsers.room.muted
+
+        setAvatarAndUsername(avatarFileId, userName)
+        initializeListeners(roomWithUsers)
+    }
+
+    private fun initializeListeners(roomWithUsers: RoomWithUsers) {
         binding.ivAddMember.setOnClickListener {
             val userIds = ArrayList<Int>()
             for (user in roomWithUsers.users) {
@@ -160,8 +185,6 @@ class ChatDetailsFragment : BaseFragment() {
             )
         }
 
-        binding.tvTitle.text = roomWithUsers.room.type
-
         binding.tvGroupName.setOnClickListener {
             if (roomWithUsers.room.type.toString() == Const.JsonFields.GROUP && isAdmin) {
                 binding.etEnterGroupName.visibility = View.VISIBLE
@@ -174,9 +197,7 @@ class ChatDetailsFragment : BaseFragment() {
 
         binding.tvDone.setOnClickListener {
             val roomName = binding.etEnterGroupName.text.toString()
-
-//            val adminIds: MutableList<Int> = ArrayList()
-
+//          val adminIds: MutableList<Int> = ArrayList()
             val jsonObject = JsonObject()
             if (roomName.isNotEmpty()) {
                 jsonObject.addProperty(Const.JsonFields.NAME, roomName)
@@ -195,7 +216,7 @@ class ChatDetailsFragment : BaseFragment() {
             binding.tvGroupName.visibility = View.VISIBLE
         }
 
-        binding.cvAvatar.setOnClickListener {
+        binding.ivPickAvatar.setOnClickListener {
             if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && isAdmin) {
                 ChooserDialog.getInstance(requireContext(),
                     getString(R.string.placeholder_title),
@@ -214,18 +235,12 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        binding.tvMembersNumber.text =
-            getString(R.string.number_of_members, roomWithUsers.users.size)
-
         binding.ivBack.setOnClickListener {
             val action =
                 ChatDetailsFragmentDirections.actionChatDetailsFragmentToChatMessagesFragment2()
             findNavController().navigate(action)
 
         }
-
-        // Set room muted or not muted on switch
-        binding.swMute.isChecked = roomWithUsers.room.muted
 
         binding.swMute.setOnCheckedChangeListener { compoundButton, isChecked ->
             // Check if user event or set programmatically.
@@ -238,8 +253,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        // Rooms can only be deleted by room admins. A basic user will get an error if he tries
-        // to delete a room
+        // Rooms can only be deleted by room admins.
         binding.tvDelete.setOnClickListener {
             if (isAdmin) {
                 DialogError.getInstance(requireActivity(),
@@ -255,14 +269,49 @@ class ChatDetailsFragment : BaseFragment() {
                             activity?.finish()
                         }
                     })
+            }
+        }
+
+        binding.tvExitGroup.setOnClickListener {
+            val adminIds = ArrayList<Int>()
+            for (user in roomUsers) {
+                if (user.isAdmin)
+                    adminIds.add(user.id)
+            }
+
+            // Exit condition:
+            // If current user is not admin
+            // Or current user is admin and and there are other admins
+            if (!isAdmin || (adminIds.size > 1) && isAdmin) {
+                DialogError.getInstance(requireActivity(),
+                    getString(R.string.exit_group),
+                    getString(R.string.exit_group_description),
+                    getString(
+                        R.string.yes
+                    ),
+                    getString(R.string.no),
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            val myId = viewModel.getLocalUserId()
+                            roomId?.let { id -> viewModel.leaveRoom(id) }
+                            // Remove if admin
+                            if (isAdmin) {
+                                roomId?.let { id -> viewModel.removeAdmin(id, myId!!) }
+                            }
+                            activity?.finish()
+                        }
+                    })
             } else {
-                DialogError.getInstance(
-                    requireActivity(),
-                    getString(R.string.error),
-                    getString(R.string.room_delete_admin_error),
+                DialogError.getInstance(requireActivity(),
+                    getString(R.string.exit_group),
+                    getString(R.string.exit_group_error),
                     null,
                     getString(R.string.ok),
-                    object : DialogInteraction {})
+                    object : DialogInteraction {
+                        override fun onSecondOptionClicked() {
+                            // Ignore
+                        }
+                    })
             }
         }
     }
@@ -285,7 +334,9 @@ class ChatDetailsFragment : BaseFragment() {
             viewModel.getRoomAndUsers(it).observe(viewLifecycleOwner) { roomWithUsers ->
                 if (roomWithUsers != null) {
                     initializeViews(roomWithUsers)
-                    updateRoomUserList(roomWithUsers)
+                    if (Const.JsonFields.GROUP == roomWithUsers.room.type) {
+                        updateRoomUserList(roomWithUsers)
+                    }
                 }
             }
         }
@@ -302,48 +353,84 @@ class ChatDetailsFragment : BaseFragment() {
         })
     }
 
-    private fun setupAdapter(isAdmin: Boolean) {
+    private fun setupAdapter(isAdmin: Boolean, roomType: String) {
         adapter = ChatDetailsAdapter(
             requireContext(),
             isAdmin,
-            object : ChatDetailsAdapter.DetailsAdapterListener {
-                override fun onItemClicked(user: User) {
-                    Timber.d("User item clicked = $user")
-                    user.displayName?.let {
-                        ChooserDialog.getInstance(requireContext(),
-                            it,
-                            null,
-                            getString(R.string.info),
-                            getString(R.string.make_group_admin),
-                            object : DialogInteraction {
-                                override fun onFirstOptionClicked() {
-                                    // TODO("Not yet implemented")
-                                }
-
-                                override fun onSecondOptionClicked() {
-                                    // TODO("Not yet implemented")
-                                }
-
-                            })
-                    }
+            roomType,
+            onUserInteraction = { event, user ->
+                when (event) {
+                    Const.UserActions.USER_OPTIONS -> userActions(user, roomType)
+                    Const.UserActions.USER_REMOVE -> removeUser(user)
+                    else -> Timber.d("No other action currently")
                 }
-
-                override fun onViewClicked(position: Int, user: User) {
-                    Timber.d("Remove user item clicked = $user, $position")
-                    Timber.d("${roomUsers.size}")
-                    roomUsers.remove(user)
-                    updateRoomUsers(user.id)
-                    val modifiedList =
-                        roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
-                    adapter.submitList(modifiedList)
-                    adapter.notifyDataSetChanged()
-                }
-            })
+            }
+        )
 
         binding.rvGroupMembers.itemAnimator = null
         binding.rvGroupMembers.adapter = adapter
         binding.rvGroupMembers.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+    }
+
+    private fun userActions(user: User, roomType: String) {
+        val adminText = if (Const.JsonFields.GROUP == roomType) {
+            if (isAdmin && !user.isAdmin) {
+                getString(R.string.make_group_admin)
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+
+        user.displayName?.let {
+            ChooserDialog.getInstance(requireContext(),
+                it,
+                null,
+                getString(R.string.info),
+                adminText,
+                object : DialogInteraction {
+                    override fun onFirstOptionClicked() {
+                        // TODO("Not yet implemented")
+                    }
+
+                    override fun onSecondOptionClicked() {
+                        user.isAdmin = true
+                        makeAdmin()
+                        val modifiedList =
+                            roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
+                        adapter.submitList(modifiedList.toList())
+                        adapter.notifyDataSetChanged()
+                    }
+
+                })
+        }
+    }
+
+    private fun removeUser(user: User) {
+        roomUsers.remove(user)
+        updateRoomUsers(user.id)
+        val modifiedList =
+            roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
+        adapter.submitList(modifiedList.toList())
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun makeAdmin() {
+        val jsonObject = JsonObject()
+        val adminIds = JsonArray()
+
+        for (user in roomUsers) {
+            if (user.isAdmin)
+                adminIds.add(user.id)
+        }
+
+        if (adminIds.size() > 0)
+            jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminIds)
+
+        roomId?.let { viewModel.updateRoom(jsonObject, it, 0) }
+
     }
 
     private fun muteRoom() {
@@ -364,7 +451,7 @@ class ChatDetailsFragment : BaseFragment() {
                 }
             }
             val modifiedList = roomUsers.sortedBy { user -> user.isAdmin }.reversed()
-            adapter.submitList(modifiedList)
+            adapter.submitList(modifiedList.toList())
             adapter.notifyDataSetChanged()
         }
     }
@@ -483,8 +570,7 @@ class ChatDetailsFragment : BaseFragment() {
                 userIds.add(user.id)
         }
 
-        if (userIds.size() > 0)
-            jsonObject.add(Const.JsonFields.USER_IDS, userIds)
+        jsonObject.add(Const.JsonFields.USER_IDS, userIds)
 
         roomId?.let { viewModel.updateRoom(jsonObject, it, idToRemove) }
     }

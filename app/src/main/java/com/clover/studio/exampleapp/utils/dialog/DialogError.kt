@@ -4,11 +4,11 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
-import androidx.core.content.ContextCompat
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.DialogErrorBinding
 import com.clover.studio.exampleapp.utils.extendables.BaseDialog
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import timber.log.Timber
 
 
 class DialogError(
@@ -80,15 +80,6 @@ class DialogError(
             )
             param.gravity = LinearLayout.TEXT_ALIGNMENT_CENTER
             binding.btnSecondOption.layoutParams = param
-        }
-
-        if (secondOption == context.getString(R.string.exit)) {
-            binding.btnSecondOption.setTextColor(
-                ContextCompat.getColor(
-                    context,
-                    R.color.style_red
-                )
-            )
         }
 
         binding.btnSecondOption.text = secondOption

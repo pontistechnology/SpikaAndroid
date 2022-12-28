@@ -263,6 +263,28 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun leaveRoom(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.leaveRoom(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun removeAdmin(roomId: Int, userId: Int) = viewModelScope.launch {
+        try {
+            repository.removeAdmin(roomId, userId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
     fun deleteMessage(messageId: Int, target: String) = viewModelScope.launch {
         try {
             repository.deleteMessage(messageId, target)
@@ -285,7 +307,13 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun uploadFile(activity: Activity, uri: Uri, uploadPieces: Long, fileStream: File, type: String) =
+    fun uploadFile(
+        activity: Activity,
+        uri: Uri,
+        uploadPieces: Long,
+        fileStream: File,
+        type: String
+    ) =
         viewModelScope.launch {
             try {
                 uploadDownloadManager.uploadFile(

@@ -106,4 +106,11 @@ interface ChatRoomDao {
     @Transaction
     @Query("DELETE FROM message_records WHERE message_id LIKE :id AND type='reaction'")
     suspend fun deleteAllReactions(id: Int)
+
+    @Query("UPDATE room SET room_exit =:roomExit WHERE room_id LIKE :roomId")
+    suspend fun updateRoomExit(roomId: Int, roomExit: Boolean)
+
+    @Query("UPDATE room_user SET isAdmin = 0 WHERE room_id LIKE :roomId AND id LIKE :userId")
+    suspend fun removeAdmin(roomId: Int, userId: Int)
+
 }
