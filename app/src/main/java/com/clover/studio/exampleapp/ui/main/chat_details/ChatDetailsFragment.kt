@@ -296,7 +296,7 @@ class ChatDetailsFragment : BaseFragment() {
                             roomId?.let { id -> viewModel.leaveRoom(id) }
                             // Remove if admin
                             if (isAdmin) {
-                                roomId?.let { id -> viewModel.updateAdmin(id, myId!!) }
+                                roomId?.let { id -> viewModel.removeAdmin(id, myId!!) }
                             }
                             activity?.finish()
                         }
@@ -359,12 +359,10 @@ class ChatDetailsFragment : BaseFragment() {
             isAdmin,
             roomType,
             onUserInteraction = { event, user ->
-                run {
-                    when (event) {
-                        Const.UserActions.USER_OPTIONS -> userActions(user, roomType)
-                        Const.UserActions.USER_REMOVE -> removeUser(user)
-                        else -> Timber.d("No other action currently")
-                    }
+                when (event) {
+                    Const.UserActions.USER_OPTIONS -> userActions(user, roomType)
+                    Const.UserActions.USER_REMOVE -> removeUser(user)
+                    else -> Timber.d("No other action currently")
                 }
             }
         )
@@ -376,13 +374,14 @@ class ChatDetailsFragment : BaseFragment() {
     }
 
     private fun userActions(user: User, roomType: String) {
-        var adminText: String? = null
-        if (Const.JsonFields.GROUP == roomType) {
-            adminText = if (isAdmin && !user.isAdmin) {
+        val adminText = if (Const.JsonFields.GROUP == roomType) {
+            if (isAdmin && !user.isAdmin) {
                 getString(R.string.make_group_admin)
             } else {
                 null
             }
+        } else {
+            null
         }
 
         user.displayName?.let {
@@ -571,8 +570,7 @@ class ChatDetailsFragment : BaseFragment() {
                 userIds.add(user.id)
         }
 
-        if (userIds.size() >= 0)
-            jsonObject.add(Const.JsonFields.USER_IDS, userIds)
+        jsonObject.add(Const.JsonFields.USER_IDS, userIds)
 
         roomId?.let { viewModel.updateRoom(jsonObject, it, idToRemove) }
     }

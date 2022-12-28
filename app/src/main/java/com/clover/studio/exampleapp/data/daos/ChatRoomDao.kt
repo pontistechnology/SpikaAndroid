@@ -111,6 +111,6 @@ interface ChatRoomDao {
     suspend fun updateRoomExit(roomId: Int, roomExit: Boolean)
 
     @Query("UPDATE room_user SET isAdmin = 0 WHERE room_id LIKE :roomId AND id LIKE :userId")
-    suspend fun updateAdmin(roomId: Int, userId: Int)
+    suspend fun removeAdmin(roomId: Int, userId: Int)
 
 }

@@ -274,9 +274,9 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun updateAdmin(roomId: Int, userId: Int) = viewModelScope.launch {
+    fun removeAdmin(roomId: Int, userId: Int) = viewModelScope.launch {
         try {
-            repository.updateAdmin(roomId, userId)
+            repository.removeAdmin(roomId, userId)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
