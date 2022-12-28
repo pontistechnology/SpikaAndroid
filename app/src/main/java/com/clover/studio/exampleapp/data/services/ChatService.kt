@@ -78,4 +78,10 @@ interface ChatService {
         @Path(Const.Networking.ID) messageId: Int,
         @Body jsonObject: JsonObject
     ): MessageResponse
+
+    @POST(Const.Networking.API_LEAVE_ROOM)
+    suspend fun leaveRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ID) roomId: Int
+    ): RoomResponse
 }

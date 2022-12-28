@@ -22,4 +22,10 @@
         <item name="cornerSize">10%</item>
     </style>
 
+    <style name="CustomSwitch" parent="Theme.AppCompat.Light">
+        <item name="colorControlActivated">@color/primary_color</item>
+        <item name="colorSwitchThumbNormal">@color/text_tertiary</item>
+        <item name="android:colorForeground">@color/text_tertiary</item>
+    </style>
+
 </resources>
