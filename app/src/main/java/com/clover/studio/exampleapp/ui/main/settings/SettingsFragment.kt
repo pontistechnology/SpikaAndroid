@@ -42,6 +42,7 @@ class SettingsFragment : BaseFragment() {
     private var bindingSetup: FragmentSettingsBinding? = null
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var progress: Long = 1L
+    private var avatarId: Long? = 0L
 
     private val binding get() = bindingSetup!!
 
@@ -133,6 +134,7 @@ class SettingsFragment : BaseFragment() {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
             binding.tvUsername.text = it.displayName ?: getString(R.string.no_username)
             binding.tvPhoneNumber.text = it.telephoneNumber
+            avatarId = it.avatarFileId
 
             Glide.with(requireActivity())
                 .load(it.avatarFileId?.let { fileId -> getAvatarUrl(fileId) })
@@ -280,8 +282,14 @@ class SettingsFragment : BaseFragment() {
                 Const.UserData.DISPLAY_NAME,
                 binding.etEnterUsername.text.toString()
             )
+            jsonObject.addProperty(
+                Const.JsonFields.AVATAR_FILE_ID,
+                avatarId
+            )
             viewModel.updateUserData(jsonObject)
         } else {
+            binding.etEnterUsername.visibility = View.GONE
+            binding.tvUsername.visibility = View.VISIBLE
             return
         }
     }
