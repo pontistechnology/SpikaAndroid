@@ -275,7 +275,7 @@
             android:layout_marginStart="@dimen/ten_dp_margin"
             android:background="@color/white"
             android:src="@drawable/img_camera"
-            app:layout_constraintBottom_toBottomOf="@id/iv_microphone"
+            app:layout_constraintBottom_toBottomOf="@+id/cl_bottom_sheet"
             app:layout_constraintEnd_toStartOf="@id/iv_microphone"
             app:layout_constraintStart_toEndOf="@id/cl_typing"
             app:layout_constraintTop_toTopOf="@id/divider" />
@@ -391,6 +391,7 @@
             android:elevation="@dimen/four_dp_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.5"
             app:layout_constraintStart_toStartOf="parent">
 
             <include
