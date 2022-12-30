@@ -391,7 +391,6 @@
             android:elevation="@dimen/four_dp_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.5"
             app:layout_constraintStart_toStartOf="parent">
 
             <include
