@@ -11,7 +11,6 @@ import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
-import com.clover.studio.exampleapp.data.models.entity.MessageRecords
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
@@ -93,12 +92,16 @@ class RoomsAdapter(
                     if (sortedList.isNotEmpty()) {
                         val filteredMessageList =
                             sortedList.filter { it.message.fromUserId.toString() != myUserId }
-                        for (messages in filteredMessageList) {
-                            if (messages.records != null) {
-                                if (!checkIfMessageSeen(messages.records)) unreadMessages.add(
-                                    messages
+                        for (messageAndRecords in filteredMessageList) {
+                            if (messageAndRecords.records != null) {
+                                if (!checkIfMessageSeen(
+                                        roomItem,
+                                        messageAndRecords
+                                    )
+                                ) unreadMessages.add(
+                                    messageAndRecords
                                 )
-                            } else unreadMessages.add(messages)
+                            } else unreadMessages.add(messageAndRecords)
                         }
                     }
 
@@ -137,11 +140,23 @@ class RoomsAdapter(
             oldItem == newItem
     }
 
-    private fun checkIfMessageSeen(messageRecords: List<MessageRecords>): Boolean {
-        val myRecords = messageRecords.filter { it.userId.toString() == myUserId }
-        for (record in myRecords) {
-            if (record.type == Const.JsonFields.SEEN) {
-                return true
+    private fun checkIfMessageSeen(
+        roomItem: RoomAndMessageAndRecords,
+        messageAndRecords: MessageAndRecords,
+    ): Boolean {
+
+        // This handles case where a message would be sent later to the app via socket since
+        // the socket will try to send data until it succeeds.
+        if (roomItem.roomWithUsers.room.visitedRoom != null) {
+            if (messageAndRecords.message.modifiedAt != null && messageAndRecords.message.modifiedAt <= roomItem.roomWithUsers.room.visitedRoom!!) return true
+        }
+
+        if (messageAndRecords.records != null) {
+            val myRecords = messageAndRecords.records.filter { it.userId.toString() == myUserId }
+            for (record in myRecords) {
+                if (record.type == Const.JsonFields.SEEN) {
+                    return true
+                }
             }
         }
         return false
