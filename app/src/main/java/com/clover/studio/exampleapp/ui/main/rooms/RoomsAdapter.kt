@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.MessageRecords
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
@@ -90,15 +91,14 @@ class RoomsAdapter(
 
                     val unreadMessages = ArrayList<MessageAndRecords>()
                     if (sortedList.isNotEmpty()) {
-                        for (messages in sortedList) {
-                            if (roomItem.roomWithUsers.room.visitedRoom == null) {
-                                if (myUserId != messages.message.fromUserId.toString())
-                                    unreadMessages.add(messages)
-                            } else {
-                                if (messages.message.modifiedAt != null && messages.message.modifiedAt >= roomItem.roomWithUsers.room.visitedRoom!! && myUserId != messages.message.fromUserId.toString()) {
-                                    unreadMessages.add(messages)
-                                }
-                            }
+                        val filteredMessageList =
+                            sortedList.filter { it.message.fromUserId.toString() != myUserId }
+                        for (messages in filteredMessageList) {
+                            if (messages.records != null) {
+                                if (!checkIfMessageSeen(messages.records)) unreadMessages.add(
+                                    messages
+                                )
+                            } else unreadMessages.add(messages)
                         }
                     }
 
@@ -135,5 +135,15 @@ class RoomsAdapter(
             newItem: RoomAndMessageAndRecords
         ) =
             oldItem == newItem
+    }
+
+    private fun checkIfMessageSeen(messageRecords: List<MessageRecords>): Boolean {
+        val myRecords = messageRecords.filter { it.userId.toString() == myUserId }
+        for (record in myRecords) {
+            if (record.type == Const.JsonFields.SEEN) {
+                return true
+            }
+        }
+        return false
     }
 }
