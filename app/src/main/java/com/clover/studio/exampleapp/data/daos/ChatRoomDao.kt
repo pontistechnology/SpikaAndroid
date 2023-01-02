@@ -94,8 +94,8 @@ interface ChatRoomDao {
 
     // Delete all room users with specified room_id
     @Transaction
-    @Query("DELETE FROM room_user WHERE room_id LIKE :roomId")
-    suspend fun deleteRoomUsers(roomId: Int)
+    @Query("DELETE FROM room_user WHERE id IN (:userIds)")
+    suspend fun deleteRoomUsers(userIds: List<Int>)
 
     @Delete
     suspend fun deleteRoomUser(roomUser: RoomUser)
