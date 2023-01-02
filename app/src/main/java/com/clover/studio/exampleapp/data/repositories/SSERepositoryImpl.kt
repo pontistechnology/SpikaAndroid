@@ -229,15 +229,25 @@ class SSERepositoryImpl @Inject constructor(
                 val roomUsers: MutableList<RoomUser> = ArrayList()
                 for (user in room.users) {
                     user.user?.let { users.add(it) }
-                    roomUsers.add(
-                        RoomUser(
-                            room.roomId,
-                            user.userId,
-                            user.isAdmin
-                        )
+                    val roomUser = RoomUser(
+                        room.roomId,
+                        user.userId,
+                        user.isAdmin
                     )
+                    roomUsers.add(roomUser)
                 }
                 userDao.insert(users)
+
+                /**
+                 * TODO think about removing individual users from the list and how it could be
+                 *    easily achieved? We need to have reference to the old junction table and compare
+                 *    new data with old one to find different users. But we also have to keep in mind
+                 *    not to ignore the new user that is being added to the room
+                 *
+                 * Current implementation is a workaround, we are removing all room users from
+                 * table and adding fresh data instead.
+                 */
+                chatRoomDao.deleteRoomUsers(room.roomId)
                 chatRoomDao.insertRoomWithUsers(roomUsers)
             }
         }
