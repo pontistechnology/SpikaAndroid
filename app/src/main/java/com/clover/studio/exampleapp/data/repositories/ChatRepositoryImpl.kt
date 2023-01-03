@@ -173,6 +173,15 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun sendReaction(jsonObject: JsonObject) =
         chatService.postReaction(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
 
+    override suspend fun getNotes(roomId: Int) {
+        val response = chatService.getRoomNotes(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+
+        notesDao.insert(response.data.notes)
+    }
+
+    override suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>> =
+        notesDao.getNotesByRoom(roomId)
+
     /* TODO: Commented methods can later be used to delete reactions
     override suspend fun deleteReaction(recordId: Int, userId: Int) {
         chatService.deleteReaction(getHeaderMap(sharedPrefsRepo.readToken()), recordId)

@@ -364,6 +364,21 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun fetchNotes(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.getNotes(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun getRoomNotes(roomId: Int) = liveData {
+        emitSource(repository.getLocalNotes(roomId))
+    }
+
     fun uploadFile(
         activity: Activity,
         uri: Uri,
