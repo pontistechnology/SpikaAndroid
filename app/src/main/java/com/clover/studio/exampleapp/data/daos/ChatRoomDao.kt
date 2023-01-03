@@ -92,6 +92,11 @@ interface ChatRoomDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRoomWithUsers(roomUser: List<RoomUser>)
 
+    // Delete all room users with specified user_id
+    @Transaction
+    @Query("DELETE FROM room_user WHERE id IN (:userIds)")
+    suspend fun deleteRoomUsers(userIds: List<Int>)
+
     @Delete
     suspend fun deleteRoomUser(roomUser: RoomUser)
 

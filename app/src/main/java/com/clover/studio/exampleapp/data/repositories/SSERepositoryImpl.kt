@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.stream.Collectors
 import javax.inject.Inject
 
 class SSERepositoryImpl @Inject constructor(
@@ -220,25 +221,48 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeRoom(room: ChatRoom) {
-        val oldRoom = chatRoomDao.getRoomById(room.roomId)
-        chatRoomDao.updateRoomTable(oldRoom, room)
+        CoroutineScope(Dispatchers.IO).launch {
+            appDatabase.runInTransaction {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val oldRoom = chatRoomDao.getRoomById(room.roomId)
+                    chatRoomDao.updateRoomTable(oldRoom, room)
 
-        appDatabase.runInTransaction {
-            CoroutineScope(Dispatchers.IO).launch {
-                val users: MutableList<User> = ArrayList()
-                val roomUsers: MutableList<RoomUser> = ArrayList()
-                for (user in room.users) {
-                    user.user?.let { users.add(it) }
-                    roomUsers.add(
-                        RoomUser(
+                    val users: MutableList<User> = ArrayList()
+                    val roomUsers: MutableList<RoomUser> = ArrayList()
+                    for (user in room.users) {
+                        user.user?.let { users.add(it) }
+                        val roomUser = RoomUser(
                             room.roomId,
                             user.userId,
                             user.isAdmin
                         )
-                    )
+                        roomUsers.add(roomUser)
+                    }
+
+                    /**
+                     * Compare old user list for specific room with the new user list fetched from
+                     * backend. If filtered list is not empty that means that we have a user in
+                     * the database who was deleted. Remove specific user and update the table with
+                     * fresh data.
+                     */
+                    val oldRoomUsers = chatRoomDao.getRoomAndUsers(room.roomId).users
+
+                    val roomUserLookup = roomUsers.stream()
+                        .map { user -> user.userId }
+                        .collect(Collectors.toCollection { HashSet() })
+
+                    val filteredList = oldRoomUsers.stream()
+                        .filter { user -> !roomUserLookup.contains(user.id) }
+                        .map { user -> user.id }
+                        .collect(Collectors.toList())
+
+                    // Handle database operations
+                    userDao.insert(users)
+                    if (filteredList.isNotEmpty()) {
+                        chatRoomDao.deleteRoomUsers(filteredList)
+                    }
+                    chatRoomDao.insertRoomWithUsers(roomUsers)
                 }
-                userDao.insert(users)
-                chatRoomDao.insertRoomWithUsers(roomUsers)
             }
         }
     }
