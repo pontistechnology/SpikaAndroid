@@ -90,15 +90,18 @@ class RoomsAdapter(
 
                     val unreadMessages = ArrayList<MessageAndRecords>()
                     if (sortedList.isNotEmpty()) {
-                        for (messages in sortedList) {
-                            if (roomItem.roomWithUsers.room.visitedRoom == null) {
-                                if (myUserId != messages.message.fromUserId.toString())
-                                    unreadMessages.add(messages)
-                            } else {
-                                if (messages.message.modifiedAt != null && messages.message.modifiedAt >= roomItem.roomWithUsers.room.visitedRoom!! && myUserId != messages.message.fromUserId.toString()) {
-                                    unreadMessages.add(messages)
-                                }
-                            }
+                        val filteredMessageList =
+                            sortedList.filter { it.message.fromUserId.toString() != myUserId }
+                        for (messageAndRecords in filteredMessageList) {
+                            if (messageAndRecords.records != null) {
+                                if (!checkIfMessageSeen(
+                                        roomItem,
+                                        messageAndRecords
+                                    )
+                                ) unreadMessages.add(
+                                    messageAndRecords
+                                )
+                            } else unreadMessages.add(messageAndRecords)
                         }
                     }
 
@@ -135,5 +138,27 @@ class RoomsAdapter(
             newItem: RoomAndMessageAndRecords
         ) =
             oldItem == newItem
+    }
+
+    private fun checkIfMessageSeen(
+        roomItem: RoomAndMessageAndRecords,
+        messageAndRecords: MessageAndRecords,
+    ): Boolean {
+
+        // This handles case where a message would be sent later to the app via socket since
+        // the socket will try to send data until it succeeds.
+        if (roomItem.roomWithUsers.room.visitedRoom != null) {
+            if (messageAndRecords.message.modifiedAt != null && messageAndRecords.message.modifiedAt <= roomItem.roomWithUsers.room.visitedRoom!!) return true
+        }
+
+        if (messageAndRecords.records != null) {
+            val myRecords = messageAndRecords.records.filter { it.userId.toString() == myUserId }
+            for (record in myRecords) {
+                if (record.type == Const.JsonFields.SEEN) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 }
