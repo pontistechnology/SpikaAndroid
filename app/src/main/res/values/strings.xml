@@ -90,6 +90,7 @@
     <string name="group_name">Group name…</string>
     <string name="number_of_members">%s Members</string>
     <string name="exit_group">Exit group</string>
+    <string name="exit">Exit</string>
     <string name="report_group">Report group</string>
     <string name="info">Info</string>
     <string name="make_group_admin">Make group admin</string>
