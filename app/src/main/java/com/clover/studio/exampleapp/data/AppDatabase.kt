@@ -13,7 +13,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.utils.helpers.TypeConverter
 
 @Database(
-    entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class, RoomUser::class],
+    entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class, RoomUser::class, Note::class],
     version = DATABASE_VERSION,
     exportSchema = false
 )
@@ -26,6 +26,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun phoneUserDao(): PhoneUserDao
     abstract fun chatRoomDao(): ChatRoomDao
     abstract fun messageRecordsDao(): MessageRecordsDao
+    abstract fun notesDao(): NotesDao
 
     class TablesInfo {
         companion object {
@@ -37,6 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
             const val TABLE_CHAT_ROOM = "room"
             const val TABLE_MESSAGE_RECORDS = "message_records"
             const val TABLE_ROOM_USER = "room_user"
+            const val TABLE_NOTES = "notes"
 
             // general field names
             const val ID = "id"

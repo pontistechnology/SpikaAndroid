@@ -7,6 +7,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.Note
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
@@ -39,6 +40,7 @@ class ChatViewModel @Inject constructor(
     val roomNotificationListener = MutableLiveData<Event<ChatStates>>()
     val fileUploadListener = MutableLiveData<Event<ChatStates>>()
     val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
+    val noteDataListener = MutableLiveData<Event<ChatStates>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
         try {
@@ -307,6 +309,21 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun fetchNotes(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.getNotes(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun getRoomNotes(roomId: Int) = liveData {
+        emitSource(repository.getLocalNotes(roomId))
+    }
+
     fun uploadFile(
         activity: Activity,
         uri: Uri,
@@ -404,6 +421,7 @@ object RoomWithUsersFailed : ChatStates()
 class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : ChatStates()
 class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
+class NotesFetched(val notes: List<Note>) : ChatStates()
 object FilePieceUploaded : ChatStates()
 class FileUploadError(val description: String) : ChatStates()
 class FileUploadVerified(

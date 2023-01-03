@@ -34,6 +34,7 @@ object RepositoryModule {
         roomDao: ChatRoomDao,
         messageDao: MessageDao,
         userDao: UserDao,
+        notesDao: NotesDao,
         appDatabase: AppDatabase,
         sharedPrefs: SharedPreferencesRepository
     ) =
@@ -42,6 +43,7 @@ object RepositoryModule {
             roomDao,
             messageDao,
             userDao,
+            notesDao,
             appDatabase,
             sharedPrefs
         )

@@ -4,8 +4,10 @@ import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
+import com.clover.studio.exampleapp.data.daos.NotesDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.Note
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
@@ -25,6 +27,7 @@ class ChatRepositoryImpl @Inject constructor(
     private val roomDao: ChatRoomDao,
     private val messageDao: MessageDao,
     private val userDao: UserDao,
+    private val notesDao: NotesDao,
     private val appDatabase: AppDatabase,
     private val sharedPrefsRepo: SharedPreferencesRepository
 ) : ChatRepository {
@@ -146,6 +149,15 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun sendReaction(jsonObject: JsonObject) =
         chatService.postReaction(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
 
+    override suspend fun getNotes(roomId: Int) {
+        val response = chatService.getRoomNotes(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+
+        notesDao.insert(response.data.notes)
+    }
+
+    override suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>> =
+        notesDao.getNotesByRoom(roomId)
+
     /* TODO: Commented methods can later be used to delete reactions
     override suspend fun deleteReaction(recordId: Int, userId: Int) {
         chatService.deleteReaction(getHeaderMap(sharedPrefsRepo.readToken()), recordId)
@@ -200,11 +212,16 @@ class ChatRepositoryImpl @Inject constructor(
 }
 
 interface ChatRepository {
+    // Message calls
     suspend fun sendMessage(jsonObject: JsonObject)
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
     suspend fun deleteLocalMessage(message: Message)
     suspend fun sendMessagesSeen(roomId: Int)
+    suspend fun deleteMessage(messageId: Int, target: String)
+    suspend fun editMessage(messageId: Int, jsonObject: JsonObject)
+
+    // Room calls
     suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int)
     suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
@@ -214,14 +231,18 @@ interface ChatRepository {
     suspend fun unmuteRoom(roomId: Int)
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords>
+    suspend fun deleteRoom(roomId: Int)
+    suspend fun leaveRoom(roomId: Int)
+    suspend fun removeAdmin(roomId: Int, userId: Int)
+
+    // Reaction calls
     suspend fun sendReaction(jsonObject: JsonObject)
+
+    // Notes calls
+    suspend fun getNotes(roomId: Int)
+    suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>>
 
     // suspend fun deleteReaction(recordId: Int, userId: Int)
     // suspend fun deleteAllReactions(messageId: Int)
     // suspend fun deleteReaction(id: Int)
-    suspend fun deleteRoom(roomId: Int)
-    suspend fun leaveRoom(roomId: Int)
-    suspend fun removeAdmin(roomId: Int, userId: Int)
-    suspend fun deleteMessage(messageId: Int, target: String)
-    suspend fun editMessage(messageId: Int, jsonObject: JsonObject)
 }
