@@ -20,6 +20,12 @@ import io.noties.markwon.LinkResolver
 import org.commonmark.node.Link
 import io.noties.markwon.Markwon
 import timber.log.Timber
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
+import com.clover.studio.exampleapp.databinding.FragmentNotesDetailsBinding
 
 class NotesDetailsFragment : Fragment() {
     private var bindingSetup: FragmentNotesDetailsBinding? = null
