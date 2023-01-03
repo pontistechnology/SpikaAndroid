@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.main.chat_details.notes.NotesDetailsFragment">
+
+    <TextView
+        android:id="@+id/tv_notes_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/montserrat"
+        android:layout_margin="@dimen/ten_dp_margin"
+        android:textSize="@dimen/fourteen_sp_text"
+        android:text="@string/placeholder_description" />
+</ScrollView>

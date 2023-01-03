@@ -92,5 +92,21 @@
             android:name="roomId"
             android:defaultValue="0"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_notesFragment_to_notesDetailsFragment"
+            app:destination="@id/notesDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/notesDetailsFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.chat_details.notes.NotesDetailsFragment"
+        android:label="fragment_notes_details"
+        tools:layout="@layout/fragment_notes_details" >
+        <action
+            android:id="@+id/action_notesDetailsFragment_to_notesFragment"
+            app:destination="@id/notesFragment" />
+        <argument
+            android:name="notesDetails"
+            android:defaultValue="null"
+            app:argType="string" />
     </fragment>
 </navigation>

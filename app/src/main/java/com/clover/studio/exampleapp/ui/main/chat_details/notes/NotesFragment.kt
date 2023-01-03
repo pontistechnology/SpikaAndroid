@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -46,7 +47,15 @@ class NotesFragment : BaseFragment() {
 
     private fun setupAdapter() {
         adapter = NotesAdapter(requireActivity()) {
-            // TODO handle note click
+            val action = it.content?.let { content ->
+                NotesFragmentDirections.actionNotesFragmentToNotesDetailsFragment(
+                    content
+                )
+            }
+
+            if (action != null) {
+                findNavController().navigate(action)
+            }
         }
 
         binding.rvNotes.itemAnimator = null
