@@ -130,17 +130,4 @@
             android:defaultValue="0"
             app:argType="integer" />
     </fragment>
-    <fragment
-        android:id="@+id/notesFragment"
-        android:name="com.clover.studio.exampleapp.ui.main.chat_details.notes.NotesFragment"
-        android:label="fragment_notes"
-        tools:layout="@layout/fragment_notes" >
-        <action
-            android:id="@+id/action_notesFragment_to_chatDetailsFragment"
-            app:destination="@id/chatDetailsFragment" />
-        <argument
-            android:name="roomId"
-            android:defaultValue="0"
-            app:argType="integer" />
-    </fragment>
 </navigation>
