@@ -45,5 +45,6 @@ class NotesDetailsFragment : Fragment() {
         binding.ivBack.setOnClickListener {
             activity?.onBackPressed()
         }
+        binding.tvNotesDetails.text = notes
     }
 }
