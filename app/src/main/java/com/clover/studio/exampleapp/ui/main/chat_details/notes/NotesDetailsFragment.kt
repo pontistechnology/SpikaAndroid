@@ -1,13 +1,20 @@
 package com.clover.studio.exampleapp.ui.main.chat_details.notes
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.clover.studio.exampleapp.databinding.FragmentNotesDetailsBinding
+import io.noties.markwon.LinkResolver
+import org.commonmark.node.Link
 import io.noties.markwon.Markwon
 
 class NotesDetailsFragment : Fragment() {
