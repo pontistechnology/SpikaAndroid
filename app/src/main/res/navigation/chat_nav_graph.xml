@@ -108,5 +108,10 @@
             android:name="notesDetails"
             android:defaultValue="null"
             app:argType="string" />
+
+        <argument
+            android:name="notesName"
+            android:defaultValue="null"
+            app:argType="string" />
     </fragment>
 </navigation>

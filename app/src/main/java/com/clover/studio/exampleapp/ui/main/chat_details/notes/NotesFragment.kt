@@ -32,9 +32,16 @@ class NotesFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentNotesBinding.inflate(inflater, container, false)
         setupAdapter()
+        initializeViews()
         initializeObservers()
         // Inflate the layout for this fragment
         return binding.root
+    }
+
+    private fun initializeViews() {
+        binding.ivBack.setOnClickListener {
+            activity?.onBackPressed()
+        }
     }
 
     private fun initializeObservers() {
@@ -49,7 +56,7 @@ class NotesFragment : BaseFragment() {
         adapter = NotesAdapter(requireActivity()) {
             val action = it.content?.let { content ->
                 NotesFragmentDirections.actionNotesFragmentToNotesDetailsFragment(
-                    content
+                    content, it.title!!
                 )
             }
 
