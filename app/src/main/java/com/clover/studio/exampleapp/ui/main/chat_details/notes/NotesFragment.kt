@@ -46,6 +46,14 @@ class NotesFragment : BaseFragment() {
         binding.ivBack.setOnClickListener {
             activity?.onBackPressed()
         }
+
+        binding.ivNewNote.setOnClickListener {
+            val action = NotesFragmentDirections.actionNotesFragmentToNewNoteFragment(
+                roomId
+            )
+
+            findNavController().navigate(action)
+        }
     }
 
     private fun initializeObservers() {
