@@ -379,6 +379,39 @@ class ChatViewModel @Inject constructor(
         emitSource(repository.getLocalNotes(roomId))
     }
 
+    fun createNewNote(roomId: Int, newNote: NewNote) = viewModelScope.launch {
+        try {
+            repository.createNewNote(roomId, newNote)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun updateNote(noteId: Int, newNote: NewNote) = viewModelScope.launch {
+        try {
+            repository.updateNote(noteId, newNote)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun deleteNote(noteId: Int) = viewModelScope.launch {
+        try {
+            repository.deleteNote(noteId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
     fun uploadFile(
         activity: Activity,
         uri: Uri,
