@@ -156,7 +156,6 @@ class ChatAdapter(
                                 .into(holder.binding.ivChatImage)
                         } else {
                             holder.binding.clProgressScreen.visibility = View.GONE
-                            Timber.d("Thumb id = ${it.message.body?.thumb?.id}")
                             val imagePath = it.message.body?.thumb?.id?.let { imagePath ->
                                 Tools.getFilePathUrl(
                                     imagePath
@@ -388,7 +387,7 @@ class ChatAdapter(
                                 params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                             }
                             val imagePath =
-                                it.message.body.thumb?.id?.let { imagePath ->
+                                it.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
                                     Tools.getFilePathUrl(
                                         imagePath
                                     )

@@ -105,7 +105,7 @@ data class MessageBody(
 data class ReferenceMessage(
     var id: Int?,
     var fromUserId: Int?,
-    var totalDeviceCount: Int?,
+    var totalUserCount: Int?,
     var deliveredCount: Int?,
     var seenCount: Int?,
     var roomId: Int?,
@@ -119,6 +119,8 @@ data class ReferenceMessage(
 
 data class ReplyBody(
     var text: String?,
+    var fileId: Long?,
+    var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?,
 )
