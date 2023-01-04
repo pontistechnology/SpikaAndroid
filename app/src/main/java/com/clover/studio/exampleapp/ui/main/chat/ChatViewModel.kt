@@ -9,6 +9,7 @@ import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.Note
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
+import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.data.models.networking.Settings
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
@@ -322,6 +323,39 @@ class ChatViewModel @Inject constructor(
 
     fun getRoomNotes(roomId: Int) = liveData {
         emitSource(repository.getLocalNotes(roomId))
+    }
+
+    fun createNewNote(roomId: Int, newNote: NewNote) = viewModelScope.launch {
+        try {
+            repository.createNewNote(roomId, newNote)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun updateNote(noteId: Int, newNote: NewNote) = viewModelScope.launch {
+        try {
+            repository.updateNote(noteId, newNote)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun deleteNote(noteId: Int) = viewModelScope.launch {
+        try {
+            repository.deleteNote(noteId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
     }
 
     fun uploadFile(

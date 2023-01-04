@@ -12,6 +12,7 @@ import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
+import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -75,6 +76,29 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun sendMessagesSeen(roomId: Int) =
         chatService.sendMessagesSeen(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+
+    override suspend fun deleteMessage(messageId: Int, target: String) {
+        val response =
+            chatService.deleteMessage(getHeaderMap(sharedPrefsRepo.readToken()), messageId, target)
+
+        // Just replace old message with new one. Deleted message just has a body with new text
+        if (response.data?.message != null) {
+            val deletedMessage = response.data.message
+            deletedMessage.type = Const.JsonFields.TEXT_TYPE
+            messageDao.insert(deletedMessage)
+        }
+    }
+
+    override suspend fun editMessage(messageId: Int, jsonObject: JsonObject) {
+        val response = chatService.editMessage(
+            getHeaderMap(sharedPrefsRepo.readToken()),
+            messageId,
+            jsonObject
+        )
+        if (response.data?.message != null) {
+            messageDao.insert(response.data.message)
+        }
+    }
 
     override suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int) =
         roomDao.updateRoomVisited(visitedTimestamp, roomId)
@@ -149,15 +173,6 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun sendReaction(jsonObject: JsonObject) =
         chatService.postReaction(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
 
-    override suspend fun getNotes(roomId: Int) {
-        val response = chatService.getRoomNotes(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
-
-        notesDao.insert(response.data.notes)
-    }
-
-    override suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>> =
-        notesDao.getNotesByRoom(roomId)
-
     /* TODO: Commented methods can later be used to delete reactions
     override suspend fun deleteReaction(recordId: Int, userId: Int) {
         chatService.deleteReaction(getHeaderMap(sharedPrefsRepo.readToken()), recordId)
@@ -168,6 +183,35 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun deleteAllReactions(messageId: Int) {
         chatRoomDao.deleteAllReactions(messageId)
     }*/
+
+    override suspend fun getNotes(roomId: Int) {
+        val response = chatService.getRoomNotes(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+
+        response.data.notes?.let { notesDao.insert(it) }
+    }
+
+    override suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>> =
+        notesDao.getNotesByRoom(roomId)
+
+    override suspend fun createNewNote(roomId: Int, newnNote: NewNote) {
+        val response =
+            chatService.createNote(getHeaderMap(sharedPrefsRepo.readToken()), roomId, newnNote)
+
+        response.data.note?.let { notesDao.insert(it) }
+    }
+
+    override suspend fun updateNote(noteId: Int, newNote: NewNote) {
+        val response =
+            chatService.updateNote(getHeaderMap(sharedPrefsRepo.readToken()), noteId, newNote)
+
+        response.data.note?.let { notesDao.insert(it) }
+    }
+
+    override suspend fun deleteNote(noteId: Int) {
+        val response = chatService.deleteNote(getHeaderMap(sharedPrefsRepo.readToken()), noteId)
+
+        response.data.note?.let { notesDao.deleteNote(it) }
+    }
 
     override suspend fun deleteRoom(roomId: Int) {
         val response = chatService.deleteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
@@ -185,29 +229,6 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun removeAdmin(roomId: Int, userId: Int) {
         roomDao.removeAdmin(roomId, userId)
-    }
-
-    override suspend fun deleteMessage(messageId: Int, target: String) {
-        val response =
-            chatService.deleteMessage(getHeaderMap(sharedPrefsRepo.readToken()), messageId, target)
-
-        // Just replace old message with new one. Deleted message just has a body with new text
-        if (response.data?.message != null) {
-            val deletedMessage = response.data.message
-            deletedMessage.type = Const.JsonFields.TEXT_TYPE
-            messageDao.insert(deletedMessage)
-        }
-    }
-
-    override suspend fun editMessage(messageId: Int, jsonObject: JsonObject) {
-        val response = chatService.editMessage(
-            getHeaderMap(sharedPrefsRepo.readToken()),
-            messageId,
-            jsonObject
-        )
-        if (response.data?.message != null) {
-            messageDao.insert(response.data.message)
-        }
     }
 }
 
@@ -237,12 +258,14 @@ interface ChatRepository {
 
     // Reaction calls
     suspend fun sendReaction(jsonObject: JsonObject)
+    // suspend fun deleteReaction(recordId: Int, userId: Int)
+    // suspend fun deleteAllReactions(messageId: Int)
+    // suspend fun deleteReaction(id: Int)
 
     // Notes calls
     suspend fun getNotes(roomId: Int)
     suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>>
-
-    // suspend fun deleteReaction(recordId: Int, userId: Int)
-    // suspend fun deleteAllReactions(messageId: Int)
-    // suspend fun deleteReaction(id: Int)
+    suspend fun createNewNote(roomId: Int, newNote: NewNote)
+    suspend fun updateNote(noteId: Int, newNote: NewNote)
+    suspend fun deleteNote(noteId: Int)
 }
