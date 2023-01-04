@@ -17,11 +17,11 @@ import com.clover.studio.exampleapp.ui.main.chat.NoteCreated
 import com.clover.studio.exampleapp.ui.main.chat.NoteCreationFailed
 import com.clover.studio.exampleapp.utils.EventObserver
 import timber.log.Timber
+import androidx.navigation.fragment.navArgs
 
 class NewNoteFragment : Fragment() {
     private var bindingSetup: FragmentNewNoteBinding? = null
     private val binding get() = bindingSetup!!
-
     private val viewModel: ChatViewModel by activityViewModels()
     private val args: NewNoteFragmentArgs by navArgs()
     private var roomId = 0
