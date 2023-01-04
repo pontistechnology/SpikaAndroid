@@ -144,7 +144,7 @@ class Const {
             const val API_VERIFY_CODE = "api/messenger/auth/verify"
             const val API_CONTACTS = "api/messenger/contacts"  // Fix
             const val API_UPDATE_USER = "api/messenger/me" // Fix
-            const val API_GET_AVATAR = "api/upload/files/"
+            const val API_GET_FILE_FROM_ID = "api/upload/files/"
             const val API_UPLOAD_FILE = "api/upload/files" // Fix
             const val API_VERIFY_FILE = "api/upload/files/verify" // Fix
             const val API_POST_MESSAGE = "api/messenger/messages"

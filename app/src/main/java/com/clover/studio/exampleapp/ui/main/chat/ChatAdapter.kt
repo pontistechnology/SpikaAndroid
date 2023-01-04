@@ -156,8 +156,8 @@ class ChatAdapter(
                                 .into(holder.binding.ivChatImage)
                         } else {
                             holder.binding.clProgressScreen.visibility = View.GONE
-                            // TODO check out image and thumbnail handling: thumb instead of file?
-                            val imagePath = it.message.body?.file?.path?.let { imagePath ->
+                            Timber.d("Thumb id = ${it.message.body?.thumb?.id}")
+                            val imagePath = it.message.body?.thumb?.id?.let { imagePath ->
                                 Tools.getFilePathUrl(
                                     imagePath
                                 )
@@ -194,7 +194,7 @@ class ChatAdapter(
                                 .toString()
                         holder.binding.tvFileSize.text = sizeText
 
-                        if (it.message.body.file?.path?.isEmpty() == true) {
+                        if (it.message.body.file?.uri?.isEmpty() == true) {
                             holder.binding.ivDownloadFile.visibility = View.GONE
                             holder.binding.ivCancelFile.visibility = View.VISIBLE
                             holder.binding.pbFile.visibility = View.VISIBLE
@@ -223,7 +223,7 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        val videoPath = it.message.body?.file?.path?.let { videoPath ->
+                        val videoPath = it.message.body?.thumb?.id?.let { videoPath ->
                             Tools.getFilePathUrl(
                                 videoPath
                             )
@@ -257,7 +257,7 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.VISIBLE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        if (it.message.body?.file?.path?.isEmpty() == true) {
+                        if (it.message.body?.file?.uri?.isEmpty() == true) {
                             holder.binding.pbAudio.visibility = View.VISIBLE
                             holder.binding.ivPlayAudio.visibility = View.GONE
                             holder.binding.ivCancelAudio.visibility = View.GONE
@@ -268,7 +268,7 @@ class ChatAdapter(
                             holder.binding.ivPlayAudio.visibility = View.VISIBLE
                             holder.binding.pbAudio.visibility = View.GONE
                             holder.binding.ivCancelAudio.visibility = View.GONE
-                            val audioPath = it.message.body?.file?.path?.let { audioPath ->
+                            val audioPath = it.message.body?.thumb?.id?.let { audioPath ->
                                 Tools.getFilePathUrl(
                                     audioPath
                                 )
@@ -388,7 +388,7 @@ class ChatAdapter(
                                 params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                             }
                             val imagePath =
-                                it.message.body.referenceMessage?.body?.file?.path?.let { imagePath ->
+                                it.message.body.thumb?.id?.let { imagePath ->
                                     Tools.getFilePathUrl(
                                         imagePath
                                     )
@@ -589,7 +589,7 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        val imagePath = it.message.body?.file?.path?.let { imagePath ->
+                        val imagePath = it.message.body?.thumb?.id?.let { imagePath ->
                             Tools.getFilePathUrl(
                                 imagePath
                             )
@@ -619,7 +619,7 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        val videoPath = it.message.body?.file?.path?.let { videoPath ->
+                        val videoPath = it.message.body?.thumb?.id?.let { videoPath ->
                             Tools.getFilePathUrl(
                                 videoPath
                             )
@@ -679,7 +679,7 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.VISIBLE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        val audioPath = it.message.body?.file?.path?.let { audioPath ->
+                        val audioPath = it.message.body?.thumb?.id?.let { audioPath ->
                             Tools.getFilePathUrl(
                                 audioPath
                             )
@@ -795,7 +795,7 @@ class ChatAdapter(
                             holder.binding.cvReplyMedia.visibility = View.VISIBLE
                             holder.binding.tvReplyMedia.visibility = View.VISIBLE
                             val imagePath =
-                                it.message.body.referenceMessage?.body?.file?.path?.let { imagePath ->
+                                it.message.body.thumb?.id?.let { imagePath ->
                                     Tools.getFilePathUrl(
                                         imagePath
                                     )
@@ -910,7 +910,7 @@ class ChatAdapter(
                     holder.binding.cvImage.visibility = View.VISIBLE
 
                     Glide.with(context)
-                        .load(it.message.body?.file?.path?.let { imagePath ->
+                        .load(it.message.body?.thumb?.id?.let { imagePath ->
                             Tools.getFilePathUrl(
                                 imagePath
                             )
@@ -927,7 +927,7 @@ class ChatAdapter(
                             holder.binding.tvUsername.text = roomUser.displayName
                             Glide.with(context)
                                 .load(roomUser.avatarFileId?.let { fileId ->
-                                    Tools.getAvatarUrl(
+                                    Tools.getFilePathUrl(
                                         fileId
                                     )
                                 })

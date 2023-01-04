@@ -14,6 +14,7 @@ import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
 
 class RoomsAdapter(
@@ -54,7 +55,7 @@ class RoomsAdapter(
                 binding.tvRoomName.text = userName
 
                 Glide.with(context)
-                    .load("${BuildConfig.SERVER_URL}${Const.Networking.API_GET_AVATAR}$avatarFileId")
+                    .load(Tools.getFilePathUrl(avatarFileId))
                     .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivRoomImage)
 

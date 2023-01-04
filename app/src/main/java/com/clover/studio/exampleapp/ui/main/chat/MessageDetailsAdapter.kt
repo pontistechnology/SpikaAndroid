@@ -53,7 +53,7 @@ class MessageDetailsAdapter(
                     if (messageRecord.userId == user.id) {
                         binding.tvSeenUsername.text = user.displayName
                         Glide.with(context)
-                            .load(user.avatarFileId?.let { Tools.getAvatarUrl(it) })
+                            .load(user.avatarFileId?.let { Tools.getFilePathUrl(it) })
                             .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                             .into(binding.ivUserAvatar)
                         break

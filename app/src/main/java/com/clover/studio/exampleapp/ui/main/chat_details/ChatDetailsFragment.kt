@@ -319,10 +319,10 @@ class ChatDetailsFragment : BaseFragment() {
     private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
         if (avatarFileId != 0L) {
             Glide.with(this)
-                .load(avatarFileId.let { Tools.getAvatarUrl(it) })
+                .load(avatarFileId.let { Tools.getFilePathUrl(it) })
                 .into(binding.ivPickAvatar)
             Glide.with(this)
-                .load(avatarFileId.let { Tools.getAvatarUrl(it) })
+                .load(avatarFileId.let { Tools.getFilePathUrl(it) })
                 .into(binding.ivUserImage)
         }
         binding.tvGroupName.text = username

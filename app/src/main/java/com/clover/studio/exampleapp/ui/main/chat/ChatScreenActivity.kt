@@ -133,7 +133,7 @@ class ChatScreenActivity : BaseActivity() {
                         if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
                             Glide.with(this@ChatScreenActivity)
                                 .load(it.roomWithUsers.room.avatarFileId?.let { fileId ->
-                                    Tools.getAvatarUrl(
+                                    Tools.getFilePathUrl(
                                         fileId
                                     )
                                 })
@@ -163,7 +163,7 @@ class ChatScreenActivity : BaseActivity() {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     Glide.with(this@ChatScreenActivity)
                                         .load(user.avatarFileId?.let { fileId ->
-                                            Tools.getAvatarUrl(
+                                            Tools.getFilePathUrl(
                                                 fileId
                                             )
                                         })

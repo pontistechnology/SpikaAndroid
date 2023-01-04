@@ -20,7 +20,7 @@ import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.UserUpdateFailed
 import com.clover.studio.exampleapp.ui.main.UserUpdated
 import com.clover.studio.exampleapp.utils.*
-import com.clover.studio.exampleapp.utils.Tools.getAvatarUrl
+import com.clover.studio.exampleapp.utils.Tools.getFilePathUrl
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
@@ -135,7 +135,7 @@ class SettingsFragment : BaseFragment() {
             binding.tvPhoneNumber.text = it.telephoneNumber
 
             Glide.with(requireActivity())
-                .load(it.avatarFileId?.let { fileId -> getAvatarUrl(fileId) })
+                .load(it.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
                 .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
                 .into(binding.ivPickPhoto)
         }

@@ -148,7 +148,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 if (photoImageUri != null) {
-                    convertImageToBitmap(photoImageUri)
+                    getImageOrVideo(photoImageUri!!)
                 } else {
                     Timber.d("Photo error")
                 }
@@ -193,7 +193,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun setAvatarAndName(avatarFileId: Long, userName: String) {
         bindingSetup.tvChatName.text = userName
         Glide.with(this)
-            .load(avatarFileId.let { Tools.getAvatarUrl(it) })
+            .load(avatarFileId.let { Tools.getFilePathUrl(it) })
             .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
             .into(bindingSetup.ivUserImage)
     }
@@ -992,7 +992,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
                 bindingSetup.replyAction.ivReplyImage.visibility = View.VISIBLE
                 val imagePath =
-                    message.body?.file?.path?.let { imagePath ->
+                    message.body?.fileId?.let { imagePath ->
                         Tools.getFilePathUrl(
                             imagePath
                         )
@@ -1188,7 +1188,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             null,
             1,
             1,
-            MessageFile(fileName, "", "", fileStream.length(), null),
+            MessageFile(1, fileName, "", fileStream.length(), null, null),
             null,
         )
 
@@ -1225,10 +1225,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             1,
             1,
             MessageFile(
-                "",
+                1,
                 "",
                 "",
                 0,
+                null,
                 mediaUri.toString()
             ),
             null,

@@ -36,7 +36,7 @@ class ChatDetailsAdapter(
             getItem(position).let { userItem ->
                 binding.tvUsername.text = userItem.displayName
                 binding.tvTitle.text = userItem.telephoneNumber
-                Glide.with(context).load(userItem.avatarFileId?.let { Tools.getAvatarUrl(it) })
+                Glide.with(context).load(userItem.avatarFileId?.let { Tools.getFilePathUrl(it) })
                     .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivUserImage)
 

@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.data.models.entity
 
 import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
+import com.clover.studio.exampleapp.data.models.FileMetadata
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_MESSAGE)
@@ -123,9 +124,10 @@ data class ReplyBody(
 )
 
 data class MessageFile(
+    val id: Long,
     val fileName: String,
     val mimeType: String,
-    val path: String,
     val size: Long,
+    val metadata: FileMetadata?,
     val uri: String?
 )
