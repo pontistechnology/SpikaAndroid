@@ -1622,7 +1622,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     /**
-     * update progress bar in recycler view
+     * Update progress bar in recycler view
      * get viewHolder from position and progress bar from that viewHolder
      *  we are rapidly updating progressbar so we didn't use notify method as it always update whole row instead of only progress bar
      *  @param progress : new progress value

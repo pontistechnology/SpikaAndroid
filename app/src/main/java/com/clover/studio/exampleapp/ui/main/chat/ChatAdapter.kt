@@ -156,6 +156,7 @@ class ChatAdapter(
                                 .into(holder.binding.ivChatImage)
                         } else {
                             holder.binding.clProgressScreen.visibility = View.GONE
+                            // TODO check out image and thumbnail handling: thumb instead of file?
                             val imagePath = it.message.body?.file?.path?.let { imagePath ->
                                 Tools.getFilePathUrl(
                                     imagePath

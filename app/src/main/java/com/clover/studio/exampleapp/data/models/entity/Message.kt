@@ -129,4 +129,3 @@ data class MessageFile(
     val size: Long,
     val uri: String?
 )
-
