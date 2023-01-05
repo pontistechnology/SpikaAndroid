@@ -14,6 +14,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/tv_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/montserrat"
+        android:padding="@dimen/twenty_dp_margin"
+        android:text="@string/edit"
+        android:textColor="@color/primary_color"
+        app:layout_constraintBottom_toBottomOf="@id/iv_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/iv_back" />
+
+    <ImageView
+        android:id="@+id/iv_attachment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/ten_dp_margin"
+        android:src="@drawable/img_attach_file"
+        app:layout_constraintBottom_toBottomOf="@id/tv_edit"
+        app:layout_constraintEnd_toStartOf="@id/tv_edit"
+        app:layout_constraintTop_toTopOf="@id/tv_edit" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -24,6 +46,7 @@
         tools:context=".ui.main.chat_details.notes.NotesDetailsFragment">
 
         <LinearLayout
+            android:id="@+id/ll_note_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -32,14 +55,13 @@
                 android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/ten_dp_margin"
                 android:fontFamily="@font/montserrat"
+                android:padding="@dimen/ten_dp_margin"
                 android:text="@string/notes"
                 android:textSize="@dimen/eighteen_sp_text"
                 app:layout_constraintBottom_toBottomOf="@id/iv_back"
                 app:layout_constraintStart_toEndOf="@id/iv_back"
                 app:layout_constraintTop_toTopOf="@id/iv_back" />
-
 
             <TextView
                 android:id="@+id/tv_notes_details"
@@ -47,9 +69,35 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/montserrat"
                 android:padding="@dimen/ten_dp_margin"
-                android:textColor="@color/text_tertiary"
                 android:text="@string/placeholder_description"
+                android:textColor="@color/text_tertiary"
                 android:textSize="@dimen/fourteen_sp_text" />
+
+            <EditText
+                android:id="@+id/et_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/montserrat"
+                android:padding="@dimen/ten_dp_margin"
+                android:text="@string/notes"
+                android:textSize="@dimen/eighteen_sp_text"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/iv_back"
+                app:layout_constraintStart_toEndOf="@id/iv_back"
+                app:layout_constraintTop_toTopOf="@id/iv_back" />
+
+            <EditText
+                android:id="@+id/et_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/montserrat"
+                android:padding="@dimen/ten_dp_margin"
+                android:text="@string/placeholder_description"
+                android:textColor="@color/text_tertiary"
+                android:textSize="@dimen/fourteen_sp_text"
+                android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
