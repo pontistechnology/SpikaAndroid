@@ -10,23 +10,28 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.databinding.FragmentNotesDetailsBinding
+import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
+import com.clover.studio.exampleapp.ui.main.chat.NoteCreationFailed
+import com.clover.studio.exampleapp.ui.main.chat.NoteDeleted
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
 import com.clover.studio.exampleapp.ui.main.chat.NoteFailed
 import com.clover.studio.exampleapp.ui.main.chat.NoteUpdated
 import com.clover.studio.exampleapp.utils.EventObserver
-import timber.log.Timber
 import android.widget.TextView
 import androidx.navigation.fragment.navArgs
 import io.noties.markwon.LinkResolver
 import io.noties.markwon.Markwon
+import timber.log.Timber
 
 class NotesDetailsFragment : Fragment() {
     private var bindingSetup: FragmentNotesDetailsBinding? = null
     private val binding get() = bindingSetup!!
     private val viewModel: ChatViewModel by activityViewModels()
     private val args: NotesDetailsFragmentArgs by navArgs()
+    private val viewModel: ChatViewModel by activityViewModels()
     private var notes: String = ""
     private var notesName: String = ""
     private var noteId: Int = 0
@@ -66,6 +71,7 @@ class NotesDetailsFragment : Fragment() {
 
                     markdownNotes()
                 }
+                NoteDeleted -> activity?.onBackPressed()
                 NoteFailed -> Toast.makeText(context, getString(R.string.note_creation_failed), Toast.LENGTH_SHORT)
                 else -> Timber.d("Other error")
             }
@@ -129,6 +135,10 @@ class NotesDetailsFragment : Fragment() {
 
         binding.ivBack.setOnClickListener {
             activity?.onBackPressed()
+        }
+
+        binding.ivDelete.setOnClickListener {
+            viewModel.deleteNote(noteId)
         }
     }
 }

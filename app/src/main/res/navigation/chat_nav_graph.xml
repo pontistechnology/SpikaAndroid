@@ -111,6 +111,11 @@
             android:name="noteId"
             android:defaultValue="0"
             app:argType="integer" />
+
+        <argument
+            android:name="noteId"
+            android:defaultValue="0"
+            app:argType="integer" />
         <argument
             android:name="notesDetails"
             android:defaultValue="null"

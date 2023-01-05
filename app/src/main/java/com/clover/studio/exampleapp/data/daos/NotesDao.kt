@@ -18,6 +18,9 @@ interface NotesDao {
     @Delete
     suspend fun deleteNote(note: Note)
 
+    @Query("DELETE FROM notes WHERE id LIKE :noteId")
+    suspend fun deleteNote(noteId: Int)
+
     @Query("DELETE FROM notes")
     suspend fun removeNotes()
 }
