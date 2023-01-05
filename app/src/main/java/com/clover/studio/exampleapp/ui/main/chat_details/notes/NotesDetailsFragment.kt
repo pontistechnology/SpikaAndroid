@@ -13,7 +13,7 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.databinding.FragmentNotesDetailsBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
-import com.clover.studio.exampleapp.ui.main.chat.NoteCreationFailed
+import com.clover.studio.exampleapp.ui.main.chat.NoteFailed
 import com.clover.studio.exampleapp.ui.main.chat.NoteUpdated
 import com.clover.studio.exampleapp.utils.EventObserver
 import io.noties.markwon.LinkResolver
@@ -65,7 +65,7 @@ class NotesDetailsFragment : Fragment() {
 
                     markdownNotes()
                 }
-                NoteCreationFailed -> Toast.makeText(context, getString(R.string.note_creation_failed), Toast.LENGTH_SHORT)
+                NoteFailed -> Toast.makeText(context, getString(R.string.note_creation_failed), Toast.LENGTH_SHORT)
                 else -> Timber.d("Other error")
             }
         })
