@@ -75,7 +75,7 @@ class NotesFragment : BaseFragment() {
         adapter = NotesAdapter(requireActivity()) {
             val action = it.content?.let { content ->
                 NotesFragmentDirections.actionNotesFragmentToNotesDetailsFragment(
-                    content, it.title!!
+                    it.id, content, it.title!!
                 )
             }
 

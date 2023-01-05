@@ -347,8 +347,11 @@ class ChatViewModel @Inject constructor(
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
             }
+            noteCreationListener.postValue(Event(NoteCreationFailed))
             return@launch
         }
+
+        noteCreationListener.postValue(Event(NoteUpdated))
     }
 
     fun deleteNote(noteId: Int) = viewModelScope.launch {
@@ -462,6 +465,7 @@ object UserSettingsFetchFailed : ChatStates()
 class NotesFetched(val notes: List<Note>) : ChatStates()
 object NoteCreated: ChatStates()
 object NoteCreationFailed: ChatStates()
+object NoteUpdated: ChatStates()
 object FilePieceUploaded : ChatStates()
 class FileUploadError(val description: String) : ChatStates()
 class FileUploadVerified(
