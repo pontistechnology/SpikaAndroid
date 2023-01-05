@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.ui.main.chat
 
 import android.app.Activity
 import android.net.Uri
+import android.provider.CalendarContract.EventsEntity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -42,6 +43,7 @@ class ChatViewModel @Inject constructor(
     val fileUploadListener = MutableLiveData<Event<ChatStates>>()
     val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
     val noteDataListener = MutableLiveData<Event<ChatStates>>()
+    val noteCreationListener = MutableLiveData<Event<ChatStates>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
         try {
@@ -332,8 +334,10 @@ class ChatViewModel @Inject constructor(
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
             }
+            noteCreationListener.postValue(Event(NoteCreationFailed))
             return@launch
         }
+        noteCreationListener.postValue(Event(NoteCreated))
     }
 
     fun updateNote(noteId: Int, newNote: NewNote) = viewModelScope.launch {
@@ -456,6 +460,8 @@ class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Messag
 class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
 class NotesFetched(val notes: List<Note>) : ChatStates()
+object NoteCreated: ChatStates()
+object NoteCreationFailed: ChatStates()
 object FilePieceUploaded : ChatStates()
 class FileUploadError(val description: String) : ChatStates()
 class FileUploadVerified(

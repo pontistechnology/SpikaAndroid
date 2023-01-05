@@ -153,4 +153,8 @@
     <string name="read_by">Read by</string>
     <string name="delivered_to">Delivered to</string>
     <string name="date">Date</string>
+    <string name="enter_title">Enter title</string>
+    <string name="enter_description">Enter description</string>
+    <string name="note_error_toast">Please enter title and description</string>
+    <string name="note_creation_failed">Failed to create note, please try again.</string>
 </resources>
