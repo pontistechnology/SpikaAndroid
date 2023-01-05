@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.ui.main.chat
 
 import android.app.Activity
 import android.net.Uri
+import android.provider.CalendarContract.EventsEntity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -386,8 +387,10 @@ class ChatViewModel @Inject constructor(
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
             }
+            noteCreationListener.postValue(Event(NoteCreationFailed))
             return@launch
         }
+        noteCreationListener.postValue(Event(NoteCreated))
     }
 
     fun updateNote(noteId: Int, newNote: NewNote) = viewModelScope.launch {

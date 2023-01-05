@@ -6,14 +6,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
+import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.databinding.FragmentNewNoteBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
 import com.clover.studio.exampleapp.ui.main.chat.NoteCreated
 import com.clover.studio.exampleapp.ui.main.chat.NoteFailed
 import com.clover.studio.exampleapp.utils.EventObserver
-import timber.log.Timber
 import androidx.navigation.fragment.navArgs
+import com.clover.studio.exampleapp.ui.main.chat.ChatStates
+import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
+import com.clover.studio.exampleapp.ui.main.chat.NoteCreated
+import com.clover.studio.exampleapp.ui.main.chat.NoteCreationFailed
+import com.clover.studio.exampleapp.utils.EventObserver
+import timber.log.Timber
 
 class NewNoteFragment : Fragment() {
     private var bindingSetup: FragmentNewNoteBinding? = null
