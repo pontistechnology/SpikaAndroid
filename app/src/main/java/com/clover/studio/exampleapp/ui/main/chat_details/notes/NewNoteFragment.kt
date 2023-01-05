@@ -22,6 +22,7 @@ import androidx.navigation.fragment.navArgs
 class NewNoteFragment : Fragment() {
     private var bindingSetup: FragmentNewNoteBinding? = null
     private val binding get() = bindingSetup!!
+
     private val viewModel: ChatViewModel by activityViewModels()
     private val args: NewNoteFragmentArgs by navArgs()
     private var roomId = 0

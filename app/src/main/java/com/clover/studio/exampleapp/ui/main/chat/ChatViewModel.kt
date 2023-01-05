@@ -334,8 +334,10 @@ class ChatViewModel @Inject constructor(
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
             }
+            noteCreationListener.postValue(Event(NoteCreationFailed))
             return@launch
         }
+        noteCreationListener.postValue(Event(NoteCreated))
     }
 
     fun updateNote(noteId: Int, newNote: NewNote) = viewModelScope.launch {
