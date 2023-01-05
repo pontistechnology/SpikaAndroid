@@ -193,9 +193,9 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>> =
         notesDao.getNotesByRoom(roomId)
 
-    override suspend fun createNewNote(roomId: Int, newnNote: NewNote) {
+    override suspend fun createNewNote(roomId: Int, newNote: NewNote) {
         val response =
-            chatService.createNote(getHeaderMap(sharedPrefsRepo.readToken()), roomId, newnNote)
+            chatService.createNote(getHeaderMap(sharedPrefsRepo.readToken()), roomId, newNote)
 
         response.data.note?.let { notesDao.insert(it) }
     }
