@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.R
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.clover.studio.exampleapp.databinding.FragmentNotesBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
 import com.clover.studio.exampleapp.ui.main.chat.NotesFetched

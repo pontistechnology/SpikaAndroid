@@ -210,7 +210,7 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun deleteNote(noteId: Int) {
         val response = chatService.deleteNote(getHeaderMap(sharedPrefsRepo.readToken()), noteId)
 
-        response.data.note?.let { notesDao.deleteNote(it) }
+        response.data.deleted?.let { if (it) notesDao.deleteNote(noteId) }
     }
 
     override suspend fun deleteRoom(roomId: Int) {
