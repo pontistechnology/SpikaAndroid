@@ -4,19 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentNotesBinding
-import com.clover.studio.exampleapp.ui.main.MainActivity
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
-import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
-import com.clover.studio.exampleapp.utils.helpers.Resource
 
 class NotesFragment : BaseFragment() {
     private var bindingSetup: FragmentNotesBinding? = null
@@ -47,36 +42,11 @@ class NotesFragment : BaseFragment() {
         binding.ivBack.setOnClickListener {
             activity?.onBackPressed()
         }
-
-        binding.ivNewNote.setOnClickListener {
-            if (activity is MainActivity) {
-                findNavController().navigate(
-                    R.id.newNoteFragment2,
-                    bundleOf(Const.Navigation.ROOM_ID to roomId)
-                )
-            } else findNavController().navigate(
-                R.id.newNoteFragment,
-                bundleOf(Const.Navigation.ROOM_ID to roomId)
-            )
-        }
     }
 
     private fun initializeObservers() {
         viewModel.getRoomNotes(roomId).observe(viewLifecycleOwner) {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
-                    if (it.responseData?.isNotEmpty() == true) {
-                        adapter.submitList(it.responseData)
-                        binding.tvNoNotes.visibility = View.GONE
-                    } else binding.tvNoNotes.visibility = View.VISIBLE
-                }
-                Resource.Status.LOADING -> {
-                    // Loading
-                }
-                else -> {
-                    // Error
-                }
-            }
+            adapter.submitList(it)
         }
 
         viewModel.fetchNotes(roomId)
@@ -84,23 +54,15 @@ class NotesFragment : BaseFragment() {
 
     private fun setupAdapter() {
         adapter = NotesAdapter(requireActivity()) {
-            if (activity is MainActivity) {
-                findNavController().navigate(
-                    R.id.notesDetailsFragment2,
-                    bundleOf(
-                        Const.Navigation.NOTE_ID to it.id,
-                        Const.Navigation.NOTES_DETAILS to it.content,
-                        Const.Navigation.NOTES_NAME to it.title
-                    )
+            val action = it.content?.let { content ->
+                NotesFragmentDirections.actionNotesFragmentToNotesDetailsFragment(
+                    content, it.title!!
                 )
-            } else findNavController().navigate(
-                R.id.notesDetailsFragment,
-                bundleOf(
-                    Const.Navigation.NOTE_ID to it.id,
-                    Const.Navigation.NOTES_DETAILS to it.content,
-                    Const.Navigation.NOTES_NAME to it.title
-                )
-            )
+            }
+
+            if (action != null) {
+                findNavController().navigate(action)
+            }
         }
 
         binding.rvNotes.itemAnimator = null

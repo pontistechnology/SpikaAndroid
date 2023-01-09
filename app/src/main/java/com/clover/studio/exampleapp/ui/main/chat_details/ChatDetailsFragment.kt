@@ -216,6 +216,17 @@ class ChatDetailsFragment : BaseFragment() {
             binding.tvGroupName.visibility = View.VISIBLE
         }
 
+        binding.clNotes.setOnClickListener {
+            val action = roomId?.let { id ->
+                ChatDetailsFragmentDirections.actionChatDetailsFragmentToNotesFragment(
+                    id
+                )
+            }
+            if (action != null) {
+                findNavController().navigate(action)
+            }
+        }
+
         binding.ivPickAvatar.setOnClickListener {
             if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && isAdmin) {
                 ChooserDialog.getInstance(requireContext(),
