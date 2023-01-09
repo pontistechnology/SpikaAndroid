@@ -297,12 +297,12 @@ class ChatDetailsFragment : BaseFragment() {
                 DialogError.getInstance(requireActivity(),
                     getString(R.string.exit_group),
                     getString(R.string.exit_group_description),
+                    getString(R.string.cancel),
                     getString(
-                        R.string.yes
+                        R.string.exit
                     ),
-                    getString(R.string.no),
                     object : DialogInteraction {
-                        override fun onFirstOptionClicked() {
+                        override fun onSecondOptionClicked() {
                             val myId = viewModel.getLocalUserId()
                             roomId?.let { id -> viewModel.leaveRoom(id) }
                             // Remove if admin
