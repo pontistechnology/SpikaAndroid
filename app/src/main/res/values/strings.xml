@@ -157,4 +157,6 @@
     <string name="enter_description">Enter description</string>
     <string name="note_error_toast">Please enter title and description</string>
     <string name="note_creation_failed">Failed to create note, please try again.</string>
+    <string name="delete_note">Delete Note</string>
+    <string name="delete_note_description">Are you sure you want to delete this note?</string>
 </resources>

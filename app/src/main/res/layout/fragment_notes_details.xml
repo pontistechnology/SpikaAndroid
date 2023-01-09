@@ -14,15 +14,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/iv_delete"
+    <LinearLayout
+        android:id="@+id/ll_delete_noteø"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/twenty_dp_margin"
-        android:scaleType="centerCrop"
-        android:src="@drawable/img_delete"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_delete"
+            android:layout_width="@dimen/twenty_dp_margin"
+            android:layout_height="@dimen/twenty_dp_margin"
+            android:layout_margin="@dimen/twenty_dp_margin"
+            android:src="@drawable/img_delete"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_edit"

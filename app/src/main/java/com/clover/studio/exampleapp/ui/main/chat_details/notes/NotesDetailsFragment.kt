@@ -20,6 +20,8 @@ import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
 import com.clover.studio.exampleapp.ui.main.chat.NoteFailed
 import com.clover.studio.exampleapp.ui.main.chat.NoteUpdated
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.dialog.DialogError
+import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import android.widget.TextView
 import androidx.navigation.fragment.navArgs
 import io.noties.markwon.LinkResolver
@@ -137,8 +139,17 @@ class NotesDetailsFragment : Fragment() {
             activity?.onBackPressed()
         }
 
-        binding.ivDelete.setOnClickListener {
-            viewModel.deleteNote(noteId)
+        binding.llDeleteNote.setOnClickListener {
+            DialogError.getInstance(requireContext(),
+                getString(R.string.delete_note),
+                getString(R.string.delete_note_description),
+                getString(R.string.no),
+                getString(R.string.yes),
+                object : DialogInteraction {
+                    override fun onSecondOptionClicked() {
+                        viewModel.deleteNote(noteId)
+                    }
+                })
         }
     }
 }
