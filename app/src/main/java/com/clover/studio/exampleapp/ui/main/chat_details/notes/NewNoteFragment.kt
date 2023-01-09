@@ -16,7 +16,6 @@ import com.clover.studio.exampleapp.ui.main.chat.NoteCreated
 import com.clover.studio.exampleapp.ui.main.chat.NoteFailed
 import com.clover.studio.exampleapp.utils.EventObserver
 import timber.log.Timber
-import androidx.navigation.fragment.navArgs
 
 class NewNoteFragment : Fragment() {
     private var bindingSetup: FragmentNewNoteBinding? = null
@@ -46,7 +45,11 @@ class NewNoteFragment : Fragment() {
         viewModel.noteCreationListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 NoteCreated -> activity?.onBackPressed()
-                NoteFailed -> Toast.makeText(context, getString(R.string.note_creation_failed), Toast.LENGTH_SHORT)
+                NoteFailed -> Toast.makeText(
+                    context,
+                    getString(R.string.note_creation_failed),
+                    Toast.LENGTH_SHORT
+                )
                 else -> Timber.d("Other error")
             }
         })

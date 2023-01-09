@@ -462,9 +462,10 @@ class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Messag
 class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
 class NotesFetched(val notes: List<Note>) : ChatStates()
-object NoteCreated: ChatStates()
-object NoteFailed: ChatStates()
-object NoteUpdated: ChatStates()
+object NoteCreated : ChatStates()
+object NoteFailed : ChatStates()
+object NoteUpdated : ChatStates()
+object NoteDeleted : ChatStates()
 object FilePieceUploaded : ChatStates()
 class FileUploadError(val description: String) : ChatStates()
 class FileUploadVerified(

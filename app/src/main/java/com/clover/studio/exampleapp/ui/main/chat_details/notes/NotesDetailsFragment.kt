@@ -13,19 +13,20 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.databinding.FragmentNotesDetailsBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
+import com.clover.studio.exampleapp.ui.main.chat.NoteDeleted
 import com.clover.studio.exampleapp.ui.main.chat.NoteFailed
 import com.clover.studio.exampleapp.ui.main.chat.NoteUpdated
 import com.clover.studio.exampleapp.utils.EventObserver
-import io.noties.markwon.LinkResolver
-import org.commonmark.node.Link
+import com.clover.studio.exampleapp.utils.dialog.DialogError
+import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import io.noties.markwon.Markwon
 import timber.log.Timber
 
 class NotesDetailsFragment : Fragment() {
     private var bindingSetup: FragmentNotesDetailsBinding? = null
     private val binding get() = bindingSetup!!
-    private val viewModel: ChatViewModel by activityViewModels()
     private val args: NotesDetailsFragmentArgs by navArgs()
+    private val viewModel: ChatViewModel by activityViewModels()
     private var notes: String = ""
     private var notesName: String = ""
     private var noteId: Int = 0
@@ -65,7 +66,12 @@ class NotesDetailsFragment : Fragment() {
 
                     markdownNotes()
                 }
-                NoteFailed -> Toast.makeText(context, getString(R.string.note_creation_failed), Toast.LENGTH_SHORT)
+                NoteDeleted -> activity?.onBackPressed()
+                NoteFailed -> Toast.makeText(
+                    context,
+                    getString(R.string.note_creation_failed),
+                    Toast.LENGTH_SHORT
+                )
                 else -> Timber.d("Other error")
             }
         })
@@ -104,7 +110,10 @@ class NotesDetailsFragment : Fragment() {
 
         binding.tvEdit.setOnClickListener {
             if (binding.tvEdit.text == getString(R.string.save)) {
-                viewModel.updateNote(noteId, NewNote(binding.etTitle.text.toString(), binding.etDescription.text.toString()))
+                viewModel.updateNote(
+                    noteId,
+                    NewNote(binding.etTitle.text.toString(), binding.etDescription.text.toString())
+                )
             } else {
                 binding.tvTitle.visibility = View.GONE
                 binding.tvNotesDetails.visibility = View.GONE
@@ -125,5 +134,22 @@ class NotesDetailsFragment : Fragment() {
         val markwon = Markwon.create(requireContext())
         markwon.setMarkdown(binding.tvNotesDetails, notes)
         Linkify.addLinks(binding.tvNotesDetails, Linkify.WEB_URLS)
+
+        binding.ivBack.setOnClickListener {
+            activity?.onBackPressed()
+        }
+
+        binding.llDeleteNote.setOnClickListener {
+            DialogError.getInstance(requireContext(),
+                getString(R.string.delete_note),
+                getString(R.string.delete_note_description),
+                getString(R.string.no),
+                getString(R.string.yes),
+                object : DialogInteraction {
+                    override fun onSecondOptionClicked() {
+                        viewModel.deleteNote(noteId)
+                    }
+                })
+        }
     }
 }
