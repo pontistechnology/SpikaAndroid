@@ -125,7 +125,7 @@ class MainActivity : BaseActivity() {
                             Timber.d("Showing room image")
                             Glide.with(this@MainActivity)
                                 .load(it.roomWithUsers.room.avatarFileId?.let { fileId ->
-                                    Tools.getAvatarUrl(
+                                    Tools.getFilePathUrl(
                                         fileId
                                     )
                                 })
@@ -154,7 +154,7 @@ class MainActivity : BaseActivity() {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     Glide.with(this@MainActivity)
                                         .load(user.avatarFileId?.let { fileId ->
-                                            Tools.getAvatarUrl(
+                                            Tools.getFilePathUrl(
                                                 fileId
                                             )
                                         })

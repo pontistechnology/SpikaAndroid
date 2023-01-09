@@ -37,7 +37,7 @@ class MessageReactionAdapter(
                 if (it.userId == user.id) {
                     holder.binding.tvUsernameReaction.text = user.displayName
                     Glide.with(context)
-                        .load(user.avatarFileId?.let { fileId -> Tools.getAvatarUrl(fileId) })
+                        .load(user.avatarFileId?.let { fileId -> Tools.getFilePathUrl(fileId) })
                         .placeholder(R.drawable.img_user_placeholder)
                         .dontTransform()
                         .dontAnimate()
