@@ -49,5 +49,6 @@
 
     <!--IMAGES-->
     <dimen name="thirty_five_dp">35dp</dimen>
+    <dimen name="eighteen_sp_text">18sp</dimen>
 
 </resources>

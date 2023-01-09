@@ -189,4 +189,7 @@ dependencies {
         implementation "androidx.media3:media3-ui:$mediaVersion"
         implementation "androidx.media3:media3-exoplayer-dash:$mediaVersion"
     }
+
+    // Markdown
+    implementation "io.noties.markwon:core:4.6.2"
 }
