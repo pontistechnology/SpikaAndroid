@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.clover.studio.exampleapp.databinding.FragmentNotesDetailsBinding
+import io.noties.markwon.LinkResolver
+import org.commonmark.node.Link
 import io.noties.markwon.Markwon
 
 class NotesDetailsFragment : Fragment() {
@@ -45,5 +47,6 @@ class NotesDetailsFragment : Fragment() {
         binding.ivBack.setOnClickListener {
             activity?.onBackPressed()
         }
+        binding.tvNotesDetails.text = notes
     }
 }
