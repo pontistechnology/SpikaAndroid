@@ -18,8 +18,6 @@ import com.clover.studio.exampleapp.ui.main.chat.NotesFetched
 import com.clover.studio.exampleapp.utils.EventObserver
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
