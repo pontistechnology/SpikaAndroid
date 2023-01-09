@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.main.chat_details.notes.NewNoteFragment">
+
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/twenty_dp_margin"
+        android:src="@drawable/img_arrow_back"
+        app:layout_constraintBottom_toBottomOf="@id/tv_save"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_save" />
+
+    <ImageView
+        android:id="@+id/iv_attachment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/ten_dp_margin"
+        android:src="@drawable/img_attach_file"
+        app:layout_constraintBottom_toBottomOf="@id/tv_save"
+        app:layout_constraintEnd_toStartOf="@id/tv_save"
+        app:layout_constraintTop_toTopOf="@id/tv_save" />
+
+    <TextView
+        android:id="@+id/tv_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/montserrat"
+        android:padding="20dp"
+        android:text="@string/save"
+        android:textColor="@color/primary_color"
+        android:textSize="@dimen/fourteen_sp_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/et_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/enter_title"
+        android:textSize="@dimen/eighteen_sp_text"
+        android:background="@android:color/transparent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="@font/montserrat"
+        app:layout_constraintTop_toBottomOf="@id/iv_back"
+        android:layout_marginStart="@dimen/twenty_dp_margin"
+        android:layout_marginEnd="@dimen/twenty_dp_margin"/>
+
+    <EditText
+        android:id="@+id/et_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/enter_description"
+        android:textSize="@dimen/fourteen_sp_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@android:color/transparent"
+        app:layout_constraintTop_toBottomOf="@id/et_title"
+        android:layout_marginStart="@dimen/twenty_dp_margin"
+        android:layout_marginTop="@dimen/thirty_dp_margin"
+        android:layout_marginEnd="@dimen/twenty_dp_margin"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

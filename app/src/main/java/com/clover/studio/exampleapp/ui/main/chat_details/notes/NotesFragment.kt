@@ -11,6 +11,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.databinding.FragmentNotesBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
+import com.clover.studio.exampleapp.ui.main.chat.NotesFetched
+import com.clover.studio.exampleapp.utils.EventObserver
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 
 class NotesFragment : BaseFragment() {
@@ -41,6 +45,14 @@ class NotesFragment : BaseFragment() {
     private fun initializeViews() {
         binding.ivBack.setOnClickListener {
             activity?.onBackPressed()
+        }
+
+        binding.ivNewNote.setOnClickListener {
+            val action = NotesFragmentDirections.actionNotesFragmentToNewNoteFragment(
+                roomId
+            )
+
+            findNavController().navigate(action)
         }
     }
 

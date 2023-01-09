@@ -8,5 +8,7 @@ data class NotesResponse(
 )
 
 data class NoteData(
-    val notes: List<Note>
+    val deleted: Boolean?,
+    val note: Note?,
+    val notes: List<Note>?
 )
