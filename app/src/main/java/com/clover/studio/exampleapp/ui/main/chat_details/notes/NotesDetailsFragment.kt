@@ -84,8 +84,6 @@ class NotesDetailsFragment : Fragment() {
             activity?.onBackPressed()
         }
 
-        binding.tvNotesDetails.text = notes
-
         binding.tvEdit.setOnClickListener {
             if (binding.tvEdit.text == getString(R.string.save)) {
                 // TODO upload updated note
