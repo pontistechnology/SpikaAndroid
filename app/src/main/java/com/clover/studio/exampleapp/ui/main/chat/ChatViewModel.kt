@@ -2,7 +2,6 @@ package com.clover.studio.exampleapp.ui.main.chat
 
 import android.app.Activity
 import android.net.Uri
-import android.provider.CalendarContract.EventsEntity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -365,58 +364,6 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun fetchNotes(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.getNotes(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
-    }
-
-    fun getRoomNotes(roomId: Int) = liveData {
-        emitSource(repository.getLocalNotes(roomId))
-    }
-
-    fun createNewNote(roomId: Int, newNote: NewNote) = viewModelScope.launch {
-        try {
-            repository.createNewNote(roomId, newNote)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            noteCreationListener.postValue(Event(NoteCreationFailed))
-            return@launch
-        }
-        noteCreationListener.postValue(Event(NoteCreated))
-    }
-
-    fun updateNote(noteId: Int, newNote: NewNote) = viewModelScope.launch {
-        try {
-            repository.updateNote(noteId, newNote)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
-    }
-
-    fun deleteNote(noteId: Int) = viewModelScope.launch {
-        try {
-            repository.deleteNote(noteId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            noteCreationListener.postValue(Event(NoteCreationFailed))
-            return@launch
-        }
-        noteCreationListener.postValue(Event(NoteDeleted))
-    }
-
     fun uploadFile(
         activity: Activity,
         uri: Uri,
@@ -515,9 +462,9 @@ class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Messag
 class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
 class NotesFetched(val notes: List<Note>) : ChatStates()
-object NoteCreated: ChatStates()
-object NoteFailed: ChatStates()
-object NoteUpdated: ChatStates()
+object NoteCreated : ChatStates()
+object NoteFailed : ChatStates()
+object NoteUpdated : ChatStates()
 object NoteDeleted : ChatStates()
 object FilePieceUploaded : ChatStates()
 class FileUploadError(val description: String) : ChatStates()
