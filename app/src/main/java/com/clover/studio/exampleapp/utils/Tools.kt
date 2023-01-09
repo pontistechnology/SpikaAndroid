@@ -297,16 +297,8 @@ object Tools {
         return sha256FileHash
     }
 
-    fun getAvatarUrl(avatarFileId: Long): String {
-        return "${BuildConfig.SERVER_URL}${Const.Networking.API_GET_AVATAR}$avatarFileId"
-    }
-
-    fun getFilePathUrl(url: String): String {
-        return when {
-            url.startsWith(BuildConfig.SERVER_URL) -> url
-            url.startsWith("/") -> BuildConfig.SERVER_URL + url.substring(1)
-            else -> BuildConfig.SERVER_URL + "/" + url
-        }
+    fun getFilePathUrl(fileId: Long): String {
+        return "${BuildConfig.SERVER_URL}${Const.Networking.API_GET_FILE_FROM_ID}$fileId"
     }
 
     fun getRelativeTimeSpan(startDate: Long): CharSequence? {
@@ -369,7 +361,7 @@ object Tools {
 
     fun downloadFile(context: Context, message: Message) {
         try {
-            val tmp = getFilePathUrl(message.body!!.file!!.path)
+            val tmp = this.getFilePathUrl(message.body!!.fileId!!)
             val request = DownloadManager.Request(Uri.parse(tmp))
             request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
             request.setTitle(message.body.file!!.fileName)

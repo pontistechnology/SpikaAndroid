@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.data.models.entity
 
 import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
+import com.clover.studio.exampleapp.data.models.FileMetadata
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_MESSAGE)
@@ -104,7 +105,7 @@ data class MessageBody(
 data class ReferenceMessage(
     var id: Int?,
     var fromUserId: Int?,
-    var totalDeviceCount: Int?,
+    var totalUserCount: Int?,
     var deliveredCount: Int?,
     var seenCount: Int?,
     var roomId: Int?,
@@ -118,15 +119,17 @@ data class ReferenceMessage(
 
 data class ReplyBody(
     var text: String?,
+    var fileId: Long?,
+    var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?,
 )
 
 data class MessageFile(
+    val id: Long,
     val fileName: String,
     val mimeType: String,
-    val path: String,
     val size: Long,
+    val metadata: FileMetadata?,
     val uri: String?
 )
-
