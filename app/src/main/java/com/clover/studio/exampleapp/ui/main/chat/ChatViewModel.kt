@@ -2,7 +2,6 @@ package com.clover.studio.exampleapp.ui.main.chat
 
 import android.app.Activity
 import android.net.Uri
-import android.provider.CalendarContract.EventsEntity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -334,7 +333,7 @@ class ChatViewModel @Inject constructor(
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
             }
-            noteCreationListener.postValue(Event(NoteCreationFailed))
+            noteCreationListener.postValue(Event(NoteFailed))
             return@launch
         }
         noteCreationListener.postValue(Event(NoteCreated))
@@ -347,8 +346,11 @@ class ChatViewModel @Inject constructor(
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
             }
+            noteCreationListener.postValue(Event(NoteFailed))
             return@launch
         }
+
+        noteCreationListener.postValue(Event(NoteUpdated))
     }
 
     fun deleteNote(noteId: Int) = viewModelScope.launch {
@@ -461,7 +463,8 @@ class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
 object UserSettingsFetchFailed : ChatStates()
 class NotesFetched(val notes: List<Note>) : ChatStates()
 object NoteCreated: ChatStates()
-object NoteCreationFailed: ChatStates()
+object NoteFailed: ChatStates()
+object NoteUpdated: ChatStates()
 object FilePieceUploaded : ChatStates()
 class FileUploadError(val description: String) : ChatStates()
 class FileUploadVerified(
