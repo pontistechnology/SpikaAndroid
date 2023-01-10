@@ -2,7 +2,6 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="contentDescription"
     android:id="@+id/sv_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,7 +10,8 @@
     app:contentInsetEnd="0dp"
     app:contentInsetStart="0dp"
     app:layout_dodgeInsetEdges="bottom"
-    tools:context=".ui.main.chat.ChatMessagesFragment">
+    tools:context=".ui.main.chat.ChatMessagesFragment"
+    tools:ignore="contentDescription">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -22,9 +22,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/dark_background_transp"
+            android:clickable="true"
             android:elevation="@dimen/three_dp_margin"
             android:focusable="true"
-            android:clickable="true"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/iv_add"
             app:layout_constraintTop_toTopOf="parent" />
@@ -120,9 +120,107 @@
                 android:gravity="center"
                 android:text="@string/room_exit"
                 android:textColor="@color/white" />
-
         </FrameLayout>
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_block"
+            android:layout_width="@dimen/one_hundred_seventy_dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/twenty_dp_margin"
+            android:background="@drawable/bg_message_received"
+            android:padding="@dimen/five_dp_margin"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/tv_block"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
+                android:text="@string/block"
+                android:textColor="@color/style_red"
+                android:textSize="@dimen/fourteen_sp_text"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toEndOf="@id/iv_block"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/iv_block"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="@dimen/ten_dp_margin"
+                android:src="@drawable/img_block"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_block"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_contact_blocked"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/text_tertiary"
+            android:elevation="@dimen/four_dp_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/tv_contact_blocked"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
+                android:text="@string/contact_blocked"
+                android:textColor="@color/white"
+                android:layout_marginTop="@dimen/twenty_dp_margin"
+                android:textSize="@dimen/fourteen_sp_text"
+                app:layout_constraintBottom_toTopOf="@id/tv_unblock"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toEndOf="@id/iv_blocked_contact"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/iv_blocked_contact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="@dimen/ten_dp_margin"
+                android:src="@drawable/img_block"
+                app:layout_constraintBottom_toTopOf="@id/tv_unblock"
+                app:layout_constraintEnd_toStartOf="@id/tv_contact_blocked"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
+
+            <TextView
+                android:id="@+id/tv_unblock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/twenty_dp_margin"
+                android:layout_marginBottom="@dimen/twenty_dp_margin"
+                android:background="@drawable/bg_message_received"
+                android:fontFamily="@font/montserrat"
+                android:paddingStart="@dimen/thirty_dp_margin"
+                android:paddingTop="@dimen/five_dp_margin"
+                android:paddingEnd="@dimen/thirty_dp_margin"
+                android:paddingBottom="@dimen/five_dp_margin"
+                android:text="@string/unblock"
+                android:textColor="@color/dark_background"
+                android:textSize="@dimen/fourteen_sp_text"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_contact_blocked" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
             android:id="@+id/iv_call_user"
@@ -183,7 +281,7 @@
             android:fillViewport="true"
             android:visibility="visible"
             android:windowSoftInputMode="adjustResize"
-            app:layout_constraintBottom_toTopOf="@id/divider"
+            app:layout_constraintBottom_toTopOf="@id/cl_block"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cl_header" />
@@ -286,11 +384,11 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat"
             android:gravity="center"
+            android:padding="@dimen/twenty_dp_margin"
             android:text="@string/save"
             android:textColor="@color/primary_color"
             android:textSize="@dimen/sixteen_sp_text"
             android:visibility="gone"
-            android:padding="@dimen/twenty_dp_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/cl_typing"
@@ -399,9 +497,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:behavior_peekHeight="0dp"
-                app:layout_constraintHeight_percent="0.5"
                 app:layout_anchorGravity="bottom"
-                app:layout_behavior="@string/bottom_sheet_behavior" />
+                app:layout_behavior="@string/bottom_sheet_behavior"
+                app:layout_constraintHeight_percent="0.5" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
