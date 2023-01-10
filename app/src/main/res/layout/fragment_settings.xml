@@ -2,12 +2,12 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="contentDescription"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusableInTouchMode="true"
-    tools:context=".ui.main.rooms.RoomsFragment">
+    tools:context=".ui.main.rooms.RoomsFragment"
+    tools:ignore="contentDescription">
 
     <TextView
         android:id="@+id/tv_screen_name"
@@ -39,16 +39,16 @@
         android:layout_width="@dimen/one_hundred_dp"
         android:layout_height="@dimen/one_hundred_dp"
         android:layout_margin="@dimen/twenty_dp_margin"
-        android:scaleType="center"
-        android:src="@drawable/img_camera"
         android:background="@drawable/img_selector_background"
         android:backgroundTint="@color/light_blue"
+        android:scaleType="center"
+        android:src="@drawable/img_camera"
         app:cardPreventCornerOverlap="false"
         app:layout_constraintBottom_toTopOf="@id/tv_username"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_screen_name"
-        app:shapeAppearanceOverlay="@style/circle"/>
+        app:shapeAppearanceOverlay="@style/circle" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_progress_screen"
@@ -151,42 +151,42 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
+        android:gravity="center"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/placeholder_title"
-        android:gravity="center"
-        android:textSize="@dimen/eleven_sp_text"
         android:textColor="@color/text_secondary"
+        android:textSize="@dimen/eleven_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
-    <!--        android:id="@+id/cl_privacy"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_margin="@dimen/ten_dp_margin"-->
-    <!--        android:padding="@dimen/twenty_dp_margin"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/tv_phone_number">-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_privacy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/ten_dp_margin"
+        android:padding="@dimen/twenty_dp_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_phone_number">
 
-    <!--        <TextView-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:fontFamily="@font/montserrat"-->
-    <!--            android:text="@string/privacy"-->
-    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--            app:layout_constraintStart_toStartOf="parent"-->
-    <!--            app:layout_constraintTop_toTopOf="parent" />-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/privacy"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <!--        <ImageView-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:src="@drawable/img_arrow_forward"-->
-    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--            app:layout_constraintEnd_toEndOf="parent"-->
-    <!--            app:layout_constraintTop_toTopOf="parent" />-->
-    <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/img_arrow_forward"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
     <!--        android:id="@+id/cl_chat"-->

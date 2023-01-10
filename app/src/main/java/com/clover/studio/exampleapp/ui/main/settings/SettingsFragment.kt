@@ -163,9 +163,9 @@ class SettingsFragment : BaseFragment() {
     private fun setupClickListeners() {
 
         // Removed and waiting for each respective screen to be implemented
-//        binding.clPrivacy.setOnClickListener {
-//            goToPrivacySettings()
-//        }
+        binding.clPrivacy.setOnClickListener {
+            goToPrivacySettings()
+        }
 //
 //        binding.clChat.setOnClickListener {
 //            goToChatSettings()

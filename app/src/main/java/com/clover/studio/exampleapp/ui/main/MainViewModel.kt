@@ -7,8 +7,9 @@ import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
-import com.clover.studio.exampleapp.data.models.networking.Settings
+import com.clover.studio.exampleapp.data.models.networking.responses.Settings
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
@@ -38,6 +39,7 @@ class MainViewModel @Inject constructor(
     val roomWithUsersListener = MutableLiveData<Event<MainStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
     val roomNotificationListener = MutableLiveData<Event<MainStates>>()
+    val blockedUsersListener = MutableLiveData<Event<MainStates>>()
 
     fun getLocalUser() = liveData {
         val localUserId = sharedPrefsRepo.readUserId()
@@ -196,6 +198,53 @@ class MainViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun getBlockedUsersList() = viewModelScope.launch {
+        try {
+            val users = repository.getBlockedList()
+            blockedUsersListener.postValue(Event(BlockedUsersFetched(users)))
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            } else {
+                blockedUsersListener.postValue(Event(BlockedUsersFetchFailed))
+            }
+            return@launch
+        }
+    }
+
+    fun blockUser(roomId: Int, blockedId: Int) = viewModelScope.launch {
+        try {
+            repository.blockUser(roomId, blockedId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun deleteBlock(userId: Int) = viewModelScope.launch {
+        try {
+            repository.deleteBlock(userId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun deleteBlockForSpecificUser(userId: Int) = viewModelScope.launch {
+        try {
+            repository.deleteBlockForSpecificUser(userId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
 }
 
 sealed class MainStates
@@ -218,3 +267,5 @@ class SingleRoomData(val roomData: RoomAndMessageAndRecords) : MainStates()
 object SingleRoomFetchFailed : MainStates()
 class UserSettingsFetched(val settings: List<Settings>) : MainStates()
 object UserSettingsFetchFailed : MainStates()
+class BlockedUsersFetched(val users: List<User>) : MainStates()
+object BlockedUsersFetchFailed : MainStates()

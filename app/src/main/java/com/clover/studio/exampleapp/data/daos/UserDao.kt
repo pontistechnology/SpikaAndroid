@@ -24,6 +24,9 @@ interface UserDao {
     @Query("SELECT * FROM user WHERE id LIKE :userId LIMIT 1")
     fun getUserById(userId: Int): LiveData<User>
 
+    @Query("SELECT * FROM user WHERE id IN (:userIds)")
+    fun getUsersByIds(userIds: List<Int>): List<User>
+
     @Delete
     suspend fun deleteUser(user: User)
 

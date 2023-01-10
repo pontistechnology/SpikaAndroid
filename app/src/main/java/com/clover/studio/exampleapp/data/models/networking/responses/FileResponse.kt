@@ -1,4 +1,4 @@
-package com.clover.studio.exampleapp.data.models.networking
+package com.clover.studio.exampleapp.data.models.networking.responses
 
 data class FileResponse(
     val status: String?,

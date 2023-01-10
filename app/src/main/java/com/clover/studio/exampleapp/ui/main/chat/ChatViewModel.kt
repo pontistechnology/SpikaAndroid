@@ -10,7 +10,7 @@ import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.Note
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
-import com.clover.studio.exampleapp.data.models.networking.Settings
+import com.clover.studio.exampleapp.data.models.networking.responses.Settings
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.ui.main.MainStates
