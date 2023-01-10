@@ -222,14 +222,18 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        val videoPath = it.message.body?.thumb?.id?.let { videoPath ->
+                        val videoThumb = it.message.body?.thumb?.id?.let { videoThumb ->
                             Tools.getFilePathUrl(
-                                videoPath
+                                videoThumb
                             )
                         }
 
+                        val videoPath = it.message.body?.file?.id?.let { videoPath ->
+                            Tools.getFilePathUrl(videoPath)
+                        }
+
                         Glide.with(context)
-                            .load(videoPath)
+                            .load(videoThumb)
                             .priority(Priority.HIGH)
                             .dontTransform()
                             .dontAnimate()
@@ -618,14 +622,19 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        val videoPath = it.message.body?.thumb?.id?.let { videoPath ->
+                        val videoThumb = it.message.body?.thumb?.id?.let { videoThumb ->
                             Tools.getFilePathUrl(
-                                videoPath
+                                videoThumb
                             )
                         }
 
+                        val videoPath = it.message.body?.file?.id.let { videoPath ->
+                            Tools.getFilePathUrl(
+                                videoPath!!
+                            )
+                        }
                         Glide.with(context)
-                            .load(videoPath)
+                            .load(videoThumb)
                             .priority(Priority.HIGH)
                             .dontTransform()
                             .dontAnimate()
@@ -639,7 +648,7 @@ class ChatAdapter(
                         holder.binding.ivPlayButton.setOnClickListener { view ->
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
-                                    videoPath!!, ""
+                                    videoPath, ""
                                 )
                             view.findNavController().navigate(action)
                         }
@@ -794,7 +803,7 @@ class ChatAdapter(
                             holder.binding.cvReplyMedia.visibility = View.VISIBLE
                             holder.binding.tvReplyMedia.visibility = View.VISIBLE
                             val imagePath =
-                                it.message.body.thumb?.id?.let { imagePath ->
+                                it.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
                                     Tools.getFilePathUrl(
                                         imagePath
                                     )
@@ -822,6 +831,7 @@ class ChatAdapter(
                                     0
                                 )
                             }
+                            Timber.d("Image path = $imagePath")
                             Glide.with(context)
                                 .load(imagePath)
                                 .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
