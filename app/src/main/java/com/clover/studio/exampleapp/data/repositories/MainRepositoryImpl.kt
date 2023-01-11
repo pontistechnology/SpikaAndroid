@@ -9,6 +9,7 @@ import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
+import com.clover.studio.exampleapp.data.models.networking.BlockedId
 import com.clover.studio.exampleapp.data.models.networking.responses.AuthResponse
 import com.clover.studio.exampleapp.data.models.networking.responses.FileResponse
 import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
@@ -154,7 +155,7 @@ class MainRepositoryImpl @Inject constructor(
         userDao.getUsersByIds(userIds)
 
     override suspend fun blockUser(roomId: Int, blockedId: Int) {
-        val response = retrofitService.blockUser(getHeaderMap(sharedPrefs.readToken()), roomId, blockedId)
+        val response = retrofitService.blockUser(getHeaderMap(sharedPrefs.readToken()), BlockedId(blockedId))
         if (Const.JsonFields.SUCCESS == response.status) {
             val currentList: MutableList<Int> = sharedPrefs.readBlockedUserList() as MutableList<Int>
             currentList.add(blockedId)

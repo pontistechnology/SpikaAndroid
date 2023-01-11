@@ -266,6 +266,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             .observe(viewLifecycleOwner) {
                 messagesRecords.clear()
                 if (it.message?.isNotEmpty() == true) {
+                    // Check if user can be blocked
+                    if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                        val containsElement =
+                            it.message.any { message -> viewModel.getLocalUserId() == message.message.fromUserId }
+                        if (containsElement) bindingSetup.clBlock.visibility = View.GONE
+                        else bindingSetup.clBlock.visibility = View.VISIBLE
+                    }
+
                     it.message.forEach { msg ->
                         messagesRecords.add(msg)
                     }
@@ -339,7 +347,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
                 if (it?.isNotEmpty() == true) {
                     viewModel.fetchBlockedUsersLocally(it)
-                } else  bindingSetup.clContactBlocked.visibility = View.GONE
+                } else bindingSetup.clContactBlocked.visibility = View.GONE
             }
 
             viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
@@ -353,7 +361,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     bindingSetup.clContactBlocked.visibility = View.VISIBLE
                                 } else bindingSetup.clContactBlocked.visibility = View.GONE
                             }
-                        } else  bindingSetup.clContactBlocked.visibility = View.GONE
+                        } else bindingSetup.clContactBlocked.visibility = View.GONE
                     }
                     BlockedUsersFetchFailed -> Timber.d("Failed to fetch blocked users")
                     else -> Timber.d("Other error")
@@ -711,7 +719,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.tvTitle.text = roomWithUsers.room.type
 
         bindingSetup.clBlock.setOnClickListener {
-            viewModel
+            val userIdToBlock =  roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
+            userIdToBlock?.let { idToBlock -> viewModel.blockUser(roomWithUsers.room.roomId, idToBlock.id) }
         }
 
         bindingSetup.tvUnblock.setOnClickListener {

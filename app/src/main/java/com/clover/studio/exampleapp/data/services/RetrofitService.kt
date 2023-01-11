@@ -61,11 +61,10 @@ interface RetrofitService {
         @HeaderMap headers: Map<String, String?>
     ): BlockResponse
 
-    @POST(Const.Networking.API_CREATE_BLOCK)
+    @POST(Const.Networking.API_BLOCK)
     suspend fun blockUser(
         @HeaderMap headers: Map<String, String?>,
-        @Path(Const.Networking.ROOM_ID) roomId: Int,
-        @Body blockedId: Int
+        @Body blockedId: BlockedId
     ): BlockResponse
 
     @DELETE(Const.Networking.API_DELETE_BLOCK)
