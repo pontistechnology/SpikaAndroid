@@ -14,6 +14,7 @@ import com.clover.studio.exampleapp.data.models.networking.responses.FileRespons
 import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
 import com.clover.studio.exampleapp.data.models.networking.responses.Settings
 import com.clover.studio.exampleapp.data.services.RetrofitService
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -142,14 +143,23 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun getUserSettings(): List<Settings> =
         retrofitService.getSettings(getHeaderMap(sharedPrefs.readToken())).data.settings
 
-    override suspend fun getBlockedList(): List<User> {
-        val response = retrofitService.getBlockedList(getHeaderMap(sharedPrefs.readToken())).data.blockedUsers
-
-        return userDao.getUsersByIds(response!!)
+    override suspend fun getBlockedList() {
+        val response =
+            retrofitService.getBlockedList(getHeaderMap(sharedPrefs.readToken())).data.blockedUsers
+        val userIds = response?.map { it.id }
+        sharedPrefs.writeBlockedUsersIds(userIds!!)
     }
 
+    override suspend fun fetchBlockedUsersLocally(userIds: List<Int>): List<User> =
+        userDao.getUsersByIds(userIds)
+
     override suspend fun blockUser(roomId: Int, blockedId: Int) {
-        retrofitService.blockUser(getHeaderMap(sharedPrefs.readToken()), roomId, blockedId)
+        val response = retrofitService.blockUser(getHeaderMap(sharedPrefs.readToken()), roomId, blockedId)
+        if (Const.JsonFields.SUCCESS == response.status) {
+            val currentList: MutableList<Int> = sharedPrefs.readBlockedUserList() as MutableList<Int>
+            currentList.add(blockedId)
+            sharedPrefs.writeBlockedUsersIds(currentList)
+        }
     }
 
     override suspend fun deleteBlock(userId: Int) {
@@ -157,7 +167,15 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteBlockForSpecificUser(userId: Int) {
-        retrofitService.deleteBlockForSpecificUser(getHeaderMap(sharedPrefs.readToken()), userId)
+        val response = retrofitService.deleteBlockForSpecificUser(
+            getHeaderMap(sharedPrefs.readToken()),
+            userId
+        )
+        if (Const.JsonFields.SUCCESS == response.status) {
+            val currentList = sharedPrefs.readBlockedUserList()
+            val updatedList = currentList.filterNot { it == userId }
+            sharedPrefs.writeBlockedUsersIds(updatedList)
+        }
     }
 }
 
@@ -177,7 +195,8 @@ interface MainRepository {
     suspend fun getUserSettings(): List<Settings>
 
     // Block
-    suspend fun getBlockedList(): List<User>
+    suspend fun getBlockedList()
+    suspend fun fetchBlockedUsersLocally(userIds: List<Int>): List<User>
     suspend fun blockUser(roomId: Int, blockedId: Int)
     suspend fun deleteBlock(userId: Int)
     suspend fun deleteBlockForSpecificUser(userId: Int)

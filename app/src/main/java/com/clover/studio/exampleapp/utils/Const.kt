@@ -215,6 +215,7 @@ class Const {
             const val DEVICE_ID = "deviceId"
             const val COUNTRY_CODE = "countryCode"
             const val REGISTERED = "registered"
+            const val BLOCKED_USERS = "blocked_users"
 
             // Sync
             const val MESSAGE_RECORD_SYNC = "message_record_sync"

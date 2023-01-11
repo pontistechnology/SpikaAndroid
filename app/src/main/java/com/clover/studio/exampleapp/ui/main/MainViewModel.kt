@@ -39,7 +39,7 @@ class MainViewModel @Inject constructor(
     val roomWithUsersListener = MutableLiveData<Event<MainStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
     val roomNotificationListener = MutableLiveData<Event<MainStates>>()
-    val blockedUsersListener = MutableLiveData<Event<MainStates>>()
+    val blockedListListener = MutableLiveData<Event<MainStates>>()
 
     fun getLocalUser() = liveData {
         val localUserId = sharedPrefsRepo.readUserId()
@@ -199,15 +199,25 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getBlockedUsersList() = viewModelScope.launch {
+    fun fetchBlockedUsersLocally(userIds: List<Int>) = viewModelScope.launch {
         try {
-            val users = repository.getBlockedList()
-            blockedUsersListener.postValue(Event(BlockedUsersFetched(users)))
+            val data = repository.fetchBlockedUsersLocally(userIds)
+            blockedListListener.postValue(Event(BlockedUsersFetched(data)))
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
-            } else {
-                blockedUsersListener.postValue(Event(BlockedUsersFetchFailed))
+            }
+            blockedListListener.postValue(Event(BlockedUsersFetchFailed))
+            return@launch
+        }
+    }
+
+    fun getBlockedUsersList() = viewModelScope.launch {
+        try {
+            repository.getBlockedList()
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
             }
             return@launch
         }

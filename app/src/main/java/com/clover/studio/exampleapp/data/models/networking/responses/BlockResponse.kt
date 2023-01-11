@@ -6,7 +6,7 @@ data class BlockResponse(
 )
 
 data class BlockData(
-    val blockedUsers: List<Int>?,
+    val blockedUsers: List<BlockUser>?,
     val block: Block?,
     val deleted: Boolean?
 )
@@ -15,4 +15,8 @@ data class Block(
     val id: Int,
     val userId: Int,
     val blockedId: Int
+)
+
+data class BlockUser(
+    val id: Int
 )

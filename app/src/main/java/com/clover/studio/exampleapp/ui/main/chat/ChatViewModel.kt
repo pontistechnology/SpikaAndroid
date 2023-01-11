@@ -12,10 +12,9 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.data.models.networking.responses.Settings
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
+import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
-import com.clover.studio.exampleapp.ui.main.MainStates
-import com.clover.studio.exampleapp.ui.main.SingleRoomData
-import com.clover.studio.exampleapp.ui.main.SingleRoomFetchFailed
+import com.clover.studio.exampleapp.ui.main.*
 import com.clover.studio.exampleapp.utils.*
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val repository: ChatRepositoryImpl,
+    private val mainRepository: MainRepositoryImpl,
     private val sharedPrefs: SharedPreferencesRepository,
     private val sseManager: SSEManager,
     private val uploadDownloadManager: UploadDownloadManager
@@ -41,8 +41,8 @@ class ChatViewModel @Inject constructor(
     val roomNotificationListener = MutableLiveData<Event<ChatStates>>()
     val fileUploadListener = MutableLiveData<Event<ChatStates>>()
     val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
-    val noteDataListener = MutableLiveData<Event<ChatStates>>()
     val noteCreationListener = MutableLiveData<Event<ChatStates>>()
+    val blockedListListener = MutableLiveData<Event<MainStates>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
         try {
@@ -365,6 +365,67 @@ class ChatViewModel @Inject constructor(
         }
 
         noteCreationListener.postValue(Event(NoteDeleted))
+    }
+
+    fun blockedUserListListener() = liveData {
+        emitSource(sharedPrefs.blockUserListener())
+    }
+
+    fun fetchBlockedUsersLocally(userIds: List<Int>) = viewModelScope.launch {
+        try {
+            val data = mainRepository.fetchBlockedUsersLocally(userIds)
+            blockedListListener.postValue(Event(BlockedUsersFetched(data)))
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            blockedListListener.postValue(Event(BlockedUsersFetchFailed))
+            return@launch
+        }
+    }
+
+    fun getBlockedUsersList() = viewModelScope.launch {
+        try {
+            mainRepository.getBlockedList()
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun blockUser(roomId: Int, blockedId: Int) = viewModelScope.launch {
+        try {
+            mainRepository.blockUser(roomId, blockedId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun deleteBlock(userId: Int) = viewModelScope.launch {
+        try {
+            mainRepository.deleteBlock(userId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun deleteBlockForSpecificUser(userId: Int) = viewModelScope.launch {
+        try {
+            mainRepository.deleteBlockForSpecificUser(userId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
     }
 
     fun uploadFile(

@@ -37,6 +37,8 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.ui.ReactionsContainer
+import com.clover.studio.exampleapp.ui.main.BlockedUsersFetchFailed
+import com.clover.studio.exampleapp.ui.main.BlockedUsersFetched
 import com.clover.studio.exampleapp.utils.CHUNK_SIZE
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
@@ -332,6 +334,33 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 else -> Timber.d("Other upload error")
             }
         })
+
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
+                if (it?.isNotEmpty() == true) {
+                    viewModel.fetchBlockedUsersLocally(it)
+                } else  bindingSetup.clContactBlocked.visibility = View.GONE
+            }
+
+            viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
+                when (it) {
+                    is BlockedUsersFetched -> {
+                        if (it.users.isNotEmpty()) {
+                            val containsElement =
+                                roomWithUsers.users.any { user -> it.users.find { blockedUser -> blockedUser.id == user.id } != null }
+                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                                if (containsElement) {
+                                    bindingSetup.clContactBlocked.visibility = View.VISIBLE
+                                } else bindingSetup.clContactBlocked.visibility = View.GONE
+                            }
+                        } else  bindingSetup.clContactBlocked.visibility = View.GONE
+                    }
+                    BlockedUsersFetchFailed -> Timber.d("Failed to fetch blocked users")
+                    else -> Timber.d("Other error")
+                }
+            })
+            viewModel.getBlockedUsersList()
+        }
 
         viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
@@ -680,6 +709,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         bindingSetup.tvTitle.text = roomWithUsers.room.type
+
+        bindingSetup.clBlock.setOnClickListener {
+            viewModel
+        }
+
+        bindingSetup.tvUnblock.setOnClickListener {
+            roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
+                ?.let { it1 -> viewModel.deleteBlockForSpecificUser(it1.id) }
+        }
     }
 
     private fun initListeners() {

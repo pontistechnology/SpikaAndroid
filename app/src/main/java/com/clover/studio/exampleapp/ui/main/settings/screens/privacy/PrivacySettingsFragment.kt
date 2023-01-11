@@ -9,10 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentPrivacySettingsBinding
-import com.clover.studio.exampleapp.ui.main.BlockedUsersFetchFailed
-import com.clover.studio.exampleapp.ui.main.BlockedUsersFetched
 import com.clover.studio.exampleapp.ui.main.MainViewModel
-import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import timber.log.Timber
 
@@ -38,13 +35,11 @@ class PrivacySettingsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.blockedUsersListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is BlockedUsersFetched -> blockedUserAdapter.submitList(it.users)
-                BlockedUsersFetchFailed -> Timber.d("User fetch failed")
-                else -> Timber.d("Other error")
-            }
-        })
+//        viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
+//            if (it?.isNotEmpty()) {
+//                blockedUserAdapter.submitList(it)
+//            } else Timber.d("Failed to fetch blocked users")
+//        }
 
         viewModel.getBlockedUsersList()
     }
