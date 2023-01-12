@@ -6,12 +6,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.databinding.ItemBlockedUserBinding
+import com.clover.studio.exampleapp.utils.Tools
 
 class BlockedUserAdapter(
     private val context: Context,
-    private val onItemClick: ((userId: Int) -> Unit)
+    private val onItemClick: ((user: User) -> Unit)
 ) :
     ListAdapter<User, BlockedUserAdapter.BlockedUserViewHolder>(ContactsDiffCallback()) {
 
@@ -27,7 +30,18 @@ class BlockedUserAdapter(
     override fun onBindViewHolder(holder: BlockedUserViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { blockedUser ->
-                // TODO fill out adapter
+                binding.tvUserName.text = blockedUser.displayName
+                binding.tvUserNumber.text = blockedUser.telephoneNumber
+
+                Glide.with(context).load(blockedUser.avatarFileId?.let { Tools.getFilePathUrl(it) })
+                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                    .into(binding.ivRoomImage)
+
+                itemView.setOnClickListener {
+                    blockedUser.let {
+                        onItemClick.invoke(blockedUser)
+                    }
+                }
             }
         }
     }

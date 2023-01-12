@@ -21,7 +21,11 @@
         android:id="@+id/privacySettingsFragment2"
         android:name="com.clover.studio.exampleapp.ui.main.settings.screens.privacy.PrivacySettingsFragment"
         android:label="fragment_download_settings"
-        tools:layout="@layout/fragment_download_settings" />
+        tools:layout="@layout/fragment_download_settings" >
+        <action
+            android:id="@+id/action_privacySettingsFragment2_to_contactDetailsFragment"
+            app:destination="@id/contactDetailsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.clover.studio.exampleapp.ui.main.MainFragment"

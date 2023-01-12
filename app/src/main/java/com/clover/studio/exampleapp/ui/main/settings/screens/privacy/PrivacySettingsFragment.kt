@@ -4,12 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentPrivacySettingsBinding
+import com.clover.studio.exampleapp.ui.main.BlockedUsersFetchFailed
+import com.clover.studio.exampleapp.ui.main.BlockedUsersFetched
 import com.clover.studio.exampleapp.ui.main.MainViewModel
+import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import timber.log.Timber
 
@@ -35,18 +41,32 @@ class PrivacySettingsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-//        viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
-//            if (it?.isNotEmpty()) {
-//                blockedUserAdapter.submitList(it)
-//            } else Timber.d("Failed to fetch blocked users")
-//        }
+        viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
+            if (it?.isNotEmpty() == true) {
+                viewModel.fetchBlockedUsersLocally(it)
+            }
+        }
+
+        viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is BlockedUsersFetched -> {
+                    if (it.users.isNotEmpty()) {
+                        blockedUserAdapter.submitList(it.users)
+                    }
+                }
+                BlockedUsersFetchFailed -> Timber.d("Failed to fetch blocked users")
+                else -> Timber.d("Other error")
+            }
+        })
+        viewModel.getBlockedUsersList()
 
         viewModel.getBlockedUsersList()
     }
 
     private fun setupAdapter() {
         blockedUserAdapter = BlockedUserAdapter(requireContext()) {
-            // TODO get user id and send to user details screen
+            val bundle = bundleOf(Const.Navigation.USER_PROFILE to it)
+            findNavController().navigate(R.id.action_privacySettingsFragment2_to_contactDetailsFragment, bundle)
         }
 
         binding.rvBlockedUsers.itemAnimator = null

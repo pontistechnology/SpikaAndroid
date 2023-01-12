@@ -199,6 +199,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun blockedUserListListener() = liveData {
+        emitSource(sharedPrefsRepo.blockUserListener())
+    }
+
     fun fetchBlockedUsersLocally(userIds: List<Int>) = viewModelScope.launch {
         try {
             val data = repository.fetchBlockedUsersLocally(userIds)
