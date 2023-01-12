@@ -199,6 +199,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun unregisterSharedPrefsReceiver() = viewModelScope.launch {
+        sharedPrefsRepo.unregisterSharedPrefsReceiver()
+    }
+
     fun blockedUserListListener() = liveData {
         emitSource(sharedPrefsRepo.blockUserListener())
     }
@@ -227,9 +231,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun blockUser(roomId: Int, blockedId: Int) = viewModelScope.launch {
+    fun blockUser(blockedId: Int) = viewModelScope.launch {
         try {
-            repository.blockUser(roomId, blockedId)
+            repository.blockUser(blockedId)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()

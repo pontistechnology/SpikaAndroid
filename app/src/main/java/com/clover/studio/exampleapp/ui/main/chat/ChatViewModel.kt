@@ -367,6 +367,10 @@ class ChatViewModel @Inject constructor(
         noteCreationListener.postValue(Event(NoteDeleted))
     }
 
+    fun unregisterSharedPrefsReceiver() = viewModelScope.launch {
+        sharedPrefs.unregisterSharedPrefsReceiver()
+    }
+
     fun blockedUserListListener() = liveData {
         emitSource(sharedPrefs.blockUserListener())
     }
@@ -395,9 +399,9 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun blockUser(roomId: Int, blockedId: Int) = viewModelScope.launch {
+    fun blockUser(blockedId: Int) = viewModelScope.launch {
         try {
-            mainRepository.blockUser(roomId, blockedId)
+            mainRepository.blockUser(blockedId)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()

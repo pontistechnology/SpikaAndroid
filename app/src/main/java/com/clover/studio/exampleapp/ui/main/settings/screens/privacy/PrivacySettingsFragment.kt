@@ -58,15 +58,15 @@ class PrivacySettingsFragment : BaseFragment() {
                 else -> Timber.d("Other error")
             }
         })
-        viewModel.getBlockedUsersList()
-
-        viewModel.getBlockedUsersList()
     }
 
     private fun setupAdapter() {
         blockedUserAdapter = BlockedUserAdapter(requireContext()) {
             val bundle = bundleOf(Const.Navigation.USER_PROFILE to it)
-            findNavController().navigate(R.id.action_privacySettingsFragment2_to_contactDetailsFragment, bundle)
+            findNavController().navigate(
+                R.id.action_privacySettingsFragment2_to_contactDetailsFragment,
+                bundle
+            )
         }
 
         binding.rvBlockedUsers.itemAnimator = null
@@ -85,5 +85,15 @@ class PrivacySettingsFragment : BaseFragment() {
             binding.tvPageName.text = getString(R.string.blocked_users)
             binding.rvBlockedUsers.visibility = View.VISIBLE
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getBlockedUsersList()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.unregisterSharedPrefsReceiver()
     }
 }

@@ -154,7 +154,7 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun fetchBlockedUsersLocally(userIds: List<Int>): List<User> =
         userDao.getUsersByIds(userIds)
 
-    override suspend fun blockUser(roomId: Int, blockedId: Int) {
+    override suspend fun blockUser(blockedId: Int) {
         val response = retrofitService.blockUser(getHeaderMap(sharedPrefs.readToken()), BlockedId(blockedId))
         if (Const.JsonFields.SUCCESS == response.status) {
             val currentList: MutableList<Int> = sharedPrefs.readBlockedUserList() as MutableList<Int>
@@ -198,7 +198,7 @@ interface MainRepository {
     // Block
     suspend fun getBlockedList()
     suspend fun fetchBlockedUsersLocally(userIds: List<Int>): List<User>
-    suspend fun blockUser(roomId: Int, blockedId: Int)
+    suspend fun blockUser(blockedId: Int)
     suspend fun deleteBlock(userId: Int)
     suspend fun deleteBlockForSpecificUser(userId: Int)
 }

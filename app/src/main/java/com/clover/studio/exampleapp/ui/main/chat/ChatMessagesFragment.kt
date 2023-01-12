@@ -367,7 +367,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     else -> Timber.d("Other error")
                 }
             })
-            viewModel.getBlockedUsersList()
         }
 
         viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
@@ -719,13 +718,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.tvTitle.text = roomWithUsers.room.type
 
         bindingSetup.clBlock.setOnClickListener {
-            val userIdToBlock =  roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
-            userIdToBlock?.let { idToBlock -> viewModel.blockUser(roomWithUsers.room.roomId, idToBlock.id) }
+            val userIdToBlock =
+                roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
+            userIdToBlock?.let { idToBlock -> viewModel.blockUser(idToBlock.id) }
         }
 
         bindingSetup.tvUnblock.setOnClickListener {
-            roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
-                ?.let { it1 -> viewModel.deleteBlockForSpecificUser(it1.id) }
+            DialogError.getInstance(requireContext(),
+                getString(R.string.unblock_user),
+                getString(R.string.unblock_description, bindingSetup.tvChatName.text),
+                getString(R.string.no),
+                getString(R.string.unblock),
+                object : DialogInteraction {
+                    override fun onSecondOptionClicked() {
+                        roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
+                            ?.let { it1 -> viewModel.deleteBlockForSpecificUser(it1.id) }
+                    }
+                })
         }
     }
 
@@ -1718,6 +1727,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+        viewModel.getBlockedUsersList()
     }
 
     override fun onDestroy() {
@@ -1725,5 +1735,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (exoPlayer != null) {
             exoPlayer!!.release()
         }
+        viewModel.unregisterSharedPrefsReceiver()
     }
 }

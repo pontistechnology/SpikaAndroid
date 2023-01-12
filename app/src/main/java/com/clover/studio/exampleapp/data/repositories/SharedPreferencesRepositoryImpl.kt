@@ -193,6 +193,7 @@ class SharedPreferencesRepositoryImpl(
         getPrefs().getBoolean(Const.PrefsData.REGISTERED, false)
 
     override suspend fun writeBlockedUsersIds(userIds: List<Int>) {
+        getPrefs().edit().remove(Const.PrefsData.BLOCKED_USERS).commit()
         with(getPrefs().edit()) {
             val gson = Gson()
             putString(Const.PrefsData.BLOCKED_USERS, gson.toJson(userIds))
@@ -203,10 +204,17 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun readBlockedUserList(): List<Int> {
         getPrefs().registerOnSharedPreferenceChangeListener(prefsListener)
         val json = getPrefs().getString(Const.PrefsData.BLOCKED_USERS, null)
-        return Gson().fromJson(json, object : TypeToken<List<Int>>() {}.type)
+        if (json != null) {
+            return Gson().fromJson(json, object : TypeToken<List<Int>>() {}.type)
+        }
+        return arrayListOf()
     }
 
-    private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+    override fun unregisterSharedPrefsReceiver() {
+        getPrefs().unregisterOnSharedPreferenceChangeListener(prefsListener)
+    }
+
+    private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if (Const.PrefsData.BLOCKED_USERS == key) {
             CoroutineScope(Dispatchers.IO).launch {
                 liveDataList.postValue(readBlockedUserList())
@@ -259,4 +267,6 @@ interface SharedPreferencesRepository {
 
     suspend fun writeBlockedUsersIds(userIds: List<Int>)
     suspend fun readBlockedUserList(): List<Int>
+
+    fun unregisterSharedPrefsReceiver()
 }
