@@ -213,7 +213,41 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeMessageRecord(messageRecords: MessageRecords) {
-        messageRecordsDao.insert(messageRecords)
+        // Write first time, next time update reaction
+        // For now leave seen and delivered
+        appDatabase.runInTransaction {
+            CoroutineScope(Dispatchers.IO).launch {
+                // Check if we have specific record in database for specific user
+                // Add user id check
+                // If not - add
+                if (messageRecordsDao.getMessageId(messageRecords.messageId, messageRecords.userId) == null) {
+                    Timber.d("insert")
+                    messageRecordsDao.insert(messageRecords)
+                } else {
+                    // Else update seen or delivered type
+                    if (messageRecords.type == "seen" || messageRecords.type == "delivered"){
+                        Timber.d("Update")
+                        Timber.d("type:::: ${messageRecords.type}")
+                        messageRecordsDao.updateMessageRecords(
+                            messageRecords.messageId,
+                            messageRecords.type,
+                            messageRecords.createdAt,
+                            messageRecords.modifiedAt,
+                            messageRecords.userId,
+                        )
+                    }
+                    // If new record is message reaction update only reaction field leave type as seen or delivered
+                    else {
+                        messageRecordsDao.updateReaction(
+                            messageRecords.messageId,
+                            messageRecords.reaction!!,
+                            messageRecords.userId,
+                        )
+                    }
+                }
+            }
+
+        }
     }
 
     override suspend fun writeUser(user: User) {

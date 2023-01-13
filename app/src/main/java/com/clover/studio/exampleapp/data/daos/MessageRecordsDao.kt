@@ -26,4 +26,23 @@ interface MessageRecordsDao {
 
     @Query("DELETE FROM message_records")
     suspend fun removeMessageRecords()
+
+    @Query("SELECT id FROM message_records WHERE message_id = :id AND user_id = :userId LIMIT 1")
+    fun getMessageId(id: Int, userId: Int): Int?
+
+    @Query("UPDATE message_records SET type = :type, created_at = :createdAt, modified_at = :modifiedAt WHERE message_id = :messageId AND user_id= :userId")
+    suspend fun updateMessageRecords(
+        messageId: Int,
+        type: String,
+        createdAt: Long,
+        modifiedAt: Long?,
+        userId: Int,
+    )
+
+    @Query("UPDATE message_records SET reaction = :reaction WHERE message_id = :messageId AND user_id= :userId")
+    suspend fun updateReaction(
+        messageId: Int,
+        reaction: String,
+        userId: Int,
+    )
 }
