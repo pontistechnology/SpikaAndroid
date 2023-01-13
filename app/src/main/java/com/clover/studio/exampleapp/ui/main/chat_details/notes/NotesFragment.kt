@@ -9,19 +9,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.exampleapp.R
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import com.clover.studio.exampleapp.databinding.FragmentNotesBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
-import com.clover.studio.exampleapp.ui.main.chat.NotesFetched
-import com.clover.studio.exampleapp.utils.EventObserver
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 
 class NotesFragment : BaseFragment() {
@@ -65,7 +54,10 @@ class NotesFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getRoomNotes(roomId).observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+            if (it.isNotEmpty()) {
+                adapter.submitList(it)
+                binding.tvNoNotes.visibility = View.GONE
+            } else binding.tvNoNotes.visibility = View.VISIBLE
         }
 
         viewModel.fetchNotes(roomId)

@@ -365,7 +365,7 @@ class NewRoomFragment : BaseFragment() {
         binding.svContactsSearch.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
-                    Tools.hideKeyboard(requireActivity(), view)
+                    hideKeyboard(view)
                 }
             }
         }

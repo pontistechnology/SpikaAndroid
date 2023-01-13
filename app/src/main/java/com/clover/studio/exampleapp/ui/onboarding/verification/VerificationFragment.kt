@@ -17,7 +17,10 @@ import com.clover.studio.exampleapp.databinding.FragmentVerificationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
-import com.clover.studio.exampleapp.utils.*
+import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.SmsListener
+import com.clover.studio.exampleapp.utils.SmsReceiver
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.gson.JsonObject
@@ -267,7 +270,7 @@ class VerificationFragment : BaseFragment() {
         binding.etInputOne.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
-                    Tools.hideKeyboard(requireActivity(), view)
+                    hideKeyboard(view)
                 }
             }
         }
@@ -275,7 +278,7 @@ class VerificationFragment : BaseFragment() {
         binding.etInputTwo.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
-                    Tools.hideKeyboard(requireActivity(), view)
+                    hideKeyboard(view)
                 }
             }
         }
@@ -283,7 +286,7 @@ class VerificationFragment : BaseFragment() {
         binding.etInputThree.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
-                    Tools.hideKeyboard(requireActivity(), view)
+                    hideKeyboard(view)
                 }
             }
         }
@@ -291,7 +294,7 @@ class VerificationFragment : BaseFragment() {
         binding.etInputFour.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
-                    Tools.hideKeyboard(requireActivity(), view)
+                    hideKeyboard(view)
                 }
             }
         }
@@ -299,7 +302,7 @@ class VerificationFragment : BaseFragment() {
         binding.etInputFive.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputSix.hasFocus()) {
-                    Tools.hideKeyboard(requireActivity(), view)
+                    hideKeyboard(view)
                 }
             }
         }
@@ -307,7 +310,7 @@ class VerificationFragment : BaseFragment() {
         binding.etInputSix.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus()) {
-                    Tools.hideKeyboard(requireActivity(), view)
+                    hideKeyboard(view)
                 }
             }
         }
@@ -373,7 +376,7 @@ class VerificationFragment : BaseFragment() {
                 binding.etInputFive.id -> if (text.length == 1) nextView!!.requestFocus()
                 binding.etInputSix.id -> if (text.length == 1) {
 
-                    Tools.hideKeyboard(requireActivity(), binding.etInputSix)
+                    hideKeyboard(binding.etInputSix)
                     val timer = object : CountDownTimer(500, 100) {
                         override fun onTick(millisUntilFinished: Long) {
                             Timber.d("Timer tick $millisUntilFinished")

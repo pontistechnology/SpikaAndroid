@@ -121,18 +121,18 @@ class RegisterNumberFragment : BaseFragment() {
                 }
                 OnboardingStates.REGISTERING_ERROR -> {
                     DialogError.getInstance(requireContext(),
-                    "Registration error",
-                    "There was an error while registering to the app.",
-                    null, getString(R.string.ok), object : DialogInteraction {
-                        override fun onFirstOptionClicked() {
-                            // ignore
-                        }
+                        "Registration error",
+                        "There was an error while registering to the app.",
+                        null, getString(R.string.ok), object : DialogInteraction {
+                            override fun onFirstOptionClicked() {
+                                // ignore
+                            }
 
-                        override fun onSecondOptionClicked() {
-                            // ignore
-                        }
+                            override fun onSecondOptionClicked() {
+                                // ignore
+                            }
 
-                    })
+                        })
                     binding.btnNext.isEnabled = true
                 }
                 else -> Timber.d("Other error")
@@ -188,7 +188,7 @@ class RegisterNumberFragment : BaseFragment() {
         binding.etPhoneNumber.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
-                    Tools.hideKeyboard(requireActivity(), view)
+                    hideKeyboard(view)
                 }
             }
         }
