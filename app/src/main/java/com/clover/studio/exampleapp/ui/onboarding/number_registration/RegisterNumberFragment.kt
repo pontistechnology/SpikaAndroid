@@ -121,8 +121,8 @@ class RegisterNumberFragment : BaseFragment() {
                 }
                 OnboardingStates.REGISTERING_ERROR -> {
                     DialogError.getInstance(requireContext(),
-                        "Registration error",
-                        "There was an error while registering to the app.",
+                        getString(R.string.registration_error),
+                        getString(R.string.registration_error_description),
                         null, getString(R.string.ok), object : DialogInteraction {
                             override fun onFirstOptionClicked() {
                                 // ignore
