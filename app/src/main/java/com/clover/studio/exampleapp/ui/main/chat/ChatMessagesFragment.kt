@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
@@ -742,12 +743,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun initListeners() {
         bindingSetup.clHeader.setOnClickListener {
-            val action =
-                ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
-                    roomWithUsers.room.roomId,
-                    isAdmin
+            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                val bundle =
+                    bundleOf(Const.Navigation.USER_PROFILE to roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() })
+                findNavController().navigate(
+                    R.id.action_chatMessagesFragment_to_contactDetailsFragment2,
+                    bundle
                 )
-            findNavController().navigate(action)
+            } else {
+                val action =
+                    ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
+                        roomWithUsers.room.roomId,
+                        isAdmin
+                    )
+                findNavController().navigate(action)
+            }
         }
 
         bindingSetup.ivArrowBack.setOnClickListener {
