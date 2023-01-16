@@ -73,7 +73,6 @@ class RoomsAdapter(
 
                 Glide.with(context)
                     .load(Tools.getFilePathUrl(avatarFileId))
-                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivRoomImage)
 
                 if (!roomItem.message.isNullOrEmpty()) {
@@ -100,7 +99,6 @@ class RoomsAdapter(
                         getRelativeTimeSpan(it)
                     }
 
-                    Timber.d("Time: $time")
                     if (time?.get(0) == '0') {
                         binding.tvMessageTime.text = context.getString(R.string.now)
                     } else {
