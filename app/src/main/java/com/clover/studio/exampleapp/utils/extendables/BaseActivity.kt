@@ -1,23 +1,14 @@
 package com.clover.studio.exampleapp.utils.extendables
 
 import android.content.Context
-import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.clover.studio.exampleapp.BaseViewModel
-import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
-import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.dialog.ProgressDialog
 
 open class BaseActivity : AppCompatActivity() {
-    // Start: global progress handle
+    // start: global progress handle
     private var progress: ProgressDialog? = null
-    private val viewModel: BaseViewModel by viewModels()
 
     @JvmOverloads
     fun showProgress(isCancelable: Boolean = true) {
@@ -52,29 +43,5 @@ open class BaseActivity : AppCompatActivity() {
         val inputMethodManager: InputMethodManager =
             getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
-
-        viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
-            if (tokenExpired) {
-                DialogError.getInstance(this,
-                    getString(R.string.warning),
-                    getString(R.string.session_expired),
-                    null,
-                    getString(R.string.ok),
-                    object : DialogInteraction {
-                        override fun onFirstOptionClicked() {
-                            // Ignore
-                        }
-
-                        override fun onSecondOptionClicked() {
-                            viewModel.setTokenExpiredFalse()
-                            startOnboardingActivity(this@BaseActivity, false)
-                        }
-                    })
-            }
-        })
     }
 }

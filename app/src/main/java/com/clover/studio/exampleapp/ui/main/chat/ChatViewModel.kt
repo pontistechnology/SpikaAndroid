@@ -360,8 +360,11 @@ class ChatViewModel @Inject constructor(
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
             }
+            noteCreationListener.postValue(Event(NoteFailed))
             return@launch
         }
+
+        noteCreationListener.postValue(Event(NoteDeleted))
     }
 
     fun uploadFile(

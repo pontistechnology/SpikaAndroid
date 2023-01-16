@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import com.clover.studio.exampleapp.R
@@ -18,11 +17,12 @@ import com.clover.studio.exampleapp.ui.main.chat.NoteFailed
 import com.clover.studio.exampleapp.ui.main.chat.NoteUpdated
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.dialog.DialogError
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import io.noties.markwon.Markwon
 import timber.log.Timber
 
-class NotesDetailsFragment : Fragment() {
+class NotesDetailsFragment : BaseFragment() {
     private var bindingSetup: FragmentNotesDetailsBinding? = null
     private val binding get() = bindingSetup!!
     private val args: NotesDetailsFragmentArgs by navArgs()
@@ -122,6 +122,8 @@ class NotesDetailsFragment : Fragment() {
 
                 binding.etTitle.setText(notesName)
                 binding.etDescription.setText(notes)
+
+                showKeyboard(binding.etTitle)
             }
         }
     }
