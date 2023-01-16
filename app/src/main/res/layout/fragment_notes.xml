@@ -48,4 +48,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title" />
 
+    <TextView
+        android:id="@+id/tv_no_notes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="@font/montserrat"
+        android:text="@string/no_notes_here"
+        android:visibility="gone"
+        android:gravity="center"
+        android:textColor="@color/text_tertiary"
+        android:textSize="@dimen/fourteen_sp_text"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

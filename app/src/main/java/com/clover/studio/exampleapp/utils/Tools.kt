@@ -307,12 +307,6 @@ object Tools {
         )
     }
 
-    fun hideKeyboard(activity: Activity, view: View) {
-        val inputMethodManager: InputMethodManager =
-            activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
     fun generateRandomId(): String {
         return UUID.randomUUID().toString().substring(0, 13)
     }

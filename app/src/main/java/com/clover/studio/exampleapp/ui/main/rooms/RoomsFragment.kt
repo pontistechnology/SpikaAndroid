@@ -96,7 +96,7 @@ class RoomsFragment : BaseFragment() {
             run {
                 view.clearFocus()
                 if (!hasFocus) {
-                    Tools.hideKeyboard(requireActivity(), view)
+                    hideKeyboard(view)
                 }
             }
         }

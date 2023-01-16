@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import com.clover.studio.exampleapp.R
@@ -15,9 +14,11 @@ import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
 import com.clover.studio.exampleapp.ui.main.chat.NoteCreated
 import com.clover.studio.exampleapp.ui.main.chat.NoteFailed
 import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import timber.log.Timber
 
-class NewNoteFragment : Fragment() {
+
+class NewNoteFragment : BaseFragment() {
     private var bindingSetup: FragmentNewNoteBinding? = null
     private val binding get() = bindingSetup!!
 
@@ -39,6 +40,15 @@ class NewNoteFragment : Fragment() {
         initializeViews()
         initializeObservers()
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        /**
+         * Keyboard should be displayed only after the view is created.
+         */
+        showKeyboard(binding.etTitle)
     }
 
     private fun initializeObservers() {
