@@ -485,14 +485,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             exoPlayer!!,
             roomWithUsers.room.type,
             onMessageInteraction = { event, message ->
-                run {
-                    when (event) {
-                        Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                        Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
-                        Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
-                        Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
-                        Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
-                        else -> Timber.d("No other action currently")
+                if (bindingSetup.clContactBlocked.visibility != View.VISIBLE) {
+                    run {
+                        when (event) {
+                            Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
+                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
+                            Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
+                            Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
+                            Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
+                            else -> Timber.d("No other action currently")
+                        }
                     }
                 }
             }

@@ -1174,17 +1174,28 @@ class ChatAdapter(
                 view.visibility = View.VISIBLE
             } else view.visibility = View.GONE
 
-            view.text = message.createdAt?.let {
+            val time = message.createdAt?.let {
                 DateUtils.getRelativeTimeSpanString(
                     it, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS
                 )
             }
+
+            if (time?.equals(context.getString(R.string.zero_ninutes_ago)) == true) {
+                view.text = context.getString(R.string.now)
+            } else {
+                view.text = time
+            }
         } else {
             view.visibility = View.VISIBLE
-            view.text =
-                message.createdAt?.let {
-                    getRelativeTimeSpan(it)
-                }
+            val time = message.createdAt?.let {
+                getRelativeTimeSpan(it)
+            }
+
+            if (time?.equals(context.getString(R.string.zero_ninutes_ago)) == true) {
+                view.text = context.getString(R.string.now)
+            } else {
+                view.text = time
+            }
         }
 
     }
