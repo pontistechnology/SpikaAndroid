@@ -59,26 +59,53 @@
 
     <TextView
         android:id="@+id/tv_message_time"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
+        android:textSize="@dimen/twelve_sp_text"
+        android:layout_marginEnd="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:textColor="@color/text_tertiary"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/tv_room_name"
+        app:layout_constraintBottom_toTopOf="@id/tv_last_message"/>
+
+    <ImageView
+        android:id="@+id/iv_muted"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/five_dp_margin"
+        android:layout_marginEnd="@dimen/twenty_dp_margin"
+        android:src="@drawable/img_muted"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/tv_last_message"
+        app:layout_constraintEnd_toStartOf="@id/iv_pinned"
+        app:layout_constraintTop_toTopOf="@id/tv_last_message" />
+
+    <ImageView
+        android:id="@+id/iv_pinned"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/twenty_dp_margin"
+        android:padding="@dimen/five_dp_margin"
+        android:src="@drawable/img_pinned"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/tv_last_message"
+        app:layout_constraintEnd_toStartOf="@id/tv_new_messages"
+        app:layout_constraintTop_toTopOf="@id/tv_last_message" />
 
     <TextView
         android:id="@+id/tv_new_messages"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/ten_dp_margin"
+        android:layout_width="@dimen/twenty_dp_margin"
+        android:layout_height="@dimen/twenty_dp_margin"
         android:layout_marginEnd="@dimen/twenty_dp_margin"
         android:background="@drawable/img_selector_background_blue"
         android:gravity="center"
+        android:textSize="@dimen/twelve_sp_text"
         android:text="@string/placeholder_number"
         android:textColor="@color/white"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_message_time" />
+        app:layout_constraintTop_toTopOf="@id/tv_last_message"
+        app:layout_constraintBottom_toBottomOf="@id/tv_last_message"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
