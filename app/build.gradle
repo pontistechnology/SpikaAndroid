@@ -47,24 +47,24 @@ android {
     buildTypes {
         // debug variant is used for development
         debug {
-            applicationIdSuffix ".debug"
+            applicationIdSuffix ".dev"
             versionNameSuffix "_debug"
 
             debuggable true
 
-            resValue "string", "APP_NAME", "Spika3"
+            resValue "string", "APP_NAME", "Spika3 Dev"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.debug
         }
 
         dev {
-            applicationIdSuffix ".debug"
+            applicationIdSuffix ".dev"
             versionNameSuffix "_dev"
 
             debuggable true
 
-            resValue "string", "APP_NAME", "Spika3"
+            resValue "string", "APP_NAME", "Spika3 Dev"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
 
             signingConfig signingConfigs.debug
