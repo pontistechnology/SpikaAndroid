@@ -15,6 +15,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
@@ -565,7 +566,7 @@ class ChatDetailsFragment : BaseFragment() {
     private fun takePhoto() {
         currentPhotoLocation = FileProvider.getUriForFile(
             requireActivity(),
-            "com.clover.studio.exampleapp.fileprovider",
+            BuildConfig.APPLICATION_ID + ".fileprovider",
             Tools.createImageFile(requireActivity())
         )
         Timber.d("$currentPhotoLocation")
