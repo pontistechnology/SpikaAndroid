@@ -38,7 +38,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_screen_name"
-        app:queryHint="@string/call_history_search_hint" />
+        app:queryHint="@string/call_history_search_hint"
+        app:queryBackground="@android:color/transparent"/>
 
     <TextView
         android:id="@+id/tv_no_chats"
