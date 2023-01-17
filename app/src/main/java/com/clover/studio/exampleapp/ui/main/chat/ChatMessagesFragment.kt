@@ -580,7 +580,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         // For now, only show delete and edit for sender
         if (msg.message.senderMessage) {
-            bindingSetup.messageActions.tvEdit.visibility = View.VISIBLE
+            if (msg.message.deleted == false) {
+                bindingSetup.messageActions.tvEdit.visibility = View.VISIBLE
+            } else {
+                bindingSetup.messageActions.tvEdit.visibility = View.GONE
+            }
             bindingSetup.messageActions.tvDelete.visibility = View.VISIBLE
         } else {
             bindingSetup.messageActions.tvEdit.visibility = View.GONE
