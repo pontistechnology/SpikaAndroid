@@ -14,6 +14,7 @@ import androidx.core.content.pm.PackageInfoCompat
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentSettingsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
@@ -308,7 +309,7 @@ class SettingsFragment : BaseFragment() {
     private fun takePhoto() {
         currentPhotoLocation = FileProvider.getUriForFile(
             requireActivity(),
-            "com.clover.studio.exampleapp.fileprovider",
+            BuildConfig.APPLICATION_ID + ".fileprovider",
             Tools.createImageFile(requireActivity())
         )
         Timber.d("$currentPhotoLocation")

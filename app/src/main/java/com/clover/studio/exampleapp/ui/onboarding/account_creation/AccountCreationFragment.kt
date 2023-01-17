@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
@@ -284,7 +285,7 @@ class AccountCreationFragment : BaseFragment() {
     private fun takePhoto() {
         currentPhotoLocation = FileProvider.getUriForFile(
             requireActivity(),
-            "com.clover.studio.exampleapp.fileprovider",
+            BuildConfig.APPLICATION_ID + ".fileprovider",
             Tools.createImageFile(requireActivity())
         )
         Timber.d("$currentPhotoLocation")

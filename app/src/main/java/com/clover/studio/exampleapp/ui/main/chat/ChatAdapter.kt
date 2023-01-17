@@ -162,6 +162,10 @@ class ChatAdapter(
                                 )
                             }
 
+                            val imageFile = it.message.body?.fileId?.let { imageFile ->
+                                Tools.getFilePathUrl(imageFile)
+                            }
+
                             Glide.with(context)
                                 .load(imagePath)
                                 .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
@@ -173,7 +177,7 @@ class ChatAdapter(
                             holder.binding.clContainer.setOnClickListener { view ->
                                 val action =
                                     ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
-                                        "", imagePath!!
+                                        "", imageFile!!
                                     )
                                 view.findNavController().navigate(action)
                             }
@@ -598,6 +602,10 @@ class ChatAdapter(
                             )
                         }
 
+                        val imageFile = it.message.body?.fileId?.let { imageFile ->
+                            Tools.getFilePathUrl(imageFile)
+                        }
+
                         Glide.with(context)
                             .load(imagePath)
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
@@ -609,7 +617,7 @@ class ChatAdapter(
                         holder.binding.clContainer.setOnClickListener { view ->
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
-                                    "", imagePath!!
+                                    "", imageFile!!
                                 )
                             view.findNavController().navigate(action)
                         }

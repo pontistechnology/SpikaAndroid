@@ -173,7 +173,7 @@ object Tools {
 
         return FileProvider.getUriForFile(
             activity,
-            "com.clover.studio.exampleapp.fileprovider",
+            BuildConfig.APPLICATION_ID + ".fileprovider",
             file
         )
     }
