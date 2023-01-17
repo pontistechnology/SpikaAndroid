@@ -165,6 +165,11 @@ class Const {
             const val API_LEAVE_ROOM = "api/messenger/rooms/{id}/leave"
             const val API_NOTES = "api/messenger/notes/roomId/{roomId}"
             const val API_MANAGE_NOTE = "api/messenger/notes/{id}"
+            const val API_BLOCK = "api/messenger/blocks"
+            const val API_CREATE_BLOCK = "api/messenger/blocks/{roomId}"
+            const val API_DELETE_BLOCK = "api/messenger/blocks/{id}"
+            const val API_DELETE_BLOCK_FOR_USER = "api/messenger/blocks/userId/{userId}"
+            const val API_ROOM_BLOCKS = "api/messenger/blocks/rooms/{roomId}"
 
             // Queries
             const val TIMESTAMP = "timestamp"
@@ -210,6 +215,7 @@ class Const {
             const val DEVICE_ID = "deviceId"
             const val COUNTRY_CODE = "countryCode"
             const val REGISTERED = "registered"
+            const val BLOCKED_USERS = "blocked_users"
 
             // Sync
             const val MESSAGE_RECORD_SYNC = "message_record_sync"

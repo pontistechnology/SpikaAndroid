@@ -2,16 +2,28 @@ package com.clover.studio.exampleapp.data.repositories
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Const.PrefsData.Companion.SHARED_PREFS_NAME
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.reflect.Type
 
 
 class SharedPreferencesRepositoryImpl(
     private val context: Context
 ) : SharedPreferencesRepository {
+    private val liveDataList: MutableLiveData<List<Int>?> = MutableLiveData()
+
+    override suspend fun blockUserListener(): LiveData<List<Int>?> {
+        getPrefs().registerOnSharedPreferenceChangeListener(prefsListener)
+        return liveDataList
+    }
+
     override suspend fun writeToken(token: String) {
         with(getPrefs().edit()) {
             putString(Const.PrefsData.TOKEN, token)
@@ -180,11 +192,43 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun readRegistered(): Boolean =
         getPrefs().getBoolean(Const.PrefsData.REGISTERED, false)
 
+    override suspend fun writeBlockedUsersIds(userIds: List<Int>) {
+        getPrefs().edit().remove(Const.PrefsData.BLOCKED_USERS).commit()
+        with(getPrefs().edit()) {
+            val gson = Gson()
+            putString(Const.PrefsData.BLOCKED_USERS, gson.toJson(userIds))
+            commit()
+        }
+    }
+
+    override suspend fun readBlockedUserList(): List<Int> {
+        getPrefs().registerOnSharedPreferenceChangeListener(prefsListener)
+        val json = getPrefs().getString(Const.PrefsData.BLOCKED_USERS, null)
+        if (json != null) {
+            return Gson().fromJson(json, object : TypeToken<List<Int>>() {}.type)
+        }
+        return arrayListOf()
+    }
+
+    override fun unregisterSharedPrefsReceiver() {
+        getPrefs().unregisterOnSharedPreferenceChangeListener(prefsListener)
+    }
+
+    private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (Const.PrefsData.BLOCKED_USERS == key) {
+            CoroutineScope(Dispatchers.IO).launch {
+                liveDataList.postValue(readBlockedUserList())
+            }
+        }
+    }
+
     private fun getPrefs(): SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
+
 }
 
 interface SharedPreferencesRepository {
+    suspend fun blockUserListener(): LiveData<List<Int>?>
     suspend fun writeToken(token: String)
     suspend fun readToken(): String?
     suspend fun writeContacts(contacts: List<String>)
@@ -220,4 +264,9 @@ interface SharedPreferencesRepository {
 
     suspend fun writeRegistered(registeredFlag: Boolean)
     suspend fun readRegistered(): Boolean
+
+    suspend fun writeBlockedUsersIds(userIds: List<Int>)
+    suspend fun readBlockedUserList(): List<Int>
+
+    fun unregisterSharedPrefsReceiver()
 }

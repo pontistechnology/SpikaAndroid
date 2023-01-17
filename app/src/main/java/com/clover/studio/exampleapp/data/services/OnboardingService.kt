@@ -1,6 +1,6 @@
 package com.clover.studio.exampleapp.data.services
 
-import com.clover.studio.exampleapp.data.models.networking.AuthResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.AuthResponse
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
 import retrofit2.http.*

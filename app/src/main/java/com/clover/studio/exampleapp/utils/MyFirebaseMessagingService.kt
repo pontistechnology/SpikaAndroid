@@ -7,7 +7,7 @@ import android.text.TextUtils
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.networking.FirebaseResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.FirebaseResponse
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepositoryImpl
