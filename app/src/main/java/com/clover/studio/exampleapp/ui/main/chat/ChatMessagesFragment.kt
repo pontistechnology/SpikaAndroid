@@ -55,7 +55,6 @@ import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Runnable
 import timber.log.Timber
-import java.text.SimpleDateFormat
 
 /*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
@@ -647,22 +646,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val filteredList = sortedMessageDetails.distinctBy { it.userId }
         detailsMessageAdapter.submitList(ArrayList(filteredList))
         messageDetails.clear()
-
-        // Show sent at / edited at:
-        val simpleDateFormat = SimpleDateFormat("HH:mm, EEEE, MMM DD ")
-        val dateTime =
-            getString(R.string.message_sent_at, simpleDateFormat.format(detailsMessage.createdAt))
-        bindingSetup.detailsAction.tvSentMsgTime.text = dateTime
-
-        if (detailsMessage.modifiedAt != detailsMessage.createdAt) {
-            bindingSetup.detailsAction.tvEditMsgTime.text = getString(
-                R.string.message_edited_at,
-                simpleDateFormat.format(detailsMessage.modifiedAt)
-            )
-            bindingSetup.detailsAction.tvEditMsgTime.visibility = View.VISIBLE
-        } else {
-            bindingSetup.detailsAction.tvEditMsgTime.visibility = View.GONE
-        }
     }
 
     private fun setUpMessageDetailsAdapter() {
