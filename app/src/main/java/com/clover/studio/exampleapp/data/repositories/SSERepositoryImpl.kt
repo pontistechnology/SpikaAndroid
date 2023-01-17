@@ -53,8 +53,8 @@ class SSERepositoryImpl @Inject constructor(
         val messageRecords: MutableList<MessageRecords> = ArrayList()
         for (record in response.data.messageRecords) {
             messageRecords.add(record)
+            writeRecord(record)
         }
-        messageRecordsDao.insert(messageRecords)
 
         if (messageRecords.isNotEmpty()) {
             val maxTimestamp = messageRecords.maxByOrNull { it.createdAt }?.createdAt
@@ -213,40 +213,51 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeMessageRecord(messageRecords: MessageRecords) {
-        // Write first time, next time update reaction
-        // For now leave seen and delivered
         appDatabase.runInTransaction {
             CoroutineScope(Dispatchers.IO).launch {
-                // Check if we have specific record in database for specific user
-                // Add user id check
-                // If not - add
-                if (messageRecordsDao.getMessageId(messageRecords.messageId, messageRecords.userId) == null) {
-                    Timber.d("insert")
-                    messageRecordsDao.insert(messageRecords)
+                writeRecord(messageRecords)
+            }
+        }
+    }
+
+    /**
+     * The method writes message records to the database.
+     * If the received message record (from sync or new message record) does not exist in the database, it writes a new data, and if it exists, it makes an update call (update type seen or reaction).
+     * In this way, for type delivered or seen, there will be only one record for each user in the database. Also, for each user there will be one record of his reaction to the message (most recent reaction).
+     * @param messageRecords
+     */
+    private suspend fun writeRecord(messageRecords: MessageRecords) {
+        if (messageRecordsDao.getMessageId(
+                messageRecords.messageId,
+                messageRecords.userId
+            ) == null
+        ) {
+            messageRecordsDao.insert(messageRecords)
+        } else {
+            if (Const.JsonFields.SEEN == messageRecords.type) {
+                messageRecordsDao.updateMessageRecords(
+                    messageRecords.messageId,
+                    messageRecords.type,
+                    messageRecords.createdAt,
+                    messageRecords.modifiedAt,
+                    messageRecords.userId,
+                )
+            }
+            if (Const.JsonFields.REACTION == messageRecords.type) {
+                if (messageRecordsDao.getMessageReactionId(
+                        messageRecords.messageId,
+                        messageRecords.userId
+                    ) == null
+                ) {
+                    messageRecordsDao.insertReaction(messageRecords)
                 } else {
-                    // Else update seen or delivered type
-                    if (messageRecords.type == "seen" || messageRecords.type == "delivered"){
-                        Timber.d("Update")
-                        Timber.d("type:::: ${messageRecords.type}")
-                        messageRecordsDao.updateMessageRecords(
-                            messageRecords.messageId,
-                            messageRecords.type,
-                            messageRecords.createdAt,
-                            messageRecords.modifiedAt,
-                            messageRecords.userId,
-                        )
-                    }
-                    // If new record is message reaction update only reaction field leave type as seen or delivered
-                    else {
-                        messageRecordsDao.updateReaction(
-                            messageRecords.messageId,
-                            messageRecords.reaction!!,
-                            messageRecords.userId,
-                        )
-                    }
+                    messageRecordsDao.updateReaction(
+                        messageRecords.messageId,
+                        messageRecords.reaction!!,
+                        messageRecords.userId
+                    )
                 }
             }
-
         }
     }
 

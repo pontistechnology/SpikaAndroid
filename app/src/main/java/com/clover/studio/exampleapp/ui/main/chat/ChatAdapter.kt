@@ -29,7 +29,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.Reactions
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.MessageRecords
@@ -510,15 +509,12 @@ class ChatAdapter(
                 /* Reactions section: */
                 // Get reactions from database:
                 // var reactionId = 0
-                val reactions = Reactions(0, 0, 0, 0, 0, 0)
-                val reactionList =
-                    it.records?.filter { it.reaction != null }!!.sortedByDescending { it.createdAt }
-                        .distinctBy { it.userId }
-                val reactionText = getDatabaseReaction(reactions, reactionList)
+                val reactionList = it.records!!.sortedByDescending { it.createdAt }
+                val reactionText = getDatabaseReaction(reactionList)
 
                 // Show reactions if there are any in the database
                 if (reactionText.isNotEmpty()) {
-                    holder.binding.tvReactedEmoji.text = getGroupReactions(reactions)
+                    holder.binding.tvReactedEmoji.text = reactionText
                     holder.binding.cvReactedEmoji.visibility = View.VISIBLE
                 } else {
                     holder.binding.cvReactedEmoji.visibility = View.GONE
@@ -962,14 +958,11 @@ class ChatAdapter(
 
                 /* Reactions section: */
                 // Get reactions from database
-                val reactions = Reactions(0, 0, 0, 0, 0, 0)
-                val reactionList =
-                    it.records?.filter { it.reaction != null }!!.sortedByDescending { it.createdAt }
-                        .distinctBy { it.userId }
-                val reactionText = getDatabaseReaction(reactions, reactionList)
+                val reactionList = it.records!!.sortedByDescending { it.createdAt }
+                val reactionText = getDatabaseReaction(reactionList)
 
                 if (reactionText.isNotEmpty()) {
-                    holder.binding.tvReactedEmoji.text = getGroupReactions(reactions)
+                    holder.binding.tvReactedEmoji.text = reactionText
                     holder.binding.cvReactedEmoji.visibility = View.VISIBLE
                 } else {
                     holder.binding.cvReactedEmoji.visibility = View.GONE
@@ -1024,97 +1017,50 @@ class ChatAdapter(
         }
     }
 
+    // TODO: New logic for showing reactions
+    /** Rules:
+    - there can be a maximum of 3 reactions
+    - if there are more, then the total number is displayed next to it
+    - if there are a total of three reactions and 2 of those 3 are equal, then two reactions and the total number are shown next to (3)
+    - if there are less than three reactions, then both are shown
+    - reactions are placed in the order in which they are placed, which means that the newer reactions will push out the older ones if there are more than three of them
+    - the most recent reaction is on the left (first)
+     */
+
     private fun getDatabaseReaction(
-        reactions: Reactions,
         reactionList: List<MessageRecords>?
     ): String {
-        try {
-            var reaction: String
-            if (reactionList != null) {
-                for (record in reactionList) {
-                    reaction = record.reaction.toString()
-                    getAllReactions(reaction, reactions)
-                    // reactionId = record.id
-                }
-            }
-        } catch (e: Exception) {
-            Timber.d(e.toString())
-        }
-        return getGroupReactions(reactions)
-    }
+        // This list contains only reaction types.
+        // Before we filter the list to get unique reaction values, we need the total number of reactions for if conditions.
+        val tmp: MutableList<MessageRecords> =
+            reactionList!!.filter { it.type == Const.JsonFields.REACTION }.toMutableList()
+        val total = tmp.count()
+        // We remove duplicate reactions from the first list.
+        var filteredList = tmp.distinctBy { it.reaction }.toMutableList()
 
-    // Get number of reactions for each one
-    private fun getAllReactions(reaction: String, reactions: Reactions) {
-        when (reaction) {
-            context.getString(R.string.praying_hands_emoji) -> {
-                reactions.prayingHandsEmoji++
-            }
-            context.getString(R.string.thumbs_up_emoji) -> {
-                reactions.thumbsUp++
-            }
-            context.getString(R.string.heart_emoji) -> {
-                reactions.heart++
-            }
-            context.getString(R.string.astonished_emoji) -> {
-                reactions.astonishedEmoji++
-            }
-            context.getString(R.string.disappointed_relieved_emoji) -> {
-                reactions.relievedEmoji++
-            }
-            context.getString(R.string.crying_face_emoji) -> {
-                reactions.cryingFaceEmoji++
-            }
-            else -> {
-                Timber.d("Not found")
-            }
-        }
-    }
-
-    // Get reaction and number of that reaction
-    private fun getGroupReactions(reactions: Reactions): String {
         var reactionText = ""
-        if (reactions.thumbsUp != 0) {
-            reactionText += context.getString(R.string.thumbs_up_emoji) + " "
-            if (reactions.thumbsUp > 1) {
-                reactionText += reactions.thumbsUp.toString() + " "
-            }
-        }
-        if (reactions.heart != 0) {
-            reactionText += context.getString(R.string.heart_emoji) + " "
-            if (reactions.heart > 1) {
-                reactionText += reactions.heart.toString() + " "
+        var totalText: String
+
+        // If the list is longer than three reactions, show only the first three reactions.
+        if (filteredList.size > 2) {
+            filteredList = filteredList.subList(0, 2)
+            totalText = total.toString()
+        } else {
+            totalText = if (filteredList.size == 1 && total == 2) {
+                total.toString()
+            } else {
+                ""
             }
         }
 
-        if (reactions.astonishedEmoji != 0) {
-            reactionText += context.getString(R.string.astonished_emoji) + " "
-            if (reactions.astonishedEmoji > 1) {
-                reactionText += reactions.astonishedEmoji.toString() + " "
-            }
+        for (reaction in filteredList) {
+            reactionText += reaction.reaction + " "
         }
+        reactionText += totalText
 
-        if (reactions.prayingHandsEmoji != 0) {
-            reactionText += context.getString(R.string.praying_hands_emoji) + " "
-            if (reactions.prayingHandsEmoji > 1) {
-                reactionText += reactions.prayingHandsEmoji.toString() + " "
-            }
-        }
-
-        if (reactions.cryingFaceEmoji != 0) {
-            reactionText += context.getString(R.string.crying_face_emoji) + " "
-            if (reactions.cryingFaceEmoji > 1) {
-                reactionText += reactions.cryingFaceEmoji.toString() + " "
-            }
-        }
-
-        if (reactions.relievedEmoji != 0) {
-            reactionText += context.getString(R.string.disappointed_relieved_emoji) + " "
-            if (reactions.relievedEmoji > 1) {
-                reactionText += reactions.relievedEmoji.toString() + " "
-            }
-        }
         return reactionText
     }
+
 
     private fun addFiles(message: Message, ivFileType: ImageView) {
         when (message.body?.file?.fileName?.substringAfterLast(".")) {
