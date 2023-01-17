@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.data.services
 
 import com.clover.studio.exampleapp.data.models.networking.*
+import com.clover.studio.exampleapp.data.models.networking.responses.*
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
 import retrofit2.http.*
@@ -53,4 +54,30 @@ interface RetrofitService {
     suspend fun getSettings(
         @HeaderMap headers: Map<String, String?>
     ): SettingsResponse
+
+    // Start Block functions
+    @GET(Const.Networking.API_BLOCK)
+    suspend fun getBlockedList(
+        @HeaderMap headers: Map<String, String?>
+    ): BlockResponse
+
+    @POST(Const.Networking.API_BLOCK)
+    suspend fun blockUser(
+        @HeaderMap headers: Map<String, String?>,
+        @Body blockedId: BlockedId
+    ): BlockResponse
+
+    @DELETE(Const.Networking.API_DELETE_BLOCK)
+    suspend fun deleteBlock(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ID) userId: Int
+    ): BlockResponse
+
+    @DELETE(Const.Networking.API_DELETE_BLOCK_FOR_USER)
+    suspend fun deleteBlockForSpecificUser(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.USER_ID) userId: Int
+    ): BlockResponse
+
+   // TODO add remaining block API
 }

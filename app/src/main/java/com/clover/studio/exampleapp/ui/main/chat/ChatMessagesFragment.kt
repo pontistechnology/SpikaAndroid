@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
@@ -38,6 +39,8 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.ui.ReactionsContainer
+import com.clover.studio.exampleapp.ui.main.BlockedUsersFetchFailed
+import com.clover.studio.exampleapp.ui.main.BlockedUsersFetched
 import com.clover.studio.exampleapp.utils.CHUNK_SIZE
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
@@ -265,6 +268,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             .observe(viewLifecycleOwner) {
                 messagesRecords.clear()
                 if (it.message?.isNotEmpty() == true) {
+                    // Check if user can be blocked
+                    if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                        val containsElement =
+                            it.message.any { message -> viewModel.getLocalUserId() == message.message.fromUserId }
+                        if (containsElement) bindingSetup.clBlock.visibility = View.GONE
+                        else bindingSetup.clBlock.visibility = View.VISIBLE
+                    }
+
                     it.message.forEach { msg ->
                         messagesRecords.add(msg)
                     }
@@ -333,6 +344,32 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 else -> Timber.d("Other upload error")
             }
         })
+
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
+                if (it?.isNotEmpty() == true) {
+                    viewModel.fetchBlockedUsersLocally(it)
+                } else bindingSetup.clContactBlocked.visibility = View.GONE
+            }
+
+            viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
+                when (it) {
+                    is BlockedUsersFetched -> {
+                        if (it.users.isNotEmpty()) {
+                            val containsElement =
+                                roomWithUsers.users.any { user -> it.users.find { blockedUser -> blockedUser.id == user.id } != null }
+                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                                if (containsElement) {
+                                    bindingSetup.clContactBlocked.visibility = View.VISIBLE
+                                } else bindingSetup.clContactBlocked.visibility = View.GONE
+                            }
+                        } else bindingSetup.clContactBlocked.visibility = View.GONE
+                    }
+                    BlockedUsersFetchFailed -> Timber.d("Failed to fetch blocked users")
+                    else -> Timber.d("Other error")
+                }
+            })
+        }
 
         viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
@@ -450,14 +487,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             exoPlayer!!,
             roomWithUsers.room.type,
             onMessageInteraction = { event, message ->
-                run {
-                    when (event) {
-                        Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                        Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
-                        Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
-                        Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
-                        Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
-                        else -> Timber.d("No other action currently")
+                if (bindingSetup.clContactBlocked.visibility != View.VISIBLE) {
+                    run {
+                        when (event) {
+                            Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
+                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
+                            Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
+                            Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
+                            Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
+                            else -> Timber.d("No other action currently")
+                        }
                     }
                 }
             }
@@ -681,16 +720,45 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         bindingSetup.tvTitle.text = roomWithUsers.room.type
+
+        bindingSetup.clBlock.setOnClickListener {
+            val userIdToBlock =
+                roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
+            userIdToBlock?.let { idToBlock -> viewModel.blockUser(idToBlock.id) }
+        }
+
+        bindingSetup.tvUnblock.setOnClickListener {
+            DialogError.getInstance(requireContext(),
+                getString(R.string.unblock_user),
+                getString(R.string.unblock_description, bindingSetup.tvChatName.text),
+                getString(R.string.no),
+                getString(R.string.unblock),
+                object : DialogInteraction {
+                    override fun onSecondOptionClicked() {
+                        roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
+                            ?.let { it1 -> viewModel.deleteBlockForSpecificUser(it1.id) }
+                    }
+                })
+        }
     }
 
     private fun initListeners() {
         bindingSetup.clHeader.setOnClickListener {
-            val action =
-                ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
-                    roomWithUsers.room.roomId,
-                    isAdmin
+            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                val bundle =
+                    bundleOf(Const.Navigation.USER_PROFILE to roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() })
+                findNavController().navigate(
+                    R.id.action_chatMessagesFragment_to_contactDetailsFragment2,
+                    bundle
                 )
-            findNavController().navigate(action)
+            } else {
+                val action =
+                    ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
+                        roomWithUsers.room.roomId,
+                        isAdmin
+                    )
+                findNavController().navigate(action)
+            }
         }
 
         bindingSetup.ivArrowBack.setOnClickListener {
@@ -1672,6 +1740,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+        viewModel.getBlockedUsersList()
     }
 
     override fun onDestroy() {
@@ -1679,5 +1748,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (exoPlayer != null) {
             exoPlayer!!.release()
         }
+        viewModel.unregisterSharedPrefsReceiver()
     }
 }

@@ -4,12 +4,11 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.marginEnd
+import android.view.ViewGroup.MarginLayoutParams
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
@@ -17,8 +16,7 @@ import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
-import android.view.ViewGroup.MarginLayoutParams
-
+import timber.log.Timber
 
 class RoomsAdapter(
     private val context: Context,
@@ -64,7 +62,8 @@ class RoomsAdapter(
                     if (binding.ivPinned.visibility == View.GONE && binding.tvNewMessages.visibility == View.GONE) {
                         val params: MarginLayoutParams? =
                             binding.ivMuted.layoutParams as MarginLayoutParams?
-                        params?.marginEnd = context.resources.getDimension(R.dimen.twenty_dp_margin).toInt()
+                        params?.marginEnd =
+                            context.resources.getDimension(R.dimen.twenty_dp_margin).toInt()
                     } else {
                         val params: MarginLayoutParams? =
                             binding.ivMuted.layoutParams as MarginLayoutParams?
@@ -74,7 +73,6 @@ class RoomsAdapter(
 
                 Glide.with(context)
                     .load(Tools.getFilePathUrl(avatarFileId))
-                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
                     .into(binding.ivRoomImage)
 
                 if (!roomItem.message.isNullOrEmpty()) {

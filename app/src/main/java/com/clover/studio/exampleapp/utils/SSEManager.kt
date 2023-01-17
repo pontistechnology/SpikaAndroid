@@ -4,7 +4,7 @@ package com.clover.studio.exampleapp.utils
 
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.data.models.entity.Message
-import com.clover.studio.exampleapp.data.models.networking.StreamingResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.StreamingResponse
 import com.clover.studio.exampleapp.data.repositories.SSERepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.helpers.AppLifecycleManager

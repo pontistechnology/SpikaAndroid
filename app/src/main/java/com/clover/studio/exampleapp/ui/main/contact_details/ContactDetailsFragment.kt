@@ -130,6 +130,30 @@ class ContactDetailsFragment : BaseFragment() {
                 else -> Timber.d("Other error")
             }
         })
+
+        viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
+            if (it?.isNotEmpty() == true) {
+                viewModel.fetchBlockedUsersLocally(it)
+            } else {
+                binding.tvBlocked.text = getString(R.string.block)
+            }
+        }
+
+        viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is BlockedUsersFetched -> {
+                    if (it.users.isNotEmpty()) {
+                        val containsElement =
+                            it.users.any { blockedUser -> blockedUser.id == user?.id }
+                        if (containsElement) {
+                            binding.tvBlocked.text = getString(R.string.unblock)
+                        } else binding.tvBlocked.text = getString(R.string.block)
+                    }
+                }
+                BlockedUsersFetchFailed -> Timber.d("Failed to fetch blocked users")
+                else -> Timber.d("Other error")
+            }
+        })
     }
 
     private fun initializeViews() {
@@ -186,5 +210,41 @@ class ContactDetailsFragment : BaseFragment() {
         binding.ivBack.setOnClickListener {
             requireActivity().onBackPressed()
         }
+
+        binding.tvBlocked.setOnClickListener {
+            if (binding.tvBlocked.text.equals(getString(R.string.block))) {
+                DialogError.getInstance(requireContext(),
+                    getString(R.string.block_user),
+                    getString(R.string.block_user_description),
+                    getString(R.string.no),
+                    getString(R.string.block),
+                    object : DialogInteraction {
+                        override fun onSecondOptionClicked() {
+                            user?.id?.let { id -> viewModel.blockUser(id) }
+                        }
+                    })
+            } else {
+                DialogError.getInstance(requireContext(),
+                    getString(R.string.unblock_user),
+                    getString(R.string.unblock_description, user?.displayName),
+                    getString(R.string.no),
+                    getString(R.string.unblock),
+                    object : DialogInteraction {
+                        override fun onSecondOptionClicked() {
+                            user?.id?.let { id -> viewModel.deleteBlockForSpecificUser(id) }
+                        }
+                    })
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getBlockedUsersList()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.unregisterSharedPrefsReceiver()
     }
 }

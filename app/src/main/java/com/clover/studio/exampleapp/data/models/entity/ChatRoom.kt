@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.clover.studio.exampleapp.data.AppDatabase
-import com.clover.studio.exampleapp.data.models.networking.RoomUsers
+import com.clover.studio.exampleapp.data.models.networking.responses.RoomUsers
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_CHAT_ROOM)

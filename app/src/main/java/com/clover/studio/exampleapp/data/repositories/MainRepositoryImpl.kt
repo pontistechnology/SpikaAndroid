@@ -9,11 +9,13 @@ import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
-import com.clover.studio.exampleapp.data.models.networking.AuthResponse
-import com.clover.studio.exampleapp.data.models.networking.FileResponse
-import com.clover.studio.exampleapp.data.models.networking.RoomResponse
-import com.clover.studio.exampleapp.data.models.networking.Settings
+import com.clover.studio.exampleapp.data.models.networking.BlockedId
+import com.clover.studio.exampleapp.data.models.networking.responses.AuthResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.FileResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.Settings
 import com.clover.studio.exampleapp.data.services.RetrofitService
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -96,7 +98,11 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun verifyFile(jsonObject: JsonObject): FileResponse =
         retrofitService.verifyFile(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
-    override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse {
+    override suspend fun updateRoom(
+        jsonObject: JsonObject,
+        roomId: Int,
+        userId: Int
+    ): RoomResponse {
         val response =
             retrofitService.updateRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject, roomId)
 
@@ -137,6 +143,41 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun getUserSettings(): List<Settings> =
         retrofitService.getSettings(getHeaderMap(sharedPrefs.readToken())).data.settings
+
+    override suspend fun getBlockedList() {
+        val response =
+            retrofitService.getBlockedList(getHeaderMap(sharedPrefs.readToken())).data.blockedUsers
+        val userIds = response?.map { it.id }
+        sharedPrefs.writeBlockedUsersIds(userIds!!)
+    }
+
+    override suspend fun fetchBlockedUsersLocally(userIds: List<Int>): List<User> =
+        userDao.getUsersByIds(userIds)
+
+    override suspend fun blockUser(blockedId: Int) {
+        val response = retrofitService.blockUser(getHeaderMap(sharedPrefs.readToken()), BlockedId(blockedId))
+        if (Const.JsonFields.SUCCESS == response.status) {
+            val currentList: MutableList<Int> = sharedPrefs.readBlockedUserList() as MutableList<Int>
+            currentList.add(blockedId)
+            sharedPrefs.writeBlockedUsersIds(currentList)
+        }
+    }
+
+    override suspend fun deleteBlock(userId: Int) {
+        retrofitService.deleteBlock(getHeaderMap(sharedPrefs.readToken()), userId)
+    }
+
+    override suspend fun deleteBlockForSpecificUser(userId: Int) {
+        val response = retrofitService.deleteBlockForSpecificUser(
+            getHeaderMap(sharedPrefs.readToken()),
+            userId
+        )
+        if (Const.JsonFields.SUCCESS == response.status) {
+            val currentList = sharedPrefs.readBlockedUserList()
+            val updatedList = currentList.filterNot { it == userId }
+            sharedPrefs.writeBlockedUsersIds(updatedList)
+        }
+    }
 }
 
 interface MainRepository {
@@ -153,4 +194,11 @@ interface MainRepository {
     suspend fun verifyFile(jsonObject: JsonObject): FileResponse
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse
     suspend fun getUserSettings(): List<Settings>
+
+    // Block
+    suspend fun getBlockedList()
+    suspend fun fetchBlockedUsersLocally(userIds: List<Int>): List<User>
+    suspend fun blockUser(blockedId: Int)
+    suspend fun deleteBlock(userId: Int)
+    suspend fun deleteBlockForSpecificUser(userId: Int)
 }
