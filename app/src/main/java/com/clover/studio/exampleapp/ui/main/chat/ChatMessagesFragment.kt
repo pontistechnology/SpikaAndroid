@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
+import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.JsonMessage
 import com.clover.studio.exampleapp.data.models.entity.*
@@ -1275,7 +1276,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun takePhoto() {
         photoImageUri = FileProvider.getUriForFile(
             context!!,
-            "com.clover.studio.exampleapp.fileprovider",
+            BuildConfig.APPLICATION_ID + ".fileprovider",
             Tools.createImageFile(
                 (activity!!)
             )

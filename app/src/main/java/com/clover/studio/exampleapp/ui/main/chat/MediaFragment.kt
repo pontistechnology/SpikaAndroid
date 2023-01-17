@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.Timeline
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -15,6 +16,7 @@ import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.databinding.FragmentMediaBinding
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.MediaPlayer
+import timber.log.Timber
 
 
 class MediaFragment : BaseFragment() {
