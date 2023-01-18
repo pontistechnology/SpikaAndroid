@@ -442,7 +442,6 @@
             android:id="@+id/cv_reacted_emoji"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/forty_eight_dp_margin"
             android:layout_marginBottom="@dimen/two_dp_margin"
             android:background="@drawable/bg_message_received"
             android:backgroundTint="@color/color2"
@@ -450,8 +449,7 @@
             app:cardCornerRadius="@dimen/eight_dp_margin"
             app:layout_constraintBottom_toBottomOf="@+id/cl_container"
             app:layout_constraintStart_toStartOf="@+id/cl_container"
-            app:layout_constraintTop_toTopOf="@+id/cl_container"
-            app:layout_constraintVertical_bias="0.65999997"
+            app:layout_constraintTop_toBottomOf="@+id/cl_container"
             app:strokeColor="@color/white"
             app:strokeWidth="@dimen/one_dp_margin">
 
@@ -460,7 +458,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="@dimen/two_dp_margin"
-                android:text="@string/heart_emoji" />
+                android:text="@string/heart_emoji"
+                android:fontFamily="@font/montserrat"/>
         </com.google.android.material.card.MaterialCardView>
 
         <TextView

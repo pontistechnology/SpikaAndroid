@@ -6,7 +6,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.format.DateUtils
+import android.text.style.RelativeSizeSpan
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -47,6 +50,7 @@ private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 private const val TEXT_SIZE_BIG = 11
 private const val TEXT_SIZE_SMALL = 5
+private const val MAX_REACTIONS = 3
 private var oldPosition = -1
 private var firstPlay = true
 
@@ -508,13 +512,24 @@ class ChatAdapter(
 
                 /* Reactions section: */
                 // Get reactions from database:
-                // var reactionId = 0
                 val reactionList = it.records!!.sortedByDescending { it.createdAt }
                 val reactionText = getDatabaseReaction(reactionList)
 
                 // Show reactions if there are any in the database
                 if (reactionText.isNotEmpty()) {
-                    holder.binding.tvReactedEmoji.text = reactionText
+                    if (reactionText.last().isDigit()) {
+                        // If last char is number - resize it
+                        val spanStringBuilder = SpannableStringBuilder(reactionText)
+                        spanStringBuilder.setSpan(
+                            RelativeSizeSpan(0.5f),
+                            reactionText.length - 2,
+                            reactionText.length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        holder.binding.tvReactedEmoji.text = spanStringBuilder.append(" ")
+                    } else {
+                        holder.binding.tvReactedEmoji.text = reactionText
+                    }
                     holder.binding.cvReactedEmoji.visibility = View.VISIBLE
                 } else {
                     holder.binding.cvReactedEmoji.visibility = View.GONE
@@ -961,8 +976,20 @@ class ChatAdapter(
                 val reactionList = it.records!!.sortedByDescending { it.createdAt }
                 val reactionText = getDatabaseReaction(reactionList)
 
+                // Show reactions if there are any in the database
                 if (reactionText.isNotEmpty()) {
-                    holder.binding.tvReactedEmoji.text = reactionText
+                    if (reactionText.last().isDigit()) {
+                        val spanStringBuilder = SpannableStringBuilder(reactionText)
+                        spanStringBuilder.setSpan(
+                            RelativeSizeSpan(0.5f),
+                            reactionText.length - 2,
+                            reactionText.length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        holder.binding.tvReactedEmoji.text = spanStringBuilder.append(" ")
+                    } else {
+                        holder.binding.tvReactedEmoji.text = reactionText
+                    }
                     holder.binding.cvReactedEmoji.visibility = View.VISIBLE
                 } else {
                     holder.binding.cvReactedEmoji.visibility = View.GONE
@@ -1017,7 +1044,6 @@ class ChatAdapter(
         }
     }
 
-    // TODO: New logic for showing reactions
     /** Rules:
     - there can be a maximum of 3 reactions
     - if there are more, then the total number is displayed next to it
@@ -1039,26 +1065,26 @@ class ChatAdapter(
         var filteredList = tmp.distinctBy { it.reaction }.toMutableList()
 
         var reactionText = ""
-        var totalText: String
+        val totalText: String
 
-        // If the list is longer than three reactions, show only the first three reactions.
-        if (filteredList.size > 2) {
-            filteredList = filteredList.subList(0, 2)
-            totalText = total.toString()
-        } else {
-            totalText = if (filteredList.size == 1 && total == 2) {
-                total.toString()
+        if (filteredList.isNotEmpty()) {
+            // If the list is longer than three reactions, show only the first three reactions.
+            if (filteredList.size > MAX_REACTIONS) {
+                filteredList = filteredList.subList(0, MAX_REACTIONS)
+                totalText = total.toString()
             } else {
-                ""
+                totalText = if (filteredList.size == 1 && total > 1) {
+                    total.toString()
+                } else {
+                    ""
+                }
             }
+            for (reaction in filteredList) {
+                reactionText += reaction.reaction + " "
+            }
+            reactionText += totalText
         }
-
-        for (reaction in filteredList) {
-            reactionText += reaction.reaction + " "
-        }
-        reactionText += totalText
-
-        return reactionText
+        return reactionText.trim()
     }
 
 
