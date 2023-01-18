@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingEnd="@dimen/twenty_dp_margin"
     android:background="?android:selectableItemBackground">
 
     <com.google.android.material.imageview.ShapeableImageView
@@ -55,10 +56,9 @@
 
     <TextView
         android:id="@+id/tv_message_time"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/twelve_sp_text"
-        android:layout_marginEnd="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:textColor="@color/text_tertiary"
         app:layout_constraintEnd_toEndOf="parent"
@@ -70,7 +70,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/five_dp_margin"
-        android:layout_marginEnd="@dimen/twenty_dp_margin"
         android:src="@drawable/img_muted"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/tv_last_message"
@@ -81,7 +80,6 @@
         android:id="@+id/iv_pinned"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/twenty_dp_margin"
         android:padding="@dimen/five_dp_margin"
         android:src="@drawable/img_pinned"
         android:visibility="gone"
@@ -93,7 +91,6 @@
         android:id="@+id/tv_new_messages"
         android:layout_width="@dimen/twenty_dp_margin"
         android:layout_height="@dimen/twenty_dp_margin"
-        android:layout_marginEnd="@dimen/twenty_dp_margin"
         android:background="@drawable/img_selector_background_blue"
         android:gravity="center"
         android:textSize="@dimen/twelve_sp_text"

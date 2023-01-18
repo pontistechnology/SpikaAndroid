@@ -318,6 +318,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
+                    <!-- This used to work before without tint setup. What changed? -->
                     <ProgressBar
                         android:id="@+id/progress_bar"
                         style="?android:attr/progressBarStyleHorizontal"
@@ -326,6 +327,7 @@
                         android:elevation="@dimen/five_dp_margin"
                         android:indeterminate="false"
                         android:progress="0"
+                        android:progressTint="@color/primary_color"
                         android:progressDrawable="@drawable/custom_circular_progress"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"

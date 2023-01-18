@@ -74,6 +74,7 @@
             android:layout_height="@dimen/seventy_dp"
             android:indeterminate="false"
             android:progress="0"
+            android:indeterminateTint="@color/primary_color"
             android:progressDrawable="@drawable/custom_circular_progress"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

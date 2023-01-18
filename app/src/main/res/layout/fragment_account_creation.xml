@@ -2,13 +2,13 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="contentDescription"
     android:id="@+id/cl_parent_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusableInTouchMode="true"
-    tools:context=".ui.onboarding.account_creation.AccountCreationFragment">
+    tools:context=".ui.onboarding.account_creation.AccountCreationFragment"
+    tools:ignore="contentDescription">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_username_error"
@@ -50,15 +50,15 @@
         android:layout_width="@dimen/one_hundred_dp"
         android:layout_height="@dimen/one_hundred_dp"
         android:layout_margin="@dimen/twenty_dp_margin"
-        android:scaleType="center"
-        android:src="@drawable/img_camera"
         android:background="@drawable/img_selector_background"
         android:backgroundTint="@color/light_blue"
+        android:scaleType="center"
+        android:src="@drawable/img_camera"
         app:layout_constraintBottom_toTopOf="@id/tv_username"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_username_error"
-        app:shapeAppearanceOverlay="@style/circle"/>
+        app:shapeAppearanceOverlay="@style/circle" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_progress_screen"
@@ -85,6 +85,7 @@
             android:indeterminate="false"
             android:progress="0"
             android:progressDrawable="@drawable/custom_circular_progress"
+            android:progressTint="@color/primary_color"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
