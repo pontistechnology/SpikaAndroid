@@ -272,8 +272,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
                         val containsElement =
                             it.message.any { message -> viewModel.getLocalUserId() == message.message.fromUserId }
-                        if (containsElement) bindingSetup.clBlock.visibility = View.GONE
-                        else bindingSetup.clBlock.visibility = View.VISIBLE
+                        if (containsElement) bindingSetup.clBlockContact.visibility = View.GONE
+                        else bindingSetup.clBlockContact.visibility = View.VISIBLE
                     }
 
                     it.message.forEach { msg ->
@@ -361,6 +361,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
                                 if (containsElement) {
                                     bindingSetup.clContactBlocked.visibility = View.VISIBLE
+                                    bindingSetup.clBlockContact.visibility = View.GONE
                                 } else bindingSetup.clContactBlocked.visibility = View.GONE
                             }
                         } else bindingSetup.clContactBlocked.visibility = View.GONE
@@ -721,10 +722,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.tvTitle.text = roomWithUsers.room.type
 
-        bindingSetup.clBlock.setOnClickListener {
+        bindingSetup.tvBlock.setOnClickListener {
             val userIdToBlock =
                 roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
             userIdToBlock?.let { idToBlock -> viewModel.blockUser(idToBlock.id) }
+        }
+
+        bindingSetup.tvOk.setOnClickListener {
+            bindingSetup.clBlockContact.visibility = View.GONE
         }
 
         bindingSetup.tvUnblock.setOnClickListener {
