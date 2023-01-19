@@ -38,6 +38,7 @@
         android:fontFamily="@font/montserrat"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/next"
+        android:textFontWeight="@string/six_hundred"
         android:textColor="@color/text_tertiary"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
