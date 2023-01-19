@@ -172,4 +172,6 @@
     <string name="registration_error">Registration error</string>
     <string name="registration_error_description">There was an error while registering to the app.</string>
     <string name="block_contact_description">Do you want to receive messages from this contact?</string>
+    <string name="message_sent_at">Message sent at: %s</string>
+    <string name="message_edited_at">Message edited at: %s</string>
 </resources>
