@@ -55,6 +55,7 @@ import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Runnable
 import timber.log.Timber
+import java.text.SimpleDateFormat
 
 /*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
@@ -580,8 +581,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         // For now, only show delete and edit for sender
         if (msg.message.senderMessage) {
-            bindingSetup.messageActions.tvEdit.visibility = View.VISIBLE
-            bindingSetup.messageActions.tvDelete.visibility = View.VISIBLE
+            if (msg.message.deleted == false) {
+                bindingSetup.messageActions.tvEdit.visibility = View.VISIBLE
+                bindingSetup.messageActions.tvDelete.visibility = View.VISIBLE
+            } else {
+                bindingSetup.messageActions.tvEdit.visibility = View.GONE
+                bindingSetup.messageActions.tvDelete.visibility = View.GONE
+            }
         } else {
             bindingSetup.messageActions.tvEdit.visibility = View.GONE
             bindingSetup.messageActions.tvDelete.visibility = View.GONE
@@ -646,6 +652,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val filteredList = sortedMessageDetails.distinctBy { it.userId }
         detailsMessageAdapter.submitList(ArrayList(filteredList))
         messageDetails.clear()
+
+        // Show sent at / edited at:
+        val simpleDateFormat = SimpleDateFormat("HH:mm, EEEE, MMM DD")
+        val dateTime =
+            getString(R.string.message_sent_at, simpleDateFormat.format(detailsMessage.createdAt))
+        bindingSetup.detailsAction.tvSentMsgTime.text = dateTime
+
+        if (detailsMessage.modifiedAt != detailsMessage.createdAt) {
+            bindingSetup.detailsAction.tvEditMsgTime.text = getString(
+                R.string.message_edited_at,
+                simpleDateFormat.format(detailsMessage.modifiedAt)
+            )
+            bindingSetup.detailsAction.tvEditMsgTime.visibility = View.VISIBLE
+        } else {
+            bindingSetup.detailsAction.tvEditMsgTime.visibility = View.GONE
+        }
     }
 
     private fun setUpMessageDetailsAdapter() {
