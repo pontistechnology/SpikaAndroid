@@ -13,6 +13,8 @@
         android:fontFamily="@font/montserrat"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/new_chat"
+        android:textFontWeight="@string/five_hundred"
+        android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintEnd_toStartOf="@id/tv_next"
         app:layout_constraintStart_toEndOf="@id/iv_cancel"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,9 +25,10 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/montserrat"
         android:padding="@dimen/twenty_dp_margin"
-        android:src="@drawable/img_arrow_back"
+        android:src="@drawable/img_arrow_back_chat"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/tv_title" />
 
     <TextView
         android:id="@+id/tv_next"
@@ -44,13 +47,13 @@
         android:id="@+id/sv_contacts_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:background="@drawable/bg_search_field"
+        android:layout_margin="@dimen/sixteen_dp_margin"
+        android:background="@drawable/bg_message_received"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_cancel"
-        app:queryHint="@string/call_history_search_hint"
-        app:queryBackground="@android:color/transparent"/>
+        app:queryBackground="@android:color/transparent"
+        app:queryHint="@string/contact_search" />
 
     <TextView
         android:id="@+id/tv_new_group_chat"
@@ -58,8 +61,10 @@
         android:layout_height="wrap_content"
         android:drawablePadding="@dimen/ten_dp_margin"
         android:fontFamily="@font/montserrat"
+        android:textFontWeight="@string/six_hundred"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/new_group_chat"
+        android:textSize="@dimen/fourteen_sp_text"
         android:textColor="@color/primary_color"
         android:visibility="visible"
         app:drawableStartCompat="@drawable/img_people"
