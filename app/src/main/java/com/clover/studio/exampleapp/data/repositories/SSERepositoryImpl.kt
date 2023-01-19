@@ -227,7 +227,7 @@ class SSERepositoryImpl @Inject constructor(
      * @param messageRecords
      */
     private suspend fun writeRecord(messageRecords: MessageRecords) {
-        if (messageRecordsDao.getMessageId(
+        if (messageRecordsDao.getMessageRecordId(
                 messageRecords.messageId,
                 messageRecords.userId
             ) == null
@@ -249,12 +249,13 @@ class SSERepositoryImpl @Inject constructor(
                         messageRecords.userId
                     ) == null
                 ) {
-                    messageRecordsDao.insertReaction(messageRecords)
+                    messageRecordsDao.insert(messageRecords)
                 } else {
                     messageRecordsDao.updateReaction(
                         messageRecords.messageId,
                         messageRecords.reaction!!,
-                        messageRecords.userId
+                        messageRecords.userId,
+                        messageRecords.createdAt,
                     )
                 }
             }

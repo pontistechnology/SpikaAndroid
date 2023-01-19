@@ -28,7 +28,7 @@ interface MessageRecordsDao {
     suspend fun removeMessageRecords()
 
     @Query("SELECT id FROM message_records WHERE message_id = :id AND user_id = :userId LIMIT 1")
-    fun getMessageId(id: Int, userId: Int): Int?
+    fun getMessageRecordId(id: Int, userId: Int): Int?
 
     @Query("UPDATE message_records SET type = :type, created_at = :createdAt, reaction = NULL, modified_at = :modifiedAt WHERE message_id = :messageId AND user_id= :userId AND type='seen'")
     suspend fun updateMessageRecords(
@@ -39,16 +39,14 @@ interface MessageRecordsDao {
         userId: Int,
     )
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertReaction(messageRecords: MessageRecords): Long
-
     @Query("SELECT id FROM message_records WHERE message_id = :id AND user_id = :userId AND type='reaction'")
     fun getMessageReactionId(id: Int, userId: Int): Int?
 
-    @Query("UPDATE message_records SET reaction = :reaction WHERE message_id = :messageId AND user_id= :userId AND type='reaction'")
+    @Query("UPDATE message_records SET reaction = :reaction, created_at = :createdAt  WHERE message_id = :messageId AND user_id= :userId AND type='reaction'")
     suspend fun updateReaction(
         messageId: Int,
         reaction: String,
         userId: Int,
+        createdAt: Long,
     )
 }
