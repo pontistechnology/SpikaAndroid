@@ -59,7 +59,9 @@ class SSERepositoryImpl @Inject constructor(
         if (messageRecords.isNotEmpty()) {
             val maxTimestamp = messageRecords.maxByOrNull { it.createdAt }?.createdAt
             Timber.d("MaxTimestamp message records timestamps: $maxTimestamp")
-            sharedPrefs.writeMessageRecordTimestamp(messageRecords.maxByOrNull { it.createdAt }!!.createdAt)
+            if (maxTimestamp!! > messageRecordsTimestamp) {
+                sharedPrefs.writeMessageRecordTimestamp(maxTimestamp)
+            }
         }
     }
 
@@ -98,10 +100,8 @@ class SSERepositoryImpl @Inject constructor(
             if (messages.isNotEmpty()) {
                 val maxTimestamp = messages.maxByOrNull { it.modifiedAt!! }?.modifiedAt
                 Timber.d("MaxTimestamp messages: $maxTimestamp")
-                messages.maxByOrNull { it.modifiedAt!! }?.modifiedAt?.let {
-                    sharedPrefs.writeMessageTimestamp(
-                        it
-                    )
+                if (maxTimestamp!! > messageTimestamp) {
+                    sharedPrefs.writeMessageTimestamp(maxTimestamp)
                 }
             }
         }
@@ -136,10 +136,8 @@ class SSERepositoryImpl @Inject constructor(
             if (users.isNotEmpty()) {
                 val maxTimestamp = users.maxByOrNull { it.modifiedAt!! }?.modifiedAt
                 Timber.d("MaxTimestamp users: $maxTimestamp")
-                users.maxByOrNull { it.modifiedAt!! }?.modifiedAt?.let {
-                    sharedPrefs.writeUserTimestamp(
-                        it
-                    )
+                if (maxTimestamp!! > userTimestamp) {
+                    sharedPrefs.writeUserTimestamp(maxTimestamp)
                 }
             }
         }
@@ -187,11 +185,9 @@ class SSERepositoryImpl @Inject constructor(
 
                             if (rooms.isNotEmpty()) {
                                 val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
-                                Timber.d("MaxTimestamp rooms: $maxTimestamp")
-                                rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt?.let {
-                                    sharedPrefs.writeRoomTimestamp(
-                                        it
-                                    )
+                                Timber.d("MaxTimestamp rooms: $maxTimestamp, old timestamp = $roomTimestamp")
+                                if (maxTimestamp!! > roomTimestamp) {
+                                    sharedPrefs.writeRoomTimestamp(maxTimestamp)
                                 }
                             }
                         }
