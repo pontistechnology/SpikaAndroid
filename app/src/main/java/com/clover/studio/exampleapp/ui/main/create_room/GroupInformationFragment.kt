@@ -59,7 +59,7 @@ class GroupInformationFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.GetContent()) {
             if (it != null) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(requireActivity(), it)
+                    Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
@@ -75,7 +75,7 @@ class GroupInformationFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(requireActivity(), currentPhotoLocation)
+                    Tools.handleSamplingAndRotationBitmap(requireActivity(), currentPhotoLocation, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap).into(binding.ivPickPhoto)

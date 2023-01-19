@@ -12,8 +12,6 @@ import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.text.TextUtils
 import android.text.format.DateUtils
-import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
@@ -215,7 +213,11 @@ object Tools {
     }
 
     @Throws(IOException::class)
-    fun handleSamplingAndRotationBitmap(context: Context, selectedImage: Uri?): Bitmap? {
+    fun handleSamplingAndRotationBitmap(
+        context: Context,
+        selectedImage: Uri?,
+        thumbnail: Boolean
+    ): Bitmap? {
         // First decode with inJustDecodeBounds=true to check dimensions
         val options = BitmapFactory.Options()
         options.inJustDecodeBounds = true
@@ -224,7 +226,9 @@ object Tools {
         imageStream?.close()
 
         // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options)
+        if (thumbnail) {
+            options.inSampleSize = calculateInSampleSize(options)
+        }
 
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false
