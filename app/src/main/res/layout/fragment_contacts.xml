@@ -12,8 +12,7 @@
         android:id="@+id/tv_screen_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/twenty_dp_margin"
-        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:layout_margin="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/contacts"
         android:textSize="@dimen/twenty_eight_sp_text"
@@ -30,8 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_screen_name"
         app:queryHint="@string/call_history_search_hint"
-        app:queryBackground="@android:color/transparent"
-        android:backgroundTint="@color/message_other"/>
+        app:queryBackground="@android:color/transparent"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_contacts"

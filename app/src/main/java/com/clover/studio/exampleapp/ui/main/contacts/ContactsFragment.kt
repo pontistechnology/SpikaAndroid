@@ -17,7 +17,6 @@ import com.clover.studio.exampleapp.ui.main.UsersError
 import com.clover.studio.exampleapp.ui.main.UsersFetched
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
 import timber.log.Timber
@@ -79,6 +78,7 @@ class ContactsFragment : BaseFragment() {
 
     private fun setupSearchView() {
         // SearchView is immediately acting as if selected
+        binding.svContactsSearch.setQuery("", false)
         binding.svContactsSearch.setIconifiedByDefault(false)
         binding.svContactsSearch.setOnQueryTextListener(object :
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
@@ -132,6 +132,11 @@ class ContactsFragment : BaseFragment() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupSearchView()
     }
 
 }
