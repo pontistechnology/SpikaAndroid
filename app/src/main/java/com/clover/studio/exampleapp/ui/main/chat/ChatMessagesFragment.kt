@@ -1652,7 +1652,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun convertImageToBitmap(imageUri: Uri?) {
         val bitmap =
-            Tools.handleSamplingAndRotationBitmap(activity!!, imageUri)
+            Tools.handleSamplingAndRotationBitmap(activity!!, imageUri, false)
         val bitmapUri = Tools.convertBitmapToUri(activity!!, bitmap!!)
 
         val imageSelected = ImageSelectedContainer(context!!, null)
@@ -1676,8 +1676,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
         val thumbnail =
-            ThumbnailUtils.extractThumbnail(bitmap, bitmap.width, bitmap.height)
-        val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
+            Tools.handleSamplingAndRotationBitmap(activity!!, bitmapUri, true)
+        val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail!!)
 
         // Create thumbnail for the image which will also be sent to the backend
         thumbnailUris.add(thumbnailUri)
