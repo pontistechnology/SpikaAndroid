@@ -14,7 +14,6 @@
         android:fontFamily="@font/montserrat"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/name_the_group"
-        android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintEnd_toStartOf="@id/tv_create"
         app:layout_constraintStart_toEndOf="@id/iv_cancel"
         app:layout_constraintTop_toTopOf="parent" />
@@ -26,9 +25,8 @@
         android:fontFamily="@font/montserrat"
         android:padding="@dimen/twenty_dp_margin"
         android:src="@drawable/img_arrow_back"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tv_title" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_create"
@@ -38,7 +36,6 @@
         android:fontFamily="@font/montserrat"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/create"
-        android:textFontWeight="@string/six_hundred"
         android:textColor="@color/text_tertiary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -84,7 +81,7 @@
             android:layout_height="@dimen/seventy_dp"
             android:indeterminate="false"
             android:progress="0"
-            android:progressTint="@color/primary_color"
+            android:indeterminateTint="@color/primary_color"
             android:progressDrawable="@drawable/custom_circular_progress"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -128,8 +125,7 @@
         app:layout_constraintBottom_toTopOf="@id/tv_people_selected"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_pick_photo"
-        android:backgroundTint="@color/inputs"/>
+        app:layout_constraintTop_toBottomOf="@id/iv_pick_photo" />
 
     <TextView
         android:id="@+id/tv_people_selected"

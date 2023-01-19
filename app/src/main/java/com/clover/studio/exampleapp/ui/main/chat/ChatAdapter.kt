@@ -278,7 +278,7 @@ class ChatAdapter(
                             holder.binding.ivPlayAudio.visibility = View.VISIBLE
                             holder.binding.pbAudio.visibility = View.GONE
                             holder.binding.ivCancelAudio.visibility = View.GONE
-                            val audioPath = it.message.body?.thumb?.id?.let { audioPath ->
+                            val audioPath = it.message.body?.file?.id?.let { audioPath ->
                                 Tools.getFilePathUrl(
                                     audioPath
                                 )
@@ -706,7 +706,7 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.VISIBLE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        val audioPath = it.message.body?.thumb?.id?.let { audioPath ->
+                        val audioPath = it.message.body?.file?.id?.let { audioPath ->
                             Tools.getFilePathUrl(
                                 audioPath
                             )
@@ -931,22 +931,6 @@ class ChatAdapter(
                     holder.binding.clMessageEdited.visibility = View.VISIBLE
                 } else {
                     holder.binding.clMessageEdited.visibility = View.GONE
-                }
-
-                if (it.message.body?.text.isNullOrEmpty()) {
-                    holder.binding.tvMessage.visibility = View.GONE
-                    holder.binding.cvImage.visibility = View.VISIBLE
-
-                    Glide.with(context)
-                        .load(it.message.body?.thumb?.id?.let { imagePath ->
-                            Tools.getFilePathUrl(
-                                imagePath
-                            )
-                        })
-                        .into(holder.binding.ivChatImage)
-                } else {
-                    holder.binding.tvMessage.visibility = View.VISIBLE
-                    holder.binding.cvImage.visibility = View.GONE
                 }
 
                 if (roomType != Const.JsonFields.PRIVATE) {
