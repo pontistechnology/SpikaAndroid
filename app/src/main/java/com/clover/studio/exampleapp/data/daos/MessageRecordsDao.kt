@@ -5,25 +5,32 @@ import androidx.room.*
 import com.clover.studio.exampleapp.data.models.entity.MessageRecords
 
 @Dao
-interface MessageRecordsDao : BaseDao<MessageRecords> {
+interface MessageRecordsDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(messageRecords: MessageRecords): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(messageRecords: List<MessageRecords>)
+
     @Query("SELECT * FROM message_records WHERE message_id LIKE :messageId")
     fun getMessageRecords(messageId: Int): LiveData<List<MessageRecords>>
+
+    @Query("SELECT * FROM message_records")
+    suspend fun getMessageRecordsLocally(): List<MessageRecords>
 
     @Query("SELECT * FROM message_records WHERE id LIKE :messageId LIMIT 1")
     fun getMessageRecordById(messageId: String): LiveData<MessageRecords>
 
-    fun getDistinctMessageRecordById(messageId: String) =
-        getMessageRecordById(messageId)
+    @Delete
+    suspend fun deleteMessageRecord(messageRecords: MessageRecords)
 
     @Query("DELETE FROM message_records")
     suspend fun removeMessageRecords()
 
-    @Transaction
     @Query("SELECT id FROM message_records WHERE message_id = :id AND user_id = :userId LIMIT 1")
     fun getMessageRecordId(id: Int, userId: Int): Int?
 
-    @Transaction
-    @Query("UPDATE message_records SET type = :type, created_at = :createdAt, reaction = NULL, modified_at = :modifiedAt WHERE message_id = :messageId AND user_id= :userId AND type='delivered'")
+    @Query("UPDATE message_records SET type = :type, created_at = :createdAt, reaction = NULL, modified_at = :modifiedAt WHERE message_id = :messageId AND user_id= :userId AND type='seen'")
     suspend fun updateMessageRecords(
         messageId: Int,
         type: String,
@@ -32,11 +39,9 @@ interface MessageRecordsDao : BaseDao<MessageRecords> {
         userId: Int,
     )
 
-    @Transaction
     @Query("SELECT id FROM message_records WHERE message_id = :id AND user_id = :userId AND type='reaction'")
     fun getMessageReactionId(id: Int, userId: Int): Int?
 
-    @Transaction
     @Query("UPDATE message_records SET reaction = :reaction, created_at = :createdAt  WHERE message_id = :messageId AND user_id= :userId AND type='reaction'")
     suspend fun updateReaction(
         messageId: Int,
@@ -44,13 +49,4 @@ interface MessageRecordsDao : BaseDao<MessageRecords> {
         userId: Int,
         createdAt: Long,
     )
-
-    // Private chat: delete all records
-    @Transaction
-    @Query("DELETE FROM message_records WHERE message_id LIKE :id AND type='reaction'")
-    suspend fun deleteAllReactions(id: Int)
-
-    @Transaction
-    @Query("DELETE FROM message_records WHERE id LIKE :id AND user_id LIKE :userId")
-    suspend fun deleteReactionRecord(id: Int, userId: Int)
 }

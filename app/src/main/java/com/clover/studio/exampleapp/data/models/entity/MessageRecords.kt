@@ -12,8 +12,7 @@ import kotlinx.parcelize.Parcelize
 data class MessageRecords(
     @PrimaryKey
     @ColumnInfo(name = "id")
-    // TODO id: Long
-    val id: Int,
+    val id: Long,
 
     @ColumnInfo(name = "message_id")
     val messageId: Int,

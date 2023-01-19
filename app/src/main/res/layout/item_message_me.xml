@@ -38,10 +38,12 @@
             android:layout_marginTop="@dimen/two_dp_margin"
             android:layout_marginEnd="@dimen/twenty_four_dp_margin"
             android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cl_message_edited">
+            app:layout_constraintTop_toBottomOf="@+id/cl_message_edited"
+            app:layout_constraintVertical_bias="0.0">
 
             <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/tv_message"
@@ -130,6 +132,8 @@
                     android:layout_width="@dimen/forty_two_dp"
                     android:layout_height="0dp"
                     android:layout_marginStart="@dimen/sixteen_dp_margin"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
                     android:visibility="gone"
                     app:cardCornerRadius="@dimen/four_dp_margin"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -137,10 +141,8 @@
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toEndOf="@+id/tv_username"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:adjustViewBounds="true"
-                    android:scaleType="centerCrop"
-                    tools:srcCompat="@tools:sample/avatars"
-                    app:shapeAppearanceOverlay="@style/round"/>
+                    app:shapeAppearanceOverlay="@style/round"
+                    tools:srcCompat="@tools:sample/avatars" />
 
                 <TextView
                     android:id="@+id/tv_reply_media"
@@ -521,23 +523,29 @@
                 app:layout_constraintStart_toEndOf="@id/iv_message_edited" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/cv_reacted_emoji"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/two_dp_margin"
+            android:background="@drawable/bg_message_user"
+            android:backgroundTint="@color/message_me"
             android:visibility="gone"
             app:cardCornerRadius="@dimen/eight_dp_margin"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/cl_container"
             app:layout_constraintEnd_toEndOf="@+id/cl_container"
             app:layout_constraintTop_toBottomOf="@+id/cl_container"
-            app:layout_constraintVertical_bias="1.0">
-
+            app:layout_constraintVertical_bias="0.5"
+            app:strokeColor="@color/white"
+            app:strokeWidth="@dimen/one_dp_margin">
             <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/tv_reacted_emoji"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent" />
-        </androidx.cardview.widget.CardView>
+                android:layout_height="match_parent"
+                android:fontFamily="@font/montserrat"
+                android:padding="@dimen/two_dp_margin"
+                android:text="@string/heart_emoji" />
+        </com.google.android.material.card.MaterialCardView>
 
         <ImageView
             android:id="@+id/iv_message_status"
