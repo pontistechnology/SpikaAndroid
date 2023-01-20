@@ -23,7 +23,8 @@
     <string name="select_photo_my_profile">Select a photo for your profile</string>
     <string name="no_calls_yet">No calls yet.</string>
     <string name="call_history">Call history</string>
-    <string name="call_history_search_hint">Search for contact, message, file…</string>
+    <string name="call_history_search_hint"><font size="14">Search for contact, message, file…</font></string>
+    <string name="contact_search"><font size="14"> Search for contact</font></string>
     <string name="outgoing">Outgoing</string>
     <string name="chat">Chat</string>
     <string name="contacts">Contacts</string>
@@ -122,7 +123,6 @@
     <string name="exit_group_error">Can\'t leave group where you are only admin.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="seven_hundred">700</string>
     <string name="room_delete_admin_error">Only admins can delete conversations.</string>
     <string name="room_exit">You can’t send messages to this group because you are no longer a participant</string>
 
@@ -175,4 +175,9 @@
     <string name="message_sent_at">Message sent at: %s</string>
     <string name="message_edited_at">Message edited at: %s</string>
     <string name="wrong_file_type">Wrong file type selected</string>
+
+    <!--Font weight-->
+    <string name="five_hundred">500</string>
+    <string name="six_hundred">600</string>
+    <string name="seven_hundred">700</string>
 </resources>

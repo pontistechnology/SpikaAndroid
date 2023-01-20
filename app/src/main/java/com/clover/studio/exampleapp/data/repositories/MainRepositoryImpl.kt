@@ -66,8 +66,8 @@ class MainRepositoryImpl @Inject constructor(
         return response
     }
 
-    override suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>> =
-        userDao.getUserAndPhoneUser()
+    override suspend fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>> =
+        userDao.getUserAndPhoneUser(localId)
 
     override suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
         chatRoomDao.getChatRoomAndMessageAndRecords()
@@ -184,7 +184,7 @@ interface MainRepository {
     suspend fun getUserByID(id: Int): LiveData<User>
     suspend fun getRoomById(userId: Int): RoomResponse
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
-    suspend fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>
+    suspend fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>>
     suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers

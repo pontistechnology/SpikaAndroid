@@ -47,6 +47,8 @@ class NewRoomFragment : BaseFragment() {
 
     private val binding get() = bindingSetup!!
 
+    private var localId : Int = 0
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -58,6 +60,7 @@ class NewRoomFragment : BaseFragment() {
             NewRoomFragmentArgs.fromBundle(bundle)
         else null
 
+        localId = viewModel.getLocalUserId()!!
         initializeObservers()
         setupAdapter(false)
         initializeViews()
@@ -212,7 +215,7 @@ class NewRoomFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
+        viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 userList = it.toMutableList()
                 val users = userList.sortUsersByLocale(requireContext())
