@@ -30,7 +30,7 @@ interface MessageRecordsDao {
     @Query("SELECT id FROM message_records WHERE message_id = :id AND user_id = :userId LIMIT 1")
     fun getMessageRecordId(id: Int, userId: Int): Int?
 
-    @Query("UPDATE message_records SET type = :type, created_at = :createdAt, reaction = NULL, modified_at = :modifiedAt WHERE message_id = :messageId AND user_id= :userId AND type='seen'")
+    @Query("UPDATE message_records SET type = :type, created_at = :createdAt, reaction = NULL, modified_at = :modifiedAt WHERE message_id = :messageId AND user_id= :userId AND type='delivered'")
     suspend fun updateMessageRecords(
         messageId: Int,
         type: String,

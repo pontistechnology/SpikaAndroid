@@ -508,6 +508,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.rvChat.adapter = chatAdapter
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
+        /* Scroll bug:
+        chatAdapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                bindingSetup.rvChat.scrollToPosition(positionStart)
+            }
+        })*/
         // bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
 
         // Add callback for item swipe handling
@@ -634,23 +641,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun getDetailsList(detailsMessage: Message) {
         val myId = viewModel.getLocalUserId()
-        for (message in messagesRecords) {
-            if (message.message.id == detailsMessage.id) {
-                for (record in message.records!!) {
-                    if (record.userId != myId) {
-                        if (record.type == Const.JsonFields.SEEN) {
-                            messageDetails.add(record)
-                        } else if (record.type == Const.JsonFields.DELIVERED) {
-                            messageDetails.add(record)
-                        }
-                    }
-                }
-                break
-            }
-        }
+
+        messageDetails.clear()
+        messageDetails.addAll(messagesRecords
+            .filter { it.message.id == detailsMessage.id }
+            .flatMap { it.records!! }
+            .filter { it.userId != myId }
+        )
+
         val sortedMessageDetails = messageDetails.sortedByDescending { it.type }
-        val filteredList = sortedMessageDetails.distinctBy { it.userId }
-        detailsMessageAdapter.submitList(ArrayList(filteredList))
+        detailsMessageAdapter.submitList(ArrayList(sortedMessageDetails))
         messageDetails.clear()
 
         // Show sent at / edited at:
@@ -1205,12 +1205,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun sendMessage() {
-        sendMessage(
-            messageFileType = Const.JsonFields.TEXT_TYPE,
-            0,
-            0,
-            unsentMessages[tempMessageCounter].localId!!
-        )
+        try{
+            sendMessage(
+                messageFileType = Const.JsonFields.TEXT_TYPE,
+                0,
+                0,
+                unsentMessages[tempMessageCounter].localId!!
+            )
+        } catch (e: Exception){
+            Timber.d("Send message exception: $e")
+        }
     }
 
     private fun sendMessage(
