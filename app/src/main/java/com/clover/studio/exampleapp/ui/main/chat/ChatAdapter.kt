@@ -550,7 +550,7 @@ class ChatAdapter(
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
                 when {
-                    it.message.seenCount!! > 0 -> {
+                    it.message.totalUserCount == it.message.seenCount!! -> {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
