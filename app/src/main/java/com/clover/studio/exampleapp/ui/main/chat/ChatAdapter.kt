@@ -9,6 +9,7 @@ import android.os.Looper
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.format.DateUtils
+import android.text.method.LinkMovementMethod
 import android.text.style.RelativeSizeSpan
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -138,6 +139,14 @@ class ChatAdapter(
                         // being deleted
                         holder.binding.clContainer.setOnClickListener {
                             // ignore
+                        }
+
+                        holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
+                        holder.binding.tvMessage.setOnLongClickListener { _ ->
+                            it.message.senderMessage = true
+                            it.message.messagePosition = holder.absoluteAdapterPosition
+                            onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
+                            true
                         }
                     }
                     Const.JsonFields.IMAGE_TYPE -> {
@@ -597,6 +606,14 @@ class ChatAdapter(
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
+
+                        holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
+                        holder.binding.tvMessage.setOnLongClickListener { _ ->
+                            it.message.senderMessage = true
+                            it.message.messagePosition = holder.absoluteAdapterPosition
+                            onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
+                            true
+                        }
 
                     }
                     Const.JsonFields.IMAGE_TYPE -> {
