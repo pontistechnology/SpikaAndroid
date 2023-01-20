@@ -1611,9 +1611,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (mime?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
             fileType = Const.JsonFields.VIDEO_TYPE
             convertVideo(uri)
-        } else {
+        } else if (mime?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
             fileType = Const.JsonFields.IMAGE_TYPE
             convertImageToBitmap(uri)
+        } else {
+            DialogError.getInstance(
+                requireContext(),
+                getString(R.string.error),
+                getString(R.string.wrong_file_type),
+                null,
+                getString(R.string.ok),
+                object : DialogInteraction {
+                    //ignore
+                })
         }
     }
 
