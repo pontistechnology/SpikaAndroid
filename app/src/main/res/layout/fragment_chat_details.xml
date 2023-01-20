@@ -32,7 +32,7 @@
             android:layout_marginStart="@dimen/eight_dp_margin"
             android:background="@drawable/img_selector_background"
             android:backgroundTint="@color/light_blue"
-            android:scaleType="center"
+            android:scaleType="fitXY"
             android:src="@drawable/img_user_placeholder"
             app:layout_constraintBottom_toBottomOf="@id/iv_back"
             app:layout_constraintStart_toEndOf="@id/iv_back"

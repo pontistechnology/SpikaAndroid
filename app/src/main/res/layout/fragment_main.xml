@@ -26,16 +26,16 @@
         android:layout_marginTop="@dimen/ten_dp_margin"
         android:layout_marginEnd="@dimen/ten_dp_margin"
         android:layout_weight="1"
-        app:layout_constraintBottom_toTopOf="@id/dv"
+        app:layout_constraintBottom_toTopOf="@id/divider_main"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
-        android:id="@+id/dv"
+        android:id="@+id/divider_main"
         android:layout_width="match_parent"
         android:padding="0dp"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/one_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:background="@color/navigation"
