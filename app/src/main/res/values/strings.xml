@@ -174,4 +174,5 @@
     <string name="block_contact_description">Do you want to receive messages from this contact?</string>
     <string name="message_sent_at">Message sent at: %s</string>
     <string name="message_edited_at">Message edited at: %s</string>
+    <string name="wrong_file_type">Wrong file type selected</string>
 </resources>
