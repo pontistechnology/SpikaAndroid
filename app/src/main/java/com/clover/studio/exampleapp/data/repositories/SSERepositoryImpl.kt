@@ -239,7 +239,7 @@ class SSERepositoryImpl @Inject constructor(
                     messageRecords.userId,
                 )
             }
-            if (Const.JsonFields.REACTION == messageRecords.type) {
+            else if (Const.JsonFields.REACTION == messageRecords.type) {
                 if (messageRecordsDao.getMessageReactionId(
                         messageRecords.messageId,
                         messageRecords.userId
