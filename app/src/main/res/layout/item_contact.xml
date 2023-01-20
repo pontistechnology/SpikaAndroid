@@ -38,7 +38,7 @@
         android:layout_margin="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/enter_username"
-        android:textFontWeight="@string/seven_hundred"
+        android:textFontWeight="@string/six_hundred"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintStart_toEndOf="@id/iv_user_image"
         app:layout_constraintTop_toBottomOf="@id/tv_header" />
@@ -50,7 +50,7 @@
         android:layout_marginStart="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/enter_username"
-        android:textSize="@dimen/fourteen_sp_text"
+        android:textSize="@dimen/twelve_sp_text"
         app:layout_constraintStart_toEndOf="@id/iv_user_image"
         app:layout_constraintTop_toBottomOf="@id/tv_username" />
 
@@ -65,7 +65,8 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/tv_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_username" />
+        app:layout_constraintTop_toTopOf="@id/tv_username"
+        android:theme="@style/CustomCheckBox" />
 
     <View
         android:id="@+id/transparent_view"

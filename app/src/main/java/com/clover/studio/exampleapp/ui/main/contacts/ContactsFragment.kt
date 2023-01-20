@@ -31,12 +31,15 @@ class ContactsFragment : BaseFragment() {
 
     private val binding get() = bindingSetup!!
 
+    private var localId : Int = 0
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         bindingSetup = FragmentContactsBinding.inflate(inflater, container, false)
 
+        localId = viewModel.getLocalUserId()!!
         setupAdapter()
         setupSearchView()
         initializeObservers()
@@ -53,7 +56,7 @@ class ContactsFragment : BaseFragment() {
             }
         })
 
-        viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
+        viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 userList = it.toMutableList()
 

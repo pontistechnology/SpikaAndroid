@@ -34,8 +34,8 @@ interface UserDao {
     suspend fun removeUsers()
 
     @Transaction
-    @Query("SELECT * FROM user")
-    fun getUserAndPhoneUser(): LiveData<List<UserAndPhoneUser>>
+    @Query("SELECT * FROM user WHERE id NOT LIKE :localId")
+    fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>>
 
     @Transaction
     @Query("SELECT * FROM user")
