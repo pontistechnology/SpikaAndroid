@@ -15,7 +15,6 @@ import com.clover.studio.exampleapp.databinding.MessageDetailsItemBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import java.text.SimpleDateFormat
-import java.util.*
 
 class MessageDetailsAdapter(
     private val context: Context,
@@ -33,20 +32,48 @@ class MessageDetailsAdapter(
     }
 
     override fun onBindViewHolder(holder: MessageDetailsViewHolder, position: Int) {
+        val simpleDateFormat = SimpleDateFormat("DD.MM.YYYY. HH:MM aa")
         with(holder) {
             getItem(position).let { messageRecord ->
-                val calendar = Calendar.getInstance()
-                calendar.timeInMillis = messageRecord.createdAt
-                val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm")
-                val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
-                binding.tvSeenDate.text = dateTime
-
-                if (messageRecord.type == Const.JsonFields.SEEN) {
+                // Show sender header - this is first and only message record for sender
+                if (Const.JsonFields.SENT == messageRecord.type) {
+                    binding.tvDetailsHeader.text = context.getString(R.string.sender_actions)
+                    binding.ivMessageState.setImageResource(R.drawable.img_sender_actions)
+                    binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
+                        0,
+                        0,
+                        R.drawable.img_sent,
+                        0
+                    )
+                    // Show edited information about sender:
+                    if (messageRecord.createdAt != messageRecord.modifiedAt) {
+                        val editedTime = simpleDateFormat.format(messageRecord.modifiedAt)
+                        binding.tvEditedTime.visibility = View.VISIBLE
+                        binding.tvEditedTime.text = editedTime
+                    } else {
+                        binding.tvEditedTime.visibility = View.VISIBLE
+                        binding.tvEditedTime.text = "-"
+                    }
+                } else if (Const.JsonFields.SEEN == messageRecord.type) {
                     binding.tvDetailsHeader.text = context.getString(R.string.read_by)
                     binding.ivMessageState.setImageResource(R.drawable.img_seen)
-                } else {
+                    binding.tvEditedTime.visibility = View.GONE
+                    binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
+                        0,
+                        0,
+                        0,
+                        0
+                    )
+                } else if (Const.JsonFields.DELIVERED == messageRecord.type) {
                     binding.tvDetailsHeader.text = context.getString(R.string.delivered_to)
                     binding.ivMessageState.setImageResource(R.drawable.img_delivered)
+                    binding.tvEditedTime.visibility = View.GONE
+                    binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
+                        0,
+                        0,
+                        0,
+                        0
+                    )
                 }
 
                 for (user in roomWithUsers.users) {
@@ -59,6 +86,9 @@ class MessageDetailsAdapter(
                         break
                     }
                 }
+
+                val dateTime = simpleDateFormat.format(messageRecord.createdAt)
+                binding.tvUserTime.text = dateTime
 
                 if (position > 0) {
                     val previousItem = getItem(position - 1).type

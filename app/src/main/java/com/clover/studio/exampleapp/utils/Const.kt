@@ -127,6 +127,7 @@ class Const {
             // Message details
             const val SEEN = "seen"
             const val DELIVERED = "delivered"
+            const val SENT = "sent"
         }
     }
 
