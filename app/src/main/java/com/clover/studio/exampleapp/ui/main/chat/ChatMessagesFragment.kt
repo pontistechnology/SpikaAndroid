@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -70,7 +71,7 @@ private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
 
 enum class UploadMimeTypes {
-    IMAGE, VIDEO, FILE, MESSAGE
+    IMAGE, VIDEO,
 }
 
 @AndroidEntryPoint
@@ -197,7 +198,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.tvChatName.text = userName
         Glide.with(this)
             .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-            .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
+            .placeholder(AppCompatResources.getDrawable(context!!, R.drawable.img_user_placeholder ))
             .into(bindingSetup.ivUserImage)
     }
 
@@ -1072,10 +1073,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         replyId = message.id.toLong()
         if (message.senderMessage) {
             bindingSetup.replyAction.clReplyContainer.background =
-                context!!.getDrawable(R.drawable.bg_message_user)
+                AppCompatResources.getDrawable(context!!, R.drawable.bg_message_user)
         } else {
             bindingSetup.replyAction.clReplyContainer.background =
-                context!!.getDrawable(R.drawable.bg_message_received)
+                AppCompatResources.getDrawable(context!!, R.drawable.bg_message_received)
         }
 
         for (user in roomWithUsers.users) {
@@ -1310,6 +1311,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
+
+        inputStream.close()
     }
 
     /**
@@ -1451,6 +1454,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             fileStream,
             fileType
         )
+
+        inputStream.close()
     }
 
     /**
@@ -1502,6 +1507,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             fileStream,
             isThumbnail
         )
+
+        inputStream.close()
     }
 
     /**

@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -15,6 +16,7 @@ import com.clover.studio.exampleapp.databinding.MessageDetailsItemBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import java.text.SimpleDateFormat
+import java.util.*
 
 class MessageDetailsAdapter(
     private val context: Context,
@@ -32,7 +34,7 @@ class MessageDetailsAdapter(
     }
 
     override fun onBindViewHolder(holder: MessageDetailsViewHolder, position: Int) {
-        val simpleDateFormat = SimpleDateFormat("DD.MM.YYYY. HH:MM aa")
+        val simpleDateFormat = SimpleDateFormat("DD.MM.y. HH:MM aa", Locale.ITALY)
         with(holder) {
             getItem(position).let { messageRecord ->
                 // Show sender header - this is first and only message record for sender
@@ -47,22 +49,22 @@ class MessageDetailsAdapter(
                     )
                     // Show edited information about sender:
                     if (messageRecord.createdAt != messageRecord.modifiedAt) {
-                        binding.ivNoEditedTime?.visibility = View.GONE
+                        binding.ivNoEditedTime.visibility = View.GONE
                         val editedTime = simpleDateFormat.format(messageRecord.modifiedAt)
                         binding.tvEditedTime.text = editedTime
-                        binding.ivEditedTime?.visibility = View.VISIBLE
+                        binding.ivEditedTime.visibility = View.VISIBLE
                         binding.tvEditedTime.visibility = View.VISIBLE
                     } else {
-                        binding.ivEditedTime?.visibility = View.VISIBLE
-                        binding.ivNoEditedTime?.visibility = View.VISIBLE
+                        binding.ivEditedTime.visibility = View.VISIBLE
+                        binding.ivNoEditedTime.visibility = View.VISIBLE
                         binding.tvEditedTime.visibility = View.GONE
                     }
                 } else if (Const.JsonFields.SEEN == messageRecord.type) {
                     binding.tvDetailsHeader.text = context.getString(R.string.read_by)
                     binding.ivMessageState.setImageResource(R.drawable.img_seen)
                     binding.tvEditedTime.visibility = View.GONE
-                    binding.ivEditedTime?.visibility = View.GONE
-                    binding.ivNoEditedTime?.visibility = View.GONE
+                    binding.ivEditedTime.visibility = View.GONE
+                    binding.ivNoEditedTime.visibility = View.GONE
                     binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
                         0,
                         0,
@@ -73,8 +75,8 @@ class MessageDetailsAdapter(
                     binding.tvDetailsHeader.text = context.getString(R.string.delivered_to)
                     binding.ivMessageState.setImageResource(R.drawable.img_delivered)
                     binding.tvEditedTime.visibility = View.GONE
-                    binding.ivEditedTime?.visibility = View.GONE
-                    binding.ivNoEditedTime?.visibility = View.GONE
+                    binding.ivEditedTime.visibility = View.GONE
+                    binding.ivNoEditedTime.visibility = View.GONE
                     binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
                         0,
                         0,
@@ -88,7 +90,7 @@ class MessageDetailsAdapter(
                         binding.tvSeenUsername.text = user.displayName
                         Glide.with(context)
                             .load(user.avatarFileId?.let { Tools.getFilePathUrl(it) })
-                            .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                            .placeholder(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
                             .into(binding.ivUserAvatar)
                         break
                     }
