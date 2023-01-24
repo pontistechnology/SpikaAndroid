@@ -145,7 +145,7 @@ class ChatAdapter(
                         holder.binding.tvMessage.setOnClickListener {
                             if (holder.binding.tvTime.visibility == View.GONE) {
                                 holder.binding.tvTime.visibility = View.VISIBLE
-                                val simpleDateFormat = SimpleDateFormat("HH:mm", Locale.ITALY)
+                                val simpleDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
                                 val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
                                 holder.binding.tvTime.text = dateTime
                             } else {
@@ -611,7 +611,7 @@ class ChatAdapter(
                         holder.binding.tvMessage.setOnClickListener {
                             if (holder.binding.tvTime.visibility == View.GONE) {
                                 holder.binding.tvTime.visibility = View.VISIBLE
-                                val simpleDateFormat = SimpleDateFormat("HH:mm", Locale.ITALY)
+                                val simpleDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
                                 val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
                                 holder.binding.tvTime.text = dateTime
                             } else {
