@@ -141,6 +141,20 @@ class ChatAdapter(
                             // ignore
                         }
 
+                        holder.binding.tvMessage.setOnTouchListener { _, motionEvent ->
+                            if (motionEvent.action ==  MotionEvent.ACTION_UP){
+                                if (holder.binding.tvTime.visibility == View.GONE) {
+                                    holder.binding.tvTime.visibility = View.VISIBLE
+                                    val simpleDateFormat = SimpleDateFormat("HH:mm")
+                                    val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
+                                    holder.binding.tvTime.text = dateTime
+                                } else {
+                                    holder.binding.tvTime.visibility = View.GONE
+                                }
+                            }
+                            true
+                        }
+
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
                         holder.binding.tvMessage.setOnLongClickListener { _ ->
                             it.message.senderMessage = true
@@ -495,17 +509,6 @@ class ChatAdapter(
                     }
                 }
 
-                holder.binding.clMessage.setOnClickListener {
-                    if (holder.binding.tvTime.visibility == View.GONE) {
-                        holder.binding.tvTime.visibility = View.VISIBLE
-                        val simpleDateFormat = SimpleDateFormat("HH:mm")
-                        val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
-                        holder.binding.tvTime.text = dateTime
-                    } else {
-                        holder.binding.tvTime.visibility = View.GONE
-                    }
-                }
-
                 // Find replied message
                 holder.binding.clReplyMessage.setOnClickListener { _ ->
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it)
@@ -607,6 +610,20 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
+                        holder.binding.tvMessage.setOnTouchListener { _, motionEvent ->
+                            if (motionEvent.action ==  MotionEvent.ACTION_UP){
+                                if (holder.binding.tvTime.visibility == View.GONE) {
+                                    holder.binding.tvTime.visibility = View.VISIBLE
+                                    val simpleDateFormat = SimpleDateFormat("HH:mm")
+                                    val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
+                                    holder.binding.tvTime.text = dateTime
+                                } else {
+                                    holder.binding.tvTime.visibility = View.GONE
+                                }
+                            }
+                            true
+                        }
+
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
                         holder.binding.tvMessage.setOnLongClickListener { _ ->
                             it.message.senderMessage = true
@@ -614,7 +631,6 @@ class ChatAdapter(
                             onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
                             true
                         }
-
                     }
                     Const.JsonFields.IMAGE_TYPE -> {
                         holder.binding.tvMessage.visibility = View.GONE
@@ -923,17 +939,6 @@ class ChatAdapter(
                                 }
                             }
                         }
-                    }
-                }
-
-                holder.binding.clMessage.setOnClickListener {
-                    if (holder.binding.tvTime.visibility == View.GONE) {
-                        holder.binding.tvTime.visibility = View.VISIBLE
-                        val simpleDateFormat = SimpleDateFormat("HH:mm")
-                        val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
-                        holder.binding.tvTime.text = dateTime
-                    } else {
-                        holder.binding.tvTime.visibility = View.GONE
                     }
                 }
 
