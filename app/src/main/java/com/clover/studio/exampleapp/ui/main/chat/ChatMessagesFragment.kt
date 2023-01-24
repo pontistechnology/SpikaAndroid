@@ -566,14 +566,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
         val time = msg.message.body?.referenceMessage?.createdAt
-        var position = -1
-        for (messageRecord in messagesRecords) {
-            position++
-            if (messageRecord.message.createdAt == time) {
-                break
-            }
-        }
-        if (position != messagesRecords.size - 1) {
+        val position = messagesRecords.indexOfFirst { it.message.createdAt == time }
+        if (position != -1) {
             bindingSetup.rvChat.scrollToPosition(position)
         }
     }
