@@ -47,17 +47,22 @@ class MessageDetailsAdapter(
                     )
                     // Show edited information about sender:
                     if (messageRecord.createdAt != messageRecord.modifiedAt) {
+                        binding.ivNoEditedTime?.visibility = View.GONE
                         val editedTime = simpleDateFormat.format(messageRecord.modifiedAt)
-                        binding.tvEditedTime.visibility = View.VISIBLE
                         binding.tvEditedTime.text = editedTime
-                    } else {
+                        binding.ivEditedTime?.visibility = View.VISIBLE
                         binding.tvEditedTime.visibility = View.VISIBLE
-                        binding.tvEditedTime.text = "-"
+                    } else {
+                        binding.ivEditedTime?.visibility = View.VISIBLE
+                        binding.ivNoEditedTime?.visibility = View.VISIBLE
+                        binding.tvEditedTime.visibility = View.GONE
                     }
                 } else if (Const.JsonFields.SEEN == messageRecord.type) {
                     binding.tvDetailsHeader.text = context.getString(R.string.read_by)
                     binding.ivMessageState.setImageResource(R.drawable.img_seen)
                     binding.tvEditedTime.visibility = View.GONE
+                    binding.ivEditedTime?.visibility = View.GONE
+                    binding.ivNoEditedTime?.visibility = View.GONE
                     binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
                         0,
                         0,
@@ -68,6 +73,8 @@ class MessageDetailsAdapter(
                     binding.tvDetailsHeader.text = context.getString(R.string.delivered_to)
                     binding.ivMessageState.setImageResource(R.drawable.img_delivered)
                     binding.tvEditedTime.visibility = View.GONE
+                    binding.ivEditedTime?.visibility = View.GONE
+                    binding.ivNoEditedTime?.visibility = View.GONE
                     binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
                         0,
                         0,
