@@ -55,7 +55,6 @@ import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Runnable
 import timber.log.Timber
-import java.text.SimpleDateFormat
 
 /*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
@@ -84,7 +83,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var detailsMessageAdapter: MessageDetailsAdapter
     private lateinit var messageReactionAdapter: MessageReactionAdapter
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
-    private var messageDetails: MutableList<MessageRecords> = ArrayList()
     private var unsentMessages: MutableList<Message> = ArrayList()
 
     private var currentMediaLocation: MutableList<Uri> = ArrayList()
@@ -640,33 +638,43 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun getDetailsList(detailsMessage: Message) {
-        val myId = viewModel.getLocalUserId()
+        val localId = viewModel.getLocalUserId()
+        val senderId = detailsMessage.fromUserId
 
-        messageDetails.clear()
-        messageDetails.addAll(messagesRecords
-            .filter { it.message.id == detailsMessage.id }
-            .flatMap { it.records!! }
-            .filter { it.userId != myId }
+        /* Adding a message record for the sender so that it can be sent to the adapter */
+        val senderMessageRecord = MessageRecords(
+            id = 0,
+            messageId = detailsMessage.id,
+            userId = detailsMessage.fromUserId!!,
+            type = Const.JsonFields.SENT,
+            reaction = null,
+            modifiedAt = detailsMessage.modifiedAt,
+            createdAt = detailsMessage.createdAt!!,
         )
 
-        val sortedMessageDetails = messageDetails.sortedByDescending { it.type }
-        detailsMessageAdapter.submitList(ArrayList(sortedMessageDetails))
-        messageDetails.clear()
+        /* In the messageDetails list, we save message records for a specific message,
+         remove reactions from those records(because we only need the seen and delivered types),
+         remove the sender from the seen/delivered list and sort the list so that first we see
+         seen and then delivered. */
+        val messageDetails =
+            messagesRecords.filter { it.message.id == detailsMessage.id }
+                .flatMap { it.records!! }
+                .filter { Const.JsonFields.REACTION != it.type }
+                .filter { it.userId != detailsMessage.fromUserId }
+                .sortedByDescending { it.type }
+                .toMutableList()
 
-        // Show sent at / edited at:
-        val simpleDateFormat = SimpleDateFormat("HH:mm, EEEE, MMM DD")
-        val dateTime =
-            getString(R.string.message_sent_at, simpleDateFormat.format(detailsMessage.createdAt))
-        bindingSetup.detailsAction.tvSentMsgTime.text = dateTime
+        /* Then we add the sender of the message to the first position of the messageDetails list
+        * so that we can display it in the RecyclerView */
+        messageDetails.add(0, senderMessageRecord)
 
-        if (detailsMessage.modifiedAt != detailsMessage.createdAt) {
-            bindingSetup.detailsAction.tvEditMsgTime.text = getString(
-                R.string.message_edited_at,
-                simpleDateFormat.format(detailsMessage.modifiedAt)
-            )
-            bindingSetup.detailsAction.tvEditMsgTime.visibility = View.VISIBLE
+        /* If the room type is a group and the current user is not the sender, remove it from the list.*/
+        if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && (senderId != localId)) {
+            val filteredMessageDetails =
+                messageDetails.filter { it.userId != localId }.toMutableList()
+            detailsMessageAdapter.submitList(ArrayList(filteredMessageDetails))
         } else {
-            bindingSetup.detailsAction.tvEditMsgTime.visibility = View.GONE
+            detailsMessageAdapter.submitList(ArrayList(messageDetails))
         }
     }
 
@@ -1205,14 +1213,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun sendMessage() {
-        try{
+        try {
             sendMessage(
                 messageFileType = Const.JsonFields.TEXT_TYPE,
                 0,
                 0,
                 unsentMessages[tempMessageCounter].localId!!
             )
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Timber.d("Send message exception: $e")
         }
     }

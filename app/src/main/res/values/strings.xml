@@ -1,12 +1,4 @@
 <resources>
-
-    <!-- Placeholders -->
-    <string name="country_code_placeholder">+385</string>
-    <string name="country_placeholder">Country Placeholder</string>
-    <string name="time_placeholder">02:00</string>
-    <string name="placeholder_number">1</string>
-    <string name="category_placeholder">A</string>
-
     <string name="spika">Spika</string>
     <string name="enter_number_to_use">Enter your phone number to start using Spika</string>
     <string name="phone_number">Phone number</string>
@@ -50,7 +42,6 @@
     <string name="documents">Documents</string>
     <string name="shared_media_links_and_docs">Shared Media, Links and Docs</string>
     <string name="chat_search">Chat Search</string>
-    <string name="notes">Notes</string>
     <string name="favourite_messages">Favourite Messages</string>
     <string name="mute">Mute</string>
     <string name="block">Block</string>
@@ -58,11 +49,7 @@
     <string name="gallery">Gallery</string>
     <string name="photo">Photo</string>
     <string name="type_here">Type here…</string>
-    <string name="no_messages_yet">No messages yet.</string>
-    <string name="some_message">Some message</string>
     <string name="picture_upload_failed">Picture upload failed.</string>
-    <string name="placeholder_title">Placeholder Title</string>
-    <string name="placeholder_description">Placeholder description</string>
     <string name="choose_from_gallery">Choose from gallery</string>
     <string name="take_photo">Take Photo</string>
     <string name="action">Action</string>
@@ -72,30 +59,18 @@
     <string name="image_failed_upload">Image could not be uploaded. Try again or continue without image. %s</string>
     <string name="ok">Ok</string>
     <string name="back">Back</string>
-    <string name="failed_user_data">Failed to load user data.</string>
-    <string name="failed_user_image">Failed to load user image.</string>
-    <string name="placeholder_time">2 min ago</string>
     <string name="no_username">No Username</string>
     <string name="channel_description">Spika App</string>
     <string name="timeout">00:00</string>
-    <string name="new_message">New message</string>
     <string name="done">Done</string>
-    <string name="new_group">New group</string>
-    <string name="new_group_chat">New group chat</string>
     <string name="users_selected">%s/100 selected</string>
     <string name="create">Create</string>
     <string name="new_chat">New chat</string>
     <string name="select_members">Select members</string>
-    <string name="name_the_group">Name the group</string>
     <string name="s_people_selected">%s people selected</string>
-    <string name="group_name">Group name…</string>
     <string name="number_of_members">%s Members</string>
-    <string name="exit_group">Exit group</string>
     <string name="exit">Exit</string>
-    <string name="report_group">Report group</string>
     <string name="info">Info</string>
-    <string name="make_group_admin">Make group admin</string>
-    <string name="admin">Admin</string>
     <string name="more_actions">More actions</string>
     <string name="files">Files</string>
     <string name="library">Library</string>
@@ -105,10 +80,35 @@
     <string name="files_mb_text"> MB</string>
     <string name="generic_shared">%s shared</string>
     <string name="now">Now</string>
-    <string name="new_messages">You have %s new message%s</string>
     <string name="media">%s</string>
     <string name="file">File</string>
     <string name="app_version">Version</string>
+
+    <!-- Placeholders -->
+    <string name="country_code_placeholder">+385</string>
+    <string name="country_placeholder">Country Placeholder</string>
+    <string name="time_placeholder">02:00</string>
+    <string name="placeholder_number">1</string>
+    <string name="category_placeholder">A</string>
+    <string name="placeholder_title">Placeholder Title</string>
+    <string name="placeholder_description">Placeholder description</string>
+    <string name="placeholder_time">2 min ago</string>
+
+    <!--Groups-->
+    <string name="new_group">New group</string>
+    <string name="new_group_chat">New group chat</string>
+    <string name="name_the_group">Name the group</string>
+    <string name="group_name">Group name…</string>
+    <string name="report_group">Report group</string>
+    <string name="exit_group">Exit group</string>
+    <string name="make_group_admin">Make group admin</string>
+    <string name="admin">Admin</string>
+
+    <!--Message text-->
+    <string name="new_message">New message</string>
+    <string name="new_messages">You have %s new message%s</string>
+    <string name="no_messages_yet">No messages yet.</string>
+    <string name="some_message">Some message</string>
 
     <!--Alert dialog text-->
     <string name="warning">Warning</string>
@@ -125,6 +125,8 @@
     <string name="no">No</string>
     <string name="room_delete_admin_error">Only admins can delete conversations.</string>
     <string name="room_exit">You can’t send messages to this group because you are no longer a participant</string>
+    <string name="failed_user_data">Failed to load user data.</string>
+    <string name="failed_user_image">Failed to load user image.</string>
 
     <!--Audio-->
     <string name="audio_duration">00:00</string>
@@ -150,31 +152,40 @@
     <string name="delete_for_me">Delete for me</string>
     <string name="save">Save</string>
     <string name="edited">edited</string>
+
+    <string name="enter_title">Enter title</string>
+    <string name="enter_description">Enter description</string>
+    <string name="zero_ninutes_ago">0 minutes ago</string>
+    <string name="registration_error">Registration error</string>
+    <string name="registration_error_description">There was an error while registering to the app.</string>
+    <string name="wrong_file_type">Wrong file type selected</string>
     <string name="failed_room_update">Failed to update room</string>
+
+    <!--Message details-->
     <string name="read_by">Read by</string>
     <string name="delivered_to">Delivered to</string>
     <string name="date">Date</string>
-    <string name="enter_title">Enter title</string>
-    <string name="enter_description">Enter description</string>
+    <string name="message_sent_at">Message sent at: %s</string>
+    <string name="message_edited_at">Message edited at: %s</string>
+    <string name="sender_actions">Sender actions</string>
+
+    <!--Notes-->
+    <string name="no_notes_here">No notes here!</string>
+    <string name="notes">Notes</string>
     <string name="note_error_toast">Please enter title and description</string>
     <string name="note_creation_failed">Failed to create note, please try again.</string>
     <string name="delete_note">Delete Note</string>
     <string name="delete_note_description">Are you sure you want to delete this note?</string>
-    <string name="blocked_users">Blocked Users</string>
-    <string name="unblock">Unblock</string>
+
+    <!--Block-->
     <string name="contact_blocked">You blocked this contact</string>
     <string name="block_user">Block user</string>
     <string name="block_user_description">Do you want to block this user?</string>
     <string name="unblock_user">Unblock user</string>
     <string name="unblock_description">Are you sure you want to unblock %s</string>
-    <string name="zero_ninutes_ago">0 minutes ago</string>
-    <string name="no_notes_here">No notes here!</string>
-    <string name="registration_error">Registration error</string>
-    <string name="registration_error_description">There was an error while registering to the app.</string>
+    <string name="blocked_users">Blocked Users</string>
+    <string name="unblock">Unblock</string>
     <string name="block_contact_description">Do you want to receive messages from this contact?</string>
-    <string name="message_sent_at">Message sent at: %s</string>
-    <string name="message_edited_at">Message edited at: %s</string>
-    <string name="wrong_file_type">Wrong file type selected</string>
 
     <!--Font weight-->
     <string name="five_hundred">500</string>

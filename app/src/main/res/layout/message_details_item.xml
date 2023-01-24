@@ -3,15 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:ignore="contentDescription">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv_user_avatar"
         android:layout_width="@dimen/thirty_five_dp"
         android:layout_height="@dimen/thirty_five_dp"
-        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:layout_marginStart="@dimen/twenty_dp_margin"
         android:layout_marginTop="@dimen/sixteen_dp_margin"
-        android:layout_marginBottom="@dimen/four_dp_margin"
+        android:layout_marginBottom="@dimen/eight_dp_margin"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,47 +24,96 @@
         android:id="@+id/tv_seen_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/eight_dp_margin"
-        android:text="@string/username"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
         android:fontFamily="@font/montserrat"
-        android:textSize="@dimen/twelve_sp_text"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_user_avatar"
+        android:text="@string/username"
+        android:textFontWeight="@string/five_hundred"
+        android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintStart_toEndOf="@+id/iv_user_avatar"
         app:layout_constraintTop_toTopOf="@+id/iv_user_avatar" />
-
-    <TextView
-        android:id="@+id/tv_seen_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/sixteen_dp_margin"
-        android:fontFamily="@font/montserrat"
-        android:text="@string/date"
-        android:textSize="@dimen/twelve_sp_text"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_seen_username"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tv_seen_username" />
 
     <TextView
         android:id="@+id/tv_details_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sixteen_dp_margin"
-        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:layout_marginStart="@dimen/eight_dp_margin"
+        android:layout_marginTop="@dimen/two_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/read_by"
-        android:textSize="@dimen/sixteen_sp_text"
+        android:textSize="@dimen/twelve_sp_text"
         android:visibility="visible"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_message_state"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/iv_message_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:layout_marginStart="@dimen/twenty_dp_margin"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/tv_details_header"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_details_header"
         app:srcCompat="@drawable/img_seen" />
+
+    <TextView
+        android:id="@+id/tv_cto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:layout_marginTop="@dimen/two_dp_margin"
+        android:visibility="gone"
+        android:textSize="@dimen/twelve_sp_text"
+        app:layout_constraintStart_toEndOf="@+id/iv_user_avatar"
+        app:layout_constraintTop_toBottomOf="@+id/tv_seen_username" />
+
+    <TextView
+        android:id="@+id/tv_user_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/twenty_dp_margin"
+        android:drawablePadding="@dimen/two_dp_margin"
+        android:fontFamily="@font/montserrat"
+        android:textSize="@dimen/twelve_sp_text"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_seen_username"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_seen_username" />
+
+    <TextView
+        android:id="@+id/tv_edited_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/four_dp_margin"
+        android:drawablePadding="@dimen/two_dp_margin"
+        android:fontFamily="@font/montserrat"
+        android:textSize="@dimen/twelve_sp_text"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_edited_time"
+        app:layout_constraintEnd_toStartOf="@+id/iv_edited_time"
+        app:layout_constraintStart_toStartOf="@+id/tv_user_time"
+        app:layout_constraintTop_toTopOf="@+id/iv_edited_time" />
+
+    <ImageView
+        android:id="@+id/iv_edited_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ten_dp_margin"
+        android:layout_marginEnd="@dimen/twenty_dp_margin"
+        android:layout_marginBottom="@dimen/four_dp_margin"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_user_time"
+        app:srcCompat="@drawable/img_edited_gray" />
+
+    <ImageView
+        android:id="@+id/iv_no_edited_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/thirty_five_dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_edited_time"
+        app:layout_constraintEnd_toStartOf="@+id/iv_edited_time"
+        app:layout_constraintTop_toTopOf="@+id/iv_edited_time"
+        app:srcCompat="@drawable/img_no_edit" />
 </androidx.constraintlayout.widget.ConstraintLayout>
