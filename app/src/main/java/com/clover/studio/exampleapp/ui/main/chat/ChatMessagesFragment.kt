@@ -1045,14 +1045,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val bottomSheetBehaviorCallbackReactionDetails =
             object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    // TODO ask Matko if this is necessary
-                    if (slideOffset < 0.3) {
-                        bindingSetup.vTransparent.visibility = View.GONE
-                    }
-
-                    if (slideOffset > 0.3) {
-                        bindingSetup.vTransparent.visibility = View.VISIBLE
-                    }
+                    // Ignore
                 }
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
