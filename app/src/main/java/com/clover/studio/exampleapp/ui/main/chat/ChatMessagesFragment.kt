@@ -17,10 +17,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
+import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
@@ -38,6 +40,7 @@ import com.clover.studio.exampleapp.data.models.entity.*
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
+import com.clover.studio.exampleapp.ui.ReactionContainer
 import com.clover.studio.exampleapp.ui.ReactionsContainer
 import com.clover.studio.exampleapp.ui.main.BlockedUsersFetchFailed
 import com.clover.studio.exampleapp.ui.main.BlockedUsersFetched
@@ -70,7 +73,7 @@ private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
 
 enum class UploadMimeTypes {
-    IMAGE, VIDEO, FILE, MESSAGE
+    IMAGE, VIDEO,
 }
 
 @AndroidEntryPoint
@@ -184,6 +187,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             checkStoragePermission()
             setUpAdapter()
             setUpMessageDetailsAdapter()
+            setUpMessageReactionAdapter()
             initializeObservers()
             checkIsUserAdmin()
         }
@@ -197,7 +201,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.tvChatName.text = userName
         Glide.with(this)
             .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-            .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
+            .placeholder(AppCompatResources.getDrawable(requireContext(), R.drawable.img_user_placeholder))
             .into(bindingSetup.ivUserImage)
     }
 
@@ -549,19 +553,56 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.updateRoomVisitedTimestamp(System.currentTimeMillis(), roomWithUsers.room.roomId)
     }
 
-    private fun handleShowReactions(message: MessageAndRecords) {
+    private fun handleShowReactions(messageRecords: MessageAndRecords) {
         bindingSetup.vTransparent.visibility = View.VISIBLE
         bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_EXPANDED
+        bindingSetup.reactionsDetails.tvAllReactions.setBackgroundResource(R.drawable.bg_message_received)
 
-        setUpMessageReactionAdapter()
+        val reactionsList = messageRecords.records!!.filter { it.reaction != null }
+            .sortedByDescending { it.createdAt }
+        // Default view - all reactions:
+        messageReactionAdapter.submitList(reactionsList)
 
-        // A temporary solution until we come up with a better way to store message records in the database
-        // With this, we search in the list if there are reactions, sort them by the time of creation, and get one reaction for each user
-        val reactionList =
-            message.records?.filter { it.reaction != null }!!.sortedByDescending { it.createdAt }
-                .distinctBy { it.userId }
-        messageReactionAdapter.submitList(reactionList)
+        // Group same reactions
+        val reactionList = reactionsList.groupBy { it.reaction }.mapValues { it.value.size }
 
+        // Add reaction views:
+        if (reactionList.isNotEmpty()) {
+            for (reaction in reactionList) {
+                val reactionView = ReactionContainer(
+                    requireActivity(),
+                    null,
+                    reaction.key.toString(),
+                    reaction.value.toString()
+                )
+                bindingSetup.reactionsDetails.llReactions.addView(reactionView)
+            }
+        }
+
+        // Set listeners to reaction views and submit new, filtered list of reactions to adapter
+        var currentlySelectedTextView: View? = null
+
+        for (child in bindingSetup.reactionsDetails.llReactions.children) {
+            child.setOnClickListener { view ->
+                // Remove / add backgrounds for views
+                if (view != currentlySelectedTextView) {
+                    currentlySelectedTextView?.background = null
+                    view.setBackgroundResource(R.drawable.bg_message_received)
+                    currentlySelectedTextView = view
+                }
+
+                val childIndex = bindingSetup.reactionsDetails.llReactions.indexOfChild(view)
+                if (childIndex == 0) {
+                    messageReactionAdapter.submitList(reactionsList)
+                } else {
+                    bindingSetup.reactionsDetails.tvAllReactions.background = null
+                    val reactionView: ReactionContainer =
+                        bindingSetup.reactionsDetails.llReactions.getChildAt(childIndex) as ReactionContainer
+                    val reactionText = reactionView.showReaction()
+                    messageReactionAdapter.submitList(reactionsList.filter { it.reaction == reactionText })
+                }
+            }
+        }
     }
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
@@ -1001,11 +1042,34 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
 
+        val bottomSheetBehaviorCallbackReactionDetails =
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    // Ignore
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                        bindingSetup.vTransparent.visibility = View.GONE
+                        val childNUmber = bindingSetup.reactionsDetails.llReactions.childCount
+                        if (childNUmber != 0) {
+                            bindingSetup.reactionsDetails.llReactions.removeViews(
+                                1,
+                                childNUmber - 1
+                            )
+                        }
+                    }
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                        bindingSetup.vTransparent.visibility = View.VISIBLE
+                    }
+                }
+            }
+
         bottomSheetMessageActions.addBottomSheetCallback(bottomSheetBehaviorCallbackMessageAction)
         bottomSheetDetailsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
         bottomSheetBehaviour.addBottomSheetCallback(bottomSheetBehaviorCallback)
         bottomSheetReplyAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
-        bottomSheetReactionsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
+        bottomSheetReactionsAction.addBottomSheetCallback(bottomSheetBehaviorCallbackReactionDetails)
     }
 
     private fun resetEditingFields() {
@@ -1072,10 +1136,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         replyId = message.id.toLong()
         if (message.senderMessage) {
             bindingSetup.replyAction.clReplyContainer.background =
-                context!!.getDrawable(R.drawable.bg_message_user)
+                AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_user)
         } else {
             bindingSetup.replyAction.clReplyContainer.background =
-                context!!.getDrawable(R.drawable.bg_message_received)
+                AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_received)
         }
 
         for (user in roomWithUsers.users) {
@@ -1310,6 +1374,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
+
+        inputStream.close()
     }
 
     /**
@@ -1451,6 +1517,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             fileStream,
             fileType
         )
+
+        inputStream.close()
     }
 
     /**
@@ -1502,6 +1570,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             fileStream,
             isThumbnail
         )
+
+        inputStream.close()
     }
 
     /**
@@ -1783,6 +1853,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_COLLAPSED
         viewModel.getBlockedUsersList()
     }
 

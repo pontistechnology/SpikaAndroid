@@ -168,6 +168,7 @@
     <string name="message_sent_at">Message sent at: %s</string>
     <string name="message_edited_at">Message edited at: %s</string>
     <string name="sender_actions">Sender actions</string>
+    <string name="all">ALL</string>
 
     <!--Notes-->
     <string name="no_notes_here">No notes here!</string>
