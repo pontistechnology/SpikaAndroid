@@ -167,6 +167,22 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun pinRoom(roomId: Int) {
+        val response = chatService.pinRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+
+        if (Const.JsonFields.SUCCESS == response.status) {
+            roomDao.updateRoomPinned(true, roomId)
+        }
+    }
+
+    override suspend fun unpinRoom(roomId: Int) {
+        val response = chatService.pinRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+
+        if (Const.JsonFields.SUCCESS == response.status) {
+            roomDao.updateRoomPinned(false, roomId)
+        }
+    }
+
     override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
         roomDao.getSingleRoomData(roomId)
 
@@ -250,6 +266,8 @@ interface ChatRepository {
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
     suspend fun muteRoom(roomId: Int)
     suspend fun unmuteRoom(roomId: Int)
+    suspend fun pinRoom(roomId: Int)
+    suspend fun unpinRoom(roomId: Int)
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords>
     suspend fun deleteRoom(roomId: Int)

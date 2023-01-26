@@ -57,6 +57,10 @@ class RoomsAdapter(
                     binding.ivMuted.visibility = View.VISIBLE
                 } else binding.ivMuted.visibility = View.GONE
 
+                if (roomItem.roomWithUsers.room.pinned) {
+                    binding.ivPinned.visibility = View.VISIBLE
+                } else binding.ivPinned.visibility = View.GONE
+
                 if (avatarFileId != 0L) {
                     Glide.with(context)
                         .load(Tools.getFilePathUrl(avatarFileId))

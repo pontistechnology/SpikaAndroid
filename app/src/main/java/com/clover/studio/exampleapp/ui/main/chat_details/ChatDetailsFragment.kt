@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
+import android.widget.CompoundButton.OnCheckedChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -84,7 +86,11 @@ class ChatDetailsFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(requireActivity(), currentPhotoLocation, false)
+                    Tools.handleSamplingAndRotationBitmap(
+                        requireActivity(),
+                        currentPhotoLocation,
+                        false
+                    )
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap).into(binding.ivPickAvatar)
@@ -166,6 +172,9 @@ class ChatDetailsFragment : BaseFragment() {
 
         // Set room muted or not muted on switch
         binding.swMute.isChecked = roomWithUsers.room.muted
+
+        // Set room pinned or not pinned on switch
+        binding.swPinChat.isChecked = roomWithUsers.room.pinned
 
         setAvatarAndUsername(avatarFileId, userName)
         initializeListeners(roomWithUsers)
@@ -254,16 +263,9 @@ class ChatDetailsFragment : BaseFragment() {
 
         }
 
-        binding.swMute.setOnCheckedChangeListener { compoundButton, isChecked ->
-            // Check if user event or set programmatically.
-            if (compoundButton.isPressed) {
-                if (isChecked) {
-                    muteRoom()
-                } else {
-                    unmuteRoom()
-                }
-            }
-        }
+        binding.swMute.setOnCheckedChangeListener(multiListener)
+
+        binding.swPinChat.setOnCheckedChangeListener(multiListener)
 
         // Rooms can only be deleted by room admins.
         binding.tvDelete.setOnClickListener {
@@ -327,6 +329,28 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
     }
+
+    private val multiListener: OnCheckedChangeListener =
+        OnCheckedChangeListener { buttonView, isChecked -> when (buttonView.id) {
+            binding.swPinChat.id -> {
+                if (buttonView.isPressed) {
+                    if (isChecked) {
+                        pinRoom()
+                    } else {
+                        unpinRoom()
+                    }
+                }
+            }
+            binding.swMute.id -> {
+                if (buttonView.isPressed) {
+                    if (isChecked) {
+                        muteRoom()
+                    } else {
+                        unmuteRoom()
+                    }
+                }
+            }
+        } }
 
     private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
         if (avatarFileId != 0L) {
@@ -451,6 +475,14 @@ class ChatDetailsFragment : BaseFragment() {
 
     private fun unmuteRoom() {
         roomId?.let { viewModel.unmuteRoom(it) }
+    }
+
+    private fun pinRoom() {
+        roomId?.let { viewModel.pinRoom(it) }
+    }
+
+    private fun unpinRoom() {
+        roomId?.let { viewModel.unpinRoom(it) }
     }
 
     private fun updateRoomUserList(roomWithUsers: RoomWithUsers) {

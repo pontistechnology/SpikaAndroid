@@ -34,6 +34,9 @@ interface ChatRoomDao {
     @Query("UPDATE room SET muted = :muted WHERE room_id LIKE :roomId")
     suspend fun updateRoomMuted(muted: Boolean, roomId: Int)
 
+    @Query("UPDATE room SET pinned = :pinned WHERE room_id LIKE :roomId")
+    suspend fun updateRoomPinned(pinned: Boolean, roomId: Int)
+
     @Query("UPDATE room SET visited_room =:visitedRoom WHERE room_id LIKE :roomId")
     suspend fun updateRoomVisited(visitedRoom: Long, roomId: Int)
 

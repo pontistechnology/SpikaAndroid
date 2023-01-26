@@ -25,10 +25,10 @@ import timber.log.Timber
 class RoomsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var roomsAdapter: RoomsAdapter
-    private var roomList: List<RoomAndMessageAndRecords> = mutableListOf()
+    private var roomList: MutableList<RoomAndMessageAndRecords> = mutableListOf()
     private var nonEmptyRoomList: MutableList<RoomAndMessageAndRecords> = mutableListOf()
     private var filteredList: MutableList<RoomAndMessageAndRecords> = ArrayList()
-    private var sortedList: List<RoomAndMessageAndRecords> = ArrayList()
+    private var sortedList: MutableList<RoomAndMessageAndRecords> = ArrayList()
     private var bindingSetup: FragmentChatBinding? = null
 
     private val binding get() = bindingSetup!!
@@ -117,30 +117,29 @@ class RoomsFragment : BaseFragment() {
                 for (roomData in it) {
                     Timber.d("Room Data ${roomData.roomWithUsers.room.roomId}, ${roomData.roomWithUsers.room.name}")
                 }
-                roomList = it
-                nonEmptyRoomList = roomList.toMutableList()
-                roomList.forEach { roomItem ->
-                    if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
-                        if (roomItem.message.isNullOrEmpty()) {
-                            nonEmptyRoomList.remove(roomItem)
-                        }
-                    }
+                roomList = it.toMutableList()
+                val nonEmptyRoomList = it.filter { roomData ->
+                    Const.JsonFields.GROUP == roomData.roomWithUsers.room.type || roomData.message?.isNotEmpty() == true
                 }
-                Timber.d("${System.currentTimeMillis()}")
+
+                val pinnedRooms = roomList.filter { roomItem -> roomItem.roomWithUsers.room.pinned }
+                    .sortedBy { pinnedRoom -> pinnedRoom.roomWithUsers.room.name }
+
                 try {
                     sortedList =
                         nonEmptyRoomList.sortedWith(compareBy(nullsFirst()) { roomItem ->
                             if (!roomItem.message.isNullOrEmpty()) {
                                 roomItem.message.last { message -> message.message.createdAt != null }.message.createdAt
                             } else null
-                        }).reversed()
+                        }).reversed().toMutableList()
                 } catch (ex: Exception) {
                     Tools.checkError(ex)
                 }
 
                 if (sortedList.isEmpty()) {
-                    sortedList = it
+                    sortedList = it.toMutableList()
                 }
+                sortedList = (pinnedRooms + (sortedList - pinnedRooms.toSet())).toMutableList()
                 roomsAdapter.submitList(sortedList)
             }
         }

@@ -218,6 +218,28 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun pinRoom(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.pinRoom(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun unpinRoom(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.unpinRoom(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
     fun sendReaction(jsonObject: JsonObject) = viewModelScope.launch {
         try {
             repository.sendReaction(jsonObject)
