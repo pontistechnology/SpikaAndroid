@@ -201,7 +201,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.tvChatName.text = userName
         Glide.with(this)
             .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-            .placeholder(AppCompatResources.getDrawable(context!!, R.drawable.img_user_placeholder))
+            .placeholder(AppCompatResources.getDrawable(requireContext(), R.drawable.img_user_placeholder))
             .into(bindingSetup.ivUserImage)
     }
 
@@ -570,7 +570,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (reactionList.isNotEmpty()) {
             for (reaction in reactionList) {
                 val reactionView = ReactionContainer(
-                    activity!!,
+                    requireActivity(),
                     null,
                     reaction.key.toString(),
                     reaction.value.toString()
@@ -1136,10 +1136,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         replyId = message.id.toLong()
         if (message.senderMessage) {
             bindingSetup.replyAction.clReplyContainer.background =
-                AppCompatResources.getDrawable(context!!, R.drawable.bg_message_user)
+                AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_user)
         } else {
             bindingSetup.replyAction.clReplyContainer.background =
-                AppCompatResources.getDrawable(context!!, R.drawable.bg_message_received)
+                AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_received)
         }
 
         for (user in roomWithUsers.users) {
