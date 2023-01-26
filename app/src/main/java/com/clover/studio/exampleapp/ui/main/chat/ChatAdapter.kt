@@ -19,6 +19,7 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -141,18 +142,15 @@ class ChatAdapter(
                             // ignore
                         }
 
-                        holder.binding.tvMessage.setOnTouchListener { _, motionEvent ->
-                            if (motionEvent.action ==  MotionEvent.ACTION_UP){
-                                if (holder.binding.tvTime.visibility == View.GONE) {
-                                    holder.binding.tvTime.visibility = View.VISIBLE
-                                    val simpleDateFormat = SimpleDateFormat("HH:mm")
-                                    val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
-                                    holder.binding.tvTime.text = dateTime
-                                } else {
-                                    holder.binding.tvTime.visibility = View.GONE
-                                }
+                        holder.binding.tvMessage.setOnClickListener {
+                            if (holder.binding.tvTime.visibility == View.GONE) {
+                                holder.binding.tvTime.visibility = View.VISIBLE
+                                val simpleDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                                val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
+                                holder.binding.tvTime.text = dateTime
+                            } else {
+                                holder.binding.tvTime.visibility = View.GONE
                             }
-                            true
                         }
 
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
@@ -610,18 +608,15 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        holder.binding.tvMessage.setOnTouchListener { _, motionEvent ->
-                            if (motionEvent.action ==  MotionEvent.ACTION_UP){
-                                if (holder.binding.tvTime.visibility == View.GONE) {
-                                    holder.binding.tvTime.visibility = View.VISIBLE
-                                    val simpleDateFormat = SimpleDateFormat("HH:mm")
-                                    val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
-                                    holder.binding.tvTime.text = dateTime
-                                } else {
-                                    holder.binding.tvTime.visibility = View.GONE
-                                }
+                        holder.binding.tvMessage.setOnClickListener {
+                            if (holder.binding.tvTime.visibility == View.GONE) {
+                                holder.binding.tvTime.visibility = View.VISIBLE
+                                val simpleDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                                val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
+                                holder.binding.tvTime.text = dateTime
+                            } else {
+                                holder.binding.tvTime.visibility = View.GONE
                             }
-                            true
                         }
 
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
@@ -965,7 +960,7 @@ class ChatAdapter(
                                         fileId
                                     )
                                 })
-                                .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                                .placeholder(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
                                 .into(holder.binding.ivUserImage)
                             break
                         }

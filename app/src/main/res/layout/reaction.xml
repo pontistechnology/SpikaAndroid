@@ -22,7 +22,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/two_dp_margin"
         android:layout_marginEnd="@dimen/eight_dp_margin"
-        android:textColor="@color/text_primary"
         app:layout_constraintBottom_toBottomOf="@+id/tv_reaction"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tv_reaction"
