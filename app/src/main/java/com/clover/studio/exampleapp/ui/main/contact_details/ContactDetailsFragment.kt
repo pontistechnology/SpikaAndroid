@@ -28,6 +28,8 @@ class ContactDetailsFragment : BaseFragment() {
 
     private var user: User? = null
 
+    private var roomId = 0
+
     private var bindingSetup: FragmentContactDetailsBinding? = null
 
     private val binding get() = bindingSetup!!
@@ -53,6 +55,7 @@ class ContactDetailsFragment : BaseFragment() {
             Timber.d("Failed to fetch user data")
         } else {
             user = requireArguments().getParcelable(Const.Navigation.USER_PROFILE)
+            roomId = requireArguments().getInt(Const.Navigation.ROOM_ID)
         }
     }
 
@@ -69,6 +72,16 @@ class ContactDetailsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
+        viewModel.getRoomByIdLiveData(roomId).observe(viewLifecycleOwner) { room ->
+            if (room != null) {
+                // Set room muted or not muted on switch
+                binding.swMute.isChecked = room.muted
+
+                // Set room pinned or not pinned on switch
+                binding.swPinChat.isChecked = room.pinned
+            }
+        }
+
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is RoomWithUsersFetched -> {

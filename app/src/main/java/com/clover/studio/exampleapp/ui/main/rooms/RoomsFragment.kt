@@ -12,11 +12,8 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.FragmentChatBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
-import com.clover.studio.exampleapp.ui.main.RoomFetchFail
-import com.clover.studio.exampleapp.ui.main.RoomsFetched
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.gson.Gson
@@ -26,7 +23,6 @@ class RoomsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var roomsAdapter: RoomsAdapter
     private var roomList: MutableList<RoomAndMessageAndRecords> = mutableListOf()
-    private var nonEmptyRoomList: MutableList<RoomAndMessageAndRecords> = mutableListOf()
     private var filteredList: MutableList<RoomAndMessageAndRecords> = ArrayList()
     private var sortedList: MutableList<RoomAndMessageAndRecords> = ArrayList()
     private var bindingSetup: FragmentChatBinding? = null
@@ -103,14 +99,6 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.roomsListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                RoomFetchFail -> Timber.d("Failed to fetch rooms")
-                RoomsFetched -> Timber.d("Rooms fetched successfully")
-                else -> Timber.d("Other error")
-            }
-        })
-
         viewModel.getChatRoomAndMessageAndRecords().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 binding.tvNoChats.visibility = View.GONE

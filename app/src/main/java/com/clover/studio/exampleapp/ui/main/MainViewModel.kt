@@ -9,7 +9,6 @@ import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
-import com.clover.studio.exampleapp.data.models.networking.responses.Settings
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
@@ -32,7 +31,6 @@ class MainViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     val usersListener = MutableLiveData<Event<MainStates>>()
-    val roomsListener = MutableLiveData<Event<MainStates>>()
     val checkRoomExistsListener = MutableLiveData<Event<MainStates>>()
     val createRoomListener = MutableLiveData<Event<MainStates>>()
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
@@ -107,6 +105,10 @@ class MainViewModel @Inject constructor(
 
     fun getChatRoomAndMessageAndRecords() = liveData {
         emitSource(repository.getChatRoomAndMessageAndRecords())
+    }
+
+    fun getRoomByIdLiveData(roomId: Int) = liveData {
+        emitSource(repository.getRoomByIdLiveData(roomId))
     }
 
     fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
@@ -268,8 +270,6 @@ class MainViewModel @Inject constructor(
 sealed class MainStates
 object UsersFetched : MainStates()
 object UsersError : MainStates()
-object RoomsFetched : MainStates()
-object RoomFetchFail : MainStates()
 class RoomCreated(val roomData: ChatRoom) : MainStates()
 class RoomUpdated(val roomData: ChatRoom) : MainStates()
 object RoomCreateFailed : MainStates()
@@ -283,7 +283,5 @@ object RoomWithUsersFailed : MainStates()
 class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : MainStates()
 class SingleRoomData(val roomData: RoomAndMessageAndRecords) : MainStates()
 object SingleRoomFetchFailed : MainStates()
-class UserSettingsFetched(val settings: List<Settings>) : MainStates()
-object UserSettingsFetchFailed : MainStates()
 class BlockedUsersFetched(val users: List<User>) : MainStates()
 object BlockedUsersFetchFailed : MainStates()

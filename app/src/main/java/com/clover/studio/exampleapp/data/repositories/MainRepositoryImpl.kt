@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.UserDao
+import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
@@ -30,11 +31,18 @@ class MainRepositoryImpl @Inject constructor(
     private val appDatabase: AppDatabase,
     private val sharedPrefs: SharedPreferencesRepository
 ) : MainRepository {
+
+    override suspend fun getUserRooms(): List<ChatRoom>? =
+        retrofitService.fetchAllUserRooms(getHeaderMap(sharedPrefs.readToken())).data?.list
+
     override suspend fun getUserByID(id: Int) =
         userDao.getUserById(id)
 
     override suspend fun getRoomById(userId: Int) =
         retrofitService.getRoomById(getHeaderMap(sharedPrefs.readToken()), userId)
+
+    override suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom> =
+        chatRoomDao.getRoomByIdLiveData(roomId)
 
     override suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse {
         val response =
@@ -71,6 +79,9 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
         chatRoomDao.getChatRoomAndMessageAndRecords()
+
+    override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
+        chatRoomDao.getRoomAndUsersLiveData(roomId)
 
     override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
         chatRoomDao.getSingleRoomData(roomId)
@@ -181,11 +192,14 @@ class MainRepositoryImpl @Inject constructor(
 }
 
 interface MainRepository {
+    suspend fun getUserRooms(): List<ChatRoom>?
     suspend fun getUserByID(id: Int): LiveData<User>
     suspend fun getRoomById(userId: Int): RoomResponse
+    suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
     suspend fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>>
     suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
+    suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
     suspend fun updatePushToken(jsonObject: JsonObject)

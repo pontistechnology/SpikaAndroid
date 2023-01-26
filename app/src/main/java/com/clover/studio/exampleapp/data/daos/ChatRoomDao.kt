@@ -22,11 +22,11 @@ interface ChatRoomDao {
     @Query("SELECT * FROM room")
     fun getRooms(): LiveData<List<ChatRoom>>
 
-    @Query("SELECT * FROM room")
-    suspend fun getRoomsLocally(): List<ChatRoom>
-
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getRoomById(roomId: Int): ChatRoom
+
+    @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
+    fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
 
     @Delete
     suspend fun deleteRoom(chatRoom: ChatRoom)
