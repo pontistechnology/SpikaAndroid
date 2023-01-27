@@ -265,6 +265,50 @@ class MainViewModel @Inject constructor(
             return@launch
         }
     }
+
+    fun muteRoom(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.muteRoom(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun unmuteRoom(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.unmuteRoom(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun pinRoom(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.pinRoom(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
+
+    fun unpinRoom(roomId: Int) = viewModelScope.launch {
+        try {
+            repository.unpinRoom(roomId)
+        } catch (ex: Exception) {
+            if (Tools.checkError(ex)) {
+                setTokenExpiredTrue()
+            }
+            return@launch
+        }
+    }
 }
 
 sealed class MainStates

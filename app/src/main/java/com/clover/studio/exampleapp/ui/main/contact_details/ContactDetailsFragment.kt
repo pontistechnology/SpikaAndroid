@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
@@ -215,6 +216,10 @@ class ContactDetailsFragment : BaseFragment() {
                     })
             }
         }
+
+        binding.swMute.setOnCheckedChangeListener(multiListener)
+
+        binding.swPinChat.setOnCheckedChangeListener(multiListener)
     }
 
     override fun onResume() {
@@ -225,5 +230,45 @@ class ContactDetailsFragment : BaseFragment() {
     override fun onDestroy() {
         super.onDestroy()
         viewModel.unregisterSharedPrefsReceiver()
+    }
+
+    private val multiListener: CompoundButton.OnCheckedChangeListener =
+        CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            when (buttonView.id) {
+                binding.swPinChat.id -> {
+                    if (buttonView.isPressed) {
+                        if (isChecked) {
+                            pinRoom()
+                        } else {
+                            unpinRoom()
+                        }
+                    }
+                }
+                binding.swMute.id -> {
+                    if (buttonView.isPressed) {
+                        if (isChecked) {
+                            muteRoom()
+                        } else {
+                            unmuteRoom()
+                        }
+                    }
+                }
+            }
+        }
+
+    private fun muteRoom() {
+        roomId.let { viewModel.muteRoom(it) }
+    }
+
+    private fun unmuteRoom() {
+        roomId.let { viewModel.unmuteRoom(it) }
+    }
+
+    private fun pinRoom() {
+        roomId.let { viewModel.pinRoom(it) }
+    }
+
+    private fun unpinRoom() {
+        roomId.let { viewModel.unpinRoom(it) }
     }
 }

@@ -189,6 +189,38 @@ class MainRepositoryImpl @Inject constructor(
             sharedPrefs.writeBlockedUsersIds(updatedList)
         }
     }
+
+    override suspend fun muteRoom(roomId: Int) {
+        val response = retrofitService.muteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+
+        if (Const.JsonFields.SUCCESS == response.status) {
+            chatRoomDao.updateRoomMuted(true, roomId)
+        }
+    }
+
+    override suspend fun unmuteRoom(roomId: Int) {
+        val response = retrofitService.unmuteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+
+        if (Const.JsonFields.SUCCESS == response.status) {
+            chatRoomDao.updateRoomMuted(false, roomId)
+        }
+    }
+
+    override suspend fun pinRoom(roomId: Int) {
+        val response = retrofitService.pinRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+
+        if (Const.JsonFields.SUCCESS == response.status) {
+            chatRoomDao.updateRoomPinned(true, roomId)
+        }
+    }
+
+    override suspend fun unpinRoom(roomId: Int) {
+        val response = retrofitService.unpinRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+
+        if (Const.JsonFields.SUCCESS == response.status) {
+            chatRoomDao.updateRoomPinned(false, roomId)
+        }
+    }
 }
 
 interface MainRepository {
@@ -208,6 +240,10 @@ interface MainRepository {
     suspend fun verifyFile(jsonObject: JsonObject): FileResponse
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse
     suspend fun getUserSettings(): List<Settings>
+    suspend fun muteRoom(roomId: Int)
+    suspend fun unmuteRoom(roomId: Int)
+    suspend fun pinRoom(roomId: Int)
+    suspend fun unpinRoom(roomId: Int)
 
     // Block
     suspend fun getBlockedList()

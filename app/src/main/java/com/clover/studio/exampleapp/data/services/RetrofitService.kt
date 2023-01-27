@@ -31,6 +31,30 @@ interface RetrofitService {
     suspend fun fetchAllUserRooms(
         @HeaderMap headers: Map<String, String?>
     ): RoomResponse
+
+    @POST(Const.Networking.API_MUTE_ROOM)
+    suspend fun muteRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): MuteResponse
+
+    @POST(Const.Networking.API_UNMUTE_ROOM)
+    suspend fun unmuteRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): MuteResponse
+
+    @POST(Const.Networking.API_PIN_ROOM)
+    suspend fun pinRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): RoomResponse
+
+    @POST(Const.Networking.API_UNPIN_ROOM)
+    suspend fun unpinRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): RoomResponse
     // End Room section
 
 

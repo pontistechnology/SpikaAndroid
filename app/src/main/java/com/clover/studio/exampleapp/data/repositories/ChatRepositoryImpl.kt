@@ -176,7 +176,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun unpinRoom(roomId: Int) {
-        val response = chatService.pinRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+        val response = chatService.unpinRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
         if (Const.JsonFields.SUCCESS == response.status) {
             roomDao.updateRoomPinned(false, roomId)
