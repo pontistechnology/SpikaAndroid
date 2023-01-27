@@ -329,6 +329,7 @@ class ChatDetailsFragment : BaseFragment() {
         }
     }
 
+    // Listener which handles switch events and sends event to specific switch
     private val multiListener: OnCheckedChangeListener =
         OnCheckedChangeListener { buttonView, isChecked ->
             when (buttonView.id) {

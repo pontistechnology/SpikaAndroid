@@ -194,6 +194,12 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    /**
+     * This method handles mute/unmute of room depending on the data sent to it.
+     *
+     * @param roomId The room id to be muted in Int.
+     * @param doMute Boolean which decides if the room should be muted or unmuted
+     */
     fun handleRoomMute(roomId: Int, doMute: Boolean) = viewModelScope.launch {
         try {
             repository.handleRoomMute(roomId, doMute)
@@ -205,6 +211,12 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    /**
+     * This method handles pin/unpin of room depending on the data sent to it.
+     *
+     * @param roomId The room id to be muted in Int.
+     * @param doPin Boolean which decides if the room should be pinned or unpinned
+     */
     fun handleRoomPin(roomId: Int, doPin: Boolean) = viewModelScope.launch {
         try {
             repository.handleRoomPin(roomId, doPin)

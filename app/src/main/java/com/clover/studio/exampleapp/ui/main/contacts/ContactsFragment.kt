@@ -67,6 +67,9 @@ class ContactsFragment : BaseFragment() {
             }
         }
 
+        // Listener will check if the selected user has a room open with you. If he does
+        // the method will send the user to the room with the roomId which is required to
+        // handle mute and pin logic. If the user has no room open the roomId will be 0
         viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is RoomExists -> {

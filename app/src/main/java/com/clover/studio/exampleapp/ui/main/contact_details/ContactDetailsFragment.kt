@@ -217,11 +217,21 @@ class ContactDetailsFragment : BaseFragment() {
             }
         }
 
+        // Check if private room with user exists. Hide pin and mute layouts if no room exists
+        if (roomId == 0) {
+            binding.clMute.visibility = View.GONE
+            binding.clPinChat.visibility = View.GONE
+        } else {
+            binding.clMute.visibility = View.VISIBLE
+            binding.clPinChat.visibility = View.VISIBLE
+        }
+
         binding.swMute.setOnCheckedChangeListener(multiListener)
 
         binding.swPinChat.setOnCheckedChangeListener(multiListener)
     }
 
+    // Listener which handles switch events and sends event to specific switch
     private val multiListener: CompoundButton.OnCheckedChangeListener =
         CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
             when (buttonView.id) {

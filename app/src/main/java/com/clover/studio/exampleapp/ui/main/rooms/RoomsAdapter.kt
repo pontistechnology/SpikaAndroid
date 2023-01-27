@@ -53,10 +53,12 @@ class RoomsAdapter(
                 }
                 binding.tvRoomName.text = userName
 
+                // Check if room is muted and add mute icon to the room item
                 if (roomItem.roomWithUsers.room.muted) {
                     binding.ivMuted.visibility = View.VISIBLE
                 } else binding.ivMuted.visibility = View.GONE
 
+                // Check if room is pinned and add pin icon to the room item
                 if (roomItem.roomWithUsers.room.pinned) {
                     binding.ivPinned.visibility = View.VISIBLE
                 } else binding.ivPinned.visibility = View.GONE
