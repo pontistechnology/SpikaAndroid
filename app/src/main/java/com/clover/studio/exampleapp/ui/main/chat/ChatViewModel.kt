@@ -7,10 +7,8 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.entity.Message
-import com.clover.studio.exampleapp.data.models.entity.Note
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
-import com.clover.studio.exampleapp.data.models.networking.responses.Settings
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
@@ -196,9 +194,9 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun muteRoom(roomId: Int) = viewModelScope.launch {
+    fun handleRoomMute(roomId: Int, doMute: Boolean) = viewModelScope.launch {
         try {
-            repository.muteRoom(roomId)
+            repository.handleRoomMute(roomId, doMute)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
@@ -207,31 +205,9 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun unmuteRoom(roomId: Int) = viewModelScope.launch {
+    fun handleRoomPin(roomId: Int, doPin: Boolean) = viewModelScope.launch {
         try {
-            repository.unmuteRoom(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
-    }
-
-    fun pinRoom(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.pinRoom(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
-    }
-
-    fun unpinRoom(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.unpinRoom(roomId)
+            repository.handleRoomPin(roomId, doPin)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
@@ -549,9 +525,6 @@ sealed class ChatStates
 class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
 object RoomWithUsersFailed : ChatStates()
 class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : ChatStates()
-class UserSettingsFetched(val settings: List<Settings>) : ChatStates()
-object UserSettingsFetchFailed : ChatStates()
-class NotesFetched(val notes: List<Note>) : ChatStates()
 object NoteCreated : ChatStates()
 object NoteFailed : ChatStates()
 object NoteUpdated : ChatStates()

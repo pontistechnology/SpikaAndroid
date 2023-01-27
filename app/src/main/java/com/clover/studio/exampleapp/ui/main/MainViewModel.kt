@@ -266,9 +266,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun muteRoom(roomId: Int) = viewModelScope.launch {
+    fun handleRoomMute(roomId: Int, doMute: Boolean) = viewModelScope.launch {
         try {
-            repository.muteRoom(roomId)
+            repository.handleRoomMute(roomId, doMute)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()
@@ -277,31 +277,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun unmuteRoom(roomId: Int) = viewModelScope.launch {
+    fun handleRoomPin(roomId: Int, doPin: Boolean) = viewModelScope.launch {
         try {
-            repository.unmuteRoom(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
-    }
-
-    fun pinRoom(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.pinRoom(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
-    }
-
-    fun unpinRoom(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.unpinRoom(roomId)
+            repository.handleRoomPin(roomId, doPin)
         } catch (ex: Exception) {
             if (Tools.checkError(ex)) {
                 setTokenExpiredTrue()

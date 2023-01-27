@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton
 import android.widget.CompoundButton.OnCheckedChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -331,26 +330,28 @@ class ChatDetailsFragment : BaseFragment() {
     }
 
     private val multiListener: OnCheckedChangeListener =
-        OnCheckedChangeListener { buttonView, isChecked -> when (buttonView.id) {
-            binding.swPinChat.id -> {
-                if (buttonView.isPressed) {
-                    if (isChecked) {
-                        pinRoom()
-                    } else {
-                        unpinRoom()
+        OnCheckedChangeListener { buttonView, isChecked ->
+            when (buttonView.id) {
+                binding.swPinChat.id -> {
+                    if (buttonView.isPressed) {
+                        if (isChecked) {
+                            roomId?.let { viewModel.handleRoomPin(it, true) }
+                        } else {
+                            roomId?.let { viewModel.handleRoomPin(it, false) }
+                        }
+                    }
+                }
+                binding.swMute.id -> {
+                    if (buttonView.isPressed) {
+                        if (isChecked) {
+                            roomId?.let { viewModel.handleRoomMute(it, true) }
+                        } else {
+                            roomId?.let { viewModel.handleRoomMute(it, false) }
+                        }
                     }
                 }
             }
-            binding.swMute.id -> {
-                if (buttonView.isPressed) {
-                    if (isChecked) {
-                        muteRoom()
-                    } else {
-                        unmuteRoom()
-                    }
-                }
-            }
-        } }
+        }
 
     private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
         if (avatarFileId != 0L) {
@@ -467,22 +468,6 @@ class ChatDetailsFragment : BaseFragment() {
 
         roomId?.let { viewModel.updateRoom(jsonObject, it, 0) }
 
-    }
-
-    private fun muteRoom() {
-        roomId?.let { viewModel.muteRoom(it) }
-    }
-
-    private fun unmuteRoom() {
-        roomId?.let { viewModel.unmuteRoom(it) }
-    }
-
-    private fun pinRoom() {
-        roomId?.let { viewModel.pinRoom(it) }
-    }
-
-    private fun unpinRoom() {
-        roomId?.let { viewModel.unpinRoom(it) }
     }
 
     private fun updateRoomUserList(roomWithUsers: RoomWithUsers) {

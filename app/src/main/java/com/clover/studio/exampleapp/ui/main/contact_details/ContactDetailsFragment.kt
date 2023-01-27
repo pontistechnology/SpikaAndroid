@@ -222,6 +222,30 @@ class ContactDetailsFragment : BaseFragment() {
         binding.swPinChat.setOnCheckedChangeListener(multiListener)
     }
 
+    private val multiListener: CompoundButton.OnCheckedChangeListener =
+        CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            when (buttonView.id) {
+                binding.swPinChat.id -> {
+                    if (buttonView.isPressed) {
+                        if (isChecked) {
+                            viewModel.handleRoomPin(roomId, true)
+                        } else {
+                            viewModel.handleRoomPin(roomId, false)
+                        }
+                    }
+                }
+                binding.swMute.id -> {
+                    if (buttonView.isPressed) {
+                        if (isChecked) {
+                            viewModel.handleRoomMute(roomId, true)
+                        } else {
+                            viewModel.handleRoomMute(roomId, false)
+                        }
+                    }
+                }
+            }
+        }
+
     override fun onResume() {
         super.onResume()
         viewModel.getBlockedUsersList()
@@ -230,45 +254,5 @@ class ContactDetailsFragment : BaseFragment() {
     override fun onDestroy() {
         super.onDestroy()
         viewModel.unregisterSharedPrefsReceiver()
-    }
-
-    private val multiListener: CompoundButton.OnCheckedChangeListener =
-        CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-            when (buttonView.id) {
-                binding.swPinChat.id -> {
-                    if (buttonView.isPressed) {
-                        if (isChecked) {
-                            pinRoom()
-                        } else {
-                            unpinRoom()
-                        }
-                    }
-                }
-                binding.swMute.id -> {
-                    if (buttonView.isPressed) {
-                        if (isChecked) {
-                            muteRoom()
-                        } else {
-                            unmuteRoom()
-                        }
-                    }
-                }
-            }
-        }
-
-    private fun muteRoom() {
-        roomId.let { viewModel.muteRoom(it) }
-    }
-
-    private fun unmuteRoom() {
-        roomId.let { viewModel.unmuteRoom(it) }
-    }
-
-    private fun pinRoom() {
-        roomId.let { viewModel.pinRoom(it) }
-    }
-
-    private fun unpinRoom() {
-        roomId.let { viewModel.unpinRoom(it) }
     }
 }
