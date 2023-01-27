@@ -166,7 +166,6 @@ class SSERepositoryImpl @Inject constructor(
                                 Timber.d("Adding room ${room.name}")
                                 val oldData = chatRoomDao.getRoomById(room.roomId)
                                 chatRooms.add(ChatRoomUpdate(oldData, room))
-                                rooms.add(room)
 
                                 for (user in room.users) {
                                     user.user?.let { users.add(it) }
@@ -179,16 +178,16 @@ class SSERepositoryImpl @Inject constructor(
                                     )
                                 }
                             }
+                            rooms.add(room)
                             chatRoomDao.updateRoomTable(chatRooms)
                             userDao.insert(users)
                             chatRoomDao.insertRoomWithUsers(roomUsers)
-
-                            if (rooms.isNotEmpty()) {
-                                val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
-                                Timber.d("MaxTimestamp rooms: $maxTimestamp, old timestamp = $roomTimestamp")
-                                if (maxTimestamp!! > roomTimestamp) {
-                                    sharedPrefs.writeRoomTimestamp(maxTimestamp)
-                                }
+                        }
+                        if (rooms.isNotEmpty()) {
+                            val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
+                            Timber.d("MaxTimestamp rooms: $maxTimestamp, old timestamp = $roomTimestamp")
+                            if (maxTimestamp!! > roomTimestamp) {
+                                sharedPrefs.writeRoomTimestamp(maxTimestamp)
                             }
                         }
                     }

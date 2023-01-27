@@ -57,9 +57,11 @@ class ContactsAdapter(
                 binding.tvUsername.text = userItem.phoneUser?.name ?: userItem.user.displayName
                 binding.tvTitle.text = userItem.user.telephoneNumber
 
-                Glide.with(context).load(userItem.user.avatarFileId?.let { getFilePathUrl(it) })
-                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
-                    .into(binding.ivUserImage)
+                if (userItem.user.hasAvatar) {
+                    Glide.with(context).load(userItem.user.avatarFileId?.let { getFilePathUrl(it) })
+                        .placeholder(R.drawable.img_user_placeholder)
+                        .into(binding.ivUserImage)
+                } else binding.ivUserImage.setImageDrawable(context.getDrawable(R.drawable.img_user_placeholder))
 
                 // if not first item, check if item above has the same header
                 if (position > 0) {
