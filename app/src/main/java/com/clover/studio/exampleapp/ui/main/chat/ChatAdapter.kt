@@ -128,13 +128,22 @@ class ChatAdapter(
                 holder.binding.tvTime.visibility = View.GONE
                 when (it.message.type) {
                     Const.JsonFields.TEXT_TYPE -> {
-                        holder.binding.tvMessage.text = it.message.body?.text
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
+
+                        if(it.message.deleted == true){
+                            holder.binding.tvMessage.text = context.getString(R.string.message_deleted)
+                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
+                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.img_deleted_message_me)
+                        } else {
+                            holder.binding.tvMessage.text = it.message.body?.text
+                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.bg_message_user)
+                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.black))
+                        }
 
                         // Code below removes click listener if message was media before
                         // being deleted
@@ -600,13 +609,24 @@ class ChatAdapter(
                 holder.binding.tvTime.visibility = View.GONE
                 when (it.message.type) {
                     Const.JsonFields.TEXT_TYPE -> {
-                        holder.binding.tvMessage.text = it.message.body?.text
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
+
+
+                        if(it.message.deleted == true){
+                            holder.binding.tvMessage.text = context.getString(R.string.message_deleted)
+                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
+                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.img_deleted_message_other)
+                        } else {
+                            holder.binding.tvMessage.text = it.message.body?.text
+                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.bg_message_received)
+                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.black))
+                        }
+
 
                         holder.binding.tvMessage.setOnClickListener {
                             if (holder.binding.tvTime.visibility == View.GONE) {

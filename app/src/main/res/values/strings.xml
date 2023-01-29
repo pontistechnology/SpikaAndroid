@@ -150,6 +150,7 @@
     <string name="delete">Delete</string>
     <string name="delete_for_everyone">Delete for everyone</string>
     <string name="delete_for_me">Delete for me</string>
+    <string name="message_deleted">This message is deleted</string>
     <string name="save">Save</string>
     <string name="edited">edited</string>
     <string name="text_copied">Text copied</string>
