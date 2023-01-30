@@ -219,7 +219,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 ChatStatesEnum.MESSAGE_SENT -> {
-                    bindingSetup.etMessage.setText("")
                     tempMessageCounter -= 1
 
                     // Delay next message sending by 2 seconds for better user experience.
@@ -941,6 +940,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 sendMessage()
             }
             sent = true
+            bindingSetup.etMessage.setText("")
             hideSendButton()
         }
 
@@ -1076,7 +1076,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         editedMessageId = 0
         isEditing = false
         originalText = ""
-        bindingSetup.etMessage.setText("")
         bindingSetup.ivAdd.rotation = ROTATION_OFF
         bindingSetup.tvSave.visibility = View.GONE
         bindingSetup.ivCamera.visibility = View.VISIBLE
