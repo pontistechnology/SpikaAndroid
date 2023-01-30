@@ -44,4 +44,8 @@ data class User(
     @Ignore
     @IgnoredOnParcel
     var isAdmin: Boolean = false
+
+    @Ignore
+    @IgnoredOnParcel
+    val hasAvatar: Boolean = avatarFileId != null && avatarFileId > 0L
 }
