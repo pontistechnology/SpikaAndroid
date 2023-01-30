@@ -4,16 +4,14 @@ import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.UserDao
+import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.BlockedId
-import com.clover.studio.exampleapp.data.models.networking.responses.AuthResponse
-import com.clover.studio.exampleapp.data.models.networking.responses.FileResponse
-import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
-import com.clover.studio.exampleapp.data.models.networking.responses.Settings
+import com.clover.studio.exampleapp.data.models.networking.responses.*
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -30,11 +28,18 @@ class MainRepositoryImpl @Inject constructor(
     private val appDatabase: AppDatabase,
     private val sharedPrefs: SharedPreferencesRepository
 ) : MainRepository {
+
+    override suspend fun getUserRooms(): List<ChatRoom>? =
+        retrofitService.fetchAllUserRooms(getHeaderMap(sharedPrefs.readToken())).data?.list
+
     override suspend fun getUserByID(id: Int) =
         userDao.getUserById(id)
 
     override suspend fun getRoomById(userId: Int) =
         retrofitService.getRoomById(getHeaderMap(sharedPrefs.readToken()), userId)
+
+    override suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom> =
+        chatRoomDao.getRoomByIdLiveData(roomId)
 
     override suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse {
         val response =
@@ -71,6 +76,9 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
         chatRoomDao.getChatRoomAndMessageAndRecords()
+
+    override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
+        chatRoomDao.getRoomAndUsersLiveData(roomId)
 
     override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
         chatRoomDao.getSingleRoomData(roomId)
@@ -155,9 +163,11 @@ class MainRepositoryImpl @Inject constructor(
         userDao.getUsersByIds(userIds)
 
     override suspend fun blockUser(blockedId: Int) {
-        val response = retrofitService.blockUser(getHeaderMap(sharedPrefs.readToken()), BlockedId(blockedId))
+        val response =
+            retrofitService.blockUser(getHeaderMap(sharedPrefs.readToken()), BlockedId(blockedId))
         if (Const.JsonFields.SUCCESS == response.status) {
-            val currentList: MutableList<Int> = sharedPrefs.readBlockedUserList() as MutableList<Int>
+            val currentList: MutableList<Int> =
+                sharedPrefs.readBlockedUserList() as MutableList<Int>
             currentList.add(blockedId)
             sharedPrefs.writeBlockedUsersIds(currentList)
         }
@@ -178,14 +188,39 @@ class MainRepositoryImpl @Inject constructor(
             sharedPrefs.writeBlockedUsersIds(updatedList)
         }
     }
+
+    override suspend fun handleRoomMute(roomId: Int, doMute: Boolean) {
+        val response: MuteResponse = if (doMute)
+            retrofitService.muteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+        else
+            retrofitService.unmuteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+
+        if (Const.JsonFields.SUCCESS == response.status) {
+            chatRoomDao.updateRoomMuted(true, roomId)
+        }
+    }
+
+    override suspend fun handleRoomPin(roomId: Int, doPin: Boolean) {
+        val response = if (doPin)
+            retrofitService.pinRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+        else
+            retrofitService.unpinRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+
+        if (Const.JsonFields.SUCCESS == response.status) {
+            chatRoomDao.updateRoomPinned(true, roomId)
+        }
+    }
 }
 
 interface MainRepository {
+    suspend fun getUserRooms(): List<ChatRoom>?
     suspend fun getUserByID(id: Int): LiveData<User>
     suspend fun getRoomById(userId: Int): RoomResponse
+    suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
     suspend fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>>
     suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
+    suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
     suspend fun updatePushToken(jsonObject: JsonObject)
@@ -194,6 +229,8 @@ interface MainRepository {
     suspend fun verifyFile(jsonObject: JsonObject): FileResponse
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse
     suspend fun getUserSettings(): List<Settings>
+    suspend fun handleRoomMute(roomId: Int, doMute: Boolean)
+    suspend fun handleRoomPin(roomId: Int, doPin: Boolean)
 
     // Block
     suspend fun getBlockedList()

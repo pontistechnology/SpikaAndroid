@@ -16,6 +16,7 @@ import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.google.gson.Gson
 import timber.log.Timber
 
 class RoomsFragment : BaseFragment() {
@@ -99,11 +100,13 @@ class RoomsFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getChatRoomAndMessageAndRecords().observe(viewLifecycleOwner) {
-            if (it.responseData != null) {
+            if (it.isNotEmpty()) {
                 binding.tvNoChats.visibility = View.GONE
-
-                roomList = it.responseData.toMutableList()
-                val nonEmptyRoomList = it.responseData.filter { roomData ->
+                for (roomData in it) {
+                    Timber.d("Room Data ${roomData.roomWithUsers.room.roomId}, ${roomData.roomWithUsers.room.name}")
+                }
+                roomList = it.toMutableList()
+                val nonEmptyRoomList = it.filter { roomData ->
                     Const.JsonFields.GROUP == roomData.roomWithUsers.room.type || roomData.message?.isNotEmpty() == true
                 }
 
@@ -122,11 +125,9 @@ class RoomsFragment : BaseFragment() {
                 }
 
                 if (sortedList.isEmpty()) {
-                    sortedList = it.responseData.toMutableList()
+                    sortedList = it.toMutableList()
                 }
-
-                // Calling .toSet() here caused a crash in the app, so don't add it.
-                sortedList = (pinnedRooms + (sortedList - pinnedRooms)).toMutableList()
+                sortedList = (pinnedRooms + (sortedList - pinnedRooms.toSet())).toMutableList()
                 roomsAdapter.submitList(sortedList)
             }
         }
@@ -134,7 +135,9 @@ class RoomsFragment : BaseFragment() {
 
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
-            activity?.let { parent -> startChatScreenActivity(parent, it.roomWithUsers) }
+            val gson = Gson()
+            val roomData = gson.toJson(it.roomWithUsers)
+            activity?.let { parent -> startChatScreenActivity(parent, roomData) }
         }
 
         binding.rvRooms.itemAnimator = null

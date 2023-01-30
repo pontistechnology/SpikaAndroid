@@ -13,6 +13,7 @@ import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
+import com.clover.studio.exampleapp.data.models.networking.responses.MuteResponse
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -151,19 +152,25 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords> =
         roomDao.getChatRoomAndMessageAndRecordsById(roomId)
 
-    override suspend fun muteRoom(roomId: Int) {
-        val response = chatService.muteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+    override suspend fun handleRoomMute(roomId: Int, doMute: Boolean) {
+        val response: MuteResponse = if (doMute)
+            chatService.muteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+        else
+            chatService.unmuteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
         if (Const.JsonFields.SUCCESS == response.status) {
             roomDao.updateRoomMuted(true, roomId)
         }
     }
 
-    override suspend fun unmuteRoom(roomId: Int) {
-        val response = chatService.unmuteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+    override suspend fun handleRoomPin(roomId: Int, doPin: Boolean) {
+        val response = if (doPin)
+            chatService.pinRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+        else
+            chatService.unpinRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
         if (Const.JsonFields.SUCCESS == response.status) {
-            roomDao.updateRoomMuted(false, roomId)
+            roomDao.updateRoomPinned(true, roomId)
         }
     }
 
@@ -248,10 +255,10 @@ interface ChatRepository {
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
-    suspend fun muteRoom(roomId: Int)
-    suspend fun unmuteRoom(roomId: Int)
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords>
+    suspend fun handleRoomMute(roomId: Int, doMute: Boolean)
+    suspend fun handleRoomPin(roomId: Int, doPin: Boolean)
     suspend fun deleteRoom(roomId: Int)
     suspend fun leaveRoom(roomId: Int)
     suspend fun removeAdmin(roomId: Int, userId: Int)
