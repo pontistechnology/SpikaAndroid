@@ -57,9 +57,12 @@ class RoomsAdapter(
                     binding.ivMuted.visibility = View.VISIBLE
                 } else binding.ivMuted.visibility = View.GONE
 
-                Glide.with(context)
-                    .load(Tools.getFilePathUrl(avatarFileId))
-                    .into(binding.ivRoomImage)
+                if (avatarFileId != 0L) {
+                    Glide.with(context)
+                        .load(Tools.getFilePathUrl(avatarFileId))
+                        .placeholder(R.drawable.img_user_placeholder)
+                        .into(binding.ivRoomImage)
+                } else binding.ivRoomImage.setImageDrawable(context.getDrawable(R.drawable.img_user_placeholder))
 
                 if (!roomItem.message.isNullOrEmpty()) {
                     val sortedList = roomItem.message.sortedBy { it.message.createdAt }

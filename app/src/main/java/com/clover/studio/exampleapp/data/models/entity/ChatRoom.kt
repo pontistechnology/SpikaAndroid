@@ -46,4 +46,7 @@ data class ChatRoom @JvmOverloads constructor(
 ) {
     @Ignore
     val users: List<RoomUsers> = ArrayList()
+
+    @Ignore
+    val hasAvatar: Boolean = avatarFileId != null && avatarFileId > 0L
 }
