@@ -12,11 +12,8 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.FragmentChatBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
-import com.clover.studio.exampleapp.ui.main.RoomFetchFail
-import com.clover.studio.exampleapp.ui.main.RoomsFetched
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.gson.Gson
@@ -25,10 +22,9 @@ import timber.log.Timber
 class RoomsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var roomsAdapter: RoomsAdapter
-    private var roomList: List<RoomAndMessageAndRecords> = mutableListOf()
-    private var nonEmptyRoomList: MutableList<RoomAndMessageAndRecords> = mutableListOf()
+    private var roomList: MutableList<RoomAndMessageAndRecords> = mutableListOf()
     private var filteredList: MutableList<RoomAndMessageAndRecords> = ArrayList()
-    private var sortedList: List<RoomAndMessageAndRecords> = ArrayList()
+    private var sortedList: MutableList<RoomAndMessageAndRecords> = ArrayList()
     private var bindingSetup: FragmentChatBinding? = null
 
     private val binding get() = bindingSetup!!
@@ -103,44 +99,35 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.roomsListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                RoomFetchFail -> Timber.d("Failed to fetch rooms")
-                RoomsFetched -> Timber.d("Rooms fetched successfully")
-                else -> Timber.d("Other error")
-            }
-        })
-
         viewModel.getChatRoomAndMessageAndRecords().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 binding.tvNoChats.visibility = View.GONE
                 for (roomData in it) {
                     Timber.d("Room Data ${roomData.roomWithUsers.room.roomId}, ${roomData.roomWithUsers.room.name}")
                 }
-                roomList = it
-                nonEmptyRoomList = roomList.toMutableList()
-                roomList.forEach { roomItem ->
-                    if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
-                        if (roomItem.message.isNullOrEmpty()) {
-                            nonEmptyRoomList.remove(roomItem)
-                        }
-                    }
+                roomList = it.toMutableList()
+                val nonEmptyRoomList = it.filter { roomData ->
+                    Const.JsonFields.GROUP == roomData.roomWithUsers.room.type || roomData.message?.isNotEmpty() == true
                 }
-                Timber.d("${System.currentTimeMillis()}")
+
+                val pinnedRooms = roomList.filter { roomItem -> roomItem.roomWithUsers.room.pinned }
+                    .sortedBy { pinnedRoom -> pinnedRoom.roomWithUsers.room.name }
+
                 try {
                     sortedList =
                         nonEmptyRoomList.sortedWith(compareBy(nullsFirst()) { roomItem ->
                             if (!roomItem.message.isNullOrEmpty()) {
                                 roomItem.message.last { message -> message.message.createdAt != null }.message.createdAt
                             } else null
-                        }).reversed()
+                        }).reversed().toMutableList()
                 } catch (ex: Exception) {
                     Tools.checkError(ex)
                 }
 
                 if (sortedList.isEmpty()) {
-                    sortedList = it
+                    sortedList = it.toMutableList()
                 }
+                sortedList = (pinnedRooms + (sortedList - pinnedRooms.toSet())).toMutableList()
                 roomsAdapter.submitList(sortedList)
             }
         }

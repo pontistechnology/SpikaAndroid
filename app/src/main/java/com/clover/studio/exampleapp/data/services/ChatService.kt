@@ -69,6 +69,18 @@ interface ChatService {
         @Path(Const.Networking.ROOM_ID) roomId: Int
     ): MuteResponse
 
+    @POST(Const.Networking.API_PIN_ROOM)
+    suspend fun pinRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): RoomResponse
+
+    @POST(Const.Networking.API_UNPIN_ROOM)
+    suspend fun unpinRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): RoomResponse
+
     @GET(Const.Networking.API_GET_SETTINGS)
     suspend fun getSettings(
         @HeaderMap headers: Map<String, String?>

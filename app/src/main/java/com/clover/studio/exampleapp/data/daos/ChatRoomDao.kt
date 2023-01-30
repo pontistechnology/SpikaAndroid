@@ -22,17 +22,20 @@ interface ChatRoomDao {
     @Query("SELECT * FROM room")
     fun getRooms(): LiveData<List<ChatRoom>>
 
-    @Query("SELECT * FROM room")
-    suspend fun getRoomsLocally(): List<ChatRoom>
-
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getRoomById(roomId: Int): ChatRoom
+
+    @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
+    fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
 
     @Delete
     suspend fun deleteRoom(chatRoom: ChatRoom)
 
     @Query("UPDATE room SET muted = :muted WHERE room_id LIKE :roomId")
     suspend fun updateRoomMuted(muted: Boolean, roomId: Int)
+
+    @Query("UPDATE room SET pinned = :pinned WHERE room_id LIKE :roomId")
+    suspend fun updateRoomPinned(pinned: Boolean, roomId: Int)
 
     @Query("UPDATE room SET visited_room =:visitedRoom WHERE room_id LIKE :roomId")
     suspend fun updateRoomVisited(visitedRoom: Long, roomId: Int)

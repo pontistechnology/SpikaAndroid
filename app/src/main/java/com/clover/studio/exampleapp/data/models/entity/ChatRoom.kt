@@ -41,6 +41,9 @@ data class ChatRoom @JvmOverloads constructor(
     @ColumnInfo(name = "muted")
     var muted: Boolean,
 
+    @ColumnInfo(name = "pinned")
+    var pinned: Boolean,
+
     @ColumnInfo(name = "room_exit")
     var roomExit: Boolean?,
 ) {

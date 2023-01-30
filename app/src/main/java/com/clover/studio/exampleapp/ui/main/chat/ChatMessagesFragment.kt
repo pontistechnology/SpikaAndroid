@@ -815,7 +815,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.clHeader.setOnClickListener {
             if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
                 val bundle =
-                    bundleOf(Const.Navigation.USER_PROFILE to roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() })
+                    bundleOf(
+                        Const.Navigation.USER_PROFILE to roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() },
+                        Const.Navigation.ROOM_ID to roomWithUsers.room.roomId
+                    )
                 findNavController().navigate(
                     R.id.action_chatMessagesFragment_to_contactDetailsFragment2,
                     bundle

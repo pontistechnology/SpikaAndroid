@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
@@ -27,6 +28,8 @@ class ContactDetailsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
 
     private var user: User? = null
+
+    private var roomId = 0
 
     private var bindingSetup: FragmentContactDetailsBinding? = null
 
@@ -53,6 +56,7 @@ class ContactDetailsFragment : BaseFragment() {
             Timber.d("Failed to fetch user data")
         } else {
             user = requireArguments().getParcelable(Const.Navigation.USER_PROFILE)
+            roomId = requireArguments().getInt(Const.Navigation.ROOM_ID)
         }
     }
 
@@ -69,6 +73,16 @@ class ContactDetailsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
+        viewModel.getRoomByIdLiveData(roomId).observe(viewLifecycleOwner) { room ->
+            if (room != null) {
+                // Set room muted or not muted on switch
+                binding.swMute.isChecked = room.muted
+
+                // Set room pinned or not pinned on switch
+                binding.swPinChat.isChecked = room.pinned
+            }
+        }
+
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 is RoomWithUsersFetched -> {
@@ -202,7 +216,45 @@ class ContactDetailsFragment : BaseFragment() {
                     })
             }
         }
+
+        // Check if private room with user exists. Hide pin and mute layouts if no room exists
+        if (roomId == 0) {
+            binding.clMute.visibility = View.GONE
+            binding.clPinChat.visibility = View.GONE
+        } else {
+            binding.clMute.visibility = View.VISIBLE
+            binding.clPinChat.visibility = View.VISIBLE
+        }
+
+        binding.swMute.setOnCheckedChangeListener(multiListener)
+
+        binding.swPinChat.setOnCheckedChangeListener(multiListener)
     }
+
+    // Listener which handles switch events and sends event to specific switch
+    private val multiListener: CompoundButton.OnCheckedChangeListener =
+        CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            when (buttonView.id) {
+                binding.swPinChat.id -> {
+                    if (buttonView.isPressed) {
+                        if (isChecked) {
+                            viewModel.handleRoomPin(roomId, true)
+                        } else {
+                            viewModel.handleRoomPin(roomId, false)
+                        }
+                    }
+                }
+                binding.swMute.id -> {
+                    if (buttonView.isPressed) {
+                        if (isChecked) {
+                            viewModel.handleRoomMute(roomId, true)
+                        } else {
+                            viewModel.handleRoomMute(roomId, false)
+                        }
+                    }
+                }
+            }
+        }
 
     override fun onResume() {
         super.onResume()

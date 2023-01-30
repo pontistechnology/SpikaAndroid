@@ -7,6 +7,7 @@ import com.google.gson.JsonObject
 import retrofit2.http.*
 
 interface RetrofitService {
+    // Room section
     @GET(Const.Networking.API_GET_ROOM_BY_ID)
     suspend fun getRoomById(
         @HeaderMap headers: Map<String, String?>,
@@ -18,6 +19,44 @@ interface RetrofitService {
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
     ): RoomResponse
+
+    @PUT(Const.Networking.API_UPDATE_ROOM)
+    suspend fun updateRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Body jsonObject: JsonObject,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): RoomResponse
+
+    @GET(Const.Networking.API_POST_NEW_ROOM)
+    suspend fun fetchAllUserRooms(
+        @HeaderMap headers: Map<String, String?>
+    ): RoomResponse
+
+    @POST(Const.Networking.API_MUTE_ROOM)
+    suspend fun muteRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): MuteResponse
+
+    @POST(Const.Networking.API_UNMUTE_ROOM)
+    suspend fun unmuteRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): MuteResponse
+
+    @POST(Const.Networking.API_PIN_ROOM)
+    suspend fun pinRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): RoomResponse
+
+    @POST(Const.Networking.API_UNPIN_ROOM)
+    suspend fun unpinRoom(
+        @HeaderMap headers: Map<String, String?>,
+        @Path(Const.Networking.ROOM_ID) roomId: Int
+    ): RoomResponse
+    // End Room section
+
 
     @PUT(Const.Networking.API_UPDATE_TOKEN)
     suspend fun updatePushToken(
@@ -43,19 +82,12 @@ interface RetrofitService {
         @Body jsonObject: JsonObject
     ): FileResponse
 
-    @PUT(Const.Networking.API_UPDATE_ROOM)
-    suspend fun updateRoom(
-        @HeaderMap headers: Map<String, String?>,
-        @Body jsonObject: JsonObject,
-        @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): RoomResponse
-
     @GET(Const.Networking.API_GET_SETTINGS)
     suspend fun getSettings(
         @HeaderMap headers: Map<String, String?>
     ): SettingsResponse
 
-    // Start Block functions
+    // Start Block section
     @GET(Const.Networking.API_BLOCK)
     suspend fun getBlockedList(
         @HeaderMap headers: Map<String, String?>
@@ -80,4 +112,5 @@ interface RetrofitService {
     ): BlockResponse
 
    // TODO add remaining block API
+    // End block section
 }
