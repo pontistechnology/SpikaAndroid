@@ -32,6 +32,7 @@ class SSERepositoryImpl @Inject constructor(
     private val appDatabase: AppDatabase,
     private val userDao: UserDao
 ) : SSERepository {
+    // TODO write code to insert list of records at once instead of one by one
     override suspend fun syncMessageRecords() {
         Timber.d("Syncing message records")
         val messageRecordsTimestamp: Long
@@ -52,9 +53,17 @@ class SSERepositoryImpl @Inject constructor(
 
         val messageRecords: MutableList<MessageRecords> = ArrayList()
         for (record in response.data.messageRecords) {
-            messageRecords.add(record)
-            writeRecord(record)
+            if (messageRecordsDao.getMessageRecordId(
+                    record.messageId,
+                    record.userId
+                ) == null
+            ) {
+                messageRecords.add(record)
+            } else
+                writeRecord(record)
         }
+
+        messageRecordsDao.insert(messageRecords)
 
         if (messageRecords.isNotEmpty()) {
             val maxTimestamp = messageRecords.maxByOrNull { it.createdAt }?.createdAt
@@ -222,37 +231,29 @@ class SSERepositoryImpl @Inject constructor(
      * @param messageRecords
      */
     private suspend fun writeRecord(messageRecords: MessageRecords) {
-        if (messageRecordsDao.getMessageRecordId(
+//        } else {
+        if (Const.JsonFields.SEEN == messageRecords.type) {
+            messageRecordsDao.updateMessageRecords(
                 messageRecords.messageId,
-                messageRecords.userId
-            ) == null
-        ) {
-            messageRecordsDao.insert(messageRecords)
-        } else {
-            if (Const.JsonFields.SEEN == messageRecords.type) {
-                messageRecordsDao.updateMessageRecords(
+                messageRecords.type,
+                messageRecords.createdAt,
+                messageRecords.modifiedAt,
+                messageRecords.userId,
+            )
+        } else if (Const.JsonFields.REACTION == messageRecords.type) {
+            if (messageRecordsDao.getMessageReactionId(
                     messageRecords.messageId,
-                    messageRecords.type,
-                    messageRecords.createdAt,
-                    messageRecords.modifiedAt,
+                    messageRecords.userId
+                ) == null
+            ) {
+                messageRecordsDao.insert(messageRecords)
+            } else {
+                messageRecordsDao.updateReaction(
+                    messageRecords.messageId,
+                    messageRecords.reaction!!,
                     messageRecords.userId,
+                    messageRecords.createdAt,
                 )
-            }
-            else if (Const.JsonFields.REACTION == messageRecords.type) {
-                if (messageRecordsDao.getMessageReactionId(
-                        messageRecords.messageId,
-                        messageRecords.userId
-                    ) == null
-                ) {
-                    messageRecordsDao.insert(messageRecords)
-                } else {
-                    messageRecordsDao.updateReaction(
-                        messageRecords.messageId,
-                        messageRecords.reaction!!,
-                        messageRecords.userId,
-                        messageRecords.createdAt,
-                    )
-                }
             }
         }
     }
