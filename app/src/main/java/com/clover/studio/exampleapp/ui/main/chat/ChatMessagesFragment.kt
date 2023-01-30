@@ -7,6 +7,7 @@ import android.content.ContentResolver
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.graphics.Canvas
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
@@ -34,8 +35,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.BuildConfig
@@ -66,6 +70,7 @@ import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.File
 
+
 /*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
@@ -78,6 +83,9 @@ private const val SCROLL_DISTANCE_POSITIVE = 300
 private const val MIN_HEIGHT_DIFF = 150
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
+
+private const val VIEW_TYPE_MESSAGE_SENT = 1
+private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 
 enum class UploadMimeTypes {
     IMAGE, VIDEO, FILE, MEDIA
@@ -535,31 +543,73 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
 
         // Add callback for item swipe handling
-        /*val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
+        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(
                 0,
-                ItemTouchHelper.RIGHT
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
+
             ) {
             override fun onMove(
                 recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
+                viewHolder: ViewHolder,
+                target: ViewHolder
             ): Boolean {
                 // ignore
                 return false
             }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                // Get swiped message text and add to message EditText
-                // After that, return item to correct position
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                // dx / 4
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                if (actionState == ACTION_STATE_SWIPE) {
+                    val swipeThreshold = 0.5f * viewHolder.itemView.width
+                    if (dX > swipeThreshold) {
+                        chatAdapter.notifyItemChanged(viewHolder.absoluteAdapterPosition)
+                    } else if (dX < -swipeThreshold) {
+                        chatAdapter.notifyItemChanged(viewHolder.absoluteAdapterPosition)
+                    }
+                }
+            }
+
+            override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+                return makeMovementFlags(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
+            }
+
+            override fun onSwiped(viewHolder: ViewHolder, swipeDir: Int) {
                 val position = viewHolder.absoluteAdapterPosition
-                bindingSetup.etMessage.setText(messagesRecords[position].message.body?.text)
-                chatAdapter.notifyItemChanged(position)
+                // chatAdapter.notifyItemChanged(position)
+                if (viewHolder.itemViewType == VIEW_TYPE_MESSAGE_SENT){
+                    if (swipeDir == ItemTouchHelper.LEFT ){
+                        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        handleMessageReply(messagesRecords[position].message)
+                    }
+                    if (swipeDir == ItemTouchHelper.RIGHT){
+                        bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        getDetailsList(messagesRecords[position].message)
+                    }
+                } else {
+                    if (swipeDir == ItemTouchHelper.RIGHT ){
+                        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        handleMessageReply(messagesRecords[position].message)
+                    }
+                    if (swipeDir == ItemTouchHelper.LEFT){
+                        bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        getDetailsList(messagesRecords[position].message)
+                    }
+                }
             }
         }
 
         val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
-        itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)*/
+        itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
 
         // Notify backend of messages seen
         viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
