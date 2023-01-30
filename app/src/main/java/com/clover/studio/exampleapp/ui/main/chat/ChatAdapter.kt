@@ -135,8 +135,8 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        if(it.message.deleted == true){
-                            holder.binding.tvMessage.text = context.getString(R.string.message_deleted)
+                        if(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message)){
+                            holder.binding.tvMessage.text = context.getString(R.string.message_deleted_text)
                             holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
                             holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.img_deleted_message_me)
                         } else {
@@ -616,9 +616,8 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-
-                        if(it.message.deleted == true){
-                            holder.binding.tvMessage.text = context.getString(R.string.message_deleted)
+                        if(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message)){
+                            holder.binding.tvMessage.text = context.getString(R.string.message_deleted_text)
                             holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
                             holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.img_deleted_message_other)
                         } else {
@@ -626,7 +625,6 @@ class ChatAdapter(
                             holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.bg_message_received)
                             holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.black))
                         }
-
 
                         holder.binding.tvMessage.setOnClickListener {
                             if (holder.binding.tvTime.visibility == View.GONE) {

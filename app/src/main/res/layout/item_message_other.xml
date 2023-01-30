@@ -180,6 +180,7 @@
                 android:textColorLink="@color/primary_color"
                 android:textSize="@dimen/fourteen_sp_text"
                 android:visibility="visible"
+                app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
