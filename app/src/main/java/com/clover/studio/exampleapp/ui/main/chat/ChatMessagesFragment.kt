@@ -71,6 +71,7 @@ import timber.log.Timber
 import java.io.File
 
 
+
 /*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
@@ -83,6 +84,9 @@ private const val SCROLL_DISTANCE_POSITIVE = 300
 private const val MIN_HEIGHT_DIFF = 150
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
+
+private const val VIEW_TYPE_MESSAGE_SENT = 1
+private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 
 enum class UploadMimeTypes {
     IMAGE, VIDEO, FILE, MEDIA
@@ -543,7 +547,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(
                 0,
-                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
+                ItemTouchHelper.RIGHT
             ) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -554,85 +558,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 return false
             }
 
-            override fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) {
-                super.onChildDraw(
-                    c,
-                    recyclerView,
-                    viewHolder,
-                    dX,
-                    dY,
-                    actionState,
-                    isCurrentlyActive
-                )
-
-                val swipeLimit = 0.5f * recyclerView.width
-                val itemView = viewHolder.itemView
-                Timber.d("itemview position: ${itemView.translationX}")
-                if (actionState == ACTION_STATE_SWIPE) {
-                    Timber.d("viewholder::: ${viewHolder.itemView}")
-                    if (viewHolder is ChatAdapter.SentMessageHolder) {
-                        Timber.d("here")
-                        viewHolder.binding.ivReplyImage.visibility = View.VISIBLE
-                    }
-                    if (dX > swipeLimit) {
-                        itemView.translationX = 0f
-                    } else if (dX < -swipeLimit) {
-                        itemView.translationX = -0f
-                    }
-                }
-
-
-                // Return item back to its initial position
-                /*if (!isCurrentlyActive) {
-                    itemView.animate()
-                        .x(0f)
-                        .translationX(0f)
-                        .setDuration(0).setListener(object : Animator.AnimatorListener {
-                            override fun onAnimationStart(p0: Animator?) {
-                                // Ignore
-                            }
-
-                            override fun onAnimationEnd(p0: Animator?) {
-                                itemView.animate().translationX(0f)
-                                itemView.clearAnimation()
-                                p0?.cancel()
-                            }
-
-                            override fun onAnimationCancel(p0: Animator?) {
-                                itemView.animate().translationX(0f)
-                            }
-
-                            override fun onAnimationRepeat(p0: Animator?) {
-                                // Ignore
-                            }
-
-                        })
-                        .start()
-                }*/
-            }
-
-            override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: ViewHolder): Int {
-                return makeMovementFlags(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
-            }
-
-            override fun onSwiped(viewHolder: ViewHolder, swipeDir: Int) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+                // Get swiped message text and add to message EditText
+                // After that, return item to correct position
                 val position = viewHolder.absoluteAdapterPosition
-                if (swipeDir == ItemTouchHelper.RIGHT) {
-                    bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
-                    handleMessageReply(messagesRecords[position].message)
-                }
-                if (swipeDir == ItemTouchHelper.LEFT) {
-                    bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
-                    getDetailsList(messagesRecords[position].message)
-                }
+                bindingSetup.etMessage.setText(messagesRecords[position].message.body?.text)
                 chatAdapter.notifyItemChanged(position)
             }
         }
