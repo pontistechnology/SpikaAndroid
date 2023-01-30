@@ -36,6 +36,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class SettingsFragment : BaseFragment() {
+    // TODO move this to viewModel
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
 
