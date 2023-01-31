@@ -18,6 +18,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.TextView.TEXT_ALIGNMENT_CENTER
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -128,13 +129,23 @@ class ChatAdapter(
                 holder.binding.tvTime.visibility = View.GONE
                 when (it.message.type) {
                     Const.JsonFields.TEXT_TYPE -> {
-                        holder.binding.tvMessage.text = it.message.body?.text
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
+
+                        if(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message)){
+                            holder.binding.tvMessage.text = context.getString(R.string.message_deleted_text)
+                            holder.binding.tvMessage.textAlignment = TEXT_ALIGNMENT_CENTER
+                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
+                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.img_deleted_message_me)
+                        } else {
+                            holder.binding.tvMessage.text = it.message.body?.text
+                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.bg_message_user)
+                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.black))
+                        }
 
                         // Code below removes click listener if message was media before
                         // being deleted
@@ -155,9 +166,11 @@ class ChatAdapter(
 
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
                         holder.binding.tvMessage.setOnLongClickListener { _ ->
-                            it.message.senderMessage = true
-                            it.message.messagePosition = holder.absoluteAdapterPosition
-                            onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
+                            if (!(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message))){
+                                it.message.senderMessage = true
+                                it.message.messagePosition = holder.absoluteAdapterPosition
+                                onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
+                            }
                             true
                         }
                     }
@@ -600,13 +613,23 @@ class ChatAdapter(
                 holder.binding.tvTime.visibility = View.GONE
                 when (it.message.type) {
                     Const.JsonFields.TEXT_TYPE -> {
-                        holder.binding.tvMessage.text = it.message.body?.text
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.cvImage.visibility = View.GONE
                         holder.binding.clFileMessage.visibility = View.GONE
                         holder.binding.clVideos.visibility = View.GONE
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
+
+                        if(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message)){
+                            holder.binding.tvMessage.text = context.getString(R.string.message_deleted_text)
+                            holder.binding.tvMessage.textAlignment = TEXT_ALIGNMENT_CENTER
+                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
+                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.img_deleted_message_other)
+                        } else {
+                            holder.binding.tvMessage.text = it.message.body?.text
+                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.bg_message_received)
+                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.black))
+                        }
 
                         holder.binding.tvMessage.setOnClickListener {
                             if (holder.binding.tvTime.visibility == View.GONE) {
@@ -621,9 +644,11 @@ class ChatAdapter(
 
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
                         holder.binding.tvMessage.setOnLongClickListener { _ ->
-                            it.message.senderMessage = false
-                            it.message.messagePosition = holder.absoluteAdapterPosition
-                            onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
+                            if (!(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message))){
+                                it.message.senderMessage = true
+                                it.message.messagePosition = holder.absoluteAdapterPosition
+                                onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
+                            }
                             true
                         }
                     }
