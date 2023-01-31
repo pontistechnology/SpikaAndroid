@@ -22,6 +22,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
@@ -196,6 +197,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
         initViews()
         initListeners()
+
+        // Clear notifications for this room
+        NotificationManagerCompat.from(requireContext()).cancel(roomWithUsers.room.roomId)
 
         return bindingSetup.root
     }
@@ -678,7 +682,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             val clip: ClipData = ClipData.newPlainText("", msg.message.body?.text.toString())
             clipboard.setPrimaryClip(clip)
             bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
-            Toast.makeText(requireContext(), getString(R.string.text_copied), Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.text_copied), Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
