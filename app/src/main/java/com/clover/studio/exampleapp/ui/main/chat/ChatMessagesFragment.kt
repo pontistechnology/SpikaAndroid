@@ -1,7 +1,10 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
 import android.Manifest
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ContentResolver
+import android.content.Context.CLIPBOARD_SERVICE
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.media.MediaMetadataRetriever
@@ -201,7 +204,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.tvChatName.text = userName
         Glide.with(this)
             .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-            .placeholder(AppCompatResources.getDrawable(requireContext(), R.drawable.img_user_placeholder))
+            .placeholder(
+                AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_user_placeholder
+                )
+            )
             .into(bindingSetup.ivUserImage)
     }
 
@@ -663,6 +671,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
             getDetailsList(msg.message)
             bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        bindingSetup.messageActions.tvCopy.setOnClickListener {
+            val clipboard = requireContext().getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+            val clip: ClipData = ClipData.newPlainText("", msg.message.body?.text.toString())
+            clipboard.setPrimaryClip(clip)
+            bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+            Toast.makeText(requireContext(), getString(R.string.text_copied), Toast.LENGTH_SHORT).show()
         }
     }
 
