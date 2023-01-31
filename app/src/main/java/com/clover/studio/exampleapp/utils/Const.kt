@@ -11,10 +11,13 @@ class Const {
             const val ROOM_DATA = "room_data"
             const val GO_ACCOUNT_CREATION = "go_account_creation"
             const val SELECTED_USERS = "selected_users"
-            const val ROOM_ID = "room_id"
+            const val ROOM_ID = "roomId"
             const val IS_ADMIN = "is_admin"
             const val USER_IDS = "user_ids"
             const val USER_NUMBER = "user_number"
+            const val NOTE_ID = "noteId"
+            const val NOTES_DETAILS = "notesDetails"
+            const val NOTES_NAME = "notesName"
         }
     }
 

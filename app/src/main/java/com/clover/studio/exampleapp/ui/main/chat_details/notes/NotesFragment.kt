@@ -4,13 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentNotesBinding
+import com.clover.studio.exampleapp.ui.main.MainActivity
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
+import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 
 class NotesFragment : BaseFragment() {
@@ -44,11 +48,15 @@ class NotesFragment : BaseFragment() {
         }
 
         binding.ivNewNote.setOnClickListener {
-            val action = NotesFragmentDirections.actionNotesFragmentToNewNoteFragment(
-                roomId
+            if (activity is MainActivity) {
+                findNavController().navigate(
+                    R.id.newNoteFragment2,
+                    bundleOf(Const.Navigation.ROOM_ID to roomId)
+                )
+            } else findNavController().navigate(
+                R.id.newNoteFragment,
+                bundleOf(Const.Navigation.ROOM_ID to roomId)
             )
-
-            findNavController().navigate(action)
         }
     }
 
@@ -65,15 +73,23 @@ class NotesFragment : BaseFragment() {
 
     private fun setupAdapter() {
         adapter = NotesAdapter(requireActivity()) {
-            val action = it.content?.let { content ->
-                NotesFragmentDirections.actionNotesFragmentToNotesDetailsFragment(
-                    it.id, content, it.title!!
+            if (activity is MainActivity) {
+                findNavController().navigate(
+                    R.id.notesDetailsFragment2,
+                    bundleOf(
+                        Const.Navigation.NOTE_ID to it.id,
+                        Const.Navigation.NOTES_DETAILS to it.content,
+                        Const.Navigation.NOTES_NAME to it.title
+                    )
                 )
-            }
-
-            if (action != null) {
-                findNavController().navigate(action)
-            }
+            } else findNavController().navigate(
+                R.id.notesDetailsFragment,
+                bundleOf(
+                    Const.Navigation.NOTE_ID to it.id,
+                    Const.Navigation.NOTES_DETAILS to it.content,
+                    Const.Navigation.NOTES_NAME to it.title
+                )
+            )
         }
 
         binding.rvNotes.itemAnimator = null

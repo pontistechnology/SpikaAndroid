@@ -6,7 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavDirections
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.User
@@ -217,13 +220,23 @@ class ContactDetailsFragment : BaseFragment() {
             }
         }
 
-        // Check if private room with user exists. Hide pin and mute layouts if no room exists
+        // Check if private room with user exists. Hide pin, mute and notes layouts if no room exists
         if (roomId == 0) {
             binding.clMute.visibility = View.GONE
             binding.clPinChat.visibility = View.GONE
+            binding.clNotes.visibility = View.GONE
         } else {
             binding.clMute.visibility = View.VISIBLE
             binding.clPinChat.visibility = View.VISIBLE
+            binding.clNotes.visibility = View.VISIBLE
+        }
+
+        binding.clNotes.setOnClickListener {
+            if (activity is MainActivity) {
+                findNavController().navigate(R.id.notesFragment2, bundleOf(Const.Navigation.ROOM_ID to roomId))
+            } else {
+                findNavController().navigate(R.id.notesFragment, bundleOf(Const.Navigation.ROOM_ID to roomId))
+            }
         }
 
         binding.swMute.setOnCheckedChangeListener(multiListener)

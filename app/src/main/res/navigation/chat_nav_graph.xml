@@ -101,6 +101,9 @@
         <action
             android:id="@+id/action_notesFragment_to_newNoteFragment"
             app:destination="@id/newNoteFragment" />
+        <action
+            android:id="@+id/action_notesFragment_to_contactDetailsFragment2"
+            app:destination="@id/contactDetailsFragment2" />
     </fragment>
     <fragment
         android:id="@+id/notesDetailsFragment"
@@ -145,5 +148,8 @@
         <action
             android:id="@+id/action_contactDetailsFragment2_to_chatMessagesFragment"
             app:destination="@id/chatMessagesFragment" />
+        <action
+            android:id="@+id/action_contactDetailsFragment2_to_notesFragment"
+            app:destination="@id/notesFragment" />
     </fragment>
 </navigation>
