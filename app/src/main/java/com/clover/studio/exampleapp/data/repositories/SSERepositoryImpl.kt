@@ -32,7 +32,6 @@ class SSERepositoryImpl @Inject constructor(
     private val appDatabase: AppDatabase,
     private val userDao: UserDao
 ) : SSERepository {
-    // TODO write code to insert list of records at once instead of one by one
     override suspend fun syncMessageRecords() {
         Timber.d("Syncing message records")
         val messageRecordsTimestamp: Long
@@ -51,25 +50,45 @@ class SSERepositoryImpl @Inject constructor(
                 messageRecordsTimestamp
             )
 
-        val messageRecords: MutableList<MessageRecords> = ArrayList()
-        for (record in response.data.messageRecords) {
-            if (messageRecordsDao.getMessageRecordId(
-                    record.messageId,
-                    record.userId
-                ) == null
-            ) {
-                messageRecords.add(record)
-            } else
-                writeRecord(record)
-        }
+        CoroutineScope(Dispatchers.IO).launch {
+            appDatabase.runInTransaction {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val messageRecords: MutableList<MessageRecords> = ArrayList()
+                    val messageRecordsUpdates: MutableList<MessageRecords> = ArrayList()
+                    for (record in response.data.messageRecords) {
+                        if (messageRecordsDao.getMessageRecordId(
+                                record.messageId,
+                                record.userId
+                            ) == null
+                        ) {
+                            messageRecords.add(record)
+                        } else
+                            if (Const.JsonFields.SEEN == record.type) {
+                                messageRecordsUpdates.add(record)
+                            } else if (Const.JsonFields.REACTION == record.type) {
+                                if (messageRecordsDao.getMessageReactionId(
+                                        record.messageId,
+                                        record.userId
+                                    ) == null
+                                ) {
+                                    messageRecords.add(record)
+                                } else {
+                                    messageRecordsUpdates.add(record)
+                                }
+                            }
+                    }
 
-        messageRecordsDao.insert(messageRecords)
+                    messageRecordsDao.insert(messageRecords)
+                    messageRecordsUpdates.forEach { messageRecordsDao.updateMessageRecords(it.userId, it.type, it.createdAt, it.modifiedAt, it.userId) }
 
-        if (messageRecords.isNotEmpty()) {
-            val maxTimestamp = messageRecords.maxByOrNull { it.createdAt }?.createdAt
-            Timber.d("MaxTimestamp message records timestamps: $maxTimestamp")
-            if (maxTimestamp!! > messageRecordsTimestamp) {
-                sharedPrefs.writeMessageRecordTimestamp(maxTimestamp)
+                    if (messageRecords.isNotEmpty()) {
+                        val maxTimestamp = messageRecords.maxByOrNull { it.createdAt }?.createdAt
+                        Timber.d("MaxTimestamp message records timestamps: $maxTimestamp")
+                        if (maxTimestamp!! > messageRecordsTimestamp) {
+                            sharedPrefs.writeMessageRecordTimestamp(maxTimestamp)
+                        }
+                    }
+                }
             }
         }
     }
@@ -188,10 +207,10 @@ class SSERepositoryImpl @Inject constructor(
                                 }
                             }
                             rooms.add(room)
-                            chatRoomDao.updateRoomTable(chatRooms)
-                            userDao.insert(users)
-                            chatRoomDao.insertRoomWithUsers(roomUsers)
                         }
+                        chatRoomDao.updateRoomTable(chatRooms)
+                        userDao.insert(users)
+                        chatRoomDao.insertRoomWithUsers(roomUsers)
                         if (rooms.isNotEmpty()) {
                             val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
                             Timber.d("MaxTimestamp rooms: $maxTimestamp, old timestamp = $roomTimestamp")
@@ -231,29 +250,36 @@ class SSERepositoryImpl @Inject constructor(
      * @param messageRecords
      */
     private suspend fun writeRecord(messageRecords: MessageRecords) {
-//        } else {
-        if (Const.JsonFields.SEEN == messageRecords.type) {
-            messageRecordsDao.updateMessageRecords(
+        if (messageRecordsDao.getMessageRecordId(
                 messageRecords.messageId,
-                messageRecords.type,
-                messageRecords.createdAt,
-                messageRecords.modifiedAt,
-                messageRecords.userId,
-            )
-        } else if (Const.JsonFields.REACTION == messageRecords.type) {
-            if (messageRecordsDao.getMessageReactionId(
+                messageRecords.userId
+            ) == null
+        ) {
+            messageRecordsDao.insert(messageRecords)
+        } else {
+            if (Const.JsonFields.SEEN == messageRecords.type) {
+                messageRecordsDao.updateMessageRecords(
                     messageRecords.messageId,
-                    messageRecords.userId
-                ) == null
-            ) {
-                messageRecordsDao.insert(messageRecords)
-            } else {
-                messageRecordsDao.updateReaction(
-                    messageRecords.messageId,
-                    messageRecords.reaction!!,
-                    messageRecords.userId,
+                    messageRecords.type,
                     messageRecords.createdAt,
+                    messageRecords.modifiedAt,
+                    messageRecords.userId,
                 )
+            } else if (Const.JsonFields.REACTION == messageRecords.type) {
+                if (messageRecordsDao.getMessageReactionId(
+                        messageRecords.messageId,
+                        messageRecords.userId
+                    ) == null
+                ) {
+                    messageRecordsDao.insert(messageRecords)
+                } else {
+                    messageRecordsDao.updateReaction(
+                        messageRecords.messageId,
+                        messageRecords.reaction!!,
+                        messageRecords.userId,
+                        messageRecords.createdAt,
+                    )
+                }
             }
         }
     }
