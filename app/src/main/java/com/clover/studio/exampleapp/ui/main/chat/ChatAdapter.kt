@@ -166,9 +166,11 @@ class ChatAdapter(
 
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
                         holder.binding.tvMessage.setOnLongClickListener { _ ->
-                            it.message.senderMessage = true
-                            it.message.messagePosition = holder.absoluteAdapterPosition
-                            onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
+                            if (!(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message))){
+                                it.message.senderMessage = true
+                                it.message.messagePosition = holder.absoluteAdapterPosition
+                                onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
+                            }
                             true
                         }
                     }
@@ -642,9 +644,11 @@ class ChatAdapter(
 
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
                         holder.binding.tvMessage.setOnLongClickListener { _ ->
-                            it.message.senderMessage = false
-                            it.message.messagePosition = holder.absoluteAdapterPosition
-                            onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
+                            if (!(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message))){
+                                it.message.senderMessage = true
+                                it.message.messagePosition = holder.absoluteAdapterPosition
+                                onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
+                            }
                             true
                         }
                     }
