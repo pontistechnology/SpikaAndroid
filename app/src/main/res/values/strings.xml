@@ -63,7 +63,7 @@
     <string name="channel_description">Spika App</string>
     <string name="timeout">00:00</string>
     <string name="done">Done</string>
-    <string name="users_selected">%s/100 selected</string>
+    <string name="users_selected">%d/100 selected</string>
     <string name="create">Create</string>
     <string name="new_chat">New chat</string>
     <string name="select_members">Select members</string>
