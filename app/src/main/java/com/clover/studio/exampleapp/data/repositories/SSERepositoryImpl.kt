@@ -79,6 +79,8 @@ class SSERepositoryImpl @Inject constructor(
                     }
 
                     messageRecordsDao.insert(messageRecords)
+
+                    // Since this is a transaction method this loop should insert all or none
                     messageRecordsUpdates.forEach { messageRecordsDao.updateMessageRecords(it.userId, it.type, it.createdAt, it.modifiedAt, it.userId) }
 
                     if (messageRecords.isNotEmpty()) {
