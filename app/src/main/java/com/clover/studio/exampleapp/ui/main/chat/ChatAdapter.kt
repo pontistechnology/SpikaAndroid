@@ -645,7 +645,7 @@ class ChatAdapter(
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
                         holder.binding.tvMessage.setOnLongClickListener { _ ->
                             if (!(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message))){
-                                it.message.senderMessage = true
+                                it.message.senderMessage = false
                                 it.message.messagePosition = holder.absoluteAdapterPosition
                                 onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
                             }
