@@ -20,7 +20,6 @@ import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.ui.main.contacts.ContactsAdapter
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
@@ -47,7 +46,7 @@ class NewRoomFragment : BaseFragment() {
 
     private val binding get() = bindingSetup!!
 
-    private var localId : Int = 0
+    private var localId: Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -120,6 +119,8 @@ class NewRoomFragment : BaseFragment() {
     }
 
     private fun handleGroupChat() {
+        // Clear data if old data is still present
+        selectedUsers.clear()
         binding.clSelectedContacts.visibility = View.VISIBLE
         binding.tvSelectedNumber.text = getString(R.string.users_selected, selectedUsers.size)
         binding.tvNewGroupChat.visibility = View.GONE
