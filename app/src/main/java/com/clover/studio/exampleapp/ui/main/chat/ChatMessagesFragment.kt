@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
 import android.Manifest
+import android.animation.Animator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentResolver
@@ -84,9 +85,6 @@ private const val SCROLL_DISTANCE_POSITIVE = 300
 private const val MIN_HEIGHT_DIFF = 150
 private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
-
-private const val VIEW_TYPE_MESSAGE_SENT = 1
-private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 
 enum class UploadMimeTypes {
     IMAGE, VIDEO, FILE, MEDIA
@@ -547,7 +545,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(
                 0,
-                ItemTouchHelper.RIGHT
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
+
             ) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -558,12 +557,53 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 return false
             }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                // Get swiped message text and add to message EditText
-                // After that, return item to correct position
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                // dx / 4
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                if (actionState == ACTION_STATE_SWIPE) {
+                    val swipeThreshold = 0.5f * viewHolder.itemView.width
+                    if (dX > swipeThreshold) {
+                        chatAdapter.notifyItemChanged(viewHolder.absoluteAdapterPosition)
+                    } else if (dX < -swipeThreshold) {
+                        chatAdapter.notifyItemChanged(viewHolder.absoluteAdapterPosition)
+                    }
+                }
+            }
+
+            override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+                return makeMovementFlags(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
+            }
+
+            override fun onSwiped(viewHolder: ViewHolder, swipeDir: Int) {
                 val position = viewHolder.absoluteAdapterPosition
-                bindingSetup.etMessage.setText(messagesRecords[position].message.body?.text)
-                chatAdapter.notifyItemChanged(position)
+                // chatAdapter.notifyItemChanged(position)
+                if (viewHolder.itemViewType == VIEW_TYPE_MESSAGE_SENT){
+                    if (swipeDir == ItemTouchHelper.LEFT ){
+                        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        handleMessageReply(messagesRecords[position].message)
+                    }
+                    if (swipeDir == ItemTouchHelper.RIGHT){
+                        bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        getDetailsList(messagesRecords[position].message)
+                    }
+                } else {
+                    if (swipeDir == ItemTouchHelper.RIGHT ){
+                        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        handleMessageReply(messagesRecords[position].message)
+                    }
+                    if (swipeDir == ItemTouchHelper.LEFT){
+                        bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        getDetailsList(messagesRecords[position].message)
+                    }
+                }
             }
         }
 
