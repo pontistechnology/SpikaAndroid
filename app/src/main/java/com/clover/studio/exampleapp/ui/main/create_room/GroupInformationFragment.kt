@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -21,9 +22,9 @@ import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentGroupInformationBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
-import com.clover.studio.exampleapp.ui.main.RoomCreated
 import com.clover.studio.exampleapp.ui.main.RoomCreateFailed
-import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
+import com.clover.studio.exampleapp.ui.main.RoomCreated
+import com.clover.studio.exampleapp.ui.main.chat.*
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
@@ -33,9 +34,6 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -49,6 +47,7 @@ class GroupInformationFragment : BaseFragment() {
     private var selectedUsers: MutableList<UserAndPhoneUser> = ArrayList()
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var progress: Long = 1L
+    private var uploadPieces: Int = 0
     private var avatarFileId: Long? = null
 
     private var bindingSetup: FragmentGroupInformationBinding? = null
@@ -62,7 +61,7 @@ class GroupInformationFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
+                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
@@ -75,10 +74,14 @@ class GroupInformationFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(requireActivity(), currentPhotoLocation, false)
+                    Tools.handleSamplingAndRotationBitmap(
+                        requireActivity(),
+                        currentPhotoLocation,
+                        false
+                    )
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
+                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
@@ -231,6 +234,35 @@ class GroupInformationFragment : BaseFragment() {
                 }
             }
         })
+
+        viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
+            when (it) {
+                is MediaPieceUploaded -> {
+                    if (progress <= uploadPieces) {
+                        binding.progressBar.secondaryProgress = progress.toInt()
+                        progress++
+                    } else progress = 0
+                }
+                is MediaUploadVerified -> {
+                    Timber.d("Upload verified")
+                    requireActivity().runOnUiThread {
+                        binding.clProgressScreen.visibility = View.GONE
+                    }
+                    avatarFileId = it.fileId
+                }
+                is MediaUploadError -> {
+                    Timber.d("Upload Error")
+                    requireActivity().runOnUiThread {
+                        showUploadError(it.description)
+                    }
+                }
+                else -> Toast.makeText(
+                    requireContext(),
+                    getString(R.string.something_went_wrong),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
     }
 
     private fun setupAdapter() {
@@ -271,47 +303,21 @@ class GroupInformationFragment : BaseFragment() {
                 inputStream!!,
                 activity?.contentResolver?.getType(currentPhotoLocation)!!
             )
-            val uploadPieces =
+            uploadPieces =
                 if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
-                    fileStream.length() / CHUNK_SIZE + 1
-                else fileStream.length() / CHUNK_SIZE
+                    (fileStream.length() / CHUNK_SIZE + 1).toInt()
+                else (fileStream.length() / CHUNK_SIZE).toInt()
 
-            binding.progressBar.max = uploadPieces.toInt()
+            binding.progressBar.max = uploadPieces
             Timber.d("File upload start")
-            CoroutineScope(Dispatchers.IO).launch {
-                uploadDownloadManager.uploadFile(
-                    requireActivity(),
-                    currentPhotoLocation,
-                    Const.JsonFields.AVATAR_TYPE,
-                    uploadPieces,
-                    fileStream,
-                    false,
-                    object :
-                        FileUploadListener {
-                        override fun filePieceUploaded() {
-                            if (progress <= uploadPieces) {
-                                binding.progressBar.secondaryProgress = progress.toInt()
-                                progress++
-                            } else progress = 0
-                        }
-
-                        override fun fileUploadError(description: String) {
-                            Timber.d("Upload Error")
-                            requireActivity().runOnUiThread {
-                                showUploadError(description)
-                            }
-                        }
-
-                        override fun fileUploadVerified(path: String, mimeType: String, thumbId: Long, fileId: Long) {
-                            Timber.d("Upload verified")
-                            requireActivity().runOnUiThread {
-                                binding.clProgressScreen.visibility = View.GONE
-                            }
-                            avatarFileId = fileId
-                        }
-
-                    })
-            }
+            viewModel.uploadMedia(
+                requireActivity(),
+                currentPhotoLocation,
+                Const.JsonFields.AVATAR_TYPE,
+                uploadPieces,
+                fileStream,
+                false
+            )
             binding.clProgressScreen.visibility = View.VISIBLE
         }
     }

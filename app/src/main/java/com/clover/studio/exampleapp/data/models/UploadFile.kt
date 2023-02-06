@@ -11,7 +11,7 @@ data class UploadFile(
     val offset: Long,
 
     // total: Total number of chunks
-    val total: Long,
+    val total: Int,
 
     // size: File size in bytes
     val size: Long,

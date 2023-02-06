@@ -101,7 +101,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var isAdmin = false
     private var uploadIndex = 0
     private var progress = 0
-    private var uploadPieces = 0L
+    private var uploadPieces = 0
     private var fileType: String = ""
     private var mediaType: UploadMimeTypes? = null
     private var tempMessageCounter = -1
@@ -316,7 +316,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         if (progress <= uploadPieces) {
                             updateUploadFileProgressBar(
                                 progress + 1,
-                                uploadPieces.toInt(),
+                                uploadPieces,
                                 fileType
                             )
                             progress++
@@ -1522,8 +1522,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         uploadPieces =
             if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
-                fileStream.length() / CHUNK_SIZE + 1
-            else fileStream.length() / CHUNK_SIZE
+                (fileStream.length() / CHUNK_SIZE + 1).toInt()
+            else (fileStream.length() / CHUNK_SIZE).toInt()
         progress = 0
 
         val type = activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
@@ -1568,8 +1568,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
         uploadPieces =
             if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
-                fileStream.length() / CHUNK_SIZE + 1
-            else fileStream.length() / CHUNK_SIZE
+                (fileStream.length() / CHUNK_SIZE + 1).toInt()
+            else (fileStream.length() / CHUNK_SIZE).toInt()
         progress = 0
 
         val fileType: String
