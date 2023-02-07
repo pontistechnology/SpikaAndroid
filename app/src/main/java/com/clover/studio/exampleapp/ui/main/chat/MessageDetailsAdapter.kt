@@ -34,7 +34,7 @@ class MessageDetailsAdapter(
     }
 
     override fun onBindViewHolder(holder: MessageDetailsViewHolder, position: Int) {
-        val simpleDateFormat = SimpleDateFormat("DD.MM.y. HH:MM aa", Locale.getDefault())
+        val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy. HH:mm aa", Locale.getDefault())
         with(holder) {
             getItem(position).let { messageRecord ->
                 // Show sender header - this is first and only message record for sender
