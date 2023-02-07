@@ -34,7 +34,6 @@ class ChatViewModel @Inject constructor(
 ) : BaseViewModel() {
     val messageSendListener = MutableLiveData<Event<ChatStatesEnum>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
-    val roomWithUsersListener = MutableLiveData<Event<ChatStates>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
     val roomNotificationListener = MutableLiveData<Event<ChatStates>>()
     val fileUploadListener = MutableLiveData<Event<ChatStates>>()
@@ -445,7 +444,7 @@ class ChatViewModel @Inject constructor(
     fun uploadFile(
         activity: Activity,
         uri: Uri,
-        uploadPieces: Long,
+        uploadPieces: Int,
         fileStream: File,
         type: String
     ) =
@@ -487,7 +486,7 @@ class ChatViewModel @Inject constructor(
         activity: Activity,
         uri: Uri,
         fileType: String,
-        uploadPieces: Long,
+        uploadPieces: Int,
         fileStream: File,
         isThumbnail: Boolean
     ) = viewModelScope.launch {

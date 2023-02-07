@@ -67,8 +67,8 @@
     <string name="create">Create</string>
     <string name="new_chat">New chat</string>
     <string name="select_members">Select members</string>
-    <string name="s_people_selected">%s people selected</string>
-    <string name="number_of_members">%s Members</string>
+    <string name="s_people_selected">%d people selected</string>
+    <string name="number_of_members">%d Members</string>
     <string name="exit">Exit</string>
     <string name="info">Info</string>
     <string name="more_actions">More actions</string>
