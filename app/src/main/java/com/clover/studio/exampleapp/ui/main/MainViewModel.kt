@@ -1,5 +1,7 @@
 package com.clover.studio.exampleapp.ui.main
 
+import android.app.Activity
+import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -11,23 +13,26 @@ import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
-import com.clover.studio.exampleapp.utils.Event
-import com.clover.studio.exampleapp.utils.SSEListener
-import com.clover.studio.exampleapp.utils.SSEManager
-import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.ui.main.chat.ChatStates
+import com.clover.studio.exampleapp.ui.main.chat.MediaPieceUploaded
+import com.clover.studio.exampleapp.ui.main.chat.MediaUploadError
+import com.clover.studio.exampleapp.ui.main.chat.MediaUploadVerified
+import com.clover.studio.exampleapp.utils.*
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: MainRepositoryImpl,
     private val sharedPrefsRepo: SharedPreferencesRepository,
-    private val sseManager: SSEManager
+    private val sseManager: SSEManager,
+    private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel() {
 
     val usersListener = MutableLiveData<Event<MainStates>>()
@@ -38,6 +43,7 @@ class MainViewModel @Inject constructor(
     val roomDataListener = MutableLiveData<Event<MainStates>>()
     val roomNotificationListener = MutableLiveData<Event<MainStates>>()
     val blockedListListener = MutableLiveData<Event<MainStates>>()
+    val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
 
     fun getLocalUser() = liveData {
         val localUserId = sharedPrefsRepo.readUserId()
@@ -297,6 +303,55 @@ class MainViewModel @Inject constructor(
                 setTokenExpiredTrue()
             }
             return@launch
+        }
+    }
+
+    fun uploadMedia(
+        activity: Activity,
+        uri: Uri,
+        fileType: String,
+        uploadPieces: Int,
+        fileStream: File,
+        isThumbnail: Boolean
+    ) = viewModelScope.launch {
+        try {
+            uploadDownloadManager.uploadFile(
+                activity,
+                uri,
+                fileType,
+                uploadPieces,
+                fileStream,
+                isThumbnail,
+                object : FileUploadListener {
+                    override fun filePieceUploaded() {
+                        mediaUploadListener.postValue(Event(MediaPieceUploaded))
+                    }
+
+                    override fun fileUploadError(description: String) {
+                        mediaUploadListener.postValue(Event(MediaUploadError(description)))
+                    }
+
+                    override fun fileUploadVerified(
+                        path: String,
+                        mimeType: String,
+                        thumbId: Long,
+                        fileId: Long
+                    ) {
+                        mediaUploadListener.postValue(
+                            Event(
+                                MediaUploadVerified(
+                                    path,
+                                    mimeType,
+                                    thumbId,
+                                    fileId,
+                                    isThumbnail
+                                )
+                            )
+                        )
+                    }
+                })
+        } catch (ex: Exception) {
+            mediaUploadListener.postValue(Event(MediaUploadError(ex.message.toString())))
         }
     }
 }

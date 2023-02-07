@@ -63,11 +63,15 @@ class AccountCreationFragment : BaseFragment() {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 val bitmap =
-                    Tools.handleSamplingAndRotationBitmap(requireActivity(), currentPhotoLocation, false)
+                    Tools.handleSamplingAndRotationBitmap(
+                        requireActivity(),
+                        currentPhotoLocation,
+                        false
+                    )
                 val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap)
-                    .placeholder(context?.getDrawable(R.drawable.img_user_placeholder))
+                    .placeholder(R.drawable.img_user_placeholder)
                     .into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
@@ -217,10 +221,10 @@ class AccountCreationFragment : BaseFragment() {
                 )
                 val uploadPieces =
                     if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
-                        fileStream.length() / CHUNK_SIZE + 1
-                    else fileStream.length() / CHUNK_SIZE
+                        (fileStream.length() / CHUNK_SIZE + 1).toInt()
+                    else (fileStream.length() / CHUNK_SIZE).toInt()
 
-                binding.progressBar.max = uploadPieces.toInt()
+                binding.progressBar.max = uploadPieces
                 Timber.d("File upload start")
                 CoroutineScope(Dispatchers.IO).launch {
                     uploadDownloadManager.uploadFile(

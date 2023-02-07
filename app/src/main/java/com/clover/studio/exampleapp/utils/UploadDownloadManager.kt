@@ -27,7 +27,7 @@ const val CHUNK_SIZE = 64000
 class UploadDownloadManager constructor(
     private val repository: MainRepositoryImpl
 ) {
-    private var chunkCount = 0L
+    private var chunkCount = 0
 
     /**
      * Method will handle file upload process. The caller will have to supply the required parameters
@@ -45,7 +45,7 @@ class UploadDownloadManager constructor(
         activity: Activity,
         fileUri: Uri,
         fileType: String,
-        filePieces: Long,
+        filePieces: Int,
         file: File,
         isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
@@ -123,7 +123,7 @@ class UploadDownloadManager constructor(
     private suspend fun startUploadAPI(
         uploadFile: UploadFile,
         mimeType: String,
-        chunks: Long,
+        chunks: Int,
         isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
     ) {
@@ -163,7 +163,14 @@ class UploadDownloadManager constructor(
                     0
                 )
             }
-            else file?.path?.let { fileUploadListener.fileUploadVerified(it, mimeType,0, file.id.toLong()) }
+            else file?.path?.let {
+                fileUploadListener.fileUploadVerified(
+                    it,
+                    mimeType,
+                    0,
+                    file.id.toLong()
+                )
+            }
 
         } catch (ex: Exception) {
             Tools.checkError(ex)

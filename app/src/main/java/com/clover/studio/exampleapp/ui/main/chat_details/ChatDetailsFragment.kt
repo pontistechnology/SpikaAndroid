@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton.OnCheckedChangeListener
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -23,8 +24,9 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.databinding.FragmentChatDetailsBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
-import com.clover.studio.exampleapp.ui.main.chat.RoomWithUsersFailed
-import com.clover.studio.exampleapp.ui.main.chat.RoomWithUsersFetched
+import com.clover.studio.exampleapp.ui.main.chat.MediaPieceUploaded
+import com.clover.studio.exampleapp.ui.main.chat.MediaUploadError
+import com.clover.studio.exampleapp.ui.main.chat.MediaUploadVerified
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
@@ -33,9 +35,6 @@ import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import javax.inject.Inject
@@ -55,12 +54,14 @@ class ChatDetailsFragment : BaseFragment() {
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var roomUsers: MutableList<User> = ArrayList()
     private var progress: Long = 1L
-    private var avatarPath: Long? = null
+    private var uploadPieces: Int = 0
     private var roomId: Int? = null
     private var isAdmin = false
 
     private var userName = ""
     private var avatarFileId = 0L
+    private var newAvatarFileId = 0L
+    private var isUploading = false
 
     private var bindingSetup: FragmentChatDetailsBinding? = null
     private val binding get() = bindingSetup!!
@@ -72,7 +73,7 @@ class ChatDetailsFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickAvatar)
+                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickAvatar)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
@@ -92,7 +93,7 @@ class ChatDetailsFragment : BaseFragment() {
                     )
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickAvatar)
+                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickAvatar)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
@@ -175,7 +176,10 @@ class ChatDetailsFragment : BaseFragment() {
         // Set room pinned or not pinned on switch
         binding.swPinChat.isChecked = roomWithUsers.room.pinned
 
-        setAvatarAndUsername(avatarFileId, userName)
+        // This will stop image file changes while file is uploading via LiveData
+        if (!isUploading && binding.tvDone.visibility == View.GONE) {
+            setAvatarAndUsername(avatarFileId, userName)
+        }
         initializeListeners(roomWithUsers)
     }
 
@@ -212,8 +216,8 @@ class ChatDetailsFragment : BaseFragment() {
                 jsonObject.addProperty(Const.JsonFields.NAME, roomName)
             }
 
-            if (avatarPath != 0L) {
-                jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarPath)
+            if (newAvatarFileId != 0L) {
+                jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, newAvatarFileId)
             }
 
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
@@ -379,14 +383,39 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
+        viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
-                is RoomWithUsersFetched -> {
-                    initializeViews(it.roomWithUsers)
-                    handleUserStatusViews(isAdmin)
+                is MediaPieceUploaded -> {
+                    if (progress <= uploadPieces) {
+                        binding.progressBar.secondaryProgress = progress.toInt()
+                        progress++
+                    } else progress = 0
                 }
-                RoomWithUsersFailed -> Timber.d("Failed to fetch chat room")
-                else -> Timber.d("Other error")
+                is MediaUploadVerified -> {
+                    Timber.d("Upload verified")
+                    requireActivity().runOnUiThread {
+                        binding.clProgressScreen.visibility = View.GONE
+                        binding.ivVideoCall.visibility = View.GONE
+                        binding.ivCallUser.visibility = View.GONE
+                        binding.tvDone.visibility = View.VISIBLE
+                    }
+                    newAvatarFileId = it.fileId
+                    isUploading = false
+                }
+                is MediaUploadError -> {
+                    Timber.d("Upload Error")
+                    requireActivity().runOnUiThread {
+                        showUploadError(it.description)
+                    }
+                }
+                else -> {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.something_went_wrong),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    isUploading = false
+                }
             }
         })
     }
@@ -496,55 +525,22 @@ class ChatDetailsFragment : BaseFragment() {
                 inputStream!!,
                 activity?.contentResolver?.getType(currentPhotoLocation)!!
             )
-            val uploadPieces =
+            uploadPieces =
                 if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
-                    fileStream.length() / CHUNK_SIZE + 1
-                else fileStream.length() / CHUNK_SIZE
+                    (fileStream.length() / CHUNK_SIZE + 1).toInt()
+                else (fileStream.length() / CHUNK_SIZE).toInt()
 
-            binding.progressBar.max = uploadPieces.toInt()
+            binding.progressBar.max = uploadPieces
             Timber.d("File upload start")
-            CoroutineScope(Dispatchers.IO).launch {
-                uploadDownloadManager.uploadFile(
-                    requireActivity(),
-                    currentPhotoLocation,
-                    Const.JsonFields.AVATAR_TYPE,
-                    uploadPieces,
-                    fileStream,
-                    false,
-                    object :
-                        FileUploadListener {
-                        override fun filePieceUploaded() {
-                            if (progress <= uploadPieces) {
-                                binding.progressBar.secondaryProgress = progress.toInt()
-                                progress++
-                            } else progress = 0
-                        }
-
-                        override fun fileUploadError(description: String) {
-                            Timber.d("Upload Error")
-                            requireActivity().runOnUiThread {
-                                showUploadError(description)
-                            }
-                        }
-
-                        override fun fileUploadVerified(
-                            path: String,
-                            mimeType: String,
-                            thumbId: Long,
-                            fileId: Long
-                        ) {
-                            Timber.d("Upload verified")
-                            requireActivity().runOnUiThread {
-                                binding.clProgressScreen.visibility = View.GONE
-                                binding.ivVideoCall.visibility = View.GONE
-                                binding.ivCallUser.visibility = View.GONE
-                                binding.tvDone.visibility = View.VISIBLE
-                            }
-                            avatarPath = fileId
-                        }
-
-                    })
-            }
+            isUploading = true
+            viewModel.uploadMedia(
+                requireActivity(),
+                currentPhotoLocation,
+                Const.JsonFields.AVATAR_TYPE,
+                uploadPieces,
+                fileStream,
+                false
+            )
             binding.clProgressScreen.visibility = View.VISIBLE
         }
     }
