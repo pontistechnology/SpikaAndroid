@@ -1488,7 +1488,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun uploadThumbnail() {
         mediaType = UploadMimeTypes.IMAGE
-        uploadMedia(true, thumbnailUris.first(), mediaType!!, messageBody = nullIn)
+        uploadMedia(true, thumbnailUris.first(), mediaType!!, messageBody = null)
     }
 
     private fun uploadVideoThumbnail() {
