@@ -6,10 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
-import com.clover.studio.exampleapp.data.models.entity.ChatRoom
-import com.clover.studio.exampleapp.data.models.entity.Message
-import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
-import com.clover.studio.exampleapp.data.models.entity.User
+import com.clover.studio.exampleapp.data.models.entity.*
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
@@ -312,6 +309,7 @@ class MainViewModel @Inject constructor(
         fileType: String,
         uploadPieces: Int,
         fileStream: File,
+        messageBody: MessageBody?,
         isThumbnail: Boolean
     ) = viewModelScope.launch {
         try {
@@ -321,10 +319,11 @@ class MainViewModel @Inject constructor(
                 fileType,
                 uploadPieces,
                 fileStream,
+                messageBody,
                 isThumbnail,
                 object : FileUploadListener {
                     override fun filePieceUploaded() {
-                        mediaUploadListener.postValue(Event(MediaPieceUploaded))
+                        mediaUploadListener.postValue(Event(MediaPieceUploaded(isThumbnail)))
                     }
 
                     override fun fileUploadError(description: String) {
@@ -335,7 +334,8 @@ class MainViewModel @Inject constructor(
                         path: String,
                         mimeType: String,
                         thumbId: Long,
-                        fileId: Long
+                        fileId: Long,
+                        messageBody: MessageBody?
                     ) {
                         mediaUploadListener.postValue(
                             Event(
@@ -344,6 +344,7 @@ class MainViewModel @Inject constructor(
                                     mimeType,
                                     thumbId,
                                     fileId,
+                                    messageBody,
                                     isThumbnail
                                 )
                             )

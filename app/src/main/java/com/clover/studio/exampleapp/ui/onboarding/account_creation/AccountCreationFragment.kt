@@ -16,6 +16,7 @@ import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
@@ -233,6 +234,7 @@ class AccountCreationFragment : BaseFragment() {
                         Const.JsonFields.AVATAR_TYPE,
                         uploadPieces,
                         fileStream,
+                        null,
                         false,
                         object : FileUploadListener {
                             override fun filePieceUploaded() {
@@ -253,7 +255,8 @@ class AccountCreationFragment : BaseFragment() {
                                 path: String,
                                 mimeType: String,
                                 thumbId: Long,
-                                fileId: Long
+                                fileId: Long,
+                                messageBody: MessageBody?
                             ) {
                                 requireActivity().runOnUiThread {
                                     binding.clProgressScreen.visibility = View.GONE

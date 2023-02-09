@@ -539,6 +539,7 @@ class ChatDetailsFragment : BaseFragment() {
                 Const.JsonFields.AVATAR_TYPE,
                 uploadPieces,
                 fileStream,
+                null,
                 false
             )
             binding.clProgressScreen.visibility = View.VISIBLE

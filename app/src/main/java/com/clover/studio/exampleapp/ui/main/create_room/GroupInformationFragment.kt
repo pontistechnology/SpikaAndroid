@@ -24,7 +24,10 @@ import com.clover.studio.exampleapp.databinding.FragmentGroupInformationBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.RoomCreateFailed
 import com.clover.studio.exampleapp.ui.main.RoomCreated
-import com.clover.studio.exampleapp.ui.main.chat.*
+import com.clover.studio.exampleapp.ui.main.chat.MediaPieceUploaded
+import com.clover.studio.exampleapp.ui.main.chat.MediaUploadError
+import com.clover.studio.exampleapp.ui.main.chat.MediaUploadVerified
+import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
@@ -316,6 +319,7 @@ class GroupInformationFragment : BaseFragment() {
                 Const.JsonFields.AVATAR_TYPE,
                 uploadPieces,
                 fileStream,
+                null,
                 false
             )
             binding.clProgressScreen.visibility = View.VISIBLE

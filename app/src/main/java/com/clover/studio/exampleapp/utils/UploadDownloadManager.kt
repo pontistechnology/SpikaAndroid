@@ -9,6 +9,7 @@ import android.net.Uri
 import android.util.Base64
 import com.clover.studio.exampleapp.data.models.FileMetadata
 import com.clover.studio.exampleapp.data.models.UploadFile
+import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import timber.log.Timber
 import java.io.BufferedInputStream
@@ -47,6 +48,7 @@ class UploadDownloadManager constructor(
         fileType: String,
         filePieces: Int,
         file: File,
+        messageBody: MessageBody?,
         isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
     ) {
@@ -113,7 +115,14 @@ class UploadDownloadManager constructor(
                 )
 
                 Timber.d("Chunk count $chunkCount")
-                startUploadAPI(uploadFile, mimeType, filePieces, isThumbnail, fileUploadListener)
+                startUploadAPI(
+                    uploadFile,
+                    mimeType,
+                    filePieces,
+                    isThumbnail,
+                    messageBody,
+                    fileUploadListener
+                )
 
                 piece++
             }
@@ -125,6 +134,7 @@ class UploadDownloadManager constructor(
         mimeType: String,
         chunks: Int,
         isThumbnail: Boolean = false,
+        messageBody: MessageBody?,
         fileUploadListener: FileUploadListener
     ) {
         try {
@@ -140,7 +150,7 @@ class UploadDownloadManager constructor(
 
         Timber.d("Should verify? $chunkCount, $chunks")
         if (chunkCount == chunks) {
-            verifyFileUpload(uploadFile, mimeType, isThumbnail, fileUploadListener)
+            verifyFileUpload(uploadFile, mimeType, isThumbnail, messageBody, fileUploadListener)
             chunkCount = 0
         }
     }
@@ -149,6 +159,7 @@ class UploadDownloadManager constructor(
         uploadFile: UploadFile,
         mimeType: String,
         isThumbnail: Boolean = false,
+        messageBody: MessageBody?,
         fileUploadListener: FileUploadListener
     ) {
         try {
@@ -160,7 +171,8 @@ class UploadDownloadManager constructor(
                     it,
                     mimeType,
                     file.id.toLong(),
-                    0
+                    0,
+                    messageBody
                 )
             }
             else file?.path?.let {
@@ -168,7 +180,8 @@ class UploadDownloadManager constructor(
                     it,
                     mimeType,
                     0,
-                    file.id.toLong()
+                    file.id.toLong(),
+                    messageBody
                 )
             }
 
@@ -183,5 +196,11 @@ class UploadDownloadManager constructor(
 interface FileUploadListener {
     fun filePieceUploaded()
     fun fileUploadError(description: String)
-    fun fileUploadVerified(path: String, mimeType: String, thumbId: Long = 0, fileId: Long = 0)
+    fun fileUploadVerified(
+        path: String,
+        mimeType: String,
+        thumbId: Long = 0,
+        fileId: Long = 0,
+        messageBody: MessageBody?
+    )
 }

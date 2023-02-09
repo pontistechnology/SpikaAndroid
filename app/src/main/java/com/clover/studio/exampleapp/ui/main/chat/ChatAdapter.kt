@@ -191,6 +191,9 @@ class ChatAdapter(
                                 .dontTransform()
                                 .dontAnimate()
                                 .into(holder.binding.ivChatImage)
+
+                            Timber.d("Updating progress: ${it.message.uploadProgress}")
+                            holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
                         } else {
                             holder.binding.clProgressScreen.visibility = View.GONE
                             val imagePath = it.message.body?.thumb?.id?.let { imagePath ->
