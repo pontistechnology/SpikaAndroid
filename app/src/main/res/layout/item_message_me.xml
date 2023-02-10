@@ -65,6 +65,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginBottom="@dimen/two_dp_margin"
                 app:layout_constraintTop_toBottomOf="@+id/cl_reply_message" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
