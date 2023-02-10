@@ -310,10 +310,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 is FilePieceUploaded -> {
                     try {
                         if (progress <= uploadPieces) {
-                            updateUploadFileProgressBar(
+                            updateUploadProgressBar(
                                 progress + 1,
                                 uploadPieces,
-                                fileType
+                                unsentMessages.first().localId!!
                             )
                             progress++
                         } else progress = 0
@@ -335,7 +335,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 unsentMessages.first().localId!!
                             )
                             filesSelected.removeFirst()
-                            unsentMessages.removeFirst()
+                            uploadInProgress = false
                         }
                         // update room data
                     } catch (ex: Exception) {
@@ -412,7 +412,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             sendMessage(
                                 fileType,
                                 it.messageBody?.fileId!!,
-                                it.messageBody?.thumbId!!,
+                                it.messageBody.thumbId!!,
                                 unsentMessages.first().localId!!
                             )
                             currentMediaLocation.removeFirst()
@@ -1864,23 +1864,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 //
 //        Timber.d("Updating with progress $progress")
 //        viewHolder.binding.progressBar.secondaryProgress = progress
-    }
-
-    private fun updateUploadFileProgressBar(progress: Int, maxProgress: Int, type: String) {
-        val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(tempMessageCounter)
-        if (Const.JsonFields.AUDIO_TYPE == type) {
-            (viewHolder as ChatAdapter.SentMessageHolder).binding.pbAudio.visibility = View.VISIBLE
-            viewHolder.binding.ivCancelAudio.visibility = View.VISIBLE
-            viewHolder.binding.ivPlayAudio.visibility = View.GONE
-            viewHolder.binding.pbAudio.max = maxProgress
-            viewHolder.binding.pbAudio.secondaryProgress = progress
-        } else {
-            (viewHolder as ChatAdapter.SentMessageHolder).binding.pbFile.visibility = View.VISIBLE
-            viewHolder.binding.ivCancelFile.visibility = View.VISIBLE
-            viewHolder.binding.ivDownloadFile.visibility = View.GONE
-            viewHolder.binding.pbFile.max = maxProgress
-            viewHolder.binding.pbFile.secondaryProgress = progress
-        }
     }
 
     override fun onBackPressed(): Boolean {

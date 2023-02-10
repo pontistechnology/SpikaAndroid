@@ -136,15 +136,33 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        if(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message)){
-                            holder.binding.tvMessage.text = context.getString(R.string.message_deleted_text)
+                        if (it.message.deleted == true || it.message.body?.text == context.getString(
+                                R.string.deleted_message
+                            )
+                        ) {
+                            holder.binding.tvMessage.text =
+                                context.getString(R.string.message_deleted_text)
                             holder.binding.tvMessage.textAlignment = TEXT_ALIGNMENT_CENTER
-                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
-                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.img_deleted_message_me)
+                            holder.binding.tvMessage.setTextColor(
+                                ContextCompat.getColor(
+                                    context,
+                                    R.color.text_tertiary
+                                )
+                            )
+                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(
+                                context,
+                                R.drawable.img_deleted_message_me
+                            )
                         } else {
                             holder.binding.tvMessage.text = it.message.body?.text
-                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.bg_message_user)
-                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.black))
+                            holder.binding.tvMessage.background =
+                                AppCompatResources.getDrawable(context, R.drawable.bg_message_user)
+                            holder.binding.tvMessage.setTextColor(
+                                ContextCompat.getColor(
+                                    context,
+                                    R.color.black
+                                )
+                            )
                         }
 
                         // Code below removes click listener if message was media before
@@ -156,8 +174,10 @@ class ChatAdapter(
                         holder.binding.tvMessage.setOnClickListener {
                             if (holder.binding.tvTime.visibility == View.GONE) {
                                 holder.binding.tvTime.visibility = View.VISIBLE
-                                val simpleDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-                                val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
+                                val simpleDateFormat =
+                                    SimpleDateFormat("HH:mm", Locale.getDefault())
+                                val dateTime =
+                                    simpleDateFormat.format(calendar.timeInMillis).toString()
                                 holder.binding.tvTime.text = dateTime
                             } else {
                                 holder.binding.tvTime.visibility = View.GONE
@@ -166,7 +186,10 @@ class ChatAdapter(
 
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
                         holder.binding.tvMessage.setOnLongClickListener { _ ->
-                            if (!(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message))){
+                            if (!(it.message.deleted == true || it.message.body?.text == context.getString(
+                                    R.string.deleted_message
+                                ))
+                            ) {
                                 it.message.senderMessage = true
                                 it.message.messagePosition = holder.absoluteAdapterPosition
                                 onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
@@ -237,15 +260,19 @@ class ChatAdapter(
                                 .toString()
                         holder.binding.tvFileSize.text = sizeText
 
-                        if (it.message.body.file?.uri?.isEmpty() == true) {
+                        if (it.message.body.file?.id == 1L) {
                             holder.binding.ivDownloadFile.visibility = View.GONE
                             holder.binding.ivCancelFile.visibility = View.VISIBLE
                             holder.binding.pbFile.visibility = View.VISIBLE
                             holder.binding.ivCancelFile.setOnClickListener { _ ->
                                 onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
                             }
+                            Timber.d("Updating progress: ${it.message.uploadProgress}")
+                            holder.binding.pbFile.secondaryProgress = it.message.uploadProgress
                         } else {
                             holder.binding.ivDownloadFile.visibility = View.VISIBLE
+                            holder.binding.ivCancelFile.visibility = View.GONE
+                            holder.binding.pbFile.visibility = View.GONE
                             addFiles(it.message, holder.binding.ivFileType)
                             holder.binding.ivDownloadFile.setOnTouchListener { _, event ->
                                 if (event.action == MotionEvent.ACTION_UP) {
@@ -304,13 +331,15 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.VISIBLE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        if (it.message.body?.file?.uri?.isEmpty() == true) {
+                        if (it.message.body?.file?.id == 1L) {
                             holder.binding.pbAudio.visibility = View.VISIBLE
                             holder.binding.ivPlayAudio.visibility = View.GONE
-                            holder.binding.ivCancelAudio.visibility = View.GONE
+                            holder.binding.ivCancelAudio.visibility = View.VISIBLE
                             holder.binding.ivCancelAudio.setOnClickListener { _ ->
                                 onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
                             }
+                            Timber.d("Updating progress: ${it.message.uploadProgress}")
+                            holder.binding.pbAudio.secondaryProgress = it.message.uploadProgress
                         } else {
                             holder.binding.ivPlayAudio.visibility = View.VISIBLE
                             holder.binding.pbAudio.visibility = View.GONE
@@ -623,22 +652,44 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        if(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message)){
-                            holder.binding.tvMessage.text = context.getString(R.string.message_deleted_text)
+                        if (it.message.deleted == true || it.message.body?.text == context.getString(
+                                R.string.deleted_message
+                            )
+                        ) {
+                            holder.binding.tvMessage.text =
+                                context.getString(R.string.message_deleted_text)
                             holder.binding.tvMessage.textAlignment = TEXT_ALIGNMENT_CENTER
-                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
-                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.img_deleted_message_other)
+                            holder.binding.tvMessage.setTextColor(
+                                ContextCompat.getColor(
+                                    context,
+                                    R.color.text_tertiary
+                                )
+                            )
+                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(
+                                context,
+                                R.drawable.img_deleted_message_other
+                            )
                         } else {
                             holder.binding.tvMessage.text = it.message.body?.text
-                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(context, R.drawable.bg_message_received)
-                            holder.binding.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.black))
+                            holder.binding.tvMessage.background = AppCompatResources.getDrawable(
+                                context,
+                                R.drawable.bg_message_received
+                            )
+                            holder.binding.tvMessage.setTextColor(
+                                ContextCompat.getColor(
+                                    context,
+                                    R.color.black
+                                )
+                            )
                         }
 
                         holder.binding.tvMessage.setOnClickListener {
                             if (holder.binding.tvTime.visibility == View.GONE) {
                                 holder.binding.tvTime.visibility = View.VISIBLE
-                                val simpleDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-                                val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
+                                val simpleDateFormat =
+                                    SimpleDateFormat("HH:mm", Locale.getDefault())
+                                val dateTime =
+                                    simpleDateFormat.format(calendar.timeInMillis).toString()
                                 holder.binding.tvTime.text = dateTime
                             } else {
                                 holder.binding.tvTime.visibility = View.GONE
@@ -647,7 +698,10 @@ class ChatAdapter(
 
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
                         holder.binding.tvMessage.setOnLongClickListener { _ ->
-                            if (!(it.message.deleted == true || it.message.body?.text == context.getString(R.string.deleted_message))){
+                            if (!(it.message.deleted == true || it.message.body?.text == context.getString(
+                                    R.string.deleted_message
+                                ))
+                            ) {
                                 it.message.senderMessage = false
                                 it.message.messagePosition = holder.absoluteAdapterPosition
                                 onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, it)
@@ -988,7 +1042,12 @@ class ChatAdapter(
                                         fileId
                                     )
                                 })
-                                .placeholder(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
+                                .placeholder(
+                                    AppCompatResources.getDrawable(
+                                        context,
+                                        R.drawable.img_user_placeholder
+                                    )
+                                )
                                 .into(holder.binding.ivUserImage)
                             break
                         }
