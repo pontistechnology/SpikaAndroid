@@ -89,6 +89,9 @@ data class Message @JvmOverloads constructor(
     @Ignore
     var senderMessage: Boolean = false,
 
+    @Ignore
+    var uploadProgress: Int = 0
+
     // @Ignore
     // var roomUser: String = ""
 )

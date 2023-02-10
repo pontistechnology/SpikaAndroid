@@ -99,7 +99,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var thumbnailUris: MutableList<Uri> = ArrayList()
     private var photoImageUri: Uri? = null
     private var isAdmin = false
-    private var uploadIndex = 0
     private var progress = 0
     private var uploadPieces = 0
     private var fileType: String = ""
@@ -118,7 +117,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var isEditing = false
     private var originalText = ""
     private var editedMessageId = 0
-    private var messageBody: MessageBody? = null
     private lateinit var emojiPopup: EmojiPopup
     private lateinit var storagePermission: ActivityResultLauncher<String>
     private lateinit var storedMessage: Message
@@ -235,21 +233,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                     // Delay next message sending by 2 seconds for better user experience.
                     // Could be removed if we deem it not needed.
-                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                        uploadIndex += 1
-                        if (currentMediaLocation.isNotEmpty()) {
-                            if (uploadIndex < currentMediaLocation.size) {
+                    if (!uploadInProgress) {
+                        Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                            if (currentMediaLocation.isNotEmpty()) {
                                 if (Const.JsonFields.IMAGE_TYPE == fileType)
                                     uploadImage()
                                 else if (Const.JsonFields.VIDEO_TYPE == fileType)
                                     uploadVideo()
-                            } else
-                                resetUploadFields()
-                        } else if (filesSelected.isNotEmpty()) {
-                            if (uploadIndex < filesSelected.size) uploadFile()
-                            else resetUploadFields()
-                        } else resetUploadFields()
-                    }, 2000)
+                            } else if (filesSelected.isNotEmpty()) {
+                                uploadFile()
+                            } else resetUploadFields()
+                        }, 2000)
+                    }
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
@@ -314,10 +309,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 is FilePieceUploaded -> {
                     try {
                         if (progress <= uploadPieces) {
-                            updateUploadFileProgressBar(
+                            updateUploadProgressBar(
                                 progress + 1,
                                 uploadPieces,
-                                fileType
+                                unsentMessages.first().localId!!
                             )
                             progress++
                         } else progress = 0
@@ -331,13 +326,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     try {
                         requireActivity().runOnUiThread {
                             Timber.d("Successfully sent file")
-                            if (it.fileId > 0) messageBody?.fileId = it.fileId
+                            if (it.fileId > 0) it.messageBody?.fileId = it.fileId
                             sendMessage(
                                 fileType,
-                                messageBody?.fileId!!,
+                                it.messageBody?.fileId!!,
                                 0,
-                                unsentMessages[uploadIndex].localId!!
+                                unsentMessages.first().localId!!
                             )
+                            filesSelected.removeFirst()
+                            uploadInProgress = false
                         }
                         // update room data
                     } catch (ex: Exception) {
@@ -390,10 +387,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             when (it) {
                 is MediaPieceUploaded -> {
                     try {
-                        if (progress <= uploadPieces) {
-                            updateUploadProgressBar(progress + 1, uploadPieces.toInt())
-                            progress++
-                        } else progress = 0
+                        if (!it.isThumbnail) {
+                            if (progress <= uploadPieces) {
+                                updateUploadProgressBar(
+                                    progress + 1,
+                                    uploadPieces,
+                                    unsentMessages.first().localId!!
+                                )
+                                progress++
+                            } else progress = 0
+                        }
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on piece")
                         handleUploadError()
@@ -403,33 +406,38 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 is MediaUploadVerified -> {
                     try {
                         if (!it.isThumbnail) {
-                            if (it.fileId > 0) messageBody?.fileId = it.fileId
+                            if (it.fileId > 0) it.messageBody?.fileId = it.fileId
 
                             sendMessage(
                                 fileType,
-                                messageBody?.fileId!!,
-                                messageBody?.thumbId!!,
-                                unsentMessages[uploadIndex].localId!!
+                                it.messageBody?.fileId!!,
+                                it.messageBody.thumbId!!,
+                                unsentMessages.first().localId!!
                             )
+                            currentMediaLocation.removeFirst()
+                            uploadInProgress = false
                         } else {
-                            if (it.thumbId > 0) messageBody?.thumbId = it.thumbId
+                            if (it.thumbId > 0) it.messageBody?.thumbId = it.thumbId
                             if (Const.JsonFields.IMAGE_TYPE == fileType) {
-                                messageBody?.let {
+                                it.messageBody?.let { messageBody ->
                                     uploadMedia(
                                         false,
-                                        currentMediaLocation[uploadIndex],
-                                        UploadMimeTypes.IMAGE
+                                        currentMediaLocation.first(),
+                                        UploadMimeTypes.IMAGE,
+                                        messageBody
                                     )
                                 }
                             } else {
-                                messageBody?.let {
+                                it.messageBody?.let { messageBody ->
                                     uploadMedia(
                                         false,
-                                        currentMediaLocation[uploadIndex],
-                                        UploadMimeTypes.VIDEO
+                                        currentMediaLocation.first(),
+                                        UploadMimeTypes.VIDEO,
+                                        messageBody
                                     )
                                 }
                             }
+                            thumbnailUris.removeFirst()
                         }
                         // update room data
                     } catch (ex: Exception) {
@@ -941,7 +949,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.ivButtonSend.setOnClickListener {
             val imageContainer = bindingSetup.llImagesContainer
             imageContainer.removeAllViews()
-            if (currentMediaLocation.isNotEmpty()) {
+            if (bindingSetup.etMessage.text?.isNotEmpty() == true) {
+                createTempTextMessage()
+                sendMessage()
+            } else if (currentMediaLocation.isNotEmpty()) {
                 for (thumbnail in thumbnailUris) {
                     createTempMediaMessage(thumbnail)
                 }
@@ -959,9 +970,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 Handler(Looper.getMainLooper()).postDelayed(Runnable {
                     uploadFile()
                 }, 2000)
-            } else {
-                createTempTextMessage()
-                sendMessage()
             }
             sent = true
             bindingSetup.etMessage.setText("")
@@ -1299,7 +1307,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 messageFileType = Const.JsonFields.TEXT_TYPE,
                 0,
                 0,
-                unsentMessages[tempMessageCounter].localId!!
+                unsentMessages.first().localId!!
             )
         } catch (e: Exception) {
             Timber.d("Send message exception: $e")
@@ -1322,7 +1330,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             replyId
         )
         val jsonObject = jsonMessage.messageToJson()
+        Timber.d("Message object: $jsonObject")
         viewModel.sendMessage(jsonObject)
+        unsentMessages.removeFirst()
 
         if (replyId != 0L) {
             replyId = 0L
@@ -1331,17 +1341,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun createTempTextMessage() {
         tempMessageCounter += 1
-        messageBody = MessageBody(null, bindingSetup.etMessage.text.toString(), 1, 1, null, null)
+        val messageBody =
+            MessageBody(null, bindingSetup.etMessage.text.toString(), 1, 1, null, null)
         val tempMessage = Tools.createTemporaryMessage(
             tempMessageCounter,
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT_TYPE,
-            messageBody!!
+            messageBody
         )
 
         Timber.d("Temporary message: $tempMessage")
-        unsentMessages.add(tempMessage)
+        unsentMessages.add(0, tempMessage)
         viewModel.storeMessageLocally(tempMessage)
     }
 
@@ -1372,7 +1383,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
 
         tempMessageCounter += 1
-        messageBody = MessageBody(
+        val messageBody = MessageBody(
             null,
             null,
             1,
@@ -1381,7 +1392,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             null,
         )
 
-        val type = activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
+        val type = activity!!.contentResolver.getType(filesSelected.first())!!
         fileType = if (type == Const.FileExtensions.AUDIO) {
             Const.JsonFields.AUDIO_TYPE
         } else {
@@ -1393,7 +1404,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
             fileType,
-            messageBody!!
+            messageBody
         )
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
@@ -1410,7 +1421,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      */
     private fun createTempMediaMessage(mediaUri: Uri) {
         tempMessageCounter += 1
-        messageBody = MessageBody(
+        val messageBody = MessageBody(
             null,
             null,
             1,
@@ -1432,7 +1443,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
             Const.JsonFields.IMAGE_TYPE,
-            messageBody!!
+            messageBody
         )
 
         Timber.d("Temporary message: $tempMessage")
@@ -1474,24 +1485,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         takePhotoContract.launch(photoImageUri)
     }
 
-    private fun uploadThumbnail(index: Int) {
+    private fun uploadThumbnail() {
         mediaType = UploadMimeTypes.IMAGE
-        uploadMedia(true, thumbnailUris[index], mediaType!!)
+        uploadMedia(true, thumbnailUris.first(), mediaType!!, messageBody = null)
     }
 
-    private fun uploadVideoThumbnail(index: Int) {
+    private fun uploadVideoThumbnail() {
         mediaType = UploadMimeTypes.VIDEO
-        uploadMedia(true, thumbnailUris[index], mediaType!!)
+        uploadMedia(true, thumbnailUris.first(), mediaType!!, messageBody = null)
     }
 
     private fun uploadImage() {
-        messageBody = MessageBody(null, "", 0, 0, null, null)
-        uploadThumbnail(uploadIndex)
+        uploadThumbnail()
     }
 
     private fun uploadVideo() {
-        messageBody = MessageBody(null, "", 0, 0, null, null)
-        uploadVideoThumbnail(uploadIndex)
+        uploadVideoThumbnail()
     }
 
     /**
@@ -1499,15 +1508,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      */
     private fun uploadFile() {
         uploadInProgress = true
-        messageBody = MessageBody(null, "", 0, 0, null, null)
+        val messageBody = MessageBody(null, "", 0, 0, null, null)
         val inputStream =
-            activity!!.contentResolver.openInputStream(filesSelected[uploadIndex])
+            activity!!.contentResolver.openInputStream(filesSelected.first())
 
         var fileName = ""
         val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
 
         val cr = activity!!.contentResolver
-        cr.query(filesSelected[uploadIndex], projection, null, null, null)?.use { metaCursor ->
+        cr.query(filesSelected.first(), projection, null, null, null)?.use { metaCursor ->
             if (metaCursor.moveToFirst()) {
                 fileName = metaCursor.getString(0)
             }
@@ -1516,7 +1525,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val fileStream = Tools.copyStreamToFile(
             activity!!,
             inputStream!!,
-            activity!!.contentResolver.getType(filesSelected[uploadIndex])!!,
+            activity!!.contentResolver.getType(filesSelected.first())!!,
             fileName
         )
 
@@ -1526,7 +1535,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             else (fileStream.length() / CHUNK_SIZE).toInt()
         progress = 0
 
-        val type = activity!!.contentResolver.getType(filesSelected[uploadIndex])!!
+        val type = activity!!.contentResolver.getType(filesSelected.first())!!
         fileType = if (Const.FileExtensions.AUDIO == type) {
             Const.JsonFields.AUDIO_TYPE
         } else {
@@ -1535,10 +1544,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         viewModel.uploadFile(
             requireActivity(),
-            filesSelected[uploadIndex],
+            filesSelected.first(),
             uploadPieces,
             fileStream,
-            fileType
+            fileType,
+            messageBody
         )
 
         inputStream.close()
@@ -1555,9 +1565,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun uploadMedia(
         isThumbnail: Boolean,
         uri: Uri,
-        mediaType: UploadMimeTypes
+        mediaType: UploadMimeTypes,
+        messageBody: MessageBody?
     ) {
         uploadInProgress = true
+        var messageBodyNew = messageBody
+        if (messageBodyNew == null) {
+            messageBodyNew = MessageBody(null, "", 0, 0, null, null)
+        }
         val inputStream =
             activity!!.contentResolver.openInputStream(uri)
 
@@ -1591,6 +1606,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             fileType,
             uploadPieces,
             fileStream,
+            messageBodyNew,
             isThumbnail
         )
 
@@ -1601,18 +1617,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      * Reset upload fields and clear local cache on success or critical fail
      */
     private fun resetUploadFields() {
-        if (tempMessageCounter >= -1) {
-            viewModel.deleteLocalMessages(unsentMessages)
-            tempMessageCounter = -1
-        }
+        if (!uploadInProgress) {
+            Timber.d("resetting upload")
+            if (tempMessageCounter >= -1) {
+                viewModel.deleteLocalMessages(unsentMessages)
+                tempMessageCounter = -1
+            }
 
-        uploadIndex = 0
-        currentMediaLocation.clear()
-        filesSelected.clear()
-        thumbnailUris.clear()
-        uploadInProgress = false
-        unsentMessages.clear()
-        context?.cacheDir?.deleteRecursively()
+            currentMediaLocation.clear()
+            filesSelected.clear()
+            thumbnailUris.clear()
+            uploadInProgress = false
+            unsentMessages.clear()
+            context?.cacheDir?.deleteRecursively()
+        }
     }
 
     /**
@@ -1622,26 +1640,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      * Also displays a toast message for failed uploads.
      */
     private fun handleUploadError() {
-        uploadIndex += 1
-
         tempMessageCounter -= 1
 
         if (currentMediaLocation.isNotEmpty()) {
-            if (uploadIndex < currentMediaLocation.size) {
-                if (Const.JsonFields.IMAGE_TYPE == fileType) {
-                    uploadImage()
-                } else {
-                    uploadVideo()
-                }
+            currentMediaLocation.removeFirst()
+            viewModel.deleteLocalMessage(unsentMessages.first())
+            unsentMessages.removeFirst()
+            if (Const.JsonFields.IMAGE_TYPE == fileType) {
+                uploadImage()
             } else {
-                resetUploadFields()
+                uploadVideo()
             }
         } else if (filesSelected.isNotEmpty()) {
-            if (uploadIndex < filesSelected.size) {
-                uploadFile()
-            } else {
-                resetUploadFields()
-            }
+            filesSelected.removeFirst()
+            viewModel.deleteLocalMessage(unsentMessages.first())
+            unsentMessages.removeFirst()
+            uploadFile()
         } else resetUploadFields()
 
         Toast.makeText(
@@ -1649,8 +1663,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             getString(R.string.failed_file_upload),
             Toast.LENGTH_SHORT
         ).show()
-        uploadInProgress = false
     }
+
 
     private fun showUploadError(errorMessage: String) {
         DialogError.getInstance(activity!!,
@@ -1833,33 +1847,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      *  we are rapidly updating progressbar so we didn't use notify method as it always update whole row instead of only progress bar
      *  @param progress : new progress value
      */
-    private fun updateUploadProgressBar(progress: Int, maxProgress: Int) {
+    private fun updateUploadProgressBar(progress: Int, maxProgress: Int, localId: String) {
+        // TODO check this method in the future. Upload is glitching sometimes and scrolling is lagging
+        val message = messagesRecords.firstOrNull { it.message.localId == localId }
+        message!!.message.uploadProgress = (progress * 100) / maxProgress
 
-        Timber.d("Temp message position: $tempMessageCounter")
-        val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(tempMessageCounter)
-
-        Timber.d("Setting max progress $maxProgress")
-        (viewHolder as ChatAdapter.SentMessageHolder).binding.progressBar.max = maxProgress
-
-        Timber.d("Updating with progress $progress")
-        viewHolder.binding.progressBar.secondaryProgress = progress
-    }
-
-    private fun updateUploadFileProgressBar(progress: Int, maxProgress: Int, type: String) {
-        val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(tempMessageCounter)
-        if (Const.JsonFields.AUDIO_TYPE == type) {
-            (viewHolder as ChatAdapter.SentMessageHolder).binding.pbAudio.visibility = View.VISIBLE
-            viewHolder.binding.ivCancelAudio.visibility = View.VISIBLE
-            viewHolder.binding.ivPlayAudio.visibility = View.GONE
-            viewHolder.binding.pbAudio.max = maxProgress
-            viewHolder.binding.pbAudio.secondaryProgress = progress
-        } else {
-            (viewHolder as ChatAdapter.SentMessageHolder).binding.pbFile.visibility = View.VISIBLE
-            viewHolder.binding.ivCancelFile.visibility = View.VISIBLE
-            viewHolder.binding.ivDownloadFile.visibility = View.GONE
-            viewHolder.binding.pbFile.max = maxProgress
-            viewHolder.binding.pbFile.secondaryProgress = progress
-        }
+        activity!!.runOnUiThread {  chatAdapter.notifyItemChanged(messagesRecords.indexOf(message))}
     }
 
     override fun onBackPressed(): Boolean {

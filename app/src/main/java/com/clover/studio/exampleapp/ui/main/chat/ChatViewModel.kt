@@ -7,6 +7,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
@@ -446,7 +447,8 @@ class ChatViewModel @Inject constructor(
         uri: Uri,
         uploadPieces: Int,
         fileStream: File,
-        type: String
+        type: String,
+        messageBody: MessageBody?
     ) =
         viewModelScope.launch {
             try {
@@ -456,6 +458,7 @@ class ChatViewModel @Inject constructor(
                     type,
                     uploadPieces,
                     fileStream,
+                    messageBody,
                     false,
                     object : FileUploadListener {
                         override fun filePieceUploaded() {
@@ -470,10 +473,11 @@ class ChatViewModel @Inject constructor(
                             path: String,
                             mimeType: String,
                             thumbId: Long,
-                            fileId: Long
+                            fileId: Long,
+                            messageBody: MessageBody?
                         ) {
                             fileUploadListener.postValue(
-                                Event(FileUploadVerified(path, mimeType, thumbId, fileId))
+                                Event(FileUploadVerified(path, mimeType, thumbId, fileId, messageBody))
                             )
                         }
                     })
@@ -488,6 +492,7 @@ class ChatViewModel @Inject constructor(
         fileType: String,
         uploadPieces: Int,
         fileStream: File,
+        messageBody: MessageBody?,
         isThumbnail: Boolean
     ) = viewModelScope.launch {
         try {
@@ -497,10 +502,11 @@ class ChatViewModel @Inject constructor(
                 fileType,
                 uploadPieces,
                 fileStream,
+                messageBody,
                 isThumbnail,
                 object : FileUploadListener {
                     override fun filePieceUploaded() {
-                        mediaUploadListener.postValue(Event(MediaPieceUploaded))
+                        mediaUploadListener.postValue(Event(MediaPieceUploaded(isThumbnail)))
                     }
 
                     override fun fileUploadError(description: String) {
@@ -511,7 +517,8 @@ class ChatViewModel @Inject constructor(
                         path: String,
                         mimeType: String,
                         thumbId: Long,
-                        fileId: Long
+                        fileId: Long,
+                        messageBody: MessageBody?
                     ) {
                         mediaUploadListener.postValue(
                             Event(
@@ -520,6 +527,7 @@ class ChatViewModel @Inject constructor(
                                     mimeType,
                                     thumbId,
                                     fileId,
+                                    messageBody,
                                     isThumbnail
                                 )
                             )
@@ -546,16 +554,18 @@ class FileUploadVerified(
     val path: String,
     val mimeType: String,
     val thumbId: Long,
-    val fileId: Long
+    val fileId: Long,
+    val messageBody: MessageBody?
 ) : ChatStates()
 
-object MediaPieceUploaded : ChatStates()
+class MediaPieceUploaded(val isThumbnail: Boolean) : ChatStates()
 class MediaUploadError(val description: String) : ChatStates()
 class MediaUploadVerified(
     val path: String,
     val mimeType: String,
     val thumbId: Long,
     val fileId: Long,
+    val messageBody: MessageBody?,
     val isThumbnail: Boolean
 ) : ChatStates()
 
