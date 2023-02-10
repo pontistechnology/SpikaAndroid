@@ -105,7 +105,7 @@ class RoomsAdapter(
                         val filteredMessageList =
                             sortedList.filter { it.message.fromUserId.toString() != myUserId }
                         for (messageAndRecords in filteredMessageList) {
-                            if (messageAndRecords.records != null) {
+                            if (messageAndRecords.records != null && messageAndRecords.message.reaction.isEmpty()) {
                                 if (!checkIfMessageSeen(
                                         roomItem,
                                         messageAndRecords
