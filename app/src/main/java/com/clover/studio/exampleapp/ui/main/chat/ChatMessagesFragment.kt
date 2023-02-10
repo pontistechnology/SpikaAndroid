@@ -1644,12 +1644,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         tempMessageCounter -= 1
 
         if (currentMediaLocation.isNotEmpty()) {
+            currentMediaLocation.removeFirst()
+            viewModel.deleteLocalMessage(unsentMessages.first())
+            unsentMessages.removeFirst()
             if (Const.JsonFields.IMAGE_TYPE == fileType) {
                 uploadImage()
             } else {
                 uploadVideo()
             }
         } else if (filesSelected.isNotEmpty()) {
+            filesSelected.removeFirst()
+            viewModel.deleteLocalMessage(unsentMessages.first())
+            unsentMessages.removeFirst()
             uploadFile()
         } else resetUploadFields()
 
@@ -1843,10 +1849,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      *  @param progress : new progress value
      */
     private fun updateUploadProgressBar(progress: Int, maxProgress: Int, localId: String) {
-
         val message = messagesRecords.firstOrNull { it.message.localId == localId }
         message!!.message.uploadProgress = (progress * 100) / maxProgress
-        chatAdapter.notifyItemChanged(messagesRecords.indexOf(message))
+
+        activity!!.runOnUiThread {  chatAdapter.notifyItemChanged(messagesRecords.indexOf(message))}
     }
 
     override fun onBackPressed(): Boolean {
