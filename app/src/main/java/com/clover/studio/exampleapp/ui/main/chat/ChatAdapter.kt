@@ -215,7 +215,7 @@ class ChatAdapter(
                                 .dontAnimate()
                                 .into(holder.binding.ivChatImage)
 
-                            Timber.d("Updating progress: ${it.message.uploadProgress}")
+                            // Update the progress bar of the media item currently being uploaded
                             holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
                         } else {
                             holder.binding.clProgressScreen.visibility = View.GONE
@@ -260,7 +260,7 @@ class ChatAdapter(
                                 .toString()
                         holder.binding.tvFileSize.text = sizeText
 
-                        if (it.message.body.file?.id == 1L) {
+                        if (it.message.body.file?.id == Const.JsonFields.TEMPORARY_FILE_ID) {
                             holder.binding.ivDownloadFile.visibility = View.GONE
                             holder.binding.ivCancelFile.visibility = View.VISIBLE
                             holder.binding.pbFile.visibility = View.VISIBLE
@@ -331,7 +331,7 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.VISIBLE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        if (it.message.body?.file?.id == 1L) {
+                        if (it.message.body?.file?.id == Const.JsonFields.TEMPORARY_FILE_ID) {
                             holder.binding.pbAudio.visibility = View.VISIBLE
                             holder.binding.ivPlayAudio.visibility = View.GONE
                             holder.binding.ivCancelAudio.visibility = View.VISIBLE

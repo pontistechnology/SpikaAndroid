@@ -233,7 +233,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                     // Delay next message sending by 2 seconds for better user experience.
                     // Could be removed if we deem it not needed.
-                    // TODO resolve issue here
                     if (!uploadInProgress) {
                         Handler(Looper.getMainLooper()).postDelayed(Runnable {
                             if (currentMediaLocation.isNotEmpty()) {
@@ -1849,6 +1848,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      *  @param progress : new progress value
      */
     private fun updateUploadProgressBar(progress: Int, maxProgress: Int, localId: String) {
+        // TODO check this method in the future. Upload is glitching sometimes and scrolling is lagging
         val message = messagesRecords.firstOrNull { it.message.localId == localId }
         message!!.message.uploadProgress = (progress * 100) / maxProgress
 
