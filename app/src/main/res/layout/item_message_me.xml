@@ -570,6 +570,17 @@
             app:layout_constraintBottom_toBottomOf="@+id/cl_container"
             app:layout_constraintEnd_toStartOf="@+id/cl_container"
             app:layout_constraintTop_toTopOf="@+id/cl_container" />
+
+        <ImageView
+            android:id="@+id/iv_reply_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/eight_dp_margin"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/cl_container"
+            app:layout_constraintEnd_toStartOf="@+id/cl_container"
+            app:layout_constraintTop_toTopOf="@+id/cl_container"
+            app:srcCompat="@drawable/img_reply_message" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

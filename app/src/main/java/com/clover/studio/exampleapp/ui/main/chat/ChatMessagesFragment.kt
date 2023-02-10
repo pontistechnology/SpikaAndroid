@@ -1,7 +1,6 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
 import android.Manifest
-import android.animation.Animator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentResolver
@@ -545,7 +544,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             ItemTouchHelper.SimpleCallback(
                 0,
                 ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
-                ) {
+            ) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: ViewHolder,
@@ -564,7 +563,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 actionState: Int,
                 isCurrentlyActive: Boolean
             ) {
-
                 super.onChildDraw(
                     c,
                     recyclerView,
@@ -574,41 +572,51 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     actionState,
                     isCurrentlyActive
                 )
+
                 val swipeLimit = 0.5f * recyclerView.width
+                val itemView = viewHolder.itemView
+                Timber.d("itemview position: ${itemView.translationX}")
                 if (actionState == ACTION_STATE_SWIPE) {
-                    val itemView = viewHolder.itemView
-                    if (dX > swipeLimit) {
-                        itemView.translationX = swipeLimit
-                    } else if (dX < -swipeLimit) {
-                        itemView.translationX = -swipeLimit
+                    Timber.d("viewholder::: ${viewHolder.itemView}")
+                    if (viewHolder is ChatAdapter.SentMessageHolder) {
+                        Timber.d("here")
+                        viewHolder.binding.ivReplyImage.visibility = View.VISIBLE
                     }
-
-                    // Return item back to its initial position
-                    if (!isCurrentlyActive) {
-                        itemView.animate()
-                            .translationX(0f)
-                            .setDuration(200).setListener(object : Animator.AnimatorListener {
-                                override fun onAnimationStart(p0: Animator?) {
-
-                                }
-
-                                override fun onAnimationEnd(p0: Animator?) {
-                                    itemView.clearAnimation()
-                                    itemView.animate().translationX(0f)
-                                }
-
-                                override fun onAnimationCancel(p0: Animator?) {
-
-                                }
-
-                                override fun onAnimationRepeat(p0: Animator?) {
-
-                                }
-
-                            })
-                            .start()
+                    if (dX > swipeLimit) {
+                        itemView.translationX = 0f
+                    } else if (dX < -swipeLimit) {
+                        itemView.translationX = -0f
                     }
                 }
+
+
+                // Return item back to its initial position
+                /*if (!isCurrentlyActive) {
+                    itemView.animate()
+                        .x(0f)
+                        .translationX(0f)
+                        .setDuration(0).setListener(object : Animator.AnimatorListener {
+                            override fun onAnimationStart(p0: Animator?) {
+                                // Ignore
+                            }
+
+                            override fun onAnimationEnd(p0: Animator?) {
+                                itemView.animate().translationX(0f)
+                                itemView.clearAnimation()
+                                p0?.cancel()
+                            }
+
+                            override fun onAnimationCancel(p0: Animator?) {
+                                itemView.animate().translationX(0f)
+                            }
+
+                            override fun onAnimationRepeat(p0: Animator?) {
+                                // Ignore
+                            }
+
+                        })
+                        .start()
+                }*/
             }
 
             override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: ViewHolder): Int {
@@ -617,15 +625,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
             override fun onSwiped(viewHolder: ViewHolder, swipeDir: Int) {
                 val position = viewHolder.absoluteAdapterPosition
-                // chatAdapter.notifyDataSetChanged()
-                if (swipeDir == ItemTouchHelper.LEFT) {
+                if (swipeDir == ItemTouchHelper.RIGHT) {
                     bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
                     handleMessageReply(messagesRecords[position].message)
                 }
-                if (swipeDir == ItemTouchHelper.RIGHT) {
+                if (swipeDir == ItemTouchHelper.LEFT) {
                     bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
                     getDetailsList(messagesRecords[position].message)
                 }
+                chatAdapter.notifyItemChanged(position)
             }
         }
 
