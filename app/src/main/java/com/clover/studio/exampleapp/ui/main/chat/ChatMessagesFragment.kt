@@ -1844,26 +1844,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      */
     private fun updateUploadProgressBar(progress: Int, maxProgress: Int, localId: String) {
 
-        for (message in messagesRecords) {
-            if (message.message.localId == localId) {
-                message.message.uploadProgress += 100 / maxProgress
-                chatAdapter.notifyItemChanged(messagesRecords.indexOf(message))
-                break
-            }
-        }
-//        val updateProgress = messagesRecords.first { it.message.localId == localId }.message
-//        Timber.d("Update progress: ${updateProgress.uploadProgress}")
-//        updateProgress.uploadProgress = updateProgress.uploadProgress + 1
-//
-//        val messagePosition = messagesRecords.indexOfFirst { it.message.localId == localId }
-//        Timber.d("Temp message position: $tempMessageCounter")
-//        val viewHolder = bindingSetup.rvChat.findViewHolderForAdapterPosition(messagePosition)
-//
-//        Timber.d("Setting max progress $maxProgress")
-//        (viewHolder as ChatAdapter.SentMessageHolder).binding.progressBar.max = maxProgress
-//
-//        Timber.d("Updating with progress $progress")
-//        viewHolder.binding.progressBar.secondaryProgress = progress
+        val message = messagesRecords.firstOrNull { it.message.localId == localId }
+        message!!.message.uploadProgress = (progress * 100) / maxProgress
+        chatAdapter.notifyItemChanged(messagesRecords.indexOf(message))
     }
 
     override fun onBackPressed(): Boolean {
