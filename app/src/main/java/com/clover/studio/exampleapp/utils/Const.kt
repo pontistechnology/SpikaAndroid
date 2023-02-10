@@ -64,6 +64,7 @@ class Const {
             const val TELEPHONE_NUMBER_HASHED = "telephoneNumberHashed"
             const val COUNTRY_CODE = "countryCode"
             const val PUSH_TOKEN = "pushToken"
+            const val TEMPORARY_FILE_ID = 1L
 
             // Mute/Unmute
             const val SUCCESS = "success"

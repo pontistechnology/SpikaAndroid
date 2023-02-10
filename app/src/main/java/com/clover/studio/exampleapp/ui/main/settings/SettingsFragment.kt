@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.databinding.FragmentSettingsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.UserUpdateFailed
@@ -239,6 +240,7 @@ class SettingsFragment : BaseFragment() {
                     Const.JsonFields.AVATAR_TYPE,
                     uploadPieces,
                     fileStream,
+                    null,
                     false,
                     object :
                         FileUploadListener {
@@ -260,7 +262,8 @@ class SettingsFragment : BaseFragment() {
                             path: String,
                             mimeType: String,
                             thumbId: Long,
-                            fileId: Long
+                            fileId: Long,
+                            messageBody: MessageBody?
                         ) {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {

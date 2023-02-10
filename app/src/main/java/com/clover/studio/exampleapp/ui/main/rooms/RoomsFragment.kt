@@ -127,7 +127,9 @@ class RoomsFragment : BaseFragment() {
                 if (sortedList.isEmpty()) {
                     sortedList = it.toMutableList()
                 }
-                sortedList = (pinnedRooms + (sortedList - pinnedRooms.toSet())).toMutableList()
+
+                // Calling .toSet() here caused a crash in the app, so don't add it.
+                sortedList = (pinnedRooms + (sortedList - pinnedRooms)).toMutableList()
                 roomsAdapter.submitList(sortedList)
             }
         }
