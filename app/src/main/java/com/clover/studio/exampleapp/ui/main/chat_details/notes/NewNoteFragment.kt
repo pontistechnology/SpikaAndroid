@@ -59,7 +59,7 @@ class NewNoteFragment : BaseFragment() {
                     context,
                     getString(R.string.note_creation_failed),
                     Toast.LENGTH_SHORT
-                )
+                ).show()
                 else -> Timber.d("Other error")
             }
         })
