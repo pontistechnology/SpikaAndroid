@@ -15,8 +15,6 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.MessageDetailsItemBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
-import java.text.SimpleDateFormat
-import java.util.*
 
 class MessageDetailsAdapter(
     private val context: Context,
@@ -34,7 +32,6 @@ class MessageDetailsAdapter(
     }
 
     override fun onBindViewHolder(holder: MessageDetailsViewHolder, position: Int) {
-        val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy. HH:mm aa", Locale.getDefault())
         with(holder) {
             getItem(position).let { messageRecord ->
                 // Show sender header - this is first and only message record for sender
@@ -50,8 +47,7 @@ class MessageDetailsAdapter(
                     // Show edited information about sender:
                     if (messageRecord.createdAt != messageRecord.modifiedAt) {
                         binding.ivNoEditedTime.visibility = View.GONE
-                        val editedTime = simpleDateFormat.format(messageRecord.modifiedAt)
-                        binding.tvEditedTime.text = editedTime
+                        binding.tvEditedTime.text = Tools.fullDateFormat(messageRecord.modifiedAt!!)
                         binding.ivEditedTime.visibility = View.VISIBLE
                         binding.tvEditedTime.visibility = View.VISIBLE
                     } else {
@@ -90,14 +86,18 @@ class MessageDetailsAdapter(
                         binding.tvSeenUsername.text = user.displayName
                         Glide.with(context)
                             .load(user.avatarFileId?.let { Tools.getFilePathUrl(it) })
-                            .placeholder(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
+                            .placeholder(
+                                AppCompatResources.getDrawable(
+                                    context,
+                                    R.drawable.img_user_placeholder
+                                )
+                            )
                             .into(binding.ivUserAvatar)
                         break
                     }
                 }
 
-                val dateTime = simpleDateFormat.format(messageRecord.createdAt)
-                binding.tvUserTime.text = dateTime
+                binding.tvUserTime.text = Tools.fullDateFormat(messageRecord.createdAt)
 
                 if (position > 0) {
                     val previousItem = getItem(position - 1).type
