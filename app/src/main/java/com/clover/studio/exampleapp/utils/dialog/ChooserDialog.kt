@@ -57,8 +57,8 @@ class ChooserDialog(
     }
 
     private fun initViews() {
-        if (title != null && title.isNotEmpty()){
-            if (R.string.delete.toString() == title) {
+        if (title != null && title.isNotEmpty()) {
+            if (context.getString(R.string.delete) == title) {
                 // Change colors for delete options
                 binding.btnFirstOption.setTextColor(
                     ContextCompat.getColor(
