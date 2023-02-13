@@ -604,8 +604,8 @@ class ChatAdapter(
 
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
-                when {
-                    it.message.totalUserCount == it.message.seenCount!! -> {
+                if (it.message.totalUserCount != 0){
+                    if(it.message.totalUserCount == it.message.seenCount!!){
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
@@ -613,7 +613,7 @@ class ChatAdapter(
                             )
                         )
                     }
-                    it.message.totalUserCount == it.message.deliveredCount -> {
+                    if( it.message.totalUserCount == it.message.deliveredCount ) {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
@@ -621,7 +621,7 @@ class ChatAdapter(
                             )
                         )
                     }
-                    it.message.deliveredCount!! >= 0 -> {
+                    if( it.message.deliveredCount!! >= 0 ){
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
@@ -629,14 +629,14 @@ class ChatAdapter(
                             )
                         )
                     }
-                    else -> {
-                        holder.binding.ivMessageStatus.setImageDrawable(
-                            ContextCompat.getDrawable(
-                                context,
-                                R.drawable.img_clock
-                            )
+                }
+                else {
+                    holder.binding.ivMessageStatus.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            context,
+                            R.drawable.img_clock
                         )
-                    }
+                    )
                 }
             } else {
                 // View holder for messages from other users

@@ -3,6 +3,8 @@ package com.clover.studio.exampleapp.utils.dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.core.content.ContextCompat
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.DialogChooserBinding
 import com.clover.studio.exampleapp.utils.extendables.BaseDialog
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
@@ -55,10 +57,33 @@ class ChooserDialog(
     }
 
     private fun initViews() {
-        if (title != null && title.isNotEmpty())
+        if (title != null && title.isNotEmpty()){
+            if (R.string.delete.toString() == title) {
+                // Change colors for delete options
+                binding.btnFirstOption.setTextColor(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.style_red
+                    )
+                )
+                binding.btnSecondOption.setTextColor(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.style_red
+                    )
+                )
+                binding.btnCancel.setTextColor(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.primary_color
+                    )
+                )
+                binding.tvTextTitle.visibility = View.GONE
+            }
             binding.tvTextTitle.text = title
-        else
+        } else {
             binding.tvTextTitle.visibility = View.GONE
+        }
 
         if (description != null && description.isNotEmpty())
             binding.tvTextDescription.text = description
