@@ -38,7 +38,7 @@
         android:layout_height="@dimen/one_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="@color/navigation"
+        android:background="@color/border"
         app:layout_constraintTop_toTopOf="@+id/tab_layout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
