@@ -16,6 +16,9 @@ import timber.log.Timber
 
 @HiltAndroidApp
 class MainApplication : Application() {
+    companion object {
+        lateinit var appContext: Context
+    }
 
     override fun onCreate() {
         //         Force light mode when app starts
@@ -25,12 +28,17 @@ class MainApplication : Application() {
             Timber.plant(Timber.DebugTree())
         }
 
+        appContext = this
         createNotificationChannel()
         ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleManager)
         // TODO release tree implementation
 
         // Emoji:
         EmojiManager.install(GoogleEmojiProvider())
+    }
+
+    fun getContext(): Context {
+        return appContext
     }
 
     private fun createNotificationChannel() {
