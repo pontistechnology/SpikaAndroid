@@ -418,7 +418,7 @@ object Tools {
     }
 
     /**
-     * Code generates video file in mp4 format vby decoding it piece by piece
+     * Code generates video file in mp4 format by decoding it piece by piece
      *
      * @param srcUri Source URI to be converted to mp4 format
      * @param dstPath Destination path for the converted video file
