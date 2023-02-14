@@ -362,9 +362,11 @@ class ChatDetailsFragment : BaseFragment() {
         if (avatarFileId != 0L) {
             Glide.with(this)
                 .load(avatarFileId.let { Tools.getFilePathUrl(it) })
+                .centerCrop()
                 .into(binding.ivPickAvatar)
             Glide.with(this)
                 .load(avatarFileId.let { Tools.getFilePathUrl(it) })
+                .centerCrop()
                 .into(binding.ivUserImage)
         }
         binding.tvGroupName.text = username
