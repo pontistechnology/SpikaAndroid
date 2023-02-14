@@ -82,6 +82,10 @@
             android:name="picturePath"
             android:defaultValue="null"
             app:argType="string" />
+        <argument
+            android:name="mediaInfo"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/notesFragment"

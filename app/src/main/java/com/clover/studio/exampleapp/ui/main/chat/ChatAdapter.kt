@@ -238,9 +238,15 @@ class ChatAdapter(
                                 .into(holder.binding.ivChatImage)
 
                             holder.binding.clContainer.setOnClickListener { view ->
+                                val mediaInfo = context.getString(
+                                    R.string.you_sent_on,
+                                    Tools.fullDateFormat(it.message.createdAt)
+                                )
                                 val action =
                                     ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
-                                        "", imageFile!!
+                                        mediaInfo = mediaInfo,
+                                        videoPath = "",
+                                        picturePath = imageFile!!
                                     )
                                 view.findNavController().navigate(action)
                             }
@@ -316,9 +322,15 @@ class ChatAdapter(
                         holder.binding.ivPlayButton.setImageResource(R.drawable.img_play)
 
                         holder.binding.ivPlayButton.setOnClickListener { view ->
+                            val mediaInfo = context.getString(
+                                R.string.you_sent_on,
+                                Tools.fullDateFormat(it.message.createdAt)
+                            )
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
-                                    videoPath!!, ""
+                                    mediaInfo = mediaInfo,
+                                    videoPath = videoPath!!,
+                                    picturePath = ""
                                 )
                             view.findNavController().navigate(action)
                         }
@@ -604,24 +616,22 @@ class ChatAdapter(
 
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
-                when {
-                    it.message.totalUserCount == it.message.seenCount!! -> {
+                if (it.message.totalUserCount != 0) {
+                    if (it.message.totalUserCount == it.message.seenCount) {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
                                 R.drawable.img_seen
                             )
                         )
-                    }
-                    it.message.totalUserCount == it.message.deliveredCount -> {
+                    } else if (it.message.totalUserCount == it.message.deliveredCount) {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
                                 R.drawable.img_done
                             )
                         )
-                    }
-                    it.message.deliveredCount!! >= 0 -> {
+                    } else if (it.message.deliveredCount!! >= 0) {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
@@ -629,14 +639,13 @@ class ChatAdapter(
                             )
                         )
                     }
-                    else -> {
-                        holder.binding.ivMessageStatus.setImageDrawable(
-                            ContextCompat.getDrawable(
-                                context,
-                                R.drawable.img_clock
-                            )
+                } else {
+                    holder.binding.ivMessageStatus.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            context,
+                            R.drawable.img_clock
                         )
-                    }
+                    )
                 }
             } else {
                 // View holder for messages from other users
@@ -736,9 +745,19 @@ class ChatAdapter(
                             .into(holder.binding.ivChatImage)
 
                         holder.binding.clContainer.setOnClickListener { view ->
+                            val userName = users.firstOrNull { roomUser ->
+                                roomUser.id == it.message.fromUserId
+                            }
+                            val mediaInfo = context.getString(
+                                R.string.user_sent_on,
+                                userName!!.displayName,
+                                Tools.fullDateFormat(it.message.createdAt)
+                            )
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
-                                    "", imageFile!!
+                                    mediaInfo = mediaInfo,
+                                    videoPath = "",
+                                    picturePath = imageFile!!
                                 )
                             view.findNavController().navigate(action)
                         }
@@ -771,13 +790,24 @@ class ChatAdapter(
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .into(holder.binding.ivVideoThumbnail)
 
+
                         holder.binding.clVideos.visibility = View.VISIBLE
                         holder.binding.ivPlayButton.setImageResource(R.drawable.img_play)
 
                         holder.binding.ivPlayButton.setOnClickListener { view ->
+                            val userName = users.firstOrNull { roomUser ->
+                                roomUser.id == it.message.fromUserId
+                            }
+                            val mediaInfo = context.getString(
+                                R.string.user_sent_on,
+                                userName!!.displayName,
+                                Tools.fullDateFormat(it.message.createdAt)
+                            )
                             val action =
                                 ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
-                                    videoPath, ""
+                                    mediaInfo = mediaInfo,
+                                    videoPath = videoPath,
+                                    picturePath = ""
                                 )
                             view.findNavController().navigate(action)
                         }
@@ -1248,7 +1278,7 @@ class ChatAdapter(
                 )
             }
 
-            if (time?.equals(context.getString(R.string.zero_ninutes_ago)) == true) {
+            if (time?.equals(context.getString(R.string.zero_minutes_ago)) == true) {
                 view.text = context.getString(R.string.now)
             } else {
                 view.text = time
@@ -1259,7 +1289,7 @@ class ChatAdapter(
                 getRelativeTimeSpan(it)
             }
 
-            if (time?.equals(context.getString(R.string.zero_ninutes_ago)) == true) {
+            if (time?.equals(context.getString(R.string.zero_minutes_ago)) == true) {
                 view.text = context.getString(R.string.now)
             } else {
                 view.text = time

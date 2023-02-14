@@ -245,6 +245,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             } else resetUploadFields()
                         }, 2000)
                     }
+                    // This line might be scroll fix:
+                    bindingSetup.rvChat.scrollToPosition(0)
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
@@ -650,6 +652,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         } else {
             bindingSetup.messageActions.tvEdit.visibility = View.GONE
             bindingSetup.messageActions.tvDelete.visibility = View.GONE
+        }
+
+        if (Const.JsonFields.TEXT_TYPE == msg.message.type) {
+            bindingSetup.messageActions.tvCopy.visibility = View.VISIBLE
+        } else {
+            bindingSetup.messageActions.tvCopy.visibility = View.GONE
         }
 
         reactionsContainer.setButtonListener(object : ReactionsContainer.AddReaction {
@@ -1143,7 +1151,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun showDeleteMessageDialog(message: Message) {
         ChooserDialog.getInstance(requireContext(),
-            null,
+            getString(R.string.delete),
             null,
             getString(R.string.delete_for_everyone),
             getString(R.string.delete_for_me),
@@ -1852,7 +1860,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val message = messagesRecords.firstOrNull { it.message.localId == localId }
         message!!.message.uploadProgress = (progress * 100) / maxProgress
 
-        activity!!.runOnUiThread {  chatAdapter.notifyItemChanged(messagesRecords.indexOf(message))}
+        activity!!.runOnUiThread { chatAdapter.notifyItemChanged(messagesRecords.indexOf(message)) }
     }
 
     override fun onBackPressed(): Boolean {

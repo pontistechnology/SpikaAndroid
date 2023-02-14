@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import androidx.media3.common.Timeline
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -16,8 +15,8 @@ import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.databinding.FragmentMediaBinding
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.MediaPlayer
-import timber.log.Timber
 
+const val BACK_ARROW_ANIMATION = 500L
 
 class MediaFragment : BaseFragment() {
 
@@ -25,7 +24,7 @@ class MediaFragment : BaseFragment() {
     private val binding get() = bindingSetup!!
     private val args: MediaFragmentArgs by navArgs()
 
-    private var clicked = true
+    private var clicked = false
     private var player: ExoPlayer? = null
 
     private var playWhenReady = true
@@ -35,11 +34,13 @@ class MediaFragment : BaseFragment() {
 
     private var videoPath: String? = null
     private var imagePath: String? = null
+    private var mediaInfo: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         videoPath = args.videoPath
         imagePath = args.picturePath
+        mediaInfo = args.mediaInfo
     }
 
     override fun onCreateView(
@@ -48,6 +49,7 @@ class MediaFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentMediaBinding.inflate(inflater, container, false)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        initializeViews()
         initializeListeners()
         if (imagePath?.isEmpty() == true) {
             initializeVideo()
@@ -58,26 +60,35 @@ class MediaFragment : BaseFragment() {
         return binding.root
     }
 
+    private fun initializeViews() {
+        binding.tvMediaInfo.text = mediaInfo
+    }
+
     private fun initializeListeners() {
         binding.ivBackToChat.setOnClickListener {
             val action = MediaFragmentDirections.actionVideoFragmentToChatMessagesFragment()
             findNavController().navigate(action)
         }
 
-        binding.clImageContainer.setOnClickListener {
+        // This is listener for zoom on image and for showing/removing top layout
+        binding.ivFullImage.setOnClickListener {
             showBackArrow()
         }
 
-        binding.clVideoContainer.setOnClickListener {
+        binding.clMedia.setOnClickListener {
             showBackArrow()
         }
     }
 
     private fun showBackArrow() {
         if (clicked) {
+            binding.clBackArrow.alpha = 0f
             binding.clBackArrow.visibility = View.VISIBLE
+            binding.clBackArrow.animate().alpha(1f).setDuration(BACK_ARROW_ANIMATION).start()
         } else {
-            binding.clBackArrow.visibility = View.GONE
+            binding.clBackArrow.animate().alpha(0f).setDuration(BACK_ARROW_ANIMATION).withEndAction {
+                binding.clBackArrow.visibility = View.GONE
+            }.start()
         }
         clicked = !clicked
     }

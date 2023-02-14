@@ -441,7 +441,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/one_dp_margin"
             android:layout_marginBottom="@dimen/ten_dp_margin"
-            android:background="@color/navigation"
+            android:background="@color/border"
             app:layout_constraintBottom_toTopOf="@id/cl_typing"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
