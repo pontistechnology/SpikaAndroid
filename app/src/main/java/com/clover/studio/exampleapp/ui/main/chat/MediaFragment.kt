@@ -16,6 +16,7 @@ import com.clover.studio.exampleapp.databinding.FragmentMediaBinding
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.MediaPlayer
 
+const val BACK_ARROW_ANIMATION = 500L
 
 class MediaFragment : BaseFragment() {
 
@@ -83,9 +84,9 @@ class MediaFragment : BaseFragment() {
         if (clicked) {
             binding.clBackArrow.alpha = 0f
             binding.clBackArrow.visibility = View.VISIBLE
-            binding.clBackArrow.animate().alpha(1f).setDuration(500).start()
+            binding.clBackArrow.animate().alpha(1f).setDuration(BACK_ARROW_ANIMATION).start()
         } else {
-            binding.clBackArrow.animate().alpha(0f).setDuration(500).withEndAction {
+            binding.clBackArrow.animate().alpha(0f).setDuration(BACK_ARROW_ANIMATION).withEndAction {
                 binding.clBackArrow.visibility = View.GONE
             }.start()
         }

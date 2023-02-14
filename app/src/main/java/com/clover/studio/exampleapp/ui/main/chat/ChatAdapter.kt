@@ -617,23 +617,21 @@ class ChatAdapter(
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
                 if (it.message.totalUserCount != 0) {
-                    if (it.message.totalUserCount == it.message.seenCount!!) {
+                    if (it.message.totalUserCount == it.message.seenCount) {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
                                 R.drawable.img_seen
                             )
                         )
-                    }
-                    if (it.message.totalUserCount == it.message.deliveredCount) {
+                    } else if (it.message.totalUserCount == it.message.deliveredCount) {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
                                 R.drawable.img_done
                             )
                         )
-                    }
-                    if (it.message.deliveredCount!! >= 0) {
+                    } else if (it.message.deliveredCount!! >= 0) {
                         holder.binding.ivMessageStatus.setImageDrawable(
                             ContextCompat.getDrawable(
                                 context,
