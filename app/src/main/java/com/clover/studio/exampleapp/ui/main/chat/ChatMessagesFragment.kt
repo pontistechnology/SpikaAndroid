@@ -11,6 +11,7 @@ import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
@@ -38,6 +39,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.BuildConfig
+import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.JsonMessage
 import com.clover.studio.exampleapp.data.models.entity.*
@@ -60,8 +62,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.*
 import timber.log.Timber
+import java.io.File
 
 /*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
@@ -1773,12 +1776,28 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
             }
         })
-        val thumbnail =
-            ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
-        val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
 
-        thumbnailUris.add(thumbnailUri)
-        currentMediaLocation.add(videoUri)
+        // This will actually stop the UI block while decoding the video
+        CoroutineScope(Dispatchers.IO).launch {
+            val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
+            val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
+            withContext(Dispatchers.IO) {
+                file.createNewFile()
+            }
+            val filePath = file.absolutePath
+            Tools.genVideoUsingMuxer(videoUri, filePath)
+            val fileUri = FileProvider.getUriForFile(
+                MainApplication.appContext,
+                BuildConfig.APPLICATION_ID + ".fileprovider",
+                file
+            )
+            val thumbnail =
+                ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
+            val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
+
+            thumbnailUris.add(thumbnailUri)
+            currentMediaLocation.add(fileUri)
+        }
     }
 
     private fun convertImageToBitmap(imageUri: Uri?) {
