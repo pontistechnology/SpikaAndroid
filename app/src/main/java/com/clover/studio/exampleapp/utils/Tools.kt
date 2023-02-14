@@ -425,7 +425,7 @@ object Tools {
      * @param startMs Can be used for start time when trimming a video
      * @param endMs Can be used for end time when trimming video
      * @param useAudio Boolean which decides if new file will have audio
-     * @param useVideo Boolean shich decides if new file will have video
+     * @param useVideo Boolean which decides if new file will have video
      */
     @Throws(IOException::class)
     fun genVideoUsingMuxer(
