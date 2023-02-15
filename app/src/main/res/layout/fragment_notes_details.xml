@@ -97,6 +97,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:fontFamily="@font/montserrat"
+                android:maxLength="135"
                 android:padding="@dimen/ten_dp_margin"
                 android:text="@string/notes"
                 android:textSize="@dimen/eighteen_sp_text"
@@ -108,7 +109,7 @@
             <EditText
                 android:id="@+id/et_description"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:fontFamily="@font/montserrat"
                 android:padding="@dimen/ten_dp_margin"
