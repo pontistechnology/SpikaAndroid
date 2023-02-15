@@ -1,14 +1,12 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
 import android.Manifest
-import android.animation.Animator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentResolver
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
-import android.graphics.Canvas
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
@@ -37,10 +35,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.BuildConfig
@@ -55,10 +51,7 @@ import com.clover.studio.exampleapp.ui.ReactionContainer
 import com.clover.studio.exampleapp.ui.ReactionsContainer
 import com.clover.studio.exampleapp.ui.main.BlockedUsersFetchFailed
 import com.clover.studio.exampleapp.ui.main.BlockedUsersFetched
-import com.clover.studio.exampleapp.utils.CHUNK_SIZE
-import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
@@ -532,82 +525,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.rvChat.adapter = chatAdapter
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
-        /* Scroll bug:
-        chatAdapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                super.onItemRangeInserted(positionStart, itemCount)
-                bindingSetup.rvChat.scrollToPosition(positionStart)
-            }
-        })*/
-        // bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
 
-        // Add callback for item swipe handling
-        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
-            ItemTouchHelper.SimpleCallback(
-                0,
-                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
-
-            ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: ViewHolder,
-                target: ViewHolder
-            ): Boolean {
-                // ignore
-                return false
-            }
-
-            override fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) {
-                // dx / 4
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-                if (actionState == ACTION_STATE_SWIPE) {
-                    val swipeThreshold = 0.5f * viewHolder.itemView.width
-                    if (dX > swipeThreshold) {
-                        chatAdapter.notifyItemChanged(viewHolder.absoluteAdapterPosition)
-                    } else if (dX < -swipeThreshold) {
-                        chatAdapter.notifyItemChanged(viewHolder.absoluteAdapterPosition)
-                    }
-                }
-            }
-
-            override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-                return makeMovementFlags(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
-            }
-
-            override fun onSwiped(viewHolder: ViewHolder, swipeDir: Int) {
-                val position = viewHolder.absoluteAdapterPosition
-                // chatAdapter.notifyItemChanged(position)
-                if (viewHolder.itemViewType == VIEW_TYPE_MESSAGE_SENT){
-                    if (swipeDir == ItemTouchHelper.LEFT ){
+        val messageSwipeController =
+            MessageSwipeController(context!!, onSwipeAction = { action, position ->
+                when(action) {
+                    Const.UserActions.ACTION_RIGHT -> {
                         bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
                         handleMessageReply(messagesRecords[position].message)
                     }
-                    if (swipeDir == ItemTouchHelper.RIGHT){
-                        bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
-                        getDetailsList(messagesRecords[position].message)
-                    }
-                } else {
-                    if (swipeDir == ItemTouchHelper.RIGHT ){
-                        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
-                        handleMessageReply(messagesRecords[position].message)
-                    }
-                    if (swipeDir == ItemTouchHelper.LEFT){
+                    Const.UserActions.ACTION_LEFT -> {
                         bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
                         getDetailsList(messagesRecords[position].message)
                     }
                 }
-            }
-        }
+            })
 
-        val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
+        val itemTouchHelper = ItemTouchHelper(messageSwipeController)
         itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
 
         // Notify backend of messages seen
@@ -1222,7 +1155,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleMessageReply(message: Message) {
         bindingSetup.vTransparent.visibility = View.VISIBLE
         replyId = message.id.toLong()
-        if (message.senderMessage) {
+        if (message.fromUserId == viewModel.getLocalUserId()){
             bindingSetup.replyAction.clReplyContainer.background =
                 AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_user)
         } else {
@@ -1230,12 +1163,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_received)
         }
 
-        for (user in roomWithUsers.users) {
-            if (user.id == message.fromUserId) {
-                bindingSetup.replyAction.tvUsername.text = user.displayName
-                break
-            }
+        val user  = roomWithUsers.users.firstOrNull {
+            it.id == message.fromUserId
         }
+        bindingSetup.replyAction.tvUsername.text = user!!.displayName
 
         when (message.type) {
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
