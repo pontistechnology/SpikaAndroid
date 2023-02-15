@@ -1723,6 +1723,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 Timber.d("Files selected 2: $filesSelected")
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
+                if (bindingSetup.llImagesContainer.childCount == 0) {
+                    hideSendButton()
+                }
             }
         })
         bindingSetup.llImagesContainer.addView(imageSelected)
@@ -1774,6 +1777,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 Timber.d("Media selected 2: $currentMediaLocation")
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
+                if (bindingSetup.llImagesContainer.childCount == 0) {
+                    hideSendButton()
+                }
             }
         })
 
@@ -1823,6 +1829,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 Timber.d("Media selected 2: $currentMediaLocation")
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
+                if (bindingSetup.llImagesContainer.childCount == 0) {
+                    hideSendButton()
+                }
             }
         })
         val thumbnail =
