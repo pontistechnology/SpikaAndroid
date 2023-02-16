@@ -160,7 +160,9 @@ class MessageSwipeController(
         replyImage?.alpha = alpha
         if (startTracking) {
             // On half of screen vibrate
-            if (!isVibrate && mView.translationX >= convertToDp(HALF_SCREEN)) {
+            if (!isVibrate && (mView.translationX >= convertToDp(HALF_SCREEN)
+                || mView.translationX >= -convertToDp(HALF_SCREEN))
+            ) {
                 mView.performHapticFeedback(
                     HapticFeedbackConstants.KEYBOARD_TAP,
                     HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
