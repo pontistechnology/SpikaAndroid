@@ -43,7 +43,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_screen_name"
         app:queryHint="@string/call_history_search_hint"
-        app:queryBackground="@android:color/transparent"/>
+        app:queryBackground="@android:color/transparent"
+        android:backgroundTint="@color/message_other"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_call_history"

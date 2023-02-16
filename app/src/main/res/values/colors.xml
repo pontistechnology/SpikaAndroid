@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--Android colors-->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -8,9 +9,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- TODO finish custom color naming convention and separate into categories -->
     <color name="color1">#131940</color>
-    <color name="color2">#F2F2F2</color>
     <color name="color3">#2B3053</color>
     <color name="style_red">#FF4133</color>
     <color name="green">#23B528</color>
@@ -24,8 +23,14 @@
     <color name="background_80_transp">#CC000000</color>
     <color name="dark_background_2">#3D3D3D</color>
     <color name="error_background">#FFECEC</color>
-    <color name="message_me">#C8EBFE</color>
     <color name="guideline">#E6E6E6</color>
+
+    <!--Application colors-->
+    <color name="main">#FFFFFF</color>
+    <color name="message_me">#C8EBFE</color>
+    <color name="message_other">#F2F2F2</color>
+    <color name="icon_background">#FFFFFF</color>
+    <color name="inputs">#FFFFFF</color>
 
     <!-- Text Colors -->
     <color name="text_primary">#141414</color>

@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.ui.main.chat
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -157,12 +158,6 @@ class ChatAdapter(
                             holder.binding.tvMessage.text = it.message.body?.text
                             holder.binding.tvMessage.background =
                                 AppCompatResources.getDrawable(context, R.drawable.bg_message_user)
-                            holder.binding.tvMessage.setTextColor(
-                                ContextCompat.getColor(
-                                    context,
-                                    R.color.black
-                                )
-                            )
                         }
 
                         // Code below removes click listener if message was media before
@@ -683,12 +678,6 @@ class ChatAdapter(
                             holder.binding.tvMessage.background = AppCompatResources.getDrawable(
                                 context,
                                 R.drawable.bg_message_received
-                            )
-                            holder.binding.tvMessage.setTextColor(
-                                ContextCompat.getColor(
-                                    context,
-                                    R.color.black
-                                )
                             )
                         }
 

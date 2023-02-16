@@ -42,7 +42,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_screen_name"
         app:queryBackground="@android:color/transparent"
-        app:queryHint="@string/contact_search" />
+        app:queryHint="@string/contact_search"
+        android:backgroundTint="@color/message_other"/>
 
     <TextView
         android:id="@+id/tv_no_chats"

@@ -186,6 +186,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
+                android:textColor="@color/text_primary"
                 app:layout_constraintTop_toBottomOf="@+id/cl_reply_message" />
 
             <androidx.cardview.widget.CardView
@@ -435,7 +436,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/two_dp_margin"
             android:background="@drawable/bg_message_received"
-            android:backgroundTint="@color/color2"
+            android:backgroundTint="@color/message_other"
             android:visibility="gone"
             app:cardCornerRadius="@dimen/eight_dp_margin"
             app:layout_constraintBottom_toBottomOf="@+id/cl_container"

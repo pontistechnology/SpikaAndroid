@@ -313,7 +313,8 @@
             android:src="@drawable/img_add"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/divider" />
+            app:layout_constraintTop_toTopOf="@id/divider"
+            android:backgroundTint="@color/icon_background"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_chat"
@@ -349,7 +350,9 @@
             android:padding="@dimen/ten_dp_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/iv_camera"
-            app:layout_constraintStart_toEndOf="@id/iv_add">
+            app:layout_constraintStart_toEndOf="@id/iv_add"
+            android:backgroundTint="@color/inputs"
+            >
 
             <com.vanniktech.emoji.EmojiEditText
                 android:id="@+id/et_message"
@@ -363,14 +366,15 @@
                 android:inputType="textMultiLine|textCapSentences"
                 android:maxLines="5"
                 android:paddingEnd="@dimen/thirty_dp_margin"
-                android:textColor="@android:color/black"
+                android:textColor="@color/text_primary"
                 app:emojiSize="@dimen/twenty_sp_text"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.434" />
+                app:layout_constraintVertical_bias="0.434"
+                android:backgroundTint="@color/inputs"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -383,7 +387,8 @@
             android:src="@drawable/img_smiley"
             app:layout_constraintBottom_toBottomOf="@id/cl_typing"
             app:layout_constraintEnd_toEndOf="@id/cl_typing"
-            app:layout_constraintTop_toTopOf="@id/cl_typing" />
+            app:layout_constraintTop_toTopOf="@id/cl_typing"
+            android:backgroundTint="@color/inputs"/>
 
         <ImageView
             android:id="@+id/iv_microphone"
@@ -394,7 +399,8 @@
             android:src="@drawable/img_microphone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/divider" />
+            app:layout_constraintTop_toTopOf="@+id/divider"
+            android:backgroundTint="@color/icon_background"/>
 
         <ImageView
             android:id="@+id/iv_button_send"
@@ -406,7 +412,8 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/divider" />
+            app:layout_constraintTop_toTopOf="@+id/divider"
+            android:backgroundTint="@color/icon_background"/>
 
         <ImageView
             android:id="@+id/iv_camera"
@@ -418,7 +425,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/cl_bottom_sheet"
             app:layout_constraintEnd_toStartOf="@id/iv_microphone"
             app:layout_constraintStart_toEndOf="@id/cl_typing"
-            app:layout_constraintTop_toTopOf="@id/divider" />
+            app:layout_constraintTop_toTopOf="@id/divider"
+            android:backgroundTint="@color/icon_background"/>
 
         <TextView
             android:id="@+id/tv_save"

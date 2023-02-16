@@ -43,13 +43,14 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cl_message_edited"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            android:backgroundTint="@color/main">
 
             <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/tv_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginBottom="@dimen/two_dp_margin"
                 android:autoLink="all"
                 android:background="@drawable/bg_message_user"
                 android:fontFamily="@font/montserrat"
@@ -65,8 +66,9 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginBottom="@dimen/two_dp_margin"
-                app:layout_constraintTop_toBottomOf="@+id/cl_reply_message" />
+                app:layout_constraintTop_toBottomOf="@+id/cl_reply_message"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:textColor="@color/text_primary" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_reply_message"
