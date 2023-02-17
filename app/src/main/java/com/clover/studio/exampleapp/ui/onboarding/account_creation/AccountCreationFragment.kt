@@ -256,6 +256,7 @@ class AccountCreationFragment : BaseFragment() {
                                 mimeType: String,
                                 thumbId: Long,
                                 fileId: Long,
+                                fileType: String,
                                 messageBody: MessageBody?
                             ) {
                                 requireActivity().runOnUiThread {

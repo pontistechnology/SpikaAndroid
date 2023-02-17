@@ -104,7 +104,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var isAdmin = false
     private var progress = 0
     private var uploadPieces = 0
-    private var fileType: String = ""
     private var mediaType: UploadMimeTypes? = null
     private var tempMessageCounter = -1
     private var uploadInProgress = false
@@ -136,9 +135,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             bindingSetup.llImagesContainer.removeAllViews()
             if (it != null) {
                 for (uri in it) {
-                    displayFileInContainer(uri)
-                    activity!!.runOnUiThread { showSendButton() }
-                    filesSelected.add(uri)
+                    handleUserSelectedFile(uri)
                 }
             }
         }
@@ -148,7 +145,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             bindingSetup.llImagesContainer.removeAllViews()
             if (it != null) {
                 for (uri in it) {
-                    getImageOrVideo(uri)
+                    handleUserSelectedFile(uri)
                 }
             } else {
                 Timber.d("Gallery error")
@@ -159,7 +156,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 if (photoImageUri != null) {
-                    getImageOrVideo(photoImageUri!!)
+                    handleUserSelectedFile(photoImageUri!!)
                 } else {
                     Timber.d("Photo error")
                 }
@@ -228,6 +225,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
     }
 
+    private fun getFileMimeType(uri: Uri): String? {
+        val cR: ContentResolver = context!!.contentResolver
+        return cR.getType(uri)
+    }
+
     private fun initializeObservers() {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
@@ -239,9 +241,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     if (!uploadInProgress) {
                         Handler(Looper.getMainLooper()).postDelayed(Runnable {
                             if (currentMediaLocation.isNotEmpty()) {
-                                if (Const.JsonFields.IMAGE_TYPE == fileType)
+                                if (getFileMimeType(currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
                                     uploadImage()
-                                else if (Const.JsonFields.VIDEO_TYPE == fileType)
+                                } else if (getFileMimeType(currentMediaLocation.first())?.contains(
+                                        Const.JsonFields.VIDEO_TYPE
+                                    ) == true
+                                )
                                     uploadVideo()
                             } else if (filesSelected.isNotEmpty()) {
                                 uploadFile()
@@ -333,7 +338,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             Timber.d("Successfully sent file")
                             if (it.fileId > 0) it.messageBody?.fileId = it.fileId
                             sendMessage(
-                                fileType,
+                                it.fileType,
                                 it.messageBody?.fileId!!,
                                 0,
                                 unsentMessages.first().localId!!
@@ -414,7 +419,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             if (it.fileId > 0) it.messageBody?.fileId = it.fileId
 
                             sendMessage(
-                                fileType,
+                                it.fileType,
                                 it.messageBody?.fileId!!,
                                 it.messageBody.thumbId!!,
                                 unsentMessages.first().localId!!
@@ -423,7 +428,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             uploadInProgress = false
                         } else {
                             if (it.thumbId > 0) it.messageBody?.thumbId = it.thumbId
-                            if (Const.JsonFields.IMAGE_TYPE == fileType) {
+                            if (it.mimeType.contains(Const.JsonFields.IMAGE_TYPE)) {
                                 it.messageBody?.let { messageBody ->
                                     uploadMedia(
                                         false,
@@ -968,7 +973,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     createTempMediaMessage(thumbnail)
                 }
                 Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    if (Const.JsonFields.IMAGE_TYPE == fileType) {
+                    if (getFileMimeType(currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
                         uploadImage()
                     } else {
                         uploadVideo()
@@ -1403,8 +1408,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             null,
         )
 
-        val type = activity!!.contentResolver.getType(filesSelected.first())!!
-        fileType = if (type == Const.FileExtensions.AUDIO) {
+        var type = activity!!.contentResolver.getType(filesSelected.first())!!
+        type = if (type == Const.FileExtensions.AUDIO) {
             Const.JsonFields.AUDIO_TYPE
         } else {
             Const.JsonFields.FILE_TYPE
@@ -1414,7 +1419,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             tempMessageCounter,
             viewModel.getLocalUserId(),
             roomWithUsers.room.roomId,
-            fileType,
+            type,
             messageBody
         )
         unsentMessages.add(tempMessage)
@@ -1536,7 +1541,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val fileStream = Tools.copyStreamToFile(
             activity!!,
             inputStream!!,
-            activity!!.contentResolver.getType(filesSelected.first())!!,
+            getFileMimeType(filesSelected.first())!!,
             fileName
         )
 
@@ -1546,8 +1551,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             else (fileStream.length() / CHUNK_SIZE).toInt()
         progress = 0
 
-        val type = activity!!.contentResolver.getType(filesSelected.first())!!
-        fileType = if (Const.FileExtensions.AUDIO == type) {
+        var type = getFileMimeType(filesSelected.first())!!
+        type = if (Const.FileExtensions.AUDIO == type) {
             Const.JsonFields.AUDIO_TYPE
         } else {
             Const.JsonFields.FILE_TYPE
@@ -1558,7 +1563,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             filesSelected.first(),
             uploadPieces,
             fileStream,
-            fileType,
+            type,
             messageBody
         )
 
@@ -1590,7 +1595,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val fileStream = Tools.copyStreamToFile(
             activity!!,
             inputStream!!,
-            activity!!.contentResolver.getType(uri)!!
+            getFileMimeType(uri)!!
         )
         uploadPieces =
             if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
@@ -1598,17 +1603,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             else (fileStream.length() / CHUNK_SIZE).toInt()
         progress = 0
 
-        val fileType: String
-        if (mediaType == UploadMimeTypes.IMAGE) {
-            this.fileType = Const.JsonFields.IMAGE_TYPE
-            fileType = Const.JsonFields.IMAGE_TYPE
+        val fileType: String = if (getFileMimeType(uri)!!.contains(Const.JsonFields.IMAGE_TYPE)) {
+            Const.JsonFields.IMAGE_TYPE
         } else {
-            fileType = if (isThumbnail) {
+            if (isThumbnail) {
                 Const.JsonFields.IMAGE_TYPE
             } else {
                 Const.JsonFields.VIDEO_TYPE
             }
-            this.fileType = Const.JsonFields.VIDEO_TYPE
         }
 
         viewModel.uploadMedia(
@@ -1657,7 +1659,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             currentMediaLocation.removeFirst()
             viewModel.deleteLocalMessage(unsentMessages.first())
             unsentMessages.removeFirst()
-            if (Const.JsonFields.IMAGE_TYPE == fileType) {
+            if (getFileMimeType(currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
                 uploadImage()
             } else {
                 uploadVideo()
@@ -1704,6 +1706,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun displayFileInContainer(uri: Uri) {
+        filesSelected.add(uri)
         val imageSelected = ImageSelectedContainer(activity!!, null)
         var fileName = ""
         val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
@@ -1725,29 +1728,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
             }
         })
+        activity!!.runOnUiThread { showSendButton() }
         bindingSetup.llImagesContainer.addView(imageSelected)
     }
 
-    private fun getImageOrVideo(uri: Uri) {
-        val cR: ContentResolver = context!!.contentResolver
-        val mime = cR.getType(uri)
-
-        if (mime?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
-            fileType = Const.JsonFields.VIDEO_TYPE
+    private fun handleUserSelectedFile(uri: Uri) {
+        if (getFileMimeType(uri)?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
             convertVideo(uri)
-        } else if (mime?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
-            fileType = Const.JsonFields.IMAGE_TYPE
+        } else if (getFileMimeType(uri)?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
             convertImageToBitmap(uri)
+        } else if (getFileMimeType(uri)?.contains(Const.JsonFields.AUDIO_TYPE) == true) {
+            displayFileInContainer(uri)
         } else {
-            DialogError.getInstance(
-                requireContext(),
-                getString(R.string.error),
-                getString(R.string.wrong_file_type),
-                null,
-                getString(R.string.ok),
-                object : DialogInteraction {
-                    //ignore
-                })
+            displayFileInContainer(uri)
         }
     }
 
@@ -1865,7 +1858,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         }
-
     }
 
     /**
