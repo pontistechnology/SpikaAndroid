@@ -80,7 +80,7 @@ private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
 
 enum class UploadMimeTypes {
-    IMAGE, VIDEO,
+    IMAGE, VIDEO, FILE, MEDIA
 }
 
 @AndroidEntryPoint
@@ -328,7 +328,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         } else progress = 0
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on piece")
-                        handleUploadError()
                     }
                 }
 
@@ -349,17 +348,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         // update room data
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on verify")
-                        handleUploadError()
+                        handleUploadError(UploadMimeTypes.FILE)
                     }
                 }
 
                 is FileUploadError -> {
-                    try {
-                        handleUploadError()
-                    } catch (ex: Exception) {
-                        Timber.d("File upload failed on error")
-                        handleUploadError()
-                    }
+                    handleUploadError(UploadMimeTypes.FILE)
                 }
 
                 else -> Timber.d("Other upload error")
@@ -409,7 +403,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on piece")
-                        handleUploadError()
                     }
                 }
 
@@ -452,19 +445,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         // update room data
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on verified")
-                        handleUploadError()
+                        handleUploadError(UploadMimeTypes.MEDIA)
                     }
                 }
 
                 is MediaUploadError -> {
-                    try {
-                        requireActivity().runOnUiThread {
-                            handleUploadError()
-                        }
-                    } catch (ex: Exception) {
-                        Timber.d("File upload failed on error")
-                        handleUploadError()
-                    }
+                    handleUploadError(UploadMimeTypes.MEDIA)
                 }
 
                 else -> Timber.d("Other upload error")
@@ -972,6 +958,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 for (thumbnail in thumbnailUris) {
                     createTempMediaMessage(thumbnail)
                 }
+
+                if (filesSelected.isNotEmpty()) {
+                    for (file in filesSelected) {
+                        createTempFileMessage(file)
+                    }
+                }
                 Handler(Looper.getMainLooper()).postDelayed(Runnable {
                     if (getFileMimeType(currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
                         uploadImage()
@@ -1408,7 +1400,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             null,
         )
 
-        var type = activity!!.contentResolver.getType(filesSelected.first())!!
+        var type = activity!!.contentResolver.getType(uri)
         type = if (type == Const.FileExtensions.AUDIO) {
             Const.JsonFields.AUDIO_TYPE
         } else {
@@ -1652,23 +1644,32 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      *
      * Also displays a toast message for failed uploads.
      */
-    private fun handleUploadError() {
+    private fun handleUploadError(typeFailed: UploadMimeTypes) {
         tempMessageCounter -= 1
 
-        if (currentMediaLocation.isNotEmpty()) {
+        if (UploadMimeTypes.MEDIA == typeFailed) {
             currentMediaLocation.removeFirst()
             viewModel.deleteLocalMessage(unsentMessages.first())
             unsentMessages.removeFirst()
-            if (getFileMimeType(currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
-                uploadImage()
-            } else {
-                uploadVideo()
-            }
-        } else if (filesSelected.isNotEmpty()) {
+
+            if (currentMediaLocation.isNotEmpty()) {
+                if (getFileMimeType(currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
+                    uploadImage()
+                } else {
+                    uploadVideo()
+                }
+            } else if (filesSelected.isNotEmpty()) {
+                uploadFile()
+            } else resetUploadFields()
+
+        } else if (UploadMimeTypes.FILE == typeFailed) {
             filesSelected.removeFirst()
             viewModel.deleteLocalMessage(unsentMessages.first())
             unsentMessages.removeFirst()
-            uploadFile()
+
+            if (filesSelected.isNotEmpty()) {
+                uploadFile()
+            } else resetUploadFields()
         } else resetUploadFields()
 
         Toast.makeText(
