@@ -172,6 +172,7 @@ class UploadDownloadManager constructor(
                     mimeType,
                     file.id.toLong(),
                     0,
+                    file.type!!,
                     messageBody
                 )
             }
@@ -181,6 +182,7 @@ class UploadDownloadManager constructor(
                     mimeType,
                     0,
                     file.id.toLong(),
+                    file.type!!,
                     messageBody
                 )
             }
@@ -201,6 +203,7 @@ interface FileUploadListener {
         mimeType: String,
         thumbId: Long = 0,
         fileId: Long = 0,
+        fileType: String,
         messageBody: MessageBody?
     )
 }
