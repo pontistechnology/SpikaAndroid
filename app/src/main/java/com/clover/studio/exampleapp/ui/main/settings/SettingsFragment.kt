@@ -7,9 +7,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
@@ -218,12 +216,8 @@ class SettingsFragment : BaseFragment() {
             updateUsername()
         }
 
-        binding.swDarkTheme.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
+        binding.clAppearance.setOnClickListener {
+            goToAppearanceSettings()
         }
     }
 
@@ -368,6 +362,10 @@ class SettingsFragment : BaseFragment() {
     // screens
     private fun goToPrivacySettings() {
         findNavController().navigate(R.id.action_mainFragment_to_privacySettingsFragment22)
+    }
+
+    private fun goToAppearanceSettings() {
+        findNavController().navigate(R.id.action_mainFragment_to_appearanceSettings)
     }
 
     private fun goToChatSettings() {

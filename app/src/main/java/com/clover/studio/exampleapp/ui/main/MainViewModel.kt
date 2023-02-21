@@ -357,6 +357,20 @@ class MainViewModel @Inject constructor(
             mediaUploadListener.postValue(Event(MediaUploadError(ex.message.toString())))
         }
     }
+
+    fun getUserTheme() : Int? {
+        var theme: Int? = null
+        viewModelScope.launch {
+            theme = sharedPrefsRepo.readUserTheme()
+        }
+        return theme
+    }
+
+    fun writeUserTheme(userTheme: Int){
+        viewModelScope.launch {
+            sharedPrefsRepo.writeUserTheme(userTheme)
+        }
+    }
 }
 
 sealed class MainStates

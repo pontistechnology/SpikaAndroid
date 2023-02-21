@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatDelegate
 import com.clover.studio.exampleapp.databinding.ActivitySplashBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
@@ -23,6 +24,8 @@ class SplashActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bindingSetup = ActivitySplashBinding.inflate(layoutInflater)
+
+        AppCompatDelegate.setDefaultNightMode(viewModel.getUserTheme()!!)
         val view = bindingSetup.root
         setContentView(view)
 

@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_rounded_corners_top"
-    android:paddingBottom="@dimen/twenty_dp_margin">
+    android:paddingBottom="@dimen/twenty_dp_margin"
+    android:backgroundTint="@color/inputs">
 
     <TextView
         android:layout_width="wrap_content"

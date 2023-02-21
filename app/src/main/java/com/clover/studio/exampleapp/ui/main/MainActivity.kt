@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.asLiveData
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
@@ -50,6 +51,9 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        AppCompatDelegate.setDefaultNightMode(viewModel.getUserTheme()!!)
+
         bindingSetup = ActivityMainBinding.inflate(layoutInflater)
         val view = bindingSetup.root
         setContentView(view)
