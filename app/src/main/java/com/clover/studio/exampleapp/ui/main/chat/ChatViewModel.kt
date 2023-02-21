@@ -474,10 +474,20 @@ class ChatViewModel @Inject constructor(
                             mimeType: String,
                             thumbId: Long,
                             fileId: Long,
+                            fileType: String,
                             messageBody: MessageBody?
                         ) {
                             fileUploadListener.postValue(
-                                Event(FileUploadVerified(path, mimeType, thumbId, fileId, messageBody))
+                                Event(
+                                    FileUploadVerified(
+                                        path,
+                                        mimeType,
+                                        thumbId,
+                                        fileId,
+                                        fileType,
+                                        messageBody
+                                    )
+                                )
                             )
                         }
                     })
@@ -518,6 +528,7 @@ class ChatViewModel @Inject constructor(
                         mimeType: String,
                         thumbId: Long,
                         fileId: Long,
+                        fileType: String,
                         messageBody: MessageBody?
                     ) {
                         mediaUploadListener.postValue(
@@ -527,6 +538,7 @@ class ChatViewModel @Inject constructor(
                                     mimeType,
                                     thumbId,
                                     fileId,
+                                    fileType,
                                     messageBody,
                                     isThumbnail
                                 )
@@ -555,6 +567,7 @@ class FileUploadVerified(
     val mimeType: String,
     val thumbId: Long,
     val fileId: Long,
+    val fileType: String,
     val messageBody: MessageBody?
 ) : ChatStates()
 
@@ -565,6 +578,7 @@ class MediaUploadVerified(
     val mimeType: String,
     val thumbId: Long,
     val fileId: Long,
+    val fileType: String,
     val messageBody: MessageBody?,
     val isThumbnail: Boolean
 ) : ChatStates()

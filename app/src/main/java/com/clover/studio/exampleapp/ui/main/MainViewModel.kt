@@ -335,6 +335,7 @@ class MainViewModel @Inject constructor(
                         mimeType: String,
                         thumbId: Long,
                         fileId: Long,
+                        fileType: String,
                         messageBody: MessageBody?
                     ) {
                         mediaUploadListener.postValue(
@@ -344,6 +345,7 @@ class MainViewModel @Inject constructor(
                                     mimeType,
                                     thumbId,
                                     fileId,
+                                    fileType,
                                     messageBody,
                                     isThumbnail
                                 )

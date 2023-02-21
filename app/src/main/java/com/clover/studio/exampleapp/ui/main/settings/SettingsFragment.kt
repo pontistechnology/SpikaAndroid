@@ -263,6 +263,7 @@ class SettingsFragment : BaseFragment() {
                             mimeType: String,
                             thumbId: Long,
                             fileId: Long,
+                            fileType: String,
                             messageBody: MessageBody?
                         ) {
                             Timber.d("Upload verified")
