@@ -39,6 +39,7 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 
@@ -50,6 +51,8 @@ const val TOKEN_EXPIRED_CODE = 401
 const val TOKEN_INVALID_CODE = 403
 
 object Tools {
+
+    private var density = 1f
 
     fun checkError(ex: Exception): Boolean {
         when (ex) {
@@ -518,5 +521,23 @@ object Tools {
         }
         muxer.stop()
         muxer.release()
+    }
+
+    fun dp(value: Float, context: Context): Int {
+        if (density == 1f) {
+            checkDisplaySize(context)
+        }
+        return if (value == 0f) {
+            0
+        } else ceil((density * value).toDouble()).toInt()
+    }
+
+    private fun checkDisplaySize(context: Context) {
+        try {
+            density = context.resources.displayMetrics.density
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
     }
 }

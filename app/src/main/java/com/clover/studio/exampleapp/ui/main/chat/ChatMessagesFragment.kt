@@ -34,6 +34,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -50,10 +51,7 @@ import com.clover.studio.exampleapp.ui.ReactionContainer
 import com.clover.studio.exampleapp.ui.ReactionsContainer
 import com.clover.studio.exampleapp.ui.main.BlockedUsersFetchFailed
 import com.clover.studio.exampleapp.ui.main.BlockedUsersFetched
-import com.clover.studio.exampleapp.utils.CHUNK_SIZE
-import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
@@ -65,6 +63,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.File
+
+
 
 /*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
@@ -525,41 +525,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.rvChat.adapter = chatAdapter
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
-        /* Scroll bug:
-        chatAdapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                super.onItemRangeInserted(positionStart, itemCount)
-                bindingSetup.rvChat.scrollToPosition(positionStart)
-            }
-        })*/
-        // bindingSetup.rvChat.recycledViewPool.setMaxRecycledViews(0, 0)
 
-        // Add callback for item swipe handling
-        /*val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
-            ItemTouchHelper.SimpleCallback(
-                0,
-                ItemTouchHelper.RIGHT
-            ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                // ignore
-                return false
-            }
+        val messageSwipeController =
+            MessageSwipeController(context!!, onSwipeAction = { action, position ->
+                when(action) {
+                    Const.UserActions.ACTION_RIGHT -> {
+                        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        handleMessageReply(messagesRecords[position].message)
+                    }
+                    Const.UserActions.ACTION_LEFT -> {
+                        bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        getDetailsList(messagesRecords[position].message)
+                    }
+                }
+            })
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                // Get swiped message text and add to message EditText
-                // After that, return item to correct position
-                val position = viewHolder.absoluteAdapterPosition
-                bindingSetup.etMessage.setText(messagesRecords[position].message.body?.text)
-                chatAdapter.notifyItemChanged(position)
-            }
-        }
-
-        val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
-        itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)*/
+        val itemTouchHelper = ItemTouchHelper(messageSwipeController)
+        itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
 
         // Notify backend of messages seen
         viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
@@ -1173,7 +1155,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleMessageReply(message: Message) {
         bindingSetup.vTransparent.visibility = View.VISIBLE
         replyId = message.id.toLong()
-        if (message.senderMessage) {
+        if (message.fromUserId == viewModel.getLocalUserId()){
             bindingSetup.replyAction.clReplyContainer.background =
                 AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_user)
         } else {
@@ -1181,12 +1163,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_received)
         }
 
-        for (user in roomWithUsers.users) {
-            if (user.id == message.fromUserId) {
-                bindingSetup.replyAction.tvUsername.text = user.displayName
-                break
-            }
+        val user  = roomWithUsers.users.firstOrNull {
+            it.id == message.fromUserId
         }
+        bindingSetup.replyAction.tvUsername.text = user!!.displayName
 
         when (message.type) {
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
