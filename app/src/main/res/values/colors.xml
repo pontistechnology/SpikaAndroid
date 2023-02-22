@@ -30,6 +30,7 @@
     <color name="message_me">#C8EBFE</color>
     <color name="message_other">#F2F2F2</color>
     <color name="icon_background">#FFFFFF</color>
+    <color name="icons">#121212</color>
     <color name="inputs">#FFFFFF</color>
 
     <!-- Text Colors -->

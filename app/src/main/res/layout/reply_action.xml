@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_rounded_corners_top"
-    android:paddingBottom="@dimen/ten_dp_margin">
+    android:background="@color/main"
+    android:paddingBottom="@dimen/ten_dp_margin"
+    tools:ignore="contentDescription">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_reply_container"
@@ -100,7 +101,6 @@
         android:padding="@dimen/twenty_five_dp_margin"
         android:src="@drawable/img_close"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/color1" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

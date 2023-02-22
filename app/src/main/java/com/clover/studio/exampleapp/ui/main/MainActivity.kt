@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.ui.main
 
 import android.animation.ValueAnimator
 import android.app.Activity
+import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.os.Looper
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
 import androidx.lifecycle.asLiveData
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
@@ -52,7 +54,15 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        AppCompatDelegate.setDefaultNightMode(viewModel.getUserTheme()!!)
+        if (viewModel.getUserTheme() == MODE_NIGHT_UNSPECIFIED){
+            val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+            when (uiModeManager.nightMode) {
+                UiModeManager.MODE_NIGHT_YES -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        } else {
+            AppCompatDelegate.setDefaultNightMode(viewModel.getUserTheme()!!)
+        }
 
         bindingSetup = ActivityMainBinding.inflate(layoutInflater)
         val view = bindingSetup.root
