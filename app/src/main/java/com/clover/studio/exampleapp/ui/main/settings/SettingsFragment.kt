@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
@@ -94,6 +95,7 @@ class SettingsFragment : BaseFragment() {
 
         setupClickListeners()
         initializeObservers()
+        initializeViews()
         addTextListeners()
 
         // Display version code on bottom of the screen
@@ -166,6 +168,16 @@ class SettingsFragment : BaseFragment() {
         binding.tvPhoneNumber.visibility = View.VISIBLE
         binding.etEnterUsername.visibility = View.INVISIBLE
         binding.tvDone.visibility = View.GONE
+    }
+
+    private fun initializeViews() {
+        when (viewModel.getUserTheme()) {
+            AppCompatDelegate.MODE_NIGHT_NO -> binding.tvActiveTheme.text =
+                getString(R.string.light_theme)
+            AppCompatDelegate.MODE_NIGHT_YES -> binding.tvActiveTheme.text =
+                getString(R.string.dark_theme)
+            else -> binding.tvActiveTheme.text = getString(R.string.system_theme)
+        }
     }
 
     private fun setupClickListeners() {

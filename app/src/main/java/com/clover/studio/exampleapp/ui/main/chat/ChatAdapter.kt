@@ -157,7 +157,12 @@ class ChatAdapter(
                             holder.binding.tvMessage.text = it.message.body?.text
                             holder.binding.tvMessage.background =
                                 AppCompatResources.getDrawable(context, R.drawable.bg_message_user)
-                            holder.binding.tvMessage.setTextColor(context.resources.getColor(R.color.text_primary))
+                            holder.binding.tvMessage.setTextColor(
+                                ContextCompat.getColor(
+                                    context,
+                                    R.color.text_primary
+                                )
+                            )
                         }
 
                         // Code below removes click listener if message was media before
@@ -679,7 +684,12 @@ class ChatAdapter(
                                 context,
                                 R.drawable.bg_message_received
                             )
-                            holder.binding.tvMessage.setTextColor(context.resources.getColor(R.color.text_primary))
+                            holder.binding.tvMessage.setTextColor(
+                                ContextCompat.getColor(
+                                    context,
+                                    R.color.text_primary
+                                )
+                            )
                         }
 
                         holder.binding.tvMessage.setOnClickListener {

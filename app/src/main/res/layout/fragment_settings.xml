@@ -170,7 +170,7 @@
         android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_phone_number">
+        app:layout_constraintTop_toBottomOf="@id/cl_appearance">
 
         <TextView
             android:layout_width="wrap_content"
@@ -198,9 +198,22 @@
         android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cl_privacy">
+        app:layout_constraintTop_toBottomOf="@id/tv_phone_number">
 
         <TextView
+            android:id="@+id/tv_active_theme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/eight_dp_margin"
+            android:text="@string/system_theme"
+            android:textColor="@color/text_tertiary"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_appearance"
+            app:layout_constraintEnd_toStartOf="@+id/imageView2"
+            app:layout_constraintTop_toTopOf="@+id/tv_appearance"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <TextView
+            android:id="@+id/tv_appearance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat"
@@ -210,6 +223,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
+            android:id="@+id/imageView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/img_arrow_forward"
