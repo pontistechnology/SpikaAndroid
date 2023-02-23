@@ -3,7 +3,6 @@ package com.clover.studio.exampleapp.ui.main.create_room
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -32,8 +31,9 @@ class SelectedContactsAdapter(
         with(holder) {
             getItem(position).let { userItem ->
                 binding.tvUserName.text = userItem.phoneUser?.name ?: userItem.user.displayName
-                Glide.with(context).load(userItem.user.avatarFileId?.let { Tools.getFilePathUrl(it) })
-                    .placeholder(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
+                Glide.with(context)
+                    .load(userItem.user.avatarFileId?.let { Tools.getFilePathUrl(it) })
+                    .placeholder(R.drawable.img_user_placeholder)
                     .centerCrop()
                     .into(binding.ivUserImage)
 

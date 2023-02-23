@@ -3,7 +3,6 @@ package com.clover.studio.exampleapp.ui.main.settings.screens.privacy
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -35,7 +34,7 @@ class BlockedUserAdapter(
                 binding.tvUserNumber.text = blockedUser.telephoneNumber
 
                 Glide.with(context).load(blockedUser.avatarFileId?.let { Tools.getFilePathUrl(it) })
-                    .placeholder(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
+                    .placeholder(R.drawable.img_user_placeholder)
                     .centerCrop()
                     .into(binding.ivRoomImage)
 

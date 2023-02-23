@@ -1103,6 +1103,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.ivCamera.visibility = View.VISIBLE
         bindingSetup.ivMicrophone.visibility = View.VISIBLE
         bindingSetup.etMessage.text!!.clear()
+        bindingSetup.etMessage.setText("")
     }
 
     private fun rotationAnimation() {

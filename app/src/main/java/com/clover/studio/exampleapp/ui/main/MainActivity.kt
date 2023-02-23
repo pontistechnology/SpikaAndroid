@@ -143,7 +143,7 @@ class MainActivity : BaseActivity() {
                                         fileId
                                     )
                                 })
-                                .placeholder(getDrawable(R.drawable.img_user_placeholder))
+                                .placeholder(R.drawable.img_user_placeholder)
                                 .centerCrop()
                                 .into(bindingSetup.cvNotification.ivUserImage)
                             bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
@@ -174,7 +174,7 @@ class MainActivity : BaseActivity() {
                                             )
                                         })
                                         .centerCrop()
-                                        .placeholder(getDrawable(R.drawable.img_user_placeholder))
+                                        .placeholder(R.drawable.img_user_placeholder)
                                         .into(bindingSetup.cvNotification.ivUserImage)
                                     val content =
                                         if (it.message.type != Const.JsonFields.TEXT_TYPE) {

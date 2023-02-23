@@ -137,7 +137,7 @@ class ChatScreenActivity : BaseActivity() {
                                         fileId
                                     )
                                 })
-                                .placeholder(getDrawable(R.drawable.img_user_placeholder))
+                                .placeholder(R.drawable.img_user_placeholder)
                                 .centerCrop()
                                 .into(bindingSetup.cvNotification.ivUserImage)
                             bindingSetup.cvNotification.tvTitle.text =
@@ -168,7 +168,7 @@ class ChatScreenActivity : BaseActivity() {
                                                 fileId
                                             )
                                         })
-                                        .placeholder(getDrawable(R.drawable.img_user_placeholder))
+                                        .placeholder(R.drawable.img_user_placeholder)
                                         .centerCrop()
                                         .into(bindingSetup.cvNotification.ivUserImage)
                                     val content: String =
