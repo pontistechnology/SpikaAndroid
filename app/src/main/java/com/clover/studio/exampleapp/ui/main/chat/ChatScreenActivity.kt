@@ -138,6 +138,7 @@ class ChatScreenActivity : BaseActivity() {
                                     )
                                 })
                                 .placeholder(getDrawable(R.drawable.img_user_placeholder))
+                                .centerCrop()
                                 .into(bindingSetup.cvNotification.ivUserImage)
                             bindingSetup.cvNotification.tvTitle.text =
                                 it.roomWithUsers.room.name
@@ -168,6 +169,7 @@ class ChatScreenActivity : BaseActivity() {
                                             )
                                         })
                                         .placeholder(getDrawable(R.drawable.img_user_placeholder))
+                                        .centerCrop()
                                         .into(bindingSetup.cvNotification.ivUserImage)
                                     val content: String =
                                         if (it.message.type != Const.JsonFields.TEXT_TYPE) {

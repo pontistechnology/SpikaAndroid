@@ -8,7 +8,6 @@ import android.widget.CompoundButton
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
@@ -186,6 +185,7 @@ class ContactDetailsFragment : BaseFragment() {
                         null
                     )
                 )
+                .centerCrop()
                 .into(binding.ivPickAvatar)
             binding.clProgressScreen.visibility = View.GONE
         }
@@ -233,9 +233,15 @@ class ContactDetailsFragment : BaseFragment() {
 
         binding.clNotes.setOnClickListener {
             if (activity is MainActivity) {
-                findNavController().navigate(R.id.notesFragment2, bundleOf(Const.Navigation.ROOM_ID to roomId))
+                findNavController().navigate(
+                    R.id.notesFragment2,
+                    bundleOf(Const.Navigation.ROOM_ID to roomId)
+                )
             } else {
-                findNavController().navigate(R.id.notesFragment, bundleOf(Const.Navigation.ROOM_ID to roomId))
+                findNavController().navigate(
+                    R.id.notesFragment,
+                    bundleOf(Const.Navigation.ROOM_ID to roomId)
+                )
             }
         }
 

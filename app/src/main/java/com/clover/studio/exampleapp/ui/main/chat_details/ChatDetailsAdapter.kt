@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -37,7 +38,8 @@ class ChatDetailsAdapter(
                 binding.tvUsername.text = userItem.displayName
                 binding.tvTitle.text = userItem.telephoneNumber
                 Glide.with(context).load(userItem.avatarFileId?.let { Tools.getFilePathUrl(it) })
-                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                    .placeholder(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
+                    .centerCrop()
                     .into(binding.ivUserImage)
 
                 if (Const.JsonFields.PRIVATE == roomType) {

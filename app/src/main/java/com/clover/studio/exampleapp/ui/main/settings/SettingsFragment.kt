@@ -149,6 +149,7 @@ class SettingsFragment : BaseFragment() {
             Glide.with(requireActivity())
                 .load(it.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
                 .placeholder(R.drawable.img_user_placeholder)
+                .centerCrop()
                 .into(binding.ivPickPhoto)
         }
 

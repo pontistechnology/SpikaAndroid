@@ -37,8 +37,6 @@ class AppearanceSettings : BaseFragment() {
             activity?.onBackPressed()
         }
 
-        // Timber.d("theme: ${requireContext().resources.configuration.uiMode}")
-
         when (viewModel.getUserTheme()) {
             AppCompatDelegate.MODE_NIGHT_NO -> {
                 binding.ivLightCheckmark.visibility = View.VISIBLE
@@ -77,8 +75,6 @@ class AppearanceSettings : BaseFragment() {
 
         binding.clSystemTheme.setOnClickListener {
             val uiModeManager = context?.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
-            // Timber.d("uimodemanager: ${uiModeManager.currentModeType}")
-
             when (uiModeManager.nightMode) {
                 UiModeManager.MODE_NIGHT_YES -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)

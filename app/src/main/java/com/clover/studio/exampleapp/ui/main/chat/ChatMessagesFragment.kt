@@ -211,6 +211,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     R.drawable.img_user_placeholder
                 )
             )
+            .centerCrop()
             .into(bindingSetup.ivUserImage)
     }
 

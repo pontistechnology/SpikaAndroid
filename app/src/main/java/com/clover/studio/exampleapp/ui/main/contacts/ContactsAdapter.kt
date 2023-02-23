@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -60,8 +61,9 @@ class ContactsAdapter(
                 if (userItem.user.hasAvatar) {
                     Glide.with(context).load(userItem.user.avatarFileId?.let { getFilePathUrl(it) })
                         .placeholder(R.drawable.img_user_placeholder)
+                        .centerCrop()
                         .into(binding.ivUserImage)
-                } else binding.ivUserImage.setImageDrawable(context.getDrawable(R.drawable.img_user_placeholder))
+                } else binding.ivUserImage.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
 
                 // if not first item, check if item above has the same header
                 if (position > 0) {

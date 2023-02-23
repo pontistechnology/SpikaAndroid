@@ -144,6 +144,7 @@ class MainActivity : BaseActivity() {
                                     )
                                 })
                                 .placeholder(getDrawable(R.drawable.img_user_placeholder))
+                                .centerCrop()
                                 .into(bindingSetup.cvNotification.ivUserImage)
                             bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
                             for (user in it.roomWithUsers.users) {
@@ -172,6 +173,7 @@ class MainActivity : BaseActivity() {
                                                 fileId
                                             )
                                         })
+                                        .centerCrop()
                                         .placeholder(getDrawable(R.drawable.img_user_placeholder))
                                         .into(bindingSetup.cvNotification.ivUserImage)
                                     val content =
