@@ -92,6 +92,7 @@ class MessageDetailsAdapter(
                                     R.drawable.img_user_placeholder
                                 )
                             )
+                            .centerCrop()
                             .into(binding.ivUserAvatar)
                         break
                     }

@@ -210,6 +210,19 @@ class SharedPreferencesRepositoryImpl(
         return arrayListOf()
     }
 
+    // Theme
+    override suspend fun writeUserTheme(userTheme: Int) {
+        with(getPrefs().edit()) {
+            putInt(Const.PrefsData.THEME, userTheme)
+            commit()
+        }
+    }
+
+    // Set default system theme
+    override suspend fun readUserTheme(): Int {
+        return getPrefs().getInt(Const.PrefsData.THEME, context.resources.configuration.uiMode)
+    }
+
     override fun unregisterSharedPrefsReceiver() {
         getPrefs().unregisterOnSharedPreferenceChangeListener(prefsListener)
     }
@@ -224,7 +237,6 @@ class SharedPreferencesRepositoryImpl(
 
     private fun getPrefs(): SharedPreferences =
         context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
-
 }
 
 interface SharedPreferencesRepository {
@@ -269,4 +281,8 @@ interface SharedPreferencesRepository {
     suspend fun readBlockedUserList(): List<Int>
 
     fun unregisterSharedPrefsReceiver()
+
+    // Theme
+    suspend fun writeUserTheme(userTheme: Int)
+    suspend fun readUserTheme(): Int
 }

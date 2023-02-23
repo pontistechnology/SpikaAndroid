@@ -231,6 +231,9 @@ class Const {
             const val MESSAGE_SYNC = "message_sync"
             const val USER_SYNC = "user_sync"
             const val ROOM_SYNC = "room_sync"
+
+            // Theme
+            const val THEME = "theme"
         }
     }
 

@@ -73,6 +73,7 @@ class AccountCreationFragment : BaseFragment() {
 
                 Glide.with(this).load(bitmap)
                     .placeholder(R.drawable.img_user_placeholder)
+                    .centerCrop()
                     .into(binding.ivPickPhoto)
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri

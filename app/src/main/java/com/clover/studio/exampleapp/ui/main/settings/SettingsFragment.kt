@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
@@ -34,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class SettingsFragment : BaseFragment() {
@@ -93,6 +95,7 @@ class SettingsFragment : BaseFragment() {
 
         setupClickListeners()
         initializeObservers()
+        initializeViews()
         addTextListeners()
 
         // Display version code on bottom of the screen
@@ -146,6 +149,7 @@ class SettingsFragment : BaseFragment() {
             Glide.with(requireActivity())
                 .load(it.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
                 .placeholder(R.drawable.img_user_placeholder)
+                .centerCrop()
                 .into(binding.ivPickPhoto)
         }
 
@@ -165,6 +169,16 @@ class SettingsFragment : BaseFragment() {
         binding.tvPhoneNumber.visibility = View.VISIBLE
         binding.etEnterUsername.visibility = View.INVISIBLE
         binding.tvDone.visibility = View.GONE
+    }
+
+    private fun initializeViews() {
+        when (viewModel.getUserTheme()) {
+            AppCompatDelegate.MODE_NIGHT_NO -> binding.tvActiveTheme.text =
+                getString(R.string.light_theme)
+            AppCompatDelegate.MODE_NIGHT_YES -> binding.tvActiveTheme.text =
+                getString(R.string.dark_theme)
+            else -> binding.tvActiveTheme.text = getString(R.string.system_theme)
+        }
     }
 
     private fun setupClickListeners() {
@@ -213,6 +227,10 @@ class SettingsFragment : BaseFragment() {
 
         binding.tvDone.setOnClickListener {
             updateUsername()
+        }
+
+        binding.clAppearance.setOnClickListener {
+            goToAppearanceSettings()
         }
     }
 
@@ -357,6 +375,10 @@ class SettingsFragment : BaseFragment() {
     // screens
     private fun goToPrivacySettings() {
         findNavController().navigate(R.id.action_mainFragment_to_privacySettingsFragment22)
+    }
+
+    private fun goToAppearanceSettings() {
+        findNavController().navigate(R.id.action_mainFragment_to_appearanceSettings)
     }
 
     private fun goToChatSettings() {

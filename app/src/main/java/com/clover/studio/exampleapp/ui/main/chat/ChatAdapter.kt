@@ -125,7 +125,7 @@ class ChatAdapter(
             // TODO can two view holders use same method for binding if all views are the same?
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 holder as SentMessageHolder
-                holder.binding.clContainer.setBackgroundResource(R.drawable.bg_btn_white)
+                holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_user)
                 holder.binding.tvTime.visibility = View.GONE
                 when (it.message.type) {
                     Const.JsonFields.TEXT_TYPE -> {
@@ -136,9 +136,9 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        if (it.message.deleted == true || it.message.body?.text == context.getString(
+                        if (it.message.deleted == true || (it.message.body?.text == context.getString(
                                 R.string.deleted_message
-                            )
+                            ) && (it.message.modifiedAt != it.message.createdAt))
                         ) {
                             holder.binding.tvMessage.text =
                                 context.getString(R.string.message_deleted_text)
@@ -151,7 +151,7 @@ class ChatAdapter(
                             )
                             holder.binding.tvMessage.background = AppCompatResources.getDrawable(
                                 context,
-                                R.drawable.img_deleted_message_me
+                                R.drawable.img_deleted_message
                             )
                         } else {
                             holder.binding.tvMessage.text = it.message.body?.text
@@ -160,7 +160,7 @@ class ChatAdapter(
                             holder.binding.tvMessage.setTextColor(
                                 ContextCompat.getColor(
                                     context,
-                                    R.color.black
+                                    R.color.text_primary
                                 )
                             )
                         }
@@ -186,9 +186,9 @@ class ChatAdapter(
 
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
                         holder.binding.tvMessage.setOnLongClickListener { _ ->
-                            if (!(it.message.deleted == true || it.message.body?.text == context.getString(
+                            if (!(it.message.deleted == true || (it.message.body?.text == context.getString(
                                     R.string.deleted_message
-                                ))
+                                ) && (it.message.modifiedAt != it.message.createdAt)))
                             ) {
                                 it.message.senderMessage = true
                                 it.message.messagePosition = holder.absoluteAdapterPosition
@@ -661,9 +661,9 @@ class ChatAdapter(
                         holder.binding.cvAudio.visibility = View.GONE
                         holder.binding.clReplyMessage.visibility = View.GONE
 
-                        if (it.message.deleted == true || it.message.body?.text == context.getString(
+                        if (it.message.deleted == true || (it.message.body?.text == context.getString(
                                 R.string.deleted_message
-                            )
+                            ) && (it.message.modifiedAt != it.message.createdAt))
                         ) {
                             holder.binding.tvMessage.text =
                                 context.getString(R.string.message_deleted_text)
@@ -676,7 +676,7 @@ class ChatAdapter(
                             )
                             holder.binding.tvMessage.background = AppCompatResources.getDrawable(
                                 context,
-                                R.drawable.img_deleted_message_other
+                                R.drawable.img_deleted_message
                             )
                         } else {
                             holder.binding.tvMessage.text = it.message.body?.text
@@ -687,7 +687,7 @@ class ChatAdapter(
                             holder.binding.tvMessage.setTextColor(
                                 ContextCompat.getColor(
                                     context,
-                                    R.color.black
+                                    R.color.text_primary
                                 )
                             )
                         }
@@ -707,9 +707,9 @@ class ChatAdapter(
 
                         holder.binding.tvMessage.movementMethod = LinkMovementMethod.getInstance()
                         holder.binding.tvMessage.setOnLongClickListener { _ ->
-                            if (!(it.message.deleted == true || it.message.body?.text == context.getString(
+                            if (!(it.message.deleted == true || (it.message.body?.text == context.getString(
                                     R.string.deleted_message
-                                ))
+                                ) && (it.message.modifiedAt != it.message.createdAt)))
                             ) {
                                 it.message.senderMessage = false
                                 it.message.messagePosition = holder.absoluteAdapterPosition
@@ -1297,5 +1297,4 @@ class ChatAdapter(
         }
 
     }
-
 }

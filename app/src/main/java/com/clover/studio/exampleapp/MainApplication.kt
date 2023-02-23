@@ -5,7 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.clover.studio.exampleapp.utils.CHANNEL_ID
 import com.clover.studio.exampleapp.utils.helpers.AppLifecycleManager
@@ -21,8 +20,6 @@ class MainApplication : Application() {
     }
 
     override fun onCreate() {
-        //         Force light mode when app starts
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate()
         if (BuildConfig.BUILD_TYPE == "debug" || BuildConfig.BUILD_TYPE == "dev" || BuildConfig.BUILD_TYPE == "releaseDebug") {
             Timber.plant(Timber.DebugTree())

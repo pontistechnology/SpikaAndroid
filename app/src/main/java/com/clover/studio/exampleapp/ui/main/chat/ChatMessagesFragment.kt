@@ -65,7 +65,6 @@ import timber.log.Timber
 import java.io.File
 
 
-
 /*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
@@ -212,6 +211,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     R.drawable.img_user_placeholder
                 )
             )
+            .centerCrop()
             .into(bindingSetup.ivUserImage)
     }
 
@@ -528,7 +528,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         val messageSwipeController =
             MessageSwipeController(context!!, onSwipeAction = { action, position ->
-                when(action) {
+                when (action) {
                     Const.UserActions.ACTION_RIGHT -> {
                         bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
                         handleMessageReply(messagesRecords[position].message)
@@ -1102,6 +1102,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.tvSave.visibility = View.GONE
         bindingSetup.ivCamera.visibility = View.VISIBLE
         bindingSetup.ivMicrophone.visibility = View.VISIBLE
+        bindingSetup.etMessage.text!!.clear()
+        bindingSetup.etMessage.setText("")
     }
 
     private fun rotationAnimation() {
@@ -1155,7 +1157,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleMessageReply(message: Message) {
         bindingSetup.vTransparent.visibility = View.VISIBLE
         replyId = message.id.toLong()
-        if (message.fromUserId == viewModel.getLocalUserId()){
+        if (message.fromUserId == viewModel.getLocalUserId()) {
             bindingSetup.replyAction.clReplyContainer.background =
                 AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_user)
         } else {
@@ -1163,7 +1165,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_received)
         }
 
-        val user  = roomWithUsers.users.firstOrNull {
+        val user = roomWithUsers.users.firstOrNull {
             it.id == message.fromUserId
         }
         bindingSetup.replyAction.tvUsername.text = user!!.displayName
