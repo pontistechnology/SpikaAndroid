@@ -24,8 +24,6 @@
     <color name="dark_background_2">#3D3D3D</color>
     <color name="error_background">#FFECEC</color>
     <color name="guideline">#E6E6E6</color>
-    <color name="gray_transparent">#66F2F2F2</color>
-    <color name="messages_states">#5F6368</color>
 
     <!--Application colors: light - dark themes-->
     <!--Main color: white - black-->
@@ -38,14 +36,9 @@
     <color name="icons">#121212</color>
     <!--Inputs color: white - gray-->
     <color name="inputs">#FFFFFF</color>
-    <!--Files color: light blue - gray-->
-    <color name="files">#C8EBFE</color>
 
     <!-- Text Colors -->
     <color name="text_primary">#141414</color>
     <color name="text_secondary">#4A4A4A</color>
     <color name="text_tertiary">#9AA0A6</color>
-
-    <!--Link Colors-->
-    <color name="link_primary_color">#4696F0</color>
 </resources>

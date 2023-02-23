@@ -34,7 +34,8 @@ class BlockedUserAdapter(
                 binding.tvUserNumber.text = blockedUser.telephoneNumber
 
                 Glide.with(context).load(blockedUser.avatarFileId?.let { Tools.getFilePathUrl(it) })
-                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                    .placeholder(R.drawable.img_user_placeholder)
+                    .centerCrop()
                     .into(binding.ivRoomImage)
 
                 itemView.setOnClickListener {

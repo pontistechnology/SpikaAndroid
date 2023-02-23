@@ -31,8 +31,10 @@ class SelectedContactsAdapter(
         with(holder) {
             getItem(position).let { userItem ->
                 binding.tvUserName.text = userItem.phoneUser?.name ?: userItem.user.displayName
-                Glide.with(context).load(userItem.user.avatarFileId?.let { Tools.getFilePathUrl(it) })
-                    .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                Glide.with(context)
+                    .load(userItem.user.avatarFileId?.let { Tools.getFilePathUrl(it) })
+                    .placeholder(R.drawable.img_user_placeholder)
+                    .centerCrop()
                     .into(binding.ivUserImage)
 
                 itemView.setOnClickListener {

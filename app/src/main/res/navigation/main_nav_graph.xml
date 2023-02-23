@@ -73,6 +73,9 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_mainFragment_to_appearanceSettings"
+            app:destination="@id/appearanceSettings" />
     </fragment>
     <fragment
         android:id="@+id/contactDetailsFragment"
@@ -144,4 +147,9 @@
             android:defaultValue="0"
             app:argType="integer" />
     </fragment>
+    <fragment
+        android:id="@+id/appearanceSettings"
+        android:name="com.clover.studio.exampleapp.ui.main.settings.screens.AppearanceSettings"
+        android:label="fragment_appearance_settings"
+        tools:layout="@layout/fragment_appearance_settings" />
 </navigation>

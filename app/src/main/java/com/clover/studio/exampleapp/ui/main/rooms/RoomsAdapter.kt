@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -67,8 +68,9 @@ class RoomsAdapter(
                     Glide.with(context)
                         .load(Tools.getFilePathUrl(avatarFileId))
                         .placeholder(R.drawable.img_user_placeholder)
+                        .centerCrop()
                         .into(binding.ivRoomImage)
-                } else binding.ivRoomImage.setImageDrawable(context.getDrawable(R.drawable.img_user_placeholder))
+                } else binding.ivRoomImage.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
 
                 if (!roomItem.message.isNullOrEmpty()) {
                     val sortedList = roomItem.message.sortedBy { it.message.createdAt }

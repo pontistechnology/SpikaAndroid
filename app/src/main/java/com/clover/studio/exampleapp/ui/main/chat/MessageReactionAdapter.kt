@@ -41,6 +41,7 @@ class MessageReactionAdapter(
                         .placeholder(R.drawable.img_user_placeholder)
                         .dontTransform()
                         .dontAnimate()
+                        .centerCrop()
                         .into(holder.binding.ivUserReactionAvatar)
                 }
             }

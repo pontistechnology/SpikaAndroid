@@ -8,11 +8,8 @@
     <color name="message_other">#3D3D3D</color>
     <color name="icons">#FFFFFF</color>
     <color name="inputs">#3D3D3D</color>
-    <color name="files">#3D3D3D</color>
 
     <!--Text colors-->
     <color name="text_primary">#FFFFFF</color>
 
-    <!--Link Colors-->
-    <color name="link_primary_color">#FFFFFF</color>
 </resources>
