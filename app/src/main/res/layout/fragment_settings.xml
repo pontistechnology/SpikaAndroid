@@ -7,7 +7,8 @@
     android:clickable="true"
     android:focusableInTouchMode="true"
     tools:context=".ui.main.rooms.RoomsFragment"
-    tools:ignore="contentDescription">
+    tools:ignore="contentDescription"
+    android:focusable="true">
 
     <TextView
         android:id="@+id/tv_screen_name"
@@ -156,7 +157,7 @@
         android:gravity="center"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/placeholder_title"
-        android:textColor="@color/text_secondary"
+        android:textColor="@color/text_tertiary"
         android:textSize="@dimen/eleven_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
