@@ -219,30 +219,86 @@ object Tools {
         }
     }
 
+    fun resizeImage(context: Context, input: Any, maxShorterSide: Int): Bitmap? {
+        val bitmap: Bitmap = when (input) {
+            is Bitmap -> input
+            is Uri -> {
+                val inputStream = context.contentResolver.openInputStream(input)
+                BitmapFactory.decodeStream(inputStream)
+            }
+            else -> null
+        } ?: return null
+
+        // Determine the new dimensions of the image based on the maximum shorter side and the aspect ratio
+        val originalWidth = bitmap.width
+        val originalHeight = bitmap.height
+        val aspectRatio = originalWidth.toFloat() / originalHeight.toFloat()
+
+        val newWidth: Int
+        val newHeight: Int
+        if (originalWidth < originalHeight) {
+            newHeight = maxShorterSide
+            newWidth = (newHeight * aspectRatio).toInt()
+        } else {
+            newWidth = maxShorterSide
+            newHeight = (newWidth / aspectRatio).toInt()
+        }
+
+        // Create a new Bitmap with the new dimensions and draw the original image onto it
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+    }
+
     @Throws(IOException::class)
     fun handleSamplingAndRotationBitmap(
         context: Context,
         selectedImage: Uri?,
         thumbnail: Boolean
     ): Bitmap? {
-        // First decode with inJustDecodeBounds=true to check dimensions
-        val options = BitmapFactory.Options()
-        options.inJustDecodeBounds = true
-        var imageStream = context.contentResolver.openInputStream(selectedImage!!)
-        BitmapFactory.decodeStream(imageStream, null, options)
-        imageStream?.close()
+//        // First decode with inJustDecodeBounds=true to check dimensions
+//        val options = BitmapFactory.Options()
+//        options.inJustDecodeBounds = true
+//        var imageStream = context.contentResolver.openInputStream(selectedImage!!)
+//        BitmapFactory.decodeStream(imageStream, null, options)
+//        imageStream?.close()
+//
+//        // Calculate inSampleSize
+//        if (thumbnail) {
+//            options.inSampleSize = calculateInSampleSize(options)
+//        }
+//
+//        // Decode bitmap with inSampleSize set
+//        options.inJustDecodeBounds = false
+//        imageStream = context.contentResolver.openInputStream(selectedImage)
+//        var img = BitmapFactory.decodeStream(imageStream, null, options)
+//        img = img?.let { rotateImageIfRequired(context, it, selectedImage) }
+//        return img
+        val maxShorterSide = if (thumbnail) 256 else 1080
+        var bitmap: Bitmap = when (selectedImage) {
+            is Uri -> {
+                val inputStream = context.contentResolver.openInputStream(selectedImage)
+                BitmapFactory.decodeStream(inputStream)
+            }
+            else -> null
+        } ?: return null
 
-        // Calculate inSampleSize
-        if (thumbnail) {
-            options.inSampleSize = calculateInSampleSize(options)
+        // Determine the new dimensions of the image based on the maximum shorter side and the aspect ratio
+        val originalWidth = bitmap.width
+        val originalHeight = bitmap.height
+        val aspectRatio = originalWidth.toFloat() / originalHeight.toFloat()
+
+        val newWidth: Int
+        val newHeight: Int
+        if (originalWidth < originalHeight) {
+            newHeight = maxShorterSide
+            newWidth = (newHeight * aspectRatio).toInt()
+        } else {
+            newWidth = maxShorterSide
+            newHeight = (newWidth / aspectRatio).toInt()
         }
 
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false
-        imageStream = context.contentResolver.openInputStream(selectedImage)
-        var img = BitmapFactory.decodeStream(imageStream, null, options)
-        img = img?.let { rotateImageIfRequired(context, it, selectedImage) }
-        return img
+        bitmap = selectedImage?.let { rotateImageIfRequired(context, bitmap, it) }!!
+        // Create a new Bitmap with the new dimensions and draw the original image onto it
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
     private fun calculateInSampleSize(
