@@ -40,6 +40,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 
@@ -273,7 +274,7 @@ object Tools {
 //        img = img?.let { rotateImageIfRequired(context, it, selectedImage) }
 //        return img
         val maxShorterSide = if (thumbnail) 256 else 1080
-        var bitmap: Bitmap = when (selectedImage) {
+        val bitmap: Bitmap = when (selectedImage) {
             is Uri -> {
                 val inputStream = context.contentResolver.openInputStream(selectedImage)
                 BitmapFactory.decodeStream(inputStream)
@@ -288,17 +289,20 @@ object Tools {
 
         val newWidth: Int
         val newHeight: Int
-        if (originalWidth < originalHeight) {
-            newHeight = maxShorterSide
-            newWidth = (newHeight * aspectRatio).toInt()
+        if (min(originalWidth, originalHeight) > maxShorterSide) {
+            if (originalWidth < originalHeight) {
+                newWidth = (maxShorterSide * aspectRatio).toInt()
+                newHeight = maxShorterSide
+            } else {
+                newWidth = maxShorterSide
+                newHeight = (maxShorterSide / aspectRatio).toInt()
+            }
         } else {
-            newWidth = maxShorterSide
-            newHeight = (newWidth / aspectRatio).toInt()
+            newWidth = originalWidth
+            newHeight = originalHeight
         }
-
-        bitmap = selectedImage?.let { rotateImageIfRequired(context, bitmap, it) }!!
-        // Create a new Bitmap with the new dimensions and draw the original image onto it
-        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+        return rotateImageIfRequired(context, resizedBitmap, selectedImage!!)
     }
 
     private fun calculateInSampleSize(
