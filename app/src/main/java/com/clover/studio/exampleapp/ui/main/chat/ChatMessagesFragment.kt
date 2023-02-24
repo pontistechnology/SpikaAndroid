@@ -141,7 +141,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
-            bindingSetup.llImagesContainer.removeAllViews()
             if (it != null) {
                 for (uri in it) {
                     handleUserSelectedFile(uri)
@@ -933,6 +932,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.ivButtonSend.setOnClickListener {
             val imageContainer = bindingSetup.llImagesContainer
             imageContainer.removeAllViews()
+            bindingSetup.vTransparent.visibility = View.GONE
             if (bindingSetup.etMessage.text?.isNotEmpty() == true) {
                 createTempTextMessage()
                 sendMessage()
@@ -1711,11 +1711,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
                 if (bindingSetup.llImagesContainer.childCount == 0) {
                     hideSendButton()
+                    bindingSetup.vTransparent.visibility = View.GONE
                 }
             }
         })
         activity!!.runOnUiThread { showSendButton() }
         bindingSetup.llImagesContainer.addView(imageSelected)
+        bindingSetup.vTransparent.visibility = View.VISIBLE
     }
 
     private fun handleUserSelectedFile(uri: Uri) {
@@ -1738,6 +1740,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val imageSelected = ImageSelectedContainer(activity!!, null)
         bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap!!) }
         bindingSetup.llImagesContainer.addView(imageSelected)
+        bindingSetup.vTransparent.visibility = View.VISIBLE
 
         activity!!.runOnUiThread { showSendButton() }
         imageSelected.setButtonListener(object :
@@ -1755,6 +1758,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
                 if (bindingSetup.llImagesContainer.childCount == 0) {
                     hideSendButton()
+                    bindingSetup.vTransparent.visibility = View.GONE
                 }
             }
         })
@@ -1790,6 +1794,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val imageSelected = ImageSelectedContainer(context!!, null)
         bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }
         bindingSetup.llImagesContainer.addView(imageSelected)
+        bindingSetup.vTransparent.visibility = View.VISIBLE
 
         activity!!.runOnUiThread { showSendButton() }
         imageSelected.setButtonListener(object :
@@ -1807,6 +1812,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
                 if (bindingSetup.llImagesContainer.childCount == 0) {
                     hideSendButton()
+                    bindingSetup.vTransparent.visibility = View.GONE
                 }
             }
         })
