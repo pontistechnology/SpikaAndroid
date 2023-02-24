@@ -26,7 +26,7 @@
             android:elevation="@dimen/three_dp_margin"
             android:focusable="true"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/iv_add"
+            app:layout_constraintBottom_toTopOf="@+id/hsv_images"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
@@ -291,11 +291,11 @@
             android:id="@+id/hsv_images"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/ll_image_container"
             android:elevation="@dimen/one_dp_margin"
             app:layout_constraintBottom_toTopOf="@id/iv_add"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:background="@color/main">
+            app:layout_constraintStart_toStartOf="parent">
 
             <LinearLayout
                 android:id="@+id/ll_images_container"
