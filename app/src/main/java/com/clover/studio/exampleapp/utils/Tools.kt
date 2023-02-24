@@ -228,24 +228,6 @@ object Tools {
         selectedImage: Uri?,
         thumbnail: Boolean
     ): Bitmap? {
-//        // First decode with inJustDecodeBounds=true to check dimensions
-//        val options = BitmapFactory.Options()
-//        options.inJustDecodeBounds = true
-//        var imageStream = context.contentResolver.openInputStream(selectedImage!!)
-//        BitmapFactory.decodeStream(imageStream, null, options)
-//        imageStream?.close()
-//
-//        // Calculate inSampleSize
-//        if (thumbnail) {
-//            options.inSampleSize = calculateInSampleSize(options)
-//        }
-//
-//        // Decode bitmap with inSampleSize set
-//        options.inJustDecodeBounds = false
-//        imageStream = context.contentResolver.openInputStream(selectedImage)
-//        var img = BitmapFactory.decodeStream(imageStream, null, options)
-//        img = img?.let { rotateImageIfRequired(context, it, selectedImage) }
-//        return img
         val maxValue = if (thumbnail) 256f else 1080f
         val maxShorterSide = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
