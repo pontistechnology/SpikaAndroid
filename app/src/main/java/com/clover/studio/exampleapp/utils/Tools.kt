@@ -220,35 +220,6 @@ object Tools {
         }
     }
 
-    fun resizeImage(context: Context, input: Any, maxShorterSide: Int): Bitmap? {
-        val bitmap: Bitmap = when (input) {
-            is Bitmap -> input
-            is Uri -> {
-                val inputStream = context.contentResolver.openInputStream(input)
-                BitmapFactory.decodeStream(inputStream)
-            }
-            else -> null
-        } ?: return null
-
-        // Determine the new dimensions of the image based on the maximum shorter side and the aspect ratio
-        val originalWidth = bitmap.width
-        val originalHeight = bitmap.height
-        val aspectRatio = originalWidth.toFloat() / originalHeight.toFloat()
-
-        val newWidth: Int
-        val newHeight: Int
-        if (originalWidth < originalHeight) {
-            newHeight = maxShorterSide
-            newWidth = (newHeight * aspectRatio).toInt()
-        } else {
-            newWidth = maxShorterSide
-            newHeight = (newWidth / aspectRatio).toInt()
-        }
-
-        // Create a new Bitmap with the new dimensions and draw the original image onto it
-        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
-    }
-
     @Throws(IOException::class)
     fun handleSamplingAndRotationBitmap(
         context: Context,
