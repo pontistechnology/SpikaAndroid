@@ -444,7 +444,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         // update room data
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on verified")
-                        Timber.d("exception: $ex")
                         handleUploadError(UploadMimeTypes.MEDIA)
                     }
                 }
