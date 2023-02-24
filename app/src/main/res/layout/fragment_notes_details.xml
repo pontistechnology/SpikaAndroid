@@ -90,7 +90,7 @@
                 android:padding="@dimen/ten_dp_margin"
                 android:text="@string/placeholder_description"
                 android:textColor="@color/text_tertiary"
-                android:textColorLink="@color/primary_color"
+                android:textColorLink="@color/link_primary_color"
                 android:textSize="@dimen/fourteen_sp_text" />
 
             <EditText
