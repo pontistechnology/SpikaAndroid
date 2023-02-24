@@ -16,7 +16,7 @@ import com.clover.studio.exampleapp.databinding.FragmentMediaBinding
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.MediaPlayer
 
-const val BACK_ARROW_ANIMATION = 500L
+const val BAR_ANIMATION = 500L
 
 class MediaFragment : BaseFragment() {
 
@@ -24,7 +24,6 @@ class MediaFragment : BaseFragment() {
     private val binding get() = bindingSetup!!
     private val args: MediaFragmentArgs by navArgs()
 
-    private var clicked = false
     private var player: ExoPlayer? = null
 
     private var playWhenReady = true
@@ -72,25 +71,27 @@ class MediaFragment : BaseFragment() {
 
         // This is listener for zoom on image and for showing/removing top layout
         binding.ivFullImage.setOnClickListener {
-            showBackArrow()
+            showBar()
         }
 
         binding.clMedia.setOnClickListener {
-            showBackArrow()
+            showBar()
+        }
+
+        binding.vvVideo.setOnClickListener {
+            showBar()
         }
     }
 
-    private fun showBackArrow() {
-        if (clicked) {
-            binding.clBackArrow.alpha = 0f
-            binding.clBackArrow.visibility = View.VISIBLE
-            binding.clBackArrow.animate().alpha(1f).setDuration(BACK_ARROW_ANIMATION).start()
-        } else {
-            binding.clBackArrow.animate().alpha(0f).setDuration(BACK_ARROW_ANIMATION).withEndAction {
-                binding.clBackArrow.visibility = View.GONE
-            }.start()
-        }
-        clicked = !clicked
+    private fun showBar() {
+        val showBars = binding.clTopBar.visibility == View.GONE && binding.flBottomBar.visibility == View.GONE
+        binding.clTopBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION).withEndAction {
+            binding.clTopBar.visibility = if (showBars) View.VISIBLE else View.GONE
+        }.start()
+
+        binding.flBottomBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION).withEndAction {
+            binding.flBottomBar.visibility = if (showBars) View.VISIBLE else View.GONE
+        }.start()
     }
 
     private fun initializePicture() {

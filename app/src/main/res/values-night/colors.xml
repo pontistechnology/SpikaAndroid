@@ -12,4 +12,6 @@
     <!--Text colors-->
     <color name="text_primary">#FFFFFF</color>
 
+    <!--Link Colors-->
+    <color name="link_primary_color">#FFFFFF</color>
 </resources>

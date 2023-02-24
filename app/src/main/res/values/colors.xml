@@ -41,4 +41,7 @@
     <color name="text_primary">#141414</color>
     <color name="text_secondary">#4A4A4A</color>
     <color name="text_tertiary">#9AA0A6</color>
+
+    <!--Link Colors-->
+    <color name="link_primary_color">#4696F0</color>
 </resources>
