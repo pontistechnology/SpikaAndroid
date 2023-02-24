@@ -222,6 +222,19 @@ object Tools {
         }
     }
 
+    /**
+     * Method handles resizing of provided Bitmap depending on if it is a thumbnail or image file.
+     * Image files will be resized so that the shorter side doesn't exceed 1080dp and the longer
+     * side conforms to the aspect ratio.
+     *
+     * Thumbnails are the same as above, but they shouldn't exceed 256dp on the shorter side.
+     *
+     * After the resize work, the image will get rotated if necessary.
+     *
+     * @param context Context of the fragment or activity
+     * @param selectedImage Uri of the image that needs to be modified
+     * @param thumbnail Boolean which decides if file or thumbnail operations should be carried out
+     */
     @Throws(IOException::class)
     fun handleSamplingAndRotationBitmap(
         context: Context,
