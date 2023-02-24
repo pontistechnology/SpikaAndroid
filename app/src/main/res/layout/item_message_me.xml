@@ -2,10 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="contentDescription"
     android:id="@+id/cl_message_me"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:ignore="contentDescription">
 
     <TextView
         android:id="@+id/tv_section_header"
@@ -53,7 +53,6 @@
                 android:autoLink="all"
                 android:background="@drawable/bg_message_user"
                 android:fontFamily="@font/montserrat"
-                android:gravity="start"
                 android:maxEms="16"
                 android:padding="@dimen/ten_dp_margin"
                 android:text="@string/some_message"
@@ -260,6 +259,7 @@
                 android:id="@+id/cv_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="@dimen/two_dp_margin"
                 android:padding="@dimen/ten_dp_margin"
                 android:visibility="gone"
                 app:cardCornerRadius="@dimen/eight_dp_margin"
@@ -275,6 +275,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:adjustViewBounds="true"
+                    android:maxWidth="@dimen/image_max_width"
                     android:scaleType="fitCenter"
                     app:layout_constrainedHeight="true"
                     app:layout_constrainedWidth="true"
@@ -283,8 +284,7 @@
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:srcCompat="@tools:sample/avatars"
-                    android:maxWidth="@dimen/image_max_width"/>
+                    tools:srcCompat="@tools:sample/avatars" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -535,6 +535,7 @@
             app:layout_constraintVertical_bias="0.5"
             app:strokeColor="@color/white"
             app:strokeWidth="@dimen/one_dp_margin">
+
             <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/tv_reacted_emoji"
                 android:layout_width="wrap_content"
