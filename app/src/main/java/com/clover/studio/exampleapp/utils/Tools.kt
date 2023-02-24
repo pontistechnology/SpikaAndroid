@@ -14,6 +14,7 @@ import android.telephony.TelephonyManager
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.util.Log
+import android.util.TypedValue
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
@@ -40,6 +41,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 
@@ -219,30 +222,60 @@ object Tools {
         }
     }
 
+    /**
+     * Method handles resizing of provided Bitmap depending on if it is a thumbnail or image file.
+     * Image files will be resized so that the shorter side doesn't exceed 1080dp and the longer
+     * side conforms to the aspect ratio.
+     *
+     * Thumbnails are the same as above, but they shouldn't exceed 256dp on the shorter side.
+     *
+     * After the resize work, the image will get rotated if necessary.
+     *
+     * @param context Context of the fragment or activity
+     * @param selectedImage Uri of the image that needs to be modified
+     * @param thumbnail Boolean which decides if file or thumbnail operations should be carried out
+     */
     @Throws(IOException::class)
     fun handleSamplingAndRotationBitmap(
         context: Context,
         selectedImage: Uri?,
         thumbnail: Boolean
     ): Bitmap? {
-        // First decode with inJustDecodeBounds=true to check dimensions
-        val options = BitmapFactory.Options()
-        options.inJustDecodeBounds = true
-        var imageStream = context.contentResolver.openInputStream(selectedImage!!)
-        BitmapFactory.decodeStream(imageStream, null, options)
-        imageStream?.close()
+        val maxValue = if (thumbnail) 256f else 1080f
+        val maxShorterSide = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            maxValue,
+            context.resources.displayMetrics
+        )
+        val bitmap: Bitmap = when (selectedImage) {
+            is Uri -> {
+                val inputStream = context.contentResolver.openInputStream(selectedImage)
+                BitmapFactory.decodeStream(inputStream)
+            }
+            else -> null
+        } ?: return null
 
-        // Calculate inSampleSize
-        if (thumbnail) {
-            options.inSampleSize = calculateInSampleSize(options)
+        // Determine the new dimensions of the image based on the maximum shorter side and the aspect ratio
+        val originalWidth = bitmap.width
+        val originalHeight = bitmap.height
+        val aspectRatio = originalWidth.toFloat() / originalHeight.toFloat()
+
+        val newWidth: Int
+        val newHeight: Int
+        if (min(originalWidth, originalHeight) > maxShorterSide) {
+            if (originalWidth < originalHeight) {
+                newWidth = (maxShorterSide * aspectRatio).toInt()
+                newHeight = maxShorterSide.toInt()
+            } else {
+                newWidth = maxShorterSide.toInt()
+                newHeight = (maxShorterSide / aspectRatio).toInt()
+            }
+        } else {
+            newWidth = originalWidth
+            newHeight = originalHeight
         }
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false
-        imageStream = context.contentResolver.openInputStream(selectedImage)
-        var img = BitmapFactory.decodeStream(imageStream, null, options)
-        img = img?.let { rotateImageIfRequired(context, it, selectedImage) }
-        return img
+        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+        return rotateImageIfRequired(context, resizedBitmap, selectedImage!!)
     }
 
     private fun calculateInSampleSize(
