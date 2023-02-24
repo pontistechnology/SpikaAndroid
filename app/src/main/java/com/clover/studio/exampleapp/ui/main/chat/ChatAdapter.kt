@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.Message
@@ -213,6 +214,7 @@ class ChatAdapter(
                                 .placeholder(R.drawable.img_image_placeholder)
                                 .dontTransform()
                                 .dontAnimate()
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .into(holder.binding.ivChatImage)
 
                             // Update the progress bar of the media item currently being uploaded
@@ -235,6 +237,7 @@ class ChatAdapter(
                                 .placeholder(R.drawable.img_image_placeholder)
                                 .dontTransform()
                                 .dontAnimate()
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .into(holder.binding.ivChatImage)
 
                             holder.binding.clContainer.setOnClickListener { view ->
@@ -316,6 +319,7 @@ class ChatAdapter(
                             .dontAnimate()
                             .placeholder(R.drawable.img_camera_black)
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .into(holder.binding.ivVideoThumbnail)
 
                         holder.binding.clVideos.visibility = View.VISIBLE
@@ -513,6 +517,7 @@ class ChatAdapter(
                                 .placeholder(R.drawable.img_image_placeholder)
                                 .dontTransform()
                                 .dontAnimate()
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .into(holder.binding.ivReplyImage)
                         }
                         Const.JsonFields.AUDIO_TYPE -> {
@@ -742,6 +747,7 @@ class ChatAdapter(
                             .placeholder(R.drawable.img_image_placeholder)
                             .dontTransform()
                             .dontAnimate()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .into(holder.binding.ivChatImage)
 
                         holder.binding.clContainer.setOnClickListener { view ->
@@ -788,6 +794,7 @@ class ChatAdapter(
                             .dontAnimate()
                             .placeholder(R.drawable.img_camera_black)
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .into(holder.binding.ivVideoThumbnail)
 
 
@@ -997,6 +1004,7 @@ class ChatAdapter(
                                 .placeholder(R.drawable.img_image_placeholder)
                                 .dontTransform()
                                 .dontAnimate()
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .into(holder.binding.ivReplyImage)
                         }
                         Const.JsonFields.AUDIO_TYPE -> {
@@ -1078,6 +1086,7 @@ class ChatAdapter(
                                         R.drawable.img_user_placeholder
                                     )
                                 )
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .into(holder.binding.ivUserImage)
                             break
                         }
