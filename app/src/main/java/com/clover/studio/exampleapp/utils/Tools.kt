@@ -14,6 +14,7 @@ import android.telephony.TelephonyManager
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.util.Log
+import android.util.TypedValue
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
@@ -40,6 +41,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -244,7 +246,12 @@ object Tools {
 //        var img = BitmapFactory.decodeStream(imageStream, null, options)
 //        img = img?.let { rotateImageIfRequired(context, it, selectedImage) }
 //        return img
-        val maxShorterSide = if (thumbnail) 256 else 1080
+        val maxValue = if (thumbnail) 256f else 1080f
+        val maxShorterSide = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            maxValue,
+            context.resources.displayMetrics
+        )
         val bitmap: Bitmap = when (selectedImage) {
             is Uri -> {
                 val inputStream = context.contentResolver.openInputStream(selectedImage)
@@ -263,9 +270,9 @@ object Tools {
         if (min(originalWidth, originalHeight) > maxShorterSide) {
             if (originalWidth < originalHeight) {
                 newWidth = (maxShorterSide * aspectRatio).toInt()
-                newHeight = maxShorterSide
+                newHeight = maxShorterSide.toInt()
             } else {
-                newWidth = maxShorterSide
+                newWidth = maxShorterSide.toInt()
                 newHeight = (maxShorterSide / aspectRatio).toInt()
             }
         } else {
