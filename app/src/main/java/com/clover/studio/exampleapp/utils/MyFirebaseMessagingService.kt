@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.utils
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
 import android.content.Intent
@@ -27,6 +28,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 const val CHANNEL_ID: String = "Spika App ID"
+const val MAX_MESSAGES = 3
+private val notificationMap = mutableMapOf<Int, Notification>()
 
 @AndroidEntryPoint
 class MyFirebaseMessagingService : FirebaseMessagingService() {
@@ -127,9 +130,73 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         .setContentIntent(resultPendingIntent)
                         .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                         .setAutoCancel(true)
+
+                    // Check if there's an existing notification for this conversation.
+                    if (notificationMap.containsKey(response.message.roomId)) {
+                        // If there is, update it with the new message content.
+                        val existingNotification = notificationMap[response.message.roomId]!!
+                        val existingMessageCount =
+                            existingNotification.extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES)!!.size
+
+                        // If the existing notification is already showing the maximum number of messages,
+                        // remove the oldest message and update the message count.
+                        if (existingMessageCount >= MAX_MESSAGES) {
+                            val existingLines =
+                                existingNotification.extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES)!!
+                            val newLines = Array(existingLines.size) { i ->
+                                if (i == 0) content else existingLines[i - 1]
+                            }
+                            val inboxStyle = NotificationCompat.InboxStyle()
+                            for (i in 0 until MAX_MESSAGES) {
+                                inboxStyle.addLine(newLines[i])
+                            }
+                            inboxStyle.setBigContentTitle(
+                                existingNotification.extras.getCharSequence(
+                                    Notification.EXTRA_TITLE
+                                )
+                            )
+                            // This can be used to add a summary to the notification which will
+                            // tell the user how many more messages are there. We can think about
+                            // this later because it requires a way to follow count of new messages
+//                            inboxStyle.setSummaryText("+${existingMessageCount - MAX_MESSAGES + 1} more messages")
+                            builder.setStyle(inboxStyle)
+                            builder.setNumber(existingMessageCount + 1)
+                        } else {
+                            // Otherwise, just add the new message content and update the message count.
+                            val inboxStyle = NotificationCompat.InboxStyle()
+                            for (chars in existingNotification.extras.getCharSequenceArray(
+                                Notification.EXTRA_TEXT_LINES
+                            )!!) {
+                                inboxStyle.addLine(chars)
+                            }
+                            inboxStyle.addLine(content)
+                            inboxStyle.setBigContentTitle(
+                                notificationMap[response.message.roomId]?.extras?.getCharSequence(
+                                    Notification.EXTRA_TITLE
+                                )
+                            )
+                            builder.setStyle(inboxStyle)
+                            builder.setNumber(existingMessageCount + 1)
+                        }
+
+                        // Update the notification in the map.
+                        notificationMap[response.message.roomId!!] = builder.build()
+                    } else {
+                        // If there's no existing notification for this conversation, create a new one.
+                        val inboxStyle = NotificationCompat.InboxStyle()
+                        inboxStyle.addLine(content)
+                        inboxStyle.setBigContentTitle(title)
+                        builder.setStyle(inboxStyle)
+                        builder.setNumber(1)
+                        notificationMap[response.message.roomId!!] = builder.build()
+                    }
+
                     with(NotificationManagerCompat.from(baseContext)) {
                         // notificationId is a unique int for each notification that you must define
-                        response.message.roomId?.let { notify(it, builder.build()) }
+                        notify(
+                            response.message.roomId.hashCode(),
+                            notificationMap[response.message.roomId]!!
+                        )
                     }
                 }
             }
