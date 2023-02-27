@@ -155,7 +155,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                                     Notification.EXTRA_TITLE
                                 )
                             )
-                            inboxStyle.setSummaryText("+${existingMessageCount - MAX_MESSAGES + 1} more messages")
+                            // This can be used to add a summary to the notification which will
+                            // tell the user how many more messages are there. We can think about
+                            // this later because it requires a way to follow count of new messages
+//                            inboxStyle.setSummaryText("+${existingMessageCount - MAX_MESSAGES + 1} more messages")
                             builder.setStyle(inboxStyle)
                             builder.setNumber(existingMessageCount + 1)
                         } else {
