@@ -46,7 +46,7 @@ class ImageSelectedContainer(context: Context, attrs: AttributeSet?) :
             Const.FileExtensions.PDF -> binding.ivFile.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     context.resources,
-                    R.drawable.img_pdf,
+                    R.drawable.img_pdf_black,
                     null
                 )
             )
@@ -60,14 +60,14 @@ class ImageSelectedContainer(context: Context, attrs: AttributeSet?) :
             Const.FileExtensions.AUDIO -> binding.ivFile.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     context.resources,
-                    R.drawable.img_audio_file_blue,
+                    R.drawable.img_audio_file,
                     null
                 )
             )
             else -> binding.ivFile.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     context.resources,
-                    R.drawable.img_word,
+                    R.drawable.img_file_black,
                     null
                 )
             )
