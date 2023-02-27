@@ -23,7 +23,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.internal.notify
 import org.json.JSONObject
 import timber.log.Timber
 import javax.inject.Inject
@@ -136,12 +135,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     if (notificationMap.containsKey(response.message.roomId)) {
                         // If there is, update it with the new message content.
                         val existingNotification = notificationMap[response.message.roomId]!!
-                        val existingMessageCount = existingNotification.extras.getInt(Notification.EXTRA_MESSAGES, 0)
+                        val existingMessageCount =
+                            existingNotification.extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES)!!.size
 
                         // If the existing notification is already showing the maximum number of messages,
                         // remove the oldest message and update the message count.
                         if (existingMessageCount >= MAX_MESSAGES) {
-                            val existingLines = existingNotification.extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES)!!
+                            val existingLines =
+                                existingNotification.extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES)!!
                             val newLines = Array(existingLines.size) { i ->
                                 if (i == 0) content else existingLines[i - 1]
                             }
@@ -149,16 +150,28 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             for (i in 0 until MAX_MESSAGES) {
                                 inboxStyle.addLine(newLines[i])
                             }
-                            inboxStyle.setBigContentTitle(existingNotification.extras.getCharSequence(Notification.EXTRA_TITLE))
+                            inboxStyle.setBigContentTitle(
+                                existingNotification.extras.getCharSequence(
+                                    Notification.EXTRA_TITLE
+                                )
+                            )
                             inboxStyle.setSummaryText("+${existingMessageCount - MAX_MESSAGES + 1} more messages")
                             builder.setStyle(inboxStyle)
                             builder.setNumber(existingMessageCount + 1)
                         } else {
                             // Otherwise, just add the new message content and update the message count.
                             val inboxStyle = NotificationCompat.InboxStyle()
-                            inboxStyle.addLine(existingNotification.extras.getCharSequence(Notification.EXTRA_TEXT))
+                            for (chars in existingNotification.extras.getCharSequenceArray(
+                                Notification.EXTRA_TEXT_LINES
+                            )!!) {
+                                inboxStyle.addLine(chars)
+                            }
                             inboxStyle.addLine(content)
-                            inboxStyle.setBigContentTitle(existingNotification.extras.getCharSequence(Notification.EXTRA_TITLE))
+                            inboxStyle.setBigContentTitle(
+                                notificationMap[response.message.roomId]?.extras?.getCharSequence(
+                                    Notification.EXTRA_TITLE
+                                )
+                            )
                             builder.setStyle(inboxStyle)
                             builder.setNumber(existingMessageCount + 1)
                         }
@@ -177,8 +190,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
                     with(NotificationManagerCompat.from(baseContext)) {
                         // notificationId is a unique int for each notification that you must define
-//                        response.message.roomId?.let { notify(it, builder.build()) }
-                        notify(response.message.roomId.hashCode(), notificationMap[response.message.roomId]!!)
+                        notify(
+                            response.message.roomId.hashCode(),
+                            notificationMap[response.message.roomId]!!
+                        )
                     }
                 }
             }
