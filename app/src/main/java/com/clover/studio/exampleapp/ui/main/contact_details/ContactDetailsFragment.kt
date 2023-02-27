@@ -10,6 +10,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.databinding.FragmentContactDetailsBinding
@@ -186,6 +187,7 @@ class ContactDetailsFragment : BaseFragment() {
                     )
                 )
                 .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(binding.ivPickAvatar)
             binding.clProgressScreen.visibility = View.GONE
         }

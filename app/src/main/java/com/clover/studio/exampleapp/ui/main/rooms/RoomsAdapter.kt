@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
@@ -69,6 +70,7 @@ class RoomsAdapter(
                         .load(Tools.getFilePathUrl(avatarFileId))
                         .placeholder(R.drawable.img_user_placeholder)
                         .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(binding.ivRoomImage)
                 } else binding.ivRoomImage.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
 
