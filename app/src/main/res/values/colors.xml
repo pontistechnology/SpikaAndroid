@@ -36,6 +36,8 @@
     <color name="icons">#121212</color>
     <!--Inputs color: white - gray-->
     <color name="inputs">#FFFFFF</color>
+    <!--Files color: light blue - gray-->
+    <color name="files">#C8EBFE</color>
 
     <!-- Text Colors -->
     <color name="text_primary">#141414</color>
