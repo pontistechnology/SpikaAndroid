@@ -515,6 +515,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                             Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                             Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
+                            Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
+                                message
+                            )
                             else -> Timber.d("No other action currently")
                         }
                     }
@@ -683,6 +686,45 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleDownloadCancelFile(message: MessageAndRecords) {
         // For now, message object is not necessary but maybe we can use it later
         showUploadError(getString(R.string.upload_file_in_progress))
+    }
+
+    private fun handleMediaNavigation(chatMessage: MessageAndRecords) {
+        // TODO add username name
+        val localId = viewModel.getLocalUserId()
+        val mediaInfo: String = if (chatMessage.message.fromUserId == localId) {
+            context!!.getString(
+                R.string.you_sent_on,
+                Tools.fullDateFormat(chatMessage.message.createdAt!!)
+            )
+        } else {
+            context!!.getString(
+                R.string.user_sent_on,
+                "username",
+                Tools.fullDateFormat(chatMessage.message.createdAt!!)
+            )
+        }
+
+        var videoPath = ""
+        var picturePath = ""
+        if (chatMessage.message.type == Const.JsonFields.IMAGE_TYPE) {
+            picturePath = chatMessage.message.body?.fileId?.let {
+                Tools.getFilePathUrl(it)
+            }.toString()
+        } else {
+            videoPath = chatMessage.message.body?.file?.id.let {
+                Tools.getFilePathUrl(
+                    it!!
+                )
+            }.toString()
+        }
+
+        val action =
+            ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
+                mediaInfo = mediaInfo,
+                videoPath = videoPath,
+                picturePath = picturePath
+            )
+        findNavController().navigate(action)
     }
 
     private fun getDetailsList(detailsMessage: Message) {
