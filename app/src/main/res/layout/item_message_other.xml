@@ -76,7 +76,7 @@
                 android:layout_marginTop="@dimen/eight_dp_margin"
                 android:layout_marginEnd="@dimen/four_dp_margin"
                 android:layout_marginBottom="@dimen/two_dp_margin"
-                android:background="@drawable/bg_message_user"
+                android:background="@drawable/bg_message_send"
                 android:backgroundTint="@color/message_me"
                 android:visibility="gone"
                 app:layout_constraintBottom_toTopOf="@+id/tv_message"

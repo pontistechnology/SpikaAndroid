@@ -1203,7 +1203,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         replyId = message.id.toLong()
         if (message.fromUserId == viewModel.getLocalUserId()) {
             bindingSetup.replyAction.clReplyContainer.background =
-                AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_user)
+                AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_send)
         } else {
             bindingSetup.replyAction.clReplyContainer.background =
                 AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_received)
