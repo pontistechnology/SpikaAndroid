@@ -38,6 +38,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.MainApplication
@@ -211,6 +212,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 )
             )
             .centerCrop()
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(bindingSetup.ivUserImage)
     }
 
@@ -1211,6 +1213,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     .placeholder(R.drawable.img_image_placeholder)
                     .dontTransform()
                     .dontAnimate()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(bindingSetup.replyAction.ivReplyImage)
             }
             Const.JsonFields.AUDIO_TYPE -> {

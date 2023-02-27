@@ -12,6 +12,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.exampleapp.databinding.FragmentMediaBinding
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.MediaPlayer
@@ -101,6 +102,7 @@ class MediaFragment : BaseFragment() {
         binding.clImageContainer.visibility = View.VISIBLE
         Glide.with(this)
             .load(imagePath)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(binding.ivFullImage)
     }
 
@@ -110,6 +112,7 @@ class MediaFragment : BaseFragment() {
 
         Glide.with(this)
             .load(videoPath)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(binding.ivVideoHolder)
 
         player = context?.let {
