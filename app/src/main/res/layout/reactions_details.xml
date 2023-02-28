@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/inputs"
     android:paddingBottom="@dimen/ten_dp_margin"
-    tools:ignore="contentDescription">
+    tools:ignore="contentDescription"
+    android:background="@drawable/bg_rounded_corners_top"
+    android:backgroundTint="@color/inputs">
 
     <ImageView
         android:id="@+id/iv_remove"

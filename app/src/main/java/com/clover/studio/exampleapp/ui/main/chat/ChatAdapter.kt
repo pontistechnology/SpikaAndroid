@@ -38,7 +38,7 @@ import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.addFiles
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.setViewsVisibility
-import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.showUserAvatar
+import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.showHideUserInformation
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -97,6 +97,7 @@ class ChatAdapter(
             /** View holder for messages from sender */
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 holder as SentMessageHolder
+
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_send)
                 holder.binding.tvTime.visibility = View.GONE
 
@@ -144,7 +145,6 @@ class ChatAdapter(
                             holder.binding.ivFileType,
                             it.message.body?.file?.fileName?.substringAfterLast(".")!!
                         )
-
                         /** Uploading file: */
                         if (it.message.body.file?.id == Const.JsonFields.TEMPORARY_FILE_ID) {
                             holder.binding.ivDownloadFile.visibility = View.GONE
@@ -303,16 +303,6 @@ class ChatAdapter(
                             holder.binding.ivFileType,
                             it.message.body?.file?.fileName?.substringAfterLast(".")!!
                         )
-
-                        holder.binding.ivDownloadFile.setOnTouchListener { _, event ->
-                            if (event.action == MotionEvent.ACTION_UP) {
-                                onMessageInteraction.invoke(
-                                    Const.UserActions.DOWNLOAD_FILE,
-                                    it
-                                )
-                            }
-                            true
-                        }
                     }
                     Const.JsonFields.AUDIO_TYPE -> {
                         setViewsVisibility(holder.binding.cvAudio, holder)
@@ -400,8 +390,9 @@ class ChatAdapter(
                 /** Show date header: */
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
+                /** Show username and avatar only once in multiple consecutive messages */
                 if (roomType != Const.JsonFields.PRIVATE) {
-                    showUserAvatar(position, holder, currentList)
+                    showHideUserInformation(position, holder, currentList)
                 }
             }
         }

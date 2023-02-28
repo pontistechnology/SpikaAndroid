@@ -358,7 +358,7 @@ object ChatAdapterHelper {
      *  @param holder - ReceivedMessageHolder
      *  @param currentList - Currently displayed list
      * */
-    fun showUserAvatar(
+    fun showHideUserInformation(
         position: Int,
         holder: ChatAdapter.ReceivedMessageHolder,
         currentList: MutableList<MessageAndRecords>,
