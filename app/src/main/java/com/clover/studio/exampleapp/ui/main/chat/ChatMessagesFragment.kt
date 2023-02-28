@@ -689,7 +689,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMediaNavigation(chatMessage: MessageAndRecords) {
-        // TODO add username name
         val localId = viewModel.getLocalUserId()
         val mediaInfo: String = if (chatMessage.message.fromUserId == localId) {
             context!!.getString(
@@ -697,9 +696,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 Tools.fullDateFormat(chatMessage.message.createdAt!!)
             )
         } else {
+            val userName = roomWithUsers.users.firstOrNull { it.id == chatMessage.message.fromUserId }!!.displayName
             context!!.getString(
                 R.string.user_sent_on,
-                "username",
+                userName,
                 Tools.fullDateFormat(chatMessage.message.createdAt!!)
             )
         }
