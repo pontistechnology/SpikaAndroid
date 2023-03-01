@@ -447,7 +447,7 @@
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/one_dp_margin"
+            android:layout_height="0.7dp"
             android:layout_marginBottom="@dimen/ten_dp_margin"
             android:background="@color/border"
             app:layout_constraintBottom_toTopOf="@id/cl_typing"

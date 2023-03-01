@@ -32,6 +32,7 @@ class Const {
             const val USER_REMOVE = "remove_user"
             const val USER_OPTIONS = "user_options"
             const val SHOW_MESSAGE_REACTIONS = "show_message_reactions"
+            const val NAVIGATE_TO_MEDIA_FRAGMENT = "navigate_to_media_fragment"
             const val ACTION_LEFT = "left"
             const val ACTION_RIGHT = "right"
         }
