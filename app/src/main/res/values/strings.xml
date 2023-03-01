@@ -120,6 +120,8 @@
     <string name="exit_group">Exit group</string>
     <string name="make_group_admin">Make group admin</string>
     <string name="admin">Admin</string>
+    <string name="see_more">See more</string>
+    <string name="see_less">See less</string>
 
     <!--Message text-->
     <string name="new_message">New message</string>
