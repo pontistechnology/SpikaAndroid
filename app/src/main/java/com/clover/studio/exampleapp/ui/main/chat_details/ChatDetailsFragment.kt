@@ -66,6 +66,9 @@ class ChatDetailsFragment : BaseFragment() {
     private var bindingSetup: FragmentChatDetailsBinding? = null
     private val binding get() = bindingSetup!!
 
+    private var allUsers = false
+    private var modifiedList: List<User> = mutableListOf()
+
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
             if (it != null) {
@@ -331,6 +334,18 @@ class ChatDetailsFragment : BaseFragment() {
                     })
             }
         }
+
+        binding.tvSeeMoreLess.setOnClickListener {
+            if (allUsers) {
+                adapter.submitList(modifiedList.toList())
+                binding.tvSeeMoreLess.text = context!!.getString(R.string.see_less)
+                allUsers = false
+            } else {
+                adapter.submitList(modifiedList.subList(0, 3).toList())
+                binding.tvSeeMoreLess.text = context!!.getString(R.string.see_more)
+                allUsers = true
+            }
+        }
     }
 
     // Listener which handles switch events and sends event to specific switch
@@ -436,7 +451,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         )
 
-        binding.rvGroupMembers.itemAnimator = null
+        // binding.rvGroupMembers.itemAnimator = null
         binding.rvGroupMembers.adapter = adapter
         binding.rvGroupMembers.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
@@ -467,7 +482,7 @@ class ChatDetailsFragment : BaseFragment() {
                     override fun onSecondOptionClicked() {
                         user.isAdmin = true
                         makeAdmin()
-                        val modifiedList =
+                        modifiedList =
                             roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
                         adapter.submitList(modifiedList.toList())
                         adapter.notifyDataSetChanged()
@@ -480,7 +495,7 @@ class ChatDetailsFragment : BaseFragment() {
     private fun removeUser(user: User) {
         roomUsers.remove(user)
         updateRoomUsers(user.id)
-        val modifiedList =
+        modifiedList =
             roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
         adapter.submitList(modifiedList.toList())
         adapter.notifyDataSetChanged()
@@ -511,9 +526,15 @@ class ChatDetailsFragment : BaseFragment() {
                     user.isAdmin = true
                 }
             }
-            val modifiedList = roomUsers.sortedBy { user -> user.isAdmin }.reversed()
-            adapter.submitList(modifiedList.toList())
-            adapter.notifyDataSetChanged()
+            modifiedList = roomUsers.sortedBy { user -> user.isAdmin }.reversed()
+            if (modifiedList.size > 3) {
+                adapter.submitList(modifiedList.subList(0, 3).toList())
+                binding.tvSeeMoreLess.visibility = View.VISIBLE
+                allUsers = true
+            } else {
+                adapter.submitList(modifiedList.toList())
+                binding.tvSeeMoreLess.visibility = View.GONE
+            }
         }
     }
 
