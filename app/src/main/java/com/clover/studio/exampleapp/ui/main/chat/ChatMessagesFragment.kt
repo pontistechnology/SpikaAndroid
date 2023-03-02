@@ -3,7 +3,6 @@ package com.clover.studio.exampleapp.ui.main.chat
 import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.ContentResolver
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -57,6 +56,8 @@ import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper
+import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.getFileMimeType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
@@ -65,14 +66,6 @@ import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.File
 
-
-/*fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
-    fromActivity.apply {
-        val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
-        intent.putExtra(Const.Navigation.ROOM_DATA, roomData)
-        startActivity(intent)
-    }
-*/
 private const val SCROLL_DISTANCE_NEGATIVE = -300
 private const val SCROLL_DISTANCE_POSITIVE = 300
 private const val MIN_HEIGHT_DIFF = 150
@@ -87,31 +80,37 @@ enum class UploadMimeTypes {
 class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private val viewModel: ChatViewModel by activityViewModels()
     private val args: ChatMessagesFragmentArgs by navArgs()
-    private lateinit var roomWithUsers: RoomWithUsers
     private lateinit var bindingSetup: FragmentChatMessagesBinding
+
+    private lateinit var roomWithUsers: RoomWithUsers
+    private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
+    private var unsentMessages: MutableList<Message> = ArrayList()
+    private lateinit var storedMessage: Message
+
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var detailsMessageAdapter: MessageDetailsAdapter
     private lateinit var messageReactionAdapter: MessageReactionAdapter
-    private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
-    private var unsentMessages: MutableList<Message> = ArrayList()
 
     private var currentMediaLocation: MutableList<Uri> = ArrayList()
-
     private var filesSelected: MutableList<Uri> = ArrayList()
-
     private var thumbnailUris: MutableList<Uri> = ArrayList()
     private var photoImageUri: Uri? = null
+    private var mediaType: UploadMimeTypes? = null
+    private var uploadPieces = 0
+    private var uploadInProgress = false
+
     private var isAdmin = false
     private var progress = 0
-    private var uploadPieces = 0
-    private var mediaType: UploadMimeTypes? = null
     private var tempMessageCounter = -1
-    private var uploadInProgress = false
+
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetReplyAction: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetDetailsAction: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetReactionsAction: BottomSheetBehavior<ConstraintLayout>
+
+    private lateinit var storagePermission: ActivityResultLauncher<String>
+    private var exoPlayer: ExoPlayer? = null
 
     private var avatarFileId = 0L
     private var userName = ""
@@ -119,20 +118,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var isEditing = false
     private var originalText = ""
     private var editedMessageId = 0
+    private var replyId: Long? = 0L
     private lateinit var emojiPopup: EmojiPopup
-    private lateinit var storagePermission: ActivityResultLauncher<String>
-    private lateinit var storedMessage: Message
+
     private var oldPosition = 0
     private var scrollYDistance = 0
     private var sent = false
     private var heightDiff = 0
-    private var exoPlayer: ExoPlayer? = null
-
-    private var replyId: Long? = 0L
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
-            bindingSetup.llImagesContainer.removeAllViews()
             if (it != null) {
                 for (uri in it) {
                     handleUserSelectedFile(uri)
@@ -201,34 +196,357 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         return bindingSetup.root
     }
 
+    private fun initViews() {
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            val user = roomWithUsers.users.firstOrNull { it.id.toString() != viewModel.getLocalUserId().toString() }
+            avatarFileId = user?.avatarFileId!!
+            userName = user.displayName.toString()
+        } else {
+            avatarFileId = roomWithUsers.room.avatarFileId!!
+            userName = roomWithUsers.room.name.toString()
+        }
+
+        setAvatarAndName(avatarFileId, userName)
+
+        if (roomWithUsers.room.roomExit == true) {
+            bindingSetup.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
+            bindingSetup.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
+            bindingSetup.ivVideoCall.isEnabled = false
+            bindingSetup.ivCallUser.isEnabled = false
+        }
+
+        bindingSetup.tvTitle.text = roomWithUsers.room.type
+    }
+
     private fun setAvatarAndName(avatarFileId: Long, userName: String) {
         bindingSetup.tvChatName.text = userName
-        Glide.with(this)
-            .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-            .placeholder(
-                AppCompatResources.getDrawable(
-                    requireContext(),
-                    R.drawable.img_user_placeholder
-                )
+        ChatAdapterHelper.loadMedia(
+            context!!,
+            avatarFileId.let { Tools.getFilePathUrl(it) },
+            bindingSetup.ivUserImage,
+            AppCompatResources.getDrawable(
+                requireContext(),
+                R.drawable.img_user_placeholder
             )
-            .centerCrop()
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .into(bindingSetup.ivUserImage)
+        )
     }
 
     private fun checkIsUserAdmin() {
-        for (user in roomWithUsers.users) {
-            isAdmin = user.id == viewModel.getLocalUserId() && viewModel.isUserAdmin(
-                roomWithUsers.room.roomId,
-                user.id
-            )
-            if (isAdmin) break
+        isAdmin = roomWithUsers.users.any { user ->
+            user.id == viewModel.getLocalUserId() && viewModel.isUserAdmin(roomWithUsers.room.roomId, user.id)
         }
     }
 
-    private fun getFileMimeType(uri: Uri): String? {
-        val cR: ContentResolver = context!!.contentResolver
-        return cR.getType(uri)
+    private fun initListeners() {
+        bindingSetup.clHeader.setOnClickListener {
+            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                val bundle =
+                    bundleOf(
+                        Const.Navigation.USER_PROFILE to roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() },
+                        Const.Navigation.ROOM_ID to roomWithUsers.room.roomId
+                    )
+                findNavController().navigate(
+                    R.id.action_chatMessagesFragment_to_contactDetailsFragment2,
+                    bundle
+                )
+            } else {
+                val action =
+                    ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
+                        roomWithUsers.room.roomId,
+                        isAdmin
+                    )
+                findNavController().navigate(action)
+            }
+        }
+
+        bindingSetup.ivArrowBack.setOnClickListener {
+            onBackArrowPressed()
+        }
+
+        bindingSetup.ivCamera.setOnClickListener {
+            ChooserDialog.getInstance(context!!,
+                getString(R.string.placeholder_title),
+                null,
+                getString(R.string.choose_from_gallery),
+                getString(R.string.take_photo),
+                object : DialogInteraction {
+                    override fun onFirstOptionClicked() {
+                        chooseImage()
+                    }
+
+                    override fun onSecondOptionClicked() {
+                        takePhoto()
+                    }
+                })
+        }
+
+        bindingSetup.ivBtnEmoji.setOnClickListener {
+            emojiPopup.toggle() // Toggles visibility of the Popup.
+            emojiPopup.dismiss() // Dismisses the Popup.
+            emojiPopup.isShowing // Returns true when Popup is showing.
+            bindingSetup.ivAdd.rotation = ROTATION_OFF
+        }
+
+        bindingSetup.etMessage.setOnClickListener {
+            if (emojiPopup.isShowing) {
+                emojiPopup.dismiss()
+            }
+        }
+
+        bindingSetup.rvChat.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+            if (bottom < oldBottom) {
+                bindingSetup.rvChat.smoothScrollToPosition(0)
+            }
+        }
+
+        bindingSetup.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                scrollYDistance += dy
+            }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                // This condition checks if the RecyclerView is at the bottom
+                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    bindingSetup.cvNewMessages.visibility = View.GONE
+                    oldPosition = messagesRecords.size
+                    scrollYDistance = 0
+                }
+            }
+        })
+
+        bindingSetup.root.viewTreeObserver.addOnGlobalLayoutListener {
+            heightDiff = bindingSetup.root.rootView.height - bindingSetup.root.height
+        }
+
+        bindingSetup.cvNewMessages.setOnClickListener {
+            bindingSetup.rvChat.scrollToPosition(0)
+            bindingSetup.cvNewMessages.visibility = View.GONE
+            scrollYDistance = 0
+            oldPosition = messagesRecords.size
+        }
+
+        bindingSetup.etMessage.addTextChangedListener {
+            if (!isEditing) {
+                if (it?.isNotEmpty() == true) {
+                    showSendButton()
+                    bindingSetup.ivAdd.rotation = ROTATION_OFF
+                } else {
+                    hideSendButton()
+                }
+            }
+        }
+
+        bindingSetup.ivButtonSend.setOnClickListener {
+            bindingSetup.vHideTyping.visibility = View.GONE
+            val imageContainer = bindingSetup.llImagesContainer
+            imageContainer.removeAllViews()
+            bindingSetup.vTransparent.visibility = View.GONE
+            if (bindingSetup.etMessage.text?.isNotEmpty() == true) {
+                createTempTextMessage()
+                sendMessage()
+            } else if (currentMediaLocation.isNotEmpty()) {
+                for (thumbnail in thumbnailUris) {
+                    createTempMediaMessage(thumbnail)
+                }
+
+                if (filesSelected.isNotEmpty()) {
+                    for (file in filesSelected) {
+                        createTempFileMessage(file)
+                    }
+                }
+                Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                    if (getFileMimeType(context!!, currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
+                        uploadImage()
+                    } else {
+                        uploadVideo()
+                    }
+                }, 2000)
+            } else if (filesSelected.isNotEmpty()) {
+                for (file in filesSelected) {
+                    createTempFileMessage(file)
+                }
+                Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                    uploadFile()
+                }, 2000)
+            }
+            sent = true
+            bindingSetup.etMessage.setText("")
+            hideSendButton()
+        }
+
+        bindingSetup.tvBlock.setOnClickListener {
+            val userIdToBlock =
+                roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
+            userIdToBlock?.let { idToBlock -> viewModel.blockUser(idToBlock.id) }
+        }
+
+        bindingSetup.tvOk.setOnClickListener {
+            bindingSetup.clBlockContact.visibility = View.GONE
+        }
+
+        bindingSetup.tvUnblock.setOnClickListener {
+            DialogError.getInstance(requireContext(),
+                getString(R.string.unblock_user),
+                getString(R.string.unblock_description, bindingSetup.tvChatName.text),
+                getString(R.string.no),
+                getString(R.string.unblock),
+                object : DialogInteraction {
+                    override fun onSecondOptionClicked() {
+                        roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
+                            ?.let { it1 -> viewModel.deleteBlockForSpecificUser(it1.id) }
+                    }
+                })
+        }
+
+        bindingSetup.tvSave.setOnClickListener {
+            editMessage()
+            resetEditingFields()
+        }
+
+        initBottomSheetsListeners()
+    }
+
+    private fun initBottomSheetsListeners() {
+        // Bottom sheet listeners
+        bindingSetup.ivAdd.setOnClickListener {
+            if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
+                replyId = 0L
+                bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+                bindingSetup.clBottomReplyAction.visibility = View.GONE
+            }
+            if (!isEditing) {
+                if (bottomSheetBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
+                    bindingSetup.ivAdd.rotation = ROTATION_ON
+                    bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
+                    bindingSetup.vTransparent.visibility = View.VISIBLE
+                    bindingSetup.clBottomSheet.visibility = View.VISIBLE
+                }
+            } else {
+                resetEditingFields()
+            }
+        }
+
+        bindingSetup.bottomSheet.btnFiles.setOnClickListener {
+            chooseFile()
+            rotationAnimation()
+        }
+
+        bindingSetup.messageActions.ivRemove.setOnClickListener {
+            closeMessageSheet()
+        }
+
+        bindingSetup.reactionsDetails.ivRemove.setOnClickListener {
+            bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_COLLAPSED
+            bindingSetup.clReactionsDetails.visibility = View.GONE
+        }
+
+        bindingSetup.replyAction.ivRemove.setOnClickListener {
+            if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+                bindingSetup.clBottomReplyAction.visibility = View.GONE
+                replyId = 0L
+            }
+        }
+
+        bindingSetup.detailsAction.ivRemove.setOnClickListener {
+            if (bottomSheetDetailsAction.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
+                bindingSetup.clDetailsAction.visibility = View.GONE
+                bindingSetup.vTransparent.visibility = View.GONE
+            }
+        }
+
+        bindingSetup.bottomSheet.ivRemove.setOnClickListener {
+            bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+            bindingSetup.clBottomSheet.visibility = View.GONE
+            rotationAnimation()
+        }
+
+        bindingSetup.bottomSheet.btnLibrary.setOnClickListener {
+            chooseImage()
+            rotationAnimation()
+        }
+
+        bindingSetup.bottomSheet.btnLocation.setOnClickListener {
+            rotationAnimation()
+        }
+        bindingSetup.bottomSheet.btnContact.setOnClickListener {
+            rotationAnimation()
+        }
+
+
+        val bottomSheetBehaviorCallback =
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    // Ignore
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                        bindingSetup.vTransparent.visibility = View.GONE
+                    }
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                        bindingSetup.vTransparent.visibility = View.VISIBLE
+                    }
+
+                }
+            }
+
+        val bottomSheetBehaviorCallbackMessageAction =
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    // Ignore
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (bottomSheetDetailsAction.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                            bindingSetup.vTransparent.visibility = View.GONE
+                        }
+                    }
+                    if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
+                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                            bindingSetup.vTransparent.visibility = View.VISIBLE
+                        }
+                    }
+                }
+            }
+
+        val bottomSheetBehaviorCallbackReactionDetails =
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    // Ignore
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                        bindingSetup.vTransparent.visibility = View.GONE
+                        val childNUmber = bindingSetup.reactionsDetails.llReactions.childCount
+                        if (childNUmber != 0) {
+                            bindingSetup.reactionsDetails.llReactions.removeViews(
+                                1,
+                                childNUmber - 1
+                            )
+                        }
+                    }
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                        bindingSetup.vTransparent.visibility = View.VISIBLE
+                    }
+                }
+            }
+
+        bottomSheetMessageActions.addBottomSheetCallback(bottomSheetBehaviorCallbackMessageAction)
+        bottomSheetDetailsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
+        bottomSheetBehaviour.addBottomSheetCallback(bottomSheetBehaviorCallback)
+        bottomSheetReplyAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
+        bottomSheetReactionsAction.addBottomSheetCallback(bottomSheetBehaviorCallbackReactionDetails)
+    }
+
+    private fun closeMessageSheet() {
+        bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.clBottomMessageActions.visibility = View.GONE
+        bindingSetup.vTransparent.visibility = View.GONE
     }
 
     private fun initializeObservers() {
@@ -242,9 +560,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     if (!uploadInProgress) {
                         Handler(Looper.getMainLooper()).postDelayed(Runnable {
                             if (currentMediaLocation.isNotEmpty()) {
-                                if (getFileMimeType(currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
+                                if (getFileMimeType(context!!, currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
                                     uploadImage()
-                                } else if (getFileMimeType(currentMediaLocation.first())?.contains(
+                                } else if (getFileMimeType(context!!, currentMediaLocation.first())?.contains(
                                         Const.JsonFields.VIDEO_TYPE
                                     ) == true
                                 )
@@ -254,7 +572,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             } else resetUploadFields()
                         }, 2000)
                     }
-                    // This line might be scroll fix:
                     bindingSetup.rvChat.scrollToPosition(0)
                 }
                 ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
@@ -427,7 +744,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     uploadMedia(
                                         false,
                                         currentMediaLocation.first(),
-                                        UploadMimeTypes.IMAGE,
                                         messageBody
                                     )
                                 }
@@ -436,7 +752,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     uploadMedia(
                                         false,
                                         currentMediaLocation.first(),
-                                        UploadMimeTypes.VIDEO,
                                         messageBody
                                     )
                                 }
@@ -535,10 +850,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 when (action) {
                     Const.UserActions.ACTION_RIGHT -> {
                         bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        bindingSetup.clBottomReplyAction.visibility = View.VISIBLE
                         handleMessageReply(messagesRecords[position].message)
                     }
                     Const.UserActions.ACTION_LEFT -> {
                         bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
+                        bindingSetup.clDetailsAction.visibility = View.VISIBLE
                         getDetailsList(messagesRecords[position].message)
                     }
                 }
@@ -554,9 +871,32 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.updateRoomVisitedTimestamp(System.currentTimeMillis(), roomWithUsers.room.roomId)
     }
 
+    private fun setUpMessageDetailsAdapter() {
+        detailsMessageAdapter = MessageDetailsAdapter(
+            context!!,
+            roomWithUsers,
+        )
+        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        bindingSetup.detailsAction.rvReactionsDetails.adapter = detailsMessageAdapter
+        bindingSetup.detailsAction.rvReactionsDetails.layoutManager = layoutManager
+        bindingSetup.detailsAction.rvReactionsDetails.itemAnimator = null
+    }
+
+    private fun setUpMessageReactionAdapter() {
+        messageReactionAdapter = MessageReactionAdapter(
+            context!!,
+            roomWithUsers,
+        )
+        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        bindingSetup.reactionsDetails.rvReactionsDetails.adapter = messageReactionAdapter
+        bindingSetup.reactionsDetails.rvReactionsDetails.layoutManager = layoutManager
+        bindingSetup.reactionsDetails.rvReactionsDetails.itemAnimator = null
+    }
+
     private fun handleShowReactions(messageRecords: MessageAndRecords) {
         bindingSetup.vTransparent.visibility = View.VISIBLE
         bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_EXPANDED
+        bindingSetup.clReactionsDetails.visibility = View.VISIBLE
         bindingSetup.reactionsDetails.tvAllReactions.setBackgroundResource(R.drawable.bg_reaction_selected)
 
         val reactionsList = messageRecords.records!!.filter { it.reaction != null }
@@ -607,8 +947,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
-        val time = msg.message.body?.referenceMessage?.createdAt
-        val position = messagesRecords.indexOfFirst { it.message.createdAt == time }
+        val position = messagesRecords.indexOfFirst { it.message.createdAt == msg.message.body?.referenceMessage?.createdAt }
         if (position != -1) {
             bindingSetup.rvChat.scrollToPosition(position)
         }
@@ -618,6 +957,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val reactionsContainer = ReactionsContainer(this.context!!, null)
         bindingSetup.messageActions.reactionsContainer.addView(reactionsContainer)
         bottomSheetMessageActions.state = BottomSheetBehavior.STATE_EXPANDED
+        bindingSetup.clBottomMessageActions.visibility = View.VISIBLE
         bindingSetup.vTransparent.visibility = View.VISIBLE
 
         val localId = viewModel.getLocalUserId()
@@ -656,13 +996,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.messageActions.tvReply.setOnClickListener {
             closeMessageSheet()
             bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
+            bindingSetup.clBottomReplyAction.visibility = View.VISIBLE
             handleMessageReply(msg.message)
         }
 
         bindingSetup.messageActions.tvDetails.setOnClickListener {
             bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+            bindingSetup.clBottomMessageActions.visibility = View.GONE
             getDetailsList(msg.message)
             bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
+            bindingSetup.clDetailsAction.visibility = View.VISIBLE
         }
 
         bindingSetup.messageActions.tvCopy.setOnClickListener {
@@ -670,8 +1013,30 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             val clip: ClipData = ClipData.newPlainText("", msg.message.body?.text.toString())
             clipboard.setPrimaryClip(clip)
             bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+            bindingSetup.clBottomMessageActions.visibility = View.GONE
             Toast.makeText(requireContext(), getString(R.string.text_copied), Toast.LENGTH_SHORT)
                 .show()
+        }
+    }
+    private fun handleDownloadFile(message: MessageAndRecords) {
+        when {
+            context?.let {
+                ContextCompat.checkSelfPermission(
+                    it,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            } == PackageManager.PERMISSION_GRANTED -> {
+                Tools.downloadFile(context!!, message.message)
+            }
+
+            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
+                // TODO show why permission is needed
+            }
+
+            else -> {
+                storedMessage = message.message
+                storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
         }
     }
 
@@ -718,477 +1083,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 picturePath = picturePath
             )
         findNavController().navigate(action)
-    }
-
-    private fun getDetailsList(detailsMessage: Message) {
-        val localId = viewModel.getLocalUserId()
-        val senderId = detailsMessage.fromUserId
-
-        /* Adding a message record for the sender so that it can be sent to the adapter */
-        val senderMessageRecord = MessageRecords(
-            id = 0,
-            messageId = detailsMessage.id,
-            userId = detailsMessage.fromUserId!!,
-            type = Const.JsonFields.SENT,
-            reaction = null,
-            modifiedAt = detailsMessage.modifiedAt,
-            createdAt = detailsMessage.createdAt!!,
-        )
-
-        /* In the messageDetails list, we save message records for a specific message,
-         remove reactions from those records(because we only need the seen and delivered types),
-         remove the sender from the seen/delivered list and sort the list so that first we see
-         seen and then delivered. */
-        val messageDetails =
-            messagesRecords.filter { it.message.id == detailsMessage.id }
-                .flatMap { it.records!! }
-                .filter { Const.JsonFields.REACTION != it.type }
-                .filter { it.userId != detailsMessage.fromUserId }
-                .sortedByDescending { it.type }
-                .toMutableList()
-
-        /* Then we add the sender of the message to the first position of the messageDetails list
-        * so that we can display it in the RecyclerView */
-        messageDetails.add(0, senderMessageRecord)
-
-        /* If the room type is a group and the current user is not the sender, remove it from the list.*/
-        if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && (senderId != localId)) {
-            val filteredMessageDetails =
-                messageDetails.filter { it.userId != localId }.toMutableList()
-            detailsMessageAdapter.submitList(ArrayList(filteredMessageDetails))
-        } else {
-            detailsMessageAdapter.submitList(ArrayList(messageDetails))
-        }
-    }
-
-    private fun setUpMessageDetailsAdapter() {
-        detailsMessageAdapter = MessageDetailsAdapter(
-            context!!,
-            roomWithUsers,
-        )
-        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        bindingSetup.detailsAction.rvReactionsDetails.adapter = detailsMessageAdapter
-        bindingSetup.detailsAction.rvReactionsDetails.layoutManager = layoutManager
-        bindingSetup.detailsAction.rvReactionsDetails.itemAnimator = null
-    }
-
-    private fun setUpMessageReactionAdapter() {
-        messageReactionAdapter = MessageReactionAdapter(
-            context!!,
-            roomWithUsers,
-        )
-        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        bindingSetup.reactionsDetails.rvReactionsDetails.adapter = messageReactionAdapter
-        bindingSetup.reactionsDetails.rvReactionsDetails.layoutManager = layoutManager
-        bindingSetup.reactionsDetails.rvReactionsDetails.itemAnimator = null
-    }
-
-    private fun closeMessageSheet() {
-        bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
-        bindingSetup.vTransparent.visibility = View.GONE
-    }
-
-    private fun addReaction(message: Message) {
-        /*if (!reaction.clicked) {*/
-        val jsonObject = JsonObject()
-        jsonObject.addProperty(Const.Networking.MESSAGE_ID, message.id)
-        jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
-        jsonObject.addProperty(Const.JsonFields.REACTION, message.reaction)
-        viewModel.sendReaction(jsonObject)
-        /*} else {
-            // Remove reaction
-            val jsonObject = JsonObject()
-            jsonObject.addProperty(Const.Networking.MESSAGE_ID, reaction.messageId)
-            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
-            if (roomWithUsers.room.type == Const.JsonFields.PRIVATE){
-                viewModel.deleteAllReactions(reaction.messageId)
-            } else {
-                viewModel.deleteReaction(reaction.reactionId, reaction.userId)
-            }
-        }*/
-    }
-
-    private fun initViews() {
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            for (user in roomWithUsers.users) {
-                if (user.id.toString() != viewModel.getLocalUserId().toString()) {
-                    avatarFileId = user.avatarFileId!!
-                    userName = user.displayName.toString()
-                    break
-                } else {
-                    avatarFileId = user.avatarFileId!!
-                    userName = user.displayName.toString()
-                }
-            }
-        } else {
-            avatarFileId = roomWithUsers.room.avatarFileId!!
-            userName = roomWithUsers.room.name.toString()
-        }
-        setAvatarAndName(avatarFileId, userName)
-
-        if (roomWithUsers.room.roomExit == true) {
-            bindingSetup.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
-            bindingSetup.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
-            bindingSetup.ivVideoCall.isEnabled = false
-            bindingSetup.ivCallUser.isEnabled = false
-        }
-
-        bindingSetup.tvTitle.text = roomWithUsers.room.type
-
-        bindingSetup.tvBlock.setOnClickListener {
-            val userIdToBlock =
-                roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
-            userIdToBlock?.let { idToBlock -> viewModel.blockUser(idToBlock.id) }
-        }
-
-        bindingSetup.tvOk.setOnClickListener {
-            bindingSetup.clBlockContact.visibility = View.GONE
-        }
-
-        bindingSetup.tvUnblock.setOnClickListener {
-            DialogError.getInstance(requireContext(),
-                getString(R.string.unblock_user),
-                getString(R.string.unblock_description, bindingSetup.tvChatName.text),
-                getString(R.string.no),
-                getString(R.string.unblock),
-                object : DialogInteraction {
-                    override fun onSecondOptionClicked() {
-                        roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
-                            ?.let { it1 -> viewModel.deleteBlockForSpecificUser(it1.id) }
-                    }
-                })
-        }
-    }
-
-    private fun initListeners() {
-        bindingSetup.clHeader.setOnClickListener {
-            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-                val bundle =
-                    bundleOf(
-                        Const.Navigation.USER_PROFILE to roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() },
-                        Const.Navigation.ROOM_ID to roomWithUsers.room.roomId
-                    )
-                findNavController().navigate(
-                    R.id.action_chatMessagesFragment_to_contactDetailsFragment2,
-                    bundle
-                )
-            } else {
-                val action =
-                    ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
-                        roomWithUsers.room.roomId,
-                        isAdmin
-                    )
-                findNavController().navigate(action)
-            }
-        }
-
-        bindingSetup.ivArrowBack.setOnClickListener {
-            onBackArrowPressed()
-        }
-
-        bindingSetup.bottomSheet.btnFiles.setOnClickListener {
-            chooseFile()
-            rotationAnimation()
-        }
-
-        bindingSetup.ivCamera.setOnClickListener {
-            ChooserDialog.getInstance(context!!,
-                getString(R.string.placeholder_title),
-                null,
-                getString(R.string.choose_from_gallery),
-                getString(R.string.take_photo),
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        chooseImage()
-                    }
-
-                    override fun onSecondOptionClicked() {
-                        takePhoto()
-                    }
-                })
-        }
-
-        bindingSetup.ivBtnEmoji.setOnClickListener {
-            emojiPopup.toggle() // Toggles visibility of the Popup.
-            emojiPopup.dismiss() // Dismisses the Popup.
-            emojiPopup.isShowing // Returns true when Popup is showing.
-            bindingSetup.ivAdd.rotation = ROTATION_OFF
-        }
-
-        bindingSetup.etMessage.setOnClickListener {
-            if (emojiPopup.isShowing) {
-                emojiPopup.dismiss()
-            }
-        }
-
-        bindingSetup.rvChat.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
-            if (bottom < oldBottom) {
-                bindingSetup.rvChat.smoothScrollToPosition(0)
-            }
-        }
-
-        bindingSetup.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                scrollYDistance += dy
-            }
-
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                // This condition checks if the RecyclerView is at the bottom
-                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    bindingSetup.cvNewMessages.visibility = View.GONE
-                    oldPosition = messagesRecords.size
-                    scrollYDistance = 0
-                }
-            }
-        })
-
-
-        bindingSetup.root.viewTreeObserver.addOnGlobalLayoutListener {
-            heightDiff = bindingSetup.root.rootView.height - bindingSetup.root.height
-        }
-
-        bindingSetup.cvNewMessages.setOnClickListener {
-            bindingSetup.rvChat.scrollToPosition(0)
-            bindingSetup.cvNewMessages.visibility = View.GONE
-            scrollYDistance = 0
-            oldPosition = messagesRecords.size
-        }
-
-        bindingSetup.etMessage.addTextChangedListener {
-            if (!isEditing) {
-                if (it?.isNotEmpty() == true) {
-                    showSendButton()
-                    bindingSetup.ivAdd.rotation = ROTATION_OFF
-                } else {
-                    hideSendButton()
-                }
-            }
-        }
-
-        bindingSetup.ivButtonSend.setOnClickListener {
-            val imageContainer = bindingSetup.llImagesContainer
-            imageContainer.removeAllViews()
-            bindingSetup.vTransparent.visibility = View.GONE
-            if (bindingSetup.etMessage.text?.isNotEmpty() == true) {
-                createTempTextMessage()
-                sendMessage()
-            } else if (currentMediaLocation.isNotEmpty()) {
-                for (thumbnail in thumbnailUris) {
-                    createTempMediaMessage(thumbnail)
-                }
-
-                if (filesSelected.isNotEmpty()) {
-                    for (file in filesSelected) {
-                        createTempFileMessage(file)
-                    }
-                }
-                Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    if (getFileMimeType(currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
-                        uploadImage()
-                    } else {
-                        uploadVideo()
-                    }
-                }, 2000)
-            } else if (filesSelected.isNotEmpty()) {
-                for (file in filesSelected) {
-                    createTempFileMessage(file)
-                }
-                Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    uploadFile()
-                }, 2000)
-            }
-            sent = true
-            bindingSetup.etMessage.setText("")
-            hideSendButton()
-        }
-
-        bindingSetup.messageActions.ivRemove.setOnClickListener {
-            closeMessageSheet()
-        }
-
-        bindingSetup.reactionsDetails.ivRemove.setOnClickListener {
-            bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
-
-        bindingSetup.replyAction.ivRemove.setOnClickListener {
-            if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
-                replyId = 0L
-            }
-        }
-
-        bindingSetup.detailsAction.ivRemove.setOnClickListener {
-            if (bottomSheetDetailsAction.state == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
-                bindingSetup.vTransparent.visibility = View.GONE
-            }
-        }
-
-        bindingSetup.ivAdd.setOnClickListener {
-            if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
-                replyId = 0L
-                bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
-            if (!isEditing) {
-                if (bottomSheetBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
-                    bindingSetup.ivAdd.rotation = ROTATION_ON
-                    bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
-                    bindingSetup.vTransparent.visibility = View.VISIBLE
-                }
-            } else {
-                resetEditingFields()
-            }
-        }
-
-        bindingSetup.bottomSheet.ivRemove.setOnClickListener {
-            bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-            rotationAnimation()
-        }
-
-        bindingSetup.bottomSheet.btnLibrary.setOnClickListener {
-            chooseImage()
-            rotationAnimation()
-        }
-
-        bindingSetup.bottomSheet.btnLocation.setOnClickListener {
-            rotationAnimation()
-        }
-        bindingSetup.bottomSheet.btnContact.setOnClickListener {
-            rotationAnimation()
-        }
-
-        bindingSetup.tvSave.setOnClickListener {
-            editMessage()
-            resetEditingFields()
-        }
-
-        // Bottom sheet listeners
-        val bottomSheetBehaviorCallback =
-            object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    // Ignore
-                }
-
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                        bindingSetup.vTransparent.visibility = View.GONE
-                    }
-                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                        bindingSetup.vTransparent.visibility = View.VISIBLE
-                    }
-
-                }
-            }
-
-        val bottomSheetBehaviorCallbackMessageAction =
-            object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    // Ignore
-                }
-
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (bottomSheetDetailsAction.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                            bindingSetup.vTransparent.visibility = View.GONE
-                        }
-                    }
-                    if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
-                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                            bindingSetup.vTransparent.visibility = View.VISIBLE
-                        }
-                    }
-                }
-            }
-
-        val bottomSheetBehaviorCallbackReactionDetails =
-            object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    // Ignore
-                }
-
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                        bindingSetup.vTransparent.visibility = View.GONE
-                        val childNUmber = bindingSetup.reactionsDetails.llReactions.childCount
-                        if (childNUmber != 0) {
-                            bindingSetup.reactionsDetails.llReactions.removeViews(
-                                1,
-                                childNUmber - 1
-                            )
-                        }
-                    }
-                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                        bindingSetup.vTransparent.visibility = View.VISIBLE
-                    }
-                }
-            }
-
-        bottomSheetMessageActions.addBottomSheetCallback(bottomSheetBehaviorCallbackMessageAction)
-        bottomSheetDetailsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
-        bottomSheetBehaviour.addBottomSheetCallback(bottomSheetBehaviorCallback)
-        bottomSheetReplyAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
-        bottomSheetReactionsAction.addBottomSheetCallback(bottomSheetBehaviorCallbackReactionDetails)
-    }
-
-    private fun resetEditingFields() {
-        editedMessageId = 0
-        isEditing = false
-        originalText = ""
-        bindingSetup.ivAdd.rotation = ROTATION_OFF
-        bindingSetup.tvSave.visibility = View.GONE
-        bindingSetup.ivCamera.visibility = View.VISIBLE
-        bindingSetup.ivMicrophone.visibility = View.VISIBLE
-        bindingSetup.etMessage.text!!.clear()
-        bindingSetup.etMessage.setText("")
-    }
-
-    private fun rotationAnimation() {
-        bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-        bindingSetup.vTransparent.visibility = View.GONE
-        bindingSetup.ivAdd.rotation = ROTATION_OFF
-    }
-
-    private fun hideSendButton() {
-        bindingSetup.ivCamera.visibility = View.VISIBLE
-        bindingSetup.ivMicrophone.visibility = View.VISIBLE
-        bindingSetup.ivButtonSend.visibility = View.GONE
-        bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            endToStart = bindingSetup.ivCamera.id
-        }
-        bindingSetup.ivAdd.rotation = ROTATION_OFF
-        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
-    }
-
-    private fun showSendButton() {
-        bindingSetup.ivCamera.visibility = View.INVISIBLE
-        bindingSetup.ivMicrophone.visibility = View.INVISIBLE
-        bindingSetup.ivButtonSend.visibility = View.VISIBLE
-        bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            endToStart = bindingSetup.ivButtonSend.id
-        }
-        bindingSetup.ivAdd.rotation = ROTATION_OFF
-    }
-
-    private fun showDeleteMessageDialog(message: Message) {
-        ChooserDialog.getInstance(requireContext(),
-            getString(R.string.delete),
-            null,
-            getString(R.string.delete_for_everyone),
-            getString(R.string.delete_for_me),
-            object : DialogInteraction {
-                override fun onFirstOptionClicked() {
-                    deleteMessage(message.id, Const.UserActions.DELETE_MESSAGE_ALL)
-                }
-
-                override fun onSecondOptionClicked() {
-                    deleteMessage(message.id, Const.UserActions.DELETE_MESSAGE_ME)
-                }
-            })
-    }
-
-    private fun deleteMessage(messageId: Int, target: String) {
-        viewModel.deleteMessage(messageId, target)
     }
 
     private fun handleMessageReply(message: Message) {
@@ -1315,6 +1209,117 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
         }
+    }
+
+    private fun getDetailsList(detailsMessage: Message) {
+        val localId = viewModel.getLocalUserId()
+        val senderId = detailsMessage.fromUserId
+
+        /* Adding a message record for the sender so that it can be sent to the adapter */
+        val senderMessageRecord = MessageRecords(
+            id = 0,
+            messageId = detailsMessage.id,
+            userId = detailsMessage.fromUserId!!,
+            type = Const.JsonFields.SENT,
+            reaction = null,
+            modifiedAt = detailsMessage.modifiedAt,
+            createdAt = detailsMessage.createdAt!!,
+        )
+
+        /* In the messageDetails list, we save message records for a specific message,
+         remove reactions from those records(because we only need the seen and delivered types),
+         remove the sender from the seen/delivered list and sort the list so that first we see
+         seen and then delivered. */
+        val messageDetails =
+            messagesRecords.filter { it.message.id == detailsMessage.id }
+                .flatMap { it.records!! }
+                .filter { Const.JsonFields.REACTION != it.type }
+                .filter { it.userId != detailsMessage.fromUserId }
+                .sortedByDescending { it.type }
+                .toMutableList()
+
+        /* Then we add the sender of the message to the first position of the messageDetails list
+        * so that we can display it in the RecyclerView */
+        messageDetails.add(0, senderMessageRecord)
+
+        /* If the room type is a group and the current user is not the sender, remove it from the list.*/
+        if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && (senderId != localId)) {
+            val filteredMessageDetails =
+                messageDetails.filter { it.userId != localId }.toMutableList()
+            detailsMessageAdapter.submitList(ArrayList(filteredMessageDetails))
+        } else {
+            detailsMessageAdapter.submitList(ArrayList(messageDetails))
+        }
+    }
+
+    private fun addReaction(message: Message) {
+        val jsonObject = JsonObject()
+        jsonObject.addProperty(Const.Networking.MESSAGE_ID, message.id)
+        jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
+        jsonObject.addProperty(Const.JsonFields.REACTION, message.reaction)
+        viewModel.sendReaction(jsonObject)
+    }
+
+    private fun resetEditingFields() {
+        editedMessageId = 0
+        isEditing = false
+        originalText = ""
+        bindingSetup.ivAdd.rotation = ROTATION_OFF
+        bindingSetup.tvSave.visibility = View.GONE
+        bindingSetup.ivCamera.visibility = View.VISIBLE
+        bindingSetup.ivMicrophone.visibility = View.VISIBLE
+        bindingSetup.etMessage.text!!.clear()
+        bindingSetup.etMessage.setText("")
+    }
+
+    private fun rotationAnimation() {
+        bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.clBottomSheet.visibility = View.GONE
+        bindingSetup.vTransparent.visibility = View.GONE
+        bindingSetup.ivAdd.rotation = ROTATION_OFF
+    }
+
+    private fun showSendButton() {
+        bindingSetup.ivCamera.visibility = View.INVISIBLE
+        bindingSetup.ivMicrophone.visibility = View.INVISIBLE
+        bindingSetup.ivButtonSend.visibility = View.VISIBLE
+        bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            endToStart = bindingSetup.ivButtonSend.id
+        }
+        bindingSetup.ivAdd.rotation = ROTATION_OFF
+    }
+
+    private fun hideSendButton() {
+        bindingSetup.ivCamera.visibility = View.VISIBLE
+        bindingSetup.ivMicrophone.visibility = View.VISIBLE
+        bindingSetup.ivButtonSend.visibility = View.GONE
+        bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            endToStart = bindingSetup.ivCamera.id
+        }
+        bindingSetup.ivAdd.rotation = ROTATION_OFF
+        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.clBottomReplyAction.visibility = View.GONE
+    }
+
+    private fun showDeleteMessageDialog(message: Message) {
+        ChooserDialog.getInstance(requireContext(),
+            getString(R.string.delete),
+            null,
+            getString(R.string.delete_for_everyone),
+            getString(R.string.delete_for_me),
+            object : DialogInteraction {
+                override fun onFirstOptionClicked() {
+                    deleteMessage(message.id, Const.UserActions.DELETE_MESSAGE_ALL)
+                }
+
+                override fun onSecondOptionClicked() {
+                    deleteMessage(message.id, Const.UserActions.DELETE_MESSAGE_ME)
+                }
+            })
+    }
+
+    private fun deleteMessage(messageId: Int, target: String) {
+        viewModel.deleteMessage(messageId, target)
     }
 
     private fun editMessage() {
@@ -1479,21 +1484,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.storeMessageLocally(tempMessage)
     }
 
-    private fun onBackArrowPressed() {
-        if (uploadInProgress) {
-            showUploadError(getString(R.string.upload_in_progress))
-        } else {
-            // Update room visited
-            roomWithUsers.room.visitedRoom = System.currentTimeMillis()
-            viewModel.updateRoomVisitedTimestamp(
-                System.currentTimeMillis(),
-                roomWithUsers.room.roomId
-            )
-            //
-            activity!!.finish()
-        }
-    }
-
     private fun chooseFile() {
         chooseFileContract.launch(arrayOf(Const.JsonFields.FILE))
     }
@@ -1515,12 +1505,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun uploadThumbnail() {
         mediaType = UploadMimeTypes.IMAGE
-        uploadMedia(true, thumbnailUris.first(), mediaType!!, messageBody = null)
+        uploadMedia(true, thumbnailUris.first(), messageBody = null)
     }
 
     private fun uploadVideoThumbnail() {
         mediaType = UploadMimeTypes.VIDEO
-        uploadMedia(true, thumbnailUris.first(), mediaType!!, messageBody = null)
+        uploadMedia(true, thumbnailUris.first(), messageBody = null)
     }
 
     private fun uploadImage() {
@@ -1553,7 +1543,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val fileStream = Tools.copyStreamToFile(
             activity!!,
             inputStream!!,
-            getFileMimeType(filesSelected.first())!!,
+            getFileMimeType(context!!, filesSelected.first())!!,
             fileName
         )
 
@@ -1563,7 +1553,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             else (fileStream.length() / CHUNK_SIZE).toInt()
         progress = 0
 
-        var type = getFileMimeType(filesSelected.first())!!
+        var type = getFileMimeType(context!!, filesSelected.first())!!
         type = if (Const.FileExtensions.AUDIO == type) {
             Const.JsonFields.AUDIO_TYPE
         } else {
@@ -1588,12 +1578,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      *
      * @param isThumbnail Declare if a thumbnail is being sent or a media file
      * @param uri Uri of the media/thumbnail file
-     * @param mediaType Type of file being send to the server (Image, Video, Message, File)
      */
     private fun uploadMedia(
         isThumbnail: Boolean,
         uri: Uri,
-        mediaType: UploadMimeTypes,
         messageBody: MessageBody?
     ) {
         uploadInProgress = true
@@ -1607,7 +1595,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val fileStream = Tools.copyStreamToFile(
             activity!!,
             inputStream!!,
-            getFileMimeType(uri)!!
+            getFileMimeType(context!!,uri)!!
         )
         uploadPieces =
             if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
@@ -1615,7 +1603,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             else (fileStream.length() / CHUNK_SIZE).toInt()
         progress = 0
 
-        val fileType: String = if (getFileMimeType(uri)!!.contains(Const.JsonFields.IMAGE_TYPE)) {
+        val fileType: String = if (getFileMimeType(context!!,uri)!!.contains(Const.JsonFields.IMAGE_TYPE)) {
             Const.JsonFields.IMAGE_TYPE
         } else {
             if (isThumbnail) {
@@ -1673,7 +1661,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             unsentMessages.removeFirst()
 
             if (currentMediaLocation.isNotEmpty()) {
-                if (getFileMimeType(currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
+                if (getFileMimeType(context!!,currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
                     uploadImage()
                 } else {
                     uploadVideo()
@@ -1698,7 +1686,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Toast.LENGTH_SHORT
         ).show()
     }
-
 
     private fun showUploadError(errorMessage: String) {
         DialogError.getInstance(activity!!,
@@ -1726,6 +1713,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             })
     }
 
+    private fun handleUserSelectedFile(uri: Uri) {
+        bindingSetup.vHideTyping.visibility = View.VISIBLE
+        bindingSetup.ivCamera.visibility = View.GONE
+        if (getFileMimeType(context!!,uri)?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
+            convertVideo(uri)
+        } else if (getFileMimeType(context!!,uri)?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
+            try {
+                convertImageToBitmap(uri)
+            } catch (e: Exception){
+                // Svg crash
+                Toast.makeText(context, getString(R.string.unsupported_image), Toast.LENGTH_LONG).show()
+            }
+        } else {
+            displayFileInContainer(uri)
+        }
+    }
+
     private fun displayFileInContainer(uri: Uri) {
         filesSelected.add(uri)
         val imageSelected = ImageSelectedContainer(activity!!, null)
@@ -1749,6 +1753,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
                 if (bindingSetup.llImagesContainer.childCount == 0) {
                     hideSendButton()
+                    bindingSetup.vHideTyping.visibility  = View.GONE
                     bindingSetup.vTransparent.visibility = View.GONE
                 }
             }
@@ -1756,18 +1761,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         activity!!.runOnUiThread { showSendButton() }
         bindingSetup.llImagesContainer.addView(imageSelected)
         bindingSetup.vTransparent.visibility = View.VISIBLE
-    }
-
-    private fun handleUserSelectedFile(uri: Uri) {
-        if (getFileMimeType(uri)?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
-            convertVideo(uri)
-        } else if (getFileMimeType(uri)?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
-            convertImageToBitmap(uri)
-        } else if (getFileMimeType(uri)?.contains(Const.JsonFields.AUDIO_TYPE) == true) {
-            displayFileInContainer(uri)
-        } else {
-            displayFileInContainer(uri)
-        }
     }
 
     private fun convertVideo(videoUri: Uri) {
@@ -1795,6 +1788,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
                 if (bindingSetup.llImagesContainer.childCount == 0) {
+                    bindingSetup.vHideTyping.visibility  = View.GONE
                     hideSendButton()
                     bindingSetup.vTransparent.visibility = View.GONE
                 }
@@ -1805,9 +1799,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         CoroutineScope(Dispatchers.IO).launch {
             val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
             val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
+
             withContext(Dispatchers.IO) {
                 file.createNewFile()
             }
+
             val filePath = file.absolutePath
             Tools.genVideoUsingMuxer(videoUri, filePath)
             val fileUri = FileProvider.getUriForFile(
@@ -1849,6 +1845,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
                 if (bindingSetup.llImagesContainer.childCount == 0) {
+                    bindingSetup.vHideTyping.visibility  = View.GONE
                     hideSendButton()
                     bindingSetup.vTransparent.visibility = View.GONE
                 }
@@ -1874,28 +1871,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
     }
 
-    private fun handleDownloadFile(message: MessageAndRecords) {
-        when {
-            context?.let {
-                ContextCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-            } == PackageManager.PERMISSION_GRANTED -> {
-                Tools.downloadFile(context!!, message.message)
-            }
-
-            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
-                // TODO show why permission is needed
-            }
-
-            else -> {
-                storedMessage = message.message
-                storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            }
-        }
-    }
-
     /**
      * Update progress bar in recycler view
      * get viewHolder from position and progress bar from that viewHolder
@@ -1910,6 +1885,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         activity!!.runOnUiThread { chatAdapter.notifyItemChanged(messagesRecords.indexOf(message)) }
     }
 
+    private fun onBackArrowPressed() {
+        if (uploadInProgress) {
+            showUploadError(getString(R.string.upload_in_progress))
+        } else {
+            // Update room visited
+            roomWithUsers.room.visitedRoom = System.currentTimeMillis()
+            viewModel.updateRoomVisitedTimestamp(
+                System.currentTimeMillis(),
+                roomWithUsers.room.roomId
+            )
+            activity!!.finish()
+        }
+    }
+
     override fun onBackPressed(): Boolean {
         return if (uploadInProgress) {
             showUploadError(getString(R.string.upload_in_progress))
@@ -1921,10 +1910,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         super.onResume()
         firstEnter = args.scrollDown
         bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.clBottomMessageActions.visibility = View.GONE
         bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.clBottomSheet.visibility = View.GONE
         bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.clDetailsAction.visibility = View.GONE
         bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.clBottomReplyAction.visibility = View.GONE
         bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.clReactionsDetails.visibility = View.GONE
         viewModel.getBlockedUsersList()
     }
 

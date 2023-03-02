@@ -341,6 +341,22 @@
             app:layout_constraintBottom_toTopOf="@id/iv_add"
             app:layout_constraintTop_toBottomOf="@id/iv_arrow_back" />
 
+        <View
+            android:id="@+id/v_hide_typing"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/two_dp_margin"
+            android:background="@color/main"
+            android:clickable="true"
+            android:elevation="@dimen/one_dp_margin"
+            android:focusable="true"
+            android:outlineProvider="none"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_camera"
+            app:layout_constraintStart_toEndOf="@+id/iv_add"
+            app:layout_constraintTop_toTopOf="@+id/divider" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_typing"
             android:layout_width="0dp"
@@ -350,9 +366,7 @@
             android:padding="@dimen/ten_dp_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/iv_camera"
-            app:layout_constraintStart_toEndOf="@id/iv_add"
-            android:backgroundTint="@color/inputs"
-            >
+            app:layout_constraintStart_toEndOf="@id/iv_add">
 
             <com.vanniktech.emoji.EmojiEditText
                 android:id="@+id/et_message"
@@ -375,7 +389,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.434"
                 android:backgroundTint="@color/inputs"/>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
@@ -403,6 +416,19 @@
             android:backgroundTint="@color/main"/>
 
         <ImageView
+            android:id="@+id/iv_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/ten_dp_margin"
+            android:background="@color/white"
+            android:backgroundTint="@color/main"
+            android:src="@drawable/img_camera"
+            app:layout_constraintBottom_toBottomOf="@+id/cl_bottom_sheet"
+            app:layout_constraintEnd_toStartOf="@id/iv_microphone"
+            app:layout_constraintStart_toEndOf="@id/cl_typing"
+            app:layout_constraintTop_toTopOf="@id/divider" />
+
+        <ImageView
             android:id="@+id/iv_button_send"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -413,19 +439,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/divider"
-            android:backgroundTint="@color/main"/>
-
-        <ImageView
-            android:id="@+id/iv_camera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/ten_dp_margin"
-            android:background="@color/white"
-            android:src="@drawable/img_camera"
-            app:layout_constraintBottom_toBottomOf="@+id/cl_bottom_sheet"
-            app:layout_constraintEnd_toStartOf="@id/iv_microphone"
-            app:layout_constraintStart_toEndOf="@id/cl_typing"
-            app:layout_constraintTop_toTopOf="@id/divider"
             android:backgroundTint="@color/main"/>
 
         <TextView
@@ -459,6 +472,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:elevation="@dimen/four_dp_margin"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -478,6 +492,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:elevation="@dimen/four_dp_margin"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -497,6 +512,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:elevation="@dimen/four_dp_margin"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/hsv_images"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -517,6 +533,7 @@
             android:layout_height="0dp"
             android:elevation="@dimen/four_dp_margin"
             android:nestedScrollingEnabled="true"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.5"
@@ -537,6 +554,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:elevation="@dimen/four_dp_margin"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">

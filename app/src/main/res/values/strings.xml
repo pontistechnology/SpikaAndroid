@@ -147,6 +147,7 @@
     <string name="room_exit">You can’t send messages to this group because you are no longer a participant</string>
     <string name="failed_user_data">Failed to load user data.</string>
     <string name="failed_user_image">Failed to load user image.</string>
+    <string name="unsupported_image">Unsupported type of image.</string>
 
     <!--Media - images, videos, audio-->
     <string name="you_sent_on">You sent on %s</string>
