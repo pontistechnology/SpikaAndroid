@@ -446,7 +446,6 @@ class ChatAdapter(
                     R.string.deleted_message
                 ) && (chatMessage.message.modifiedAt != chatMessage.message.createdAt)))
             ) {
-                chatMessage.message.senderMessage = true
                 chatMessage.message.messagePosition = holder.absoluteAdapterPosition
                 onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)
             }
@@ -632,8 +631,7 @@ class ChatAdapter(
         position: Int
     ) {
         clContainer.setOnLongClickListener {
-            chatMessage!!.message.senderMessage = true
-            chatMessage.message.messagePosition = position
+            chatMessage!!.message.messagePosition = position
             onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)
             true
         }

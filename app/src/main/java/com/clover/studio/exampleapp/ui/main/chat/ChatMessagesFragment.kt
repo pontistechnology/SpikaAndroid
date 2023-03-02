@@ -620,25 +620,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheetMessageActions.state = BottomSheetBehavior.STATE_EXPANDED
         bindingSetup.vTransparent.visibility = View.VISIBLE
 
-        // For now, only show delete and edit for sender
-        if (msg.message.senderMessage) {
-            if (msg.message.deleted == false) {
-                bindingSetup.messageActions.tvEdit.visibility = View.VISIBLE
-                bindingSetup.messageActions.tvDelete.visibility = View.VISIBLE
-            } else {
-                bindingSetup.messageActions.tvEdit.visibility = View.GONE
-                bindingSetup.messageActions.tvDelete.visibility = View.GONE
-            }
-        } else {
-            bindingSetup.messageActions.tvEdit.visibility = View.GONE
-            bindingSetup.messageActions.tvDelete.visibility = View.GONE
-        }
+        val localId = viewModel.getLocalUserId()
+        val fromUserId = msg.message.fromUserId
 
-        if (Const.JsonFields.TEXT_TYPE == msg.message.type) {
-            bindingSetup.messageActions.tvCopy.visibility = View.VISIBLE
-        } else {
-            bindingSetup.messageActions.tvCopy.visibility = View.GONE
-        }
+        bindingSetup.messageActions.tvDelete.visibility =
+            if (fromUserId == localId && !msg.message.deleted!!) View.VISIBLE else View.GONE
+
+        bindingSetup.messageActions.tvEdit.visibility =
+            if (fromUserId == localId && Const.JsonFields.TEXT_TYPE == msg.message.type) View.VISIBLE else View.GONE
+
+        bindingSetup.messageActions.tvCopy.visibility =
+            if (Const.JsonFields.TEXT_TYPE == msg.message.type) View.VISIBLE else View.GONE
 
         reactionsContainer.setButtonListener(object : ReactionsContainer.AddReaction {
             override fun addReaction(reaction: String) {
@@ -696,7 +688,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 Tools.fullDateFormat(chatMessage.message.createdAt!!)
             )
         } else {
-            val userName = roomWithUsers.users.firstOrNull { it.id == chatMessage.message.fromUserId }!!.displayName
+            val userName =
+                roomWithUsers.users.firstOrNull { it.id == chatMessage.message.fromUserId }!!.displayName
             context!!.getString(
                 R.string.user_sent_on,
                 userName,

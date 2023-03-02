@@ -87,9 +87,6 @@ data class Message @JvmOverloads constructor(
     var messagePosition: Int = 0,
 
     @Ignore
-    var senderMessage: Boolean = false,
-
-    @Ignore
     var uploadProgress: Int = 0
 
     // @Ignore
