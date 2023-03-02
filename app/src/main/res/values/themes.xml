@@ -15,5 +15,6 @@
         <item name="android:statusBarColor" >@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
         <!-- Customize your theme here. -->
+        <item name="colorAccent">@color/primary_color</item>
     </style>
 </resources>

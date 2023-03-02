@@ -108,7 +108,7 @@ class ChatAdapter(
                         bindText(holder, holder.binding.tvMessage, it, true)
                         showMessageTime(
                             holder.binding.tvTime,
-                            holder.binding.clContainer,
+                            holder.binding.tvMessage,
                             calendar
                         )
                     }
@@ -268,7 +268,7 @@ class ChatAdapter(
                         holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                         showMessageTime(
                             holder.binding.tvTime,
-                            holder.binding.clContainer,
+                            holder.binding.tvMessage,
                             calendar
                         )
                     }
@@ -446,7 +446,6 @@ class ChatAdapter(
                     R.string.deleted_message
                 ) && (chatMessage.message.modifiedAt != chatMessage.message.createdAt)))
             ) {
-                chatMessage.message.senderMessage = true
                 chatMessage.message.messagePosition = holder.absoluteAdapterPosition
                 onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)
             }
@@ -632,8 +631,7 @@ class ChatAdapter(
         position: Int
     ) {
         clContainer.setOnLongClickListener {
-            chatMessage!!.message.senderMessage = true
-            chatMessage.message.messagePosition = position
+            chatMessage!!.message.messagePosition = position
             onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)
             true
         }
@@ -642,10 +640,10 @@ class ChatAdapter(
     /** A method that shows the time of a message when it is tapped */
     private fun showMessageTime(
         tvTime: TextView,
-        clContainer: ConstraintLayout,
+        tvMessage: TextView,
         calendar: Calendar
     ) {
-        clContainer.setOnClickListener {
+        tvMessage.setOnClickListener {
             if (tvTime.visibility == View.GONE) {
                 tvTime.visibility = View.VISIBLE
                 val simpleDateFormat =
