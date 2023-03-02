@@ -108,7 +108,7 @@ class ChatAdapter(
                         bindText(holder, holder.binding.tvMessage, it, true)
                         showMessageTime(
                             holder.binding.tvTime,
-                            holder.binding.clContainer,
+                            holder.binding.tvMessage,
                             calendar
                         )
                     }
@@ -268,7 +268,7 @@ class ChatAdapter(
                         holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                         showMessageTime(
                             holder.binding.tvTime,
-                            holder.binding.clContainer,
+                            holder.binding.tvMessage,
                             calendar
                         )
                     }
@@ -640,10 +640,10 @@ class ChatAdapter(
     /** A method that shows the time of a message when it is tapped */
     private fun showMessageTime(
         tvTime: TextView,
-        clContainer: ConstraintLayout,
+        tvMessage: TextView,
         calendar: Calendar
     ) {
-        clContainer.setOnClickListener {
+        tvMessage.setOnClickListener {
             if (tvTime.visibility == View.GONE) {
                 tvTime.visibility = View.VISIBLE
                 val simpleDateFormat =
