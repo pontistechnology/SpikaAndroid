@@ -56,6 +56,11 @@ interface RetrofitService {
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
     ): Response<RoomResponse>
+
+    @GET(Const.Networking.API_UNREAD_COUNT)
+    suspend fun getUnreadCount(
+        @HeaderMap headers: Map<String, String?>
+    ): UnreadCountResponse
     // End Room section
 
 

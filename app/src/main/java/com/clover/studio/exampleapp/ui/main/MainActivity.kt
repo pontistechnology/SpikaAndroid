@@ -256,6 +256,8 @@ class MainActivity : BaseActivity(), SSEListener {
         if (viewModel.checkIfFirstSSELaunch()) {
             viewModel.getPushNotificationStream().asLiveData().observe(this) {}
         }
+
+        viewModel.getUnreadCount()
     }
 
     override fun newMessageReceived(message: Message) {

@@ -10,6 +10,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate
 import com.clover.studio.exampleapp.data.repositories.data_sources.SSERemoteDataSource
 import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.performRestOperation
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.queryDatabaseCoreData
 import com.google.gson.JsonArray
@@ -426,6 +427,29 @@ class SSERepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.deleteRoom(roomId) }
         )
     }
+
+    override suspend fun getUnreadCount() {
+        val response = sseService.getUnreadCount(Tools.getHeaderMap(sharedPrefs.readToken()))
+
+        CoroutineScope(Dispatchers.IO).launch {
+            if (response.data.unreadCounts != null) {
+                val currentRooms = chatRoomDao.getAllRooms()
+                val roomsToUpdate: MutableList<ChatRoom> = ArrayList()
+                for (room in currentRooms) {
+                    room.unreadCount = 0
+                    for (item in response.data.unreadCounts) {
+                        if (item.roomId == room.roomId) {
+                            room.unreadCount = item.unreadCount
+                            break
+                        }
+                    }
+                    roomsToUpdate.add(room)
+                }
+                Timber.d("Rooms to update: $roomsToUpdate")
+                chatRoomDao.updateRooms(roomsToUpdate)
+            }
+        }
+    }
 }
 
 interface SSERepository {
@@ -440,6 +464,7 @@ interface SSERepository {
     suspend fun writeRoom(room: ChatRoom)
     suspend fun deleteMessageRecord(messageRecords: MessageRecords)
     suspend fun deleteRoom(roomId: Int)
+    suspend fun getUnreadCount()
 }
 
 private fun getMessageIdJson(messageIds: List<Int?>): JsonObject {

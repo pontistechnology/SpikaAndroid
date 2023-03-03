@@ -122,6 +122,7 @@ class SSEManager @Inject constructor(
                                                 it
                                             )
                                         }
+                                        repo.getUnreadCount()
                                     }
                                     Const.JsonFields.UPDATE_MESSAGE -> {
                                         response.data?.message?.let { repo.writeMessages(it) }

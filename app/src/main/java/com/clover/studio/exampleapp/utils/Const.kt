@@ -171,6 +171,7 @@ class Const {
             const val API_UNMUTE_ROOM = "api/messenger/rooms/{roomId}/unmute"
             const val API_PIN_ROOM = "api/messenger/rooms/{roomId}/pin"
             const val API_UNPIN_ROOM = "api/messenger/rooms/{roomId}/unpin"
+            const val API_UNREAD_COUNT = "api/messenger/rooms/unread-count"
             const val API_GET_SETTINGS = "api/messenger/me/settings"
             const val API_UPDATE_MESSAGE = "api/messenger/messages/{id}"
             const val API_LEAVE_ROOM = "api/messenger/rooms/{id}/leave"
