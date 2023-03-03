@@ -98,7 +98,7 @@ class ChatAdapter(
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 holder as SentMessageHolder
 
-                holder.setIsRecyclable(false)
+                // holder.setIsRecyclable(false)
 
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_send)
                 holder.binding.tvTime.visibility = View.GONE
@@ -259,7 +259,7 @@ class ChatAdapter(
                 /** View holder for messages from other users */
                 holder as ReceivedMessageHolder
 
-                holder.setIsRecyclable(false)
+                // holder.setIsRecyclable(false)
 
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                 holder.binding.tvTime.visibility = View.GONE
