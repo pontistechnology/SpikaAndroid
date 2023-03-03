@@ -7,13 +7,13 @@ import android.content.Intent
 import android.text.TextUtils
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.networking.responses.FirebaseResponse
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.exampleapp.ui.main.MainActivity
-import com.clover.studio.exampleapp.utils.helpers.AppLifecycleManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
@@ -106,7 +106,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 }
 
                 // Filter message if its from my user, don't show notification for it
-                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted == false && !AppLifecycleManager.isInForeground) {
+                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted == false && !MainApplication.isInForeground) {
                     Timber.d("Extras: ${response.message.roomId}")
                     val intent = Intent(baseContext, MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

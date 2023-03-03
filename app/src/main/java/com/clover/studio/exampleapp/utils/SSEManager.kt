@@ -3,11 +3,11 @@
 package com.clover.studio.exampleapp.utils
 
 import com.clover.studio.exampleapp.BuildConfig
+import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.networking.responses.StreamingResponse
 import com.clover.studio.exampleapp.data.repositories.SSERepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
-import com.clover.studio.exampleapp.utils.helpers.AppLifecycleManager
 import com.google.gson.Gson
 import kotlinx.coroutines.*
 import okio.IOException
@@ -22,16 +22,21 @@ class SSEManager @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository,
 ) {
     private var job: Job? = null
+    private var listener: SSEListener? = null
 
-    suspend fun startSSEStream(listener: SSEListener) {
+    fun setupListener(listener: SSEListener) {
+        this.listener = listener
+    }
+
+    suspend fun startSSEStream() {
         val url =
             BuildConfig.SERVER_URL + Const.Networking.API_SSE_STREAM + "?accesstoken=" + sharedPrefs.readToken()
 
-        openConnectionAndFetchEvents(url, listener)
+        openConnectionAndFetchEvents(url)
     }
 
-    private suspend fun openConnectionAndFetchEvents(url: String, listener: SSEListener) {
-        if (!AppLifecycleManager.isInForeground) return
+    private suspend fun openConnectionAndFetchEvents(url: String) {
+        if (!MainApplication.isInForeground) return
 
         if (job != null) {
             job?.cancel()
@@ -102,7 +107,11 @@ class SSEManager @Inject constructor(
                                                 it
                                             )
                                         }
-                                        response.data?.message?.let { listener.newMessageReceived(it) }
+                                        response.data?.message?.let {
+                                            listener?.newMessageReceived(
+                                                it
+                                            )
+                                        }
                                     }
                                     Const.JsonFields.UPDATE_MESSAGE -> {
                                         response.data?.message?.let { repo.writeMessages(it) }
@@ -149,7 +158,7 @@ class SSEManager @Inject constructor(
             } catch (ex: Exception) {
                 if (ex is IOException) {
                     Timber.d("IOException ${ex.message} ${ex.localizedMessage}")
-                    openConnectionAndFetchEvents(url, listener)
+                    openConnectionAndFetchEvents(url)
                 }
                 Tools.checkError(ex)
             }

@@ -31,7 +31,6 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 
 
@@ -41,7 +40,7 @@ fun startMainActivity(fromActivity: Activity) = fromActivity.apply {
 }
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(), SSEListener {
 
     private val viewModel: MainViewModel by viewModels()
     private lateinit var bindingSetup: ActivityMainBinding
@@ -54,10 +53,12 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (viewModel.getUserTheme() == MODE_NIGHT_UNSPECIFIED){
+        if (viewModel.getUserTheme() == MODE_NIGHT_UNSPECIFIED) {
             val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
             when (uiModeManager.nightMode) {
-                UiModeManager.MODE_NIGHT_YES -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                UiModeManager.MODE_NIGHT_YES -> AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_YES
+                )
                 else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
         } else {
@@ -87,6 +88,8 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initializeObservers() {
+        viewModel.setupSSEManager(this)
+
         viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
             if (tokenExpired) {
                 DialogError.getInstance(this,
@@ -240,20 +243,21 @@ class MainActivity : BaseActivity() {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.getPushNotificationStream(object : SSEListener {
-            override fun newMessageReceived(message: Message) {
-                Timber.d("Message received")
-                message.roomId?.let { viewModel.getRoomWithUsers(it, message) }
-            }
-        }).asLiveData(Dispatchers.IO).observe(this) {
-            Timber.d("Message $it")
-        }
-    }
-
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         checkIntentExtras()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Timber.d("First SSE launch = ${viewModel.checkIfFirstSSELaunch()}")
+        if (viewModel.checkIfFirstSSELaunch()) {
+            viewModel.getPushNotificationStream().asLiveData().observe(this) {}
+        }
+    }
+
+    override fun newMessageReceived(message: Message) {
+        Timber.d("Message received")
+        message.roomId?.let { viewModel.getRoomWithUsers(it, message) }
     }
 }
