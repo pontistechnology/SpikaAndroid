@@ -374,34 +374,31 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/ten_dp_margin"
                 android:background="@null"
+                android:backgroundTint="@color/inputs"
                 android:fontFamily="@font/montserrat"
                 android:hint="@string/type_here"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="textMultiLine|textCapSentences"
                 android:maxLines="5"
-                android:paddingEnd="@dimen/thirty_dp_margin"
                 android:textColor="@color/text_primary"
                 app:emojiSize="@dimen/twenty_sp_text"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintEnd_toStartOf="@+id/iv_btn_emoji"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.434"
-                android:backgroundTint="@color/inputs"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                app:layout_constraintVertical_bias="0.434" />
 
-        <ImageView
-            android:id="@+id/iv_btn_emoji"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/ten_dp_margin"
-            android:background="@color/white"
-            android:src="@drawable/img_smiley"
-            app:layout_constraintBottom_toBottomOf="@id/cl_typing"
-            app:layout_constraintEnd_toEndOf="@id/cl_typing"
-            app:layout_constraintTop_toTopOf="@id/cl_typing"
-            android:backgroundTint="@color/inputs"/>
+            <ImageView
+                android:id="@+id/iv_btn_emoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:backgroundTint="@color/inputs"
+                android:src="@drawable/img_smiley"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
             android:id="@+id/iv_microphone"

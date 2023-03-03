@@ -86,6 +86,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
     private var unsentMessages: MutableList<Message> = ArrayList()
     private lateinit var storedMessage: Message
+    private var localUserId: Int = 0
 
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var detailsMessageAdapter: MessageDetailsAdapter
@@ -123,7 +124,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var oldPosition = 0
     private var scrollYDistance = 0
-    private var sent = false
     private var heightDiff = 0
 
     private val chooseFileContract =
@@ -175,6 +175,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
+        localUserId = viewModel.getLocalUserId()!!
+
         // Check if we have left the room, if so, disable bottom message interaction
         if (roomWithUsers.room.roomExit == true) {
             bindingSetup.clRoomExit.visibility = View.VISIBLE
@@ -198,7 +200,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun initViews() {
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            val user = roomWithUsers.users.firstOrNull { it.id.toString() != viewModel.getLocalUserId().toString() }
+            val user =
+                roomWithUsers.users.firstOrNull { it.id.toString() != localUserId.toString() }
             avatarFileId = user?.avatarFileId!!
             userName = user.displayName.toString()
         } else {
@@ -233,7 +236,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun checkIsUserAdmin() {
         isAdmin = roomWithUsers.users.any { user ->
-            user.id == viewModel.getLocalUserId() && viewModel.isUserAdmin(roomWithUsers.room.roomId, user.id)
+            user.id == localUserId && viewModel.isUserAdmin(roomWithUsers.room.roomId, user.id)
         }
     }
 
@@ -242,7 +245,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
                 val bundle =
                     bundleOf(
-                        Const.Navigation.USER_PROFILE to roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() },
+                        Const.Navigation.USER_PROFILE to roomWithUsers.users.firstOrNull { user -> user.id != localUserId },
                         Const.Navigation.ROOM_ID to roomWithUsers.room.roomId
                     )
                 findNavController().navigate(
@@ -356,7 +359,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                 }
                 Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    if (getFileMimeType(context!!, currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
+                    if (getFileMimeType(
+                            context!!,
+                            currentMediaLocation.first()
+                        )?.contains(Const.JsonFields.IMAGE_TYPE) == true
+                    ) {
                         uploadImage()
                     } else {
                         uploadVideo()
@@ -370,14 +377,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     uploadFile()
                 }, 2000)
             }
-            sent = true
             bindingSetup.etMessage.setText("")
             hideSendButton()
         }
 
         bindingSetup.tvBlock.setOnClickListener {
             val userIdToBlock =
-                roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
+                roomWithUsers.users.firstOrNull { user -> user.id != localUserId }
             userIdToBlock?.let { idToBlock -> viewModel.blockUser(idToBlock.id) }
         }
 
@@ -393,7 +399,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 getString(R.string.unblock),
                 object : DialogInteraction {
                     override fun onSecondOptionClicked() {
-                        roomWithUsers.users.firstOrNull { user -> user.id != viewModel.getLocalUserId() }
+                        roomWithUsers.users.firstOrNull { user -> user.id != localUserId }
                             ?.let { it1 -> viewModel.deleteBlockForSpecificUser(it1.id) }
                     }
                 })
@@ -408,6 +414,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun initBottomSheetsListeners() {
+        // Initial visibility of bottom sheets
+        bindingSetup.clBottomSheet.visibility = View.GONE
+        bindingSetup.clBottomMessageActions.visibility = View.GONE
+        bindingSetup.clDetailsAction.visibility = View.GONE
+        bindingSetup.clBottomReplyAction.visibility = View.GONE
+        bindingSetup.clReactionsDetails.visibility = View.GONE
+
         // Bottom sheet listeners
         bindingSetup.ivAdd.setOnClickListener {
             if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
@@ -560,9 +573,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     if (!uploadInProgress) {
                         Handler(Looper.getMainLooper()).postDelayed(Runnable {
                             if (currentMediaLocation.isNotEmpty()) {
-                                if (getFileMimeType(context!!, currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
+                                if (getFileMimeType(
+                                        context!!,
+                                        currentMediaLocation.first()
+                                    )?.contains(Const.JsonFields.IMAGE_TYPE) == true
+                                ) {
                                     uploadImage()
-                                } else if (getFileMimeType(context!!, currentMediaLocation.first())?.contains(
+                                } else if (getFileMimeType(
+                                        context!!,
+                                        currentMediaLocation.first()
+                                    )?.contains(
                                         Const.JsonFields.VIDEO_TYPE
                                     ) == true
                                 )
@@ -608,7 +628,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     // Check if user can be blocked
                     if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
                         val containsElement =
-                            it.message.any { message -> viewModel.getLocalUserId() == message.message.fromUserId }
+                            it.message.any { message -> localUserId == message.message.fromUserId }
                         if (containsElement) bindingSetup.clBlockContact.visibility = View.GONE
                         else bindingSetup.clBlockContact.visibility = View.VISIBLE
                     }
@@ -621,7 +641,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     chatAdapter.submitList(messagesRecords.toList())
 
                     if (oldPosition != messagesRecords.size) {
-                        showNewMessage()
+                        showNewMessage(messagesRecords.first())
                     }
 
                     if (firstEnter) {
@@ -774,9 +794,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         })
     }
 
-    private fun showNewMessage() {
+    private fun showNewMessage(msg: MessageAndRecords) {
         // If we send message
-        if (sent) {
+        if (msg.message.fromUserId == localUserId) {
             scrollToPosition()
         } else {
             // If we received message and keyboard is open:
@@ -803,7 +823,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
         }
-        sent = false
         return
     }
 
@@ -817,7 +836,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         exoPlayer = ExoPlayer.Builder(this.context!!).build()
         chatAdapter = ChatAdapter(
             context!!,
-            viewModel.getLocalUserId()!!,
+            localUserId,
             roomWithUsers.users,
             exoPlayer!!,
             roomWithUsers.room.type,
@@ -947,7 +966,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
-        val position = messagesRecords.indexOfFirst { it.message.createdAt == msg.message.body?.referenceMessage?.createdAt }
+        val position =
+            messagesRecords.indexOfFirst { it.message.createdAt == msg.message.body?.referenceMessage?.createdAt }
         if (position != -1) {
             bindingSetup.rvChat.scrollToPosition(position)
         }
@@ -1018,6 +1038,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 .show()
         }
     }
+
     private fun handleDownloadFile(message: MessageAndRecords) {
         when {
             context?.let {
@@ -1046,8 +1067,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMediaNavigation(chatMessage: MessageAndRecords) {
-        val localId = viewModel.getLocalUserId()
-        val mediaInfo: String = if (chatMessage.message.fromUserId == localId) {
+        val mediaInfo: String = if (chatMessage.message.fromUserId == localUserId) {
             context!!.getString(
                 R.string.you_sent_on,
                 Tools.fullDateFormat(chatMessage.message.createdAt!!)
@@ -1088,7 +1108,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleMessageReply(message: Message) {
         bindingSetup.vTransparent.visibility = View.VISIBLE
         replyId = message.id.toLong()
-        if (message.fromUserId == viewModel.getLocalUserId()) {
+        if (message.fromUserId == localUserId) {
             bindingSetup.replyAction.clReplyContainer.background =
                 AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_send)
         } else {
@@ -1212,7 +1232,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun getDetailsList(detailsMessage: Message) {
-        val localId = viewModel.getLocalUserId()
         val senderId = detailsMessage.fromUserId
 
         /* Adding a message record for the sender so that it can be sent to the adapter */
@@ -1243,9 +1262,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         messageDetails.add(0, senderMessageRecord)
 
         /* If the room type is a group and the current user is not the sender, remove it from the list.*/
-        if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && (senderId != localId)) {
+        if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && (senderId != localUserId)) {
             val filteredMessageDetails =
-                messageDetails.filter { it.userId != localId }.toMutableList()
+                messageDetails.filter { it.userId != localUserId }.toMutableList()
             detailsMessageAdapter.submitList(ArrayList(filteredMessageDetails))
         } else {
             detailsMessageAdapter.submitList(ArrayList(messageDetails))
@@ -1378,7 +1397,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             MessageBody(null, bindingSetup.etMessage.text.toString(), 1, 1, null, null)
         val tempMessage = Tools.createTemporaryMessage(
             tempMessageCounter,
-            viewModel.getLocalUserId(),
+            localUserId,
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT_TYPE,
             messageBody
@@ -1434,7 +1453,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         val tempMessage = Tools.createTemporaryMessage(
             tempMessageCounter,
-            viewModel.getLocalUserId(),
+            localUserId,
             roomWithUsers.room.roomId,
             type,
             messageBody
@@ -1473,7 +1492,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // Media file is always thumbnail first. Therefore, we are sending CHAT_IMAGE as type
         val tempMessage = Tools.createTemporaryMessage(
             tempMessageCounter,
-            viewModel.getLocalUserId(),
+            localUserId,
             roomWithUsers.room.roomId,
             Const.JsonFields.IMAGE_TYPE,
             messageBody
@@ -1595,7 +1614,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val fileStream = Tools.copyStreamToFile(
             activity!!,
             inputStream!!,
-            getFileMimeType(context!!,uri)!!
+            getFileMimeType(context!!, uri)!!
         )
         uploadPieces =
             if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
@@ -1603,15 +1622,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             else (fileStream.length() / CHUNK_SIZE).toInt()
         progress = 0
 
-        val fileType: String = if (getFileMimeType(context!!,uri)!!.contains(Const.JsonFields.IMAGE_TYPE)) {
-            Const.JsonFields.IMAGE_TYPE
-        } else {
-            if (isThumbnail) {
+        val fileType: String =
+            if (getFileMimeType(context!!, uri)!!.contains(Const.JsonFields.IMAGE_TYPE)) {
                 Const.JsonFields.IMAGE_TYPE
             } else {
-                Const.JsonFields.VIDEO_TYPE
+                if (isThumbnail) {
+                    Const.JsonFields.IMAGE_TYPE
+                } else {
+                    Const.JsonFields.VIDEO_TYPE
+                }
             }
-        }
 
         viewModel.uploadMedia(
             requireActivity(),
@@ -1661,7 +1681,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             unsentMessages.removeFirst()
 
             if (currentMediaLocation.isNotEmpty()) {
-                if (getFileMimeType(context!!,currentMediaLocation.first())?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
+                if (getFileMimeType(
+                        context!!,
+                        currentMediaLocation.first()
+                    )?.contains(Const.JsonFields.IMAGE_TYPE) == true
+                ) {
                     uploadImage()
                 } else {
                     uploadVideo()
@@ -1716,14 +1740,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleUserSelectedFile(uri: Uri) {
         bindingSetup.vHideTyping.visibility = View.VISIBLE
         bindingSetup.ivCamera.visibility = View.GONE
-        if (getFileMimeType(context!!,uri)?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
+        if (getFileMimeType(context!!, uri)?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
             convertVideo(uri)
-        } else if (getFileMimeType(context!!,uri)?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
+        } else if (getFileMimeType(context!!, uri)?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
             try {
                 convertImageToBitmap(uri)
-            } catch (e: Exception){
-                // Svg crash
-                Toast.makeText(context, getString(R.string.unsupported_image), Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, getString(R.string.unsupported_image), Toast.LENGTH_LONG)
+                    .show()
             }
         } else {
             displayFileInContainer(uri)
@@ -1753,7 +1777,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
                 if (bindingSetup.llImagesContainer.childCount == 0) {
                     hideSendButton()
-                    bindingSetup.vHideTyping.visibility  = View.GONE
+                    bindingSetup.vHideTyping.visibility = View.GONE
                     bindingSetup.vTransparent.visibility = View.GONE
                 }
             }
@@ -1788,7 +1812,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
                 if (bindingSetup.llImagesContainer.childCount == 0) {
-                    bindingSetup.vHideTyping.visibility  = View.GONE
+                    bindingSetup.vHideTyping.visibility = View.GONE
                     hideSendButton()
                     bindingSetup.vTransparent.visibility = View.GONE
                 }
@@ -1845,7 +1869,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.llImagesContainer.removeView(imageSelected)
                 bindingSetup.ivAdd.rotation = ROTATION_OFF
                 if (bindingSetup.llImagesContainer.childCount == 0) {
-                    bindingSetup.vHideTyping.visibility  = View.GONE
+                    bindingSetup.vHideTyping.visibility = View.GONE
                     hideSendButton()
                     bindingSetup.vTransparent.visibility = View.GONE
                 }
