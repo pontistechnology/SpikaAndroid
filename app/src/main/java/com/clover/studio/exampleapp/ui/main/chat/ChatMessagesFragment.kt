@@ -1742,13 +1742,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.ivCamera.visibility = View.GONE
         if (getFileMimeType(context!!, uri)?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
             convertVideo(uri)
-        } else if (getFileMimeType(context!!, uri)?.contains(Const.JsonFields.IMAGE_TYPE) == true) {
-            try {
-                convertImageToBitmap(uri)
-            } catch (e: Exception) {
-                Toast.makeText(context, getString(R.string.unsupported_image), Toast.LENGTH_LONG)
-                    .show()
-            }
+        } else if (getFileMimeType(context!!, uri)?.contains(Const.JsonFields.IMAGE_TYPE) == true
+            && getFileMimeType(context!!, uri)?.contains(Const.JsonFields.IMAGE_TYPE) == false
+        ) {
+            convertImageToBitmap(uri)
         } else {
             displayFileInContainer(uri)
         }
