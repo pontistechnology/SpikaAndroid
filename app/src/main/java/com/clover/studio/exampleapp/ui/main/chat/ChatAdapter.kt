@@ -98,6 +98,7 @@ class ChatAdapter(
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 holder as SentMessageHolder
 
+                // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
 
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_send)
@@ -259,6 +260,7 @@ class ChatAdapter(
                 /** View holder for messages from other users */
                 holder as ReceivedMessageHolder
 
+                // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
 
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
