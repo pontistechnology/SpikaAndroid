@@ -557,7 +557,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleShowReactions(messageRecords: MessageAndRecords) {
         bindingSetup.vTransparent.visibility = View.VISIBLE
         bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_EXPANDED
-        bindingSetup.reactionsDetails.tvAllReactions.setBackgroundResource(R.drawable.bg_message_received)
+        bindingSetup.reactionsDetails.tvAllReactions.setBackgroundResource(R.drawable.bg_reaction_selected)
 
         val reactionsList = messageRecords.records!!.filter { it.reaction != null }
             .sortedByDescending { it.createdAt }
@@ -588,7 +588,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 // Remove / add backgrounds for views
                 if (view != currentlySelectedTextView) {
                     currentlySelectedTextView?.background = null
-                    view.setBackgroundResource(R.drawable.bg_message_received)
+                    view.setBackgroundResource(R.drawable.bg_reaction_selected)
                     currentlySelectedTextView = view
                 }
 
