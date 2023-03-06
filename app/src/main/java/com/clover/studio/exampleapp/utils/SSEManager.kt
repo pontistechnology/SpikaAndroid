@@ -16,6 +16,7 @@ import timber.log.Timber
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
+import javax.net.ssl.HttpsURLConnection
 
 class SSEManager @Inject constructor(
     private val repo: SSERepositoryImpl,
@@ -55,22 +56,27 @@ class SSEManager @Inject constructor(
                     it.doInput = true // enable inputStream
                 }
 
-                if (!sharedPrefs.isFirstSSELaunch()) {
-                    Timber.d("Syncing data")
-                    repo.syncMessageRecords()
-                    repo.syncMessages()
-                }
-
-                repo.syncUsers()
-                repo.syncRooms()
-
                 // Fetch local timestamps for syncing later. This will handle potential missing data
                 // in between calls. After this, open the connection to the SSE
                 conn.connect() // Blocking function. Should run in background
 
                 val inputReader = conn.inputStream.bufferedReader()
 
-                sharedPrefs.writeFirstSSELaunch()
+                // Check that connection returned 200 OK and then launch all the sync calls
+                // asynchronously
+                if (conn.responseCode == HttpsURLConnection.HTTP_OK) {
+                    if (!sharedPrefs.isFirstSSELaunch()) {
+                        launch { repo.syncMessageRecords() }
+                        launch { repo.syncMessages() }
+                        launch { repo.syncUsers() }
+                        launch { repo.syncRooms() }
+                    } else {
+                        launch { repo.syncUsers() }
+                        launch { repo.syncRooms() }
+                    }
+
+                    sharedPrefs.writeFirstSSELaunch()
+                }
 
                 // run while the coroutine is active
                 while (isActive) {
