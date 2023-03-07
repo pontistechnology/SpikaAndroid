@@ -52,6 +52,19 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun checkIfFirstSSELaunch(): Boolean {
+        var isFirstLaunch = false
+
+        viewModelScope.launch {
+            isFirstLaunch = sharedPrefsRepo.isFirstSSELaunch()
+        }
+        return isFirstLaunch
+    }
+
+    fun setupSSEManager(listener: SSEListener) {
+        sseManager.setupListener(listener)
+    }
+
     fun getLocalUserId(): Int? {
         var userId: Int? = null
 
@@ -89,10 +102,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getPushNotificationStream(listener: SSEListener): Flow<Message> = flow {
+    fun getPushNotificationStream(): Flow<Any> = flow {
         viewModelScope.launch {
             try {
-                sseManager.startSSEStream(listener)
+                sseManager.startSSEStream()
             } catch (ex: Exception) {
                 if (Tools.checkError(ex)) {
                     setTokenExpiredTrue()

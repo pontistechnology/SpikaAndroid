@@ -46,7 +46,7 @@ fun replaceChatScreenActivity(fromActivity: Activity, roomData: String) =
     }
 
 @AndroidEntryPoint
-class ChatScreenActivity : BaseActivity() {
+class ChatScreenActivity : BaseActivity(), SSEListener {
     var roomWithUsers: RoomWithUsers? = null
 
     private lateinit var bindingSetup: ActivityChatScreenBinding
@@ -79,6 +79,8 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun initializeObservers() {
+        viewModel.setupSSEManager(this)
+
         viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
             if (tokenExpired) {
                 DialogError.getInstance(this,
@@ -211,18 +213,6 @@ class ChatScreenActivity : BaseActivity() {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.getPushNotificationStream(object : SSEListener {
-            override fun newMessageReceived(message: Message) {
-                Timber.d("Message received")
-                message.roomId?.let { viewModel.getRoomWithUsers(it, message) }
-            }
-        }).asLiveData(Dispatchers.IO).observe(this) {
-            Timber.d("Observing SSE")
-        }
-    }
-
     override fun onBackPressed() {
         val fragment =
             this.supportFragmentManager.findFragmentById(R.id.main_chat_container) as? NavHostFragment
@@ -238,7 +228,10 @@ class ChatScreenActivity : BaseActivity() {
         }
     }
 
-
+    override fun newMessageReceived(message: Message) {
+        Timber.d("Message received")
+        message.roomId?.let { viewModel.getRoomWithUsers(it, message) }
+    }
 }
 
 interface ChatOnBackPressed {
