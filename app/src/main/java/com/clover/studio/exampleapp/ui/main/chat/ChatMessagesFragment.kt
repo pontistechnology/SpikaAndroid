@@ -56,7 +56,6 @@ import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
-import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.getFileMimeType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
@@ -223,15 +222,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun setAvatarAndName(avatarFileId: Long, userName: String) {
         bindingSetup.tvChatName.text = userName
-        ChatAdapterHelper.loadMedia(
-            context!!,
-            avatarFileId.let { Tools.getFilePathUrl(it) },
-            bindingSetup.ivUserImage,
-            AppCompatResources.getDrawable(
-                requireContext(),
-                R.drawable.img_user_placeholder
+        Glide.with(this)
+            .load(avatarFileId.let { Tools.getFilePathUrl(it) })
+            .placeholder(
+                AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_user_placeholder
+                )
             )
-        )
+            .centerCrop()
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .into(bindingSetup.ivUserImage)
     }
 
     private fun checkIsUserAdmin() {
