@@ -51,6 +51,10 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun setupSSEManager(listener: SSEListener) {
+        sseManager.setupListener(listener)
+    }
+
     fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
         try {
             repository.sendMessage(jsonObject)
@@ -145,16 +149,16 @@ class ChatViewModel @Inject constructor(
         emitSource(repository.getRoomWithUsersLiveData(roomId))
     }
 
-    fun getPushNotificationStream(listener: SSEListener): Flow<Message> = flow {
-        viewModelScope.launch {
-            try {
-                sseManager.startSSEStream(listener)
-            } catch (ex: Exception) {
-                Tools.checkError(ex)
-                return@launch
-            }
-        }
-    }
+//    fun getPushNotificationStream(listener: SSEListener): Flow<Message> = flow {
+//        viewModelScope.launch {
+//            try {
+//                sseManager.startSSEStream(listener)
+//            } catch (ex: Exception) {
+//                Tools.checkError(ex)
+//                return@launch
+//            }
+//        }
+//    }
 
     fun getChatRoomAndMessageAndRecordsById(roomId: Int) = liveData {
         emitSource(repository.getChatRoomAndMessageAndRecordsById(roomId))
