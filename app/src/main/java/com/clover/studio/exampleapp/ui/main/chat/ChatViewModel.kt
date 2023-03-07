@@ -244,32 +244,6 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    /* TODO: Commented methods can later be used to delete reactions
-    fun deleteReaction(recordId: Int, userId: Int) = viewModelScope.launch {
-        try {
-            repository.deleteReaction(recordId, userId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                Timber.d("Exception: $ex")
-            }
-        }
-    }
-
-    fun deleteAllReactions(messageId: Int) = viewModelScope.launch {
-        try {
-            repository.deleteAllReactions(messageId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                Timber.d("Exception: $ex")
-            }
-        }
-    }*/
-
-
     fun deleteRoom(roomId: Int) = viewModelScope.launch {
         try {
             repository.deleteRoom(roomId)
