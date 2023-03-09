@@ -41,8 +41,8 @@ object ChatAdapterHelper {
     fun setViewsVisibility(viewToShow: View, holder: RecyclerView.ViewHolder) {
         val viewsToHide = listOf<View>(
             holder.itemView.findViewById<TextView>(R.id.tv_message),
-            holder.itemView.findViewById<CardView>(R.id.cv_image),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.cl_file_message),
+            holder.itemView.findViewById<CardView>(R.id.iv_chat_image),
+            holder.itemView.findViewById<ConstraintLayout>(R.id.file_layout),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cl_videos),
             holder.itemView.findViewById<CardView>(R.id.cv_audio),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cl_reply_message)

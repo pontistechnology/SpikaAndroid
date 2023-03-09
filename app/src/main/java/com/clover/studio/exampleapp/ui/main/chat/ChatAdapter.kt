@@ -118,7 +118,7 @@ class ChatAdapter(
                         )
                     }
                     Const.JsonFields.IMAGE_TYPE -> {
-                        setViewsVisibility(holder.binding.cvImage, holder)
+                        setViewsVisibility(holder.binding.ivChatImage, holder)
 
                         /** Uploading image: */
                         if (it.message.body?.file?.uri != null) {
@@ -144,32 +144,35 @@ class ChatAdapter(
                         }
                     }
                     Const.JsonFields.FILE_TYPE -> {
-                        setViewsVisibility(holder.binding.clFileMessage, holder)
+                        setViewsVisibility(holder.binding.fileLayout.clFileMessage, holder)
                         addFiles(
                             context,
-                            holder.binding.ivFileType,
+                            holder.binding.fileLayout.ivFileType,
                             it.message.body?.file?.fileName?.substringAfterLast(".")!!
                         )
                         /** Uploading file: */
                         if (it.message.body.file?.id == Const.JsonFields.TEMPORARY_FILE_ID) {
-                            holder.binding.ivDownloadFile.visibility = View.GONE
-                            holder.binding.ivCancelFile.visibility = View.VISIBLE
-                            holder.binding.pbFile.visibility = View.VISIBLE
-                            holder.binding.tvFileTitle.text = it!!.message.body?.file?.fileName
-                            holder.binding.tvFileSize.text =
+                            holder.binding.fileLayout.ivDownloadFile.visibility = View.GONE
+                            holder.binding.fileLayout.ivCancelFile.visibility = View.VISIBLE
+                            holder.binding.fileLayout.pbFile.visibility = View.VISIBLE
+                            holder.binding.fileLayout.tvFileTitle.text =
+                                it!!.message.body?.file?.fileName
+                            holder.binding.fileLayout.tvFileSize.text =
                                 Tools.calculateFileSize(it.message.body.file?.size!!).toString()
-                            holder.binding.pbFile.secondaryProgress = it.message.uploadProgress
-                            holder.binding.ivCancelFile.setOnClickListener { _ ->
+                            holder.binding.fileLayout.pbFile.secondaryProgress =
+                                it.message.uploadProgress
+                            holder.binding.fileLayout.ivCancelFile.setOnClickListener { _ ->
                                 onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
                             }
                         } else {
-                            holder.binding.ivCancelFile.visibility = View.GONE
-                            holder.binding.pbFile.visibility = View.GONE
+                            holder.binding.fileLayout.ivCancelFile.visibility = View.GONE
+                            holder.binding.fileLayout.pbFile.visibility = View.GONE
+                            holder.binding.fileLayout.clFileMessage.setBackgroundResource(R.drawable.bg_message_send)
                             bindFile(
                                 it,
-                                holder.binding.tvFileTitle,
-                                holder.binding.tvFileSize,
-                                holder.binding.ivDownloadFile
+                                holder.binding.fileLayout.tvFileTitle,
+                                holder.binding.fileLayout.tvFileSize,
+                                holder.binding.fileLayout.ivDownloadFile
                             )
                         }
                     }
@@ -187,22 +190,23 @@ class ChatAdapter(
 
                         /** Uploading audio: */
                         if (it.message.body?.file?.id == Const.JsonFields.TEMPORARY_FILE_ID) {
-                            holder.binding.pbAudio.visibility = View.VISIBLE
-                            holder.binding.ivPlayAudio.visibility = View.GONE
-                            holder.binding.ivCancelAudio.visibility = View.VISIBLE
-                            holder.binding.ivCancelAudio.setOnClickListener { _ ->
+                            holder.binding.audioLayout.pbAudio.visibility = View.VISIBLE
+                            holder.binding.audioLayout.ivPlayAudio.visibility = View.GONE
+                            holder.binding.audioLayout.ivCancelAudio.visibility = View.VISIBLE
+                            holder.binding.audioLayout.ivCancelAudio.setOnClickListener { _ ->
                                 onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
                             }
-                            holder.binding.pbAudio.secondaryProgress = it.message.uploadProgress
+                            holder.binding.audioLayout.pbAudio.secondaryProgress =
+                                it.message.uploadProgress
                         } else {
-                            holder.binding.pbAudio.visibility = View.GONE
-                            holder.binding.ivCancelAudio.visibility = View.GONE
+                            holder.binding.audioLayout.pbAudio.visibility = View.GONE
+                            holder.binding.audioLayout.ivCancelAudio.visibility = View.GONE
                             bindAudio(
                                 holder,
                                 it,
-                                holder.binding.ivPlayAudio,
-                                holder.binding.sbAudio,
-                                holder.binding.tvAudioDuration
+                                holder.binding.audioLayout.ivPlayAudio,
+                                holder.binding.audioLayout.sbAudio,
+                                holder.binding.audioLayout.tvAudioDuration
                             )
                         }
                     }
@@ -214,18 +218,20 @@ class ChatAdapter(
                 /** Other: */
 
                 /** Show message reply: */
-                ChatAdapterHelper.bindReply(
-                    context,
-                    users,
-                    it,
-                    holder.binding.ivReplyImage,
-                    holder.binding.tvReplyMedia,
-                    holder.binding.tvMessageReply,
-                    holder.binding.clReplyMessage,
-                    holder.binding.clContainer,
-                    holder.binding.tvUsername,
-                    true
-                )
+                if (it.message.replyId != null && it.message.replyId != 0L) {
+                    ChatAdapterHelper.bindReply(
+                        context,
+                        users,
+                        it,
+                        holder.binding.ivReplyImage,
+                        holder.binding.tvReplyMedia,
+                        holder.binding.tvMessageReply,
+                        holder.binding.clReplyMessage,
+                        holder.binding.clContainer,
+                        holder.binding.tvUsername,
+                        true,
+                    )
+                }
 
                 /** Find replied message: */
                 holder.binding.clReplyMessage.setOnClickListener { _ ->
@@ -285,7 +291,7 @@ class ChatAdapter(
                         )
                     }
                     Const.JsonFields.IMAGE_TYPE -> {
-                        setViewsVisibility(holder.binding.cvImage, holder)
+                        setViewsVisibility(holder.binding.ivChatImage, holder)
                         bindImage(
                             it,
                             holder.binding.ivChatImage,
@@ -303,16 +309,17 @@ class ChatAdapter(
 
                     }
                     Const.JsonFields.FILE_TYPE -> {
-                        setViewsVisibility(holder.binding.clFileMessage, holder)
+                        setViewsVisibility(holder.binding.fileLayout.clFileMessage, holder)
+                        holder.binding.fileLayout.clFileMessage.setBackgroundResource(R.drawable.bg_message_received)
                         bindFile(
                             it,
-                            holder.binding.tvFileTitle,
-                            holder.binding.tvFileSize,
-                            holder.binding.ivDownloadFile
+                            holder.binding.fileLayout.tvFileTitle,
+                            holder.binding.fileLayout.tvFileSize,
+                            holder.binding.fileLayout.ivDownloadFile
                         )
                         addFiles(
                             context,
-                            holder.binding.ivFileType,
+                            holder.binding.fileLayout.ivFileType,
                             it.message.body?.file?.fileName?.substringAfterLast(".")!!
                         )
                     }
@@ -321,9 +328,9 @@ class ChatAdapter(
                         bindAudio(
                             holder,
                             it,
-                            holder.binding.ivPlayAudio,
-                            holder.binding.sbAudio,
-                            holder.binding.tvAudioDuration
+                            holder.binding.audioLayout.ivPlayAudio,
+                            holder.binding.audioLayout.sbAudio,
+                            holder.binding.audioLayout.tvAudioDuration
                         )
                     }
                     else -> {
@@ -334,18 +341,20 @@ class ChatAdapter(
                 /** Other: */
 
                 /** Show message reply: */
-                ChatAdapterHelper.bindReply(
-                    context,
-                    users,
-                    it,
-                    holder.binding.ivReplyImage,
-                    holder.binding.tvReplyMedia,
-                    holder.binding.tvMessageReply,
-                    holder.binding.clReplyMessage,
-                    holder.binding.clContainer,
-                    holder.binding.tvUsernameOther,
-                    false
-                )
+                if (it.message.replyId != null && it.message.replyId != 0L) {
+                    ChatAdapterHelper.bindReply(
+                        context,
+                        users,
+                        it,
+                        holder.binding.ivReplyImage,
+                        holder.binding.tvReplyMedia,
+                        holder.binding.tvMessageReply,
+                        holder.binding.clReplyMessage,
+                        holder.binding.clContainer,
+                        holder.binding.tvUsernameOther,
+                        false,
+                    )
+                }
 
                 /** Find replied message: */
                 holder.binding.clReplyMessage.setOnClickListener { _ ->
