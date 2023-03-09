@@ -1744,7 +1744,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (getFileMimeType(context!!, uri)?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
             convertVideo(uri)
         } else if (getFileMimeType(context!!, uri)?.contains(Const.JsonFields.IMAGE_TYPE) == true
-            && getFileMimeType(context!!, uri)?.contains(Const.JsonFields.IMAGE_TYPE) == false
+            && getFileMimeType(context!!, uri)?.contains(Const.JsonFields.SVG_TYPE) == false
         ) {
             convertImageToBitmap(uri)
         } else {
