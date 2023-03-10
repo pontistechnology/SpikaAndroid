@@ -12,9 +12,12 @@ import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.BlockedId
 import com.clover.studio.exampleapp.data.models.networking.responses.*
+import com.clover.studio.exampleapp.data.repositories.data_sources.MainRemoteDataSource
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
+import com.clover.studio.exampleapp.utils.helpers.Resource
+import com.clover.studio.exampleapp.utils.helpers.RestOperations.performRestOperation
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +25,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
+    private val mainRemoteDataSource: MainRemoteDataSource,
     private val retrofitService: RetrofitService,
     private val userDao: UserDao,
     private val chatRoomDao: ChatRoomDao,
@@ -35,8 +39,10 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun getUserByID(id: Int) =
         userDao.getUserById(id)
 
-    override suspend fun getRoomById(userId: Int) =
-        retrofitService.getRoomById(getHeaderMap(sharedPrefs.readToken()), userId)
+    override suspend fun getRoomById(roomId: Int) =
+        performRestOperation(
+            networkCall = { mainRemoteDataSource.getRoomById(roomId) }
+        )
 
     override suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom> =
         chatRoomDao.getRoomByIdLiveData(roomId)
@@ -103,8 +109,10 @@ class MainRepositoryImpl @Inject constructor(
         jsonObject: JsonObject
     ) = retrofitService.uploadFiles(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
-    override suspend fun verifyFile(jsonObject: JsonObject): FileResponse =
-        retrofitService.verifyFile(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    override suspend fun verifyFile(jsonObject: JsonObject) =
+        performRestOperation {
+            mainRemoteDataSource.verifyFile(jsonObject)
+        }
 
     override suspend fun updateRoom(
         jsonObject: JsonObject,
@@ -215,7 +223,7 @@ class MainRepositoryImpl @Inject constructor(
 interface MainRepository {
     suspend fun getUserRooms(): List<ChatRoom>?
     suspend fun getUserByID(id: Int): LiveData<User>
-    suspend fun getRoomById(userId: Int): RoomResponse
+    suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
     suspend fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>>
@@ -226,7 +234,7 @@ interface MainRepository {
     suspend fun updatePushToken(jsonObject: JsonObject)
     suspend fun updateUserData(jsonObject: JsonObject): AuthResponse
     suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
-    suspend fun verifyFile(jsonObject: JsonObject): FileResponse
+    suspend fun verifyFile(jsonObject: JsonObject): Resource<FileResponse>
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse
     suspend fun getUserSettings(): List<Settings>
     suspend fun handleRoomMute(roomId: Int, doMute: Boolean)
