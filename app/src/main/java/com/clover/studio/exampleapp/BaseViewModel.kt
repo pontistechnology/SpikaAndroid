@@ -17,11 +17,11 @@ open class BaseViewModel : ViewModel() {
     }
 
     fun <R> resolveResponseStatus(
-        mutableLiveData: MutableLiveData<Event<Resource<R?>>>?,
+        mutableLiveData: MutableLiveData<Event<Resource<R?>>>,
         resource: Resource<R?>
     ) {
         when (resource.status) {
-            Resource.Status.SUCCESS, Resource.Status.ERROR -> mutableLiveData?.postValue(
+            Resource.Status.SUCCESS, Resource.Status.ERROR -> mutableLiveData.postValue(
                 Event(
                     resource
                 )
