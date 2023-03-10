@@ -22,6 +22,7 @@ import com.clover.studio.exampleapp.utils.Tools.getFilePathUrl
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -100,12 +101,12 @@ class ContactDetailsFragment : BaseFragment() {
         })
 
         viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomExists -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     Timber.d("Room already exists")
-                    viewModel.getRoomWithUsers(it.roomData.roomId)
+                    it.responseData?.data?.room?.roomId?.let { roomId -> viewModel.getRoomWithUsers(roomId) }
                 }
-                is RoomNotFound -> {
+                Resource.Status.ERROR -> {
                     Timber.d("Room not found, creating new one")
                     val jsonObject = JsonObject()
 

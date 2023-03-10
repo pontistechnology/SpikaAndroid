@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.entity.*
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
+import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.ui.main.chat.ChatStates
@@ -15,6 +16,7 @@ import com.clover.studio.exampleapp.ui.main.chat.MediaPieceUploaded
 import com.clover.studio.exampleapp.ui.main.chat.MediaUploadError
 import com.clover.studio.exampleapp.ui.main.chat.MediaUploadVerified
 import com.clover.studio.exampleapp.utils.*
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +35,7 @@ class MainViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     val usersListener = MutableLiveData<Event<MainStates>>()
-    val checkRoomExistsListener = MutableLiveData<Event<MainStates>>()
+    val checkRoomExistsListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
     val createRoomListener = MutableLiveData<Event<MainStates>>()
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
     val roomWithUsersListener = MutableLiveData<Event<MainStates>>()
@@ -75,17 +77,8 @@ class MainViewModel @Inject constructor(
     }
 
     fun checkIfRoomExists(userId: Int) = viewModelScope.launch {
-        try {
-            val roomData = repository.getRoomById(userId).data?.room
-            checkRoomExistsListener.postValue(Event(RoomExists(roomData!!)))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                checkRoomExistsListener.postValue(Event(RoomNotFound))
-            }
-            return@launch
-        }
+        resolveResponseStatus(checkRoomExistsListener, repository.getRoomById(userId))
+//        checkRoomExistsListener.postValue(Event(repository.getRoomById(userId)))
     }
 
     fun createNewRoom(jsonObject: JsonObject) = viewModelScope.launch {

@@ -18,6 +18,7 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import timber.log.Timber
 
 class ContactsFragment : BaseFragment() {
@@ -71,12 +72,12 @@ class ContactsFragment : BaseFragment() {
         // the method will send the user to the room with the roomId which is required to
         // handle mute and pin logic. If the user has no room open the roomId will be 0
         viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomExists -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     if (selectedUser != null) {
                         val bundle = bundleOf(
                             Const.Navigation.USER_PROFILE to selectedUser,
-                            Const.Navigation.ROOM_ID to it.roomData.roomId
+                            Const.Navigation.ROOM_ID to it.responseData?.data?.room?.roomId
                         )
                         findNavController().navigate(
                             R.id.action_mainFragment_to_contactDetailsFragment,
@@ -84,7 +85,7 @@ class ContactsFragment : BaseFragment() {
                         )
                     }
                 }
-                RoomNotFound -> {
+                Resource.Status.ERROR -> {
                     if (selectedUser != null) {
                         val bundle = bundleOf(Const.Navigation.USER_PROFILE to selectedUser)
                         findNavController().navigate(

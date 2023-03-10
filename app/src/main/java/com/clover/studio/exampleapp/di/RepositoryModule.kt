@@ -4,6 +4,7 @@ import android.content.Context
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.repositories.*
+import com.clover.studio.exampleapp.data.repositories.data_sources.MainRemoteDataSource
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
@@ -51,6 +52,7 @@ object RepositoryModule {
     @Singleton
     @Provides
     fun provideMainRepository(
+        mainRemoteDataSource: MainRemoteDataSource,
         retrofitService: RetrofitService,
         userDao: UserDao,
         chatRoomDao: ChatRoomDao,
@@ -58,6 +60,7 @@ object RepositoryModule {
         sharedPrefs: SharedPreferencesRepository
     ) =
         MainRepositoryImpl(
+            mainRemoteDataSource,
             retrofitService,
             userDao,
             chatRoomDao,
@@ -108,4 +111,12 @@ object RepositoryModule {
     fun provideUploadDownloadManager(
         repository: MainRepositoryImpl
     ) = UploadDownloadManager(repository)
+
+    @Singleton
+    @Provides
+    fun provideMainDataSource(
+        retrofitService: RetrofitService,
+        sharedPrefs: SharedPreferencesRepository
+    ) =
+        MainRemoteDataSource(retrofitService, sharedPrefs)
 }
