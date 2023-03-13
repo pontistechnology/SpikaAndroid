@@ -6,11 +6,11 @@ import com.clover.studio.exampleapp.data.models.entity.Note
 
 @Dao
 interface NotesDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(note: Note): Long
+    @Upsert
+    suspend fun upsert(note: Note): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(note: List<Note>)
+    @Upsert
+    suspend fun upsert(note: List<Note>)
 
     @Query("SELECT * FROM notes WHERE room_id LIKE :roomId")
     fun getNotesByRoom(roomId: Int): LiveData<List<Note>>

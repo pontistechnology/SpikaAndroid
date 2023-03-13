@@ -78,7 +78,7 @@ class SSERepositoryImpl @Inject constructor(
                             }
                     }
 
-                    messageRecordsDao.insert(messageRecords)
+                    messageRecordsDao.upsert(messageRecords)
 
                     // Since this is a transaction method this loop should insert all or none
                     messageRecordsUpdates.forEach { messageRecordsDao.updateMessageRecords(it.userId, it.type, it.createdAt, it.modifiedAt, it.userId) }
@@ -120,7 +120,7 @@ class SSERepositoryImpl @Inject constructor(
                 messages.add(message)
                 messageIds.add(message.id)
             }
-            messageDao.insert(messages)
+            messageDao.upsert(messages)
 
             sseService.sendMessageDelivered(
                 Tools.getHeaderMap(sharedPrefs.readToken()),
@@ -161,7 +161,7 @@ class SSERepositoryImpl @Inject constructor(
             for (user in response.data.users) {
                 users.add(user)
             }
-            userDao.insert(users)
+            userDao.upsert(users)
 
             if (users.isNotEmpty()) {
                 val maxTimestamp = users.maxByOrNull { it.modifiedAt!! }?.modifiedAt
@@ -211,7 +211,7 @@ class SSERepositoryImpl @Inject constructor(
                             rooms.add(room)
                         }
                         chatRoomDao.updateRoomTable(chatRooms)
-                        userDao.insert(users)
+                        userDao.upsert(users)
                         chatRoomDao.insertRoomWithUsers(roomUsers)
                         if (rooms.isNotEmpty()) {
                             val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
@@ -234,7 +234,7 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeMessages(message: Message) {
-        messageDao.insert(message)
+        messageDao.upsert(message)
     }
 
     override suspend fun writeMessageRecord(messageRecords: MessageRecords) {
@@ -257,7 +257,7 @@ class SSERepositoryImpl @Inject constructor(
                 messageRecords.userId
             ) == null
         ) {
-            messageRecordsDao.insert(messageRecords)
+            messageRecordsDao.upsert(messageRecords)
         } else {
             if (Const.JsonFields.SEEN == messageRecords.type) {
                 messageRecordsDao.updateMessageRecords(
@@ -273,7 +273,7 @@ class SSERepositoryImpl @Inject constructor(
                         messageRecords.userId
                     ) == null
                 ) {
-                    messageRecordsDao.insert(messageRecords)
+                    messageRecordsDao.upsert(messageRecords)
                 } else {
                     messageRecordsDao.updateReaction(
                         messageRecords.messageId,
@@ -287,7 +287,7 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeUser(user: User) {
-        userDao.insert(user)
+        userDao.upsert(user)
     }
 
     override suspend fun writeRoom(room: ChatRoom) {
@@ -327,7 +327,7 @@ class SSERepositoryImpl @Inject constructor(
                         .collect(Collectors.toList())
 
                     // Handle database operations
-                    userDao.insert(users)
+                    userDao.upsert(users)
                     if (filteredList.isNotEmpty()) {
                         chatRoomDao.deleteRoomUsers(filteredList)
                     }

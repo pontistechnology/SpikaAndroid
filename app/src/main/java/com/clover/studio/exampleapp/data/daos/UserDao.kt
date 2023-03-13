@@ -9,11 +9,11 @@ import com.clover.studio.exampleapp.data.models.junction.UserWithRooms
 @Dao
 interface UserDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(user: User): Long
+    @Upsert
+    suspend fun upsert(user: User): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(users: List<User>)
+    suspend fun upsert(users: List<User>)
 
     @Query("SELECT * FROM user")
     fun getUsers(): LiveData<List<User>>

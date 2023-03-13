@@ -6,12 +6,12 @@ import com.clover.studio.exampleapp.data.models.entity.MessageRecords
 
 @Dao
 interface MessageRecordsDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(messageRecords: MessageRecords): Long
+    @Upsert
+    suspend fun upsert(messageRecords: MessageRecords): Long
 
     @Transaction
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(messageRecords: List<MessageRecords>)
+    @Upsert
+    suspend fun upsert(messageRecords: List<MessageRecords>)
 
     @Query("SELECT * FROM message_records WHERE message_id LIKE :messageId")
     fun getMessageRecords(messageId: Int): LiveData<List<MessageRecords>>

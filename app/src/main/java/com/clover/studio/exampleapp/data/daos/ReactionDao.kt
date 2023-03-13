@@ -7,8 +7,8 @@ import com.clover.studio.exampleapp.data.models.entity.Reaction
 @Dao
 interface ReactionDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(reaction: Reaction): Long
+    @Upsert
+    suspend fun upsert(reaction: Reaction): Long
 
     @Query("SELECT * FROM reaction")
     fun getReactions(): LiveData<List<Reaction>>

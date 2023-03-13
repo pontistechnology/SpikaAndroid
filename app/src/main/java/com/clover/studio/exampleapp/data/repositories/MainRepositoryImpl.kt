@@ -71,7 +71,7 @@ class MainRepositoryImpl @Inject constructor(
                         )
                     }
                     chatRoomDao.insertRoomWithUsers(roomUsers)
-                    userDao.insert(users)
+                    userDao.upsert(users)
                 }
             }
         }
@@ -104,7 +104,7 @@ class MainRepositoryImpl @Inject constructor(
         val responseData =
             retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
-        userDao.insert(responseData.data.user)
+        userDao.upsert(responseData.data.user)
         sharedPrefs.writeUserId(responseData.data.user.id)
 
         return responseData
@@ -153,7 +153,7 @@ class MainRepositoryImpl @Inject constructor(
                                 )
                             )
                         }
-                        userDao.insert(users)
+                        userDao.upsert(users)
                         chatRoomDao.insertRoomWithUsers(roomUsers)
                     }
                 }

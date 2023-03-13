@@ -58,7 +58,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun storeMessageLocally(message: Message) {
-        messageDao.insert(message)
+        messageDao.upsert(message)
     }
 
     override suspend fun deleteLocalMessages(messages: List<Message>) {
@@ -86,7 +86,7 @@ class ChatRepositoryImpl @Inject constructor(
         if (response.data?.message != null) {
             val deletedMessage = response.data.message
             deletedMessage.type = Const.JsonFields.TEXT_TYPE
-            messageDao.insert(deletedMessage)
+            messageDao.upsert(deletedMessage)
         }
     }
 
@@ -97,7 +97,7 @@ class ChatRepositoryImpl @Inject constructor(
             jsonObject
         )
         if (response.data?.message != null) {
-            messageDao.insert(response.data.message)
+            messageDao.upsert(response.data.message)
         }
     }
 
@@ -138,7 +138,7 @@ class ChatRepositoryImpl @Inject constructor(
                                 )
                             )
                         }
-                        userDao.insert(users)
+                        userDao.upsert(users)
                         roomDao.insertRoomWithUsers(roomUsers)
                     }
                 }
@@ -183,7 +183,7 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getNotes(roomId: Int) {
         val response = chatService.getRoomNotes(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
-        response.data.notes?.let { notesDao.insert(it) }
+        response.data.notes?.let { notesDao.upsert(it) }
     }
 
     override suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>> =
@@ -193,14 +193,14 @@ class ChatRepositoryImpl @Inject constructor(
         val response =
             chatService.createNote(getHeaderMap(sharedPrefsRepo.readToken()), roomId, newNote)
 
-        response.data.note?.let { notesDao.insert(it) }
+        response.data.note?.let { notesDao.upsert(it) }
     }
 
     override suspend fun updateNote(noteId: Int, newNote: NewNote) {
         val response =
             chatService.updateNote(getHeaderMap(sharedPrefsRepo.readToken()), noteId, newNote)
 
-        response.data.note?.let { notesDao.insert(it) }
+        response.data.note?.let { notesDao.upsert(it) }
     }
 
     override suspend fun deleteNote(noteId: Int) {

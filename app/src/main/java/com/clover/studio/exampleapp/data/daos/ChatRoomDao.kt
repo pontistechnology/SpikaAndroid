@@ -12,12 +12,12 @@ import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate
 interface ChatRoomDao {
 
     // room table functions
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(chatRoom: ChatRoom): Long
+    @Upsert
+    suspend fun upsert(chatRoom: ChatRoom): Long
 
     // room table functions
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(chatRooms: List<ChatRoom>)
+    @Upsert
+    suspend fun upsert(chatRooms: List<ChatRoom>)
 
     @Query("SELECT * FROM room")
     fun getRooms(): LiveData<List<ChatRoom>>
@@ -76,7 +76,7 @@ interface ChatRoomDao {
         if (oldData?.visitedRoom != null && newData.visitedRoom == null) {
             newData.visitedRoom = oldData.visitedRoom
         }
-        insert(newData)
+        upsert(newData)
     }
 
     @Transaction
@@ -88,11 +88,11 @@ interface ChatRoomDao {
             }
             chatRooms.add(chatRoom.newRoom)
         }
-        insert(chatRooms)
+        upsert(chatRooms)
     }
 
-    // room_user table functions
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    /** room_user table functions */
+    @Upsert
     suspend fun insertRoomWithUsers(roomUser: List<RoomUser>)
 
     // Delete all room users with specified user_id
@@ -120,5 +120,4 @@ interface ChatRoomDao {
 
     @Query("UPDATE room_user SET isAdmin = 0 WHERE room_id LIKE :roomId AND id LIKE :userId")
     suspend fun removeAdmin(roomId: Int, userId: Int)
-
 }

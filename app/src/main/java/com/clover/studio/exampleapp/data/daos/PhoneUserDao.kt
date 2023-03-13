@@ -6,11 +6,11 @@ import com.clover.studio.exampleapp.data.models.entity.PhoneUser
 
 @Dao
 interface PhoneUserDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(phoneUser: PhoneUser): Long
+    @Upsert
+    suspend fun upsert(phoneUser: PhoneUser): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(phoneUser: List<PhoneUser>)
+    @Upsert
+    suspend fun upsert(phoneUser: List<PhoneUser>)
 
     @Query("SELECT * FROM phone_user")
     fun getPhoneUsers(): LiveData<List<PhoneUser>>

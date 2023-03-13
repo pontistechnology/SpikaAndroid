@@ -31,7 +31,7 @@ class OnboardingRepositoryImpl @Inject constructor(
         val responseData =
             retrofitService.verifyUserCode(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
-        userDao.insert(responseData.data.user)
+        userDao.upsert(responseData.data.user)
         sharedPrefs.writeUserId(responseData.data.user.id)
 
         return responseData
@@ -42,7 +42,7 @@ class OnboardingRepositoryImpl @Inject constructor(
     ): AuthResponse = retrofitService.sendContacts(getHeaderMap(sharedPrefs.readToken()), contacts)
 
     override suspend fun writePhoneUsers(phoneUsers: List<PhoneUser>) =
-        phoneUserDao.insert(phoneUsers)
+        phoneUserDao.upsert(phoneUsers)
 
 
     override suspend fun updateUser(
@@ -51,7 +51,7 @@ class OnboardingRepositoryImpl @Inject constructor(
         val responseData =
             retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
-        userDao.insert(responseData.data.user)
+        userDao.upsert(responseData.data.user)
         sharedPrefs.writeUserId(responseData.data.user.id)
 
         return responseData
