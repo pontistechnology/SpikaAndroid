@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.data.services
 
+import com.bumptech.glide.load.engine.Resource
 import com.clover.studio.exampleapp.data.models.networking.*
 import com.clover.studio.exampleapp.data.models.networking.responses.*
 import com.clover.studio.exampleapp.utils.Const
@@ -63,7 +64,7 @@ interface RetrofitService {
     suspend fun updatePushToken(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
-    )
+    ): Response<Unit>
 
     @PUT(value = Const.Networking.API_UPDATE_USER)
     suspend fun updateUser(

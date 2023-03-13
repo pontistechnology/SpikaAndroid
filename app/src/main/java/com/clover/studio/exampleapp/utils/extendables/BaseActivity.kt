@@ -7,6 +7,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
@@ -17,7 +18,7 @@ import com.clover.studio.exampleapp.utils.dialog.ProgressDialog
 open class BaseActivity : AppCompatActivity() {
     // start: global progress handle
     private var progress: ProgressDialog? = null
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: BaseViewModel by viewModels()
 
     @JvmOverloads
     fun showProgress(isCancelable: Boolean = true) {

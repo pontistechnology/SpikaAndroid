@@ -168,14 +168,7 @@ class MainViewModel @Inject constructor(
 
 
     fun updatePushToken(jsonObject: JsonObject) = viewModelScope.launch {
-        try {
-            repository.updatePushToken(jsonObject)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        resolveResponseStatus(null, repository.updatePushToken(jsonObject))
     }
 
     fun updateUserData(jsonObject: JsonObject) = viewModelScope.launch {

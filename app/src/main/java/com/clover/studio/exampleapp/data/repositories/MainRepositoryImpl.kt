@@ -18,6 +18,7 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.performRestOperation
+import com.clover.studio.exampleapp.utils.helpers.RestOperations.queryDatabase
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -77,8 +78,10 @@ class MainRepositoryImpl @Inject constructor(
         return response
     }
 
-    override suspend fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>> =
-        userDao.getUserAndPhoneUser(localId)
+    override suspend fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>> =
+        queryDatabase(
+            databaseQuery = { mainRemoteDataSource.getUserAndPhoneUser(localId) }
+        )
 
     override suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
         chatRoomDao.getChatRoomAndMessageAndRecords()
@@ -93,7 +96,9 @@ class MainRepositoryImpl @Inject constructor(
         chatRoomDao.getRoomAndUsers(roomId)
 
     override suspend fun updatePushToken(jsonObject: JsonObject) =
-        retrofitService.updatePushToken(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+        performRestOperation(
+            networkCall = { mainRemoteDataSource.updatePushToken(jsonObject) }
+        )
 
     override suspend fun updateUserData(jsonObject: JsonObject): AuthResponse {
         val responseData =
@@ -226,12 +231,12 @@ interface MainRepository {
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
-    suspend fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>>
+    suspend fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
     suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
     suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
-    suspend fun updatePushToken(jsonObject: JsonObject)
+    suspend fun updatePushToken(jsonObject: JsonObject): Resource<Unit>
     suspend fun updateUserData(jsonObject: JsonObject): AuthResponse
     suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
     suspend fun verifyFile(jsonObject: JsonObject): Resource<FileResponse>

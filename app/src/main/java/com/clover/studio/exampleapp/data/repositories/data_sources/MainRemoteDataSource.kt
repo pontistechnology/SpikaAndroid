@@ -1,5 +1,8 @@
 package com.clover.studio.exampleapp.data.repositories.data_sources
 
+import androidx.lifecycle.liveData
+import com.clover.studio.exampleapp.data.daos.UserDao
+import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -9,6 +12,7 @@ import javax.inject.Inject
 
 class MainRemoteDataSource @Inject constructor(
     private val retrofitService: RetrofitService,
+    private val userDao: UserDao,
     private val sharedPrefs: SharedPreferencesRepository
 ) : BaseDataSource() {
     suspend fun getRoomById(userId: Int) = getResult {
@@ -17,5 +21,13 @@ class MainRemoteDataSource @Inject constructor(
 
     suspend fun verifyFile(jsonObject: JsonObject) = getResult {
         retrofitService.verifyFile(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    }
+
+    suspend fun updatePushToken(jsonObject: JsonObject) = getResult {
+        retrofitService.updatePushToken(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    }
+
+    fun getUserAndPhoneUser(localId: Int) = liveData<List<UserAndPhoneUser>> {
+        userDao.getUserAndPhoneUser(localId)
     }
 }
