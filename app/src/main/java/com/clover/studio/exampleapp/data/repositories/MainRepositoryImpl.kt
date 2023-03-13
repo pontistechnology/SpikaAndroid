@@ -80,7 +80,7 @@ class MainRepositoryImpl @Inject constructor(
         return response
     }
 
-    override suspend fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>> =
+    override fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>> =
         queryDatabase(
             databaseQuery = { mainRemoteDataSource.getUserAndPhoneUser(localId) }
         )
