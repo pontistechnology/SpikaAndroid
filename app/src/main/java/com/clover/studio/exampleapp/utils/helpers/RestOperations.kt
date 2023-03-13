@@ -29,6 +29,16 @@ object RestOperations {
         }
 
     @JvmStatic
+    fun <T> queryDatabase(
+        databaseQuery: () -> LiveData<T>
+    ): LiveData<Resource<T>> =
+        liveData(Dispatchers.IO) {
+            emit(Resource.loading())
+            val source = databaseQuery.invoke().map { Resource.success(it) }
+            emitSource(source)
+        }
+
+    @JvmStatic
     suspend fun <R> performRestOperation(
         networkCall: suspend () -> Resource<R>
     ): Resource<R> {
@@ -42,6 +52,19 @@ object RestOperations {
             }
             else -> {
                 Resource.error(responseStatus.message!!)
+            }
+        }
+    }
+
+    @JvmStatic
+    suspend fun <R> performRestOperationWithStoring(
+        networkCall: suspend () -> Resource<R>,
+        saveCallResult: suspend (R) -> Unit
+    ) {
+        val responseStatus = networkCall.invoke()
+        when (responseStatus.status) {
+            Resource.Status.SUCCESS -> {
+                saveCallResult.invoke(responseStatus.responseData!!)
             }
         }
     }

@@ -218,8 +218,9 @@ class NewRoomFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                userList = it.toMutableList()
+            // TODO @Ivana handle this null check
+            if (it.responseData!!.isNotEmpty()) {
+                userList = it.responseData.toMutableList()
                 val users = userList.sortUsersByLocale(requireContext())
                 userList = users.toMutableList()
                 contactsAdapter.submitList(users)

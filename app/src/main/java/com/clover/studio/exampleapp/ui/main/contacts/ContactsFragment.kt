@@ -58,8 +58,9 @@ class ContactsFragment : BaseFragment() {
         })
 
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                userList = it.toMutableList()
+            // TODO don't use !! here, make null check
+            if (it.responseData!!.isNotEmpty()) {
+                userList = it.responseData.toMutableList()
 
                 // TODO fix this later
                 val users = userList.sortUsersByLocale(requireContext())
