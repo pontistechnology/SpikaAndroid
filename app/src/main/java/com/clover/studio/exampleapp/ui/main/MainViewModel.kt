@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.ui.main
 
 import android.app.Activity
 import android.net.Uri
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -33,7 +34,6 @@ class MainViewModel @Inject constructor(
     private val sseManager: SSEManager,
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel() {
-
     val usersListener = MutableLiveData<Event<MainStates>>()
     val checkRoomExistsListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
     val createRoomListener = MutableLiveData<Event<MainStates>>()
@@ -108,9 +108,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getUserAndPhoneUser(localId: Int) = liveData {
-        emitSource(repository.getUserAndPhoneUser(localId))
-    }
+    fun getUserAndPhoneUser(localId: Int) = repository.getUserAndPhoneUser(localId)
 
     fun getChatRoomAndMessageAndRecords() = liveData {
         emitSource(repository.getChatRoomAndMessageAndRecords())
