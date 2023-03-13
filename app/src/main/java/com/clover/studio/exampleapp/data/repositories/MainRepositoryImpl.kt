@@ -80,9 +80,9 @@ class MainRepositoryImpl @Inject constructor(
         return response
     }
 
-    override fun getUserAndPhoneUser(localId: Int) =
+    override suspend fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>> =
         queryDatabase(
-            databaseQuery = { userDao.getUserAndPhoneUser(localId) }
+            databaseQuery = { mainRemoteDataSource.getUserAndPhoneUser(localId) }
         )
 
     override suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
@@ -237,8 +237,8 @@ interface MainRepository {
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
-    fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
     suspend fun checkIfUserInPrivateRoom(userId: Int): Int?
+    suspend fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
     suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
     suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
