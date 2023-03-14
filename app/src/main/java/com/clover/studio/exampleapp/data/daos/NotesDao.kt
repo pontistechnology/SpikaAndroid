@@ -10,6 +10,9 @@ interface NotesDao : BaseDao<Note> {
     @Query("SELECT * FROM notes WHERE room_id LIKE :roomId")
     fun getNotesByRoom(roomId: Int): LiveData<List<Note>>
 
+    fun getDistinctNotes(roomId: Int): LiveData<List<Note>> =
+        getNotesByRoom(roomId).getDistinct()
+
     @Query("DELETE FROM notes WHERE id LIKE :noteId")
     suspend fun deleteNote(noteId: Int)
 

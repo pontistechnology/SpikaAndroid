@@ -80,9 +80,9 @@ class MainRepositoryImpl @Inject constructor(
         return response
     }
 
-    override fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>> =
+    override fun getUserAndPhoneUser(localId: Int) =
         queryDatabase(
-            databaseQuery = { mainRemoteDataSource.getUserAndPhoneUser(localId) }
+            databaseQuery = { userDao.getDistinctUserAndPhoneUser(localId) }
         )
 
     override suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
@@ -90,7 +90,7 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
-        chatRoomDao.getChatRoomAndMessageAndRecords()
+        chatRoomDao.getDistinctChatRoomAndMessageAndRecords()
 
     override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
         chatRoomDao.getDistinctRoomAndUsers(roomId)

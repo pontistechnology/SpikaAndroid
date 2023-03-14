@@ -11,9 +11,6 @@ import com.clover.studio.exampleapp.utils.helpers.Extensions.getDistinct
 @Dao
 interface ChatRoomDao : BaseDao<ChatRoom> {
 
-    @Query("SELECT * FROM room")
-    fun getRooms(): LiveData<List<ChatRoom>>
-
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getRoomById(roomId: Int): ChatRoom
 
@@ -45,6 +42,9 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Transaction
     @Query("SELECT * FROM room")
     fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
+
+    fun getDistinctChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
+        getChatRoomAndMessageAndRecords().getDistinct()
 
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")

@@ -1,8 +1,6 @@
 package com.clover.studio.exampleapp.data.repositories.data_sources
 
-import androidx.lifecycle.liveData
 import com.clover.studio.exampleapp.data.daos.UserDao
-import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -25,9 +23,5 @@ class MainRemoteDataSource @Inject constructor(
 
     suspend fun updatePushToken(jsonObject: JsonObject) = getResult {
         retrofitService.updatePushToken(getHeaderMap(sharedPrefs.readToken()), jsonObject)
-    }
-
-    fun getUserAndPhoneUser(localId: Int) = liveData<List<UserAndPhoneUser>> {
-        userDao.getUserAndPhoneUser(localId)
     }
 }
