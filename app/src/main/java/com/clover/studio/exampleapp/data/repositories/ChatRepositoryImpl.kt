@@ -103,7 +103,7 @@ class ChatRepositoryImpl @Inject constructor(
         roomDao.updateRoomVisited(visitedTimestamp, roomId)
 
     override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
-        roomDao.getRoomAndUsersLiveData(roomId)
+        roomDao.getDistinctRoomAndUsers(roomId)
 
     override suspend fun getRoomWithUsers(roomId: Int) =
         roomDao.getRoomAndUsers(roomId)
@@ -148,7 +148,7 @@ class ChatRepositoryImpl @Inject constructor(
         roomUserDao.getRoomUserById(roomId, userId).isAdmin
 
     override suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords> =
-        roomDao.getChatRoomAndMessageAndRecordsById(roomId)
+        roomDao.getDistinctChatRoomAndMessageAndRecordsById(roomId)
 
     override suspend fun handleRoomMute(roomId: Int, doMute: Boolean) {
         val response: MuteResponse = if (doMute)
@@ -185,7 +185,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>> =
-        notesDao.getNotesByRoom(roomId)
+        notesDao.getDistinctNotes(roomId)
 
     override suspend fun createNewNote(roomId: Int, newNote: NewNote) {
         val response =

@@ -9,9 +9,6 @@ interface MessageRecordsDao : BaseDao<MessageRecords> {
     @Query("SELECT * FROM message_records WHERE message_id LIKE :messageId")
     fun getMessageRecords(messageId: Int): LiveData<List<MessageRecords>>
 
-    @Query("SELECT * FROM message_records")
-    suspend fun getMessageRecordsLocally(): List<MessageRecords>
-
     @Query("SELECT * FROM message_records WHERE id LIKE :messageId LIMIT 1")
     fun getMessageRecordById(messageId: String): LiveData<MessageRecords>
 
