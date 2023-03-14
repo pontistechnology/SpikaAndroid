@@ -12,7 +12,7 @@ interface UserDao {
     @Upsert
     suspend fun upsert(user: User): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsert(users: List<User>)
 
     @Query("SELECT * FROM user")
