@@ -9,15 +9,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate
 
 @Dao
-interface ChatRoomDao {
-
-    // room table functions
-    @Upsert
-    suspend fun upsert(chatRoom: ChatRoom): Long
-
-    // room table functions
-    @Upsert
-    suspend fun upsert(chatRooms: List<ChatRoom>)
+interface ChatRoomDao : BaseDao<ChatRoom> {
 
     @Query("SELECT * FROM room")
     fun getRooms(): LiveData<List<ChatRoom>>
@@ -27,9 +19,6 @@ interface ChatRoomDao {
 
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
-
-    @Delete
-    suspend fun deleteRoom(chatRoom: ChatRoom)
 
     @Query("UPDATE room SET muted = :muted WHERE room_id LIKE :roomId")
     suspend fun updateRoomMuted(muted: Boolean, roomId: Int)

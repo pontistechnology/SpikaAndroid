@@ -5,14 +5,7 @@ import androidx.room.*
 import com.clover.studio.exampleapp.data.models.entity.MessageRecords
 
 @Dao
-interface MessageRecordsDao {
-    @Upsert
-    suspend fun upsert(messageRecords: MessageRecords): Long
-
-    @Transaction
-    @Upsert
-    suspend fun upsert(messageRecords: List<MessageRecords>)
-
+interface MessageRecordsDao : BaseDao<MessageRecords> {
     @Query("SELECT * FROM message_records WHERE message_id LIKE :messageId")
     fun getMessageRecords(messageId: Int): LiveData<List<MessageRecords>>
 
@@ -21,9 +14,6 @@ interface MessageRecordsDao {
 
     @Query("SELECT * FROM message_records WHERE id LIKE :messageId LIMIT 1")
     fun getMessageRecordById(messageId: String): LiveData<MessageRecords>
-
-    @Delete
-    suspend fun deleteMessageRecord(messageRecords: MessageRecords)
 
     @Query("DELETE FROM message_records")
     suspend fun removeMessageRecords()

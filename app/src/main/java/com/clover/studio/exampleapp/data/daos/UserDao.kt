@@ -7,14 +7,7 @@ import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.UserWithRooms
 
 @Dao
-interface UserDao {
-
-    @Upsert
-    suspend fun upsert(user: User): Long
-
-    @Upsert
-    suspend fun upsert(users: List<User>)
-
+interface UserDao: BaseDao<User> {
     @Query("SELECT * FROM user")
     fun getUsers(): LiveData<List<User>>
 
@@ -26,9 +19,6 @@ interface UserDao {
 
     @Query("SELECT * FROM user WHERE id IN (:userIds)")
     suspend fun getUsersByIds(userIds: List<Int>): List<User>
-
-    @Delete
-    suspend fun deleteUser(user: User)
 
     @Query("DELETE FROM user")
     suspend fun removeUsers()

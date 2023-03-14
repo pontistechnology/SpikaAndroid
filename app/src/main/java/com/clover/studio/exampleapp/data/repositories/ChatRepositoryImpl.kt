@@ -72,7 +72,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteLocalMessage(message: Message) {
-        messageDao.deleteMessage(message)
+        messageDao.delete(message)
     }
 
     override suspend fun sendMessagesSeen(roomId: Int) =

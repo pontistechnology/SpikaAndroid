@@ -338,7 +338,7 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteMessageRecord(messageRecords: MessageRecords) {
-        messageRecordsDao.deleteMessageRecord(messageRecords)
+        messageRecordsDao.delete(messageRecords)
     }
 
     override suspend fun deleteRoom(roomId: Int) =
