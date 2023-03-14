@@ -1,10 +1,7 @@
 package com.clover.studio.exampleapp.data.repositories
 
 import com.clover.studio.exampleapp.data.AppDatabase
-import com.clover.studio.exampleapp.data.daos.ChatRoomDao
-import com.clover.studio.exampleapp.data.daos.MessageDao
-import com.clover.studio.exampleapp.data.daos.MessageRecordsDao
-import com.clover.studio.exampleapp.data.daos.UserDao
+import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.MessageRecords
@@ -29,6 +26,7 @@ class SSERepositoryImpl @Inject constructor(
     private val messageDao: MessageDao,
     private val messageRecordsDao: MessageRecordsDao,
     private val chatRoomDao: ChatRoomDao,
+    private val roomUserDao: RoomUserDao,
     private val appDatabase: AppDatabase,
     private val userDao: UserDao
 ) : SSERepository {
@@ -81,7 +79,15 @@ class SSERepositoryImpl @Inject constructor(
                     messageRecordsDao.upsert(messageRecords)
 
                     // Since this is a transaction method this loop should insert all or none
-                    messageRecordsUpdates.forEach { messageRecordsDao.updateMessageRecords(it.userId, it.type, it.createdAt, it.modifiedAt, it.userId) }
+                    messageRecordsUpdates.forEach {
+                        messageRecordsDao.updateMessageRecords(
+                            it.userId,
+                            it.type,
+                            it.createdAt,
+                            it.modifiedAt,
+                            it.userId
+                        )
+                    }
 
                     if (messageRecords.isNotEmpty()) {
                         val maxTimestamp = messageRecords.maxByOrNull { it.createdAt }?.createdAt
@@ -212,7 +218,7 @@ class SSERepositoryImpl @Inject constructor(
                         }
                         chatRoomDao.updateRoomTable(chatRooms)
                         userDao.upsert(users)
-                        chatRoomDao.insertRoomWithUsers(roomUsers)
+                        roomUserDao.upsert(roomUsers)
                         if (rooms.isNotEmpty()) {
                             val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
                             Timber.d("MaxTimestamp rooms: $maxTimestamp, old timestamp = $roomTimestamp")
@@ -329,9 +335,9 @@ class SSERepositoryImpl @Inject constructor(
                     // Handle database operations
                     userDao.upsert(users)
                     if (filteredList.isNotEmpty()) {
-                        chatRoomDao.deleteRoomUsers(filteredList)
+                        roomUserDao.deleteRoomUsers(filteredList)
                     }
-                    chatRoomDao.insertRoomWithUsers(roomUsers)
+                    roomUserDao.upsert(roomUsers)
                 }
             }
         }

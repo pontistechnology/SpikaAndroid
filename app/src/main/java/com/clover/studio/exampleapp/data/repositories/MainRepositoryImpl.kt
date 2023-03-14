@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.data.repositories
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
+import com.clover.studio.exampleapp.data.daos.RoomUserDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
@@ -30,6 +31,7 @@ class MainRepositoryImpl @Inject constructor(
     private val retrofitService: RetrofitService,
     private val userDao: UserDao,
     private val chatRoomDao: ChatRoomDao,
+    private val roomUserDao: RoomUserDao,
     private val appDatabase: AppDatabase,
     private val sharedPrefs: SharedPreferencesRepository
 ) : MainRepository {
@@ -70,7 +72,7 @@ class MainRepositoryImpl @Inject constructor(
                             )
                         )
                     }
-                    chatRoomDao.insertRoomWithUsers(roomUsers)
+                    roomUserDao.upsert(roomUsers)
                     userDao.upsert(users)
                 }
             }
@@ -135,7 +137,7 @@ class MainRepositoryImpl @Inject constructor(
 
             // Delete Room User if id has been passed through
             if (userId != 0) {
-                chatRoomDao.deleteRoomUser(RoomUser(roomId, userId, false))
+                roomUserDao.delete(RoomUser(roomId, userId, false))
             }
 
             CoroutineScope(Dispatchers.IO).launch {
@@ -154,7 +156,7 @@ class MainRepositoryImpl @Inject constructor(
                             )
                         }
                         userDao.upsert(users)
-                        chatRoomDao.insertRoomWithUsers(roomUsers)
+                        roomUserDao.upsert(roomUsers)
                     }
                 }
             }

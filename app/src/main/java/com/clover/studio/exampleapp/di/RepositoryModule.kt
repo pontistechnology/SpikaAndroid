@@ -35,6 +35,7 @@ object RepositoryModule {
         roomDao: ChatRoomDao,
         messageDao: MessageDao,
         userDao: UserDao,
+        roomUserDao: RoomUserDao,
         notesDao: NotesDao,
         appDatabase: AppDatabase,
         sharedPrefs: SharedPreferencesRepository
@@ -44,6 +45,7 @@ object RepositoryModule {
             roomDao,
             messageDao,
             userDao,
+            roomUserDao,
             notesDao,
             appDatabase,
             sharedPrefs
@@ -56,6 +58,7 @@ object RepositoryModule {
         retrofitService: RetrofitService,
         userDao: UserDao,
         chatRoomDao: ChatRoomDao,
+        roomUserDao: RoomUserDao,
         appDatabase: AppDatabase,
         sharedPrefs: SharedPreferencesRepository
     ) =
@@ -64,6 +67,7 @@ object RepositoryModule {
             retrofitService,
             userDao,
             chatRoomDao,
+            roomUserDao,
             appDatabase,
             sharedPrefs
         )
@@ -86,6 +90,7 @@ object RepositoryModule {
         messageDao: MessageDao,
         messageRecordsDao: MessageRecordsDao,
         chatRoomDao: ChatRoomDao,
+        roomUserDao: RoomUserDao,
         appDatabase: AppDatabase,
         userDao: UserDao
     ) = SSERepositoryImpl(
@@ -94,6 +99,7 @@ object RepositoryModule {
         messageDao,
         messageRecordsDao,
         chatRoomDao,
+        roomUserDao,
         appDatabase,
         userDao
     )

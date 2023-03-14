@@ -2,10 +2,7 @@ package com.clover.studio.exampleapp.data.repositories
 
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.AppDatabase
-import com.clover.studio.exampleapp.data.daos.ChatRoomDao
-import com.clover.studio.exampleapp.data.daos.MessageDao
-import com.clover.studio.exampleapp.data.daos.NotesDao
-import com.clover.studio.exampleapp.data.daos.UserDao
+import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.Note
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
@@ -29,6 +26,7 @@ class ChatRepositoryImpl @Inject constructor(
     private val roomDao: ChatRoomDao,
     private val messageDao: MessageDao,
     private val userDao: UserDao,
+    private val roomUserDao: RoomUserDao,
     private val notesDao: NotesDao,
     private val appDatabase: AppDatabase,
     private val sharedPrefsRepo: SharedPreferencesRepository
@@ -127,7 +125,7 @@ class ChatRepositoryImpl @Inject constructor(
 
                         // Delete Room User if id has been passed through
                         if (userId != 0) {
-                            roomDao.deleteRoomUser(RoomUser(roomId, userId, false))
+                            roomUserDao.delete(RoomUser(roomId, userId, false))
                         }
 
                         for (user in room.users) {
@@ -139,7 +137,7 @@ class ChatRepositoryImpl @Inject constructor(
                             )
                         }
                         userDao.upsert(users)
-                        roomDao.insertRoomWithUsers(roomUsers)
+                        roomUserDao.upsert(roomUsers)
                     }
                 }
             }
@@ -147,7 +145,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean? =
-        roomDao.getRoomUserById(roomId, userId).isAdmin
+        roomUserDao.getRoomUserById(roomId, userId).isAdmin
 
     override suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords> =
         roomDao.getChatRoomAndMessageAndRecordsById(roomId)
@@ -224,7 +222,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun removeAdmin(roomId: Int, userId: Int) {
-        roomDao.removeAdmin(roomId, userId)
+        roomUserDao.removeAdmin(roomId, userId)
     }
 }
 

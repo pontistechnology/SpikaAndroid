@@ -41,4 +41,13 @@ interface MessageRecordsDao : BaseDao<MessageRecords> {
         userId: Int,
         createdAt: Long,
     )
+
+    // Private chat: delete all records
+    @Transaction
+    @Query("DELETE FROM message_records WHERE message_id LIKE :id AND type='reaction'")
+    suspend fun deleteAllReactions(id: Int)
+
+    @Transaction
+    @Query("DELETE FROM message_records WHERE id LIKE :id AND user_id LIKE :userId")
+    suspend fun deleteReactionRecord(id: Int, userId: Int)
 }
