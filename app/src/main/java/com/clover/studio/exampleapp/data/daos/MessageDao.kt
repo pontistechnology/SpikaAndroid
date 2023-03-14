@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.data.daos
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
@@ -22,6 +23,15 @@ interface MessageDao : BaseDao<Message> {
         replyId: Long,
         localId: String
     )
+
+    @Query("SELECT * FROM message WHERE room_id LIKE :messageId")
+    fun getMessages(messageId: Int): LiveData<List<Message>>
+
+    @Query("SELECT * FROM message WHERE id LIKE :messageId LIMIT 1")
+    fun getMessageById(messageId: String): LiveData<Message>
+
+    @Query("SELECT * FROM message")
+    suspend fun getMessagesLocally(): List<Message>
 
     @Query("DELETE FROM message WHERE id IN (:messageId)")
     suspend fun deleteMessage(messageId: List<Long>)
