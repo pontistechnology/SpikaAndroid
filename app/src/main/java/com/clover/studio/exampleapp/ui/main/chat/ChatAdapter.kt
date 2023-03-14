@@ -8,10 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -46,6 +43,7 @@ private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 private var oldPosition = -1
 private var firstPlay = true
+private var playerListener: Player.Listener? = null
 
 class ChatAdapter(
     private val context: Context,
@@ -100,6 +98,10 @@ class ChatAdapter(
 
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
+
+                if (playerListener != null) {
+                    playerListener = null
+                }
 
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_send)
                 holder.binding.tvTime.visibility = View.GONE
@@ -259,6 +261,10 @@ class ChatAdapter(
             } else {
                 /** View holder for messages from other users */
                 holder as ReceivedMessageHolder
+
+                if (playerListener != null) {
+                    playerListener = null
+                }
 
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
@@ -563,6 +569,26 @@ class ChatAdapter(
             }
         }
 
+        playerListener = object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_READY) {
+                    sbAudio.max = exoPlayer.duration.toInt()
+                }
+                if (state == Player.STATE_ENDED) {
+                    ivPlayAudio.visibility = View.VISIBLE
+                    firstPlay = true
+                    exoPlayer.pause()
+                    exoPlayer.clearMediaItems()
+                    handler.removeCallbacks(runnable)
+                    tvAudioDuration.text =
+                        context.getString(R.string.audio_duration)
+                    ivPlayAudio.setImageResource(R.drawable.img_play_audio_button)
+                }
+            }
+        }
+
+        exoPlayer.addListener(playerListener!!)
+
         ivPlayAudio.setOnClickListener {
             if (!exoPlayer.isPlaying) {
                 if (oldPosition != holder.absoluteAdapterPosition) {
@@ -589,24 +615,6 @@ class ChatAdapter(
                 handler.removeCallbacks(runnable)
             }
         }
-
-        exoPlayer.addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_READY) {
-                    sbAudio.max = exoPlayer.duration.toInt()
-                }
-                if (state == Player.STATE_ENDED) {
-                    ivPlayAudio.visibility = View.VISIBLE
-                    firstPlay = true
-                    exoPlayer.pause()
-                    exoPlayer.clearMediaItems()
-                    handler.removeCallbacks(runnable)
-                    tvAudioDuration.text =
-                        context.getString(R.string.audio_duration)
-                    ivPlayAudio.setImageResource(R.drawable.img_play_audio_button)
-                }
-            }
-        })
 
         sbAudio.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
