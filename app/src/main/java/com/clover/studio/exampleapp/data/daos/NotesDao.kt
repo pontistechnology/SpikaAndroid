@@ -5,18 +5,9 @@ import androidx.room.*
 import com.clover.studio.exampleapp.data.models.entity.Note
 
 @Dao
-interface NotesDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(note: Note): Long
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(note: List<Note>)
-
+interface NotesDao : BaseDao<Note> {
     @Query("SELECT * FROM notes WHERE room_id LIKE :roomId")
     fun getNotesByRoom(roomId: Int): LiveData<List<Note>>
-
-    @Delete
-    suspend fun deleteNote(note: Note)
 
     @Query("DELETE FROM notes WHERE id LIKE :noteId")
     suspend fun deleteNote(noteId: Int)

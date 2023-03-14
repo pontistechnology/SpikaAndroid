@@ -4,20 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
-import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate
 
 @Dao
-interface ChatRoomDao {
-
-    // room table functions
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(chatRoom: ChatRoom): Long
-
-    // room table functions
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(chatRooms: List<ChatRoom>)
+interface ChatRoomDao : BaseDao<ChatRoom> {
 
     @Query("SELECT * FROM room")
     fun getRooms(): LiveData<List<ChatRoom>>
@@ -27,9 +18,6 @@ interface ChatRoomDao {
 
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
-
-    @Delete
-    suspend fun deleteRoom(chatRoom: ChatRoom)
 
     @Query("UPDATE room SET muted = :muted WHERE room_id LIKE :roomId")
     suspend fun updateRoomMuted(muted: Boolean, roomId: Int)
@@ -76,7 +64,7 @@ interface ChatRoomDao {
         if (oldData?.visitedRoom != null && newData.visitedRoom == null) {
             newData.visitedRoom = oldData.visitedRoom
         }
-        insert(newData)
+        upsert(newData)
     }
 
     @Transaction
@@ -88,37 +76,9 @@ interface ChatRoomDao {
             }
             chatRooms.add(chatRoom.newRoom)
         }
-        insert(chatRooms)
+        upsert(chatRooms)
     }
-
-    // room_user table functions
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRoomWithUsers(roomUser: List<RoomUser>)
-
-    // Delete all room users with specified user_id
-    @Transaction
-    @Query("DELETE FROM room_user WHERE id IN (:userIds)")
-    suspend fun deleteRoomUsers(userIds: List<Int>)
-
-    @Delete
-    suspend fun deleteRoomUser(roomUser: RoomUser)
-
-    @Query("SELECT * FROM room_user WHERE room_id LIKE :roomId AND id LIKE :userId LIMIT 1")
-    suspend fun getRoomUserById(roomId: Int, userId: Int): RoomUser
-
-    @Transaction
-    @Query("DELETE FROM message_records WHERE id LIKE :id AND user_id LIKE :userId")
-    suspend fun deleteReactionRecord(id: Int, userId: Int)
-
-    // Private chat: delete all records
-    @Transaction
-    @Query("DELETE FROM message_records WHERE message_id LIKE :id AND type='reaction'")
-    suspend fun deleteAllReactions(id: Int)
 
     @Query("UPDATE room SET room_exit =:roomExit WHERE room_id LIKE :roomId")
     suspend fun updateRoomExit(roomId: Int, roomExit: Boolean)
-
-    @Query("UPDATE room_user SET isAdmin = 0 WHERE room_id LIKE :roomId AND id LIKE :userId")
-    suspend fun removeAdmin(roomId: Int, userId: Int)
-
 }
