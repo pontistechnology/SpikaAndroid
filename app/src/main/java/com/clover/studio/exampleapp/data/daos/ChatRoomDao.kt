@@ -6,18 +6,22 @@ import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate
+import com.clover.studio.exampleapp.utils.helpers.Extensions.getDistinct
 
 @Dao
 interface ChatRoomDao : BaseDao<ChatRoom> {
-
-    @Query("SELECT * FROM room")
-    fun getRooms(): LiveData<List<ChatRoom>>
 
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getRoomById(roomId: Int): ChatRoom
 
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
+
+    fun getDistinctRoomById(roomId: Int): LiveData<ChatRoom> =
+        getRoomByIdLiveData(roomId).getDistinct()
+
+    @Delete
+    suspend fun deleteRoom(chatRoom: ChatRoom)
 
     @Query("UPDATE room SET muted = :muted WHERE room_id LIKE :roomId")
     suspend fun updateRoomMuted(muted: Boolean, roomId: Int)
@@ -42,6 +46,9 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("SELECT * FROM room")
     fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
 
+    fun getDistinctChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
+        getChatRoomAndMessageAndRecords().getDistinct()
+
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
@@ -50,6 +57,9 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords>
 
+    fun getDistinctChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords> =
+        getChatRoomAndMessageAndRecordsById(roomId).getDistinct()
+
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getRoomAndUsers(roomId: Int): RoomWithUsers
@@ -57,6 +67,9 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     fun getRoomAndUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
+
+    fun getDistinctRoomAndUsers(roomId: Int): LiveData<RoomWithUsers> =
+        getRoomAndUsersLiveData(roomId).getDistinct()
 
     // This method copies locally added fields to the database if present
     @Transaction

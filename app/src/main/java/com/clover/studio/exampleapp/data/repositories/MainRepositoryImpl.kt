@@ -40,7 +40,7 @@ class MainRepositoryImpl @Inject constructor(
         retrofitService.fetchAllUserRooms(getHeaderMap(sharedPrefs.readToken())).data?.list
 
     override suspend fun getUserByID(id: Int) =
-        userDao.getUserById(id)
+        userDao.getDistinctUserById(id)
 
     override suspend fun getRoomById(roomId: Int) =
         performRestOperation(
@@ -48,7 +48,7 @@ class MainRepositoryImpl @Inject constructor(
         )
 
     override suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom> =
-        chatRoomDao.getRoomByIdLiveData(roomId)
+        chatRoomDao.getDistinctRoomById(roomId)
 
     override suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse {
         val response =
@@ -82,14 +82,14 @@ class MainRepositoryImpl @Inject constructor(
 
     override fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>> =
         queryDatabase(
-            databaseQuery = { mainRemoteDataSource.getUserAndPhoneUser(localId) }
+            databaseQuery = { mainRemoteDataSource.getDistinctUserAndPhoneUser(localId) }
         )
 
     override suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
-        chatRoomDao.getChatRoomAndMessageAndRecords()
+        chatRoomDao.getDistinctChatRoomAndMessageAndRecords()
 
     override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
-        chatRoomDao.getRoomAndUsersLiveData(roomId)
+        chatRoomDao.getDistinctRoomAndUsers(roomId)
 
     override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
         chatRoomDao.getSingleRoomData(roomId)
