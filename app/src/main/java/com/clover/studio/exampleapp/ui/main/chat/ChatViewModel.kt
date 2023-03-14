@@ -8,17 +8,19 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
+import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
-import com.clover.studio.exampleapp.ui.main.*
+import com.clover.studio.exampleapp.ui.main.MainStates
+import com.clover.studio.exampleapp.ui.main.SingleRoomData
+import com.clover.studio.exampleapp.ui.main.SingleRoomFetchFailed
 import com.clover.studio.exampleapp.utils.*
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -40,7 +42,7 @@ class ChatViewModel @Inject constructor(
     val fileUploadListener = MutableLiveData<Event<ChatStates>>()
     val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
     val noteCreationListener = MutableLiveData<Event<ChatStates>>()
-    val blockedListListener = MutableLiveData<Event<MainStates>>()
+    val blockedListListener = MutableLiveData<Event<Resource<List<User>>>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
         try {
@@ -364,16 +366,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun fetchBlockedUsersLocally(userIds: List<Int>) = viewModelScope.launch {
-        try {
-            val data = mainRepository.fetchBlockedUsersLocally(userIds)
-            blockedListListener.postValue(Event(BlockedUsersFetched(data)))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            blockedListListener.postValue(Event(BlockedUsersFetchFailed))
-            return@launch
-        }
+        blockedListListener.postValue(Event(mainRepository.fetchBlockedUsersLocally(userIds)))
     }
 
     fun getBlockedUsersList() = viewModelScope.launch {
@@ -531,7 +524,6 @@ class ChatViewModel @Inject constructor(
 }
 
 sealed class ChatStates
-class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
 object RoomWithUsersFailed : ChatStates()
 class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : ChatStates()
 object NoteCreated : ChatStates()

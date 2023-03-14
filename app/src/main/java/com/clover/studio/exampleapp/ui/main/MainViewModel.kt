@@ -2,7 +2,6 @@ package com.clover.studio.exampleapp.ui.main
 
 import android.app.Activity
 import android.net.Uri
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -38,10 +37,10 @@ class MainViewModel @Inject constructor(
     val checkRoomExistsListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
     val createRoomListener = MutableLiveData<Event<MainStates>>()
     val userUpdateListener = MutableLiveData<Event<MainStates>>()
-    val roomWithUsersListener = MutableLiveData<Event<MainStates>>()
-    val roomDataListener = MutableLiveData<Event<MainStates>>()
-    val roomNotificationListener = MutableLiveData<Event<MainStates>>()
-    val blockedListListener = MutableLiveData<Event<MainStates>>()
+    val roomWithUsersListener = MutableLiveData<Event<Resource<RoomWithUsers>>>()
+    val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords>>>()
+    val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
+    val blockedListListener = MutableLiveData<Event<Resource<List<User>>>>()
     val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
 
     fun getLocalUser() = liveData {
@@ -116,58 +115,32 @@ class MainViewModel @Inject constructor(
 
     fun getUserAndPhoneUser(localId: Int) = repository.getUserAndPhoneUser(localId)
 
-    fun getChatRoomAndMessageAndRecords() = liveData {
-        emitSource(repository.getChatRoomAndMessageAndRecords())
-    }
+    fun getChatRoomAndMessageAndRecords() = repository.getChatRoomAndMessageAndRecords()
 
-    fun getRoomByIdLiveData(roomId: Int) = liveData {
-        emitSource(repository.getRoomByIdLiveData(roomId))
-    }
+    fun getRoomByIdLiveData(roomId: Int) = repository.getRoomByIdLiveData(roomId)
 
-    fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
-        try {
-            roomDataListener.postValue(Event(SingleRoomData(repository.getSingleRoomData(roomId))))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                roomDataListener.postValue(Event(SingleRoomFetchFailed))
-            }
-            return@launch
+
+    fun getSingleRoomData(roomId: Int) =
+        viewModelScope.launch {
+            roomDataListener.postValue(Event(repository.getSingleRoomData(roomId)))
         }
-    }
 
-    fun getRoomWithUsers(roomId: Int) = viewModelScope.launch {
-        try {
-            val response = repository.getRoomWithUsers(roomId)
-            roomWithUsersListener.postValue(Event(RoomWithUsersFetched(response)))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
+    fun getRoomWithUsers(roomId: Int) =
+        viewModelScope.launch {
+            roomWithUsersListener.postValue(Event(repository.getRoomWithUsers(roomId)))
         }
-    }
 
     fun getRoomWithUsers(roomId: Int, message: Message) = viewModelScope.launch {
-        try {
-            roomNotificationListener.postValue(
-                Event(
-                    RoomNotificationData(
-                        repository.getRoomWithUsers(
-                            roomId
-                        ), message
-                    )
+        val response = repository.getRoomWithUsers(roomId)
+        roomNotificationListener.postValue(
+            Event(
+                RoomNotificationData(
+                    response.responseData!!,
+                    response.status,
+                    message
                 )
             )
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                roomNotificationListener.postValue(Event(RoomWithUsersFailed))
-            }
-            return@launch
-        }
+        )
     }
 
 
@@ -216,16 +189,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun fetchBlockedUsersLocally(userIds: List<Int>) = viewModelScope.launch {
-        try {
-            val data = repository.fetchBlockedUsersLocally(userIds)
-            blockedListListener.postValue(Event(BlockedUsersFetched(data)))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            blockedListListener.postValue(Event(BlockedUsersFetchFailed))
-            return@launch
-        }
+        blockedListListener.postValue(Event(repository.fetchBlockedUsersLocally(userIds)))
     }
 
     fun getBlockedUsersList() = viewModelScope.launch {
@@ -381,14 +345,13 @@ class RoomCreated(val roomData: ChatRoom) : MainStates()
 class RoomUpdated(val roomData: ChatRoom) : MainStates()
 object RoomCreateFailed : MainStates()
 object RoomUpdateFailed : MainStates()
-class RoomExists(val roomData: ChatRoom) : MainStates()
-object RoomNotFound : MainStates()
 object UserUpdated : MainStates()
 object UserUpdateFailed : MainStates()
-class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : MainStates()
-object RoomWithUsersFailed : MainStates()
-class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : MainStates()
+class RoomNotificationData(
+    val roomWithUsers: RoomWithUsers,
+    val status: Resource.Status,
+    val message: Message
+) : MainStates()
+
 class SingleRoomData(val roomData: RoomAndMessageAndRecords) : MainStates()
 object SingleRoomFetchFailed : MainStates()
-class BlockedUsersFetched(val users: List<User>) : MainStates()
-object BlockedUsersFetchFailed : MainStates()

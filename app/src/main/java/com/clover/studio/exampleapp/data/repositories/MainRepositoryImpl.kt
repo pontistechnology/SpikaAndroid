@@ -11,15 +11,14 @@ import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
-import com.clover.studio.exampleapp.data.models.networking.BlockedId
 import com.clover.studio.exampleapp.data.models.networking.responses.*
 import com.clover.studio.exampleapp.data.repositories.data_sources.MainRemoteDataSource
 import com.clover.studio.exampleapp.data.services.RetrofitService
-import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.performRestOperation
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.queryDatabase
+import com.clover.studio.exampleapp.utils.helpers.RestOperations.queryDatabaseCoreData
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,20 +35,32 @@ class MainRepositoryImpl @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository
 ) : MainRepository {
 
-    override suspend fun getUserRooms(): List<ChatRoom>? =
-        retrofitService.fetchAllUserRooms(getHeaderMap(sharedPrefs.readToken())).data?.list
+    override suspend fun getUserRooms() =
+        performRestOperation(
+            networkCall = { mainRemoteDataSource.getUserRooms() },
+        ).responseData?.data?.list
 
     override suspend fun getUserByID(id: Int) =
-        userDao.getDistinctUserById(id)
+        queryDatabase(
+            databaseQuery = { userDao.getUserById(id) })
+
+    /*override suspend fun getUserByID(id: Int) =
+        userDao.getDistinctUserById(id)*/
 
     override suspend fun getRoomById(roomId: Int) =
         performRestOperation(
-            networkCall = { mainRemoteDataSource.getRoomById(roomId) }
+            networkCall = { mainRemoteDataSource.getRoomById(roomId) },
         )
 
-    override suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom> =
-        chatRoomDao.getDistinctRoomById(roomId)
+    override fun getRoomByIdLiveData(roomId: Int) =
+        queryDatabase(
+            databaseQuery = { chatRoomDao.getRoomByIdLiveData(roomId) }
+        )
 
+    /*override suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom> =
+        chatRoomDao.getDistinctRoomById(roomId)*/
+
+    // TODO
     override suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse {
         val response =
             retrofitService.createNewRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject)
@@ -82,49 +93,65 @@ class MainRepositoryImpl @Inject constructor(
 
     override fun getUserAndPhoneUser(localId: Int) =
         queryDatabase(
-            databaseQuery = { userDao.getDistinctUserAndPhoneUser(localId) }
+            databaseQuery = { userDao.getUserAndPhoneUser(localId) }
+            //databaseQuery = { userDao.getDistinctUserAndPhoneUser(localId) }
         )
 
     override suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
         return roomUserDao.doesPrivateRoomExistForUser(userId)
     }
 
-    override suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
-        chatRoomDao.getDistinctChatRoomAndMessageAndRecords()
+    override fun getChatRoomAndMessageAndRecords() =
+        queryDatabase(
+            databaseQuery = { chatRoomDao.getChatRoomAndMessageAndRecords() }
+        )
+    override fun getRoomWithUsersLiveData(roomId: Int) =
+        queryDatabase(
+            databaseQuery = { chatRoomDao.getRoomAndUsersLiveData(roomId) }
+        )
+    /*override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
+        chatRoomDao.getDistinctRoomAndUsers(roomId)*/
 
-    override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
-        chatRoomDao.getDistinctRoomAndUsers(roomId)
+    override suspend fun getSingleRoomData(roomId: Int) =
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.getSingleRoomData(roomId) }
+        )
 
-    override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
-        chatRoomDao.getSingleRoomData(roomId)
 
-    override suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers =
-        chatRoomDao.getRoomAndUsers(roomId)
+    override suspend fun getRoomWithUsers(roomId: Int) =
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.getRoomAndUsers(roomId) }
+        )
 
     override suspend fun updatePushToken(jsonObject: JsonObject) =
         performRestOperation(
-            networkCall = { mainRemoteDataSource.updatePushToken(jsonObject) }
+            networkCall = { mainRemoteDataSource.updatePushToken(jsonObject) },
         )
 
-    override suspend fun updateUserData(jsonObject: JsonObject): AuthResponse {
-        val responseData =
-            retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    override suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse> {
+        val data = performRestOperation(
+            networkCall = { mainRemoteDataSource.updateUser(jsonObject) },
+            saveCallResult = { userDao.insert(it.data.user) }
+        )
 
-        userDao.upsert(responseData.data.user)
+        // userDao.upsert(responseData.data.user)
         sharedPrefs.writeUserId(responseData.data.user.id)
+        sharedPrefs.writeUserId(data.responseData!!.data.user.id)
 
-        return responseData
+        return data
     }
 
-    override suspend fun uploadFiles(
-        jsonObject: JsonObject
-    ) = retrofitService.uploadFiles(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    override suspend fun uploadFiles(jsonObject: JsonObject) =
+        performRestOperation(
+            networkCall = { mainRemoteDataSource.uploadFile(jsonObject) },
+        )
 
     override suspend fun verifyFile(jsonObject: JsonObject) =
-        performRestOperation {
-            mainRemoteDataSource.verifyFile(jsonObject)
-        }
+        performRestOperation(
+            networkCall = { mainRemoteDataSource.verifyFile(jsonObject) },
+        )
 
+    // TODO
     override suspend fun updateRoom(
         jsonObject: JsonObject,
         roomId: Int,
@@ -168,23 +195,30 @@ class MainRepositoryImpl @Inject constructor(
         return response
     }
 
-    override suspend fun getUserSettings(): List<Settings> =
-        retrofitService.getSettings(getHeaderMap(sharedPrefs.readToken())).data.settings
+    override suspend fun getUserSettings() = performRestOperation(
+            networkCall = { mainRemoteDataSource.getUserSettings() },
+        ).responseData?.data?.settings
+
 
     override suspend fun getBlockedList() {
-        val response =
-            retrofitService.getBlockedList(getHeaderMap(sharedPrefs.readToken())).data.blockedUsers
-        val userIds = response?.map { it.id }
+        val response = performRestOperation(
+            networkCall = { mainRemoteDataSource.getBlockedList() },
+        )
+
+        val userIds = response.responseData?.data?.blockedUsers?.map { it.id }
         sharedPrefs.writeBlockedUsersIds(userIds!!)
     }
 
-    override suspend fun fetchBlockedUsersLocally(userIds: List<Int>): List<User> =
-        userDao.getUsersByIds(userIds)
+    override suspend fun fetchBlockedUsersLocally(userIds: List<Int>) =
+        queryDatabaseCoreData(
+            databaseQuery = { userDao.getUsersByIds(userIds) }
+        )
 
     override suspend fun blockUser(blockedId: Int) {
-        val response =
-            retrofitService.blockUser(getHeaderMap(sharedPrefs.readToken()), BlockedId(blockedId))
-        if (Const.JsonFields.SUCCESS == response.status) {
+        val response = performRestOperation(
+            networkCall = { mainRemoteDataSource.blockUser(blockedId) },
+        )
+        if (Resource.Status.SUCCESS == response.status) {
             val currentList: MutableList<Int> =
                 sharedPrefs.readBlockedUserList() as MutableList<Int>
             currentList.add(blockedId)
@@ -193,15 +227,16 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteBlock(userId: Int) {
-        retrofitService.deleteBlock(getHeaderMap(sharedPrefs.readToken()), userId)
+        performRestOperation(
+            networkCall = { mainRemoteDataSource.deleteBlock(userId) },
+        )
     }
 
     override suspend fun deleteBlockForSpecificUser(userId: Int) {
-        val response = retrofitService.deleteBlockForSpecificUser(
-            getHeaderMap(sharedPrefs.readToken()),
-            userId
+        val response = performRestOperation(
+            networkCall = { mainRemoteDataSource.deleteBlockForSpecificUser(userId) },
         )
-        if (Const.JsonFields.SUCCESS == response.status) {
+        if (Resource.Status.SUCCESS == response.status) {
             val currentList = sharedPrefs.readBlockedUserList()
             val updatedList = currentList.filterNot { it == userId }
             sharedPrefs.writeBlockedUsersIds(updatedList)
@@ -209,23 +244,33 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun handleRoomMute(roomId: Int, doMute: Boolean) {
-        val response: MuteResponse = if (doMute)
-            retrofitService.muteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
-        else
-            retrofitService.unmuteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+        val response = if (doMute) {
+            performRestOperation(
+                networkCall = { mainRemoteDataSource.muteRoom(roomId) },
+            )
+        } else {
+            performRestOperation(
+                networkCall = { mainRemoteDataSource.unmuteRoom(roomId) },
+            )
+        }
 
-        if (Const.JsonFields.SUCCESS == response.status) {
+        if (Resource.Status.SUCCESS == response.status) {
             chatRoomDao.updateRoomMuted(true, roomId)
         }
     }
 
     override suspend fun handleRoomPin(roomId: Int, doPin: Boolean) {
-        val response = if (doPin)
-            retrofitService.pinRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
-        else
-            retrofitService.unpinRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+        val response = if (doPin) {
+            performRestOperation(
+                networkCall = { mainRemoteDataSource.pinRoom(roomId) },
+            )
+        } else {
+            performRestOperation(
+                networkCall = { mainRemoteDataSource.unpinRoom(roomId) },
+            )
+        }
 
-        if (Const.JsonFields.SUCCESS == response.status) {
+        if (Resource.Status.SUCCESS == response.status) {
             chatRoomDao.updateRoomPinned(true, roomId)
         }
     }
@@ -233,10 +278,15 @@ class MainRepositoryImpl @Inject constructor(
 
 interface MainRepository {
     suspend fun getUserRooms(): List<ChatRoom>?
-    suspend fun getUserByID(id: Int): LiveData<User>
+    suspend fun getUserByID(id: Int): LiveData<Resource<User>>
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
-    suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
+    fun getRoomByIdLiveData(roomId: Int): LiveData<Resource<ChatRoom>>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
+    fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
+    fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
+    fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
+    suspend fun getSingleRoomData(roomId: Int): Resource<RoomAndMessageAndRecords>
+    suspend fun getRoomWithUsers(roomId: Int): Resource<RoomWithUsers>
     suspend fun checkIfUserInPrivateRoom(userId: Int): Int?
     suspend fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
     suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
@@ -244,17 +294,17 @@ interface MainRepository {
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
     suspend fun updatePushToken(jsonObject: JsonObject): Resource<Unit>
-    suspend fun updateUserData(jsonObject: JsonObject): AuthResponse
-    suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
+    suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
+    suspend fun uploadFiles(jsonObject: JsonObject): Resource<FileResponse>
     suspend fun verifyFile(jsonObject: JsonObject): Resource<FileResponse>
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse
-    suspend fun getUserSettings(): List<Settings>
+    suspend fun getUserSettings(): List<Settings>?
     suspend fun handleRoomMute(roomId: Int, doMute: Boolean)
     suspend fun handleRoomPin(roomId: Int, doPin: Boolean)
 
     // Block
     suspend fun getBlockedList()
-    suspend fun fetchBlockedUsersLocally(userIds: List<Int>): List<User>
+    suspend fun fetchBlockedUsersLocally(userIds: List<Int>): Resource<List<User>>
     suspend fun blockUser(blockedId: Int)
     suspend fun deleteBlock(userId: Int)
     suspend fun deleteBlockForSpecificUser(userId: Int)

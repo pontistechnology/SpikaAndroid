@@ -80,23 +80,23 @@ class ContactDetailsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.getRoomByIdLiveData(roomId).observe(viewLifecycleOwner) { room ->
-            if (room != null) {
+        viewModel.getRoomByIdLiveData(roomId).observe(viewLifecycleOwner) {
+            if (it.responseData != null) {
                 // Set room muted or not muted on switch
-                binding.swMute.isChecked = room.muted
+                binding.swMute.isChecked = it.responseData.muted
 
                 // Set room pinned or not pinned on switch
-                binding.swPinChat.isChecked = room.pinned
+                binding.swPinChat.isChecked = it.responseData.pinned
             }
         }
 
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomWithUsersFetched -> {
-                    Timber.d("Room with users = ${it.roomWithUsers}")
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    Timber.d("Room with users = ${it.responseData}")
                     val gson = Gson()
-                    val roomData = gson.toJson(it.roomWithUsers)
-                    Timber.d("ROOM data: = ${it.roomWithUsers}")
+                    val roomData = gson.toJson(it.responseData)
+                    Timber.d("ROOM data: = ${it.responseData}")
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
                 }
                 else -> Timber.d("Other error")
@@ -157,17 +157,17 @@ class ContactDetailsFragment : BaseFragment() {
         }
 
         viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is BlockedUsersFetched -> {
-                    if (it.users.isNotEmpty()) {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    if (it.responseData != null) {
                         val containsElement =
-                            it.users.any { blockedUser -> blockedUser.id == user?.id }
+                            it.responseData.any { blockedUser -> blockedUser.id == user?.id }
                         if (containsElement) {
                             binding.tvBlocked.text = getString(R.string.unblock)
                         } else binding.tvBlocked.text = getString(R.string.block)
                     }
                 }
-                BlockedUsersFetchFailed -> Timber.d("Failed to fetch blocked users")
+                Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
                 else -> Timber.d("Other error")
             }
         })

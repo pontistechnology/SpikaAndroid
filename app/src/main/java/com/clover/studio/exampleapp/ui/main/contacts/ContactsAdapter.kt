@@ -73,7 +73,7 @@ class ContactsAdapter(
 
                     val currentItem = userItem.phoneUser?.name?.lowercase()?.substring(0, 1)
                         ?: userItem.user.displayName?.lowercase()?.substring(0, 1)
-                    Timber.d("Items : $previousItem, $currentItem ${previousItem == currentItem}")
+                    // Timber.d("Items : $previousItem, $currentItem ${previousItem == currentItem}")
 
                     if (previousItem == currentItem) {
                         binding.tvHeader.visibility = View.GONE

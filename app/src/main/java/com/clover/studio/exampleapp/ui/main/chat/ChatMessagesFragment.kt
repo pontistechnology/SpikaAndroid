@@ -49,14 +49,13 @@ import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.ui.ReactionContainer
 import com.clover.studio.exampleapp.ui.ReactionsContainer
-import com.clover.studio.exampleapp.ui.main.BlockedUsersFetchFailed
-import com.clover.studio.exampleapp.ui.main.BlockedUsersFetched
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.getFileMimeType
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
@@ -707,11 +706,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
 
             viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
-                when (it) {
-                    is BlockedUsersFetched -> {
-                        if (it.users.isNotEmpty()) {
+                when (it.status) {
+                    Resource.Status.SUCCESS -> {
+                        if (it.responseData != null) {
                             val containsElement =
-                                roomWithUsers.users.any { user -> it.users.find { blockedUser -> blockedUser.id == user.id } != null }
+                                roomWithUsers.users.any { user -> it.responseData.find { blockedUser -> blockedUser.id == user.id } != null }
                             if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
                                 if (containsElement) {
                                     bindingSetup.clContactBlocked.visibility = View.VISIBLE
@@ -720,7 +719,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             }
                         } else bindingSetup.clContactBlocked.visibility = View.GONE
                     }
-                    BlockedUsersFetchFailed -> Timber.d("Failed to fetch blocked users")
+                    Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
                     else -> Timber.d("Other error")
                 }
             })

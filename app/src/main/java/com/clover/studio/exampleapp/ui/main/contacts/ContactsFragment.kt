@@ -61,8 +61,7 @@ class ContactsFragment : BaseFragment() {
         })
 
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
-            // TODO don't use !! here, make null check
-            if (it.responseData!!.isNotEmpty()) {
+            if (it.responseData != null) {
                 userList = it.responseData.toMutableList()
 
                 // TODO fix this later

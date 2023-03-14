@@ -142,15 +142,18 @@ class SettingsFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
-            binding.tvUsername.text = it.displayName ?: getString(R.string.no_username)
-            binding.tvPhoneNumber.text = it.telephoneNumber
-            avatarId = it.avatarFileId
+            val response = it.responseData
+            if (response != null){
+                binding.tvUsername.text = response.displayName ?: getString(R.string.no_username)
+                binding.tvPhoneNumber.text = response.telephoneNumber
+                avatarId = response.avatarFileId
 
-            Glide.with(requireActivity())
-                .load(it.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
-                .placeholder(R.drawable.img_user_placeholder)
-                .centerCrop()
-                .into(binding.ivPickPhoto)
+                Glide.with(requireActivity())
+                    .load(response.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
+                    .placeholder(R.drawable.img_user_placeholder)
+                    .centerCrop()
+                    .into(binding.ivPickPhoto)
+            }
         }
 
         viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {

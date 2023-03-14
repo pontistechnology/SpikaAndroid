@@ -18,14 +18,12 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
-import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.SSEListener
 import com.clover.studio.exampleapp.utils.Tools
-import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
-import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
@@ -91,20 +89,21 @@ class MainActivity : BaseActivity(), SSEListener {
         viewModel.setupSSEManager(this)
 
         viewModel.roomDataListener.observe(this, EventObserver {
-            when (it) {
-                is SingleRoomData -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     val gson = Gson()
-                    val roomData = gson.toJson(it.roomData.roomWithUsers)
+                    val roomData = gson.toJson(it.responseData?.roomWithUsers)
                     startChatScreenActivity(this, roomData)
+                    Timber.d("Main Success!")
                 }
-                SingleRoomFetchFailed -> Timber.d("Failed to fetch room data")
+                Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
                 else -> Timber.d("Other error")
             }
         })
 
         viewModel.roomNotificationListener.observe(this, EventObserver {
-            when (it) {
-                is RoomNotificationData -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     val myUserId = viewModel.getLocalUserId()
 
                     if (myUserId == it.message.fromUserId || it.roomWithUsers.room.muted) return@EventObserver
@@ -200,7 +199,7 @@ class MainActivity : BaseActivity(), SSEListener {
                         handler.postDelayed(runnable, 5000)
                     }
                 }
-                is RoomWithUsersFailed -> Timber.d("Failed to fetch room with users")
+                Resource.Status.ERROR -> Timber.d("Failed to fetch room with users")
                 else -> Timber.d("Other error")
             }
         })

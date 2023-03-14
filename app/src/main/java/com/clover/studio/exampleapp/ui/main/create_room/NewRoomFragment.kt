@@ -234,7 +234,7 @@ class NewRoomFragment : BaseFragment() {
     private fun initializeObservers() {
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
             // TODO @Ivana handle this null check
-            if (it.responseData!!.isNotEmpty()) {
+            if (it.responseData != null) {
                 userList = it.responseData.toMutableList()
                 val users = userList.sortUsersByLocale(requireContext())
                 userList = users.toMutableList()
@@ -243,11 +243,11 @@ class NewRoomFragment : BaseFragment() {
         }
 
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomWithUsersFetched -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     hideProgress()
                     val gson = Gson()
-                    val roomData = gson.toJson(it.roomWithUsers)
+                    val roomData = gson.toJson(it.responseData)
                     if (isRoomUpdate) {
                         findNavController().popBackStack(R.id.chatDetailsFragment, false)
                         isRoomUpdate = false

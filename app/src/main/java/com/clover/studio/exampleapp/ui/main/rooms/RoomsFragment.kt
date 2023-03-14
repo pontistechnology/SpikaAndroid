@@ -100,13 +100,11 @@ class RoomsFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getChatRoomAndMessageAndRecords().observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
+            if (it.responseData != null) {
                 binding.tvNoChats.visibility = View.GONE
-                for (roomData in it) {
-                    Timber.d("Room Data ${roomData.roomWithUsers.room.roomId}, ${roomData.roomWithUsers.room.name}")
-                }
-                roomList = it.toMutableList()
-                val nonEmptyRoomList = it.filter { roomData ->
+
+                roomList = it.responseData.toMutableList()
+                val nonEmptyRoomList = it.responseData.filter { roomData ->
                     Const.JsonFields.GROUP == roomData.roomWithUsers.room.type || roomData.message?.isNotEmpty() == true
                 }
 
@@ -125,7 +123,7 @@ class RoomsFragment : BaseFragment() {
                 }
 
                 if (sortedList.isEmpty()) {
-                    sortedList = it.toMutableList()
+                    sortedList = it.responseData.toMutableList()
                 }
 
                 // Calling .toSet() here caused a crash in the app, so don't add it.

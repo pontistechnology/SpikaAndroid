@@ -122,8 +122,7 @@ object RepositoryModule {
     @Provides
     fun provideMainDataSource(
         retrofitService: RetrofitService,
-        userDao: UserDao,
         sharedPrefs: SharedPreferencesRepository
     ) =
-        MainRemoteDataSource(retrofitService, userDao, sharedPrefs)
+        MainRemoteDataSource(retrofitService, sharedPrefs)
 }
