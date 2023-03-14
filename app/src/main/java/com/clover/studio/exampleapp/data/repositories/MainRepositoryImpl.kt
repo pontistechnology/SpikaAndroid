@@ -42,10 +42,7 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun getUserByID(id: Int) =
         queryDatabase(
-            databaseQuery = { userDao.getUserById(id) })
-
-    /*override suspend fun getUserByID(id: Int) =
-        userDao.getDistinctUserById(id)*/
+            databaseQuery = { userDao.getDistinctUserById(id) })
 
     override suspend fun getRoomById(roomId: Int) =
         performRestOperation(
@@ -54,7 +51,7 @@ class MainRepositoryImpl @Inject constructor(
 
     override fun getRoomByIdLiveData(roomId: Int) =
         queryDatabase(
-            databaseQuery = { chatRoomDao.getRoomByIdLiveData(roomId) }
+            databaseQuery = { chatRoomDao.getDistinctRoomById(roomId) }
         )
 
     /*override suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom> =
@@ -93,8 +90,7 @@ class MainRepositoryImpl @Inject constructor(
 
     override fun getUserAndPhoneUser(localId: Int) =
         queryDatabase(
-            databaseQuery = { userDao.getUserAndPhoneUser(localId) }
-            //databaseQuery = { userDao.getDistinctUserAndPhoneUser(localId) }
+            databaseQuery = { userDao.getDistinctUserAndPhoneUser(localId) }
         )
 
     override suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
@@ -103,14 +99,13 @@ class MainRepositoryImpl @Inject constructor(
 
     override fun getChatRoomAndMessageAndRecords() =
         queryDatabase(
-            databaseQuery = { chatRoomDao.getChatRoomAndMessageAndRecords() }
+            databaseQuery = { chatRoomDao.getDistinctChatRoomAndMessageAndRecords() }
         )
+
     override fun getRoomWithUsersLiveData(roomId: Int) =
         queryDatabase(
-            databaseQuery = { chatRoomDao.getRoomAndUsersLiveData(roomId) }
+            databaseQuery = { chatRoomDao.getDistinctRoomAndUsers(roomId) }
         )
-    /*override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
-        chatRoomDao.getDistinctRoomAndUsers(roomId)*/
 
     override suspend fun getSingleRoomData(roomId: Int) =
         queryDatabaseCoreData(
@@ -131,11 +126,9 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse> {
         val data = performRestOperation(
             networkCall = { mainRemoteDataSource.updateUser(jsonObject) },
-            saveCallResult = { userDao.insert(it.data.user) }
+            saveCallResult = { userDao.upsert(it.data.user) }
         )
 
-        // userDao.upsert(responseData.data.user)
-        sharedPrefs.writeUserId(responseData.data.user.id)
         sharedPrefs.writeUserId(data.responseData!!.data.user.id)
 
         return data
