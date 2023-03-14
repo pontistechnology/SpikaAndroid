@@ -20,9 +20,6 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     fun getDistinctRoomById(roomId: Int): LiveData<ChatRoom> =
         getRoomByIdLiveData(roomId).getDistinct()
 
-    @Delete
-    suspend fun deleteRoom(chatRoom: ChatRoom)
-
     @Query("UPDATE room SET muted = :muted WHERE room_id LIKE :roomId")
     suspend fun updateRoomMuted(muted: Boolean, roomId: Int)
 
