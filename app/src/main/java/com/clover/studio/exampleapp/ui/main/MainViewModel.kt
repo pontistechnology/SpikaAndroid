@@ -2,7 +2,6 @@ package com.clover.studio.exampleapp.ui.main
 
 import android.app.Activity
 import android.net.Uri
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -74,6 +73,12 @@ class MainViewModel @Inject constructor(
             userId = sharedPrefsRepo.readUserId()
         }
         return userId
+    }
+
+    suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
+        return if (repository.checkIfUserInPrivateRoom(userId) != null) {
+            repository.checkIfUserInPrivateRoom(userId)!!
+        } else null
     }
 
     fun checkIfRoomExists(userId: Int) = viewModelScope.launch {

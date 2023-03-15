@@ -82,11 +82,15 @@ class MainRepositoryImpl @Inject constructor(
 
     override fun getUserAndPhoneUser(localId: Int) =
         queryDatabase(
-            databaseQuery = { userDao.getDistinctUserAndPhoneUser(localId) }
+            databaseQuery = { userDao.getUserAndPhoneUser(localId) }
         )
 
+    override suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
+        return roomUserDao.doesPrivateRoomExistForUser(userId)
+    }
+
     override suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
-        chatRoomDao.getDistinctChatRoomAndMessageAndRecords()
+        chatRoomDao.getChatRoomAndMessageAndRecords()
 
     override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
         chatRoomDao.getDistinctRoomAndUsers(roomId)
@@ -234,6 +238,7 @@ interface MainRepository {
     suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
     fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
+    suspend fun checkIfUserInPrivateRoom(userId: Int): Int?
     suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
     suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords

@@ -185,7 +185,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>> =
-        notesDao.getDistinctNotes(roomId)
+        notesDao.getNotesByRoom(roomId)
 
     override suspend fun createNewNote(roomId: Int, newNote: NewNote) {
         val response =

@@ -12,6 +12,9 @@ interface MessageRecordsDao : BaseDao<MessageRecords> {
     @Query("SELECT * FROM message_records WHERE id LIKE :messageId LIMIT 1")
     fun getMessageRecordById(messageId: String): LiveData<MessageRecords>
 
+    fun getDistinctMessageRecordById(messageId: String) =
+        getMessageRecordById(messageId)
+
     @Query("DELETE FROM message_records")
     suspend fun removeMessageRecords()
 

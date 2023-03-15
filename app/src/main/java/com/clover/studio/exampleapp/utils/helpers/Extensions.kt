@@ -39,7 +39,9 @@ object Extensions {
                 if (!initialized) {
                     initialized = true
                     lastObj = obj
-                    distinctLiveData.postValue(lastObj!!)
+                    if (lastObj != null) {
+                        distinctLiveData.postValue(lastObj!!)
+                    }
                 } else if ((obj == null && lastObj != null)
                     || obj != lastObj
                 ) {

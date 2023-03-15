@@ -10,9 +10,6 @@ interface ReactionDao: BaseDao<Reaction> {
     @Query("SELECT * FROM reaction")
     fun getReactions(): LiveData<List<Reaction>>
 
-    fun getDistinctReaction(): LiveData<List<Reaction>> =
-        getReactions().getDistinct()
-
     @Query("SELECT * FROM reaction WHERE id LIKE :reactionId LIMIT 1")
     fun getReactionById(reactionId: String): LiveData<Reaction>
 

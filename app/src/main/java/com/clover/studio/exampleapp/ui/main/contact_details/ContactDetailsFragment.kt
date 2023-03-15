@@ -26,6 +26,9 @@ import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ContactDetailsFragment : BaseFragment() {
@@ -176,7 +179,19 @@ class ContactDetailsFragment : BaseFragment() {
             binding.tvPageName.text = user?.displayName
 
             binding.ivChat.setOnClickListener {
-                user?.id?.let { id -> viewModel.checkIfRoomExists(id) }
+                user?.id?.let { id ->
+                    run {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
+                            val roomId = viewModel.checkIfUserInPrivateRoom(id)
+                            if (roomId != null) {
+                                viewModel.getRoomWithUsers(roomId)
+                            } else {
+                                viewModel.checkIfRoomExists(id)
+                            }
+                        }
+                    }
+                }
             }
 
             Glide.with(this).load(user?.avatarFileId?.let { getFilePathUrl(it) })

@@ -16,4 +16,7 @@ interface RoomUserDao: BaseDao<RoomUser> {
 
     @Query("UPDATE room_user SET isAdmin = 0 WHERE room_id LIKE :roomId AND id LIKE :userId")
     suspend fun removeAdmin(roomId: Int, userId: Int)
+
+    @Query("SELECT room_id FROM room_user WHERE id = :userId AND room_id IN (SELECT room_id FROM room WHERE type = 'private')")
+    suspend fun doesPrivateRoomExistForUser(userId: Int): Int?
 }

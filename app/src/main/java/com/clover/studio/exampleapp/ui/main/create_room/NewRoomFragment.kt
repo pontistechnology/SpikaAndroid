@@ -28,6 +28,9 @@ import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 import kotlin.streams.toList
@@ -158,7 +161,19 @@ class NewRoomFragment : BaseFragment() {
             } else {
                 user = it.user
                 showProgress(false)
-                it.user.id.let { id -> viewModel.checkIfRoomExists(id) }
+                it.user.id.let { id ->
+                    run {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
+                            val roomId = viewModel.checkIfUserInPrivateRoom(id)
+                            if (roomId != null) {
+                                viewModel.getRoomWithUsers(roomId)
+                            } else {
+                                viewModel.checkIfRoomExists(id)
+                            }
+                        }
+                    }
+                }
             }
         }
 
