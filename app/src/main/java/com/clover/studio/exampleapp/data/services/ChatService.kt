@@ -41,13 +41,13 @@ interface ChatService {
     suspend fun postReaction(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
-    )
+    ) : Response<MessageResponse>
 
-    @DELETE(Const.Networking.API_DELETE_REACTION)
+    /* @DELETE(Const.Networking.API_DELETE_REACTION)
     suspend fun deleteReaction(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ID) id: Int
-    )
+    ) */
     // End Reaction section
 
     // Room section
@@ -91,13 +91,13 @@ interface ChatService {
     suspend fun deleteRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): RoomResponse
+    ): Response<RoomResponse>
 
     @POST(Const.Networking.API_LEAVE_ROOM)
     suspend fun leaveRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ID) roomId: Int
-    ): RoomResponse
+    ): Response<RoomResponse>
     // End Room section
 
     // Notes section
@@ -105,26 +105,26 @@ interface ChatService {
     suspend fun getRoomNotes(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): NotesResponse
+    ): Response<NotesResponse>
 
     @POST(Const.Networking.API_NOTES)
     suspend fun createNote(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int,
         @Body newNote: NewNote
-    ): NotesResponse
+    ): Response<NotesResponse>
 
     @DELETE(Const.Networking.API_MANAGE_NOTE)
     suspend fun deleteNote(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ID) noteId: Int
-    ): NotesResponse
+    ): Response<NotesResponse>
 
     @PUT(Const.Networking.API_MANAGE_NOTE)
     suspend fun updateNote(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ID) noteId: Int,
         @Body newNote: NewNote
-    ): NotesResponse
+    ): Response<NotesResponse>
     // End Notes section
 }

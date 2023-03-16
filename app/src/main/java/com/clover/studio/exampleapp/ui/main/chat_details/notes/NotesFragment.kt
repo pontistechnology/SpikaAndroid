@@ -16,6 +16,7 @@ import com.clover.studio.exampleapp.ui.main.MainActivity
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.clover.studio.exampleapp.utils.helpers.Resource
 
 class NotesFragment : BaseFragment() {
     private var bindingSetup: FragmentNotesBinding? = null
@@ -62,10 +63,20 @@ class NotesFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getRoomNotes(roomId).observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                adapter.submitList(it)
-                binding.tvNoNotes.visibility = View.GONE
-            } else binding.tvNoNotes.visibility = View.VISIBLE
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    if (it.responseData!!.isNotEmpty()) {
+                        adapter.submitList(it.responseData)
+                        binding.tvNoNotes.visibility = View.GONE
+                    } else binding.tvNoNotes.visibility = View.VISIBLE
+                }
+                Resource.Status.LOADING -> {
+                    // Loading
+                }
+                else -> {
+                    // Error
+                }
+            }
         }
 
         viewModel.fetchNotes(roomId)

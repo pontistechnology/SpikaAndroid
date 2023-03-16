@@ -11,6 +11,8 @@ import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.Tools
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -43,9 +45,7 @@ class OnboardingViewModel @Inject constructor(
         registrationListener.postValue(Event(OnboardingStates.REGISTERING_SUCCESS))
     }
 
-    fun sendCodeVerification(
-        jsonObject: JsonObject
-    ) = viewModelScope.launch {
+    fun sendCodeVerification(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
         codeVerificationListener.postValue(Event(OnboardingStates.VERIFYING))
         val authResponse: AuthResponse
         try {

@@ -1,5 +1,6 @@
 package com.clover.studio.exampleapp.data.repositories.data_sources
 
+import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -44,4 +45,31 @@ class ChatRemoteDataSource @Inject constructor(
         retrofitService.unpinRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
     }
 
+    suspend fun postReaction(jsonObject: JsonObject) = getResult {
+        retrofitService.postReaction(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    }
+
+    suspend fun getRoomNotes(roomId: Int) = getResult {
+        retrofitService.getRoomNotes(getHeaderMap(sharedPrefs.readToken()), roomId)
+    }
+
+    suspend fun createNewNote(roomId: Int, newNote: NewNote) = getResult {
+        retrofitService.createNote(getHeaderMap(sharedPrefs.readToken()), roomId, newNote)
+    }
+
+    suspend fun updateNote(noteId: Int, newNote: NewNote) = getResult {
+        retrofitService.updateNote(getHeaderMap(sharedPrefs.readToken()), noteId, newNote)
+    }
+
+    suspend fun deleteNote(noteId: Int) = getResult {
+        retrofitService.deleteNote(getHeaderMap(sharedPrefs.readToken()), noteId)
+    }
+
+    suspend fun deleteRoom(roomId: Int) = getResult {
+        retrofitService.deleteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+    }
+
+    suspend fun leaveRoom(roomId: Int) = getResult {
+        retrofitService.leaveRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+    }
 }

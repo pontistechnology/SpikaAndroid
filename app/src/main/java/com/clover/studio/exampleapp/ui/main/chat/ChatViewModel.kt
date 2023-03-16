@@ -8,22 +8,21 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
+import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
-import com.clover.studio.exampleapp.ui.main.MainStates
-import com.clover.studio.exampleapp.ui.main.SingleRoomData
-import com.clover.studio.exampleapp.ui.main.SingleRoomFetchFailed
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
@@ -37,7 +36,7 @@ class ChatViewModel @Inject constructor(
 ) : BaseViewModel() {
     val messageSendListener = MutableLiveData<Event<ChatStatesEnum>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
-    val roomDataListener = MutableLiveData<Event<MainStates>>()
+    val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val fileUploadListener = MutableLiveData<Event<ChatStates>>()
     val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
@@ -139,20 +138,19 @@ class ChatViewModel @Inject constructor(
     }
 
     fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
-        try {
-            roomDataListener.postValue(Event(SingleRoomData(repository.getSingleRoomData(roomId))))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                roomDataListener.postValue(Event(SingleRoomFetchFailed))
-            }
-            return@launch
-        }
+        roomDataListener.postValue(Event((repository.getSingleRoomData(roomId))))
     }
 
     fun getRoomWithUsers(roomId: Int, message: Message) = viewModelScope.launch {
-        roomNotificationListener.postValue(Event(RoomNotificationData(repository.getRoomWithUsers(roomId), message)))
+        roomNotificationListener.postValue(
+            Event(
+                RoomNotificationData(
+                    repository.getRoomWithUsers(
+                        roomId
+                    ), message
+                )
+            )
+        )
     }
 
     /**
@@ -176,94 +174,44 @@ class ChatViewModel @Inject constructor(
     }
 
     fun sendReaction(jsonObject: JsonObject) = viewModelScope.launch {
-        try {
-            repository.sendReaction(jsonObject)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                Timber.d("Exception: $ex")
-            }
-        }
+        repository.sendReaction(jsonObject)
     }
 
     fun deleteRoom(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.deleteRoom(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.deleteRoom(roomId)
     }
 
     fun leaveRoom(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.leaveRoom(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.leaveRoom(roomId)
     }
 
     fun removeAdmin(roomId: Int, userId: Int) = viewModelScope.launch {
-        try {
-            repository.removeAdmin(roomId, userId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.removeAdmin(roomId, userId)
     }
 
     fun deleteMessage(messageId: Int, target: String) = viewModelScope.launch {
-        try {
-            repository.deleteMessage(messageId, target)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.deleteMessage(messageId, target)
     }
 
     fun editMessage(messageId: Int, jsonObject: JsonObject) = viewModelScope.launch {
-        try {
-            repository.editMessage(messageId, jsonObject)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.editMessage(messageId, jsonObject)
     }
 
-    fun fetchNotes(roomId: Int) = viewModelScope.launch {
-        try {
+    fun fetchNotes(roomId: Int) =
+        CoroutineScope(Dispatchers.IO).launch {
             repository.getNotes(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
         }
-    }
+
 
     fun getRoomNotes(roomId: Int) = liveData {
         emitSource(repository.getLocalNotes(roomId))
     }
 
-    fun createNewNote(roomId: Int, newNote: NewNote) = viewModelScope.launch {
+    // TODO notes states
+    fun createNewNote(roomId: Int, newNote: NewNote) = CoroutineScope(Dispatchers.IO).launch {
         try {
             repository.createNewNote(roomId, newNote)
         } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
             noteCreationListener.postValue(Event(NoteFailed))
             return@launch
         }
@@ -274,13 +222,9 @@ class ChatViewModel @Inject constructor(
         try {
             repository.updateNote(noteId, newNote)
         } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
             noteCreationListener.postValue(Event(NoteFailed))
             return@launch
         }
-
         noteCreationListener.postValue(Event(NoteUpdated))
     }
 
@@ -288,9 +232,6 @@ class ChatViewModel @Inject constructor(
         try {
             repository.deleteNote(noteId)
         } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
             noteCreationListener.postValue(Event(NoteFailed))
             return@launch
         }
@@ -322,14 +263,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun blockUser(blockedId: Int) = viewModelScope.launch {
-        try {
-            mainRepository.blockUser(blockedId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        mainRepository.blockUser(blockedId)
     }
 
     fun deleteBlock(userId: Int) = viewModelScope.launch {

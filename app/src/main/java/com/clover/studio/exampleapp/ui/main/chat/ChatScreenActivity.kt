@@ -15,8 +15,6 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
-import com.clover.studio.exampleapp.ui.main.SingleRoomData
-import com.clover.studio.exampleapp.ui.main.SingleRoomFetchFailed
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.DialogError
@@ -81,13 +79,13 @@ class ChatScreenActivity : BaseActivity(), SSEListener {
         viewModel.setupSSEManager(this)
 
         viewModel.roomDataListener.observe(this, EventObserver {
-            when (it) {
-                is SingleRoomData -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     val gson = Gson()
-                    val roomData = gson.toJson(it.roomData.roomWithUsers)
+                    val roomData = gson.toJson(it.responseData?.roomWithUsers)
                     replaceChatScreenActivity(this, roomData)
                 }
-                SingleRoomFetchFailed -> Timber.d("Failed to fetch room data")
+                Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
                 else -> Timber.d("Other error")
             }
         })

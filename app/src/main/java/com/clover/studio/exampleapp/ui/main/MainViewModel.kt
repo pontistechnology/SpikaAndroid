@@ -296,6 +296,3 @@ class RoomNotificationData(
     val response: Resource<RoomWithUsers>,
     val message: Message
 ) : MainStates()
-
-class SingleRoomData(val roomData: RoomAndMessageAndRecords) : MainStates()
-object SingleRoomFetchFailed : MainStates()
