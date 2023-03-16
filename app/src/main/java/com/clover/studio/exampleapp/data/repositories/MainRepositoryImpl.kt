@@ -11,7 +11,10 @@ import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
-import com.clover.studio.exampleapp.data.models.networking.responses.*
+import com.clover.studio.exampleapp.data.models.networking.responses.AuthResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.FileResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.Settings
 import com.clover.studio.exampleapp.data.repositories.data_sources.MainRemoteDataSource
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
@@ -189,8 +192,8 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUserSettings() = performRestOperation(
-            networkCall = { mainRemoteDataSource.getUserSettings() },
-        ).responseData?.data?.settings
+        networkCall = { mainRemoteDataSource.getUserSettings() },
+    ).responseData?.data?.settings
 
 
     override suspend fun getBlockedList() {
@@ -237,34 +240,28 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun handleRoomMute(roomId: Int, doMute: Boolean) {
-        val response = if (doMute) {
+        if (doMute) {
             performRestOperation(
                 networkCall = { mainRemoteDataSource.muteRoom(roomId) },
+                saveCallResult = { chatRoomDao.updateRoomPinned(true, roomId) }
             )
         } else {
             performRestOperation(
                 networkCall = { mainRemoteDataSource.unmuteRoom(roomId) },
             )
         }
-
-        if (Resource.Status.SUCCESS == response.status) {
-            chatRoomDao.updateRoomMuted(true, roomId)
-        }
     }
 
     override suspend fun handleRoomPin(roomId: Int, doPin: Boolean) {
-        val response = if (doPin) {
+        if (doPin) {
             performRestOperation(
                 networkCall = { mainRemoteDataSource.pinRoom(roomId) },
+                saveCallResult = { chatRoomDao.updateRoomPinned(true, roomId) }
             )
         } else {
             performRestOperation(
                 networkCall = { mainRemoteDataSource.unpinRoom(roomId) },
             )
-        }
-
-        if (Resource.Status.SUCCESS == response.status) {
-            chatRoomDao.updateRoomPinned(true, roomId)
         }
     }
 }
