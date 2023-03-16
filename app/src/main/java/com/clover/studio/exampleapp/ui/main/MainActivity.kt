@@ -18,11 +18,14 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
+import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.SSEListener
 import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
+import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
@@ -201,6 +204,26 @@ class MainActivity : BaseActivity(), SSEListener {
                 }
                 Resource.Status.ERROR -> Timber.d("Failed to fetch room with users")
                 else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
+            if (tokenExpired) {
+                DialogError.getInstance(this,
+                    getString(R.string.warning),
+                    getString(R.string.session_expired),
+                    null,
+                    getString(R.string.ok),
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            // Ignore
+                        }
+
+                        override fun onSecondOptionClicked() {
+                            viewModel.setTokenExpiredFalse()
+                            startOnboardingActivity(this@MainActivity, false)
+                        }
+                    })
             }
         })
     }

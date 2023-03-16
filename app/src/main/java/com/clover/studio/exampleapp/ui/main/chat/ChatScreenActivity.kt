@@ -9,7 +9,6 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import androidx.activity.viewModels
-import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
@@ -25,7 +24,6 @@ import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -189,6 +187,26 @@ class ChatScreenActivity : BaseActivity(), SSEListener {
                 }
                 is RoomWithUsersFailed -> Timber.d("Failed to fetch room with users")
                 else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
+            if (tokenExpired) {
+                DialogError.getInstance(this,
+                    getString(R.string.warning),
+                    getString(R.string.session_expired),
+                    null,
+                    getString(R.string.ok),
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            // Ignore
+                        }
+
+                        override fun onSecondOptionClicked() {
+                            viewModel.setTokenExpiredFalse()
+                            startOnboardingActivity(this@ChatScreenActivity, false)
+                        }
+                    })
             }
         })
     }
