@@ -105,11 +105,11 @@ class MainActivity : BaseActivity(), SSEListener {
         })
 
         viewModel.roomNotificationListener.observe(this, EventObserver {
-            when (it.status) {
+            when (it.response.status) {
                 Resource.Status.SUCCESS -> {
                     val myUserId = viewModel.getLocalUserId()
 
-                    if (myUserId == it.message.fromUserId || it.roomWithUsers.room.muted) return@EventObserver
+                    if (myUserId == it.message.fromUserId || it.response.responseData?.room!!.muted) return@EventObserver
                     runOnUiThread {
                         val animator =
                             ValueAnimator.ofInt(bindingSetup.cvNotification.pbTimeout.max, 0)
@@ -120,10 +120,10 @@ class MainActivity : BaseActivity(), SSEListener {
                         }
                         animator.start()
 
-                        if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
+                        if (it.response.responseData.room.type.equals(Const.JsonFields.GROUP)) {
                             Timber.d("Showing room image")
                             Glide.with(this@MainActivity)
-                                .load(it.roomWithUsers.room.avatarFileId?.let { fileId ->
+                                .load(it.response.responseData.room.avatarFileId?.let { fileId ->
                                     Tools.getFilePathUrl(
                                         fileId
                                     )
@@ -131,8 +131,8 @@ class MainActivity : BaseActivity(), SSEListener {
                                 .placeholder(R.drawable.img_user_placeholder)
                                 .centerCrop()
                                 .into(bindingSetup.cvNotification.ivUserImage)
-                            bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
-                            for (user in it.roomWithUsers.users) {
+                            bindingSetup.cvNotification.tvTitle.text = it.response.responseData.room.name
+                            for (user in it.response.responseData.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     val content =
                                         if (it.message.type != Const.JsonFields.TEXT_TYPE) {
@@ -150,7 +150,7 @@ class MainActivity : BaseActivity(), SSEListener {
                                 }
                             }
                         } else {
-                            for (user in it.roomWithUsers.users) {
+                            for (user in it.response.responseData.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     Glide.with(this@MainActivity)
                                         .load(user.avatarFileId?.let { fileId ->

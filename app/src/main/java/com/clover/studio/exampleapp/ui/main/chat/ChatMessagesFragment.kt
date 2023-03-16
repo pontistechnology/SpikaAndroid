@@ -623,31 +623,42 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
             .observe(viewLifecycleOwner) {
-                messagesRecords.clear()
-                if (it.message?.isNotEmpty() == true) {
-                    // Check if user can be blocked
-                    if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-                        val containsElement =
-                            it.message.any { message -> localUserId == message.message.fromUserId }
-                        if (containsElement) bindingSetup.clBlockContact.visibility = View.GONE
-                        else bindingSetup.clBlockContact.visibility = View.VISIBLE
-                    }
+                when (it.status) {
+                    Resource.Status.SUCCESS -> {
+                        messagesRecords.clear()
+                        if (it.responseData?.message?.isNotEmpty() == true) {
+                            // Check if user can be blocked
+                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                                val containsElement =
+                                    it.responseData.message.any { message -> localUserId == message.message.fromUserId }
+                                if (containsElement) bindingSetup.clBlockContact.visibility =
+                                    View.GONE
+                                else bindingSetup.clBlockContact.visibility = View.VISIBLE
+                            }
 
-                    it.message.forEach { msg ->
-                        messagesRecords.add(msg)
-                    }
-                    messagesRecords.sortByDescending { messages -> messages.message.createdAt }
-                    // messagesRecords.toList -> for DiffUtil class
-                    chatAdapter.submitList(messagesRecords.toList())
+                            it.responseData.message.forEach { msg ->
+                                messagesRecords.add(msg)
+                            }
+                            messagesRecords.sortByDescending { messages -> messages.message.createdAt }
+                            // messagesRecords.toList -> for DiffUtil class
+                            chatAdapter.submitList(messagesRecords.toList())
 
-                    if (oldPosition != messagesRecords.size) {
-                        showNewMessage(messagesRecords.first())
-                    }
+                            if (oldPosition != messagesRecords.size) {
+                                showNewMessage(messagesRecords.first())
+                            }
 
-                    if (firstEnter) {
-                        oldPosition = messagesRecords.size
-                        bindingSetup.rvChat.scrollToPosition(0)
-                        firstEnter = false
+                            if (firstEnter) {
+                                oldPosition = messagesRecords.size
+                                bindingSetup.rvChat.scrollToPosition(0)
+                                firstEnter = false
+                            }
+                        }
+                    }
+                    Resource.Status.LOADING -> {
+                        // Loading
+                    }
+                    else -> {
+                        // Error
                     }
                 }
             }

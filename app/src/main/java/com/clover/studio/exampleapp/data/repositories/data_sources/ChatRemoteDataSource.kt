@@ -1,0 +1,47 @@
+package com.clover.studio.exampleapp.data.repositories.data_sources
+
+import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
+import com.clover.studio.exampleapp.data.services.ChatService
+import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
+import com.clover.studio.exampleapp.utils.helpers.BaseDataSource
+import com.google.gson.JsonObject
+import javax.inject.Inject
+
+class ChatRemoteDataSource @Inject constructor(
+    private val retrofitService: ChatService,
+    private val sharedPrefs: SharedPreferencesRepository
+) : BaseDataSource() {
+
+    suspend fun sendMessagesSeen(roomId: Int) = getResult {
+        retrofitService.sendMessagesSeen(getHeaderMap(sharedPrefs.readToken()), roomId)
+    }
+
+    suspend fun deleteMessage(messageId: Int, target: String) = getResult {
+        retrofitService.deleteMessage(getHeaderMap(sharedPrefs.readToken()), messageId, target)
+    }
+
+    suspend fun editMessage(messageId: Int, jsonObject: JsonObject) = getResult {
+        retrofitService.editMessage(
+            getHeaderMap(sharedPrefs.readToken()),
+            messageId,
+            jsonObject
+        )
+    }
+
+    suspend fun muteRoom(roomId: Int) = getResult {
+        retrofitService.muteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+    }
+
+    suspend fun unmuteRoom(roomId: Int) = getResult {
+        retrofitService.unmuteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+    }
+
+    suspend fun pinRoom(roomId: Int) = getResult {
+        retrofitService.pinRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+    }
+
+    suspend fun unpinRoom(roomId: Int) = getResult {
+        retrofitService.unpinRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
+    }
+
+}

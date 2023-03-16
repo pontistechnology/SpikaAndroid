@@ -132,7 +132,12 @@ class MainRepositoryImpl @Inject constructor(
             saveCallResult = { userDao.upsert(it.data.user) }
         )
 
-        sharedPrefs.writeUserId(data.responseData!!.data.user.id)
+        // TODO ask Matko about this if
+        if (Resource.Status.SUCCESS == data.status){
+            // This line was in MainViewModel
+            sharedPrefs.accountCreated(true)
+            sharedPrefs.writeUserId(data.responseData!!.data.user.id)
+        }
 
         return data
     }

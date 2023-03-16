@@ -38,19 +38,14 @@ class ChatViewModel @Inject constructor(
     val messageSendListener = MutableLiveData<Event<ChatStatesEnum>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
     val roomDataListener = MutableLiveData<Event<MainStates>>()
-    val roomNotificationListener = MutableLiveData<Event<ChatStates>>()
+    val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val fileUploadListener = MutableLiveData<Event<ChatStates>>()
     val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
     val noteCreationListener = MutableLiveData<Event<ChatStates>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>>>>()
 
     fun storeMessageLocally(message: Message) = viewModelScope.launch {
-        try {
-            repository.storeMessageLocally(message)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            return@launch
-        }
+        repository.storeMessageLocally(message)
     }
 
     fun setupSSEManager(listener: SSEListener) {
@@ -83,45 +78,22 @@ class ChatViewModel @Inject constructor(
     }
 
     fun deleteLocalMessages(messages: List<Message>) = viewModelScope.launch {
-        try {
-            repository.deleteLocalMessages(messages)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            return@launch
-        }
+        repository.deleteLocalMessages(messages)
     }
 
     fun deleteLocalMessage(message: Message) = viewModelScope.launch {
-        try {
-            repository.deleteLocalMessage(message)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            return@launch
-        }
+        repository.deleteLocalMessage(message)
     }
 
     fun sendMessagesSeen(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.sendMessagesSeen(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.sendMessagesSeen(roomId)
     }
 
     fun updateRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int) = viewModelScope.launch {
-        try {
-            repository.updatedRoomVisitedTimestamp(visitedTimestamp, roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.updatedRoomVisitedTimestamp(visitedTimestamp, roomId)
     }
 
+    // TODO
     fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = viewModelScope.launch {
         try {
             repository.updateRoom(jsonObject, roomId, userId)
@@ -180,24 +152,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun getRoomWithUsers(roomId: Int, message: Message) = viewModelScope.launch {
-        try {
-            roomNotificationListener.postValue(
-                Event(
-                    RoomNotificationData(
-                        repository.getRoomWithUsers(
-                            roomId
-                        ), message
-                    )
-                )
-            )
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                roomNotificationListener.postValue(Event(RoomWithUsersFailed))
-            }
-            return@launch
-        }
+        roomNotificationListener.postValue(Event(RoomNotificationData(repository.getRoomWithUsers(roomId), message)))
     }
 
     /**
@@ -207,14 +162,7 @@ class ChatViewModel @Inject constructor(
      * @param doMute Boolean which decides if the room should be muted or unmuted
      */
     fun handleRoomMute(roomId: Int, doMute: Boolean) = viewModelScope.launch {
-        try {
-            repository.handleRoomMute(roomId, doMute)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.handleRoomMute(roomId, doMute)
     }
 
     /**
@@ -224,14 +172,7 @@ class ChatViewModel @Inject constructor(
      * @param doPin Boolean which decides if the room should be pinned or unpinned
      */
     fun handleRoomPin(roomId: Int, doPin: Boolean) = viewModelScope.launch {
-        try {
-            repository.handleRoomPin(roomId, doPin)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.handleRoomPin(roomId, doPin)
     }
 
     fun sendReaction(jsonObject: JsonObject) = viewModelScope.launch {
@@ -524,8 +465,7 @@ class ChatViewModel @Inject constructor(
 }
 
 sealed class ChatStates
-object RoomWithUsersFailed : ChatStates()
-class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : ChatStates()
+class RoomNotificationData(val response: Resource<RoomWithUsers>, val message: Message)
 object NoteCreated : ChatStates()
 object NoteFailed : ChatStates()
 object NoteUpdated : ChatStates()

@@ -22,6 +22,7 @@ import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -92,11 +93,11 @@ class ChatScreenActivity : BaseActivity(), SSEListener {
         })
 
         viewModel.roomNotificationListener.observe(this, EventObserver {
-            when (it) {
-                is RoomNotificationData -> {
+            when (it.response.status) {
+                Resource.Status.SUCCESS -> {
                     val myUserId = viewModel.getLocalUserId()
 
-                    if (myUserId == it.message.fromUserId || roomWithUsers?.room?.roomId == it.message.roomId || it.roomWithUsers.room.muted) return@EventObserver
+                    if (myUserId == it.message.fromUserId || roomWithUsers?.room?.roomId == it.message.roomId || it.response.responseData?.room!!.muted) return@EventObserver
                     runOnUiThread {
                         val animator =
                             ValueAnimator.ofInt(
@@ -110,9 +111,9 @@ class ChatScreenActivity : BaseActivity(), SSEListener {
                         }
                         animator.start()
 
-                        if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
+                        if (it.response.responseData.room.type.equals(Const.JsonFields.GROUP)) {
                             Glide.with(this@ChatScreenActivity)
-                                .load(it.roomWithUsers.room.avatarFileId?.let { fileId ->
+                                .load(it.response.responseData.room.avatarFileId?.let { fileId ->
                                     Tools.getFilePathUrl(
                                         fileId
                                     )
@@ -121,8 +122,8 @@ class ChatScreenActivity : BaseActivity(), SSEListener {
                                 .centerCrop()
                                 .into(bindingSetup.cvNotification.ivUserImage)
                             bindingSetup.cvNotification.tvTitle.text =
-                                it.roomWithUsers.room.name
-                            for (user in it.roomWithUsers.users) {
+                                it.response.responseData.room.name
+                            for (user in it.response.responseData.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     val content: String =
                                         if (it.message.type != Const.JsonFields.TEXT_TYPE) {
@@ -140,7 +141,7 @@ class ChatScreenActivity : BaseActivity(), SSEListener {
                                 }
                             }
                         } else {
-                            for (user in it.roomWithUsers.users) {
+                            for (user in it.response.responseData.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     Glide.with(this@ChatScreenActivity)
                                         .load(user.avatarFileId?.let { fileId ->
@@ -185,7 +186,7 @@ class ChatScreenActivity : BaseActivity(), SSEListener {
                         handler.postDelayed(runnable, 5000)
                     }
                 }
-                is RoomWithUsersFailed -> Timber.d("Failed to fetch room with users")
+                Resource.Status.ERROR -> Timber.d("Failed to fetch room with users")
                 else -> Timber.d("Other error")
             }
         })

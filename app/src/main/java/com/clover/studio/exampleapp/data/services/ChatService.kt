@@ -4,6 +4,7 @@ import com.clover.studio.exampleapp.data.models.networking.*
 import com.clover.studio.exampleapp.data.models.networking.responses.*
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
+import retrofit2.Response
 import retrofit2.http.*
 
 interface ChatService {
@@ -18,21 +19,21 @@ interface ChatService {
     suspend fun sendMessagesSeen(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    )
+    ): Response<MessageResponse>
 
     @PUT(Const.Networking.API_UPDATE_MESSAGE)
     suspend fun editMessage(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ID) messageId: Int,
         @Body jsonObject: JsonObject
-    ): MessageResponse
+    ): Response<MessageResponse>
 
     @DELETE(Const.Networking.API_UPDATE_MESSAGE)
     suspend fun deleteMessage(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ID) messageId: Int,
         @Query(Const.Networking.TARGET) target: String
-    ): MessageResponse
+    ): Response<MessageResponse>
     // End Message section
 
     // Reaction section
@@ -61,25 +62,25 @@ interface ChatService {
     suspend fun muteRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): MuteResponse
+    ): Response<MuteResponse>
 
     @POST(Const.Networking.API_UNMUTE_ROOM)
     suspend fun unmuteRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): MuteResponse
+    ): Response<MuteResponse>
 
     @POST(Const.Networking.API_PIN_ROOM)
     suspend fun pinRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): RoomResponse
+    ): Response<RoomResponse>
 
     @POST(Const.Networking.API_UNPIN_ROOM)
     suspend fun unpinRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): RoomResponse
+    ): Response<RoomResponse>
 
     @GET(Const.Networking.API_GET_SETTINGS)
     suspend fun getSettings(

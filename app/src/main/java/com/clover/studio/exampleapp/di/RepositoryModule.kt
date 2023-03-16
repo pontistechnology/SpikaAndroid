@@ -4,6 +4,7 @@ import android.content.Context
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.repositories.*
+import com.clover.studio.exampleapp.data.repositories.data_sources.ChatRemoteDataSource
 import com.clover.studio.exampleapp.data.repositories.data_sources.MainRemoteDataSource
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.data.services.OnboardingService
@@ -31,6 +32,7 @@ object RepositoryModule {
     @Singleton
     @Provides
     fun provideChatRepository(
+        chatRemoteDataSource: ChatRemoteDataSource,
         chatService: ChatService,
         roomDao: ChatRoomDao,
         messageDao: MessageDao,
@@ -38,9 +40,10 @@ object RepositoryModule {
         roomUserDao: RoomUserDao,
         notesDao: NotesDao,
         appDatabase: AppDatabase,
-        sharedPrefs: SharedPreferencesRepository
+        sharedPrefs: SharedPreferencesRepository,
     ) =
         ChatRepositoryImpl(
+            chatRemoteDataSource,
             chatService,
             roomDao,
             messageDao,
@@ -48,7 +51,7 @@ object RepositoryModule {
             roomUserDao,
             notesDao,
             appDatabase,
-            sharedPrefs
+            sharedPrefs,
         )
 
     @Singleton
@@ -71,6 +74,7 @@ object RepositoryModule {
             appDatabase,
             sharedPrefs
         )
+
 
     @Singleton
     @Provides
@@ -125,4 +129,12 @@ object RepositoryModule {
         sharedPrefs: SharedPreferencesRepository
     ) =
         MainRemoteDataSource(retrofitService, sharedPrefs)
+
+    @Singleton
+    @Provides
+    fun provideChatDataSource(
+        retrofitService: ChatService,
+        sharedPrefs: SharedPreferencesRepository
+    ) =
+        ChatRemoteDataSource(retrofitService, sharedPrefs)
 }
