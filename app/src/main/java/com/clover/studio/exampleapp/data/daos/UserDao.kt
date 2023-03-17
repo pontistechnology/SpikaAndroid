@@ -5,30 +5,21 @@ import androidx.room.*
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.UserWithRooms
+import com.clover.studio.exampleapp.utils.helpers.Extensions.getDistinct
 
 @Dao
-interface UserDao {
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(user: User): Long
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(users: List<User>)
-
+interface UserDao: BaseDao<User> {
     @Query("SELECT * FROM user")
     fun getUsers(): LiveData<List<User>>
-
-    @Query("SELECT * FROM user")
-    suspend fun getUsersLocally(): List<User>
 
     @Query("SELECT * FROM user WHERE id LIKE :userId LIMIT 1")
     fun getUserById(userId: Int): LiveData<User>
 
+    fun getDistinctUserById(userId: Int): LiveData<User> =
+        getUserById(userId).getDistinct()
+
     @Query("SELECT * FROM user WHERE id IN (:userIds)")
     suspend fun getUsersByIds(userIds: List<Int>): List<User>
-
-    @Delete
-    suspend fun deleteUser(user: User)
 
     @Query("DELETE FROM user")
     suspend fun removeUsers()
@@ -40,6 +31,4 @@ interface UserDao {
     @Transaction
     @Query("SELECT * FROM user")
     fun getUserAndRooms(): LiveData<List<UserWithRooms>>
-
-    // TODO add getMe() method for our user object
 }

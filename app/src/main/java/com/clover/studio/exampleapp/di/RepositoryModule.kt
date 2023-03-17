@@ -4,6 +4,7 @@ import android.content.Context
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.repositories.*
+import com.clover.studio.exampleapp.data.repositories.data_sources.MainRemoteDataSource
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
@@ -34,6 +35,7 @@ object RepositoryModule {
         roomDao: ChatRoomDao,
         messageDao: MessageDao,
         userDao: UserDao,
+        roomUserDao: RoomUserDao,
         notesDao: NotesDao,
         appDatabase: AppDatabase,
         sharedPrefs: SharedPreferencesRepository
@@ -43,6 +45,7 @@ object RepositoryModule {
             roomDao,
             messageDao,
             userDao,
+            roomUserDao,
             notesDao,
             appDatabase,
             sharedPrefs
@@ -51,16 +54,20 @@ object RepositoryModule {
     @Singleton
     @Provides
     fun provideMainRepository(
+        mainRemoteDataSource: MainRemoteDataSource,
         retrofitService: RetrofitService,
         userDao: UserDao,
         chatRoomDao: ChatRoomDao,
+        roomUserDao: RoomUserDao,
         appDatabase: AppDatabase,
         sharedPrefs: SharedPreferencesRepository
     ) =
         MainRepositoryImpl(
+            mainRemoteDataSource,
             retrofitService,
             userDao,
             chatRoomDao,
+            roomUserDao,
             appDatabase,
             sharedPrefs
         )
@@ -83,6 +90,7 @@ object RepositoryModule {
         messageDao: MessageDao,
         messageRecordsDao: MessageRecordsDao,
         chatRoomDao: ChatRoomDao,
+        roomUserDao: RoomUserDao,
         appDatabase: AppDatabase,
         userDao: UserDao
     ) = SSERepositoryImpl(
@@ -91,6 +99,7 @@ object RepositoryModule {
         messageDao,
         messageRecordsDao,
         chatRoomDao,
+        roomUserDao,
         appDatabase,
         userDao
     )
@@ -108,4 +117,13 @@ object RepositoryModule {
     fun provideUploadDownloadManager(
         repository: MainRepositoryImpl
     ) = UploadDownloadManager(repository)
+
+    @Singleton
+    @Provides
+    fun provideMainDataSource(
+        retrofitService: RetrofitService,
+        userDao: UserDao,
+        sharedPrefs: SharedPreferencesRepository
+    ) =
+        MainRemoteDataSource(retrofitService, userDao, sharedPrefs)
 }

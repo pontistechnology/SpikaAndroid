@@ -90,26 +90,6 @@ class MainActivity : BaseActivity(), SSEListener {
     private fun initializeObservers() {
         viewModel.setupSSEManager(this)
 
-        viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
-            if (tokenExpired) {
-                DialogError.getInstance(this,
-                    getString(R.string.warning),
-                    getString(R.string.session_expired),
-                    null,
-                    getString(R.string.ok),
-                    object : DialogInteraction {
-                        override fun onFirstOptionClicked() {
-                            // ignore
-                        }
-
-                        override fun onSecondOptionClicked() {
-                            viewModel.setTokenExpiredFalse()
-                            startOnboardingActivity(this@MainActivity, false)
-                        }
-                    })
-            }
-        })
-
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it) {
                 is SingleRoomData -> {

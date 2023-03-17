@@ -27,6 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun chatRoomDao(): ChatRoomDao
     abstract fun messageRecordsDao(): MessageRecordsDao
     abstract fun notesDao(): NotesDao
+    abstract fun roomUserDao(): RoomUserDao
 
     class TablesInfo {
         companion object {

@@ -22,9 +22,13 @@ import com.clover.studio.exampleapp.utils.Tools.getFilePathUrl
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ContactDetailsFragment : BaseFragment() {
@@ -100,12 +104,12 @@ class ContactDetailsFragment : BaseFragment() {
         })
 
         viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomExists -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     Timber.d("Room already exists")
-                    viewModel.getRoomWithUsers(it.roomData.roomId)
+                    it.responseData?.data?.room?.roomId?.let { roomId -> viewModel.getRoomWithUsers(roomId) }
                 }
-                is RoomNotFound -> {
+                Resource.Status.ERROR -> {
                     Timber.d("Room not found, creating new one")
                     val jsonObject = JsonObject()
 
@@ -175,7 +179,19 @@ class ContactDetailsFragment : BaseFragment() {
             binding.tvPageName.text = user?.displayName
 
             binding.ivChat.setOnClickListener {
-                user?.id?.let { id -> viewModel.checkIfRoomExists(id) }
+                user?.id?.let { id ->
+                    run {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
+                            val roomId = viewModel.checkIfUserInPrivateRoom(id)
+                            if (roomId != null) {
+                                viewModel.getRoomWithUsers(roomId)
+                            } else {
+                                viewModel.checkIfRoomExists(id)
+                            }
+                        }
+                    }
+                }
             }
 
             Glide.with(this).load(user?.avatarFileId?.let { getFilePathUrl(it) })
