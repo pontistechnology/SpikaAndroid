@@ -13,7 +13,7 @@ interface ChatService {
     suspend fun sendMessage(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
-    ): MessageResponse
+    ): Response<MessageResponse>
 
     @POST(Const.Networking.API_MESSAGES_SEEN)
     suspend fun sendMessagesSeen(

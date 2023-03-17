@@ -143,7 +143,7 @@ class SettingsFragment : BaseFragment() {
     private fun initializeObservers() {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
             val response = it.responseData
-            if (response != null){
+            if (response != null) {
                 binding.tvUsername.text = response.displayName ?: getString(R.string.no_username)
                 binding.tvPhoneNumber.text = response.telephoneNumber
                 avatarId = response.avatarFileId
@@ -318,11 +318,9 @@ class SettingsFragment : BaseFragment() {
                 avatarId
             )
             viewModel.updateUserData(jsonObject)
-        } else {
-            binding.etEnterUsername.visibility = View.GONE
-            binding.tvUsername.visibility = View.VISIBLE
-            return
         }
+        binding.etEnterUsername.visibility = View.GONE
+        binding.tvUsername.visibility = View.VISIBLE
     }
 
     private fun showUsernameUpdate() {

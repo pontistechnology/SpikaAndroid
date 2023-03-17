@@ -12,6 +12,8 @@ import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
+import com.clover.studio.exampleapp.data.models.networking.responses.MessageResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.NotesResponse
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
@@ -34,16 +36,16 @@ class ChatViewModel @Inject constructor(
     private val sseManager: SSEManager,
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel() {
-    val messageSendListener = MutableLiveData<Event<ChatStatesEnum>>()
+    val messageSendListener = MutableLiveData<Event<Resource<MessageResponse>>>()
     val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
     val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val fileUploadListener = MutableLiveData<Event<ChatStates>>()
     val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
-    val noteCreationListener = MutableLiveData<Event<ChatStates>>()
+    val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse>>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>>>>()
 
-    fun storeMessageLocally(message: Message) = viewModelScope.launch {
+    fun storeMessageLocally(message: Message) = CoroutineScope(Dispatchers.IO).launch {
         repository.storeMessageLocally(message)
     }
 
@@ -52,18 +54,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
-        try {
-            repository.sendMessage(jsonObject)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SEND_FAIL))
-            }
-            return@launch
-        }
-
-        messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SENT))
+        messageSendListener.postValue(Event(repository.sendMessage(jsonObject)))
     }
 
     fun getLocalUserId(): Int? {
@@ -93,16 +84,17 @@ class ChatViewModel @Inject constructor(
     }
 
     // TODO
-    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = viewModelScope.launch {
-        try {
-            repository.updateRoom(jsonObject, roomId, userId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
+    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                repository.updateRoom(jsonObject, roomId, userId)
+            } catch (ex: Exception) {
+                if (Tools.checkError(ex)) {
+                    setTokenExpiredTrue()
+                }
+                return@launch
             }
-            return@launch
         }
-    }
 
     fun isUserAdmin(roomId: Int, userId: Int): Boolean {
         var isAdmin = false
@@ -189,54 +181,34 @@ class ChatViewModel @Inject constructor(
         repository.removeAdmin(roomId, userId)
     }
 
-    fun deleteMessage(messageId: Int, target: String) = viewModelScope.launch {
+    fun deleteMessage(messageId: Int, target: String) = CoroutineScope(Dispatchers.IO).launch {
         repository.deleteMessage(messageId, target)
     }
 
-    fun editMessage(messageId: Int, jsonObject: JsonObject) = viewModelScope.launch {
-        repository.editMessage(messageId, jsonObject)
-    }
+    fun editMessage(messageId: Int, jsonObject: JsonObject) =
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.editMessage(messageId, jsonObject)
+        }
 
     fun fetchNotes(roomId: Int) =
         CoroutineScope(Dispatchers.IO).launch {
             repository.getNotes(roomId)
         }
 
-
     fun getRoomNotes(roomId: Int) = liveData {
         emitSource(repository.getLocalNotes(roomId))
     }
 
-    // TODO notes states
     fun createNewNote(roomId: Int, newNote: NewNote) = CoroutineScope(Dispatchers.IO).launch {
-        try {
-            repository.createNewNote(roomId, newNote)
-        } catch (ex: Exception) {
-            noteCreationListener.postValue(Event(NoteFailed))
-            return@launch
-        }
-        noteCreationListener.postValue(Event(NoteCreated))
+        noteCreationListener.postValue(Event(repository.createNewNote(roomId, newNote)))
     }
 
-    fun updateNote(noteId: Int, newNote: NewNote) = viewModelScope.launch {
-        try {
-            repository.updateNote(noteId, newNote)
-        } catch (ex: Exception) {
-            noteCreationListener.postValue(Event(NoteFailed))
-            return@launch
-        }
-        noteCreationListener.postValue(Event(NoteUpdated))
+    fun updateNote(noteId: Int, newNote: NewNote) = CoroutineScope(Dispatchers.IO).launch {
+        repository.updateNote(noteId, newNote)
     }
 
     fun deleteNote(noteId: Int) = viewModelScope.launch {
-        try {
-            repository.deleteNote(noteId)
-        } catch (ex: Exception) {
-            noteCreationListener.postValue(Event(NoteFailed))
-            return@launch
-        }
-
-        noteCreationListener.postValue(Event(NoteDeleted))
+        repository.deleteNote(noteId)
     }
 
     fun unregisterSharedPrefsReceiver() = viewModelScope.launch {
@@ -252,14 +224,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun getBlockedUsersList() = viewModelScope.launch {
-        try {
-            mainRepository.getBlockedList()
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        mainRepository.getBlockedList()
     }
 
     fun blockUser(blockedId: Int) = viewModelScope.launch {
@@ -267,25 +232,11 @@ class ChatViewModel @Inject constructor(
     }
 
     fun deleteBlock(userId: Int) = viewModelScope.launch {
-        try {
-            mainRepository.deleteBlock(userId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        mainRepository.deleteBlock(userId)
     }
 
     fun deleteBlockForSpecificUser(userId: Int) = viewModelScope.launch {
-        try {
-            mainRepository.deleteBlockForSpecificUser(userId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        mainRepository.deleteBlockForSpecificUser(userId)
     }
 
     fun uploadFile(
@@ -400,10 +351,6 @@ class ChatViewModel @Inject constructor(
 
 sealed class ChatStates
 class RoomNotificationData(val response: Resource<RoomWithUsers>, val message: Message)
-object NoteCreated : ChatStates()
-object NoteFailed : ChatStates()
-object NoteUpdated : ChatStates()
-object NoteDeleted : ChatStates()
 object FilePieceUploaded : ChatStates()
 class FileUploadError(val description: String) : ChatStates()
 class FileUploadVerified(
@@ -427,4 +374,4 @@ class MediaUploadVerified(
     val isThumbnail: Boolean
 ) : ChatStates()
 
-enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }
+enum class ChatStatesEnum {  MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }

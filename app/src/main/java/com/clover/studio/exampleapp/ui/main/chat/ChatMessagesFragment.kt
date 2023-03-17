@@ -564,8 +564,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun initializeObservers() {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                ChatStatesEnum.MESSAGE_SENT -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     tempMessageCounter -= 1
 
                     // Delay next message sending by 2 seconds for better user experience.
@@ -594,7 +594,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                     bindingSetup.rvChat.scrollToPosition(0)
                 }
-                ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
+                Resource.Status.ERROR -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
             }
         })

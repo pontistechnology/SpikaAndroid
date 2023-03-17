@@ -20,6 +20,8 @@ import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -121,7 +123,6 @@ class MainViewModel @Inject constructor(
 
     fun getRoomByIdLiveData(roomId: Int) = repository.getRoomByIdLiveData(roomId)
 
-
     fun getSingleRoomData(roomId: Int) =
         viewModelScope.launch {
             roomDataListener.postValue(Event(repository.getSingleRoomData(roomId)))
@@ -144,12 +145,11 @@ class MainViewModel @Inject constructor(
         )
     }
 
-
     fun updatePushToken(jsonObject: JsonObject) = viewModelScope.launch {
         resolveResponseStatus(null, repository.updatePushToken(jsonObject))
     }
 
-    fun updateUserData(jsonObject: JsonObject) = viewModelScope.launch {
+    fun updateUserData(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
         usersListener.postValue(Event(repository.updateUserData(jsonObject)))
     }
 

@@ -10,6 +10,8 @@ import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
+import com.clover.studio.exampleapp.data.models.networking.responses.MessageResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.NotesResponse
 import com.clover.studio.exampleapp.data.repositories.data_sources.ChatRemoteDataSource
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Const
@@ -22,7 +24,6 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
@@ -36,29 +37,25 @@ class ChatRepositoryImpl @Inject constructor(
     private val appDatabase: AppDatabase,
     private val sharedPrefsRepo: SharedPreferencesRepository,
 ) : ChatRepository {
-    override suspend fun sendMessage(jsonObject: JsonObject) {
-        val response =
-            chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
-        Timber.d("Response message $response")
-        response.data?.message?.let {
-            // Fields below should never be null except replyId. If null, there is a backend problem
-            val replyId = it.replyId ?: 0L
-            messageDao.updateMessage(
-                it.id,
-                it.fromUserId!!,
-                it.totalUserCount!!,
-                it.deliveredCount!!,
-                it.seenCount!!,
-                it.type!!,
-                it.body!!,
-                it.createdAt!!,
-                it.modifiedAt!!,
-                it.deleted!!,
-                replyId,
-                it.localId!!
-            )
-        }
-    }
+    override suspend fun sendMessage(jsonObject: JsonObject) =
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.sendMessage(jsonObject) },
+            saveCallResult = {
+                messageDao.updateMessage(
+                    it.data?.message!!.id,
+                    it.data.message.fromUserId!!,
+                    it.data.message.totalUserCount!!,
+                    it.data.message.deliveredCount!!,
+                    it.data.message.seenCount!!,
+                    it.data.message.type!!,
+                    it.data.message.body!!,
+                    it.data.message.createdAt!!,
+                    it.data.message.modifiedAt!!,
+                    it.data.message.deleted!!,
+                    it.data.message.replyId ?: 0L,
+                    it.data.message.localId!!
+                )
+            })
 
     override suspend fun storeMessageLocally(message: Message) {
         queryDatabaseCoreData(
@@ -93,7 +90,6 @@ class ChatRepositoryImpl @Inject constructor(
         val response = performRestOperation(
             networkCall = { chatRemoteDataSource.deleteMessage(messageId, target) })
 
-        // Just replace old message with new one. Deleted message just has a body with new text
         if (response.responseData?.data?.message != null) {
             val deletedMessage = response.responseData.data.message
             deletedMessage.type = Const.JsonFields.TEXT_TYPE
@@ -105,13 +101,10 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun editMessage(messageId: Int, jsonObject: JsonObject) {
-        val response =
-            performRestOperation(
-                networkCall = { chatRemoteDataSource.editMessage(messageId, jsonObject) })
-
-        if (response.responseData?.data?.message != null) {
-            messageDao.upsert(response.responseData.data.message)
-        }
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.editMessage(messageId, jsonObject) },
+            saveCallResult = { messageDao.upsert(it.data?.message!!) }
+        )
     }
 
     override suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int) {
@@ -228,13 +221,10 @@ class ChatRepositoryImpl @Inject constructor(
             databaseQuery = { notesDao.getDistinctNotes(roomId) }
         )
 
-
-    override suspend fun createNewNote(roomId: Int, newNote: NewNote) {
+    override suspend fun createNewNote(roomId: Int, newNote: NewNote) =
         performRestOperation(
             networkCall = { chatRemoteDataSource.createNewNote(roomId, newNote) },
             saveCallResult = { notesDao.upsert(it.data.note!!) })
-    }
-
 
     override suspend fun updateNote(noteId: Int, newNote: NewNote) {
         performRestOperation(
@@ -247,7 +237,6 @@ class ChatRepositoryImpl @Inject constructor(
             networkCall = { chatRemoteDataSource.deleteNote(noteId) },
             saveCallResult = { notesDao.deleteNote(noteId) }
         )
-        // response.data.deleted?.let { if (it) notesDao.deleteNote(noteId) }
     }
 
     override suspend fun deleteRoom(roomId: Int) {
@@ -273,7 +262,7 @@ class ChatRepositoryImpl @Inject constructor(
 
 interface ChatRepository {
     // Message calls
-    suspend fun sendMessage(jsonObject: JsonObject)
+    suspend fun sendMessage(jsonObject: JsonObject): Resource<MessageResponse>
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
     suspend fun deleteLocalMessage(message: Message)
@@ -301,7 +290,7 @@ interface ChatRepository {
     // Notes calls
     suspend fun getNotes(roomId: Int)
     suspend fun getLocalNotes(roomId: Int): LiveData<Resource<List<Note>>>
-    suspend fun createNewNote(roomId: Int, newNote: NewNote)
+    suspend fun createNewNote(roomId: Int, newNote: NewNote): Resource<NotesResponse>
     suspend fun updateNote(noteId: Int, newNote: NewNote)
     suspend fun deleteNote(noteId: Int)
 }

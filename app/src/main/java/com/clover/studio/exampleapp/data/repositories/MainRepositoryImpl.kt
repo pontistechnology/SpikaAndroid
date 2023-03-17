@@ -57,9 +57,6 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getDistinctRoomById(roomId) }
         )
 
-    /*override suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom> =
-        chatRoomDao.getDistinctRoomById(roomId)*/
-
     // TODO
     override suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse {
         val response =
@@ -132,9 +129,7 @@ class MainRepositoryImpl @Inject constructor(
             saveCallResult = { userDao.upsert(it.data.user) }
         )
 
-        // TODO ask Matko about this if
         if (Resource.Status.SUCCESS == data.status){
-            // This line was in MainViewModel
             sharedPrefs.accountCreated(true)
             sharedPrefs.writeUserId(data.responseData!!.data.user.id)
         }
@@ -274,32 +269,31 @@ class MainRepositoryImpl @Inject constructor(
 }
 
 interface MainRepository {
-    suspend fun getUserRooms(): List<ChatRoom>?
+    // User calls
     suspend fun getUserByID(id: Int): LiveData<Resource<User>>
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
+    suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
+    fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
+
+    // Rooms calls
+    suspend fun getUserRooms(): List<ChatRoom>?
     fun getRoomByIdLiveData(roomId: Int): LiveData<Resource<ChatRoom>>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
-    fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
-    fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
-    fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     suspend fun getSingleRoomData(roomId: Int): Resource<RoomAndMessageAndRecords>
     suspend fun getRoomWithUsers(roomId: Int): Resource<RoomWithUsers>
     suspend fun checkIfUserInPrivateRoom(userId: Int): Int?
-    suspend fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
-    suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
-    suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
-    suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
-    suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
+   suspend fun handleRoomMute(roomId: Int, doMute: Boolean)
+    suspend fun handleRoomPin(roomId: Int, doPin: Boolean)
+    fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
+    fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
+
+    // Settings calls
     suspend fun updatePushToken(jsonObject: JsonObject): Resource<Unit>
-    suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
+    suspend fun getUserSettings(): List<Settings>?
     suspend fun uploadFiles(jsonObject: JsonObject): Resource<FileResponse>
     suspend fun verifyFile(jsonObject: JsonObject): Resource<FileResponse>
-    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse
-    suspend fun getUserSettings(): List<Settings>?
-    suspend fun handleRoomMute(roomId: Int, doMute: Boolean)
-    suspend fun handleRoomPin(roomId: Int, doPin: Boolean)
 
-    // Block
+    // Block calls
     suspend fun getBlockedList()
     suspend fun fetchBlockedUsersLocally(userIds: List<Int>): Resource<List<User>>
     suspend fun blockUser(blockedId: Int)

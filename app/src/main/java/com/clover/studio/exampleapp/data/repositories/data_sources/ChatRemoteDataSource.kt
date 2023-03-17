@@ -13,6 +13,10 @@ class ChatRemoteDataSource @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository
 ) : BaseDataSource() {
 
+    suspend fun sendMessage(jsonObject: JsonObject) = getResult {
+        retrofitService.sendMessage(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    }
+
     suspend fun sendMessagesSeen(roomId: Int) = getResult {
         retrofitService.sendMessagesSeen(getHeaderMap(sharedPrefs.readToken()), roomId)
     }
