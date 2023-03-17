@@ -18,6 +18,10 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
+import com.clover.studio.exampleapp.utils.helpers.Resource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ContactsFragment : BaseFragment() {
@@ -57,8 +61,9 @@ class ContactsFragment : BaseFragment() {
         })
 
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                userList = it.toMutableList()
+            // TODO don't use !! here, make null check
+            if (it.responseData?.isNotEmpty() == true) {
+                userList = it.responseData.toMutableList()
 
                 // TODO fix this later
                 val users = userList.sortUsersByLocale(requireContext())
@@ -71,12 +76,12 @@ class ContactsFragment : BaseFragment() {
         // the method will send the user to the room with the roomId which is required to
         // handle mute and pin logic. If the user has no room open the roomId will be 0
         viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomExists -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     if (selectedUser != null) {
                         val bundle = bundleOf(
                             Const.Navigation.USER_PROFILE to selectedUser,
-                            Const.Navigation.ROOM_ID to it.roomData.roomId
+                            Const.Navigation.ROOM_ID to it.responseData?.data?.room?.roomId
                         )
                         findNavController().navigate(
                             R.id.action_mainFragment_to_contactDetailsFragment,
@@ -84,7 +89,7 @@ class ContactsFragment : BaseFragment() {
                         )
                     }
                 }
-                RoomNotFound -> {
+                Resource.Status.ERROR -> {
                     if (selectedUser != null) {
                         val bundle = bundleOf(Const.Navigation.USER_PROFILE to selectedUser)
                         findNavController().navigate(
@@ -101,7 +106,29 @@ class ContactsFragment : BaseFragment() {
     private fun setupAdapter() {
         contactsAdapter = ContactsAdapter(requireContext(), false, null) {
             selectedUser = it.user
-            viewModel.checkIfRoomExists(it.user.id)
+            run {
+                CoroutineScope(Dispatchers.IO).launch {
+                    Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(it.user.id)}")
+                    val roomId = viewModel.checkIfUserInPrivateRoom(it.user.id)
+                    if (roomId != null) {
+                        if (selectedUser != null) {
+                            val bundle = bundleOf(
+                                Const.Navigation.USER_PROFILE to selectedUser,
+                                Const.Navigation.ROOM_ID to roomId
+                            )
+                            activity?.runOnUiThread {
+                                findNavController().navigate(
+                                    R.id.action_mainFragment_to_contactDetailsFragment,
+                                    bundle
+                                )
+                            }
+                        }
+                    } else {
+                        viewModel.checkIfRoomExists(it.user.id)
+                    }
+                }
+            }
+
         }
 
         binding.rvContacts.adapter = contactsAdapter

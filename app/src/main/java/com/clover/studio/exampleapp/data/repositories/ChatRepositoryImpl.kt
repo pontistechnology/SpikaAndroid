@@ -2,10 +2,7 @@ package com.clover.studio.exampleapp.data.repositories
 
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.AppDatabase
-import com.clover.studio.exampleapp.data.daos.ChatRoomDao
-import com.clover.studio.exampleapp.data.daos.MessageDao
-import com.clover.studio.exampleapp.data.daos.NotesDao
-import com.clover.studio.exampleapp.data.daos.UserDao
+import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.Note
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
@@ -29,6 +26,7 @@ class ChatRepositoryImpl @Inject constructor(
     private val roomDao: ChatRoomDao,
     private val messageDao: MessageDao,
     private val userDao: UserDao,
+    private val roomUserDao: RoomUserDao,
     private val notesDao: NotesDao,
     private val appDatabase: AppDatabase,
     private val sharedPrefsRepo: SharedPreferencesRepository
@@ -58,7 +56,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun storeMessageLocally(message: Message) {
-        messageDao.insert(message)
+        messageDao.upsert(message)
     }
 
     override suspend fun deleteLocalMessages(messages: List<Message>) {
@@ -72,7 +70,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteLocalMessage(message: Message) {
-        messageDao.deleteMessage(message)
+        messageDao.delete(message)
     }
 
     override suspend fun sendMessagesSeen(roomId: Int) =
@@ -86,7 +84,7 @@ class ChatRepositoryImpl @Inject constructor(
         if (response.data?.message != null) {
             val deletedMessage = response.data.message
             deletedMessage.type = Const.JsonFields.TEXT_TYPE
-            messageDao.insert(deletedMessage)
+            messageDao.upsert(deletedMessage)
         }
     }
 
@@ -97,7 +95,7 @@ class ChatRepositoryImpl @Inject constructor(
             jsonObject
         )
         if (response.data?.message != null) {
-            messageDao.insert(response.data.message)
+            messageDao.upsert(response.data.message)
         }
     }
 
@@ -105,7 +103,7 @@ class ChatRepositoryImpl @Inject constructor(
         roomDao.updateRoomVisited(visitedTimestamp, roomId)
 
     override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
-        roomDao.getRoomAndUsersLiveData(roomId)
+        roomDao.getDistinctRoomAndUsers(roomId)
 
     override suspend fun getRoomWithUsers(roomId: Int) =
         roomDao.getRoomAndUsers(roomId)
@@ -127,7 +125,7 @@ class ChatRepositoryImpl @Inject constructor(
 
                         // Delete Room User if id has been passed through
                         if (userId != 0) {
-                            roomDao.deleteRoomUser(RoomUser(roomId, userId, false))
+                            roomUserDao.delete(RoomUser(roomId, userId, false))
                         }
 
                         for (user in room.users) {
@@ -138,8 +136,8 @@ class ChatRepositoryImpl @Inject constructor(
                                 )
                             )
                         }
-                        userDao.insert(users)
-                        roomDao.insertRoomWithUsers(roomUsers)
+                        userDao.upsert(users)
+                        roomUserDao.upsert(roomUsers)
                     }
                 }
             }
@@ -147,10 +145,10 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean? =
-        roomDao.getRoomUserById(roomId, userId).isAdmin
+        roomUserDao.getRoomUserById(roomId, userId).isAdmin
 
     override suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords> =
-        roomDao.getChatRoomAndMessageAndRecordsById(roomId)
+        roomDao.getDistinctChatRoomAndMessageAndRecordsById(roomId)
 
     override suspend fun handleRoomMute(roomId: Int, doMute: Boolean) {
         val response: MuteResponse = if (doMute)
@@ -183,7 +181,7 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getNotes(roomId: Int) {
         val response = chatService.getRoomNotes(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
 
-        response.data.notes?.let { notesDao.insert(it) }
+        response.data.notes?.let { notesDao.upsert(it) }
     }
 
     override suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>> =
@@ -193,14 +191,14 @@ class ChatRepositoryImpl @Inject constructor(
         val response =
             chatService.createNote(getHeaderMap(sharedPrefsRepo.readToken()), roomId, newNote)
 
-        response.data.note?.let { notesDao.insert(it) }
+        response.data.note?.let { notesDao.upsert(it) }
     }
 
     override suspend fun updateNote(noteId: Int, newNote: NewNote) {
         val response =
             chatService.updateNote(getHeaderMap(sharedPrefsRepo.readToken()), noteId, newNote)
 
-        response.data.note?.let { notesDao.insert(it) }
+        response.data.note?.let { notesDao.upsert(it) }
     }
 
     override suspend fun deleteNote(noteId: Int) {
@@ -224,7 +222,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun removeAdmin(roomId: Int, userId: Int) {
-        roomDao.removeAdmin(roomId, userId)
+        roomUserDao.removeAdmin(roomId, userId)
     }
 }
 

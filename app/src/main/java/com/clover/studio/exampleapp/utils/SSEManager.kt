@@ -2,6 +2,9 @@
 
 package com.clover.studio.exampleapp.utils
 
+import android.os.CountDownTimer
+import android.os.Handler
+import android.os.Looper
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.data.models.entity.Message
@@ -17,6 +20,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
 import javax.net.ssl.HttpsURLConnection
+
 
 class SSEManager @Inject constructor(
     private val repo: SSERepositoryImpl,
@@ -164,7 +168,20 @@ class SSEManager @Inject constructor(
             } catch (ex: Exception) {
                 if (ex is IOException) {
                     Timber.d("IOException ${ex.message} ${ex.localizedMessage}")
-                    openConnectionAndFetchEvents(url)
+                    Handler(Looper.getMainLooper()).post {
+                        object : CountDownTimer(5000, 1000) {
+                            override fun onTick(millisUntilFinished: Long) {
+                                Timber.d("Timer tick $millisUntilFinished")
+                            }
+
+                            override fun onFinish() {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    Timber.d("Launching connection")
+                                    openConnectionAndFetchEvents(url)
+                                }
+                            }
+                        }.start()
+                    }
                 }
                 Tools.checkError(ex)
             }

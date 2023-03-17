@@ -24,9 +24,13 @@ import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 import kotlin.streams.toList
@@ -157,7 +161,19 @@ class NewRoomFragment : BaseFragment() {
             } else {
                 user = it.user
                 showProgress(false)
-                it.user.id.let { id -> viewModel.checkIfRoomExists(id) }
+                it.user.id.let { id ->
+                    run {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
+                            val roomId = viewModel.checkIfUserInPrivateRoom(id)
+                            if (roomId != null) {
+                                viewModel.getRoomWithUsers(roomId)
+                            } else {
+                                viewModel.checkIfRoomExists(id)
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -217,8 +233,9 @@ class NewRoomFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                userList = it.toMutableList()
+            // TODO @Ivana handle this null check
+            if (it.responseData!!.isNotEmpty()) {
+                userList = it.responseData.toMutableList()
                 val users = userList.sortUsersByLocale(requireContext())
                 userList = users.toMutableList()
                 contactsAdapter.submitList(users)
@@ -248,12 +265,12 @@ class NewRoomFragment : BaseFragment() {
         })
 
         viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomExists -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     Timber.d("Room already exists")
-                    viewModel.getRoomWithUsers(it.roomData.roomId)
+                    viewModel.getRoomWithUsers(it.responseData?.data?.room?.roomId!!)
                 }
-                is RoomNotFound -> {
+                Resource.Status.ERROR -> {
                     Timber.d("Room not found, creating new one")
                     val jsonObject = JsonObject()
 

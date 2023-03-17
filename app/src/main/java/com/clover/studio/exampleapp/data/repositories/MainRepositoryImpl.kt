@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.data.repositories
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
+import com.clover.studio.exampleapp.data.daos.RoomUserDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
@@ -12,9 +13,13 @@ import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.BlockedId
 import com.clover.studio.exampleapp.data.models.networking.responses.*
+import com.clover.studio.exampleapp.data.repositories.data_sources.MainRemoteDataSource
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
+import com.clover.studio.exampleapp.utils.helpers.Resource
+import com.clover.studio.exampleapp.utils.helpers.RestOperations.performRestOperation
+import com.clover.studio.exampleapp.utils.helpers.RestOperations.queryDatabase
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,9 +27,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
+    private val mainRemoteDataSource: MainRemoteDataSource,
     private val retrofitService: RetrofitService,
     private val userDao: UserDao,
     private val chatRoomDao: ChatRoomDao,
+    private val roomUserDao: RoomUserDao,
     private val appDatabase: AppDatabase,
     private val sharedPrefs: SharedPreferencesRepository
 ) : MainRepository {
@@ -33,13 +40,15 @@ class MainRepositoryImpl @Inject constructor(
         retrofitService.fetchAllUserRooms(getHeaderMap(sharedPrefs.readToken())).data?.list
 
     override suspend fun getUserByID(id: Int) =
-        userDao.getUserById(id)
+        userDao.getDistinctUserById(id)
 
-    override suspend fun getRoomById(userId: Int) =
-        retrofitService.getRoomById(getHeaderMap(sharedPrefs.readToken()), userId)
+    override suspend fun getRoomById(roomId: Int) =
+        performRestOperation(
+            networkCall = { mainRemoteDataSource.getRoomById(roomId) }
+        )
 
     override suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom> =
-        chatRoomDao.getRoomByIdLiveData(roomId)
+        chatRoomDao.getDistinctRoomById(roomId)
 
     override suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse {
         val response =
@@ -63,22 +72,28 @@ class MainRepositoryImpl @Inject constructor(
                             )
                         )
                     }
-                    chatRoomDao.insertRoomWithUsers(roomUsers)
-                    userDao.insert(users)
+                    roomUserDao.upsert(roomUsers)
+                    userDao.upsert(users)
                 }
             }
         }
         return response
     }
 
-    override suspend fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>> =
-        userDao.getUserAndPhoneUser(localId)
+    override fun getUserAndPhoneUser(localId: Int) =
+        queryDatabase(
+            databaseQuery = { userDao.getUserAndPhoneUser(localId) }
+        )
+
+    override suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
+        return roomUserDao.doesPrivateRoomExistForUser(userId)
+    }
 
     override suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
         chatRoomDao.getChatRoomAndMessageAndRecords()
 
     override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
-        chatRoomDao.getRoomAndUsersLiveData(roomId)
+        chatRoomDao.getDistinctRoomAndUsers(roomId)
 
     override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
         chatRoomDao.getSingleRoomData(roomId)
@@ -87,13 +102,15 @@ class MainRepositoryImpl @Inject constructor(
         chatRoomDao.getRoomAndUsers(roomId)
 
     override suspend fun updatePushToken(jsonObject: JsonObject) =
-        retrofitService.updatePushToken(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+        performRestOperation(
+            networkCall = { mainRemoteDataSource.updatePushToken(jsonObject) }
+        )
 
     override suspend fun updateUserData(jsonObject: JsonObject): AuthResponse {
         val responseData =
             retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
-        userDao.insert(responseData.data.user)
+        userDao.upsert(responseData.data.user)
         sharedPrefs.writeUserId(responseData.data.user.id)
 
         return responseData
@@ -103,8 +120,10 @@ class MainRepositoryImpl @Inject constructor(
         jsonObject: JsonObject
     ) = retrofitService.uploadFiles(getHeaderMap(sharedPrefs.readToken()), jsonObject)
 
-    override suspend fun verifyFile(jsonObject: JsonObject): FileResponse =
-        retrofitService.verifyFile(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    override suspend fun verifyFile(jsonObject: JsonObject) =
+        performRestOperation {
+            mainRemoteDataSource.verifyFile(jsonObject)
+        }
 
     override suspend fun updateRoom(
         jsonObject: JsonObject,
@@ -122,7 +141,7 @@ class MainRepositoryImpl @Inject constructor(
 
             // Delete Room User if id has been passed through
             if (userId != 0) {
-                chatRoomDao.deleteRoomUser(RoomUser(roomId, userId, false))
+                roomUserDao.delete(RoomUser(roomId, userId, false))
             }
 
             CoroutineScope(Dispatchers.IO).launch {
@@ -140,8 +159,8 @@ class MainRepositoryImpl @Inject constructor(
                                 )
                             )
                         }
-                        userDao.insert(users)
-                        chatRoomDao.insertRoomWithUsers(roomUsers)
+                        userDao.upsert(users)
+                        roomUserDao.upsert(roomUsers)
                     }
                 }
             }
@@ -215,18 +234,19 @@ class MainRepositoryImpl @Inject constructor(
 interface MainRepository {
     suspend fun getUserRooms(): List<ChatRoom>?
     suspend fun getUserByID(id: Int): LiveData<User>
-    suspend fun getRoomById(userId: Int): RoomResponse
+    suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun getRoomByIdLiveData(roomId: Int): LiveData<ChatRoom>
     suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
-    suspend fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>>
+    fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
+    suspend fun checkIfUserInPrivateRoom(userId: Int): Int?
     suspend fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
     suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
     suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
-    suspend fun updatePushToken(jsonObject: JsonObject)
+    suspend fun updatePushToken(jsonObject: JsonObject): Resource<Unit>
     suspend fun updateUserData(jsonObject: JsonObject): AuthResponse
     suspend fun uploadFiles(jsonObject: JsonObject): FileResponse
-    suspend fun verifyFile(jsonObject: JsonObject): FileResponse
+    suspend fun verifyFile(jsonObject: JsonObject): Resource<FileResponse>
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse
     suspend fun getUserSettings(): List<Settings>
     suspend fun handleRoomMute(roomId: Int, doMute: Boolean)

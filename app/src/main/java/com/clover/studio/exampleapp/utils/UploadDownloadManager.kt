@@ -163,7 +163,7 @@ class UploadDownloadManager constructor(
         fileUploadListener: FileUploadListener
     ) {
         try {
-            val file = repository.verifyFile(uploadFile.fileToJson()).data?.file
+            val file = repository.verifyFile(uploadFile.fileToJson()).responseData?.data?.file
             Timber.d("UploadDownload FilePath = ${file?.path}")
             Timber.d("Mime type = $mimeType")
             if (isThumbnail) file?.path?.let {
