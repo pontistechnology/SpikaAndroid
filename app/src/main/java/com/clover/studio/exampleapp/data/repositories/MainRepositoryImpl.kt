@@ -282,10 +282,11 @@ interface MainRepository {
     suspend fun getSingleRoomData(roomId: Int): Resource<RoomAndMessageAndRecords>
     suspend fun getRoomWithUsers(roomId: Int): Resource<RoomWithUsers>
     suspend fun checkIfUserInPrivateRoom(userId: Int): Int?
-   suspend fun handleRoomMute(roomId: Int, doMute: Boolean)
+    suspend fun handleRoomMute(roomId: Int, doMute: Boolean)
     suspend fun handleRoomPin(roomId: Int, doPin: Boolean)
     fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
+    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse
 
     // Settings calls
     suspend fun updatePushToken(jsonObject: JsonObject): Resource<Unit>
