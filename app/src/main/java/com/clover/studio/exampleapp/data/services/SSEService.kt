@@ -6,6 +6,7 @@ import com.clover.studio.exampleapp.data.models.networking.responses.MessageResp
 import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
+import retrofit2.Response
 import retrofit2.http.*
 
 interface SSEService {
@@ -13,29 +14,29 @@ interface SSEService {
     suspend fun syncMessages(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long
-    ): MessageResponse
+    ): Response<MessageResponse>
 
     @GET(Const.Networking.API_SYNC_MESSAGE_RECORDS)
     suspend fun syncMessageRecords(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long
-    ): MessageRecordsResponse
+    ): Response<MessageRecordsResponse>
 
     @GET(Const.Networking.API_SYNC_USERS)
     suspend fun syncUsers(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long
-    ): ContactResponse
+    ): Response<ContactResponse>
 
     @GET(Const.Networking.API_SYNC_ROOMS)
     suspend fun syncRooms(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long
-    ): RoomResponse
+    ): Response<RoomResponse>
 
     @POST(Const.Networking.API_MESSAGE_DELIVERED)
     suspend fun sendMessageDelivered(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
-    ): MessageRecordsResponse
+    ): Response<MessageRecordsResponse>
 }

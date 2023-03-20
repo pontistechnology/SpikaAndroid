@@ -8,9 +8,10 @@ import com.clover.studio.exampleapp.data.models.entity.MessageRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate
-import com.clover.studio.exampleapp.data.services.SSEService
+import com.clover.studio.exampleapp.data.repositories.data_sources.SSERemoteDataSource
 import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.helpers.RestOperations.performRestOperation
+import com.clover.studio.exampleapp.utils.helpers.RestOperations.queryDatabaseCoreData
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -21,8 +22,8 @@ import java.util.stream.Collectors
 import javax.inject.Inject
 
 class SSERepositoryImpl @Inject constructor(
+    private val sseRemoteDataSource: SSERemoteDataSource,
     private val sharedPrefs: SharedPreferencesRepository,
-    private val sseService: SSEService,
     private val messageDao: MessageDao,
     private val messageRecordsDao: MessageRecordsDao,
     private val chatRoomDao: ChatRoomDao,
@@ -43,9 +44,8 @@ class SSERepositoryImpl @Inject constructor(
         }
 
         val response =
-            sseService.syncMessageRecords(
-                Tools.getHeaderMap(sharedPrefs.readToken()),
-                messageRecordsTimestamp
+            performRestOperation(
+                networkCall = { sseRemoteDataSource.syncMessageRecords(messageRecordsTimestamp) }
             )
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -53,22 +53,32 @@ class SSERepositoryImpl @Inject constructor(
                 CoroutineScope(Dispatchers.IO).launch {
                     val messageRecords: MutableList<MessageRecords> = ArrayList()
                     val messageRecordsUpdates: MutableList<MessageRecords> = ArrayList()
-                    for (record in response.data.messageRecords) {
-                        if (messageRecordsDao.getMessageRecordId(
-                                record.messageId,
-                                record.userId
-                            ) == null
-                        ) {
+
+                    for (record in response.responseData?.data!!.messageRecords) {
+                        val databaseRecords = queryDatabaseCoreData(
+                            databaseQuery = {
+                                messageRecordsDao.getMessageRecordId(
+                                    record.messageId,
+                                    record.userId,
+                                )
+                            }
+                        ).responseData
+
+                        if (databaseRecords == null) {
                             messageRecords.add(record)
                         } else
                             if (Const.JsonFields.SEEN == record.type) {
                                 messageRecordsUpdates.add(record)
                             } else if (Const.JsonFields.REACTION == record.type) {
-                                if (messageRecordsDao.getMessageReactionId(
-                                        record.messageId,
-                                        record.userId
-                                    ) == null
-                                ) {
+                                val databaseReaction = queryDatabaseCoreData(
+                                    databaseQuery = {
+                                        messageRecordsDao.getMessageReactionId(
+                                            record.messageId,
+                                            record.userId
+                                        )
+                                    }
+                                ).responseData
+                                if (databaseReaction == null) {
                                     messageRecords.add(record)
                                 } else {
                                     messageRecordsUpdates.add(record)
@@ -76,16 +86,22 @@ class SSERepositoryImpl @Inject constructor(
                             }
                     }
 
-                    messageRecordsDao.upsert(messageRecords)
+                    queryDatabaseCoreData(
+                        databaseQuery = { messageRecordsDao.upsert(messageRecords) }
+                    )
 
                     // Since this is a transaction method this loop should insert all or none
                     messageRecordsUpdates.forEach {
-                        messageRecordsDao.updateMessageRecords(
-                            it.userId,
-                            it.type,
-                            it.createdAt,
-                            it.modifiedAt,
-                            it.userId
+                        queryDatabaseCoreData(
+                            databaseQuery = {
+                                messageRecordsDao.updateMessageRecords(
+                                    it.userId,
+                                    it.type,
+                                    it.createdAt,
+                                    it.modifiedAt,
+                                    it.userId
+                                )
+                            }
                         )
                     }
 
@@ -114,23 +130,23 @@ class SSERepositoryImpl @Inject constructor(
         }
 
         val messageIds = ArrayList<Int>()
-        val response =
-            sseService.syncMessages(
-                Tools.getHeaderMap(sharedPrefs.readToken()),
-                messageTimestamp
-            )
+        val response = performRestOperation(
+            networkCall = { sseRemoteDataSource.syncMessages(messageTimestamp) }
+        )
 
         val messages: MutableList<Message> = ArrayList()
-        if (response.data?.messages?.isNotEmpty() == true) {
-            for (message in response.data.messages) {
+        if (response.responseData?.data?.messages?.isNotEmpty() == true) {
+            for (message in response.responseData.data.messages) {
                 messages.add(message)
                 messageIds.add(message.id)
             }
-            messageDao.upsert(messages)
 
-            sseService.sendMessageDelivered(
-                Tools.getHeaderMap(sharedPrefs.readToken()),
-                getMessageIdJson(messageIds)
+            queryDatabaseCoreData(
+                databaseQuery = { messageDao.upsert(messages) }
+            )
+
+            performRestOperation(
+                networkCall = { sseRemoteDataSource.sendMessageDelivered(getMessageIdJson(messageIds)) }
             )
 
             if (messages.isNotEmpty()) {
@@ -156,18 +172,19 @@ class SSERepositoryImpl @Inject constructor(
             sharedPrefs.writeUserTimestamp(System.currentTimeMillis())
         }
 
-        val response =
-            sseService.syncUsers(
-                Tools.getHeaderMap(sharedPrefs.readToken()),
-                userTimestamp
-            )
+        val response = performRestOperation(
+            networkCall = { sseRemoteDataSource.syncUsers(userTimestamp) }
+        )
 
         val users: MutableList<User> = ArrayList()
-        if (response.data?.users?.isNotEmpty() == true) {
-            for (user in response.data.users) {
+        if (response.responseData?.data?.users?.isNotEmpty() == true) {
+            for (user in response.responseData.data.users) {
                 users.add(user)
             }
-            userDao.upsert(users)
+
+            queryDatabaseCoreData(
+                databaseQuery = { userDao.upsert(users) }
+            )
 
             if (users.isNotEmpty()) {
                 val maxTimestamp = users.maxByOrNull { it.modifiedAt!! }?.modifiedAt
@@ -181,26 +198,27 @@ class SSERepositoryImpl @Inject constructor(
 
     override suspend fun syncRooms() {
         Timber.d("Syncing rooms")
-
         val roomTimestamp: Long = sharedPrefs.readRoomTimestamp()!!
-
-        val response = sseService.syncRooms(
-            Tools.getHeaderMap(sharedPrefs.readToken()),
-            roomTimestamp
+        val response = performRestOperation(
+            networkCall = { sseRemoteDataSource.syncRooms(roomTimestamp) }
         )
 
         CoroutineScope(Dispatchers.IO).launch {
             appDatabase.runInTransaction {
                 CoroutineScope(Dispatchers.IO).launch {
-                    if (response.data?.rooms != null) {
+                    if (response.responseData?.data?.rooms != null) {
                         val users: MutableList<User> = ArrayList()
                         val rooms: MutableList<ChatRoom> = ArrayList()
                         val roomUsers: MutableList<RoomUser> = ArrayList()
                         val chatRooms: MutableList<ChatRoomUpdate> = ArrayList()
-                        for (room in response.data.rooms) {
+                        for (room in response.responseData.data.rooms) {
                             if (!room.deleted) {
                                 Timber.d("Adding room ${room.name}")
-                                val oldData = chatRoomDao.getRoomById(room.roomId)
+
+                                val oldData = queryDatabaseCoreData(
+                                    databaseQuery = { chatRoomDao.getRoomById(room.roomId) }
+                                ).responseData
+
                                 chatRooms.add(ChatRoomUpdate(oldData, room))
 
                                 for (user in room.users) {
@@ -216,9 +234,15 @@ class SSERepositoryImpl @Inject constructor(
                             }
                             rooms.add(room)
                         }
-                        chatRoomDao.updateRoomTable(chatRooms)
-                        userDao.upsert(users)
-                        roomUserDao.upsert(roomUsers)
+                        queryDatabaseCoreData(
+                            databaseQuery = { chatRoomDao.updateRoomTable(chatRooms) }
+                        )
+                        queryDatabaseCoreData(
+                            databaseQuery = { userDao.upsert(users) }
+                        )
+                        queryDatabaseCoreData(
+                            databaseQuery = { roomUserDao.upsert(roomUsers) }
+                        )
                         if (rooms.isNotEmpty()) {
                             val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
                             Timber.d("MaxTimestamp rooms: $maxTimestamp, old timestamp = $roomTimestamp")
@@ -233,14 +257,25 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun sendMessageDelivered(messageId: Int) {
-        sseService.sendMessageDelivered(
-            Tools.getHeaderMap(sharedPrefs.readToken()),
-            getMessageIdJson(arrayListOf(messageId))
+        performRestOperation(
+            networkCall = {
+                sseRemoteDataSource.sendMessageDelivered(
+                    getMessageIdJson(
+                        arrayListOf(
+                            messageId
+                        )
+                    )
+                )
+            }
         )
     }
 
     override suspend fun writeMessages(message: Message) {
-        messageDao.upsert(message)
+        CoroutineScope(Dispatchers.IO).launch {
+            queryDatabaseCoreData(
+                databaseQuery = { messageDao.upsert(message) }
+            )
+        }
     }
 
     override suspend fun writeMessageRecord(messageRecords: MessageRecords) {
@@ -258,34 +293,55 @@ class SSERepositoryImpl @Inject constructor(
      * @param messageRecords
      */
     private suspend fun writeRecord(messageRecords: MessageRecords) {
-        if (messageRecordsDao.getMessageRecordId(
-                messageRecords.messageId,
-                messageRecords.userId
-            ) == null
-        ) {
-            messageRecordsDao.upsert(messageRecords)
+        val databaseRecords = queryDatabaseCoreData(
+            databaseQuery = {
+                messageRecordsDao.getMessageRecordId(
+                    messageRecords.messageId,
+                    messageRecords.userId
+                )
+            }
+        ).responseData
+
+        if (databaseRecords == null) {
+            queryDatabaseCoreData(
+                databaseQuery = { messageRecordsDao.upsert(messageRecords) }
+            )
         } else {
             if (Const.JsonFields.SEEN == messageRecords.type) {
-                messageRecordsDao.updateMessageRecords(
-                    messageRecords.messageId,
-                    messageRecords.type,
-                    messageRecords.createdAt,
-                    messageRecords.modifiedAt,
-                    messageRecords.userId,
+                queryDatabaseCoreData(
+                    databaseQuery = {
+                        messageRecordsDao.updateMessageRecords(
+                            messageRecords.messageId,
+                            messageRecords.type,
+                            messageRecords.createdAt,
+                            messageRecords.modifiedAt,
+                            messageRecords.userId,
+                        )
+                    }
                 )
             } else if (Const.JsonFields.REACTION == messageRecords.type) {
-                if (messageRecordsDao.getMessageReactionId(
-                        messageRecords.messageId,
-                        messageRecords.userId
-                    ) == null
-                ) {
-                    messageRecordsDao.upsert(messageRecords)
+                val databaseReaction = queryDatabaseCoreData(
+                    databaseQuery = {
+                        messageRecordsDao.getMessageReactionId(
+                            messageRecords.messageId,
+                            messageRecords.userId
+                        )
+                    }
+                ).responseData
+                if (databaseReaction == null) {
+                    queryDatabaseCoreData(
+                        databaseQuery = { messageRecordsDao.upsert(messageRecords) }
+                    )
                 } else {
-                    messageRecordsDao.updateReaction(
-                        messageRecords.messageId,
-                        messageRecords.reaction!!,
-                        messageRecords.userId,
-                        messageRecords.createdAt,
+                    queryDatabaseCoreData(
+                        databaseQuery = {
+                            messageRecordsDao.updateReaction(
+                                messageRecords.messageId,
+                                messageRecords.reaction!!,
+                                messageRecords.userId,
+                                messageRecords.createdAt,
+                            )
+                        }
                     )
                 }
             }
@@ -293,15 +349,24 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeUser(user: User) {
-        userDao.upsert(user)
+        CoroutineScope(Dispatchers.IO).launch {
+            queryDatabaseCoreData(
+                databaseQuery = { userDao.upsert(user) }
+            )
+        }
     }
 
     override suspend fun writeRoom(room: ChatRoom) {
         CoroutineScope(Dispatchers.IO).launch {
             appDatabase.runInTransaction {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val oldRoom = chatRoomDao.getRoomById(room.roomId)
-                    chatRoomDao.updateRoomTable(oldRoom, room)
+                    val oldRoom = queryDatabaseCoreData(
+                        databaseQuery = { chatRoomDao.getRoomById(room.roomId) }
+                    ).responseData
+
+                    queryDatabaseCoreData(
+                        databaseQuery = { chatRoomDao.updateRoomTable(oldRoom, room) }
+                    )
 
                     val users: MutableList<User> = ArrayList()
                     val roomUsers: MutableList<RoomUser> = ArrayList()
@@ -321,34 +386,48 @@ class SSERepositoryImpl @Inject constructor(
                      * the database who was deleted. Remove specific user and update the table with
                      * fresh data.
                      */
-                    val oldRoomUsers = chatRoomDao.getRoomAndUsers(room.roomId).users
+
+                    val oldRoomUsers = queryDatabaseCoreData(
+                        databaseQuery = { chatRoomDao.getRoomAndUsers(room.roomId) }
+                    ).responseData?.users
 
                     val roomUserLookup = roomUsers.stream()
                         .map { user -> user.userId }
                         .collect(Collectors.toCollection { HashSet() })
 
-                    val filteredList = oldRoomUsers.stream()
-                        .filter { user -> !roomUserLookup.contains(user.id) }
-                        .map { user -> user.id }
-                        .collect(Collectors.toList())
+                    val filteredList = oldRoomUsers?.stream()
+                        ?.filter { user -> !roomUserLookup.contains(user.id) }
+                        ?.map { user -> user.id }
+                        ?.collect(Collectors.toList())
 
                     // Handle database operations
-                    userDao.upsert(users)
-                    if (filteredList.isNotEmpty()) {
-                        roomUserDao.deleteRoomUsers(filteredList)
+                    queryDatabaseCoreData(
+                        databaseQuery = { userDao.upsert(users) }
+                    )
+                    if (filteredList!!.isNotEmpty()) {
+                        queryDatabaseCoreData(
+                            databaseQuery = { roomUserDao.deleteRoomUsers(filteredList) }
+                        )
                     }
-                    roomUserDao.upsert(roomUsers)
+                    queryDatabaseCoreData(
+                        databaseQuery = { roomUserDao.upsert(roomUsers) }
+                    )
                 }
             }
         }
     }
 
     override suspend fun deleteMessageRecord(messageRecords: MessageRecords) {
-        messageRecordsDao.delete(messageRecords)
+        queryDatabaseCoreData(
+            databaseQuery = { messageRecordsDao.delete(messageRecords) }
+        )
     }
 
-    override suspend fun deleteRoom(roomId: Int) =
-        chatRoomDao.deleteRoom(roomId)
+    override suspend fun deleteRoom(roomId: Int) {
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.deleteRoom(roomId) }
+        )
+    }
 }
 
 interface SSERepository {

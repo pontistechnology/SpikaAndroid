@@ -6,10 +6,10 @@ import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.repositories.*
 import com.clover.studio.exampleapp.data.repositories.data_sources.ChatRemoteDataSource
 import com.clover.studio.exampleapp.data.repositories.data_sources.MainRemoteDataSource
+import com.clover.studio.exampleapp.data.repositories.data_sources.SSERemoteDataSource
 import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
-import com.clover.studio.exampleapp.data.services.SSEService
 import com.clover.studio.exampleapp.utils.SSEManager
 import com.clover.studio.exampleapp.utils.UploadDownloadManager
 import dagger.Module
@@ -89,8 +89,8 @@ object RepositoryModule {
     @Singleton
     @Provides
     fun provideSSERepository(
+        sseRemoteDataSource: SSERemoteDataSource,
         sharedPrefs: SharedPreferencesRepository,
-        sseService: SSEService,
         messageDao: MessageDao,
         messageRecordsDao: MessageRecordsDao,
         chatRoomDao: ChatRoomDao,
@@ -98,8 +98,8 @@ object RepositoryModule {
         appDatabase: AppDatabase,
         userDao: UserDao
     ) = SSERepositoryImpl(
+        sseRemoteDataSource,
         sharedPrefs,
-        sseService,
         messageDao,
         messageRecordsDao,
         chatRoomDao,
