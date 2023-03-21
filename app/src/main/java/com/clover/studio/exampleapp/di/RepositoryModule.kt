@@ -6,9 +6,9 @@ import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.repositories.*
 import com.clover.studio.exampleapp.data.repositories.data_sources.ChatRemoteDataSource
 import com.clover.studio.exampleapp.data.repositories.data_sources.MainRemoteDataSource
+import com.clover.studio.exampleapp.data.repositories.data_sources.OnboardingRemoteDataSource
 import com.clover.studio.exampleapp.data.repositories.data_sources.SSERemoteDataSource
 import com.clover.studio.exampleapp.data.services.ChatService
-import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.utils.SSEManager
 import com.clover.studio.exampleapp.utils.UploadDownloadManager
@@ -79,12 +79,12 @@ object RepositoryModule {
     @Singleton
     @Provides
     fun provideOnboardingRepository(
-        retrofitService: OnboardingService,
+        onboardingRemoteDataSource: OnboardingRemoteDataSource,
         userDao: UserDao,
         phoneUserDao: PhoneUserDao,
         sharedPrefs: SharedPreferencesRepository
     ) =
-        OnboardingRepositoryImpl(retrofitService, userDao, phoneUserDao, sharedPrefs)
+        OnboardingRepositoryImpl(onboardingRemoteDataSource, userDao, phoneUserDao, sharedPrefs)
 
     @Singleton
     @Provides

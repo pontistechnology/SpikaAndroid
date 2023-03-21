@@ -15,13 +15,13 @@ import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.databinding.FragmentVerificationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
-import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.SmsListener
 import com.clover.studio.exampleapp.utils.SmsReceiver
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.gson.JsonObject
 import timber.log.Timber
@@ -107,21 +107,21 @@ class VerificationFragment : BaseFragment() {
     private fun setObservers() {
         viewModel.codeVerificationListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
-                OnboardingStates.VERIFYING -> {
+                Resource.Status.LOADING -> {
                     binding.clInputUi.visibility = View.GONE
                     binding.ivSpikaVerify.visibility = View.VISIBLE
                 }
-                OnboardingStates.CODE_VERIFIED -> {
+                Resource.Status.SUCCESS -> {
                     binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
                     binding.ivCheckmark.visibility = View.VISIBLE
                     goToMainActivity()
                 }
-                OnboardingStates.CODE_VERIFIED_NEW_USER -> {
+                Resource.Status.NEW_USER -> {
                     binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
                     binding.ivCheckmark.visibility = View.VISIBLE
                     goToAccountCreation()
                 }
-                OnboardingStates.CODE_ERROR -> {
+                Resource.Status.ERROR -> {
                     binding.ivSpikaVerify.visibility = View.GONE
                     binding.clInputUi.visibility = View.VISIBLE
                     binding.tvIncorrectCode.visibility = View.VISIBLE

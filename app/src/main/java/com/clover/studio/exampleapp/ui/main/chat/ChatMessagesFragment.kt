@@ -611,16 +611,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })*/
 
-        viewModel.sendMessageDeliveredListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                ChatStatesEnum.MESSAGE_DELIVERED -> {
-                    Timber.d("Messages delivered")
-                }
-                ChatStatesEnum.MESSAGE_DELIVER_FAIL -> Timber.d("Failed to deliver messages")
-                else -> Timber.d("Other error")
-            }
-        })
-
         viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
             .observe(viewLifecycleOwner) {
                 when (it.status) {

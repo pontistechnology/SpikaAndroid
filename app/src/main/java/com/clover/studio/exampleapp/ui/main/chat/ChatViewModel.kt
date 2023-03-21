@@ -37,7 +37,6 @@ class ChatViewModel @Inject constructor(
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel() {
     val messageSendListener = MutableLiveData<Event<Resource<MessageResponse>>>()
-    val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
     val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val fileUploadListener = MutableLiveData<Event<ChatStates>>()
@@ -373,5 +372,3 @@ class MediaUploadVerified(
     val messageBody: MessageBody?,
     val isThumbnail: Boolean
 ) : ChatStates()
-
-enum class ChatStatesEnum {  MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }
