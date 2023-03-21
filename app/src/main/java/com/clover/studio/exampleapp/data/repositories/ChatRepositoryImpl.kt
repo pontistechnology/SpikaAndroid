@@ -13,9 +13,7 @@ import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.data.models.networking.responses.MessageResponse
 import com.clover.studio.exampleapp.data.models.networking.responses.NotesResponse
 import com.clover.studio.exampleapp.data.repositories.data_sources.ChatRemoteDataSource
-import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.performRestOperation
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.queryDatabase
@@ -28,14 +26,12 @@ import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
     private val chatRemoteDataSource: ChatRemoteDataSource,
-    private val chatService: ChatService,
     private val roomDao: ChatRoomDao,
     private val messageDao: MessageDao,
     private val userDao: UserDao,
     private val roomUserDao: RoomUserDao,
     private val notesDao: NotesDao,
     private val appDatabase: AppDatabase,
-    private val sharedPrefsRepo: SharedPreferencesRepository,
 ) : ChatRepository {
     override suspend fun sendMessage(jsonObject: JsonObject) =
         performRestOperation(
@@ -123,25 +119,39 @@ class ChatRepositoryImpl @Inject constructor(
             databaseQuery = { roomDao.getRoomAndUsers(roomId) }
         )
 
-    // TODO
     override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) {
-        val response =
-            chatService.updateRoom(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject, roomId)
+        val response = performRestOperation(
+            networkCall = { chatRemoteDataSource.updateRoom(jsonObject, roomId) })
 
         CoroutineScope(Dispatchers.IO).launch {
             appDatabase.runInTransaction {
                 CoroutineScope(Dispatchers.IO).launch {
                     val oldRoom = roomDao.getRoomById(roomId)
-                    response.data?.room?.let { roomDao.updateRoomTable(oldRoom, it) }
+
+                    response.responseData?.data?.room?.let {
+                        queryDatabaseCoreData(
+                            databaseQuery = { roomDao.updateRoomTable(oldRoom, it) }
+                        )
+                    }
 
                     val users: MutableList<User> = ArrayList()
                     val roomUsers: MutableList<RoomUser> = ArrayList()
-                    if (response.data?.room != null) {
-                        val room = response.data.room
+                    if (response.responseData?.data?.room != null) {
+                        val room = response.responseData.data.room
 
                         // Delete Room User if id has been passed through
                         if (userId != 0) {
-                            roomUserDao.delete(RoomUser(roomId, userId, false))
+                            queryDatabaseCoreData(
+                                databaseQuery = {
+                                    roomUserDao.delete(
+                                        RoomUser(
+                                            roomId,
+                                            userId,
+                                            false
+                                        )
+                                    )
+                                }
+                            )
                         }
 
                         for (user in room.users) {
@@ -152,8 +162,14 @@ class ChatRepositoryImpl @Inject constructor(
                                 )
                             )
                         }
-                        userDao.upsert(users)
-                        roomUserDao.upsert(roomUsers)
+
+                        queryDatabaseCoreData(
+                            databaseQuery = { userDao.upsert(users) }
+                        )
+
+                        queryDatabaseCoreData(
+                            databaseQuery = { roomUserDao.upsert(roomUsers) }
+                        )
                     }
                 }
             }

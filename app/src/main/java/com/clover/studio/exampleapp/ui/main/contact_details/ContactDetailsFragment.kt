@@ -14,7 +14,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.databinding.FragmentContactDetailsBinding
-import com.clover.studio.exampleapp.ui.main.*
+import com.clover.studio.exampleapp.ui.main.MainActivity
+import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
@@ -107,7 +108,11 @@ class ContactDetailsFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     Timber.d("Room already exists")
-                    it.responseData?.data?.room?.roomId?.let { roomId -> viewModel.getRoomWithUsers(roomId) }
+                    it.responseData?.data?.room?.roomId?.let { roomId ->
+                        viewModel.getRoomWithUsers(
+                            roomId
+                        )
+                    }
                 }
                 Resource.Status.ERROR -> {
                     Timber.d("Room not found, creating new one")
@@ -136,14 +141,14 @@ class ContactDetailsFragment : BaseFragment() {
         })
 
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomCreated -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     val gson = Gson()
-                    val roomData = gson.toJson(it.roomData)
+                    val roomData = gson.toJson(it.responseData?.data?.room)
                     Timber.d("Room data = $roomData")
-                    viewModel.getRoomWithUsers(it.roomData.roomId)
+                    viewModel.getRoomWithUsers(it.responseData?.data?.room!!.roomId)
                 }
-                is RoomCreateFailed -> Timber.d("Failed to create room")
+                Resource.Status.ERROR -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")
             }
         })

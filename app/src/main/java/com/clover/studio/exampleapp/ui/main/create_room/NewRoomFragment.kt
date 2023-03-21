@@ -293,22 +293,14 @@ class NewRoomFragment : BaseFragment() {
         })
 
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomCreated -> {
-                    handleRoomData(it.roomData)
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    handleRoomData(it.responseData?.data?.room!!)
                 }
-                is RoomUpdated -> {
-                    handleRoomData(it.roomData)
-                }
-                is RoomCreateFailed -> {
+                Resource.Status.ERROR -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))
                     Timber.d("Failed to create room")
-                }
-                is RoomUpdateFailed -> {
-                    hideProgress()
-                    showRoomCreationError(getString(R.string.failed_room_update))
-                    Timber.d("Failed to update room")
                 }
                 else -> {
                     hideProgress()

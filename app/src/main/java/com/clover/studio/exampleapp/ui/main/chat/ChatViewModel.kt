@@ -82,17 +82,9 @@ class ChatViewModel @Inject constructor(
         repository.updatedRoomVisitedTimestamp(visitedTimestamp, roomId)
     }
 
-    // TODO
     fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                repository.updateRoom(jsonObject, roomId, userId)
-            } catch (ex: Exception) {
-                if (Tools.checkError(ex)) {
-                    setTokenExpiredTrue()
-                }
-                return@launch
-            }
+            repository.updateRoom(jsonObject, roomId, userId)
         }
 
     fun isUserAdmin(roomId: Int, userId: Int): Boolean {

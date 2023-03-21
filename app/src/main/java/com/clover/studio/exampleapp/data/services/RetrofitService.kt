@@ -19,14 +19,14 @@ interface RetrofitService {
     suspend fun createNewRoom(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
-    ): RoomResponse
+    ): Response<RoomResponse>
 
     @PUT(Const.Networking.API_UPDATE_ROOM)
     suspend fun updateRoom(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): RoomResponse
+    ): Response<RoomResponse>
 
     @GET(Const.Networking.API_POST_NEW_ROOM)
     suspend fun fetchAllUserRooms(

@@ -33,6 +33,10 @@ class ChatRemoteDataSource @Inject constructor(
         )
     }
 
+    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int) = getResult {
+        retrofitService.updateRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject, roomId)
+    }
+
     suspend fun muteRoom(roomId: Int) = getResult {
         retrofitService.muteRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
     }

@@ -20,8 +20,6 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.databinding.FragmentSettingsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
-import com.clover.studio.exampleapp.ui.main.UserUpdateFailed
-import com.clover.studio.exampleapp.ui.main.UserUpdated
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.Tools.getFilePathUrl
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
@@ -156,7 +154,7 @@ class SettingsFragment : BaseFragment() {
             }
         }
 
-        viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
+        /*viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 UserUpdated -> {
                     showUserDetails()
@@ -164,7 +162,7 @@ class SettingsFragment : BaseFragment() {
                 UserUpdateFailed -> Timber.d("User update failed")
                 else -> Timber.d("Other error")
             }
-        })
+        })*/
     }
 
     private fun showUserDetails() {

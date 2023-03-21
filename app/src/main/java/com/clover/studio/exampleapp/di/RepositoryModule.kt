@@ -33,32 +33,27 @@ object RepositoryModule {
     @Provides
     fun provideChatRepository(
         chatRemoteDataSource: ChatRemoteDataSource,
-        chatService: ChatService,
         roomDao: ChatRoomDao,
         messageDao: MessageDao,
         userDao: UserDao,
         roomUserDao: RoomUserDao,
         notesDao: NotesDao,
         appDatabase: AppDatabase,
-        sharedPrefs: SharedPreferencesRepository,
     ) =
         ChatRepositoryImpl(
             chatRemoteDataSource,
-            chatService,
             roomDao,
             messageDao,
             userDao,
             roomUserDao,
             notesDao,
             appDatabase,
-            sharedPrefs,
         )
 
     @Singleton
     @Provides
     fun provideMainRepository(
         mainRemoteDataSource: MainRemoteDataSource,
-        retrofitService: RetrofitService,
         userDao: UserDao,
         chatRoomDao: ChatRoomDao,
         roomUserDao: RoomUserDao,
@@ -67,7 +62,6 @@ object RepositoryModule {
     ) =
         MainRepositoryImpl(
             mainRemoteDataSource,
-            retrofitService,
             userDao,
             chatRoomDao,
             roomUserDao,

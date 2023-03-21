@@ -16,8 +16,6 @@ import com.clover.studio.exampleapp.data.models.networking.responses.FileRespons
 import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
 import com.clover.studio.exampleapp.data.models.networking.responses.Settings
 import com.clover.studio.exampleapp.data.repositories.data_sources.MainRemoteDataSource
-import com.clover.studio.exampleapp.data.services.RetrofitService
-import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.performRestOperation
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.queryDatabase
@@ -30,7 +28,6 @@ import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
     private val mainRemoteDataSource: MainRemoteDataSource,
-    private val retrofitService: RetrofitService,
     private val userDao: UserDao,
     private val chatRoomDao: ChatRoomDao,
     private val roomUserDao: RoomUserDao,
@@ -57,31 +54,44 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getDistinctRoomById(roomId) }
         )
 
-    // TODO
-    override suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse {
-        val response =
-            retrofitService.createNewRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    override suspend fun createNewRoom(jsonObject: JsonObject): Resource<RoomResponse> {
+        val response = performRestOperation(
+            networkCall = { mainRemoteDataSource.createNewRoom(jsonObject) },
+        )
 
-        val oldRoom = response.data?.room?.roomId?.let { chatRoomDao.getRoomById(it) }
-        response.data?.room?.let { chatRoomDao.updateRoomTable(oldRoom, it) }
+        val oldRoom = response.responseData?.data?.room?.roomId?.let {
+            queryDatabaseCoreData(
+                databaseQuery = { chatRoomDao.getRoomById(it) }
+            ).responseData
+        }
+
+        response.responseData?.data?.room?.let {
+            queryDatabaseCoreData(
+                databaseQuery = { chatRoomDao.updateRoomTable(oldRoom, it) }
+            )
+        }
 
         CoroutineScope(Dispatchers.IO).launch {
             appDatabase.runInTransaction {
                 CoroutineScope(Dispatchers.IO).launch {
                     val users: MutableList<User> = ArrayList()
                     val roomUsers: MutableList<RoomUser> = ArrayList()
-                    for (user in response.data?.room?.users!!) {
+                    for (user in response.responseData?.data?.room?.users!!) {
                         user.user?.let { users.add(it) }
                         roomUsers.add(
                             RoomUser(
-                                response.data.room.roomId,
+                                response.responseData.data.room.roomId,
                                 user.userId,
                                 user.isAdmin
                             )
                         )
                     }
-                    roomUserDao.upsert(roomUsers)
-                    userDao.upsert(users)
+                    queryDatabaseCoreData(
+                        databaseQuery = { roomUserDao.upsert(roomUsers) }
+                    )
+                    queryDatabaseCoreData(
+                        databaseQuery = { userDao.upsert(users) }
+                    )
                 }
             }
         }
@@ -129,7 +139,7 @@ class MainRepositoryImpl @Inject constructor(
             saveCallResult = { userDao.upsert(it.data.user) }
         )
 
-        if (Resource.Status.SUCCESS == data.status){
+        if (Resource.Status.SUCCESS == data.status) {
             sharedPrefs.accountCreated(true)
             sharedPrefs.writeUserId(data.responseData!!.data.user.id)
         }
@@ -147,20 +157,27 @@ class MainRepositoryImpl @Inject constructor(
             networkCall = { mainRemoteDataSource.verifyFile(jsonObject) },
         )
 
-    // TODO
     override suspend fun updateRoom(
         jsonObject: JsonObject,
         roomId: Int,
         userId: Int
-    ): RoomResponse {
-        val response =
-            retrofitService.updateRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject, roomId)
+    ): Resource<RoomResponse> {
+        val response = performRestOperation(
+            networkCall = { mainRemoteDataSource.updateRoom(jsonObject, roomId) },
+        )
 
-        val oldRoom = chatRoomDao.getRoomById(roomId)
-        response.data?.room?.let { chatRoomDao.updateRoomTable(oldRoom, it) }
+        val oldRoom = queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.getRoomById(roomId) }
+        ).responseData
 
-        if (response.data?.room != null) {
-            val room = response.data.room
+        response.responseData?.data?.room?.let {
+            queryDatabaseCoreData(
+                databaseQuery = { chatRoomDao.updateRoomTable(oldRoom, it) }
+            )
+        }
+
+        if (response.responseData?.data?.room != null) {
+            val room = response.responseData.data.room
 
             // Delete Room User if id has been passed through
             if (userId != 0) {
@@ -182,8 +199,12 @@ class MainRepositoryImpl @Inject constructor(
                                 )
                             )
                         }
-                        userDao.upsert(users)
-                        roomUserDao.upsert(roomUsers)
+                        queryDatabaseCoreData(
+                            databaseQuery = { userDao.upsert(users) }
+                        )
+                        queryDatabaseCoreData(
+                            databaseQuery = { roomUserDao.upsert(roomUsers) }
+                        )
                     }
                 }
             }
@@ -278,7 +299,7 @@ interface MainRepository {
     // Rooms calls
     suspend fun getUserRooms(): List<ChatRoom>?
     fun getRoomByIdLiveData(roomId: Int): LiveData<Resource<ChatRoom>>
-    suspend fun createNewRoom(jsonObject: JsonObject): RoomResponse
+    suspend fun createNewRoom(jsonObject: JsonObject): Resource<RoomResponse>
     suspend fun getSingleRoomData(roomId: Int): Resource<RoomAndMessageAndRecords>
     suspend fun getRoomWithUsers(roomId: Int): Resource<RoomWithUsers>
     suspend fun checkIfUserInPrivateRoom(userId: Int): Int?
@@ -286,7 +307,7 @@ interface MainRepository {
     suspend fun handleRoomPin(roomId: Int, doPin: Boolean)
     fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
-    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): RoomResponse
+    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): Resource<RoomResponse>
 
     // Settings calls
     suspend fun updatePushToken(jsonObject: JsonObject): Resource<Unit>

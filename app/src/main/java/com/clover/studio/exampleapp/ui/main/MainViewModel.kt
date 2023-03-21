@@ -6,7 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
-import com.clover.studio.exampleapp.data.models.entity.*
+import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageBody
+import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.responses.AuthResponse
 import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
@@ -38,8 +41,8 @@ class MainViewModel @Inject constructor(
 ) : BaseViewModel() {
     val usersListener = MutableLiveData<Event<Resource<AuthResponse>>>()
     val checkRoomExistsListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
-    val createRoomListener = MutableLiveData<Event<MainStates>>()
-    val userUpdateListener = MutableLiveData<Event<MainStates>>()
+    val createRoomListener = MutableLiveData<Event<Resource<RoomResponse>>>()
+    // val userUpdateListener = MutableLiveData<Event<MainStates>>()
     val roomWithUsersListener = MutableLiveData<Event<Resource<RoomWithUsers>>>()
     val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
@@ -89,19 +92,8 @@ class MainViewModel @Inject constructor(
 //        checkRoomExistsListener.postValue(Event(repository.getRoomById(userId)))
     }
 
-    // TODO remove try - catch
     fun createNewRoom(jsonObject: JsonObject) = viewModelScope.launch {
-        try {
-            val roomData = repository.createNewRoom(jsonObject).data?.room
-            createRoomListener.postValue(Event(RoomCreated(roomData!!)))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                createRoomListener.postValue(Event(RoomCreateFailed))
-            }
-            return@launch
-        }
+        createRoomListener.postValue(Event(repository.createNewRoom(jsonObject)))
     }
 
     fun getPushNotificationStream(): Flow<Any> = flow {
@@ -155,18 +147,8 @@ class MainViewModel @Inject constructor(
 
     // TODO remove try - catch
     fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = viewModelScope.launch {
-        try {
-            Timber.d("RoomDataCalled")
-            val roomData = repository.updateRoom(jsonObject, roomId, userId).data?.room
-            createRoomListener.postValue(Event(RoomCreated(roomData!!)))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                createRoomListener.postValue(Event(RoomUpdateFailed))
-            }
-            return@launch
-        }
+        Timber.d("RoomDataCalled")
+        createRoomListener.postValue(Event(repository.updateRoom(jsonObject, roomId, userId)))
     }
 
     fun unregisterSharedPrefsReceiver() = viewModelScope.launch {
@@ -286,12 +268,8 @@ class MainViewModel @Inject constructor(
 }
 
 sealed class MainStates
-class RoomCreated(val roomData: ChatRoom) : MainStates()
-class RoomUpdated(val roomData: ChatRoom) : MainStates()
-object RoomCreateFailed : MainStates()
-object RoomUpdateFailed : MainStates()
-object UserUpdated : MainStates()
-object UserUpdateFailed : MainStates()
+// object UserUpdated : MainStates()
+// object UserUpdateFailed : MainStates()
 class RoomNotificationData(
     val response: Resource<RoomWithUsers>,
     val message: Message

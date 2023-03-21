@@ -20,6 +20,14 @@ class MainRemoteDataSource @Inject constructor(
         retrofitService.fetchAllUserRooms(getHeaderMap(sharedPrefs.readToken()))
     }
 
+    suspend fun createNewRoom(jsonObject: JsonObject) = getResult {
+        retrofitService.createNewRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    }
+
+    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int) = getResult {
+        retrofitService.updateRoom(getHeaderMap(sharedPrefs.readToken()), jsonObject, roomId)
+    }
+
     suspend fun verifyFile(jsonObject: JsonObject) = getResult {
         retrofitService.verifyFile(getHeaderMap(sharedPrefs.readToken()), jsonObject)
     }

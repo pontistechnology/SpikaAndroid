@@ -56,7 +56,7 @@ interface ChatService {
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): RoomResponse
+    ): Response<RoomResponse>
 
     @POST(Const.Networking.API_MUTE_ROOM)
     suspend fun muteRoom(
