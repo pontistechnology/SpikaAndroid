@@ -26,15 +26,15 @@ class OnboardingViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     var codeVerificationListener = MutableLiveData<Event<Resource.Status>>()
-    var registrationListener = MutableLiveData<Event<Resource<AuthResponse>>>()
+    var registrationListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
     var accountCreationListener = MutableLiveData<Event<Resource.Status>>()
-    var userUpdateListener = MutableLiveData<Event<Resource<AuthResponse>>>()
+    var userUpdateListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
     var userPhoneNumberListener = MutableLiveData<String>()
 
     fun sendNewUserData(
         jsonObject: JsonObject
     ) = viewModelScope.launch {
-        registrationListener.postValue(Event(onboardingRepository.sendUserData(jsonObject)))
+        resolveResponseStatus(registrationListener, onboardingRepository.sendUserData(jsonObject))
     }
 
     fun sendCodeVerification(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
@@ -75,7 +75,6 @@ class OnboardingViewModel @Inject constructor(
 
         val response = onboardingRepository.sendUserContacts(contacts!!)
         accountCreationListener.postValue(Event(response.status))
-
     }
 
     fun writeContactsToSharedPref(contacts: List<String>) {
@@ -97,7 +96,7 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun updateUserData(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
-        userUpdateListener.postValue(Event(onboardingRepository.updateUser(jsonObject)))
+        resolveResponseStatus(userUpdateListener, onboardingRepository.updateUser(jsonObject))
     }
 
     fun writePhoneUsers(phoneUsers: List<PhoneUser>) = CoroutineScope(Dispatchers.IO).launch {

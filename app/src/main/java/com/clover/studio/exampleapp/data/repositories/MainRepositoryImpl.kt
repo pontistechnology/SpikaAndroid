@@ -100,7 +100,7 @@ class MainRepositoryImpl @Inject constructor(
 
     override fun getUserAndPhoneUser(localId: Int) =
         queryDatabase(
-            databaseQuery = { userDao.getDistinctUserAndPhoneUser(localId) }
+            databaseQuery = { userDao.getUserAndPhoneUser(localId) }
         )
 
     override suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
@@ -114,7 +114,7 @@ class MainRepositoryImpl @Inject constructor(
 
     override fun getRoomWithUsersLiveData(roomId: Int) =
         queryDatabase(
-            databaseQuery = { chatRoomDao.getDistinctRoomAndUsers(roomId) }
+            databaseQuery = { chatRoomDao.getRoomAndUsersLiveData(roomId) }
         )
 
     override suspend fun getSingleRoomData(roomId: Int) =

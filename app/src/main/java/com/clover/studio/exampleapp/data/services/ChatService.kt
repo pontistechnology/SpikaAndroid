@@ -85,7 +85,7 @@ interface ChatService {
     @GET(Const.Networking.API_GET_SETTINGS)
     suspend fun getSettings(
         @HeaderMap headers: Map<String, String?>
-    ): SettingsResponse
+    ): Response<SettingsResponse>
 
     @DELETE(Const.Networking.API_UPDATE_ROOM)
     suspend fun deleteRoom(

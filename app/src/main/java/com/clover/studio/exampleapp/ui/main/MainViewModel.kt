@@ -39,12 +39,11 @@ class MainViewModel @Inject constructor(
     private val sseManager: SSEManager,
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel() {
-    val usersListener = MutableLiveData<Event<Resource<AuthResponse>>>()
+    val usersListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
     val checkRoomExistsListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
-    val createRoomListener = MutableLiveData<Event<Resource<RoomResponse>>>()
-    // val userUpdateListener = MutableLiveData<Event<MainStates>>()
-    val roomWithUsersListener = MutableLiveData<Event<Resource<RoomWithUsers>>>()
-    val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords>>>()
+    val createRoomListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
+    val roomWithUsersListener = MutableLiveData<Event<Resource<RoomWithUsers?>>>()
+    val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>>>>()
     val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
@@ -93,7 +92,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun createNewRoom(jsonObject: JsonObject) = viewModelScope.launch {
-        createRoomListener.postValue(Event(repository.createNewRoom(jsonObject)))
+        resolveResponseStatus(createRoomListener, repository.createNewRoom(jsonObject) )
     }
 
     fun getPushNotificationStream(): Flow<Any> = flow {
@@ -117,12 +116,12 @@ class MainViewModel @Inject constructor(
 
     fun getSingleRoomData(roomId: Int) =
         viewModelScope.launch {
-            roomDataListener.postValue(Event(repository.getSingleRoomData(roomId)))
+            resolveResponseStatus(roomDataListener, repository.getSingleRoomData(roomId))
         }
 
     fun getRoomWithUsers(roomId: Int) =
         viewModelScope.launch {
-            roomWithUsersListener.postValue(Event(repository.getRoomWithUsers(roomId)))
+            resolveResponseStatus(roomWithUsersListener, repository.getRoomWithUsers(roomId))
         }
 
     fun getRoomWithUsers(roomId: Int, message: Message) = viewModelScope.launch {
@@ -142,13 +141,12 @@ class MainViewModel @Inject constructor(
     }
 
     fun updateUserData(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
-        usersListener.postValue(Event(repository.updateUserData(jsonObject)))
+        resolveResponseStatus(usersListener, repository.updateUserData(jsonObject))
     }
 
-    // TODO remove try - catch
     fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = viewModelScope.launch {
         Timber.d("RoomDataCalled")
-        createRoomListener.postValue(Event(repository.updateRoom(jsonObject, roomId, userId)))
+        resolveResponseStatus(createRoomListener, repository.updateRoom(jsonObject, roomId, userId))
     }
 
     fun unregisterSharedPrefsReceiver() = viewModelScope.launch {
@@ -268,8 +266,6 @@ class MainViewModel @Inject constructor(
 }
 
 sealed class MainStates
-// object UserUpdated : MainStates()
-// object UserUpdateFailed : MainStates()
 class RoomNotificationData(
     val response: Resource<RoomWithUsers>,
     val message: Message

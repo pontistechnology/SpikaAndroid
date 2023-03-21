@@ -28,9 +28,6 @@ interface UserDao: BaseDao<User> {
     @Query("SELECT * FROM user WHERE id NOT LIKE :localId")
     fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>>
 
-    fun getDistinctUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>> =
-        getUserAndPhoneUser(localId).getDistinct()
-
     @Transaction
     @Query("SELECT * FROM user")
     fun getUserAndRooms(): LiveData<List<UserWithRooms>>

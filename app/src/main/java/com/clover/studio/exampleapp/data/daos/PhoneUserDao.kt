@@ -10,9 +10,6 @@ interface PhoneUserDao: BaseDao<PhoneUser> {
     @Query("SELECT * FROM phone_user")
     fun getPhoneUsers(): LiveData<List<PhoneUser>>
 
-    fun getDistinctPhoneUsers(): LiveData<List<PhoneUser>> =
-        getPhoneUsers().getDistinct()
-
     @Query("SELECT * FROM phone_user WHERE number LIKE :number LIMIT 1")
     fun getUserByNumber(number: String): LiveData<PhoneUser>
 

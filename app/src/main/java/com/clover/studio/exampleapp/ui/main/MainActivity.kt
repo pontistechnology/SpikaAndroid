@@ -109,7 +109,7 @@ class MainActivity : BaseActivity(), SSEListener {
                 Resource.Status.SUCCESS -> {
                     val myUserId = viewModel.getLocalUserId()
 
-                    if (myUserId == it.message.fromUserId || it.response.responseData?.room!!.muted) return@EventObserver
+                    if (myUserId == it.message.fromUserId || it.response.responseData?.room?.muted == true) return@EventObserver
                     runOnUiThread {
                         val animator =
                             ValueAnimator.ofInt(bindingSetup.cvNotification.pbTimeout.max, 0)
@@ -120,7 +120,7 @@ class MainActivity : BaseActivity(), SSEListener {
                         }
                         animator.start()
 
-                        if (it.response.responseData.room.type.equals(Const.JsonFields.GROUP)) {
+                        if (it.response.responseData!!.room.type.equals(Const.JsonFields.GROUP)) {
                             Timber.d("Showing room image")
                             Glide.with(this@MainActivity)
                                 .load(it.response.responseData.room.avatarFileId?.let { fileId ->

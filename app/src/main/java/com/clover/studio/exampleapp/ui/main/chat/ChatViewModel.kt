@@ -36,12 +36,12 @@ class ChatViewModel @Inject constructor(
     private val sseManager: SSEManager,
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel() {
-    val messageSendListener = MutableLiveData<Event<Resource<MessageResponse>>>()
-    val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords>>>()
+    val messageSendListener = MutableLiveData<Event<Resource<MessageResponse?>>>()
+    val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val fileUploadListener = MutableLiveData<Event<ChatStates>>()
     val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
-    val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse>>>()
+    val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>>>>()
 
     fun storeMessageLocally(message: Message) = CoroutineScope(Dispatchers.IO).launch {
@@ -53,7 +53,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
-        messageSendListener.postValue(Event(repository.sendMessage(jsonObject)))
+        resolveResponseStatus(messageSendListener, repository.sendMessage(jsonObject))
     }
 
     fun getLocalUserId(): Int? {
@@ -121,7 +121,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
-        roomDataListener.postValue(Event((repository.getSingleRoomData(roomId))))
+        resolveResponseStatus(roomDataListener, repository.getSingleRoomData(roomId))
     }
 
     fun getRoomWithUsers(roomId: Int, message: Message) = viewModelScope.launch {
@@ -191,7 +191,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun createNewNote(roomId: Int, newNote: NewNote) = CoroutineScope(Dispatchers.IO).launch {
-        noteCreationListener.postValue(Event(repository.createNewNote(roomId, newNote)))
+        resolveResponseStatus(noteCreationListener, repository.createNewNote(roomId, newNote))
     }
 
     fun updateNote(noteId: Int, newNote: NewNote) = CoroutineScope(Dispatchers.IO).launch {

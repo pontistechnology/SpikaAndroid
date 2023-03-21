@@ -111,7 +111,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun getRoomWithUsersLiveData(roomId: Int) =
         queryDatabase(
-            databaseQuery = { roomDao.getDistinctRoomAndUsers(roomId) }
+            databaseQuery = { roomDao.getRoomAndUsersLiveData(roomId) }
         )
 
     override suspend fun getRoomWithUsers(roomId: Int) =
@@ -234,7 +234,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun getLocalNotes(roomId: Int) =
         queryDatabase(
-            databaseQuery = { notesDao.getDistinctNotes(roomId) }
+            databaseQuery = { notesDao.getNotesByRoom(roomId) }
         )
 
     override suspend fun createNewNote(roomId: Int, newNote: NewNote) =
