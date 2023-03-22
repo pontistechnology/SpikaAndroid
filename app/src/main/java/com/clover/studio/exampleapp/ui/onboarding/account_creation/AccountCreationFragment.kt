@@ -103,7 +103,7 @@ class AccountCreationFragment : BaseFragment() {
 
     private fun addObservers() {
         viewModel.accountCreationListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
+            when (it.status) {
                 Resource.Status.SUCCESS -> Timber.d("Contacts sent successfully")
                 Resource.Status.ERROR -> Timber.d("Failed to send contacts")
                 else -> Timber.d("Other error")

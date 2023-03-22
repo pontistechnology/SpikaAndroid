@@ -15,9 +15,6 @@ import com.clover.studio.exampleapp.data.models.networking.responses.AuthRespons
 import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
-import com.clover.studio.exampleapp.ui.main.chat.ChatStates
-import com.clover.studio.exampleapp.ui.main.chat.MediaPieceUploaded
-import com.clover.studio.exampleapp.ui.main.chat.MediaUploadError
 import com.clover.studio.exampleapp.ui.main.chat.MediaUploadVerified
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.helpers.Resource
@@ -45,8 +42,8 @@ class MainViewModel @Inject constructor(
     val roomWithUsersListener = MutableLiveData<Event<Resource<RoomWithUsers?>>>()
     val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
-    val blockedListListener = MutableLiveData<Event<Resource<List<User>>>>()
-    val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
+    val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
+    val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
 
     fun getLocalUser() = liveData {
         val localUserId = sharedPrefsRepo.readUserId()
@@ -92,7 +89,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun createNewRoom(jsonObject: JsonObject) = viewModelScope.launch {
-        resolveResponseStatus(createRoomListener, repository.createNewRoom(jsonObject) )
+        resolveResponseStatus(createRoomListener, repository.createNewRoom(jsonObject))
     }
 
     fun getPushNotificationStream(): Flow<Any> = flow {
@@ -158,7 +155,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun fetchBlockedUsersLocally(userIds: List<Int>) = viewModelScope.launch {
-        blockedListListener.postValue(Event(repository.fetchBlockedUsersLocally(userIds)))
+        resolveResponseStatus(blockedListListener, repository.fetchBlockedUsersLocally(userIds))
     }
 
     fun getBlockedUsersList() = viewModelScope.launch {
@@ -217,11 +214,17 @@ class MainViewModel @Inject constructor(
                 isThumbnail,
                 object : FileUploadListener {
                     override fun filePieceUploaded() {
-                        mediaUploadListener.postValue(Event(MediaPieceUploaded(isThumbnail)))
+                        resolveResponseStatus(
+                            mediaUploadListener,
+                            Resource(Resource.Status.LOADING, null, "")
+                        )
                     }
 
                     override fun fileUploadError(description: String) {
-                        mediaUploadListener.postValue(Event(MediaUploadError(description)))
+                        resolveResponseStatus(
+                            mediaUploadListener,
+                            Resource(Resource.Status.ERROR, null, description)
+                        )
                     }
 
                     override fun fileUploadVerified(
@@ -232,23 +235,26 @@ class MainViewModel @Inject constructor(
                         fileType: String,
                         messageBody: MessageBody?
                     ) {
-                        mediaUploadListener.postValue(
-                            Event(
-                                MediaUploadVerified(
-                                    path,
-                                    mimeType,
-                                    thumbId,
-                                    fileId,
-                                    fileType,
-                                    messageBody,
-                                    isThumbnail
-                                )
-                            )
+                        val response = MediaUploadVerified(
+                            path,
+                            mimeType,
+                            thumbId,
+                            fileId,
+                            fileType,
+                            messageBody,
+                            isThumbnail
+                        )
+                        resolveResponseStatus(
+                            mediaUploadListener,
+                            Resource(Resource.Status.SUCCESS, response, "")
                         )
                     }
                 })
         } catch (ex: Exception) {
-            mediaUploadListener.postValue(Event(MediaUploadError(ex.message.toString())))
+            resolveResponseStatus(
+                mediaUploadListener,
+                Resource(Resource.Status.ERROR, null, ex.message.toString())
+            )
         }
     }
 
@@ -265,8 +271,7 @@ class MainViewModel @Inject constructor(
     }
 }
 
-sealed class MainStates
 class RoomNotificationData(
     val response: Resource<RoomWithUsers>,
     val message: Message
-) : MainStates()
+)

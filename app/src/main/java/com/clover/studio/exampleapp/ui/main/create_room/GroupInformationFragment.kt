@@ -22,9 +22,6 @@ import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentGroupInformationBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
-import com.clover.studio.exampleapp.ui.main.chat.MediaPieceUploaded
-import com.clover.studio.exampleapp.ui.main.chat.MediaUploadError
-import com.clover.studio.exampleapp.ui.main.chat.MediaUploadVerified
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
@@ -238,24 +235,24 @@ class GroupInformationFragment : BaseFragment() {
         })
 
         viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is MediaPieceUploaded -> {
+            when (it.status) {
+                Resource.Status.LOADING -> {
                     if (progress <= uploadPieces) {
                         binding.progressBar.secondaryProgress = progress.toInt()
                         progress++
                     } else progress = 0
                 }
-                is MediaUploadVerified -> {
+                Resource.Status.SUCCESS -> {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
                         binding.clProgressScreen.visibility = View.GONE
                     }
-                    avatarFileId = it.fileId
+                    avatarFileId = it.responseData?.fileId
                 }
-                is MediaUploadError -> {
+                Resource.Status.ERROR -> {
                     Timber.d("Upload Error")
                     requireActivity().runOnUiThread {
-                        showUploadError(it.description)
+                        showUploadError(it.message!!)
                     }
                 }
                 else -> Toast.makeText(

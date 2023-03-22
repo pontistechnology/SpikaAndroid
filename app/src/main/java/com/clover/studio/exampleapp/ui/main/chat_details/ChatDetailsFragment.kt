@@ -24,9 +24,6 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.databinding.FragmentChatDetailsBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
-import com.clover.studio.exampleapp.ui.main.chat.MediaPieceUploaded
-import com.clover.studio.exampleapp.ui.main.chat.MediaUploadError
-import com.clover.studio.exampleapp.ui.main.chat.MediaUploadVerified
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
@@ -413,14 +410,14 @@ class ChatDetailsFragment : BaseFragment() {
         }
 
         viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is MediaPieceUploaded -> {
+            when (it.status) {
+                Resource.Status.LOADING -> {
                     if (progress <= uploadPieces) {
                         binding.progressBar.secondaryProgress = progress.toInt()
                         progress++
                     } else progress = 0
                 }
-                is MediaUploadVerified -> {
+                Resource.Status.SUCCESS -> {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
                         binding.clProgressScreen.visibility = View.GONE
@@ -428,13 +425,13 @@ class ChatDetailsFragment : BaseFragment() {
                         binding.ivCallUser.visibility = View.GONE
                         binding.tvDone.visibility = View.VISIBLE
                     }
-                    newAvatarFileId = it.fileId
+                    newAvatarFileId = it.responseData!!.fileId
                     isUploading = false
                 }
-                is MediaUploadError -> {
+                Resource.Status.ERROR -> {
                     Timber.d("Upload Error")
                     requireActivity().runOnUiThread {
-                        showUploadError(it.description)
+                        showUploadError(it.message!!)
                     }
                 }
                 else -> {

@@ -25,9 +25,9 @@ class OnboardingViewModel @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository
 ) : BaseViewModel() {
 
-    var codeVerificationListener = MutableLiveData<Event<Resource.Status>>()
+    var codeVerificationListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
     var registrationListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
-    var accountCreationListener = MutableLiveData<Event<Resource.Status>>()
+    var accountCreationListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
     var userUpdateListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
     var userPhoneNumberListener = MutableLiveData<String>()
 
@@ -38,19 +38,16 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun sendCodeVerification(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
-        codeVerificationListener.postValue(Event(Resource.Status.LOADING))
-
         val response = onboardingRepository.verifyUserCode(jsonObject)
-        codeVerificationListener.postValue(Event(response.status))
 
-        Timber.d("Token ${response.responseData!!.data.device.token}")
-        response.responseData.data.device.token?.let { sharedPrefs.writeToken(it) }
+        resolveResponseStatus(codeVerificationListener, response)
+        response.responseData?.data?.device?.token?.let { sharedPrefs.writeToken(it) }
 
-        if (sharedPrefs.isNewUser())
-            codeVerificationListener.postValue(Event(Resource.Status.NEW_USER))
-        else {
+        if (sharedPrefs.isNewUser()) {
+            resolveResponseStatus(codeVerificationListener, Resource(Resource.Status.NEW_USER, null, ""))
+        }else {
             sharedPrefs.accountCreated(true)
-            codeVerificationListener.postValue(Event(Resource.Status.SUCCESS))
+            resolveResponseStatus(codeVerificationListener, Resource(Resource.Status.SUCCESS, null, ""))
         }
     }
 
@@ -61,20 +58,16 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun sendContacts() = viewModelScope.launch {
-
         val contacts: List<String>?
         try {
             contacts = sharedPrefs.readContacts()
         } catch (ex: Exception) {
             Tools.checkError(ex)
-            accountCreationListener.postValue(Event(Resource.Status.ERROR))
+            resolveResponseStatus(accountCreationListener, Resource(Resource.Status.ERROR, null, ""))
             return@launch
         }
-
         Timber.d("$contacts")
-
-        val response = onboardingRepository.sendUserContacts(contacts!!)
-        accountCreationListener.postValue(Event(response.status))
+        resolveResponseStatus(accountCreationListener, onboardingRepository.sendUserContacts(contacts!!))
     }
 
     fun writeContactsToSharedPref(contacts: List<String>) {

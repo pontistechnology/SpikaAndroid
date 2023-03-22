@@ -106,7 +106,7 @@ class VerificationFragment : BaseFragment() {
 
     private fun setObservers() {
         viewModel.codeVerificationListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
+            when (it.status) {
                 Resource.Status.LOADING -> {
                     binding.clInputUi.visibility = View.GONE
                     binding.ivSpikaVerify.visibility = View.VISIBLE

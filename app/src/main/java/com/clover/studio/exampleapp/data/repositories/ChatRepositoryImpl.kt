@@ -109,7 +109,7 @@ class ChatRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getRoomWithUsersLiveData(roomId: Int) =
+    override fun getRoomWithUsersLiveData(roomId: Int) =
         queryDatabase(
             databaseQuery = { roomDao.getRoomAndUsersLiveData(roomId) }
         )
@@ -182,7 +182,7 @@ class ChatRepositoryImpl @Inject constructor(
         ).responseData
 
 
-    override suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int) =
+    override fun getChatRoomAndMessageAndRecordsById(roomId: Int) =
         queryDatabase(
             databaseQuery = { roomDao.getDistinctChatRoomAndMessageAndRecordsById(roomId) }
         )
@@ -232,7 +232,7 @@ class ChatRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getLocalNotes(roomId: Int) =
+    override fun getLocalNotes(roomId: Int) =
         queryDatabase(
             databaseQuery = { notesDao.getNotesByRoom(roomId) }
         )
@@ -288,12 +288,12 @@ interface ChatRepository {
 
     // Room calls
     suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int)
-    suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
+    fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     suspend fun getRoomWithUsers(roomId: Int): Resource<RoomWithUsers>
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
     suspend fun getSingleRoomData(roomId: Int): Resource<RoomAndMessageAndRecords>
-    suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<Resource<RoomAndMessageAndRecords>>
+    fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<Resource<RoomAndMessageAndRecords>>
     suspend fun handleRoomMute(roomId: Int, doMute: Boolean)
     suspend fun handleRoomPin(roomId: Int, doPin: Boolean)
     suspend fun deleteRoom(roomId: Int)
@@ -305,7 +305,7 @@ interface ChatRepository {
 
     // Notes calls
     suspend fun getNotes(roomId: Int)
-    suspend fun getLocalNotes(roomId: Int): LiveData<Resource<List<Note>>>
+    fun getLocalNotes(roomId: Int): LiveData<Resource<List<Note>>>
     suspend fun createNewNote(roomId: Int, newNote: NewNote): Resource<NotesResponse>
     suspend fun updateNote(noteId: Int, newNote: NewNote)
     suspend fun deleteNote(noteId: Int)

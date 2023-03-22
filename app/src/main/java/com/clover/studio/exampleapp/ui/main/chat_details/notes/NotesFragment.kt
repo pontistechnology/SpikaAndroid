@@ -65,7 +65,7 @@ class NotesFragment : BaseFragment() {
         viewModel.getRoomNotes(roomId).observe(viewLifecycleOwner) {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    if (it.responseData!!.isNotEmpty()) {
+                    if (it.responseData?.isNotEmpty() == true) {
                         adapter.submitList(it.responseData)
                         binding.tvNoNotes.visibility = View.GONE
                     } else binding.tvNoNotes.visibility = View.VISIBLE

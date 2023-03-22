@@ -349,11 +349,9 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeUser(user: User) {
-        CoroutineScope(Dispatchers.IO).launch {
-            queryDatabaseCoreData(
-                databaseQuery = { userDao.upsert(user) }
-            )
-        }
+        queryDatabaseCoreData(
+            databaseQuery = { userDao.upsert(user) }
+        )
     }
 
     override suspend fun writeRoom(room: ChatRoom) {

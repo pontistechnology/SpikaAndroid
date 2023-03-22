@@ -13,7 +13,6 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.databinding.ItemContactBinding
 import com.clover.studio.exampleapp.utils.Tools.getFilePathUrl
-import timber.log.Timber
 
 class ContactsAdapter(
     private val context: Context,
@@ -63,7 +62,12 @@ class ContactsAdapter(
                         .placeholder(R.drawable.img_user_placeholder)
                         .centerCrop()
                         .into(binding.ivUserImage)
-                } else binding.ivUserImage.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
+                } else binding.ivUserImage.setImageDrawable(
+                    AppCompatResources.getDrawable(
+                        context,
+                        R.drawable.img_user_placeholder
+                    )
+                )
 
                 // if not first item, check if item above has the same header
                 if (position > 0) {
@@ -73,7 +77,6 @@ class ContactsAdapter(
 
                     val currentItem = userItem.phoneUser?.name?.lowercase()?.substring(0, 1)
                         ?: userItem.user.displayName?.lowercase()?.substring(0, 1)
-                    // Timber.d("Items : $previousItem, $currentItem ${previousItem == currentItem}")
 
                     if (previousItem == currentItem) {
                         binding.tvHeader.visibility = View.GONE

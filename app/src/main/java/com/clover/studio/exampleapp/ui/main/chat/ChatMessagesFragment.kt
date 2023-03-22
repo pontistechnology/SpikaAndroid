@@ -653,52 +653,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
 
-        viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is FilePieceUploaded -> {
-                    try {
-                        if (progress <= uploadPieces) {
-                            updateUploadProgressBar(
-                                progress + 1,
-                                uploadPieces,
-                                unsentMessages.first().localId!!
-                            )
-                            progress++
-                        } else progress = 0
-                    } catch (ex: Exception) {
-                        Timber.d("File upload failed on piece")
-                    }
-                }
-
-                is FileUploadVerified -> {
-                    try {
-                        requireActivity().runOnUiThread {
-                            Timber.d("Successfully sent file")
-                            if (it.fileId > 0) it.messageBody?.fileId = it.fileId
-                            sendMessage(
-                                it.fileType,
-                                it.messageBody?.fileId!!,
-                                0,
-                                unsentMessages.first().localId!!
-                            )
-                            filesSelected.removeFirst()
-                            uploadInProgress = false
-                        }
-                        // update room data
-                    } catch (ex: Exception) {
-                        Timber.d("File upload failed on verify")
-                        handleUploadError(UploadMimeTypes.FILE)
-                    }
-                }
-
-                is FileUploadError -> {
-                    handleUploadError(UploadMimeTypes.FILE)
-                }
-
-                else -> Timber.d("Other upload error")
-            }
-        })
-
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
                 if (it?.isNotEmpty() == true) {
@@ -726,11 +680,57 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             })
         }
 
-        viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is MediaPieceUploaded -> {
+        viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.LOADING -> {
                     try {
-                        if (!it.isThumbnail) {
+                        if (progress <= uploadPieces) {
+                            updateUploadProgressBar(
+                                progress + 1,
+                                uploadPieces,
+                                unsentMessages.first().localId!!
+                            )
+                            progress++
+                        } else progress = 0
+                    } catch (ex: Exception) {
+                        Timber.d("File upload failed on piece")
+                    }
+                }
+
+                Resource.Status.SUCCESS -> {
+                    try {
+                        requireActivity().runOnUiThread {
+                            Timber.d("Successfully sent file")
+                            if (it.responseData?.fileId!! > 0) it.responseData.messageBody?.fileId = it.responseData.fileId
+                            sendMessage(
+                                it.responseData.fileType,
+                                it.responseData.messageBody?.fileId!!,
+                                0,
+                                unsentMessages.first().localId!!
+                            )
+                            filesSelected.removeFirst()
+                            uploadInProgress = false
+                        }
+                        // update room data
+                    } catch (ex: Exception) {
+                        Timber.d("File upload failed on verify")
+                        handleUploadError(UploadMimeTypes.FILE)
+                    }
+                }
+
+                Resource.Status.ERROR -> {
+                    handleUploadError(UploadMimeTypes.FILE)
+                }
+
+                else -> Timber.d("Other upload error")
+            }
+        })
+
+        viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.LOADING -> {
+                    try {
+                        if (it.message == "false") {
                             if (progress <= uploadPieces) {
                                 updateUploadProgressBar(
                                     progress + 1,
@@ -745,23 +745,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                 }
 
-                is MediaUploadVerified -> {
+                Resource.Status.SUCCESS -> {
                     try {
-                        if (!it.isThumbnail) {
-                            if (it.fileId > 0) it.messageBody?.fileId = it.fileId
+                        if (!it.responseData?.isThumbnail!!) {
+                            if (it.responseData.fileId > 0) it.responseData.messageBody?.fileId = it.responseData.fileId
 
                             sendMessage(
-                                it.fileType,
-                                it.messageBody?.fileId!!,
-                                it.messageBody.thumbId!!,
+                                it.responseData.fileType,
+                                it.responseData.messageBody?.fileId!!,
+                                it.responseData.messageBody.thumbId!!,
                                 unsentMessages.first().localId!!
                             )
                             currentMediaLocation.removeFirst()
                             uploadInProgress = false
                         } else {
-                            if (it.thumbId > 0) it.messageBody?.thumbId = it.thumbId
-                            if (it.mimeType.contains(Const.JsonFields.IMAGE_TYPE)) {
-                                it.messageBody?.let { messageBody ->
+                            if (it.responseData.thumbId > 0) it.responseData.messageBody?.thumbId = it.responseData.thumbId
+                            if (it.responseData.mimeType.contains(Const.JsonFields.IMAGE_TYPE)) {
+                                it.responseData.messageBody?.let { messageBody ->
                                     uploadMedia(
                                         false,
                                         currentMediaLocation.first(),
@@ -769,7 +769,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     )
                                 }
                             } else {
-                                it.messageBody?.let { messageBody ->
+                                it.responseData.messageBody?.let { messageBody ->
                                     uploadMedia(
                                         false,
                                         currentMediaLocation.first(),
@@ -779,14 +779,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             }
                             thumbnailUris.removeFirst()
                         }
-                        // update room data
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on verified")
                         handleUploadError(UploadMimeTypes.MEDIA)
                     }
                 }
 
-                is MediaUploadError -> {
+                Resource.Status.ERROR -> {
                     handleUploadError(UploadMimeTypes.MEDIA)
                 }
 
