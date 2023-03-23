@@ -3,7 +3,6 @@ package com.clover.studio.exampleapp.data.daos
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.exampleapp.data.models.entity.Note
-import com.clover.studio.exampleapp.utils.helpers.Extensions.getDistinct
 
 @Dao
 interface NotesDao : BaseDao<Note> {

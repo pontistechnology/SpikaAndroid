@@ -27,7 +27,12 @@ open class BaseViewModel : ViewModel() {
                 )
             )
             Resource.Status.TOKEN_EXPIRED -> tokenExpiredListener.postValue(Event(true))
-            Resource.Status.LOADING -> {}
+            Resource.Status.LOADING -> {
+                mutableLiveData?.postValue(Event(resource))
+            }
+            else -> {
+                // Ignore
+            }
         }
     }
 }

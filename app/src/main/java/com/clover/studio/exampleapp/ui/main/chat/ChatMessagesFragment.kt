@@ -49,14 +49,13 @@ import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.ui.ReactionContainer
 import com.clover.studio.exampleapp.ui.ReactionsContainer
-import com.clover.studio.exampleapp.ui.main.BlockedUsersFetchFailed
-import com.clover.studio.exampleapp.ui.main.BlockedUsersFetched
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.getFileMimeType
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
@@ -565,8 +564,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun initializeObservers() {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                ChatStatesEnum.MESSAGE_SENT -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     tempMessageCounter -= 1
 
                     // Delay next message sending by 2 seconds for better user experience.
@@ -595,7 +594,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                     bindingSetup.rvChat.scrollToPosition(0)
                 }
-                ChatStatesEnum.MESSAGE_SEND_FAIL -> Timber.d("Message send fail")
+                Resource.Status.ERROR -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
             }
         })
@@ -612,50 +611,78 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })*/
 
-        viewModel.sendMessageDeliveredListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                ChatStatesEnum.MESSAGE_DELIVERED -> {
-                    Timber.d("Messages delivered")
-                }
-                ChatStatesEnum.MESSAGE_DELIVER_FAIL -> Timber.d("Failed to deliver messages")
-                else -> Timber.d("Other error")
-            }
-        })
-
         viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
             .observe(viewLifecycleOwner) {
-                messagesRecords.clear()
-                if (it.message?.isNotEmpty() == true) {
-                    // Check if user can be blocked
-                    if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-                        val containsElement =
-                            it.message.any { message -> localUserId == message.message.fromUserId }
-                        if (containsElement) bindingSetup.clBlockContact.visibility = View.GONE
-                        else bindingSetup.clBlockContact.visibility = View.VISIBLE
-                    }
+                when (it.status) {
+                    Resource.Status.SUCCESS -> {
+                        messagesRecords.clear()
+                        if (it.responseData?.message?.isNotEmpty() == true) {
+                            // Check if user can be blocked
+                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                                val containsElement =
+                                    it.responseData.message.any { message -> localUserId == message.message.fromUserId }
+                                if (containsElement) bindingSetup.clBlockContact.visibility =
+                                    View.GONE
+                                else bindingSetup.clBlockContact.visibility = View.VISIBLE
+                            }
 
-                    it.message.forEach { msg ->
-                        messagesRecords.add(msg)
-                    }
-                    messagesRecords.sortByDescending { messages -> messages.message.createdAt }
-                    // messagesRecords.toList -> for DiffUtil class
-                    chatAdapter.submitList(messagesRecords.toList())
+                            it.responseData.message.forEach { msg ->
+                                messagesRecords.add(msg)
+                            }
+                            messagesRecords.sortByDescending { messages -> messages.message.createdAt }
+                            // messagesRecords.toList -> for DiffUtil class
+                            chatAdapter.submitList(messagesRecords.toList())
 
-                    if (oldPosition != messagesRecords.size) {
-                        showNewMessage(messagesRecords.first())
-                    }
+                            if (oldPosition != messagesRecords.size) {
+                                showNewMessage(messagesRecords.first())
+                            }
 
-                    if (firstEnter) {
-                        oldPosition = messagesRecords.size
-                        bindingSetup.rvChat.scrollToPosition(0)
-                        firstEnter = false
+                            if (firstEnter) {
+                                oldPosition = messagesRecords.size
+                                bindingSetup.rvChat.scrollToPosition(0)
+                                firstEnter = false
+                            }
+                        }
+                    }
+                    Resource.Status.LOADING -> {
+                        // Loading
+                    }
+                    else -> {
+                        // Error
                     }
                 }
             }
 
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
+                if (it?.isNotEmpty() == true) {
+                    viewModel.fetchBlockedUsersLocally(it)
+                } else bindingSetup.clContactBlocked.visibility = View.GONE
+            }
+
+            viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
+                when (it.status) {
+                    Resource.Status.SUCCESS -> {
+                        if (it.responseData != null) {
+                            val containsElement =
+                                roomWithUsers.users.any { user -> it.responseData.find { blockedUser -> blockedUser.id == user.id } != null }
+                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                                if (containsElement) {
+                                    bindingSetup.clContactBlocked.visibility = View.VISIBLE
+                                    bindingSetup.clBlockContact.visibility = View.GONE
+                                } else bindingSetup.clContactBlocked.visibility = View.GONE
+                            }
+                        } else bindingSetup.clContactBlocked.visibility = View.GONE
+                    }
+                    Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
+                    else -> Timber.d("Other error")
+                }
+            })
+        }
+
         viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is FilePieceUploaded -> {
+            when (it.status) {
+                Resource.Status.LOADING -> {
                     try {
                         if (progress <= uploadPieces) {
                             updateUploadProgressBar(
@@ -670,14 +697,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                 }
 
-                is FileUploadVerified -> {
+                Resource.Status.SUCCESS -> {
                     try {
                         requireActivity().runOnUiThread {
                             Timber.d("Successfully sent file")
-                            if (it.fileId > 0) it.messageBody?.fileId = it.fileId
+                            if (it.responseData?.fileId!! > 0) it.responseData.messageBody?.fileId = it.responseData.fileId
                             sendMessage(
-                                it.fileType,
-                                it.messageBody?.fileId!!,
+                                it.responseData.fileType,
+                                it.responseData.messageBody?.fileId!!,
                                 0,
                                 unsentMessages.first().localId!!
                             )
@@ -691,7 +718,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                 }
 
-                is FileUploadError -> {
+                Resource.Status.ERROR -> {
                     handleUploadError(UploadMimeTypes.FILE)
                 }
 
@@ -699,38 +726,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
-                if (it?.isNotEmpty() == true) {
-                    viewModel.fetchBlockedUsersLocally(it)
-                } else bindingSetup.clContactBlocked.visibility = View.GONE
-            }
-
-            viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
-                when (it) {
-                    is BlockedUsersFetched -> {
-                        if (it.users.isNotEmpty()) {
-                            val containsElement =
-                                roomWithUsers.users.any { user -> it.users.find { blockedUser -> blockedUser.id == user.id } != null }
-                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-                                if (containsElement) {
-                                    bindingSetup.clContactBlocked.visibility = View.VISIBLE
-                                    bindingSetup.clBlockContact.visibility = View.GONE
-                                } else bindingSetup.clContactBlocked.visibility = View.GONE
-                            }
-                        } else bindingSetup.clContactBlocked.visibility = View.GONE
-                    }
-                    BlockedUsersFetchFailed -> Timber.d("Failed to fetch blocked users")
-                    else -> Timber.d("Other error")
-                }
-            })
-        }
-
         viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is MediaPieceUploaded -> {
+            when (it.status) {
+                Resource.Status.LOADING -> {
                     try {
-                        if (!it.isThumbnail) {
+                        if (it.message == "false") {
                             if (progress <= uploadPieces) {
                                 updateUploadProgressBar(
                                     progress + 1,
@@ -745,23 +745,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                 }
 
-                is MediaUploadVerified -> {
+                Resource.Status.SUCCESS -> {
                     try {
-                        if (!it.isThumbnail) {
-                            if (it.fileId > 0) it.messageBody?.fileId = it.fileId
+                        if (!it.responseData?.isThumbnail!!) {
+                            if (it.responseData.fileId > 0) it.responseData.messageBody?.fileId = it.responseData.fileId
 
                             sendMessage(
-                                it.fileType,
-                                it.messageBody?.fileId!!,
-                                it.messageBody.thumbId!!,
+                                it.responseData.fileType,
+                                it.responseData.messageBody?.fileId!!,
+                                it.responseData.messageBody.thumbId!!,
                                 unsentMessages.first().localId!!
                             )
                             currentMediaLocation.removeFirst()
                             uploadInProgress = false
                         } else {
-                            if (it.thumbId > 0) it.messageBody?.thumbId = it.thumbId
-                            if (it.mimeType.contains(Const.JsonFields.IMAGE_TYPE)) {
-                                it.messageBody?.let { messageBody ->
+                            if (it.responseData.thumbId > 0) it.responseData.messageBody?.thumbId = it.responseData.thumbId
+                            if (it.responseData.mimeType.contains(Const.JsonFields.IMAGE_TYPE)) {
+                                it.responseData.messageBody?.let { messageBody ->
                                     uploadMedia(
                                         false,
                                         currentMediaLocation.first(),
@@ -769,7 +769,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     )
                                 }
                             } else {
-                                it.messageBody?.let { messageBody ->
+                                it.responseData.messageBody?.let { messageBody ->
                                     uploadMedia(
                                         false,
                                         currentMediaLocation.first(),
@@ -779,14 +779,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             }
                             thumbnailUris.removeFirst()
                         }
-                        // update room data
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on verified")
                         handleUploadError(UploadMimeTypes.MEDIA)
                     }
                 }
 
-                is MediaUploadError -> {
+                Resource.Status.ERROR -> {
                     handleUploadError(UploadMimeTypes.MEDIA)
                 }
 

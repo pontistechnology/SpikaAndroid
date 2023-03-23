@@ -12,13 +12,11 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.databinding.FragmentNotesDetailsBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
-import com.clover.studio.exampleapp.ui.main.chat.NoteDeleted
-import com.clover.studio.exampleapp.ui.main.chat.NoteFailed
-import com.clover.studio.exampleapp.ui.main.chat.NoteUpdated
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import io.noties.markwon.Markwon
 import timber.log.Timber
 
@@ -52,8 +50,8 @@ class NotesDetailsFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.noteCreationListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                NoteUpdated -> {
+            when (it.status) {
+                 Resource.Status.SUCCESS -> {
                     binding.tvTitle.visibility = View.VISIBLE
                     binding.tvNotesDetails.visibility = View.VISIBLE
                     binding.etTitle.visibility = View.GONE
@@ -66,13 +64,16 @@ class NotesDetailsFragment : BaseFragment() {
 
                     markdownNotes()
                 }
-                NoteDeleted -> activity?.onBackPressed()
-                NoteFailed -> Toast.makeText(
+                Resource.Status.ERROR -> Toast.makeText(
                     context,
                     getString(R.string.note_creation_failed),
                     Toast.LENGTH_SHORT
                 ).show()
-                else -> Timber.d("Other error")
+                else -> {
+                    // Deleted
+                    activity?.onBackPressed()
+                    Timber.d("Other error")
+                }
             }
         })
     }

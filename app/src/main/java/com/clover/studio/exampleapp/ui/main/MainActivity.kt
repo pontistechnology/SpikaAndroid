@@ -26,6 +26,7 @@ import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
@@ -91,23 +92,24 @@ class MainActivity : BaseActivity(), SSEListener {
         viewModel.setupSSEManager(this)
 
         viewModel.roomDataListener.observe(this, EventObserver {
-            when (it) {
-                is SingleRoomData -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     val gson = Gson()
-                    val roomData = gson.toJson(it.roomData.roomWithUsers)
+                    val roomData = gson.toJson(it.responseData?.roomWithUsers)
                     startChatScreenActivity(this, roomData)
+                    Timber.d("Main Success!")
                 }
-                SingleRoomFetchFailed -> Timber.d("Failed to fetch room data")
+                Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
                 else -> Timber.d("Other error")
             }
         })
 
         viewModel.roomNotificationListener.observe(this, EventObserver {
-            when (it) {
-                is RoomNotificationData -> {
+            when (it.response.status) {
+                Resource.Status.SUCCESS -> {
                     val myUserId = viewModel.getLocalUserId()
 
-                    if (myUserId == it.message.fromUserId || it.roomWithUsers.room.muted) return@EventObserver
+                    if (myUserId == it.message.fromUserId || it.response.responseData?.room?.muted == true) return@EventObserver
                     runOnUiThread {
                         val animator =
                             ValueAnimator.ofInt(bindingSetup.cvNotification.pbTimeout.max, 0)
@@ -118,10 +120,10 @@ class MainActivity : BaseActivity(), SSEListener {
                         }
                         animator.start()
 
-                        if (it.roomWithUsers.room.type.equals(Const.JsonFields.GROUP)) {
+                        if (it.response.responseData!!.room.type.equals(Const.JsonFields.GROUP)) {
                             Timber.d("Showing room image")
                             Glide.with(this@MainActivity)
-                                .load(it.roomWithUsers.room.avatarFileId?.let { fileId ->
+                                .load(it.response.responseData.room.avatarFileId?.let { fileId ->
                                     Tools.getFilePathUrl(
                                         fileId
                                     )
@@ -129,8 +131,8 @@ class MainActivity : BaseActivity(), SSEListener {
                                 .placeholder(R.drawable.img_user_placeholder)
                                 .centerCrop()
                                 .into(bindingSetup.cvNotification.ivUserImage)
-                            bindingSetup.cvNotification.tvTitle.text = it.roomWithUsers.room.name
-                            for (user in it.roomWithUsers.users) {
+                            bindingSetup.cvNotification.tvTitle.text = it.response.responseData.room.name
+                            for (user in it.response.responseData.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     val content =
                                         if (it.message.type != Const.JsonFields.TEXT_TYPE) {
@@ -148,7 +150,7 @@ class MainActivity : BaseActivity(), SSEListener {
                                 }
                             }
                         } else {
-                            for (user in it.roomWithUsers.users) {
+                            for (user in it.response.responseData.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     Glide.with(this@MainActivity)
                                         .load(user.avatarFileId?.let { fileId ->
@@ -200,8 +202,28 @@ class MainActivity : BaseActivity(), SSEListener {
                         handler.postDelayed(runnable, 5000)
                     }
                 }
-                is RoomWithUsersFailed -> Timber.d("Failed to fetch room with users")
+                Resource.Status.ERROR -> Timber.d("Failed to fetch room with users")
                 else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
+            if (tokenExpired) {
+                DialogError.getInstance(this,
+                    getString(R.string.warning),
+                    getString(R.string.session_expired),
+                    null,
+                    getString(R.string.ok),
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            // Ignore
+                        }
+
+                        override fun onSecondOptionClicked() {
+                            viewModel.setTokenExpiredFalse()
+                            startOnboardingActivity(this@MainActivity, false)
+                        }
+                    })
             }
         })
     }

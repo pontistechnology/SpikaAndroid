@@ -11,12 +11,10 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.databinding.FragmentNewNoteBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
-import com.clover.studio.exampleapp.ui.main.chat.NoteCreated
-import com.clover.studio.exampleapp.ui.main.chat.NoteFailed
 import com.clover.studio.exampleapp.utils.EventObserver
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import timber.log.Timber
-
 
 class NewNoteFragment : BaseFragment() {
     private var bindingSetup: FragmentNewNoteBinding? = null
@@ -53,9 +51,9 @@ class NewNoteFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.noteCreationListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                NoteCreated -> activity?.onBackPressed()
-                NoteFailed -> Toast.makeText(
+            when (it.status) {
+                Resource.Status.SUCCESS -> activity?.onBackPressed()
+                Resource.Status.ERROR -> Toast.makeText(
                     context,
                     getString(R.string.note_creation_failed),
                     Toast.LENGTH_SHORT
