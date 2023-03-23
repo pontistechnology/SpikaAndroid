@@ -38,6 +38,8 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun sendCodeVerification(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
+        resolveResponseStatus(codeVerificationListener, Resource(Resource.Status.LOADING, null, ""))
+
         val response = onboardingRepository.verifyUserCode(jsonObject)
 
         resolveResponseStatus(codeVerificationListener, response)

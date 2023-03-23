@@ -222,9 +222,9 @@ class AccountCreationFragment : BaseFragment() {
                     activity?.contentResolver?.getType(currentPhotoLocation)!!
                 )
                 val uploadPieces =
-                    if ((fileStream.length() % CHUNK_SIZE).toInt() != 0)
-                        (fileStream.length() / CHUNK_SIZE + 1).toInt()
-                    else (fileStream.length() / CHUNK_SIZE).toInt()
+                    if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
+                        (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
+                    else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
                 binding.progressBar.max = uploadPieces
                 Timber.d("File upload start")

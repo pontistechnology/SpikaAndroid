@@ -18,7 +18,10 @@ import java.io.FileInputStream
 import java.util.*
 
 
-const val CHUNK_SIZE = 64000
+fun getChunkSize(fileSize: Long): Int = if (fileSize > ONE_GB) ONE_MB * 2 else ONE_MB
+
+const val ONE_MB = 1024 * 1024
+const val ONE_GB = 1024 * 1024 * 1024
 
 /**
  * Methods below will handle all file upload logic for the app. The interface below will communicate
@@ -35,7 +38,6 @@ class UploadDownloadManager constructor(
      *
      * @param activity The calling activity
      * @param fileUri The Uri path value of the file being uploaded
-     * @param mimeType The mime type of the file (image, audio, video...)
      * @param fileType The type of the file being uploaded, in the context of the app. (avatar, message, group avatar...)
      * @param filePieces The number of the pieces the file has been divided to based on the maximum
      *  chunk size
@@ -89,7 +91,7 @@ class UploadDownloadManager constructor(
         BufferedInputStream(FileInputStream(file)).use { bis ->
             var len: Int
             var piece = 0L
-            val temp = ByteArray(CHUNK_SIZE)
+            val temp = ByteArray(getChunkSize(file.length()))
             val randomId = UUID.randomUUID().toString().substring(0, 7)
             while (bis.read(temp).also { len = it } > 0) {
                 val uploadFile = UploadFile(
