@@ -190,7 +190,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun updateNote(noteId: Int, newNote: NewNote) = CoroutineScope(Dispatchers.IO).launch {
-        repository.updateNote(noteId, newNote)
+        resolveResponseStatus(noteCreationListener, repository.updateNote(noteId, newNote))
     }
 
     fun deleteNote(noteId: Int) = viewModelScope.launch {

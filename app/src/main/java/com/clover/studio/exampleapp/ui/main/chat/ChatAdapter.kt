@@ -41,6 +41,7 @@ import java.util.*
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
+private const val MAX_UPLOAD_PROGRESS = 100
 private var oldPosition = -1
 private var firstPlay = true
 private var playerListener: Player.Listener? = null
@@ -134,12 +135,15 @@ class ChatAdapter(
                             )
                             // Update the progress bar of the media item currently being uploaded
                             holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
+                            if (MAX_UPLOAD_PROGRESS == it.message.uploadProgress) {
+                                holder.binding.clProgressScreen.visibility = View.GONE
+                            }
                         } else {
                             holder.binding.clProgressScreen.visibility = View.GONE
                             bindImage(
                                 it,
                                 holder.binding.ivChatImage,
-                                holder.binding.clProgressScreen,
+                                holder.binding.clContainer
                             )
                         }
                     }
@@ -496,6 +500,8 @@ class ChatAdapter(
         clContainer.setOnClickListener {
             onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
         }
+
+        return
     }
 
     private fun bindVideo(
