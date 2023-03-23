@@ -22,17 +22,13 @@ import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentGroupInformationBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
-import com.clover.studio.exampleapp.ui.main.RoomCreateFailed
-import com.clover.studio.exampleapp.ui.main.RoomCreated
-import com.clover.studio.exampleapp.ui.main.chat.MediaPieceUploaded
-import com.clover.studio.exampleapp.ui.main.chat.MediaUploadError
-import com.clover.studio.exampleapp.ui.main.chat.MediaUploadVerified
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -210,22 +206,22 @@ class GroupInformationFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomCreated -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     hideProgress()
                     val users = mutableListOf<User>()
-                    for (roomUser in it.roomData.users) {
+                    for (roomUser in it.responseData?.data?.room!!.users) {
                         roomUser.user?.let { user -> users.add(user) }
                     }
 
-                    val roomWithUsers = RoomWithUsers(it.roomData, users)
+                    val roomWithUsers = RoomWithUsers(it.responseData.data.room, users)
                     val gson = Gson()
                     val roomData = gson.toJson(roomWithUsers)
                     Timber.d("Room with users: $roomWithUsers")
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
                     findNavController().popBackStack(R.id.mainFragment, false)
                 }
-                is RoomCreateFailed -> {
+                Resource.Status.ERROR -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))
                     Timber.d("Failed to create room")
@@ -239,24 +235,24 @@ class GroupInformationFragment : BaseFragment() {
         })
 
         viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is MediaPieceUploaded -> {
+            when (it.status) {
+                Resource.Status.LOADING -> {
                     if (progress <= uploadPieces) {
                         binding.progressBar.secondaryProgress = progress.toInt()
                         progress++
                     } else progress = 0
                 }
-                is MediaUploadVerified -> {
+                Resource.Status.SUCCESS -> {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
                         binding.clProgressScreen.visibility = View.GONE
                     }
-                    avatarFileId = it.fileId
+                    avatarFileId = it.responseData?.fileId
                 }
-                is MediaUploadError -> {
+                Resource.Status.ERROR -> {
                     Timber.d("Upload Error")
                     requireActivity().runOnUiThread {
-                        showUploadError(it.description)
+                        showUploadError(it.message!!)
                     }
                 }
                 else -> Toast.makeText(

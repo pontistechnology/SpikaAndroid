@@ -22,7 +22,6 @@ import androidx.navigation.fragment.findNavController
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.PhoneUser
 import com.clover.studio.exampleapp.databinding.FragmentRegisterNumberBinding
-import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
@@ -32,6 +31,7 @@ import com.clover.studio.exampleapp.utils.Tools.hashString
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonObject
 import timber.log.Timber
 
@@ -100,8 +100,8 @@ class RegisterNumberFragment : BaseFragment() {
 
     private fun setObservers() {
         viewModel.registrationListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                OnboardingStates.REGISTERING_SUCCESS -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     val bundle = bundleOf(
                         Const.Navigation.PHONE_NUMBER to countryCode + phoneNumber.toInt(),
                         Const.Navigation.PHONE_NUMBER_HASHED to hashString(
@@ -116,20 +116,20 @@ class RegisterNumberFragment : BaseFragment() {
                         R.id.action_splashFragment_to_verificationFragment, bundle
                     )
                 }
-                OnboardingStates.REGISTERING_IN_PROGRESS -> {
+                Resource.Status.LOADING -> {
                     binding.btnNext.isEnabled = false
                 }
-                OnboardingStates.REGISTERING_ERROR -> {
+                Resource.Status.ERROR -> {
                     DialogError.getInstance(requireContext(),
                         getString(R.string.registration_error),
                         getString(R.string.registration_error_description),
                         null, getString(R.string.ok), object : DialogInteraction {
                             override fun onFirstOptionClicked() {
-                                // ignore
+                                // Ignore
                             }
 
                             override fun onSecondOptionClicked() {
-                                // ignore
+                                // Ignore
                             }
 
                         })

@@ -10,53 +10,53 @@ import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
-import com.clover.studio.exampleapp.data.models.networking.responses.MuteResponse
-import com.clover.studio.exampleapp.data.services.ChatService
+import com.clover.studio.exampleapp.data.models.networking.responses.MessageResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.NotesResponse
+import com.clover.studio.exampleapp.data.repositories.data_sources.ChatRemoteDataSource
 import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.Tools.getHeaderMap
+import com.clover.studio.exampleapp.utils.helpers.Resource
+import com.clover.studio.exampleapp.utils.helpers.RestOperations.performRestOperation
+import com.clover.studio.exampleapp.utils.helpers.RestOperations.queryDatabase
+import com.clover.studio.exampleapp.utils.helpers.RestOperations.queryDatabaseCoreData
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
-    private val chatService: ChatService,
+    private val chatRemoteDataSource: ChatRemoteDataSource,
     private val roomDao: ChatRoomDao,
     private val messageDao: MessageDao,
     private val userDao: UserDao,
     private val roomUserDao: RoomUserDao,
     private val notesDao: NotesDao,
     private val appDatabase: AppDatabase,
-    private val sharedPrefsRepo: SharedPreferencesRepository
 ) : ChatRepository {
-    override suspend fun sendMessage(jsonObject: JsonObject) {
-        val response =
-            chatService.sendMessage(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
-        Timber.d("Response message $response")
-        response.data?.message?.let {
-            // Fields below should never be null except replyId. If null, there is a backend problem
-            val replyId = it.replyId ?: 0L
-            messageDao.updateMessage(
-                it.id,
-                it.fromUserId!!,
-                it.totalUserCount!!,
-                it.deliveredCount!!,
-                it.seenCount!!,
-                it.type!!,
-                it.body!!,
-                it.createdAt!!,
-                it.modifiedAt!!,
-                it.deleted!!,
-                replyId,
-                it.localId!!
-            )
-        }
-    }
+    override suspend fun sendMessage(jsonObject: JsonObject) =
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.sendMessage(jsonObject) },
+            saveCallResult = {
+                messageDao.updateMessage(
+                    it.data?.message!!.id,
+                    it.data.message.fromUserId!!,
+                    it.data.message.totalUserCount!!,
+                    it.data.message.deliveredCount!!,
+                    it.data.message.seenCount!!,
+                    it.data.message.type!!,
+                    it.data.message.body!!,
+                    it.data.message.createdAt!!,
+                    it.data.message.modifiedAt!!,
+                    it.data.message.deleted!!,
+                    it.data.message.replyId ?: 0L,
+                    it.data.message.localId!!
+                )
+            })
 
     override suspend fun storeMessageLocally(message: Message) {
-        messageDao.upsert(message)
+        queryDatabaseCoreData(
+            databaseQuery = { messageDao.upsert(message) }
+        )
     }
 
     override suspend fun deleteLocalMessages(messages: List<Message>) {
@@ -65,67 +65,93 @@ class ChatRepositoryImpl @Inject constructor(
             for (message in messages) {
                 messagesIds.add(message.id.toLong())
             }
-            messageDao.deleteMessage(messagesIds)
+            queryDatabaseCoreData(
+                databaseQuery = { messageDao.deleteMessage(messagesIds) }
+            )
         }
     }
 
     override suspend fun deleteLocalMessage(message: Message) {
-        messageDao.delete(message)
+        queryDatabaseCoreData(
+            databaseQuery = { messageDao.delete(message) }
+        )
     }
 
-    override suspend fun sendMessagesSeen(roomId: Int) =
-        chatService.sendMessagesSeen(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
+    override suspend fun sendMessagesSeen(roomId: Int) {
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.sendMessagesSeen(roomId) })
+    }
 
     override suspend fun deleteMessage(messageId: Int, target: String) {
-        val response =
-            chatService.deleteMessage(getHeaderMap(sharedPrefsRepo.readToken()), messageId, target)
+        val response = performRestOperation(
+            networkCall = { chatRemoteDataSource.deleteMessage(messageId, target) })
 
-        // Just replace old message with new one. Deleted message just has a body with new text
-        if (response.data?.message != null) {
-            val deletedMessage = response.data.message
+        if (response.responseData?.data?.message != null) {
+            val deletedMessage = response.responseData.data.message
             deletedMessage.type = Const.JsonFields.TEXT_TYPE
-            messageDao.upsert(deletedMessage)
+
+            queryDatabaseCoreData(
+                databaseQuery = { messageDao.upsert(deletedMessage) }
+            )
         }
     }
 
     override suspend fun editMessage(messageId: Int, jsonObject: JsonObject) {
-        val response = chatService.editMessage(
-            getHeaderMap(sharedPrefsRepo.readToken()),
-            messageId,
-            jsonObject
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.editMessage(messageId, jsonObject) },
+            saveCallResult = { messageDao.upsert(it.data?.message!!) }
         )
-        if (response.data?.message != null) {
-            messageDao.upsert(response.data.message)
-        }
     }
 
-    override suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int) =
-        roomDao.updateRoomVisited(visitedTimestamp, roomId)
+    override suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int) {
+        queryDatabaseCoreData(
+            databaseQuery = { roomDao.updateRoomVisited(visitedTimestamp, roomId) }
+        )
+    }
 
-    override suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers> =
-        roomDao.getDistinctRoomAndUsers(roomId)
+    override fun getRoomWithUsersLiveData(roomId: Int) =
+        queryDatabase(
+            databaseQuery = { roomDao.getRoomAndUsersLiveData(roomId) }
+        )
 
     override suspend fun getRoomWithUsers(roomId: Int) =
-        roomDao.getRoomAndUsers(roomId)
+        queryDatabaseCoreData(
+            databaseQuery = { roomDao.getRoomAndUsers(roomId) }
+        )
 
     override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) {
-        val response =
-            chatService.updateRoom(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject, roomId)
+        val response = performRestOperation(
+            networkCall = { chatRemoteDataSource.updateRoom(jsonObject, roomId) })
 
         CoroutineScope(Dispatchers.IO).launch {
             appDatabase.runInTransaction {
                 CoroutineScope(Dispatchers.IO).launch {
                     val oldRoom = roomDao.getRoomById(roomId)
-                    response.data?.room?.let { roomDao.updateRoomTable(oldRoom, it) }
+
+                    response.responseData?.data?.room?.let {
+                        queryDatabaseCoreData(
+                            databaseQuery = { roomDao.updateRoomTable(oldRoom, it) }
+                        )
+                    }
 
                     val users: MutableList<User> = ArrayList()
                     val roomUsers: MutableList<RoomUser> = ArrayList()
-                    if (response.data?.room != null) {
-                        val room = response.data.room
+                    if (response.responseData?.data?.room != null) {
+                        val room = response.responseData.data.room
 
                         // Delete Room User if id has been passed through
                         if (userId != 0) {
-                            roomUserDao.delete(RoomUser(roomId, userId, false))
+                            queryDatabaseCoreData(
+                                databaseQuery = {
+                                    roomUserDao.delete(
+                                        RoomUser(
+                                            roomId,
+                                            userId,
+                                            false
+                                        )
+                                    )
+                                }
+                            )
                         }
 
                         for (user in room.users) {
@@ -136,8 +162,14 @@ class ChatRepositoryImpl @Inject constructor(
                                 )
                             )
                         }
-                        userDao.upsert(users)
-                        roomUserDao.upsert(roomUsers)
+
+                        queryDatabaseCoreData(
+                            databaseQuery = { userDao.upsert(users) }
+                        )
+
+                        queryDatabaseCoreData(
+                            databaseQuery = { roomUserDao.upsert(roomUsers) }
+                        )
                     }
                 }
             }
@@ -145,90 +177,108 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean? =
-        roomUserDao.getRoomUserById(roomId, userId).isAdmin
+        queryDatabaseCoreData(
+            databaseQuery = { roomUserDao.getRoomUserById(roomId, userId).isAdmin }
+        ).responseData
 
-    override suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords> =
-        roomDao.getDistinctChatRoomAndMessageAndRecordsById(roomId)
+
+    override fun getChatRoomAndMessageAndRecordsById(roomId: Int) =
+        queryDatabase(
+            databaseQuery = { roomDao.getDistinctChatRoomAndMessageAndRecordsById(roomId) }
+        )
 
     override suspend fun handleRoomMute(roomId: Int, doMute: Boolean) {
-        val response: MuteResponse = if (doMute)
-            chatService.muteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
-        else
-            chatService.unmuteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
-
-        if (Const.JsonFields.SUCCESS == response.status) {
-            roomDao.updateRoomMuted(true, roomId)
+        if (doMute) {
+            performRestOperation(
+                networkCall = { chatRemoteDataSource.muteRoom(roomId) },
+                saveCallResult = { roomDao.updateRoomMuted(true, roomId) }
+            )
+        } else {
+            performRestOperation(
+                networkCall = { chatRemoteDataSource.unmuteRoom(roomId) },
+                saveCallResult = { roomDao.updateRoomMuted(true, roomId) }
+            )
         }
     }
 
     override suspend fun handleRoomPin(roomId: Int, doPin: Boolean) {
-        val response = if (doPin)
-            chatService.pinRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
-        else
-            chatService.unpinRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
-
-        if (Const.JsonFields.SUCCESS == response.status) {
-            roomDao.updateRoomPinned(true, roomId)
+        if (doPin) {
+            performRestOperation(
+                networkCall = { chatRemoteDataSource.pinRoom(roomId) },
+                saveCallResult = { roomDao.updateRoomPinned(true, roomId) }
+            )
+        } else {
+            performRestOperation(
+                networkCall = { chatRemoteDataSource.unpinRoom(roomId) },
+                saveCallResult = { roomDao.updateRoomPinned(true, roomId) }
+            )
         }
     }
 
-    override suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords =
-        roomDao.getSingleRoomData(roomId)
+    override suspend fun getSingleRoomData(roomId: Int) =
+        queryDatabaseCoreData(
+            databaseQuery = { roomDao.getSingleRoomData(roomId) }
+        )
 
-    override suspend fun sendReaction(jsonObject: JsonObject) =
-        chatService.postReaction(getHeaderMap(sharedPrefsRepo.readToken()), jsonObject)
+    override suspend fun sendReaction(jsonObject: JsonObject) {
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.postReaction(jsonObject) })
+    }
 
     override suspend fun getNotes(roomId: Int) {
-        val response = chatService.getRoomNotes(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
-
-        response.data.notes?.let { notesDao.upsert(it) }
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.getRoomNotes(roomId) },
+            saveCallResult = { notesDao.upsert(it.data.notes!!) }
+        )
     }
 
-    override suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>> =
-        notesDao.getNotesByRoom(roomId)
+    override fun getLocalNotes(roomId: Int) =
+        queryDatabase(
+            databaseQuery = { notesDao.getNotesByRoom(roomId) }
+        )
 
-    override suspend fun createNewNote(roomId: Int, newNote: NewNote) {
-        val response =
-            chatService.createNote(getHeaderMap(sharedPrefsRepo.readToken()), roomId, newNote)
-
-        response.data.note?.let { notesDao.upsert(it) }
-    }
+    override suspend fun createNewNote(roomId: Int, newNote: NewNote) =
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.createNewNote(roomId, newNote) },
+            saveCallResult = { notesDao.upsert(it.data.note!!) })
 
     override suspend fun updateNote(noteId: Int, newNote: NewNote) {
-        val response =
-            chatService.updateNote(getHeaderMap(sharedPrefsRepo.readToken()), noteId, newNote)
-
-        response.data.note?.let { notesDao.upsert(it) }
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.updateNote(noteId, newNote) },
+            saveCallResult = { notesDao.upsert(it.data.note!!) })
     }
 
     override suspend fun deleteNote(noteId: Int) {
-        val response = chatService.deleteNote(getHeaderMap(sharedPrefsRepo.readToken()), noteId)
-
-        response.data.deleted?.let { if (it) notesDao.deleteNote(noteId) }
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.deleteNote(noteId) },
+            saveCallResult = { notesDao.deleteNote(noteId) }
+        )
     }
 
     override suspend fun deleteRoom(roomId: Int) {
-        val response = chatService.deleteRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
-        if (response.data?.room?.deleted == true) {
-            roomDao.deleteRoom(roomId)
-        }
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.deleteRoom(roomId) },
+            saveCallResult = { roomDao.deleteRoom(roomId) }
+        )
     }
 
     override suspend fun leaveRoom(roomId: Int) {
-        val response = chatService.leaveRoom(getHeaderMap(sharedPrefsRepo.readToken()), roomId)
-        if (Const.JsonFields.SUCCESS == response.status) {
-            roomDao.updateRoomExit(roomId, true)
-        }
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.leaveRoom(roomId) },
+            saveCallResult = { roomDao.updateRoomExit(roomId, true) }
+        )
     }
 
     override suspend fun removeAdmin(roomId: Int, userId: Int) {
-        roomUserDao.removeAdmin(roomId, userId)
+        queryDatabaseCoreData(
+            databaseQuery = { roomUserDao.removeAdmin(roomId, userId) }
+        )
     }
 }
 
 interface ChatRepository {
     // Message calls
-    suspend fun sendMessage(jsonObject: JsonObject)
+    suspend fun sendMessage(jsonObject: JsonObject): Resource<MessageResponse>
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
     suspend fun deleteLocalMessage(message: Message)
@@ -238,12 +288,12 @@ interface ChatRepository {
 
     // Room calls
     suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int)
-    suspend fun getRoomWithUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
-    suspend fun getRoomWithUsers(roomId: Int): RoomWithUsers
+    fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
+    suspend fun getRoomWithUsers(roomId: Int): Resource<RoomWithUsers>
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
-    suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
-    suspend fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<RoomAndMessageAndRecords>
+    suspend fun getSingleRoomData(roomId: Int): Resource<RoomAndMessageAndRecords>
+    fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<Resource<RoomAndMessageAndRecords>>
     suspend fun handleRoomMute(roomId: Int, doMute: Boolean)
     suspend fun handleRoomPin(roomId: Int, doPin: Boolean)
     suspend fun deleteRoom(roomId: Int)
@@ -252,14 +302,11 @@ interface ChatRepository {
 
     // Reaction calls
     suspend fun sendReaction(jsonObject: JsonObject)
-    // suspend fun deleteReaction(recordId: Int, userId: Int)
-    // suspend fun deleteAllReactions(messageId: Int)
-    // suspend fun deleteReaction(id: Int)
 
     // Notes calls
     suspend fun getNotes(roomId: Int)
-    suspend fun getLocalNotes(roomId: Int): LiveData<List<Note>>
-    suspend fun createNewNote(roomId: Int, newNote: NewNote)
+    fun getLocalNotes(roomId: Int): LiveData<Resource<List<Note>>>
+    suspend fun createNewNote(roomId: Int, newNote: NewNote): Resource<NotesResponse>
     suspend fun updateNote(noteId: Int, newNote: NewNote)
     suspend fun deleteNote(noteId: Int)
 }

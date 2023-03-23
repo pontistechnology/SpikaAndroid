@@ -8,20 +8,23 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
+import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
+import com.clover.studio.exampleapp.data.models.networking.responses.MessageResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.NotesResponse
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
-import com.clover.studio.exampleapp.ui.main.*
 import com.clover.studio.exampleapp.utils.*
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
@@ -33,22 +36,16 @@ class ChatViewModel @Inject constructor(
     private val sseManager: SSEManager,
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel() {
-    val messageSendListener = MutableLiveData<Event<ChatStatesEnum>>()
-    val sendMessageDeliveredListener = MutableLiveData<Event<ChatStatesEnum>>()
-    val roomDataListener = MutableLiveData<Event<MainStates>>()
-    val roomNotificationListener = MutableLiveData<Event<ChatStates>>()
-    val fileUploadListener = MutableLiveData<Event<ChatStates>>()
-    val mediaUploadListener = MutableLiveData<Event<ChatStates>>()
-    val noteCreationListener = MutableLiveData<Event<ChatStates>>()
-    val blockedListListener = MutableLiveData<Event<MainStates>>()
+    val messageSendListener = MutableLiveData<Event<Resource<MessageResponse?>>>()
+    val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
+    val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
+    val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
+    val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
+    val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
+    val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
 
-    fun storeMessageLocally(message: Message) = viewModelScope.launch {
-        try {
-            repository.storeMessageLocally(message)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            return@launch
-        }
+    fun storeMessageLocally(message: Message) = CoroutineScope(Dispatchers.IO).launch {
+        repository.storeMessageLocally(message)
     }
 
     fun setupSSEManager(listener: SSEListener) {
@@ -56,18 +53,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
-        try {
-            repository.sendMessage(jsonObject)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SEND_FAIL))
-            }
-            return@launch
-        }
-
-        messageSendListener.postValue(Event(ChatStatesEnum.MESSAGE_SENT))
+        resolveResponseStatus(messageSendListener, repository.sendMessage(jsonObject))
     }
 
     fun getLocalUserId(): Int? {
@@ -81,55 +67,25 @@ class ChatViewModel @Inject constructor(
     }
 
     fun deleteLocalMessages(messages: List<Message>) = viewModelScope.launch {
-        try {
-            repository.deleteLocalMessages(messages)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            return@launch
-        }
+        repository.deleteLocalMessages(messages)
     }
 
     fun deleteLocalMessage(message: Message) = viewModelScope.launch {
-        try {
-            repository.deleteLocalMessage(message)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            return@launch
-        }
+        repository.deleteLocalMessage(message)
     }
 
     fun sendMessagesSeen(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.sendMessagesSeen(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.sendMessagesSeen(roomId)
     }
 
     fun updateRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int) = viewModelScope.launch {
-        try {
-            repository.updatedRoomVisitedTimestamp(visitedTimestamp, roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.updatedRoomVisitedTimestamp(visitedTimestamp, roomId)
     }
 
-    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = viewModelScope.launch {
-        try {
+    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
+        CoroutineScope(Dispatchers.IO).launch {
             repository.updateRoom(jsonObject, roomId, userId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
         }
-    }
 
     fun isUserAdmin(roomId: Int, userId: Int): Boolean {
         var isAdmin = false
@@ -145,9 +101,7 @@ class ChatViewModel @Inject constructor(
         return isAdmin
     }
 
-    fun getRoomAndUsers(roomId: Int) = liveData {
-        emitSource(repository.getRoomWithUsersLiveData(roomId))
-    }
+    fun getRoomAndUsers(roomId: Int) = repository.getRoomWithUsersLiveData(roomId)
 
 //    fun getPushNotificationStream(listener: SSEListener): Flow<Message> = flow {
 //        viewModelScope.launch {
@@ -160,42 +114,23 @@ class ChatViewModel @Inject constructor(
 //        }
 //    }
 
-    fun getChatRoomAndMessageAndRecordsById(roomId: Int) = liveData {
-        emitSource(repository.getChatRoomAndMessageAndRecordsById(roomId))
-    }
+    fun getChatRoomAndMessageAndRecordsById(roomId: Int) =
+        repository.getChatRoomAndMessageAndRecordsById(roomId)
 
     fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
-        try {
-            roomDataListener.postValue(Event(SingleRoomData(repository.getSingleRoomData(roomId))))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                roomDataListener.postValue(Event(SingleRoomFetchFailed))
-            }
-            return@launch
-        }
+        resolveResponseStatus(roomDataListener, repository.getSingleRoomData(roomId))
     }
 
     fun getRoomWithUsers(roomId: Int, message: Message) = viewModelScope.launch {
-        try {
-            roomNotificationListener.postValue(
-                Event(
-                    RoomNotificationData(
-                        repository.getRoomWithUsers(
-                            roomId
-                        ), message
-                    )
+        roomNotificationListener.postValue(
+            Event(
+                RoomNotificationData(
+                    repository.getRoomWithUsers(
+                        roomId
+                    ), message
                 )
             )
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                roomNotificationListener.postValue(Event(RoomWithUsersFailed))
-            }
-            return@launch
-        }
+        )
     }
 
     /**
@@ -205,14 +140,7 @@ class ChatViewModel @Inject constructor(
      * @param doMute Boolean which decides if the room should be muted or unmuted
      */
     fun handleRoomMute(roomId: Int, doMute: Boolean) = viewModelScope.launch {
-        try {
-            repository.handleRoomMute(roomId, doMute)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.handleRoomMute(roomId, doMute)
     }
 
     /**
@@ -222,137 +150,51 @@ class ChatViewModel @Inject constructor(
      * @param doPin Boolean which decides if the room should be pinned or unpinned
      */
     fun handleRoomPin(roomId: Int, doPin: Boolean) = viewModelScope.launch {
-        try {
-            repository.handleRoomPin(roomId, doPin)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.handleRoomPin(roomId, doPin)
     }
 
     fun sendReaction(jsonObject: JsonObject) = viewModelScope.launch {
-        try {
-            repository.sendReaction(jsonObject)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            } else {
-                Timber.d("Exception: $ex")
-            }
-        }
+        repository.sendReaction(jsonObject)
     }
 
     fun deleteRoom(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.deleteRoom(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.deleteRoom(roomId)
     }
 
     fun leaveRoom(roomId: Int) = viewModelScope.launch {
-        try {
-            repository.leaveRoom(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.leaveRoom(roomId)
     }
 
     fun removeAdmin(roomId: Int, userId: Int) = viewModelScope.launch {
-        try {
-            repository.removeAdmin(roomId, userId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.removeAdmin(roomId, userId)
     }
 
-    fun deleteMessage(messageId: Int, target: String) = viewModelScope.launch {
-        try {
-            repository.deleteMessage(messageId, target)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+    fun deleteMessage(messageId: Int, target: String) = CoroutineScope(Dispatchers.IO).launch {
+        repository.deleteMessage(messageId, target)
     }
 
-    fun editMessage(messageId: Int, jsonObject: JsonObject) = viewModelScope.launch {
-        try {
+    fun editMessage(messageId: Int, jsonObject: JsonObject) =
+        CoroutineScope(Dispatchers.IO).launch {
             repository.editMessage(messageId, jsonObject)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
         }
-    }
 
-    fun fetchNotes(roomId: Int) = viewModelScope.launch {
-        try {
+    fun fetchNotes(roomId: Int) =
+        CoroutineScope(Dispatchers.IO).launch {
             repository.getNotes(roomId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
-    }
-
-    fun getRoomNotes(roomId: Int) = liveData {
-        emitSource(repository.getLocalNotes(roomId))
-    }
-
-    fun createNewNote(roomId: Int, newNote: NewNote) = viewModelScope.launch {
-        try {
-            repository.createNewNote(roomId, newNote)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            noteCreationListener.postValue(Event(NoteFailed))
-            return@launch
-        }
-        noteCreationListener.postValue(Event(NoteCreated))
-    }
-
-    fun updateNote(noteId: Int, newNote: NewNote) = viewModelScope.launch {
-        try {
-            repository.updateNote(noteId, newNote)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            noteCreationListener.postValue(Event(NoteFailed))
-            return@launch
         }
 
-        noteCreationListener.postValue(Event(NoteUpdated))
+    fun getRoomNotes(roomId: Int) = repository.getLocalNotes(roomId)
+
+    fun createNewNote(roomId: Int, newNote: NewNote) = CoroutineScope(Dispatchers.IO).launch {
+        resolveResponseStatus(noteCreationListener, repository.createNewNote(roomId, newNote))
+    }
+
+    fun updateNote(noteId: Int, newNote: NewNote) = CoroutineScope(Dispatchers.IO).launch {
+        repository.updateNote(noteId, newNote)
     }
 
     fun deleteNote(noteId: Int) = viewModelScope.launch {
-        try {
-            repository.deleteNote(noteId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            noteCreationListener.postValue(Event(NoteFailed))
-            return@launch
-        }
-
-        noteCreationListener.postValue(Event(NoteDeleted))
+        repository.deleteNote(noteId)
     }
 
     fun unregisterSharedPrefsReceiver() = viewModelScope.launch {
@@ -364,60 +206,23 @@ class ChatViewModel @Inject constructor(
     }
 
     fun fetchBlockedUsersLocally(userIds: List<Int>) = viewModelScope.launch {
-        try {
-            val data = mainRepository.fetchBlockedUsersLocally(userIds)
-            blockedListListener.postValue(Event(BlockedUsersFetched(data)))
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            blockedListListener.postValue(Event(BlockedUsersFetchFailed))
-            return@launch
-        }
+        resolveResponseStatus(blockedListListener, mainRepository.fetchBlockedUsersLocally(userIds))
     }
 
     fun getBlockedUsersList() = viewModelScope.launch {
-        try {
-            mainRepository.getBlockedList()
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        mainRepository.getBlockedList()
     }
 
     fun blockUser(blockedId: Int) = viewModelScope.launch {
-        try {
-            mainRepository.blockUser(blockedId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        mainRepository.blockUser(blockedId)
     }
 
     fun deleteBlock(userId: Int) = viewModelScope.launch {
-        try {
-            mainRepository.deleteBlock(userId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        mainRepository.deleteBlock(userId)
     }
 
     fun deleteBlockForSpecificUser(userId: Int) = viewModelScope.launch {
-        try {
-            mainRepository.deleteBlockForSpecificUser(userId)
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        mainRepository.deleteBlockForSpecificUser(userId)
     }
 
     fun uploadFile(
@@ -440,11 +245,17 @@ class ChatViewModel @Inject constructor(
                     false,
                     object : FileUploadListener {
                         override fun filePieceUploaded() {
-                            fileUploadListener.postValue(Event(FilePieceUploaded))
+                            resolveResponseStatus(
+                                fileUploadListener,
+                                Resource(Resource.Status.LOADING, null, "")
+                            )
                         }
 
                         override fun fileUploadError(description: String) {
-                            fileUploadListener.postValue(Event(FileUploadError(description)))
+                            resolveResponseStatus(
+                                fileUploadListener,
+                                Resource(Resource.Status.ERROR, null, description)
+                            )
                         }
 
                         override fun fileUploadVerified(
@@ -455,22 +266,26 @@ class ChatViewModel @Inject constructor(
                             fileType: String,
                             messageBody: MessageBody?
                         ) {
-                            fileUploadListener.postValue(
-                                Event(
-                                    FileUploadVerified(
-                                        path,
-                                        mimeType,
-                                        thumbId,
-                                        fileId,
-                                        fileType,
-                                        messageBody
-                                    )
+                            val response =
+                                FileUploadVerified(
+                                    path,
+                                    mimeType,
+                                    thumbId,
+                                    fileId,
+                                    fileType,
+                                    messageBody
                                 )
+                            resolveResponseStatus(
+                                fileUploadListener,
+                                Resource(Resource.Status.SUCCESS, response, "")
                             )
                         }
                     })
             } catch (ex: Exception) {
-                fileUploadListener.postValue(Event(FileUploadError(ex.message.toString())))
+                resolveResponseStatus(
+                    fileUploadListener,
+                    Resource(Resource.Status.ERROR, null, ex.message.toString())
+                )
             }
         }
 
@@ -494,11 +309,17 @@ class ChatViewModel @Inject constructor(
                 isThumbnail,
                 object : FileUploadListener {
                     override fun filePieceUploaded() {
-                        mediaUploadListener.postValue(Event(MediaPieceUploaded(isThumbnail)))
+                        resolveResponseStatus(
+                            mediaUploadListener,
+                            Resource(Resource.Status.LOADING, null, isThumbnail.toString())
+                        )
                     }
 
                     override fun fileUploadError(description: String) {
-                        mediaUploadListener.postValue(Event(MediaUploadError(description)))
+                        resolveResponseStatus(
+                            mediaUploadListener,
+                            Resource(Resource.Status.ERROR, null, description)
+                        )
                     }
 
                     override fun fileUploadVerified(
@@ -509,37 +330,31 @@ class ChatViewModel @Inject constructor(
                         fileType: String,
                         messageBody: MessageBody?
                     ) {
-                        mediaUploadListener.postValue(
-                            Event(
-                                MediaUploadVerified(
-                                    path,
-                                    mimeType,
-                                    thumbId,
-                                    fileId,
-                                    fileType,
-                                    messageBody,
-                                    isThumbnail
-                                )
-                            )
+                        val response = MediaUploadVerified(
+                            path,
+                            mimeType,
+                            thumbId,
+                            fileId,
+                            fileType,
+                            messageBody,
+                            isThumbnail
+                        )
+                        resolveResponseStatus(
+                            mediaUploadListener,
+                            Resource(Resource.Status.SUCCESS, response, "")
                         )
                     }
                 })
         } catch (ex: Exception) {
-            mediaUploadListener.postValue(Event(MediaUploadError(ex.message.toString())))
+            resolveResponseStatus(
+                mediaUploadListener,
+                Resource(Resource.Status.ERROR, null, ex.message.toString())
+            )
         }
     }
 }
 
-sealed class ChatStates
-class RoomWithUsersFetched(val roomWithUsers: RoomWithUsers) : ChatStates()
-object RoomWithUsersFailed : ChatStates()
-class RoomNotificationData(val roomWithUsers: RoomWithUsers, val message: Message) : ChatStates()
-object NoteCreated : ChatStates()
-object NoteFailed : ChatStates()
-object NoteUpdated : ChatStates()
-object NoteDeleted : ChatStates()
-object FilePieceUploaded : ChatStates()
-class FileUploadError(val description: String) : ChatStates()
+class RoomNotificationData(val response: Resource<RoomWithUsers>, val message: Message)
 class FileUploadVerified(
     val path: String,
     val mimeType: String,
@@ -547,10 +362,8 @@ class FileUploadVerified(
     val fileId: Long,
     val fileType: String,
     val messageBody: MessageBody?
-) : ChatStates()
+)
 
-class MediaPieceUploaded(val isThumbnail: Boolean) : ChatStates()
-class MediaUploadError(val description: String) : ChatStates()
 class MediaUploadVerified(
     val path: String,
     val mimeType: String,
@@ -559,6 +372,4 @@ class MediaUploadVerified(
     val fileType: String,
     val messageBody: MessageBody?,
     val isThumbnail: Boolean
-) : ChatStates()
-
-enum class ChatStatesEnum { MESSAGE_SENT, MESSAGE_SEND_FAIL, MESSAGE_DELIVERED, MESSAGE_DELIVER_FAIL }
+)

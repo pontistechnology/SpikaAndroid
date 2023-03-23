@@ -146,13 +146,19 @@ class SSEManager @Inject constructor(
                                         }
                                     }
                                     Const.JsonFields.USER_UPDATE -> {
-                                        response.data?.user?.let { repo.writeUser(it) }
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            response.data?.user?.let { repo.writeUser(it) }
+                                        }
                                     }
                                     Const.JsonFields.NEW_ROOM -> {
-                                        response.data?.room?.let { repo.writeRoom(it) }
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            response.data?.room?.let { repo.writeRoom(it) }
+                                        }
                                     }
                                     Const.JsonFields.UPDATE_ROOM -> {
-                                        response.data?.room?.let { repo.writeRoom(it) }
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            response.data?.room?.let { repo.writeRoom(it) }
+                                        }
                                     }
                                     Const.JsonFields.DELETE_ROOM -> {
                                         response.data?.room?.let { repo.deleteRoom(it.roomId) }

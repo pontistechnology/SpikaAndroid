@@ -53,16 +53,15 @@ class ContactsFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.usersListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                UsersError -> Timber.d("Users error")
-                UsersFetched -> Timber.d("Users fetched")
+            when (it.status) {
+                Resource.Status.SUCCESS -> Timber.d("Users fetched")
+                Resource.Status.ERROR -> Timber.d("Users error")
                 else -> Timber.d("Other error")
             }
         })
 
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
-            // TODO don't use !! here, make null check
-            if (it.responseData?.isNotEmpty() == true) {
+            if (it.responseData != null) {
                 userList = it.responseData.toMutableList()
 
                 // TODO fix this later

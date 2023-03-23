@@ -43,6 +43,9 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("SELECT * FROM room")
     fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
 
+    fun getDistinctChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
+        getChatRoomAndMessageAndRecords().getDistinct()
+
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
@@ -61,9 +64,6 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     fun getRoomAndUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
-
-    fun getDistinctRoomAndUsers(roomId: Int): LiveData<RoomWithUsers> =
-        getRoomAndUsersLiveData(roomId).getDistinct()
 
     // This method copies locally added fields to the database if present
     @Transaction

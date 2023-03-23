@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 object RestOperations {
 
@@ -39,6 +41,19 @@ object RestOperations {
         }
 
     @JvmStatic
+    suspend fun <T> queryDatabaseCoreData(
+        databaseQuery: suspend () -> T
+    ): Resource<T> {
+        return try {
+            val result = withContext(Dispatchers.IO) {
+                databaseQuery.invoke()
+            }
+            Resource.success(result)
+        } catch (e: Exception) {
+            Resource.error(e.message ?: "Error", null)
+        }
+    }
+
     suspend fun <R> performRestOperation(
         networkCall: suspend () -> Resource<R>
     ): Resource<R> {
@@ -55,6 +70,27 @@ object RestOperations {
             }
         }
     }
+
+    @JvmStatic
+    suspend fun <R> performRestOperation(
+        networkCall: suspend () -> Resource<R>,
+        saveCallResult: (suspend ((R) -> Unit))? = null
+    ): Resource<R> {
+        val responseStatus = networkCall.invoke()
+        return when (responseStatus.status) {
+            Resource.Status.SUCCESS -> {
+                saveCallResult?.invoke(responseStatus.responseData!!)
+                Resource.success(responseStatus.responseData!!)
+            }
+            Resource.Status.TOKEN_EXPIRED -> {
+                Resource.tokenExpired(responseStatus.message!!)
+            }
+            else -> {
+                Resource.error(responseStatus.message!!)
+            }
+        }
+    }
+
 
     @JvmStatic
     suspend fun <R> performRestOperationWithStoring(

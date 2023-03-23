@@ -19,7 +19,6 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.databinding.FragmentAccountCreationBinding
 import com.clover.studio.exampleapp.ui.main.startMainActivity
-import com.clover.studio.exampleapp.ui.onboarding.OnboardingStates
 import com.clover.studio.exampleapp.ui.onboarding.OnboardingViewModel
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.Tools.convertBitmapToUri
@@ -27,6 +26,7 @@ import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -103,19 +103,19 @@ class AccountCreationFragment : BaseFragment() {
 
     private fun addObservers() {
         viewModel.accountCreationListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                OnboardingStates.CONTACTS_SENT -> Timber.d("Contacts sent successfully")
-                OnboardingStates.CONTACTS_ERROR -> Timber.d("Failed to send contacts")
+            when (it.status) {
+                Resource.Status.SUCCESS -> Timber.d("Contacts sent successfully")
+                Resource.Status.ERROR -> Timber.d("Failed to send contacts")
                 else -> Timber.d("Other error")
             }
         })
 
         viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                OnboardingStates.USER_UPDATED -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     startMainActivity(requireActivity())
                 }
-                OnboardingStates.USER_UPDATE_ERROR -> Timber.d("Error updating user")
+                Resource.Status.ERROR -> Timber.d("Error updating user")
                 else -> Timber.d("Other error")
             }
         })

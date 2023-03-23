@@ -234,7 +234,7 @@ class NewRoomFragment : BaseFragment() {
     private fun initializeObservers() {
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
             // TODO @Ivana handle this null check
-            if (it.responseData!!.isNotEmpty()) {
+            if (it.responseData != null) {
                 userList = it.responseData.toMutableList()
                 val users = userList.sortUsersByLocale(requireContext())
                 userList = users.toMutableList()
@@ -243,11 +243,11 @@ class NewRoomFragment : BaseFragment() {
         }
 
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomWithUsersFetched -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     hideProgress()
                     val gson = Gson()
-                    val roomData = gson.toJson(it.roomWithUsers)
+                    val roomData = gson.toJson(it.responseData)
                     if (isRoomUpdate) {
                         findNavController().popBackStack(R.id.chatDetailsFragment, false)
                         isRoomUpdate = false
@@ -293,22 +293,14 @@ class NewRoomFragment : BaseFragment() {
         })
 
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomCreated -> {
-                    handleRoomData(it.roomData)
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    handleRoomData(it.responseData?.data?.room!!)
                 }
-                is RoomUpdated -> {
-                    handleRoomData(it.roomData)
-                }
-                is RoomCreateFailed -> {
+                Resource.Status.ERROR -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))
                     Timber.d("Failed to create room")
-                }
-                is RoomUpdateFailed -> {
-                    hideProgress()
-                    showRoomCreationError(getString(R.string.failed_room_update))
-                    Timber.d("Failed to update room")
                 }
                 else -> {
                     hideProgress()

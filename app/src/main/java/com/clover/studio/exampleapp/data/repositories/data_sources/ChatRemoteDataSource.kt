@@ -80,8 +80,4 @@ class ChatRemoteDataSource @Inject constructor(
     suspend fun leaveRoom(roomId: Int) = getResult {
         retrofitService.leaveRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
     }
-
-    suspend fun getUnreadCount() = getResult {
-        retrofitService.getUnreadCount(getHeaderMap(sharedPrefs.readToken()))
-    }
 }

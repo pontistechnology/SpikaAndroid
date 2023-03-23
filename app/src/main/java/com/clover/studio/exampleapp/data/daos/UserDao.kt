@@ -31,4 +31,7 @@ interface UserDao: BaseDao<User> {
     @Transaction
     @Query("SELECT * FROM user")
     fun getUserAndRooms(): LiveData<List<UserWithRooms>>
+
+    fun getDistinctUserAndRooms(): LiveData<List<UserWithRooms>> =
+        getUserAndRooms().getDistinct()
 }

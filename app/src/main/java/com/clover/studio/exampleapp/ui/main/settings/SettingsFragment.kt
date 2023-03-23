@@ -20,8 +20,6 @@ import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.databinding.FragmentSettingsBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
-import com.clover.studio.exampleapp.ui.main.UserUpdateFailed
-import com.clover.studio.exampleapp.ui.main.UserUpdated
 import com.clover.studio.exampleapp.utils.*
 import com.clover.studio.exampleapp.utils.Tools.getFilePathUrl
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
@@ -142,18 +140,21 @@ class SettingsFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
-            binding.tvUsername.text = it.displayName ?: getString(R.string.no_username)
-            binding.tvPhoneNumber.text = it.telephoneNumber
-            avatarId = it.avatarFileId
+            val response = it.responseData
+            if (response != null) {
+                binding.tvUsername.text = response.displayName ?: getString(R.string.no_username)
+                binding.tvPhoneNumber.text = response.telephoneNumber
+                avatarId = response.avatarFileId
 
-            Glide.with(requireActivity())
-                .load(it.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
-                .placeholder(R.drawable.img_user_placeholder)
-                .centerCrop()
-                .into(binding.ivPickPhoto)
+                Glide.with(requireActivity())
+                    .load(response.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
+                    .placeholder(R.drawable.img_user_placeholder)
+                    .centerCrop()
+                    .into(binding.ivPickPhoto)
+            }
         }
 
-        viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
+        /*viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
             when (it) {
                 UserUpdated -> {
                     showUserDetails()
@@ -161,7 +162,7 @@ class SettingsFragment : BaseFragment() {
                 UserUpdateFailed -> Timber.d("User update failed")
                 else -> Timber.d("Other error")
             }
-        })
+        })*/
     }
 
     private fun showUserDetails() {
@@ -315,11 +316,9 @@ class SettingsFragment : BaseFragment() {
                 avatarId
             )
             viewModel.updateUserData(jsonObject)
-        } else {
-            binding.etEnterUsername.visibility = View.GONE
-            binding.tvUsername.visibility = View.VISIBLE
-            return
         }
+        binding.etEnterUsername.visibility = View.GONE
+        binding.tvUsername.visibility = View.VISIBLE
     }
 
     private fun showUsernameUpdate() {

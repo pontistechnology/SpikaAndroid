@@ -1,6 +1,5 @@
 package com.clover.studio.exampleapp.data.services
 
-import com.bumptech.glide.load.engine.Resource
 import com.clover.studio.exampleapp.data.models.networking.*
 import com.clover.studio.exampleapp.data.models.networking.responses.*
 import com.clover.studio.exampleapp.utils.Const
@@ -20,43 +19,43 @@ interface RetrofitService {
     suspend fun createNewRoom(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
-    ): RoomResponse
+    ): Response<RoomResponse>
 
     @PUT(Const.Networking.API_UPDATE_ROOM)
     suspend fun updateRoom(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): RoomResponse
+    ): Response<RoomResponse>
 
     @GET(Const.Networking.API_POST_NEW_ROOM)
     suspend fun fetchAllUserRooms(
         @HeaderMap headers: Map<String, String?>
-    ): RoomResponse
+    ): Response<RoomResponse>
 
     @POST(Const.Networking.API_MUTE_ROOM)
     suspend fun muteRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): MuteResponse
+    ): Response<MuteResponse>
 
     @POST(Const.Networking.API_UNMUTE_ROOM)
     suspend fun unmuteRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): MuteResponse
+    ): Response<MuteResponse>
 
     @POST(Const.Networking.API_PIN_ROOM)
     suspend fun pinRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): RoomResponse
+    ): Response<RoomResponse>
 
     @POST(Const.Networking.API_UNPIN_ROOM)
     suspend fun unpinRoom(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ROOM_ID) roomId: Int
-    ): RoomResponse
+    ): Response<RoomResponse>
     // End Room section
 
 
@@ -70,13 +69,13 @@ interface RetrofitService {
     suspend fun updateUser(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
-    ): AuthResponse
+    ): Response<AuthResponse>
 
     @POST(value = Const.Networking.API_UPLOAD_FILE)
     suspend fun uploadFiles(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
-    ): FileResponse
+    ): Response<FileResponse>
 
     @POST(value = Const.Networking.API_VERIFY_FILE)
     suspend fun verifyFile(
@@ -87,32 +86,32 @@ interface RetrofitService {
     @GET(Const.Networking.API_GET_SETTINGS)
     suspend fun getSettings(
         @HeaderMap headers: Map<String, String?>
-    ): SettingsResponse
+    ): Response<SettingsResponse>
 
     // Start Block section
     @GET(Const.Networking.API_BLOCK)
     suspend fun getBlockedList(
         @HeaderMap headers: Map<String, String?>
-    ): BlockResponse
+    ): Response<BlockResponse>
 
     @POST(Const.Networking.API_BLOCK)
     suspend fun blockUser(
         @HeaderMap headers: Map<String, String?>,
         @Body blockedId: BlockedId
-    ): BlockResponse
+    ): Response<BlockResponse>
 
     @DELETE(Const.Networking.API_DELETE_BLOCK)
     suspend fun deleteBlock(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.ID) userId: Int
-    ): BlockResponse
+    ): Response<BlockResponse>
 
     @DELETE(Const.Networking.API_DELETE_BLOCK_FOR_USER)
     suspend fun deleteBlockForSpecificUser(
         @HeaderMap headers: Map<String, String?>,
         @Path(Const.Networking.USER_ID) userId: Int
-    ): BlockResponse
+    ): Response<BlockResponse>
 
-   // TODO add remaining block API
+    // TODO add remaining block API
     // End block section
 }

@@ -14,7 +14,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.databinding.FragmentContactDetailsBinding
-import com.clover.studio.exampleapp.ui.main.*
+import com.clover.studio.exampleapp.ui.main.MainActivity
+import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
@@ -80,23 +81,23 @@ class ContactDetailsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.getRoomByIdLiveData(roomId).observe(viewLifecycleOwner) { room ->
-            if (room != null) {
+        viewModel.getRoomByIdLiveData(roomId).observe(viewLifecycleOwner) {
+            if (it.responseData != null) {
                 // Set room muted or not muted on switch
-                binding.swMute.isChecked = room.muted
+                binding.swMute.isChecked = it.responseData.muted
 
                 // Set room pinned or not pinned on switch
-                binding.swPinChat.isChecked = room.pinned
+                binding.swPinChat.isChecked = it.responseData.pinned
             }
         }
 
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomWithUsersFetched -> {
-                    Timber.d("Room with users = ${it.roomWithUsers}")
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    Timber.d("Room with users = ${it.responseData}")
                     val gson = Gson()
-                    val roomData = gson.toJson(it.roomWithUsers)
-                    Timber.d("ROOM data: = ${it.roomWithUsers}")
+                    val roomData = gson.toJson(it.responseData)
+                    Timber.d("ROOM data: = ${it.responseData}")
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
                 }
                 else -> Timber.d("Other error")
@@ -107,7 +108,11 @@ class ContactDetailsFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     Timber.d("Room already exists")
-                    it.responseData?.data?.room?.roomId?.let { roomId -> viewModel.getRoomWithUsers(roomId) }
+                    it.responseData?.data?.room?.roomId?.let { roomId ->
+                        viewModel.getRoomWithUsers(
+                            roomId
+                        )
+                    }
                 }
                 Resource.Status.ERROR -> {
                     Timber.d("Room not found, creating new one")
@@ -136,14 +141,14 @@ class ContactDetailsFragment : BaseFragment() {
         })
 
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomCreated -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     val gson = Gson()
-                    val roomData = gson.toJson(it.roomData)
+                    val roomData = gson.toJson(it.responseData?.data?.room)
                     Timber.d("Room data = $roomData")
-                    viewModel.getRoomWithUsers(it.roomData.roomId)
+                    viewModel.getRoomWithUsers(it.responseData?.data?.room!!.roomId)
                 }
-                is RoomCreateFailed -> Timber.d("Failed to create room")
+                Resource.Status.ERROR -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")
             }
         })
@@ -157,17 +162,17 @@ class ContactDetailsFragment : BaseFragment() {
         }
 
         viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is BlockedUsersFetched -> {
-                    if (it.users.isNotEmpty()) {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    if (it.responseData != null) {
                         val containsElement =
-                            it.users.any { blockedUser -> blockedUser.id == user?.id }
+                            it.responseData.any { blockedUser -> blockedUser.id == user?.id }
                         if (containsElement) {
                             binding.tvBlocked.text = getString(R.string.unblock)
                         } else binding.tvBlocked.text = getString(R.string.block)
                     }
                 }
-                BlockedUsersFetchFailed -> Timber.d("Failed to fetch blocked users")
+                Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
                 else -> Timber.d("Other error")
             }
         })
