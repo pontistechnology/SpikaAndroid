@@ -38,7 +38,7 @@ android {
         applicationId "com.clover.studio.exampleapp"
         minSdk 24
         targetSdk 33
-        versionCode 100015
+        versionCode 100016
         versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
