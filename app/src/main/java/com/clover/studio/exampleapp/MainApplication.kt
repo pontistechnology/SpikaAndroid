@@ -31,7 +31,7 @@ class MainApplication : Application(), LifecycleEventObserver {
 
     companion object {
         lateinit var appContext: Context
-        var isInForeground = true
+        var isInForeground = false
     }
 
     override fun onCreate() {
@@ -93,7 +93,7 @@ class MainApplication : Application(), LifecycleEventObserver {
                 isInForeground = false
             }
             Lifecycle.Event.ON_DESTROY -> {
-                // ignore
+                isInForeground = false
             }
             Lifecycle.Event.ON_ANY -> {
                 // ignore
