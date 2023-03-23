@@ -1677,7 +1677,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         if (UploadMimeTypes.MEDIA == typeFailed) {
             currentMediaLocation.removeFirst()
-            viewModel.deleteLocalMessage(unsentMessages.first())
+            if (unsentMessages.isNotEmpty()){
+                viewModel.deleteLocalMessage(unsentMessages.first())
+            }
             unsentMessages.removeFirst()
 
             if (currentMediaLocation.isNotEmpty()) {
