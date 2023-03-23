@@ -242,11 +242,10 @@ class ChatRepositoryImpl @Inject constructor(
             networkCall = { chatRemoteDataSource.createNewNote(roomId, newNote) },
             saveCallResult = { notesDao.upsert(it.data.note!!) })
 
-    override suspend fun updateNote(noteId: Int, newNote: NewNote) {
+    override suspend fun updateNote(noteId: Int, newNote: NewNote) =
         performRestOperation(
             networkCall = { chatRemoteDataSource.updateNote(noteId, newNote) },
             saveCallResult = { notesDao.upsert(it.data.note!!) })
-    }
 
     override suspend fun deleteNote(noteId: Int) {
         performRestOperation(
@@ -307,6 +306,6 @@ interface ChatRepository {
     suspend fun getNotes(roomId: Int)
     fun getLocalNotes(roomId: Int): LiveData<Resource<List<Note>>>
     suspend fun createNewNote(roomId: Int, newNote: NewNote): Resource<NotesResponse>
-    suspend fun updateNote(noteId: Int, newNote: NewNote)
+    suspend fun updateNote(noteId: Int, newNote: NewNote): Resource<NotesResponse>
     suspend fun deleteNote(noteId: Int)
 }
