@@ -122,6 +122,7 @@ class SSEManager @Inject constructor(
                                                 it
                                             )
                                         }
+                                        repo.getUnreadCount()
                                     }
                                     Const.JsonFields.UPDATE_MESSAGE -> {
                                         response.data?.message?.let { repo.writeMessages(it) }
@@ -162,6 +163,9 @@ class SSEManager @Inject constructor(
                                     }
                                     Const.JsonFields.DELETE_ROOM -> {
                                         response.data?.room?.let { repo.deleteRoom(it.roomId) }
+                                    }
+                                    Const.JsonFields.SEEN_ROOM -> {
+                                        response.data?.roomId?.let { repo.resetUnreadCount(it) }
                                     }
                                 }
                             }

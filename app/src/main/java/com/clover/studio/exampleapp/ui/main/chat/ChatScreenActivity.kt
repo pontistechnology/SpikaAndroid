@@ -225,6 +225,11 @@ class ChatScreenActivity : BaseActivity(), SSEListener {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.getUnreadCount()
+    }
+
     override fun newMessageReceived(message: Message) {
         Timber.d("Message received")
         message.roomId?.let { viewModel.getRoomWithUsers(it, message) }

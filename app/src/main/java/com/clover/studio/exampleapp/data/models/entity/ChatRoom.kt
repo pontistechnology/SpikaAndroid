@@ -46,6 +46,9 @@ data class ChatRoom @JvmOverloads constructor(
 
     @ColumnInfo(name = "room_exit")
     var roomExit: Boolean?,
+
+    @ColumnInfo(name = "unread_count")
+    var unreadCount: Int = 0
 ) {
     @Ignore
     val users: List<RoomUsers> = ArrayList()

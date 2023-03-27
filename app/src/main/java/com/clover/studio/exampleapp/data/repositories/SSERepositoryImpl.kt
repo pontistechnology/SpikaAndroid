@@ -426,6 +426,39 @@ class SSERepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.deleteRoom(roomId) }
         )
     }
+
+    override suspend fun resetUnreadCount(roomId: Int) {
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.resetUnreadCount(roomId) }
+        )
+    }
+
+    override suspend fun getUnreadCount() {
+        val response = performRestOperation(
+            networkCall = { sseRemoteDataSource.getUnreadCount() }
+        )
+
+        CoroutineScope(Dispatchers.IO).launch {
+            if (response.responseData?.data?.unreadCounts != null) {
+                val currentRooms = chatRoomDao.getAllRooms()
+                val roomsToUpdate: MutableList<ChatRoom> = ArrayList()
+                for (room in currentRooms) {
+                    room.unreadCount = 0
+                    for (item in response.responseData.data.unreadCounts) {
+                        if (item.roomId == room.roomId) {
+                            room.unreadCount = item.unreadCount
+                            break
+                        }
+                    }
+                    roomsToUpdate.add(room)
+                }
+                Timber.d("Rooms to update: $roomsToUpdate")
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.upsert(roomsToUpdate) }
+                )
+            }
+        }
+    }
 }
 
 interface SSERepository {
@@ -440,6 +473,8 @@ interface SSERepository {
     suspend fun writeRoom(room: ChatRoom)
     suspend fun deleteMessageRecord(messageRecords: MessageRecords)
     suspend fun deleteRoom(roomId: Int)
+    suspend fun resetUnreadCount(roomId: Int)
+    suspend fun getUnreadCount()
 }
 
 private fun getMessageIdJson(messageIds: List<Int?>): JsonObject {

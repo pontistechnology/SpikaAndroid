@@ -79,4 +79,8 @@ class MainRemoteDataSource @Inject constructor(
     suspend fun unpinRoom(roomId: Int) = getResult {
         retrofitService.unpinRoom(getHeaderMap(sharedPrefs.readToken()), roomId)
     }
+
+    suspend fun getUnreadCount() = getResult {
+        retrofitService.getUnreadCount(getHeaderMap(sharedPrefs.readToken()))
+    }
 }

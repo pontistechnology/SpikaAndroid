@@ -1,9 +1,6 @@
 package com.clover.studio.exampleapp.data.services
 
-import com.clover.studio.exampleapp.data.models.networking.responses.ContactResponse
-import com.clover.studio.exampleapp.data.models.networking.responses.MessageRecordsResponse
-import com.clover.studio.exampleapp.data.models.networking.responses.MessageResponse
-import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.*
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
 import retrofit2.Response
@@ -39,4 +36,9 @@ interface SSEService {
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
     ): Response<MessageRecordsResponse>
+
+    @GET(Const.Networking.API_UNREAD_COUNT)
+    suspend fun getUnreadCount(
+        @HeaderMap headers: Map<String, String?>
+    ): Response<UnreadCountResponse>
 }
