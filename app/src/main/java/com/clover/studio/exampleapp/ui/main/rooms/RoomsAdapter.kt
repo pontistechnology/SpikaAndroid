@@ -72,7 +72,12 @@ class RoomsAdapter(
                         .centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(binding.ivRoomImage)
-                } else binding.ivRoomImage.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.img_user_placeholder))
+                } else binding.ivRoomImage.setImageDrawable(
+                    AppCompatResources.getDrawable(
+                        context,
+                        R.drawable.img_user_placeholder
+                    )
+                )
 
                 if (!roomItem.message.isNullOrEmpty()) {
                     val sortedList = roomItem.message.sortedBy { it.message.createdAt }
@@ -98,38 +103,25 @@ class RoomsAdapter(
                         getRelativeTimeSpan(it)
                     }
 
-                    if (time?.get(0) == '0') {
+                    // Check for the first digit in the relative time span, if it is a '0' we will
+                    // write "Now" instead of the returned time value
+                    if (time?.firstOrNull { it.isDigit() }?.equals('0') == true) {
                         binding.tvMessageTime.text = context.getString(R.string.now)
                     } else {
                         binding.tvMessageTime.text = time
                     }
-
-                    val unreadMessages = ArrayList<MessageAndRecords>()
-                    if (sortedList.isNotEmpty()) {
-                        val filteredMessageList =
-                            sortedList.filter { it.message.fromUserId.toString() != myUserId }
-                        for (messageAndRecords in filteredMessageList) {
-                            if (messageAndRecords.records != null && messageAndRecords.message.reaction.isEmpty()) {
-                                if (!checkIfMessageSeen(
-                                        roomItem,
-                                        messageAndRecords
-                                    )
-                                ) unreadMessages.add(
-                                    messageAndRecords
-                                )
-                            } else unreadMessages.add(messageAndRecords)
-                        }
-                    }
-
-                    if (unreadMessages.isNotEmpty()) {
-                        binding.tvNewMessages.text = unreadMessages.size.toString()
-                        binding.tvNewMessages.visibility = View.VISIBLE
-                    } else binding.tvNewMessages.visibility = View.GONE
                 } else {
                     binding.tvLastMessage.text = ""
                     binding.tvMessageTime.text = ""
                     binding.tvNewMessages.visibility = View.GONE
                 }
+
+                // The second condition handles cases where some rooms have unread counts but have
+                // no locally stored messages in them
+                if (roomItem.roomWithUsers.room.unreadCount != 0 && roomItem.message?.isNotEmpty() == true) {
+                    binding.tvNewMessages.text = roomItem.roomWithUsers.room.unreadCount.toString()
+                    binding.tvNewMessages.visibility = View.VISIBLE
+                } else binding.tvNewMessages.visibility = View.GONE
 
                 itemView.setOnClickListener {
                     roomItem.let {

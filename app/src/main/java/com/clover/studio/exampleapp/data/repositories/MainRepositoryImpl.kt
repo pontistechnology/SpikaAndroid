@@ -24,6 +24,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -127,6 +128,33 @@ class MainRepositoryImpl @Inject constructor(
         queryDatabaseCoreData(
             databaseQuery = { chatRoomDao.getRoomAndUsers(roomId) }
         )
+
+    override suspend fun getUnreadCount() {
+        val response = performRestOperation(
+            networkCall = { mainRemoteDataSource.getUnreadCount() }
+        )
+
+        CoroutineScope(Dispatchers.IO).launch {
+            if (response.responseData?.data?.unreadCounts != null) {
+                val currentRooms = chatRoomDao.getAllRooms()
+                val roomsToUpdate: MutableList<ChatRoom> = ArrayList()
+                for (room in currentRooms) {
+                    room.unreadCount = 0
+                    for (item in response.responseData.data.unreadCounts) {
+                        if (item.roomId == room.roomId) {
+                            room.unreadCount = item.unreadCount
+                            break
+                        }
+                    }
+                    roomsToUpdate.add(room)
+                }
+                Timber.d("Rooms to update: $roomsToUpdate")
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.upsert(roomsToUpdate) }
+                )
+            }
+        }
+    }
 
     override suspend fun updatePushToken(jsonObject: JsonObject) =
         performRestOperation(
@@ -308,6 +336,7 @@ interface MainRepository {
     fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): Resource<RoomResponse>
+    suspend fun getUnreadCount()
 
     // Settings calls
     suspend fun updatePushToken(jsonObject: JsonObject): Resource<Unit>
