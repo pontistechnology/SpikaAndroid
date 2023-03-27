@@ -35,7 +35,7 @@ class MainViewModel @Inject constructor(
     private val sharedPrefsRepo: SharedPreferencesRepository,
     private val sseManager: SSEManager,
     private val uploadDownloadManager: UploadDownloadManager
-) : BaseViewModel() {
+) : BaseViewModel(), SSEListener {
     val usersListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
     val checkRoomExistsListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
     val createRoomListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
@@ -44,6 +44,7 @@ class MainViewModel @Inject constructor(
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
+    val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
 
     fun getLocalUser() = liveData {
         val localUserId = sharedPrefsRepo.readUserId()
@@ -64,8 +65,12 @@ class MainViewModel @Inject constructor(
         return isFirstLaunch
     }
 
-    fun setupSSEManager(listener: SSEListener) {
-        sseManager.setupListener(listener)
+    fun setupSSEManager() {
+        sseManager.setupListener(this)
+    }
+
+    override fun newMessageReceived(message: Message) {
+        resolveResponseStatus(newMessageReceivedListener, Resource(Resource.Status.SUCCESS, message, ""))
     }
 
     fun getLocalUserId(): Int? {

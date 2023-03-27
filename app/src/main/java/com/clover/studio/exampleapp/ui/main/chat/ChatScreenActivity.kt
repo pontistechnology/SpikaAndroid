@@ -12,11 +12,13 @@ import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.ActivityChatScreenBinding
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
-import com.clover.studio.exampleapp.utils.*
+import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.UploadDownloadManager
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
@@ -43,7 +45,7 @@ fun replaceChatScreenActivity(fromActivity: Activity, roomData: String) =
     }
 
 @AndroidEntryPoint
-class ChatScreenActivity : BaseActivity(), SSEListener {
+class ChatScreenActivity : BaseActivity() {
     var roomWithUsers: RoomWithUsers? = null
 
     private lateinit var bindingSetup: ActivityChatScreenBinding
@@ -76,7 +78,17 @@ class ChatScreenActivity : BaseActivity(), SSEListener {
     }
 
     private fun initializeObservers() {
-        viewModel.setupSSEManager(this)
+        viewModel.setupSSEManager()
+
+        viewModel.newMessageReceivedListener.observe(this, EventObserver { message ->
+            Timber.d("Message received2:::::: $message")
+            message.responseData?.roomId?.let {
+                viewModel.getRoomWithUsers(
+                    it,
+                    message.responseData
+                )
+            }
+        })
 
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it.status) {
@@ -228,11 +240,6 @@ class ChatScreenActivity : BaseActivity(), SSEListener {
     override fun onStart() {
         super.onStart()
         viewModel.getUnreadCount()
-    }
-
-    override fun newMessageReceived(message: Message) {
-        Timber.d("Message received")
-        message.roomId?.let { viewModel.getRoomWithUsers(it, message) }
     }
 }
 
