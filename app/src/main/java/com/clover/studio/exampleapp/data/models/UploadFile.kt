@@ -1,7 +1,9 @@
 package com.clover.studio.exampleapp.data.models
 
+import android.os.Parcelable
 import com.clover.studio.exampleapp.utils.Const
 import com.google.gson.JsonObject
+import kotlinx.parcelize.Parcelize
 
 data class UploadFile(
     // chunk: Base64 encoded text of chunk
@@ -63,8 +65,9 @@ data class UploadFile(
     }
 }
 
+@Parcelize
 data class FileMetadata(
     var width: Int?,
     var height: Int?,
     var duration: Int?
-)
+) : Parcelable

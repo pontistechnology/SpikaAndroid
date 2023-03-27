@@ -7,10 +7,13 @@ import androidx.room.PrimaryKey
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.models.networking.responses.RoomUsers
 import com.google.gson.annotations.SerializedName
+import com.vanniktech.emoji.Parcelable
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_CHAT_ROOM)
 data class ChatRoom @JvmOverloads constructor(
-
     @PrimaryKey
     @SerializedName("id")
     @ColumnInfo(name = "room_id")
@@ -49,10 +52,12 @@ data class ChatRoom @JvmOverloads constructor(
 
     @ColumnInfo(name = "unread_count")
     var unreadCount: Int = 0
-) {
+) : Parcelable {
     @Ignore
+    @IgnoredOnParcel
     val users: List<RoomUsers> = ArrayList()
 
     @Ignore
+    @IgnoredOnParcel
     val hasAvatar: Boolean = avatarFileId != null && avatarFileId > 0L
 }

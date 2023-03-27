@@ -1,10 +1,13 @@
 package com.clover.studio.exampleapp.data.models.entity
 
+import android.os.Parcelable
 import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.models.FileMetadata
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_MESSAGE)
 data class Message @JvmOverloads constructor(
 
@@ -91,8 +94,9 @@ data class Message @JvmOverloads constructor(
 
     // @Ignore
     // var roomUser: String = ""
-)
+) : Parcelable
 
+@Parcelize
 data class MessageBody(
     var referenceMessage: ReferenceMessage?,
     var text: String?,
@@ -100,8 +104,9 @@ data class MessageBody(
     var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?,
-)
+) : Parcelable
 
+@Parcelize
 data class ReferenceMessage(
     var id: Int?,
     var fromUserId: Int?,
@@ -115,16 +120,18 @@ data class ReferenceMessage(
     val modifiedAt: Long?,
     val deleted: Boolean?,
     val reply: Boolean?,
-)
+) : Parcelable
 
+@Parcelize
 data class ReplyBody(
     var text: String?,
     var fileId: Long?,
     var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?,
-)
+) : Parcelable
 
+@Parcelize
 data class MessageFile(
     val id: Long,
     val fileName: String,
@@ -132,4 +139,4 @@ data class MessageFile(
     val size: Long,
     val metadata: FileMetadata?,
     val uri: String?
-)
+) : Parcelable
