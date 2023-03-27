@@ -225,6 +225,10 @@ class ChatViewModel @Inject constructor(
         mainRepository.deleteBlockForSpecificUser(userId)
     }
 
+    fun getUnreadCount() = viewModelScope.launch {
+        mainRepository.getUnreadCount()
+    }
+
     fun uploadFile(
         activity: Activity,
         uri: Uri,
