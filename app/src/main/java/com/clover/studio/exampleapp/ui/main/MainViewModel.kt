@@ -134,14 +134,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun getUnreadCount() = viewModelScope.launch {
-        try {
-            repository.getUnreadCount()
-        } catch (ex: Exception) {
-            if (Tools.checkError(ex)) {
-                setTokenExpiredTrue()
-            }
-            return@launch
-        }
+        repository.getUnreadCount()
     }
 
     fun updatePushToken(jsonObject: JsonObject) = viewModelScope.launch {

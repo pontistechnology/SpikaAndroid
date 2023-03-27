@@ -130,15 +130,17 @@ class MainRepositoryImpl @Inject constructor(
         )
 
     override suspend fun getUnreadCount() {
-        val response = retrofitService.getUnreadCount(getHeaderMap(sharedPrefs.readToken()))
+        val response = performRestOperation(
+            networkCall = { mainRemoteDataSource.getUnreadCount() }
+        )
 
         CoroutineScope(Dispatchers.IO).launch {
-            if (response.data.unreadCounts != null) {
+            if (response.responseData?.data?.unreadCounts != null) {
                 val currentRooms = chatRoomDao.getAllRooms()
                 val roomsToUpdate: MutableList<ChatRoom> = ArrayList()
                 for (room in currentRooms) {
                     room.unreadCount = 0
-                    for (item in response.data.unreadCounts) {
+                    for (item in response.responseData.data.unreadCounts) {
                         if (item.roomId == room.roomId) {
                             room.unreadCount = item.unreadCount
                             break
@@ -147,7 +149,9 @@ class MainRepositoryImpl @Inject constructor(
                     roomsToUpdate.add(room)
                 }
                 Timber.d("Rooms to update: $roomsToUpdate")
-                chatRoomDao.updateRooms(roomsToUpdate)
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.upsert(roomsToUpdate) }
+                )
             }
         }
     }

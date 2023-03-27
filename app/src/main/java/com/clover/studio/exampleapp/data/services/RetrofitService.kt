@@ -60,7 +60,7 @@ interface RetrofitService {
     @GET(Const.Networking.API_UNREAD_COUNT)
     suspend fun getUnreadCount(
         @HeaderMap headers: Map<String, String?>
-    ): UnreadCountResponse
+    ): Response<UnreadCountResponse>
     // End Room section
 
 

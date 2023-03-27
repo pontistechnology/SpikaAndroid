@@ -34,4 +34,8 @@ class SSERemoteDataSource @Inject constructor(
     suspend fun sendMessageDelivered(messageId: JsonObject) = getResult {
         retrofitService.sendMessageDelivered(getHeaderMap(sharedPrefs.readToken()), messageId)
     }
+
+    suspend fun getUnreadCount() = getResult {
+        retrofitService.getUnreadCount(getHeaderMap(sharedPrefs.readToken()))
+    }
 }
