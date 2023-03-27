@@ -68,6 +68,9 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     fun getRoomAndUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
 
+    @Query("UPDATE room SET unread_count = 0 WHERE room_id LIKE :roomId")
+    suspend fun resetUnreadCount(roomId: Int)
+
     // This method copies locally added fields to the database if present
     @Transaction
     suspend fun updateRoomTable(oldData: ChatRoom?, newData: ChatRoom) {

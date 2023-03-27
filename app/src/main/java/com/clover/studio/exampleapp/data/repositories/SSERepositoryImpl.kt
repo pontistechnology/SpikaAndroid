@@ -427,6 +427,12 @@ class SSERepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun resetUnreadCount(roomId: Int) {
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.resetUnreadCount(roomId) }
+        )
+    }
+
     override suspend fun getUnreadCount() {
         val response = performRestOperation(
             networkCall = { sseRemoteDataSource.getUnreadCount() }
@@ -467,6 +473,7 @@ interface SSERepository {
     suspend fun writeRoom(room: ChatRoom)
     suspend fun deleteMessageRecord(messageRecords: MessageRecords)
     suspend fun deleteRoom(roomId: Int)
+    suspend fun resetUnreadCount(roomId: Int)
     suspend fun getUnreadCount()
 }
 

@@ -82,6 +82,7 @@ class Const {
             const val UPDATE_ROOM = "UPDATE_ROOM"
             const val DELETE_ROOM = "DELETE_ROOM"
             const val USER_UPDATE = "USER_UPDATE"
+            const val SEEN_ROOM = "SEEN_ROOM"
 
             // Mime types
             const val IMAGE = "image/*"

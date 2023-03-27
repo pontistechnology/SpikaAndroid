@@ -164,6 +164,9 @@ class SSEManager @Inject constructor(
                                     Const.JsonFields.DELETE_ROOM -> {
                                         response.data?.room?.let { repo.deleteRoom(it.roomId) }
                                     }
+                                    Const.JsonFields.SEEN_ROOM -> {
+                                        response.data?.roomId?.let { repo.resetUnreadCount(it) }
+                                    }
                                 }
                             }
                         }

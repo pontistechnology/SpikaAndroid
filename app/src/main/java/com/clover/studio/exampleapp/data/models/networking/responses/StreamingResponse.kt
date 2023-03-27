@@ -14,5 +14,6 @@ data class DataResponse(
     val message: Message?,
     val messageRecord: MessageRecords?,
     val user: User?,
-    val room: ChatRoom?
+    val room: ChatRoom?,
+    val roomId: Int?
 )
