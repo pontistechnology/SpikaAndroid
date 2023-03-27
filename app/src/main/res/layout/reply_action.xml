@@ -45,7 +45,7 @@
             android:ellipsize="end"
             android:fontFamily="@font/montserrat"
             android:gravity="center|start"
-            android:maxLines="3"
+            android:maxLines="1"
             android:text="@string/some_message"
             android:textColorLink="@color/link_primary_color"
             android:textSize="@dimen/eleven_sp_text"
