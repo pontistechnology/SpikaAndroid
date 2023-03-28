@@ -13,6 +13,7 @@ import com.clover.studio.exampleapp.data.models.CountryCode
 import com.clover.studio.exampleapp.databinding.FragmentCountryPickerBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
+import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.google.gson.Gson
 import timber.log.Timber
 
@@ -68,7 +69,7 @@ class CountryPickerFragment : BaseFragment() {
         val list =
             resources.openRawResource(R.raw.country_codes).bufferedReader().use { it.readText() }
 
-        val gson = Gson()
+        val gson = GsonProvider.gson
         countryList = gson.fromJson(list, Array<CountryCode>::class.java).toList()
         countryPickerAdapter.submitList(
             countryList

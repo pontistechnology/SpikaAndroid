@@ -14,6 +14,7 @@ import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.exampleapp.ui.main.MainActivity
+import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
@@ -64,7 +65,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // Write message to local db
         try {
             val jsonObject = JSONObject("$notificationData")
-            val gson = Gson()
+            val gson = GsonProvider.gson
             val response =
                 gson.fromJson(
                     jsonObject.toString(),

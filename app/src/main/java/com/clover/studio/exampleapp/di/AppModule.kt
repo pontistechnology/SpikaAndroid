@@ -7,8 +7,8 @@ import com.clover.studio.exampleapp.data.services.ChatService
 import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
 import com.clover.studio.exampleapp.data.services.SSEService
+import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,8 +27,7 @@ object AppModule {
     @Singleton
     @Provides
     fun provideGsonBuilder(): Gson {
-        return GsonBuilder()
-            .create()
+        return GsonProvider.gson
     }
 
     @Singleton

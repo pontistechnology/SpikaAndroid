@@ -11,6 +11,7 @@ import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.networking.responses.StreamingResponse
 import com.clover.studio.exampleapp.data.repositories.SSERepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
+import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.google.gson.Gson
 import kotlinx.coroutines.*
 import okio.IOException
@@ -97,7 +98,7 @@ class SSEManager @Inject constructor(
                             var response: StreamingResponse? = null
                             try {
                                 val jsonObject = JSONObject("{$line}")
-                                val gson = Gson()
+                                val gson = GsonProvider.gson
                                 response =
                                     gson.fromJson(
                                         jsonObject.toString(),
