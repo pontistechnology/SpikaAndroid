@@ -87,10 +87,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initializeObservers() {
-        viewModel.setupSSEManager()
-
         viewModel.newMessageReceivedListener.observe(this, EventObserver { message ->
-            Timber.d("Message received:::::: $message")
             message.responseData?.roomId?.let {
                 viewModel.getRoomWithUsers(
                     it,

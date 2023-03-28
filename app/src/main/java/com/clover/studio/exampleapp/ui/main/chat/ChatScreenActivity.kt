@@ -78,10 +78,7 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun initializeObservers() {
-        viewModel.setupSSEManager()
-
         viewModel.newMessageReceivedListener.observe(this, EventObserver { message ->
-            Timber.d("Message received2:::::: $message")
             message.responseData?.roomId?.let {
                 viewModel.getRoomWithUsers(
                     it,

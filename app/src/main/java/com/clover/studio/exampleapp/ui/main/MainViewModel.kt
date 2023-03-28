@@ -46,6 +46,10 @@ class MainViewModel @Inject constructor(
     val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
     val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
 
+    init {
+        sseManager.setupListener(this)
+    }
+
     fun getLocalUser() = liveData {
         val localUserId = sharedPrefsRepo.readUserId()
 
@@ -65,12 +69,11 @@ class MainViewModel @Inject constructor(
         return isFirstLaunch
     }
 
-    fun setupSSEManager() {
-        sseManager.setupListener(this)
-    }
-
     override fun newMessageReceived(message: Message) {
-        resolveResponseStatus(newMessageReceivedListener, Resource(Resource.Status.SUCCESS, message, ""))
+        resolveResponseStatus(
+            newMessageReceivedListener,
+            Resource(Resource.Status.SUCCESS, message, "")
+        )
     }
 
     fun getLocalUserId(): Int? {

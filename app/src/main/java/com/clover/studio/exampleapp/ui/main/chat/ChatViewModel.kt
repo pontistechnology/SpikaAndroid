@@ -45,12 +45,12 @@ class ChatViewModel @Inject constructor(
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
 
-    fun storeMessageLocally(message: Message) = CoroutineScope(Dispatchers.IO).launch {
-        repository.storeMessageLocally(message)
+    init {
+        sseManager.setupListener(this)
     }
 
-    fun setupSSEManager() {
-        sseManager.setupListener(this)
+    fun storeMessageLocally(message: Message) = CoroutineScope(Dispatchers.IO).launch {
+        repository.storeMessageLocally(message)
     }
 
     override fun newMessageReceived(message: Message) {
