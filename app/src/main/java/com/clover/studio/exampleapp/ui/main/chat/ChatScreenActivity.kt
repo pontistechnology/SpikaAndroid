@@ -4,6 +4,7 @@ import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -24,20 +25,19 @@ import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.clover.studio.exampleapp.utils.helpers.Resource
-import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
 
 
-fun startChatScreenActivity(fromActivity: Activity, roomData: String) =
+fun startChatScreenActivity(fromActivity: Activity, roomData: RoomWithUsers) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
         intent.putExtra(Const.Navigation.ROOM_DATA, roomData)
         startActivity(intent)
     }
 
-fun replaceChatScreenActivity(fromActivity: Activity, roomData: String) =
+fun replaceChatScreenActivity(fromActivity: Activity, roomData: RoomWithUsers) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
         intent.putExtra(Const.Navigation.ROOM_DATA, roomData)
@@ -67,14 +67,12 @@ class ChatScreenActivity : BaseActivity() {
         val view = bindingSetup.root
         setContentView(view)
 
-        // Fetch room data sent from previous activity
-        val gson = GsonProvider.gson
-        roomWithUsers = gson.fromJson(
-            intent.getStringExtra(Const.Navigation.ROOM_DATA),
-            RoomWithUsers::class.java
-        )
+        roomWithUsers = if (Build.VERSION.SDK_INT >= 33) {
+            intent.getParcelableExtra(Const.Navigation.ROOM_DATA, RoomWithUsers::class.java)
+        } else {
+            intent.getParcelableExtra(Const.Navigation.ROOM_DATA)
+        }
 
-        Timber.d("chatScreen ${roomWithUsers.toString()}")
         initializeObservers()
     }
 
@@ -91,9 +89,7 @@ class ChatScreenActivity : BaseActivity() {
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    val gson = GsonProvider.gson
-                    val roomData = gson.toJson(it.responseData?.roomWithUsers)
-                    replaceChatScreenActivity(this, roomData)
+                    replaceChatScreenActivity(this, it.responseData!!.roomWithUsers)
                 }
                 Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
                 else -> Timber.d("Other error")
