@@ -99,7 +99,12 @@ class MainActivity : BaseActivity() {
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    startChatScreenActivity(this, it.responseData!!.roomWithUsers)
+                    it.responseData?.roomWithUsers?.let { roomWithUsers ->
+                        startChatScreenActivity(
+                            this,
+                            roomWithUsers
+                        )
+                    }
                     Timber.d("Main Success!")
                 }
                 Resource.Status.ERROR -> Timber.d("Failed to fetch room data")

@@ -141,7 +141,11 @@ class ContactDetailsFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     Timber.d("Room data = ${it.responseData!!.data}")
-                    viewModel.getRoomWithUsers(it.responseData.data?.room!!.roomId)
+                    it.responseData.data?.room?.roomId?.let { roomId ->
+                        viewModel.getRoomWithUsers(
+                            roomId
+                        )
+                    }
                 }
                 Resource.Status.ERROR -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")

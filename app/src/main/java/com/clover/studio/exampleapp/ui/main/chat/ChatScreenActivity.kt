@@ -89,7 +89,9 @@ class ChatScreenActivity : BaseActivity() {
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    replaceChatScreenActivity(this, it.responseData!!.roomWithUsers)
+                    it.responseData?.roomWithUsers?.let { roomWithUsers ->
+                        replaceChatScreenActivity(this, roomWithUsers)
+                    }
                 }
                 Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
                 else -> Timber.d("Other error")
