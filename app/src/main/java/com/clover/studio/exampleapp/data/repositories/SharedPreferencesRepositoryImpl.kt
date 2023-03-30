@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Const.PrefsData.Companion.SHARED_PREFS_NAME
+import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
@@ -35,7 +36,7 @@ class SharedPreferencesRepositoryImpl(
 
     override suspend fun writeContacts(contacts: List<String>) {
         with(getPrefs().edit()) {
-            val gson = Gson()
+            val gson = GsonProvider.gson
             putString(Const.PrefsData.USER_CONTACTS, gson.toJson(contacts))
             commit()
         }
@@ -44,7 +45,7 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun readContacts(): List<String>? {
         val serializedObject: String? = getPrefs().getString(Const.PrefsData.USER_CONTACTS, null)
         return if (serializedObject != null) {
-            val gson = Gson()
+            val gson = GsonProvider.gson
             val type: Type = object : TypeToken<List<String?>?>() {}.type
             gson.fromJson<List<String>>(serializedObject, type)
         } else {
@@ -195,7 +196,7 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun writeBlockedUsersIds(userIds: List<Int>) {
         getPrefs().edit().remove(Const.PrefsData.BLOCKED_USERS).commit()
         with(getPrefs().edit()) {
-            val gson = Gson()
+            val gson = GsonProvider.gson
             putString(Const.PrefsData.BLOCKED_USERS, gson.toJson(userIds))
             commit()
         }
@@ -205,7 +206,7 @@ class SharedPreferencesRepositoryImpl(
         getPrefs().registerOnSharedPreferenceChangeListener(prefsListener)
         val json = getPrefs().getString(Const.PrefsData.BLOCKED_USERS, null)
         if (json != null) {
-            return Gson().fromJson(json, object : TypeToken<List<Int>>() {}.type)
+            return GsonProvider.gson.fromJson(json, object : TypeToken<List<Int>>() {}.type)
         }
         return arrayListOf()
     }

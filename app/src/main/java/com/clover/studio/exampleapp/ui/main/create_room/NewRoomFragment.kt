@@ -24,6 +24,7 @@ import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
+import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -246,7 +247,7 @@ class NewRoomFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     hideProgress()
-                    val gson = Gson()
+                    val gson = GsonProvider.gson
                     val roomData = gson.toJson(it.responseData)
                     if (isRoomUpdate) {
                         findNavController().popBackStack(R.id.chatDetailsFragment, false)
@@ -313,7 +314,7 @@ class NewRoomFragment : BaseFragment() {
 
     private fun handleRoomData(chatRoom: ChatRoom) {
         hideProgress()
-        val gson = Gson()
+        val gson = GsonProvider.gson
         val roomData = gson.toJson(chatRoom)
         Timber.d("Room data = $roomData")
         viewModel.getRoomWithUsers(chatRoom.roomId)
