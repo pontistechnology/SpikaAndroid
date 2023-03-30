@@ -1,11 +1,14 @@
 package com.clover.studio.exampleapp.data.models.entity
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_REACTION)
 data class Reaction(
 
@@ -32,4 +35,4 @@ data class Reaction(
     @SerializedName("modified_at")
     @ColumnInfo(name = "modified_at")
     val modifiedAt: String
-)
+) : Parcelable

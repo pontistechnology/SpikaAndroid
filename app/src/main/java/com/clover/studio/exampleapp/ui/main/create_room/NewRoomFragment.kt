@@ -15,7 +15,7 @@ import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.databinding.FragmentNewRoomBinding
-import com.clover.studio.exampleapp.ui.main.*
+import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.ui.main.contacts.ContactsAdapter
 import com.clover.studio.exampleapp.utils.Const
@@ -24,9 +24,7 @@ import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
-import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.clover.studio.exampleapp.utils.helpers.Resource
-import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -247,13 +245,16 @@ class NewRoomFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     hideProgress()
-                    val gson = GsonProvider.gson
-                    val roomData = gson.toJson(it.responseData)
                     if (isRoomUpdate) {
                         findNavController().popBackStack(R.id.chatDetailsFragment, false)
                         isRoomUpdate = false
                     } else {
-                        activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                        activity?.let { parent ->
+                            startChatScreenActivity(
+                                parent,
+                                it.responseData!!
+                            )
+                        }
                         findNavController().popBackStack(R.id.mainFragment, false)
                     }
                 }
@@ -314,9 +315,6 @@ class NewRoomFragment : BaseFragment() {
 
     private fun handleRoomData(chatRoom: ChatRoom) {
         hideProgress()
-        val gson = GsonProvider.gson
-        val roomData = gson.toJson(chatRoom)
-        Timber.d("Room data = $roomData")
         viewModel.getRoomWithUsers(chatRoom.roomId)
     }
 

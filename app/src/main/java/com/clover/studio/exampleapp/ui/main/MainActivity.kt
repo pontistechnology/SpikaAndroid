@@ -24,11 +24,9 @@ import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
-import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
-import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -100,9 +98,12 @@ class MainActivity : BaseActivity() {
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    val gson = GsonProvider.gson
-                    val roomData = gson.toJson(it.responseData?.roomWithUsers)
-                    startChatScreenActivity(this, roomData)
+                    it.responseData?.roomWithUsers?.let { roomWithUsers ->
+                        startChatScreenActivity(
+                            this,
+                            roomWithUsers
+                        )
+                    }
                     Timber.d("Main Success!")
                 }
                 Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
