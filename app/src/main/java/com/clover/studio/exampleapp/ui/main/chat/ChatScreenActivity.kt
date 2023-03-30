@@ -23,7 +23,6 @@ import com.clover.studio.exampleapp.utils.UploadDownloadManager
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
-import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber

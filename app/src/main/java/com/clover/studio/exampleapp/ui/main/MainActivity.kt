@@ -24,7 +24,6 @@ import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
-import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging

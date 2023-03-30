@@ -23,7 +23,6 @@ import com.clover.studio.exampleapp.utils.Tools.getFilePathUrl
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
-import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
