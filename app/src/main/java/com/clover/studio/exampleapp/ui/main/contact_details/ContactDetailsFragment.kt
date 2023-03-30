@@ -23,6 +23,7 @@ import com.clover.studio.exampleapp.utils.Tools.getFilePathUrl
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -95,7 +96,7 @@ class ContactDetailsFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     Timber.d("Room with users = ${it.responseData}")
-                    val gson = Gson()
+                    val gson = GsonProvider.gson
                     val roomData = gson.toJson(it.responseData)
                     Timber.d("ROOM data: = ${it.responseData}")
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
@@ -143,7 +144,7 @@ class ContactDetailsFragment : BaseFragment() {
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    val gson = Gson()
+                    val gson = GsonProvider.gson
                     val roomData = gson.toJson(it.responseData?.data?.room)
                     Timber.d("Room data = $roomData")
                     viewModel.getRoomWithUsers(it.responseData?.data?.room!!.roomId)

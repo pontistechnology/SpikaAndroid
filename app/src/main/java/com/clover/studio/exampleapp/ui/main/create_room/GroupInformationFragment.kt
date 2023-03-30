@@ -28,6 +28,7 @@ import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -215,7 +216,7 @@ class GroupInformationFragment : BaseFragment() {
                     }
 
                     val roomWithUsers = RoomWithUsers(it.responseData.data.room, users)
-                    val gson = Gson()
+                    val gson = GsonProvider.gson
                     val roomData = gson.toJson(roomWithUsers)
                     Timber.d("Room with users: $roomWithUsers")
                     activity?.let { parent -> startChatScreenActivity(parent, roomData) }
