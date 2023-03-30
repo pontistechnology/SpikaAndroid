@@ -1,10 +1,13 @@
 package com.clover.studio.exampleapp.data.models.entity
 
+import android.os.Parcelable
 import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
-import com.google.gson.annotations.SerializedName
 import com.clover.studio.exampleapp.utils.helpers.TypeConverter
+import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_MESSAGE_RECORDS)
 data class MessageRecords(
     @PrimaryKey
@@ -32,13 +35,13 @@ data class MessageRecords(
     @SerializedName("message")
     @TypeConverters(TypeConverter::class)
     val recordMessage: RecordMessage?
-)
+) : Parcelable
 
+@Parcelize
 data class RecordMessage(
     val id: Long,
     val totalUserCount: Int,
     val deliveredCount: Int,
     val seenCount: Int,
     val roomId: Int,
-    val modifiedAt: Long?,
-)
+) : Parcelable

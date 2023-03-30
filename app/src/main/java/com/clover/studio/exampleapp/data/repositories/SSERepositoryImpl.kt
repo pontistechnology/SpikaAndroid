@@ -293,6 +293,32 @@ class SSERepositoryImpl @Inject constructor(
      * @param messageRecords
      */
     private suspend fun writeRecord(messageRecords: MessageRecords) {
+        /** Update seenCount / deliveredCount from NEW_MESSAGE_RECORD event */
+        if (messageRecords.recordMessage != null) {
+            val response = queryDatabaseCoreData {
+                messageDao.getMessage(messageRecords.recordMessage.id)
+            }.responseData!!
+
+            if (messageRecords.recordMessage.seenCount > response.seenCount!!) {
+                queryDatabaseCoreData {
+                    messageDao.updateMessageSeenCount(
+                        messageRecords.recordMessage.id,
+                        messageRecords.recordMessage.seenCount,
+                    )
+                }
+            }
+            if (messageRecords.recordMessage.deliveredCount > response.deliveredCount!!) {
+                queryDatabaseCoreData {
+                    messageDao.updateMessageDeliveredCount(
+                        messageRecords.recordMessage.id,
+                        messageRecords.recordMessage.deliveredCount,
+                    )
+                }
+            }
+        }
+        /***/
+
+        /** Update seen / reaction */
         val databaseRecords = queryDatabaseCoreData(
             databaseQuery = {
                 messageRecordsDao.getMessageRecordId(
@@ -343,29 +369,6 @@ class SSERepositoryImpl @Inject constructor(
                             )
                         }
                     )
-                }
-            }
-
-            if (messageRecords.recordMessage != null) {
-                val response = queryDatabaseCoreData {
-                    messageDao.getMessage(messageRecords.recordMessage.id)
-                }.responseData!!
-
-                if (messageRecords.recordMessage.seenCount > response.seenCount!!) {
-                    queryDatabaseCoreData {
-                        messageDao.updateMessageSeenCount(
-                            messageRecords.recordMessage.id,
-                            messageRecords.recordMessage.seenCount,
-                        )
-                    }
-                }
-                if (messageRecords.recordMessage.deliveredCount > response.deliveredCount!!) {
-                    queryDatabaseCoreData {
-                        messageDao.updateMessageDeliveredCount(
-                            messageRecords.recordMessage.id,
-                            messageRecords.recordMessage.deliveredCount,
-                        )
-                    }
                 }
             }
         }

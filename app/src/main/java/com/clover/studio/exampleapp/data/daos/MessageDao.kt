@@ -24,6 +24,10 @@ interface MessageDao : BaseDao<Message> {
     )
 
     @Transaction
+    @Query("SELECT * FROM message WHERE id=:messageId LIMIT 1")
+    suspend fun getMessage(messageId: Long): Message
+
+    @Transaction
     @Query("UPDATE message SET seen_count=:seenCount WHERE id=:messageId")
     suspend fun updateMessageSeenCount(
         messageId: Long,
@@ -36,16 +40,6 @@ interface MessageDao : BaseDao<Message> {
         messageId: Long,
         deliveredCount: Int,
     )
-
-    @Transaction
-    @Query("UPDATE message SET total_user_count=:totalCount WHERE id=:messageId")
-    suspend fun updateMessageTotalCount(
-        messageId: Long,
-        totalCount: Int,
-    )
-
-    @Query("SELECT * FROM message WHERE id=:messageId LIMIT 1")
-    suspend fun getMessage(messageId: Long) : Message
 
     @Query("DELETE FROM message WHERE id IN (:messageId)")
     suspend fun deleteMessage(messageId: List<Long>)
