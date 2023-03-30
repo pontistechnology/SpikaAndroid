@@ -15,13 +15,11 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
 import androidx.lifecycle.asLiveData
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.databinding.ActivityMainBinding
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.ui.onboarding.startOnboardingActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.SSEListener
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
@@ -41,7 +39,7 @@ fun startMainActivity(fromActivity: Activity) = fromActivity.apply {
 }
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity(), SSEListener {
+class MainActivity : BaseActivity() {
 
     private val viewModel: MainViewModel by viewModels()
     private lateinit var bindingSetup: ActivityMainBinding
@@ -82,14 +80,21 @@ class MainActivity : BaseActivity(), SSEListener {
             try {
                 viewModel.getSingleRoomData(extras.get(Const.IntentExtras.ROOM_ID_EXTRA) as Int)
             } catch (ex: Exception) {
-                // ignore
+                // Ignore
             }
             intent.removeExtra(Const.IntentExtras.ROOM_ID_EXTRA)
         }
     }
 
     private fun initializeObservers() {
-        viewModel.setupSSEManager(this)
+        viewModel.newMessageReceivedListener.observe(this, EventObserver { message ->
+            message.responseData?.roomId?.let {
+                viewModel.getRoomWithUsers(
+                    it,
+                    message.responseData
+                )
+            }
+        })
 
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it.status) {
@@ -131,7 +136,8 @@ class MainActivity : BaseActivity(), SSEListener {
                                 .placeholder(R.drawable.img_user_placeholder)
                                 .centerCrop()
                                 .into(bindingSetup.cvNotification.ivUserImage)
-                            bindingSetup.cvNotification.tvTitle.text = it.response.responseData.room.name
+                            bindingSetup.cvNotification.tvTitle.text =
+                                it.response.responseData.room.name
                             for (user in it.response.responseData.users) {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     val content =
@@ -258,10 +264,5 @@ class MainActivity : BaseActivity(), SSEListener {
         }
 
         viewModel.getUnreadCount()
-    }
-
-    override fun newMessageReceived(message: Message) {
-        Timber.d("Message received")
-        message.roomId?.let { viewModel.getRoomWithUsers(it, message) }
     }
 }
