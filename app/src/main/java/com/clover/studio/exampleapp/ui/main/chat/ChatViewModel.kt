@@ -35,7 +35,7 @@ class ChatViewModel @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository,
     private val sseManager: SSEManager,
     private val uploadDownloadManager: UploadDownloadManager
-) : BaseViewModel() {
+) : BaseViewModel(), SSEListener {
     val messageSendListener = MutableLiveData<Event<Resource<MessageResponse?>>>()
     val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
@@ -43,13 +43,18 @@ class ChatViewModel @Inject constructor(
     val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
+    val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
+
+    init {
+        sseManager.setupListener(this)
+    }
 
     fun storeMessageLocally(message: Message) = CoroutineScope(Dispatchers.IO).launch {
         repository.storeMessageLocally(message)
     }
 
-    fun setupSSEManager(listener: SSEListener) {
-        sseManager.setupListener(listener)
+    override fun newMessageReceived(message: Message) {
+        resolveResponseStatus(newMessageReceivedListener, Resource(Resource.Status.SUCCESS, message, ""))
     }
 
     fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
