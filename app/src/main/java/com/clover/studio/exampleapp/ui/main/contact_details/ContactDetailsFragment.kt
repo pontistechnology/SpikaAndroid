@@ -23,9 +23,7 @@ import com.clover.studio.exampleapp.utils.Tools.getFilePathUrl
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
-import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.clover.studio.exampleapp.utils.helpers.Resource
-import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -96,10 +94,7 @@ class ContactDetailsFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     Timber.d("Room with users = ${it.responseData}")
-                    val gson = GsonProvider.gson
-                    val roomData = gson.toJson(it.responseData)
-                    Timber.d("ROOM data: = ${it.responseData}")
-                    activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                    activity?.let { parent -> startChatScreenActivity(parent, it.responseData!!) }
                 }
                 else -> Timber.d("Other error")
             }
@@ -144,10 +139,12 @@ class ContactDetailsFragment : BaseFragment() {
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    val gson = GsonProvider.gson
-                    val roomData = gson.toJson(it.responseData?.data?.room)
-                    Timber.d("Room data = $roomData")
-                    viewModel.getRoomWithUsers(it.responseData?.data?.room!!.roomId)
+                    Timber.d("Room data = ${it.responseData!!.data}")
+                    it.responseData.data?.room?.roomId?.let { roomId ->
+                        viewModel.getRoomWithUsers(
+                            roomId
+                        )
+                    }
                 }
                 Resource.Status.ERROR -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")

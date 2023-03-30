@@ -16,8 +16,6 @@ import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
-import com.clover.studio.exampleapp.utils.helpers.GsonProvider
-import com.google.gson.Gson
 import timber.log.Timber
 
 class RoomsFragment : BaseFragment() {
@@ -136,9 +134,7 @@ class RoomsFragment : BaseFragment() {
 
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
-            val gson = GsonProvider.gson
-            val roomData = gson.toJson(it.roomWithUsers)
-            activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+            activity?.let { parent -> startChatScreenActivity(parent, it.roomWithUsers) }
         }
 
         binding.rvRooms.itemAnimator = null

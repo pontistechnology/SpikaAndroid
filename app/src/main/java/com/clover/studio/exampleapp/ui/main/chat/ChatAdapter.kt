@@ -222,7 +222,7 @@ class ChatAdapter(
                 /** Other: */
 
                 /** Show message reply: */
-                if (it.message.replyId != null && it.message.replyId != 0L) {
+                if (it.message.replyId != null && it.message.replyId != 0L && it.message.deleted == false) {
                     ChatAdapterHelper.bindReply(
                         context,
                         users,
@@ -345,7 +345,7 @@ class ChatAdapter(
                 /** Other: */
 
                 /** Show message reply: */
-                if (it.message.replyId != null && it.message.replyId != 0L) {
+                if (it.message.replyId != null && it.message.replyId != 0L && it.message.deleted == false) {
                     ChatAdapterHelper.bindReply(
                         context,
                         users,
