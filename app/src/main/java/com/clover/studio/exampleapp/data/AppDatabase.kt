@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.data.AppDatabase.Companion.DATABASE_VERSION
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.models.*
@@ -67,6 +68,13 @@ abstract class AppDatabase : RoomDatabase() {
 //                )
 //                .fallbackToDestructiveMigration()
                 .build()
+
+        /**
+         * Use method below to clear all database tables and get a clean slate
+         */
+        fun nukeDb() {
+            buildDatabase(MainApplication.appContext).clearAllTables()
+        }
     }
 
     /**
