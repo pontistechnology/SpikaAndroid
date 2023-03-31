@@ -295,24 +295,30 @@ class SSERepositoryImpl @Inject constructor(
     private suspend fun writeRecord(messageRecords: MessageRecords) {
         /** Update seenCount / deliveredCount from NEW_MESSAGE_RECORD event */
         if (messageRecords.recordMessage != null) {
-            val response = queryDatabaseCoreData {
+            val databaseRecord = queryDatabaseCoreData {
                 messageDao.getMessage(messageRecords.recordMessage.id)
-            }.responseData!!
+            }.responseData
 
-            if (messageRecords.recordMessage.seenCount > response.seenCount!!) {
-                queryDatabaseCoreData {
-                    messageDao.updateMessageSeenCount(
-                        messageRecords.recordMessage.id,
-                        messageRecords.recordMessage.seenCount,
-                    )
+            if (databaseRecord != null) {
+                if (databaseRecord.seenCount != null) {
+                    if (messageRecords.recordMessage.seenCount > databaseRecord.seenCount) {
+                        queryDatabaseCoreData {
+                            messageDao.updateMessageSeenCount(
+                                messageRecords.recordMessage.id,
+                                messageRecords.recordMessage.seenCount,
+                            )
+                        }
+                    }
                 }
-            }
-            if (messageRecords.recordMessage.deliveredCount > response.deliveredCount!!) {
-                queryDatabaseCoreData {
-                    messageDao.updateMessageDeliveredCount(
-                        messageRecords.recordMessage.id,
-                        messageRecords.recordMessage.deliveredCount,
-                    )
+                if (databaseRecord.deliveredCount != null) {
+                    if (messageRecords.recordMessage.deliveredCount > databaseRecord.deliveredCount) {
+                        queryDatabaseCoreData {
+                            messageDao.updateMessageDeliveredCount(
+                                messageRecords.recordMessage.id,
+                                messageRecords.recordMessage.deliveredCount,
+                            )
+                        }
+                    }
                 }
             }
         }
