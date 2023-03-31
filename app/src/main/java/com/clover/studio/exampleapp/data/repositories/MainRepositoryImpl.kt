@@ -251,7 +251,9 @@ class MainRepositoryImpl @Inject constructor(
         )
 
         val userIds = response.responseData?.data?.blockedUsers?.map { it.id }
-        sharedPrefs.writeBlockedUsersIds(userIds!!)
+        if (userIds?.isNotEmpty() == true) {
+            sharedPrefs.writeBlockedUsersIds(userIds)
+        }
     }
 
     override suspend fun fetchBlockedUsersLocally(userIds: List<Int>) =
