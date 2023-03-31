@@ -293,6 +293,38 @@ class SSERepositoryImpl @Inject constructor(
      * @param messageRecords
      */
     private suspend fun writeRecord(messageRecords: MessageRecords) {
+        /** Update seenCount / deliveredCount from NEW_MESSAGE_RECORD event */
+        if (messageRecords.recordMessage != null) {
+            val databaseRecord = queryDatabaseCoreData {
+                messageDao.getMessage(messageRecords.recordMessage.id)
+            }.responseData
+
+            if (databaseRecord != null) {
+                if (databaseRecord.seenCount != null) {
+                    if (messageRecords.recordMessage.seenCount > databaseRecord.seenCount) {
+                        queryDatabaseCoreData {
+                            messageDao.updateMessageSeenCount(
+                                messageRecords.recordMessage.id,
+                                messageRecords.recordMessage.seenCount,
+                            )
+                        }
+                    }
+                }
+                if (databaseRecord.deliveredCount != null) {
+                    if (messageRecords.recordMessage.deliveredCount > databaseRecord.deliveredCount) {
+                        queryDatabaseCoreData {
+                            messageDao.updateMessageDeliveredCount(
+                                messageRecords.recordMessage.id,
+                                messageRecords.recordMessage.deliveredCount,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        /***/
+
+        /** Update seen / reaction */
         val databaseRecords = queryDatabaseCoreData(
             databaseQuery = {
                 messageRecordsDao.getMessageRecordId(

@@ -42,14 +42,23 @@ class OnboardingViewModel @Inject constructor(
 
         val response = onboardingRepository.verifyUserCode(jsonObject)
 
-        resolveResponseStatus(codeVerificationListener, response)
-        response.responseData?.data?.device?.token?.let { sharedPrefs.writeToken(it) }
+        if (Resource.Status.ERROR != response.status) {
+            response.responseData?.data?.device?.token?.let { sharedPrefs.writeToken(it) }
 
-        if (sharedPrefs.isNewUser()) {
-            resolveResponseStatus(codeVerificationListener, Resource(Resource.Status.NEW_USER, null, ""))
-        }else {
-            sharedPrefs.accountCreated(true)
-            resolveResponseStatus(codeVerificationListener, Resource(Resource.Status.SUCCESS, null, ""))
+            if (sharedPrefs.isNewUser()) {
+                resolveResponseStatus(
+                    codeVerificationListener,
+                    Resource(Resource.Status.NEW_USER, null, "")
+                )
+            } else {
+                sharedPrefs.accountCreated(true)
+                resolveResponseStatus(
+                    codeVerificationListener,
+                    Resource(Resource.Status.SUCCESS, null, "")
+                )
+            }
+        } else {
+            Timber.d("Error: $response")
         }
     }
 
@@ -65,11 +74,17 @@ class OnboardingViewModel @Inject constructor(
             contacts = sharedPrefs.readContacts()
         } catch (ex: Exception) {
             Tools.checkError(ex)
-            resolveResponseStatus(accountCreationListener, Resource(Resource.Status.ERROR, null, ""))
+            resolveResponseStatus(
+                accountCreationListener,
+                Resource(Resource.Status.ERROR, null, "")
+            )
             return@launch
         }
         Timber.d("$contacts")
-        resolveResponseStatus(accountCreationListener, onboardingRepository.sendUserContacts(contacts!!))
+        resolveResponseStatus(
+            accountCreationListener,
+            onboardingRepository.sendUserContacts(contacts!!)
+        )
     }
 
     fun writeContactsToSharedPref(contacts: List<String>) {

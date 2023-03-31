@@ -18,6 +18,7 @@ interface MessageRecordsDao : BaseDao<MessageRecords> {
     @Query("DELETE FROM message_records")
     suspend fun removeMessageRecords()
 
+    @Transaction
     @Query("SELECT id FROM message_records WHERE message_id = :id AND user_id = :userId LIMIT 1")
     fun getMessageRecordId(id: Int, userId: Int): Int?
 
@@ -31,9 +32,11 @@ interface MessageRecordsDao : BaseDao<MessageRecords> {
         userId: Int,
     )
 
+    @Transaction
     @Query("SELECT id FROM message_records WHERE message_id = :id AND user_id = :userId AND type='reaction'")
     fun getMessageReactionId(id: Int, userId: Int): Int?
 
+    @Transaction
     @Query("UPDATE message_records SET reaction = :reaction, created_at = :createdAt  WHERE message_id = :messageId AND user_id= :userId AND type='reaction'")
     suspend fun updateReaction(
         messageId: Int,

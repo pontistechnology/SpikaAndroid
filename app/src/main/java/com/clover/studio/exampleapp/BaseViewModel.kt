@@ -30,8 +30,8 @@ open class BaseViewModel : ViewModel() {
             Resource.Status.LOADING -> {
                 mutableLiveData?.postValue(Event(resource))
             }
-            else -> {
-                // Ignore
+            Resource.Status.NEW_USER -> {
+                mutableLiveData?.postValue(Event(resource))
             }
         }
     }
