@@ -23,6 +23,24 @@ interface MessageDao : BaseDao<Message> {
         localId: String
     )
 
+    @Transaction
+    @Query("SELECT * FROM message WHERE id=:messageId LIMIT 1")
+    suspend fun getMessage(messageId: Long): Message
+
+    @Transaction
+    @Query("UPDATE message SET seen_count=:seenCount WHERE id=:messageId")
+    suspend fun updateMessageSeenCount(
+        messageId: Long,
+        seenCount: Int,
+    )
+
+    @Transaction
+    @Query("UPDATE message SET delivered_count=:deliveredCount WHERE id=:messageId")
+    suspend fun updateMessageDeliveredCount(
+        messageId: Long,
+        deliveredCount: Int,
+    )
+
     @Query("DELETE FROM message WHERE id IN (:messageId)")
     suspend fun deleteMessage(messageId: List<Long>)
 

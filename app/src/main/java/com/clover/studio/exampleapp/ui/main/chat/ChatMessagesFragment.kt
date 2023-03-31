@@ -1243,6 +1243,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             reaction = null,
             modifiedAt = detailsMessage.modifiedAt,
             createdAt = detailsMessage.createdAt!!,
+            null
         )
 
         /* In the messageDetails list, we save message records for a specific message,
