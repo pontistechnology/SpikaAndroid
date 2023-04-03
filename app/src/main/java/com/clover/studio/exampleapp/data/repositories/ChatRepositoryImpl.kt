@@ -99,7 +99,7 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun editMessage(messageId: Int, jsonObject: JsonObject) {
         performRestOperation(
             networkCall = { chatRemoteDataSource.editMessage(messageId, jsonObject) },
-            saveCallResult = { messageDao.upsert(it.data?.message!!) }
+            saveCallResult = { it.data?.message?.let { message -> messageDao.upsert(message) } }
         )
     }
 
@@ -228,7 +228,7 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getNotes(roomId: Int) {
         performRestOperation(
             networkCall = { chatRemoteDataSource.getRoomNotes(roomId) },
-            saveCallResult = { notesDao.upsert(it.data.notes!!) }
+            saveCallResult = { it.data.notes?.let { notes -> notesDao.upsert(notes) } }
         )
     }
 
@@ -240,12 +240,12 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun createNewNote(roomId: Int, newNote: NewNote) =
         performRestOperation(
             networkCall = { chatRemoteDataSource.createNewNote(roomId, newNote) },
-            saveCallResult = { notesDao.upsert(it.data.note!!) })
+            saveCallResult = { it.data.note?.let { note -> notesDao.upsert(note) } })
 
     override suspend fun updateNote(noteId: Int, newNote: NewNote) =
         performRestOperation(
             networkCall = { chatRemoteDataSource.updateNote(noteId, newNote) },
-            saveCallResult = { notesDao.upsert(it.data.note!!) })
+            saveCallResult = { it.data.note?.let { note -> notesDao.upsert(note) } })
 
     override suspend fun deleteNote(noteId: Int) {
         performRestOperation(
