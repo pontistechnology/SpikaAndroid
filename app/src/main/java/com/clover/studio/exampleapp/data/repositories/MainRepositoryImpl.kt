@@ -169,7 +169,7 @@ class MainRepositoryImpl @Inject constructor(
 
         if (Resource.Status.SUCCESS == data.status) {
             sharedPrefs.accountCreated(true)
-            sharedPrefs.writeUserId(data.responseData!!.data.user.id)
+            data.responseData?.data?.user?.id?.let { sharedPrefs.writeUserId(it) }
         }
 
         return data

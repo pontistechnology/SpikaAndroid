@@ -24,7 +24,7 @@ class OnboardingRepositoryImpl @Inject constructor(
             networkCall = { onboardingRemoteDataSource.sendUserData(jsonObject) },
         )
 
-        sharedPrefs.setNewUser(response.responseData?.data!!.isNewUser)
+        response.responseData?.data?.isNewUser?.let { sharedPrefs.setNewUser(it) }
 
         return response
     }
@@ -38,7 +38,7 @@ class OnboardingRepositoryImpl @Inject constructor(
                 saveCallResult = { userDao.upsert(it.data.user) }
             )
 
-        sharedPrefs.writeUserId(response.responseData!!.data.user.id)
+        response.responseData?.data?.user?.id?.let { sharedPrefs.writeUserId(it) }
 
         return response
     }
@@ -64,7 +64,7 @@ class OnboardingRepositoryImpl @Inject constructor(
                 saveCallResult = { userDao.upsert(it.data.user) }
             )
 
-        sharedPrefs.writeUserId(response.responseData?.data?.user!!.id)
+        response.responseData?.data?.user?.id?.let { sharedPrefs.writeUserId(it) }
 
         return response
     }

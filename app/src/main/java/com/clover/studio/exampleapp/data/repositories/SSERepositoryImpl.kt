@@ -54,36 +54,38 @@ class SSERepositoryImpl @Inject constructor(
                     val messageRecords: MutableList<MessageRecords> = ArrayList()
                     val messageRecordsUpdates: MutableList<MessageRecords> = ArrayList()
 
-                    for (record in response.responseData?.data!!.messageRecords) {
-                        val databaseRecords = queryDatabaseCoreData(
-                            databaseQuery = {
-                                messageRecordsDao.getMessageRecordId(
-                                    record.messageId,
-                                    record.userId,
-                                )
-                            }
-                        ).responseData
-
-                        if (databaseRecords == null) {
-                            messageRecords.add(record)
-                        } else
-                            if (Const.JsonFields.SEEN == record.type) {
-                                messageRecordsUpdates.add(record)
-                            } else if (Const.JsonFields.REACTION == record.type) {
-                                val databaseReaction = queryDatabaseCoreData(
-                                    databaseQuery = {
-                                        messageRecordsDao.getMessageReactionId(
-                                            record.messageId,
-                                            record.userId
-                                        )
-                                    }
-                                ).responseData
-                                if (databaseReaction == null) {
-                                    messageRecords.add(record)
-                                } else {
-                                    messageRecordsUpdates.add(record)
+                    if (response.responseData?.data != null) {
+                        for (record in response.responseData.data.messageRecords) {
+                            val databaseRecords = queryDatabaseCoreData(
+                                databaseQuery = {
+                                    messageRecordsDao.getMessageRecordId(
+                                        record.messageId,
+                                        record.userId,
+                                    )
                                 }
-                            }
+                            ).responseData
+
+                            if (databaseRecords == null) {
+                                messageRecords.add(record)
+                            } else
+                                if (Const.JsonFields.SEEN == record.type) {
+                                    messageRecordsUpdates.add(record)
+                                } else if (Const.JsonFields.REACTION == record.type) {
+                                    val databaseReaction = queryDatabaseCoreData(
+                                        databaseQuery = {
+                                            messageRecordsDao.getMessageReactionId(
+                                                record.messageId,
+                                                record.userId
+                                            )
+                                        }
+                                    ).responseData
+                                    if (databaseReaction == null) {
+                                        messageRecords.add(record)
+                                    } else {
+                                        messageRecordsUpdates.add(record)
+                                    }
+                                }
+                        }
                     }
 
                     queryDatabaseCoreData(
@@ -108,7 +110,7 @@ class SSERepositoryImpl @Inject constructor(
                     if (messageRecords.isNotEmpty()) {
                         val maxTimestamp = messageRecords.maxByOrNull { it.createdAt }?.createdAt
                         Timber.d("MaxTimestamp message records timestamps: $maxTimestamp")
-                        if (maxTimestamp!! > messageRecordsTimestamp) {
+                        if (maxTimestamp != null && maxTimestamp > messageRecordsTimestamp) {
                             sharedPrefs.writeMessageRecordTimestamp(maxTimestamp)
                         }
                     }
@@ -152,7 +154,7 @@ class SSERepositoryImpl @Inject constructor(
             if (messages.isNotEmpty()) {
                 val maxTimestamp = messages.maxByOrNull { it.modifiedAt!! }?.modifiedAt
                 Timber.d("MaxTimestamp messages: $maxTimestamp")
-                if (maxTimestamp!! > messageTimestamp) {
+                if (maxTimestamp != null && maxTimestamp > messageTimestamp) {
                     sharedPrefs.writeMessageTimestamp(maxTimestamp)
                 }
             }
@@ -189,7 +191,7 @@ class SSERepositoryImpl @Inject constructor(
             if (users.isNotEmpty()) {
                 val maxTimestamp = users.maxByOrNull { it.modifiedAt!! }?.modifiedAt
                 Timber.d("MaxTimestamp users: $maxTimestamp")
-                if (maxTimestamp!! > userTimestamp) {
+                if (maxTimestamp != null && maxTimestamp > userTimestamp) {
                     sharedPrefs.writeUserTimestamp(maxTimestamp)
                 }
             }
@@ -246,7 +248,7 @@ class SSERepositoryImpl @Inject constructor(
                         if (rooms.isNotEmpty()) {
                             val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
                             Timber.d("MaxTimestamp rooms: $maxTimestamp, old timestamp = $roomTimestamp")
-                            if (maxTimestamp!! > roomTimestamp) {
+                            if (maxTimestamp != null && maxTimestamp > roomTimestamp) {
                                 sharedPrefs.writeRoomTimestamp(maxTimestamp)
                             }
                         }
@@ -434,7 +436,7 @@ class SSERepositoryImpl @Inject constructor(
                     queryDatabaseCoreData(
                         databaseQuery = { userDao.upsert(users) }
                     )
-                    if (filteredList!!.isNotEmpty()) {
+                    if (filteredList?.isNotEmpty() == true) {
                         queryDatabaseCoreData(
                             databaseQuery = { roomUserDao.deleteRoomUsers(filteredList) }
                         )
