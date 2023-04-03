@@ -1,10 +1,9 @@
 package com.clover.studio.exampleapp.data
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room.*
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.data.AppDatabase.Companion.DATABASE_VERSION
 import com.clover.studio.exampleapp.data.daos.*
@@ -16,7 +15,7 @@ import com.clover.studio.exampleapp.utils.helpers.TypeConverter
 @Database(
     entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class, RoomUser::class, Note::class],
     version = DATABASE_VERSION,
-    exportSchema = false
+    exportSchema = false,
 )
 @TypeConverters(TypeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -48,7 +47,7 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     companion object {
-        const val DATABASE_VERSION = 1
+        const val DATABASE_VERSION = 2
 
         @Volatile
         private var instance: AppDatabase? = null
@@ -62,11 +61,10 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(appContext: Context) =
             Room.databaseBuilder(appContext, AppDatabase::class.java, "MainDatabase")
-                // Use code below to add migrations if necessary
-//                .addMigrations(
-//                    MIGRATION_1_2,
-//                )
-//                .fallbackToDestructiveMigration()
+                .addMigrations(
+                    MIGRATION_1_2,
+                )
+                .fallbackToDestructiveMigration()
                 .build()
 
         /**
@@ -75,14 +73,12 @@ abstract class AppDatabase : RoomDatabase() {
         fun nukeDb() {
             buildDatabase(MainApplication.appContext).clearAllTables()
         }
-    }
 
-    /**
-     * Dummy implementation of migration. Change migrate when doing real migration and test with MigrationTest.kt
-     */
-//    val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-//        override fun migrate(database: SupportSQLiteDatabase) {
-//            database.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM + " ADD COLUMN version TEXT")
-//        }
-//    }
+        val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE_RECORDS + " ADD COLUMN record_message TEXT")
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM + " ADD COLUMN unread_count INTEGER DEFAULT 0 NOT NULL")
+            }
+        }
+    }
 }

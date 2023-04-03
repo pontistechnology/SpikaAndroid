@@ -32,6 +32,7 @@ data class MessageRecords(
     @ColumnInfo(name = "created_at")
     val createdAt: Long,
 
+    @ColumnInfo(name = "record_message")
     @SerializedName("message")
     @TypeConverters(TypeConverter::class)
     val recordMessage: RecordMessage?
