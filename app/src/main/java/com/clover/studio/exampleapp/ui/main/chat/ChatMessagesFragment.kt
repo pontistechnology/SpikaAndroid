@@ -381,6 +381,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             hideSendButton()
         }
 
+        /* Block dialog:
         bindingSetup.tvBlock.setOnClickListener {
             val userIdToBlock =
                 roomWithUsers.users.firstOrNull { user -> user.id != localUserId }
@@ -403,7 +404,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             ?.let { it1 -> viewModel.deleteBlockForSpecificUser(it1.id) }
                     }
                 })
-        }
+        }*/
 
         bindingSetup.tvSave.setOnClickListener {
             editMessage()
@@ -617,14 +618,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     Resource.Status.SUCCESS -> {
                         messagesRecords.clear()
                         if (it.responseData?.message?.isNotEmpty() == true) {
-                            // Check if user can be blocked
+                            /* Block dialog:
                             if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
                                 val containsElement =
                                     it.responseData.message.any { message -> localUserId == message.message.fromUserId }
                                 if (containsElement) bindingSetup.clBlockContact.visibility =
                                     View.GONE
                                 else bindingSetup.clBlockContact.visibility = View.VISIBLE
-                            }
+                            } */
 
                             it.responseData.message.forEach { msg ->
                                 messagesRecords.add(msg)
@@ -657,12 +658,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
                 if (it?.isNotEmpty() == true) {
                     viewModel.fetchBlockedUsersLocally(it)
-                } else bindingSetup.clContactBlocked.visibility = View.GONE
+                } // else bindingSetup.clContactBlocked.visibility = View.GONE
             }
 
             viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
                 when (it.status) {
                     Resource.Status.SUCCESS -> {
+                        Timber.d("Blocked users fetched successfully")
+                        /*  Block dialog:
                         if (it.responseData != null) {
                             val containsElement =
                                 roomWithUsers.users.any { user -> it.responseData.find { blockedUser -> blockedUser.id == user.id } != null }
@@ -672,7 +675,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     bindingSetup.clBlockContact.visibility = View.GONE
                                 } else bindingSetup.clContactBlocked.visibility = View.GONE
                             }
-                        } else bindingSetup.clContactBlocked.visibility = View.GONE
+                        }
+                        else bindingSetup.clContactBlocked.visibility = View.GONE */
                     }
                     Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
                     else -> Timber.d("Other error")
@@ -701,7 +705,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     try {
                         requireActivity().runOnUiThread {
                             Timber.d("Successfully sent file")
-                            if (it.responseData?.fileId!! > 0) it.responseData.messageBody?.fileId = it.responseData.fileId
+                            if (it.responseData?.fileId!! > 0) it.responseData.messageBody?.fileId =
+                                it.responseData.fileId
                             sendMessage(
                                 it.responseData.fileType,
                                 it.responseData.messageBody?.fileId!!,
@@ -748,7 +753,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 Resource.Status.SUCCESS -> {
                     try {
                         if (!it.responseData?.isThumbnail!!) {
-                            if (it.responseData.fileId > 0) it.responseData.messageBody?.fileId = it.responseData.fileId
+                            if (it.responseData.fileId > 0) it.responseData.messageBody?.fileId =
+                                it.responseData.fileId
 
                             sendMessage(
                                 it.responseData.fileType,
@@ -759,7 +765,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             currentMediaLocation.removeFirst()
                             uploadInProgress = false
                         } else {
-                            if (it.responseData.thumbId > 0) it.responseData.messageBody?.thumbId = it.responseData.thumbId
+                            if (it.responseData.thumbId > 0) it.responseData.messageBody?.thumbId =
+                                it.responseData.thumbId
                             if (it.responseData.mimeType.contains(Const.JsonFields.IMAGE_TYPE)) {
                                 it.responseData.messageBody?.let { messageBody ->
                                     uploadMedia(
@@ -841,21 +848,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             exoPlayer!!,
             roomWithUsers.room.type,
             onMessageInteraction = { event, message ->
-                if (bindingSetup.clContactBlocked.visibility != View.VISIBLE) {
-                    run {
-                        when (event) {
-                            Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
-                            Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
-                            Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
-                            Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
-                            Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
-                                message
-                            )
-                            else -> Timber.d("No other action currently")
-                        }
+                // Block dialog:
+                // if (bindingSetup.clContactBlocked.visibility != View.VISIBLE) {
+                run {
+                    when (event) {
+                        Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
+                        Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
+                        Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
+                        Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
+                        Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
+                        Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
+                            message
+                        )
+                        else -> Timber.d("No other action currently")
                     }
                 }
+                // }
             }
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
@@ -1678,7 +1686,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         if (UploadMimeTypes.MEDIA == typeFailed) {
             currentMediaLocation.removeFirst()
-            if (unsentMessages.isNotEmpty()){
+            if (unsentMessages.isNotEmpty()) {
                 viewModel.deleteLocalMessage(unsentMessages.first())
             }
             unsentMessages.removeFirst()
