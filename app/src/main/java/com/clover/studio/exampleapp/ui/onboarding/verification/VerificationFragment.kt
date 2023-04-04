@@ -114,11 +114,13 @@ class VerificationFragment : BaseFragment() {
                 Resource.Status.SUCCESS -> {
                     binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
                     binding.ivCheckmark.visibility = View.VISIBLE
+                    viewModel.writeDeviceId(deviceId)
                     goToMainActivity()
                 }
                 Resource.Status.NEW_USER -> {
                     binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
                     binding.ivCheckmark.visibility = View.VISIBLE
+                    viewModel.writeDeviceId(deviceId)
                     goToAccountCreation()
                 }
                 Resource.Status.ERROR -> {
