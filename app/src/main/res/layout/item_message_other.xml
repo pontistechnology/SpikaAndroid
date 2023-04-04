@@ -202,24 +202,33 @@
                     layout="@layout/audio_layout" />
             </androidx.cardview.widget.CardView>
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/iv_chat_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/two_dp_margin"
-                android:adjustViewBounds="true"
-                android:maxWidth="@dimen/image_max_width"
-                android:scaleType="fitCenter"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_image_chat"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:visibility="gone"
-                app:layout_constrainedHeight="true"
-                app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearanceOverlay="@style/chat_image"
-                tools:srcCompat="@tools:sample/avatars" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_chat_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/two_dp_margin"
+                    android:adjustViewBounds="true"
+                    android:maxWidth="@dimen/image_max_width"
+                    android:scaleType="fitCenter"
+                    app:layout_constrainedHeight="true"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:shapeAppearanceOverlay="@style/chat_image"
+                    tools:srcCompat="@tools:sample/avatars" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_videos"
@@ -262,8 +271,8 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <include
-                layout="@layout/file_layout"
                 android:id="@+id/file_layout"
+                layout="@layout/file_layout"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
