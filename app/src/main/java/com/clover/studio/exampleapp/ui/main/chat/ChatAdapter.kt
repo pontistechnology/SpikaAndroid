@@ -291,7 +291,7 @@ class ChatAdapter(
                         )
                     }
                     Const.JsonFields.IMAGE_TYPE -> {
-                        setViewsVisibility(holder.binding.ivChatImage, holder)
+                        setViewsVisibility(holder.binding.clImageChat, holder)
                         bindImage(
                             it,
                             holder.binding.ivChatImage,
