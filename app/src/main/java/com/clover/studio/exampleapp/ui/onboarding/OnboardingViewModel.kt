@@ -125,9 +125,9 @@ class OnboardingViewModel @Inject constructor(
         return flag
     }
 
-    fun writePhoneAndDeviceId(phoneNumber: String, deviceId: String, countryCode: String) =
+    fun writePhoneAndCountry(phoneNumber: String, countryCode: String) =
         viewModelScope.launch {
-            sharedPrefs.writeUserPhoneDetails(phoneNumber, deviceId, countryCode)
+            sharedPrefs.writeUserPhoneDetails(phoneNumber, countryCode)
         }
 
     fun readPhoneNumber(): String {
@@ -148,6 +148,10 @@ class OnboardingViewModel @Inject constructor(
 
     fun registerFlag(flag: Boolean) = viewModelScope.launch {
         sharedPrefs.writeRegistered(flag)
+    }
+
+    fun writeDeviceId(deviceId: String) = viewModelScope.launch {
+        sharedPrefs.writeDeviceId(deviceId)
     }
 
     fun readDeviceId(): String {

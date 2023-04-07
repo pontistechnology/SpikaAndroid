@@ -81,16 +81,15 @@ class RegisterNumberFragment : BaseFragment() {
             countryCode = viewModel.readCountryCode()
             deviceId = viewModel.readDeviceId()
 
-            binding.etPhoneNumber.visibility = View.GONE
-            binding.tvDefaultPhoneNumber.visibility = View.VISIBLE
-            binding.tvDefaultPhoneNumber.text = phoneNumber
-            binding.tvCountryCode.text = countryCode
+            if (deviceId.isNotEmpty()) {
+                binding.etPhoneNumber.visibility = View.GONE
+                binding.tvDefaultPhoneNumber.visibility = View.VISIBLE
+                binding.tvDefaultPhoneNumber.text = phoneNumber
+            }
 
             binding.btnNext.isEnabled = true
-
-        } else {
-            binding.tvCountryCode.text = countryCode
         }
+        binding.tvCountryCode.text = countryCode
     }
 
     override fun onDestroyView() {
@@ -160,8 +159,7 @@ class RegisterNumberFragment : BaseFragment() {
             if (phoneNumber.isEmpty()) {
                 phoneNumber = binding.etPhoneNumber.text.toString()
                 countryCode = binding.tvCountryCode.text.toString()
-                deviceId = Tools.generateRandomId()
-                viewModel.writePhoneAndDeviceId(phoneNumber, deviceId, countryCode)
+                viewModel.writePhoneAndCountry(phoneNumber, countryCode)
             }
             viewModel.sendNewUserData(getJsonObject())
         }
@@ -207,6 +205,10 @@ class RegisterNumberFragment : BaseFragment() {
             )
         )
         jsonObject.addProperty(Const.JsonFields.COUNTRY_CODE, countryCode.substring(1))
+
+        if (deviceId.isEmpty()) {
+            deviceId = Tools.generateRandomId()
+        }
         jsonObject.addProperty(Const.JsonFields.DEVICE_ID, deviceId)
 
         return jsonObject
