@@ -39,7 +39,11 @@ data class User(
     val modifiedAt: Long?,
 
     @ColumnInfo(name = "selected")
-    var selected: Boolean = false
+    var selected: Boolean = false,
+
+    @ColumnInfo(name = "is_bot")
+    var isBot : Boolean = false
+
 ) : Parcelable {
     @Ignore
     @IgnoredOnParcel

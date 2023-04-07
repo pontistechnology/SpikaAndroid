@@ -44,6 +44,7 @@ class NewRoomFragment : BaseFragment() {
     private var filteredList: MutableList<UserAndPhoneUser> = ArrayList()
     private var user: User? = null
     private var isRoomUpdate = false
+    private var newGroupFlag = false
 
     private var bindingSetup: FragmentNewRoomBinding? = null
 
@@ -129,6 +130,8 @@ class NewRoomFragment : BaseFragment() {
         binding.tvNewGroupChat.visibility = View.GONE
         binding.tvNext.visibility = View.VISIBLE
         binding.tvTitle.text = getString(R.string.select_members)
+
+        newGroupFlag = true
 
         setupAdapter(true)
         initializeObservers()
@@ -232,9 +235,13 @@ class NewRoomFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
-            // TODO @Ivana handle this null check
             if (it.responseData != null) {
                 userList = it.responseData.toMutableList()
+
+                if (newGroupFlag) {
+                    userList.removeIf { userData -> userData.user.isBot }
+                }
+
                 val users = userList.sortUsersByLocale(requireContext())
                 userList = users.toMutableList()
                 contactsAdapter.submitList(users)
