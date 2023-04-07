@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Const.PrefsData.Companion.SHARED_PREFS_NAME
 import com.clover.studio.exampleapp.utils.helpers.GsonProvider
-import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -160,12 +159,10 @@ class SharedPreferencesRepositoryImpl(
 
     override suspend fun writeUserPhoneDetails(
         phoneNumber: String,
-        deviceId: String,
         countryCode: String
     ) {
         with(getPrefs().edit()) {
             putString(Const.PrefsData.PHONE_NUMBER, phoneNumber)
-            putString(Const.PrefsData.DEVICE_ID, deviceId)
             putString(Const.PrefsData.COUNTRY_CODE, countryCode)
             commit()
         }
@@ -173,6 +170,13 @@ class SharedPreferencesRepositoryImpl(
 
     override suspend fun readPhoneNumber(): String? =
         getPrefs().getString(Const.PrefsData.PHONE_NUMBER, null)
+
+    override suspend fun writeDeviceId(deviceId: String) {
+        with(getPrefs().edit()) {
+            putString(Const.PrefsData.DEVICE_ID, deviceId)
+            commit()
+        }
+    }
 
     override suspend fun readCountryCode(): String? =
         getPrefs().getString(Const.PrefsData.COUNTRY_CODE, null)
@@ -270,8 +274,9 @@ interface SharedPreferencesRepository {
     suspend fun writeFirstAppStart(firstAppStart: Boolean)
     suspend fun isFirstAppStart(): Boolean
 
-    suspend fun writeUserPhoneDetails(phoneNumber: String, deviceId: String, countryCode: String)
+    suspend fun writeUserPhoneDetails(phoneNumber: String, countryCode: String)
     suspend fun readPhoneNumber(): String?
+    suspend fun writeDeviceId(deviceId: String)
     suspend fun readDeviceId(): String?
     suspend fun readCountryCode(): String?
 
