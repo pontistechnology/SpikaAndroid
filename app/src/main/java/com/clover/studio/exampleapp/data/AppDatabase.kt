@@ -47,7 +47,7 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     companion object {
-        const val DATABASE_VERSION = 3
+        const val DATABASE_VERSION = 2
 
         @Volatile
         private var instance: AppDatabase? = null
@@ -63,7 +63,7 @@ abstract class AppDatabase : RoomDatabase() {
             Room.databaseBuilder(appContext, AppDatabase::class.java, "MainDatabase")
                 .addMigrations(
                     MIGRATION_1_2,
-                    MIGRATION_2_3,
+                    // MIGRATION_2_3,
                 )
                 .fallbackToDestructiveMigration()
                 .build()
@@ -81,10 +81,14 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM + " ADD COLUMN unread_count INTEGER DEFAULT 0 NOT NULL")
             }
         }
+        /* Database migration from version 2 to 3.
+            This part is commented out until we decide to migrate the database. Until then, we'll be
+            adding new changes to the database in the comments
+
         val MIGRATION_2_3: Migration = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0")
             }
-        }
+        } */
     }
 }
