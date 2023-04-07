@@ -121,7 +121,7 @@
                 android:textColor="@color/white" />
         </FrameLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!--<androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/text_tertiary"
@@ -148,11 +148,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/twenty_dp_margin"
                     android:fontFamily="@font/montserrat"
-                    android:text="@string/block_contact_description"
-                    android:textColor="@color/white"
                     android:gravity="center"
                     android:paddingStart="@dimen/ten_dp_margin"
                     android:paddingEnd="@dimen/ten_dp_margin"
+                    android:text="@string/block_contact_description"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/fourteen_sp_text"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_chainStyle="packed"
@@ -263,7 +263,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tv_contact_blocked" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
         <ImageView
             android:id="@+id/iv_call_user"
@@ -309,12 +309,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/white"
+            android:backgroundTint="@color/main"
             android:padding="@dimen/twenty_dp_margin"
             android:src="@drawable/img_add"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/divider"
-            android:backgroundTint="@color/main"/>
+            app:layout_constraintTop_toTopOf="@id/divider" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_chat"
@@ -405,12 +405,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/white"
+            android:backgroundTint="@color/main"
             android:padding="@dimen/twenty_dp_margin"
             android:src="@drawable/img_microphone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/divider"
-            android:backgroundTint="@color/main"/>
+            app:layout_constraintTop_toTopOf="@+id/divider" />
 
         <ImageView
             android:id="@+id/iv_camera"
@@ -430,13 +430,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/white"
+            android:backgroundTint="@color/main"
             android:padding="@dimen/twenty_dp_margin"
             android:src="@drawable/img_button_send"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/divider"
-            android:backgroundTint="@color/main"/>
+            app:layout_constraintTop_toTopOf="@+id/divider" />
 
         <TextView
             android:id="@+id/tv_save"
