@@ -24,7 +24,7 @@ data class Resource<out T>(val status: Status, val responseData: T?, val message
         }
 
         fun <T> tokenExpired(message: String): Resource<T> {
-            return Resource(Status.TOKEN_EXPIRED, null,message)
+            return Resource(Status.TOKEN_EXPIRED, null, message)
         }
     }
 }
