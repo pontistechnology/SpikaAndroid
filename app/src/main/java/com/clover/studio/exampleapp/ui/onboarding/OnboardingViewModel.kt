@@ -42,9 +42,8 @@ class OnboardingViewModel @Inject constructor(
 
         val response = onboardingRepository.verifyUserCode(jsonObject)
 
-        if (Resource.Status.ERROR != response.status) {
+        if (Resource.Status.ERROR != response.status && Resource.Status.TOKEN_EXPIRED != response.status) {
             response.responseData?.data?.device?.token?.let { sharedPrefs.writeToken(it) }
-
             if (sharedPrefs.isNewUser()) {
                 resolveResponseStatus(
                     codeVerificationListener,
@@ -58,7 +57,10 @@ class OnboardingViewModel @Inject constructor(
                 )
             }
         } else {
-            Timber.d("Error: $response")
+            resolveResponseStatus(
+                codeVerificationListener,
+                Resource(Resource.Status.ERROR, null, "")
+            )
         }
     }
 
