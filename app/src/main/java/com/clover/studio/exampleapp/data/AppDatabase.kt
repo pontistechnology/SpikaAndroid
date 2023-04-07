@@ -15,10 +15,7 @@ import com.clover.studio.exampleapp.utils.helpers.TypeConverter
 @Database(
     entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class, RoomUser::class, Note::class],
     version = DATABASE_VERSION,
-    exportSchema = true,
-    autoMigrations = [
-        AutoMigration(from = 1, to = 2)
-    ]
+    exportSchema = true
 )
 @TypeConverters(TypeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -64,10 +61,10 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(appContext: Context) =
             Room.databaseBuilder(appContext, AppDatabase::class.java, "MainDatabase")
-//                .addMigrations(
-//                    MIGRATION_1_2,
-//                )
-//                .fallbackToDestructiveMigration()
+                .addMigrations(
+                    MIGRATION_1_2,
+                )
+                .fallbackToDestructiveMigration()
                 .build()
 
         /**
