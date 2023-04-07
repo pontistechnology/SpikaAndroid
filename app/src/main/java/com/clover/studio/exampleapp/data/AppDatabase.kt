@@ -15,7 +15,7 @@ import com.clover.studio.exampleapp.utils.helpers.TypeConverter
 @Database(
     entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class, RoomUser::class, Note::class],
     version = DATABASE_VERSION,
-    exportSchema = false,
+    exportSchema = true
 )
 @TypeConverters(TypeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
