@@ -3,10 +3,7 @@ package com.clover.studio.exampleapp.data.repositories
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.*
-import com.clover.studio.exampleapp.data.models.entity.Message
-import com.clover.studio.exampleapp.data.models.entity.Note
-import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
-import com.clover.studio.exampleapp.data.models.entity.User
+import com.clover.studio.exampleapp.data.models.entity.*
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
@@ -22,6 +19,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
@@ -273,6 +271,33 @@ class ChatRepositoryImpl @Inject constructor(
             databaseQuery = { roomUserDao.removeAdmin(roomId, userId) }
         )
     }
+
+    override suspend fun getUnreadCount() {
+        val response = performRestOperation(
+            networkCall = { chatRemoteDataSource.getUnreadCount() }
+        )
+
+        CoroutineScope(Dispatchers.IO).launch {
+            if (response.responseData?.data?.unreadCounts != null) {
+                val currentRooms = roomDao.getAllRooms()
+                val roomsToUpdate: MutableList<ChatRoom> = ArrayList()
+                for (room in currentRooms) {
+                    room.unreadCount = 0
+                    for (item in response.responseData.data.unreadCounts) {
+                        if (item.roomId == room.roomId) {
+                            room.unreadCount = item.unreadCount
+                            break
+                        }
+                    }
+                    roomsToUpdate.add(room)
+                }
+                Timber.d("Rooms to update: $roomsToUpdate")
+                queryDatabaseCoreData(
+                    databaseQuery = { roomDao.upsert(roomsToUpdate) }
+                )
+            }
+        }
+    }
 }
 
 interface ChatRepository {
@@ -308,4 +333,6 @@ interface ChatRepository {
     suspend fun createNewNote(roomId: Int, newNote: NewNote): Resource<NotesResponse>
     suspend fun updateNote(noteId: Int, newNote: NewNote): Resource<NotesResponse>
     suspend fun deleteNote(noteId: Int)
+
+    suspend fun getUnreadCount()
 }
