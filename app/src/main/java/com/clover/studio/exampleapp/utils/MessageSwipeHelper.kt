@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.clover.studio.exampleapp.R
+import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import kotlin.math.abs
 
 const val HALF_SCREEN = 100
@@ -27,6 +28,7 @@ const val SMALL_MESSAGE_NEGATIVE_SIZE_2 = -150
 
 class MessageSwipeController(
     private val context: Context,
+    private val messageRecords: MutableList<MessageAndRecords>,
     private val onSwipeAction: ((action: String, position: Int) -> Unit)
 ) :
     Callback() {
@@ -50,7 +52,14 @@ class MessageSwipeController(
         mView = viewHolder.itemView
         replyImage = AppCompatResources.getDrawable(context, R.drawable.img_reply_item)
         infoImage = AppCompatResources.getDrawable(context, R.drawable.img_info_item)
-        return makeMovementFlags(ACTION_STATE_IDLE, RIGHT or LEFT)
+
+        return if (messageRecords[viewHolder.absoluteAdapterPosition].message.deleted!!) {
+            // Disable swipe for deleted messages
+            makeMovementFlags(ACTION_STATE_IDLE, 0)
+        } else {
+            // Enable swipe for non-deleted messages
+            makeMovementFlags(ACTION_STATE_IDLE, RIGHT or LEFT)
+        }
     }
 
     override fun onMove(
@@ -161,7 +170,7 @@ class MessageSwipeController(
         if (startTracking) {
             // On half of screen vibrate
             if (!isVibrate && (mView.translationX >= convertToDp(HALF_SCREEN)
-                || mView.translationX >= -convertToDp(HALF_SCREEN))
+                        || mView.translationX >= -convertToDp(HALF_SCREEN))
             ) {
                 mView.performHapticFeedback(
                     HapticFeedbackConstants.KEYBOARD_TAP,

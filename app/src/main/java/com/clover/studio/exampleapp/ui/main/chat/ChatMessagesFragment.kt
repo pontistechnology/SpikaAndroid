@@ -873,7 +873,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.rvChat.layoutManager = layoutManager
 
         val messageSwipeController =
-            MessageSwipeController(context!!, onSwipeAction = { action, position ->
+            MessageSwipeController(context!!, messagesRecords, onSwipeAction = { action, position ->
                 when (action) {
                     Const.UserActions.ACTION_RIGHT -> {
                         bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
