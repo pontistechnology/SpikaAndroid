@@ -91,12 +91,10 @@ class MessageSwipeController(
     ) {
         // Detect side of swipe
         if (actionState == ACTION_STATE_SWIPE) {
-            if (messageRecords[viewHolder.absoluteAdapterPosition].message.deleted!!) {
-                action = 0.toString()
-            } else if (dX > 0) {
-                action = Const.UserActions.ACTION_RIGHT
+            action = if (dX > 0) {
+                Const.UserActions.ACTION_RIGHT
             } else {
-                action = Const.UserActions.ACTION_LEFT
+                Const.UserActions.ACTION_LEFT
             }
             // Detect when swipe is released
             setTouchListener(recyclerView, viewHolder)
