@@ -17,7 +17,6 @@ import com.clover.studio.exampleapp.ui.main.MainActivity
 import com.clover.studio.exampleapp.utils.helpers.GsonProvider
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -82,6 +81,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 // TODO check why code below is not working. Might have been blocking push notifications
                 // TODO and crashing the app when receiving notification in background
 //                chatRepo.sendMessageDelivered(messageObject)
+                chatRepo.getUnreadCount()
 
                 // TODO
                 val title: String
