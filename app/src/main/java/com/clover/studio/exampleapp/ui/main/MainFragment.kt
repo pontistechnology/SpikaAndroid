@@ -61,7 +61,6 @@ class MainFragment : BaseFragment() {
 
         val pagerAdapter =
             MainPagerAdapter(
-                requireContext(),
                 fragmentList,
                 this.childFragmentManager,
                 lifecycle
