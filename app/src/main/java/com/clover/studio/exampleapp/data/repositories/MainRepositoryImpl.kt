@@ -113,6 +113,11 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getDistinctChatRoomAndMessageAndRecords() }
         )
 
+    override fun getRoomsLiveData() =
+        queryDatabase(
+            databaseQuery = { chatRoomDao.getDistinctRoomsUnreadCount() }
+        )
+
     override fun getRoomWithUsersLiveData(roomId: Int) =
         queryDatabase(
             databaseQuery = { chatRoomDao.getRoomAndUsersLiveData(roomId) }
@@ -339,6 +344,7 @@ interface MainRepository {
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): Resource<RoomResponse>
     suspend fun getUnreadCount()
+    fun getRoomsLiveData(): LiveData<Resource<Int>>
 
     // Settings calls
     suspend fun updatePushToken(jsonObject: JsonObject): Resource<Unit>
