@@ -14,7 +14,6 @@ import com.clover.studio.exampleapp.ui.main.rooms.RoomsFragment
 import com.clover.studio.exampleapp.ui.main.settings.SettingsFragment
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.google.android.material.tabs.TabLayoutMediator
-import timber.log.Timber
 
 class MainFragment : BaseFragment() {
     private var bindingSetup: FragmentMainBinding? = null
@@ -47,14 +46,12 @@ class MainFragment : BaseFragment() {
         viewModel.getRoomsLiveData().observe(viewLifecycleOwner) {
             if (it.responseData != null) {
                 count = it.responseData
-                Timber.d("here:: $count")
                 initializeTab()
             }
         }
     }
 
     private fun initializePager() {
-        Timber.d("here pager")
         val fragmentList = arrayListOf(
             RoomsFragment(),
             CallHistoryFragment(),
