@@ -72,6 +72,8 @@ class ChatScreenActivity : BaseActivity() {
             intent.getParcelableExtra(Const.Navigation.ROOM_DATA)
         }
 
+        Timber.d("Load check: ChatScreenActivity created")
+
         initializeObservers()
     }
 
@@ -88,6 +90,7 @@ class ChatScreenActivity : BaseActivity() {
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
+                    Timber.d("Load check: ChatScreenActivity room data fetched")
                     it.responseData?.roomWithUsers?.let { roomWithUsers ->
                         replaceChatScreenActivity(this, roomWithUsers)
                     }
