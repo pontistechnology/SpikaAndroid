@@ -75,7 +75,7 @@ class ChatViewModel @Inject constructor(
             newMessageReceivedListener,
             Resource(Resource.Status.SUCCESS, message, "")
         )
-       updateCounterLimit()
+        updateCounterLimit()
     }
 
     fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
@@ -262,6 +262,7 @@ class ChatViewModel @Inject constructor(
         mainRepository.getBlockedList()
     }
 
+    /* Block methods
     fun blockUser(blockedId: Int) = viewModelScope.launch {
         mainRepository.blockUser(blockedId)
     }
@@ -272,7 +273,7 @@ class ChatViewModel @Inject constructor(
 
     fun deleteBlockForSpecificUser(userId: Int) = viewModelScope.launch {
         mainRepository.deleteBlockForSpecificUser(userId)
-    }
+    }*/
 
     fun getUnreadCount() = viewModelScope.launch {
         mainRepository.getUnreadCount()

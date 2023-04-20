@@ -43,24 +43,36 @@ import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.JsonMessage
-import com.clover.studio.exampleapp.data.models.entity.*
+import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.MessageBody
+import com.clover.studio.exampleapp.data.models.entity.MessageFile
+import com.clover.studio.exampleapp.data.models.entity.MessageRecords
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.ui.ReactionContainer
 import com.clover.studio.exampleapp.ui.ReactionsContainer
-import com.clover.studio.exampleapp.utils.*
+import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.MessageSwipeController
+import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.getChunkSize
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.getFileMimeType
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 
@@ -121,9 +133,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var replyId: Long? = 0L
     private lateinit var emojiPopup: EmojiPopup
 
-    private var oldPosition = 0
     private var scrollYDistance = 0
     private var heightDiff = 0
+    private var newMessagesCount = 0
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
@@ -314,7 +326,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 // This condition checks if the RecyclerView is at the bottom
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     bindingSetup.cvNewMessages.visibility = View.GONE
-                    oldPosition = messagesRecords.size
+                    newMessagesCount = 0
                     scrollYDistance = 0
                 }
             }
@@ -328,7 +340,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             bindingSetup.rvChat.scrollToPosition(0)
             bindingSetup.cvNewMessages.visibility = View.GONE
             scrollYDistance = 0
-            oldPosition = messagesRecords.size
+            newMessagesCount = 0
         }
 
         bindingSetup.etMessage.addTextChangedListener {
@@ -597,6 +609,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                     bindingSetup.rvChat.scrollToPosition(0)
                 }
+
                 Resource.Status.ERROR -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
             }
@@ -638,25 +651,33 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         Timber.d("Load check: ChatMessagesFragment submitting messages to adapter, ${messagesRecords.map { message -> message.message.body }}")
                         chatAdapter.submitList(messagesRecords.toList())
 
-                        if (oldPosition != messagesRecords.size) {
-                            showNewMessage(messagesRecords.first())
-                        }
 
                         if (firstEnter) {
-                            oldPosition = messagesRecords.size
+                            // Potentially newMessagesCount = 0
                             bindingSetup.rvChat.scrollToPosition(0)
                             firstEnter = false
                         }
                     }
                 }
+
                 Resource.Status.LOADING -> {
                     // Loading
                 }
+
                 else -> {
                     // Error
                 }
             }
         }
+
+        viewModel.newMessageReceivedListener.observe(viewLifecycleOwner, EventObserver {
+            newMessagesCount++
+
+            if (it != null) {
+                showNewMessage(it)
+            }
+
+        })
 
 //        viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
 //            .observe(viewLifecycleOwner) {
@@ -724,6 +745,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
                         else bindingSetup.clContactBlocked.visibility = View.GONE */
                     }
+
                     Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
                     else -> Timber.d("Other error")
                 }
@@ -847,9 +869,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         })
     }
 
-    private fun showNewMessage(msg: MessageAndRecords) {
+    private fun showNewMessage(newMessage: Message) {
         // If we send message
-        if (msg.message.fromUserId == localUserId) {
+        if (newMessage.fromUserId == localUserId) {
             scrollToPosition()
         } else {
             // If we received message and keyboard is open:
@@ -866,13 +888,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             // If we are somewhere up in chat, show new message dialog
             else {
                 bindingSetup.cvNewMessages.visibility = View.VISIBLE
-                val newMessages = messagesRecords.size - oldPosition
-                if (newMessages == 1) {
+                if (newMessagesCount == 1) {
                     bindingSetup.tvNewMessage.text =
-                        getString(R.string.new_messages, newMessages.toString(), "")
+                        getString(R.string.new_messages, newMessagesCount.toString(), "")
                 } else {
                     bindingSetup.tvNewMessage.text =
-                        getString(R.string.new_messages, newMessages.toString(), "s")
+                        getString(R.string.new_messages, newMessagesCount.toString(), "s")
                 }
             }
         }
@@ -880,7 +901,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun scrollToPosition() {
-        oldPosition = messagesRecords.size
+        newMessagesCount = 0
         bindingSetup.rvChat.smoothScrollToPosition(0)
         scrollYDistance = 0
     }
@@ -906,6 +927,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
                             message
                         )
+
                         else -> Timber.d("No other action currently")
                     }
                 }
@@ -941,6 +963,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         bindingSetup.clBottomReplyAction.visibility = View.VISIBLE
                         handleMessageReply(messagesRecords[position].message)
                     }
+
                     Const.UserActions.ACTION_LEFT -> {
                         bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
                         bindingSetup.clDetailsAction.visibility = View.VISIBLE
@@ -1234,6 +1257,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(bindingSetup.replyAction.ivReplyImage)
             }
+
             Const.JsonFields.AUDIO_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
@@ -1247,6 +1271,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     0
                 )
             }
+
             Const.JsonFields.FILE_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
                 bindingSetup.replyAction.ivReplyImage.visibility = View.GONE
@@ -1260,6 +1285,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     0
                 )
             }
+
             else -> {
                 bindingSetup.replyAction.ivReplyImage.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.GONE
