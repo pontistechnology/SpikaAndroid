@@ -117,6 +117,8 @@ class MainViewModel @Inject constructor(
 
     fun getChatRoomAndMessageAndRecords() = repository.getChatRoomAndMessageAndRecords()
 
+    fun getRoomsLiveData() = repository.getRoomsUnreadCount()
+
     fun getRoomByIdLiveData(roomId: Int) = repository.getRoomByIdLiveData(roomId)
 
     fun getSingleRoomData(roomId: Int) =
@@ -178,9 +180,10 @@ class MainViewModel @Inject constructor(
         repository.blockUser(blockedId)
     }
 
+    /* Delete block method - uncomment when we need it
     fun deleteBlock(userId: Int) = viewModelScope.launch {
         repository.deleteBlock(userId)
-    }
+    } */
 
     fun deleteBlockForSpecificUser(userId: Int) = viewModelScope.launch {
         repository.deleteBlockForSpecificUser(userId)
