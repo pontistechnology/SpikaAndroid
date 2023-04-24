@@ -628,7 +628,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         })*/
 
         viewModel.getMessageAndRecords(roomWithUsers.room.roomId).observe(viewLifecycleOwner) {
-//            viewModel.fetchNewData()
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     Timber.d("Load check: ChatMessagesFragment messages fetched")
@@ -646,7 +645,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         it.responseData.forEach { msg ->
                             messagesRecords.add(msg)
                         }
-//                        messagesRecords = messagesRecords.distinct().toMutableList()
+                        messagesRecords = messagesRecords.distinct().toMutableList()
 //                        messagesRecords.sortByDescending { messages -> messages.message.createdAt }
                         // messagesRecords.toList -> for DiffUtil class
                         Timber.d("Load check: ChatMessagesFragment submitting messages to adapter, ${messagesRecords.map { message -> message.message.body }}")

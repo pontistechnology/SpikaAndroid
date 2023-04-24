@@ -57,13 +57,17 @@ class ChatViewModel @Inject constructor(
         sseManager.setupListener(this)
     }
 
-    fun storeMessageLocally(message: Message) = CoroutineScope(Dispatchers.IO).launch {
-        repository.storeMessageLocally(message)
-
+    private fun updateCounterLimit() {
         val currentLimit = liveDataLimit.value ?: 0
         Timber.d("Current limit = $currentLimit")
 
-        liveDataLimit.postValue( currentLimit + 1)
+        liveDataLimit.postValue(currentLimit + 1)
+    }
+
+    fun storeMessageLocally(message: Message) = CoroutineScope(Dispatchers.IO).launch {
+        repository.storeMessageLocally(message)
+
+       updateCounterLimit()
     }
 
     override fun newMessageReceived(message: Message) {
@@ -71,10 +75,7 @@ class ChatViewModel @Inject constructor(
             newMessageReceivedListener,
             Resource(Resource.Status.SUCCESS, message, "")
         )
-        val currentLimit = liveDataLimit.value ?: 0
-        Timber.d("Current limit = $currentLimit")
-
-        liveDataLimit.value = currentLimit + 1
+       updateCounterLimit()
     }
 
     fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
@@ -157,7 +158,6 @@ class ChatViewModel @Inject constructor(
 
         runBlocking {
             messageCount = repository.getMessageCount(roomId)
-
         }
         Timber.d("Message count = $messageCount")
         return messageCount
