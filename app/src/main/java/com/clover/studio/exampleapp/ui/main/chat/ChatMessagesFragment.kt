@@ -29,7 +29,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -88,7 +88,7 @@ enum class UploadMimeTypes {
 
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
-    private val viewModel: ChatViewModel by activityViewModels()
+    private val viewModel: ChatViewModel by viewModels()
     private val args: ChatMessagesFragmentArgs by navArgs()
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
@@ -653,7 +653,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
 
                         if (firstEnter) {
-                            // Potentially newMessagesCount = 0
+                            newMessagesCount = 0
                             bindingSetup.rvChat.scrollToPosition(0)
                             firstEnter = false
                         }
@@ -670,13 +670,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        viewModel.newMessageReceivedListener.observe(viewLifecycleOwner, EventObserver {
-            newMessagesCount++
-
-            if (it != null) {
+        viewModel.newMessageReceivedListener.observe(viewLifecycleOwner, EventObserver { message ->
+            message.responseData?.let {
+                newMessagesCount++
                 showNewMessage(it)
             }
-
         })
 
 //        viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
