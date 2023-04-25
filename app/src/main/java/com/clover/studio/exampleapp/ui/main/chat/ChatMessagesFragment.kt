@@ -29,7 +29,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -88,7 +88,7 @@ enum class UploadMimeTypes {
 
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
-    private val viewModel: ChatViewModel by activityViewModels()
+    private val viewModel: ChatViewModel by viewModels()
     private val args: ChatMessagesFragmentArgs by navArgs()
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
@@ -133,9 +133,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var replyId: Long? = 0L
     private lateinit var emojiPopup: EmojiPopup
 
-    private var oldPosition = 0
     private var scrollYDistance = 0
     private var heightDiff = 0
+    private var newMessagesCount = 0
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
@@ -326,7 +326,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 // This condition checks if the RecyclerView is at the bottom
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     bindingSetup.cvNewMessages.visibility = View.GONE
-                    oldPosition = messagesRecords.size
+                    newMessagesCount = 0
                     scrollYDistance = 0
                 }
             }
@@ -340,7 +340,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             bindingSetup.rvChat.scrollToPosition(0)
             bindingSetup.cvNewMessages.visibility = View.GONE
             scrollYDistance = 0
-            oldPosition = messagesRecords.size
+            newMessagesCount = 0
         }
 
         bindingSetup.etMessage.addTextChangedListener {
@@ -651,25 +651,31 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         Timber.d("Load check: ChatMessagesFragment submitting messages to adapter, ${messagesRecords.map { message -> message.message.body }}")
                         chatAdapter.submitList(messagesRecords.toList())
 
-                        if (oldPosition != messagesRecords.size) {
-                            showNewMessage(messagesRecords.first())
-                        }
 
                         if (firstEnter) {
-                            oldPosition = messagesRecords.size
+                            newMessagesCount = 0
                             bindingSetup.rvChat.scrollToPosition(0)
                             firstEnter = false
                         }
                     }
                 }
+
                 Resource.Status.LOADING -> {
                     // Loading
                 }
+
                 else -> {
                     // Error
                 }
             }
         }
+
+        viewModel.newMessageReceivedListener.observe(viewLifecycleOwner, EventObserver { message ->
+            message.responseData?.let {
+                newMessagesCount++
+                showNewMessage(it)
+            }
+        })
 
 //        viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
 //            .observe(viewLifecycleOwner) {
@@ -755,6 +761,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
                     }
 
+                    Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
                     else -> Timber.d("Other error")
                 }
             })
@@ -877,9 +884,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         })
     }
 
-    private fun showNewMessage(msg: MessageAndRecords) {
+    private fun showNewMessage(newMessage: Message) {
         // If we send message
-        if (msg.message.fromUserId == localUserId) {
+        if (newMessage.fromUserId == localUserId) {
             scrollToPosition()
         } else {
             // If we received message and keyboard is open:
@@ -896,13 +903,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             // If we are somewhere up in chat, show new message dialog
             else {
                 bindingSetup.cvNewMessages.visibility = View.VISIBLE
-                val newMessages = messagesRecords.size - oldPosition
-                if (newMessages == 1) {
+                if (newMessagesCount == 1) {
                     bindingSetup.tvNewMessage.text =
-                        getString(R.string.new_messages, newMessages.toString(), "")
+                        getString(R.string.new_messages, newMessagesCount.toString(), "")
                 } else {
                     bindingSetup.tvNewMessage.text =
-                        getString(R.string.new_messages, newMessages.toString(), "s")
+                        getString(R.string.new_messages, newMessagesCount.toString(), "s")
                 }
             }
         }
@@ -910,7 +916,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun scrollToPosition() {
-        oldPosition = messagesRecords.size
+        newMessagesCount = 0
         bindingSetup.rvChat.smoothScrollToPosition(0)
         scrollYDistance = 0
     }

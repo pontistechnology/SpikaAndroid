@@ -71,11 +71,13 @@ class ChatViewModel @Inject constructor(
     }
 
     override fun newMessageReceived(message: Message) {
-        resolveResponseStatus(
-            newMessageReceivedListener,
-            Resource(Resource.Status.SUCCESS, message, "")
-        )
-       updateCounterLimit()
+        viewModelScope.launch {
+            resolveResponseStatus(
+                newMessageReceivedListener,
+                Resource(Resource.Status.SUCCESS, message, "")
+            )
+            updateCounterLimit()
+        }
     }
 
     fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
@@ -262,6 +264,7 @@ class ChatViewModel @Inject constructor(
         mainRepository.getBlockedList()
     }
 
+    // Block methods
     fun blockUser(blockedId: Int) = viewModelScope.launch {
         mainRepository.blockUser(blockedId)
     }
