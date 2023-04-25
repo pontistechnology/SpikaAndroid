@@ -672,8 +672,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         viewModel.newMessageReceivedListener.observe(viewLifecycleOwner, EventObserver { message ->
             message.responseData?.let {
-                newMessagesCount++
-                showNewMessage(it)
+                if (message.responseData.roomId == roomWithUsers.room.roomId) {
+                    newMessagesCount++
+                    showNewMessage(it)
+                }
             }
         })
 

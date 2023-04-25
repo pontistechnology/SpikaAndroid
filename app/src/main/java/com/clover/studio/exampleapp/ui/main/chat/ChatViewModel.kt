@@ -67,7 +67,7 @@ class ChatViewModel @Inject constructor(
     fun storeMessageLocally(message: Message) = CoroutineScope(Dispatchers.IO).launch {
         repository.storeMessageLocally(message)
 
-       updateCounterLimit()
+        updateCounterLimit()
     }
 
     override fun newMessageReceived(message: Message) {
