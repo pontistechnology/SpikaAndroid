@@ -43,7 +43,7 @@ class RegisterNumberFragment : BaseFragment() {
     private var bindingSetup: FragmentRegisterNumberBinding? = null
 
     private var phoneNumber: String = ""
-    private var deviceId: String = ""
+    private var deviceId: String? = null
     private val binding get() = bindingSetup!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +81,8 @@ class RegisterNumberFragment : BaseFragment() {
             countryCode = viewModel.readCountryCode()
             deviceId = viewModel.readDeviceId()
 
-            if (deviceId.isNotEmpty()) {
+            Timber.d("Device id = $deviceId")
+            if (deviceId?.isNotEmpty() == true) {
                 binding.etPhoneNumber.visibility = View.GONE
                 binding.tvDefaultPhoneNumber.visibility = View.VISIBLE
                 binding.tvDefaultPhoneNumber.text = phoneNumber
@@ -206,7 +207,8 @@ class RegisterNumberFragment : BaseFragment() {
         )
         jsonObject.addProperty(Const.JsonFields.COUNTRY_CODE, countryCode.substring(1))
 
-        if (deviceId.isEmpty()) {
+        Timber.d("Device id = $deviceId")
+        if (deviceId == null || deviceId?.isEmpty() == true) {
             deviceId = Tools.generateRandomId()
         }
         jsonObject.addProperty(Const.JsonFields.DEVICE_ID, deviceId)
