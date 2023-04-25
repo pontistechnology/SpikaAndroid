@@ -284,16 +284,25 @@ class MainRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun deleteBlockForSpecificUser(userId: Int) {
+    override suspend fun deleteBlockForSpecificUser(userId: Int): Resource<List<User>> {
         val response = performRestOperation(
-            networkCall = { mainRemoteDataSource.deleteBlockForSpecificUser(userId) },
+            networkCall = { mainRemoteDataSource.deleteBlockForSpecificUser(userId) }
         )
-        if (Resource.Status.SUCCESS == response.status) {
+        return if (Resource.Status.SUCCESS == response.status) {
             val currentList = sharedPrefs.readBlockedUserList()
             val updatedList = currentList.filterNot { it == userId }
             sharedPrefs.writeBlockedUsersIds(updatedList)
-        }
+
+            queryDatabaseCoreData(
+                databaseQuery = { userDao.getUsersByIds(updatedList) }
+            )
+        } else Resource(
+            Resource.Status.ERROR,
+            null,
+            response.message
+        )
     }
+
 
     override suspend fun handleRoomMute(roomId: Int, doMute: Boolean) {
         if (doMute) {
@@ -357,5 +366,5 @@ interface MainRepository {
     suspend fun fetchBlockedUsersLocally(userIds: List<Int>): Resource<List<User>>
     suspend fun blockUser(blockedId: Int)
     suspend fun deleteBlock(userId: Int)
-    suspend fun deleteBlockForSpecificUser(userId: Int)
+    suspend fun deleteBlockForSpecificUser(userId: Int): Resource<List<User>>
 }

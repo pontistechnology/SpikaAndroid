@@ -17,7 +17,12 @@ import com.clover.studio.exampleapp.data.models.networking.responses.NotesRespon
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
-import com.clover.studio.exampleapp.utils.*
+import com.clover.studio.exampleapp.utils.Event
+import com.clover.studio.exampleapp.utils.FileUploadListener
+import com.clover.studio.exampleapp.utils.SSEListener
+import com.clover.studio.exampleapp.utils.SSEManager
+import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.UploadDownloadManager
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,7 +59,10 @@ class ChatViewModel @Inject constructor(
     }
 
     override fun newMessageReceived(message: Message) {
-        resolveResponseStatus(newMessageReceivedListener, Resource(Resource.Status.SUCCESS, message, ""))
+        resolveResponseStatus(
+            newMessageReceivedListener,
+            Resource(Resource.Status.SUCCESS, message, "")
+        )
     }
 
     fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
@@ -227,7 +235,10 @@ class ChatViewModel @Inject constructor(
     }
 
     fun deleteBlockForSpecificUser(userId: Int) = viewModelScope.launch {
-        mainRepository.deleteBlockForSpecificUser(userId)
+        resolveResponseStatus(
+            blockedListListener,
+            mainRepository.deleteBlockForSpecificUser(userId)
+        )
     }
 
     fun getUnreadCount() = viewModelScope.launch {
