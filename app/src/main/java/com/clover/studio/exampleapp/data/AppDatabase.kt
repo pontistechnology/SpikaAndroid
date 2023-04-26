@@ -1,10 +1,10 @@
 package com.clover.studio.exampleapp.data
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room.*
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.data.AppDatabase.Companion.DATABASE_VERSION
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.models.*
@@ -13,9 +13,9 @@ import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.utils.helpers.TypeConverter
 
 @Database(
-    entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class, RoomUser::class],
+    entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class, RoomUser::class, Note::class],
     version = DATABASE_VERSION,
-    exportSchema = false
+    exportSchema = true
 )
 @TypeConverters(TypeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -26,6 +26,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun phoneUserDao(): PhoneUserDao
     abstract fun chatRoomDao(): ChatRoomDao
     abstract fun messageRecordsDao(): MessageRecordsDao
+    abstract fun notesDao(): NotesDao
+    abstract fun roomUserDao(): RoomUserDao
 
     class TablesInfo {
         companion object {
@@ -37,6 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
             const val TABLE_CHAT_ROOM = "room"
             const val TABLE_MESSAGE_RECORDS = "message_records"
             const val TABLE_ROOM_USER = "room_user"
+            const val TABLE_NOTES = "notes"
 
             // general field names
             const val ID = "id"
@@ -44,7 +47,7 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     companion object {
-        const val DATABASE_VERSION = 1
+        const val DATABASE_VERSION = 2
 
         @Volatile
         private var instance: AppDatabase? = null
@@ -58,20 +61,34 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(appContext: Context) =
             Room.databaseBuilder(appContext, AppDatabase::class.java, "MainDatabase")
-                // Use code below to add migrations if necessary
-//                .addMigrations(
-//                    MIGRATION_1_2,
-//                )
-//                .fallbackToDestructiveMigration()
+                .addMigrations(
+                    MIGRATION_1_2,
+                    // MIGRATION_2_3,
+                )
+                .fallbackToDestructiveMigration()
                 .build()
-    }
 
-    /**
-     * Dummy implementation of migration. Change migrate when doing real migration and test with MigrationTest.kt
-     */
-//    val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-//        override fun migrate(database: SupportSQLiteDatabase) {
-//            database.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM + " ADD COLUMN version TEXT")
-//        }
-//    }
+        /**
+         * Use method below to clear all database tables and get a clean slate
+         */
+        fun nukeDb() {
+            buildDatabase(MainApplication.appContext).clearAllTables()
+        }
+
+        val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE_RECORDS + " ADD COLUMN record_message TEXT")
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+        /* Database migration from version 2 to 3.
+            This part is commented out until we decide to migrate the database. Until then, we'll be
+            adding new changes to the database in the comments
+
+        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0")
+            }
+        } */
+    }
 }

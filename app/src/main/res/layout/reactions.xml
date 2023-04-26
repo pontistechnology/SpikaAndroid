@@ -6,7 +6,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@color/white"
-    android:longClickable="true">
+    android:longClickable="true"
+    android:backgroundTint="@color/inputs">
 
     <com.vanniktech.emoji.EmojiTextView
         android:id="@+id/tv_thumbs_up_emoji"

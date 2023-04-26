@@ -58,7 +58,8 @@
             android:text="@string/gallery"
             android:textAllCaps="false"
             android:textColor="@color/primary_color"
-            android:textSize="@dimen/fifteen_sp_text" />
+            android:textSize="@dimen/fifteen_sp_text"
+            android:textFontWeight="@string/six_hundred"/>
 
         <View
             android:layout_width="match_parent"
@@ -78,7 +79,8 @@
             android:text="@string/photo"
             android:textAllCaps="false"
             android:textColor="@color/primary_color"
-            android:textSize="@dimen/fifteen_sp_text" />
+            android:textSize="@dimen/fifteen_sp_text"
+            android:textFontWeight="@string/six_hundred"/>
 
         <View
             android:layout_width="match_parent"
@@ -98,6 +100,7 @@
             android:text="@string/cancel"
             android:textAllCaps="false"
             android:textColor="@color/style_red"
-            android:textSize="@dimen/fifteen_sp_text" />
+            android:textSize="@dimen/fifteen_sp_text"
+            android:textFontWeight="@string/six_hundred"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
