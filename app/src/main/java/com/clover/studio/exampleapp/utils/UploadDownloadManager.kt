@@ -9,6 +9,7 @@ import android.net.Uri
 import android.util.Base64
 import com.clover.studio.exampleapp.data.models.FileMetadata
 import com.clover.studio.exampleapp.data.models.UploadFile
+import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import timber.log.Timber
 import java.io.BufferedInputStream
@@ -17,7 +18,10 @@ import java.io.FileInputStream
 import java.util.*
 
 
-const val CHUNK_SIZE = 64000
+fun getChunkSize(fileSize: Long): Int = if (fileSize > ONE_GB) ONE_MB * 2 else ONE_MB
+
+const val ONE_MB = 1024 * 1024
+const val ONE_GB = 1024 * 1024 * 1024
 
 /**
  * Methods below will handle all file upload logic for the app. The interface below will communicate
@@ -27,14 +31,13 @@ const val CHUNK_SIZE = 64000
 class UploadDownloadManager constructor(
     private val repository: MainRepositoryImpl
 ) {
-    private var chunkCount = 0L
+    private var chunkCount = 0
 
     /**
      * Method will handle file upload process. The caller will have to supply the required parameters
      *
      * @param activity The calling activity
      * @param fileUri The Uri path value of the file being uploaded
-     * @param mimeType The mime type of the file (image, audio, video...)
      * @param fileType The type of the file being uploaded, in the context of the app. (avatar, message, group avatar...)
      * @param filePieces The number of the pieces the file has been divided to based on the maximum
      *  chunk size
@@ -45,8 +48,9 @@ class UploadDownloadManager constructor(
         activity: Activity,
         fileUri: Uri,
         fileType: String,
-        filePieces: Long,
+        filePieces: Int,
         file: File,
+        messageBody: MessageBody?,
         isThumbnail: Boolean = false,
         fileUploadListener: FileUploadListener
     ) {
@@ -87,7 +91,7 @@ class UploadDownloadManager constructor(
         BufferedInputStream(FileInputStream(file)).use { bis ->
             var len: Int
             var piece = 0L
-            val temp = ByteArray(CHUNK_SIZE)
+            val temp = ByteArray(getChunkSize(file.length()))
             val randomId = UUID.randomUUID().toString().substring(0, 7)
             while (bis.read(temp).also { len = it } > 0) {
                 val uploadFile = UploadFile(
@@ -113,7 +117,14 @@ class UploadDownloadManager constructor(
                 )
 
                 Timber.d("Chunk count $chunkCount")
-                startUploadAPI(uploadFile, mimeType, filePieces, isThumbnail, fileUploadListener)
+                startUploadAPI(
+                    uploadFile,
+                    mimeType,
+                    filePieces,
+                    isThumbnail,
+                    messageBody,
+                    fileUploadListener
+                )
 
                 piece++
             }
@@ -123,8 +134,9 @@ class UploadDownloadManager constructor(
     private suspend fun startUploadAPI(
         uploadFile: UploadFile,
         mimeType: String,
-        chunks: Long,
+        chunks: Int,
         isThumbnail: Boolean = false,
+        messageBody: MessageBody?,
         fileUploadListener: FileUploadListener
     ) {
         try {
@@ -140,7 +152,7 @@ class UploadDownloadManager constructor(
 
         Timber.d("Should verify? $chunkCount, $chunks")
         if (chunkCount == chunks) {
-            verifyFileUpload(uploadFile, mimeType, isThumbnail, fileUploadListener)
+            verifyFileUpload(uploadFile, mimeType, isThumbnail, messageBody, fileUploadListener)
             chunkCount = 0
         }
     }
@@ -149,10 +161,11 @@ class UploadDownloadManager constructor(
         uploadFile: UploadFile,
         mimeType: String,
         isThumbnail: Boolean = false,
+        messageBody: MessageBody?,
         fileUploadListener: FileUploadListener
     ) {
         try {
-            val file = repository.verifyFile(uploadFile.fileToJson()).data?.file
+            val file = repository.verifyFile(uploadFile.fileToJson()).responseData?.data?.file
             Timber.d("UploadDownload FilePath = ${file?.path}")
             Timber.d("Mime type = $mimeType")
             if (isThumbnail) file?.path?.let {
@@ -160,10 +173,21 @@ class UploadDownloadManager constructor(
                     it,
                     mimeType,
                     file.id.toLong(),
-                    0
+                    0,
+                    file.type!!,
+                    messageBody
                 )
             }
-            else file?.path?.let { fileUploadListener.fileUploadVerified(it, mimeType,0, file.id.toLong()) }
+            else file?.path?.let {
+                fileUploadListener.fileUploadVerified(
+                    it,
+                    mimeType,
+                    0,
+                    file.id.toLong(),
+                    file.type!!,
+                    messageBody
+                )
+            }
 
         } catch (ex: Exception) {
             Tools.checkError(ex)
@@ -176,5 +200,12 @@ class UploadDownloadManager constructor(
 interface FileUploadListener {
     fun filePieceUploaded()
     fun fileUploadError(description: String)
-    fun fileUploadVerified(path: String, mimeType: String, thumbId: Long = 0, fileId: Long = 0)
+    fun fileUploadVerified(
+        path: String,
+        mimeType: String,
+        thumbId: Long = 0,
+        fileId: Long = 0,
+        fileType: String,
+        messageBody: MessageBody?
+    )
 }

@@ -29,6 +29,14 @@ class SplashViewModel @Inject constructor(
             splashTokenListener.postValue(Event(SplashStates.NAVIGATE_MAIN))
         }
     }
+
+    fun getUserTheme(): Int? {
+        var theme: Int? = null
+        viewModelScope.launch {
+            theme = sharedPrefsRepo.readUserTheme()
+        }
+        return theme
+    }
 }
 
 enum class SplashStates { NAVIGATE_ONBOARDING, NAVIGATE_MAIN, NAVIGATE_ACCOUNT_CREATION, NAVIGATE_REGISTER_NUMBER }

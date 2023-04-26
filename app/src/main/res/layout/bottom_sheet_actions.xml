@@ -3,8 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/bg_rounded_corners_top"
-    android:paddingBottom="@dimen/twenty_dp_margin">
+    android:paddingBottom="@dimen/twenty_dp_margin"
+    android:backgroundTint="@color/inputs"
+    tools:ignore="contentDescription">
 
     <TextView
         android:layout_width="wrap_content"
@@ -23,8 +26,7 @@
         android:padding="@dimen/twenty_five_dp_margin"
         android:src="@drawable/img_close"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/color1" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:layout_width="match_parent"

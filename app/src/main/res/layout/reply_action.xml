@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_rounded_corners_top"
-    android:paddingBottom="@dimen/ten_dp_margin">
+    android:background="@color/main"
+    android:paddingBottom="@dimen/ten_dp_margin"
+    tools:ignore="contentDescription">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_reply_container"
@@ -26,8 +27,8 @@
             android:layout_marginStart="@dimen/eight_dp_margin"
             android:layout_marginTop="@dimen/eight_dp_margin"
             android:fontFamily="@font/montserrat"
-            android:textFontWeight="600"
             android:text="@string/username"
+            android:textFontWeight="600"
             android:textSize="@dimen/twelve_sp_text"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -44,9 +45,9 @@
             android:ellipsize="end"
             android:fontFamily="@font/montserrat"
             android:gravity="center|start"
-            android:maxLines="3"
+            android:maxLines="1"
             android:text="@string/some_message"
-            android:textColorLink="@color/primary_color"
+            android:textColorLink="@color/link_primary_color"
             android:textSize="@dimen/eleven_sp_text"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -55,27 +56,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_username" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv_reply_media"
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_reply_image"
             android:layout_width="@dimen/forty_two_dp"
             android:layout_height="0dp"
             android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
             android:visibility="gone"
             app:cardCornerRadius="@dimen/four_dp_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/tv_username"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/iv_reply_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
-                tools:srcCompat="@tools:sample/avatars" />
-        </androidx.cardview.widget.CardView>
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/round"
+            tools:srcCompat="@tools:sample/avatars" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_reply_media"
@@ -84,14 +80,14 @@
             android:layout_marginTop="@dimen/eight_dp_margin"
             android:layout_marginEnd="@dimen/eight_dp_margin"
             android:layout_marginBottom="@dimen/eight_dp_margin"
+            android:drawableStart="@drawable/img_camera_reply"
             android:drawablePadding="@dimen/two_dp_margin"
             android:fontFamily="@font/montserrat"
             android:text="@string/media"
-            android:drawableStart="@drawable/img_camera_reply"
             android:textSize="@dimen/eleven_sp_text"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/cv_reply_media"
+            app:layout_constraintEnd_toStartOf="@+id/iv_reply_image"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/tv_username"
             app:layout_constraintTop_toBottomOf="@+id/tv_username" />
@@ -105,7 +101,6 @@
         android:padding="@dimen/twenty_five_dp_margin"
         android:src="@drawable/img_close"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/color1" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

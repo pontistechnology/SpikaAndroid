@@ -5,32 +5,52 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.CHANNEL_ID
-import com.clover.studio.exampleapp.utils.helpers.AppLifecycleManager
+import com.clover.studio.exampleapp.utils.SSEManager
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltAndroidApp
-class MainApplication : Application() {
+class MainApplication : Application(), LifecycleEventObserver {
+    @Inject
+    lateinit var sseManager: SSEManager
+
+    @Inject
+    lateinit var sharedPrefs: SharedPreferencesRepository
+
+    companion object {
+        lateinit var appContext: Context
+        var isInForeground = false
+    }
 
     override fun onCreate() {
-        //         Force light mode when app starts
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate()
         if (BuildConfig.BUILD_TYPE == "debug" || BuildConfig.BUILD_TYPE == "dev" || BuildConfig.BUILD_TYPE == "releaseDebug") {
             Timber.plant(Timber.DebugTree())
         }
-
-        createNotificationChannel()
-        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleManager)
         // TODO release tree implementation
+
+        appContext = this
+        createNotificationChannel()
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
 
         // Emoji:
         EmojiManager.install(GoogleEmojiProvider())
+    }
+
+    fun getContext(): Context {
+        return appContext
     }
 
     private fun createNotificationChannel() {
@@ -47,6 +67,37 @@ class MainApplication : Application() {
             val notificationManager: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_START -> {
+                CoroutineScope(Dispatchers.IO).launch {
+                    if (sharedPrefs.readToken()?.isNotEmpty() == true) {
+                        sseManager.startSSEStream()
+                    }
+                }
+                isInForeground = true
+            }
+            Lifecycle.Event.ON_CREATE -> {
+                // ignore
+            }
+            Lifecycle.Event.ON_RESUME -> {
+                // ignore
+            }
+            Lifecycle.Event.ON_PAUSE -> {
+                // ignore
+            }
+            Lifecycle.Event.ON_STOP -> {
+                isInForeground = false
+            }
+            Lifecycle.Event.ON_DESTROY -> {
+                isInForeground = false
+            }
+            Lifecycle.Event.ON_ANY -> {
+                // ignore
+            }
         }
     }
 }

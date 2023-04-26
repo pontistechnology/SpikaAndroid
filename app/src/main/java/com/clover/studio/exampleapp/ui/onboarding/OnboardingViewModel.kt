@@ -4,13 +4,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.exampleapp.BaseViewModel
 import com.clover.studio.exampleapp.data.models.entity.PhoneUser
-import com.clover.studio.exampleapp.data.models.networking.AuthResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.AuthResponse
 import com.clover.studio.exampleapp.data.repositories.OnboardingRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.Event
 import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -22,47 +25,42 @@ class OnboardingViewModel @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository
 ) : BaseViewModel() {
 
-    var codeVerificationListener = MutableLiveData<Event<OnboardingStates>>()
-    var registrationListener = MutableLiveData<Event<OnboardingStates>>()
-    var accountCreationListener = MutableLiveData<Event<OnboardingStates>>()
-    var userUpdateListener = MutableLiveData<Event<OnboardingStates>>()
+    var codeVerificationListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
+    var registrationListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
+    var accountCreationListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
+    var userUpdateListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
     var userPhoneNumberListener = MutableLiveData<String>()
 
     fun sendNewUserData(
         jsonObject: JsonObject
     ) = viewModelScope.launch {
-        try {
-            onboardingRepository.sendUserData(jsonObject)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            registrationListener.postValue(Event(OnboardingStates.REGISTERING_ERROR))
-            return@launch
-        }
-
-        registrationListener.postValue(Event(OnboardingStates.REGISTERING_SUCCESS))
+        resolveResponseStatus(registrationListener, onboardingRepository.sendUserData(jsonObject))
     }
 
-    fun sendCodeVerification(
-        jsonObject: JsonObject
-    ) = viewModelScope.launch {
-        codeVerificationListener.postValue(Event(OnboardingStates.VERIFYING))
-        val authResponse: AuthResponse
-        try {
-            authResponse = onboardingRepository.verifyUserCode(jsonObject)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            codeVerificationListener.postValue(Event(OnboardingStates.CODE_ERROR))
-            return@launch
-        }
+    fun sendCodeVerification(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
+        resolveResponseStatus(codeVerificationListener, Resource(Resource.Status.LOADING, null, ""))
 
-        Timber.d("Token ${authResponse.data.device.token}")
-        authResponse.data.device.token?.let { sharedPrefs.writeToken(it) }
+        val response = onboardingRepository.verifyUserCode(jsonObject)
 
-        if (sharedPrefs.isNewUser())
-            codeVerificationListener.postValue(Event((OnboardingStates.CODE_VERIFIED_NEW_USER)))
-        else {
-            sharedPrefs.accountCreated(true)
-            codeVerificationListener.postValue(Event(OnboardingStates.CODE_VERIFIED))
+        if (Resource.Status.ERROR != response.status && Resource.Status.TOKEN_EXPIRED != response.status) {
+            response.responseData?.data?.device?.token?.let { sharedPrefs.writeToken(it) }
+            if (sharedPrefs.isNewUser()) {
+                resolveResponseStatus(
+                    codeVerificationListener,
+                    Resource(Resource.Status.NEW_USER, null, "")
+                )
+            } else {
+                sharedPrefs.accountCreated(true)
+                resolveResponseStatus(
+                    codeVerificationListener,
+                    Resource(Resource.Status.SUCCESS, null, "")
+                )
+            }
+        } else {
+            resolveResponseStatus(
+                codeVerificationListener,
+                Resource(Resource.Status.ERROR, null, "")
+            )
         }
     }
 
@@ -73,29 +71,22 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun sendContacts() = viewModelScope.launch {
-
         val contacts: List<String>?
         try {
             contacts = sharedPrefs.readContacts()
         } catch (ex: Exception) {
             Tools.checkError(ex)
-            accountCreationListener.postValue(Event(OnboardingStates.CONTACTS_ERROR))
+            resolveResponseStatus(
+                accountCreationListener,
+                Resource(Resource.Status.ERROR, null, "")
+            )
             return@launch
         }
-
         Timber.d("$contacts")
-
-        try {
-            contacts?.let {
-                onboardingRepository.sendUserContacts(it)
-            }
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            accountCreationListener.postValue(Event(OnboardingStates.CONTACTS_ERROR))
-            return@launch
-        }
-
-        accountCreationListener.postValue(Event(OnboardingStates.CONTACTS_SENT))
+        resolveResponseStatus(
+            accountCreationListener,
+            onboardingRepository.sendUserContacts(contacts!!)
+        )
     }
 
     fun writeContactsToSharedPref(contacts: List<String>) {
@@ -116,26 +107,12 @@ class OnboardingViewModel @Inject constructor(
         return contactsFilled
     }
 
-    fun updateUserData(userMap: Map<String, String>) = viewModelScope.launch {
-        try {
-            onboardingRepository.updateUser(userMap)
-            sharedPrefs.accountCreated(true)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            userUpdateListener.postValue(Event(OnboardingStates.USER_UPDATE_ERROR))
-            return@launch
-        }
-
-        userUpdateListener.postValue(Event(OnboardingStates.USER_UPDATED))
+    fun updateUserData(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
+        resolveResponseStatus(userUpdateListener, onboardingRepository.updateUser(jsonObject))
     }
 
-    fun writePhoneUsers(phoneUsers: List<PhoneUser>) = viewModelScope.launch {
-        try {
-            onboardingRepository.writePhoneUsers(phoneUsers)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            return@launch
-        }
+    fun writePhoneUsers(phoneUsers: List<PhoneUser>) = CoroutineScope(Dispatchers.IO).launch {
+        onboardingRepository.writePhoneUsers(phoneUsers)
     }
 
     fun writeFirstAppStart() = viewModelScope.launch {
@@ -150,9 +127,9 @@ class OnboardingViewModel @Inject constructor(
         return flag
     }
 
-    fun writePhoneAndDeviceId(phoneNumber: String, deviceId: String, countryCode: String) =
+    fun writePhoneAndCountry(phoneNumber: String, countryCode: String) =
         viewModelScope.launch {
-            sharedPrefs.writeUserPhoneDetails(phoneNumber, deviceId, countryCode)
+            sharedPrefs.writeUserPhoneDetails(phoneNumber, countryCode)
         }
 
     fun readPhoneNumber(): String {
@@ -175,13 +152,15 @@ class OnboardingViewModel @Inject constructor(
         sharedPrefs.writeRegistered(flag)
     }
 
-    fun readDeviceId(): String {
-        var deviceId: String
+    fun writeDeviceId(deviceId: String) = viewModelScope.launch {
+        sharedPrefs.writeDeviceId(deviceId)
+    }
+
+    fun readDeviceId(): String? {
+        var deviceId: String?
         runBlocking {
-            deviceId = sharedPrefs.readDeviceId().toString()
+            deviceId = sharedPrefs.readDeviceId()
         }
         return deviceId
     }
 }
-
-enum class OnboardingStates { VERIFYING, CODE_VERIFIED, CODE_VERIFIED_NEW_USER, CODE_ERROR, REGISTERING_SUCCESS, REGISTERING_ERROR, CONTACTS_SENT, CONTACTS_ERROR, USER_UPDATED, USER_UPDATE_ERROR }

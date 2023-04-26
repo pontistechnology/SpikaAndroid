@@ -6,24 +6,25 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.exampleapp.databinding.FragmentMediaBinding
+import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.MediaPlayer
 
+const val BAR_ANIMATION = 500L
 
-class MediaFragment : Fragment() {
+class MediaFragment : BaseFragment() {
 
     private var bindingSetup: FragmentMediaBinding? = null
     private val binding get() = bindingSetup!!
     private val args: MediaFragmentArgs by navArgs()
 
-    private var clicked = true
     private var player: ExoPlayer? = null
 
     private var playWhenReady = true
@@ -33,11 +34,13 @@ class MediaFragment : Fragment() {
 
     private var videoPath: String? = null
     private var imagePath: String? = null
+    private var mediaInfo: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         videoPath = args.videoPath
         imagePath = args.picturePath
+        mediaInfo = args.mediaInfo
     }
 
     override fun onCreateView(
@@ -46,6 +49,7 @@ class MediaFragment : Fragment() {
     ): View {
         bindingSetup = FragmentMediaBinding.inflate(inflater, container, false)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        initializeViews()
         initializeListeners()
         if (imagePath?.isEmpty() == true) {
             initializeVideo()
@@ -56,28 +60,39 @@ class MediaFragment : Fragment() {
         return binding.root
     }
 
+    private fun initializeViews() {
+        binding.tvMediaInfo.text = mediaInfo
+    }
+
     private fun initializeListeners() {
         binding.ivBackToChat.setOnClickListener {
             val action = MediaFragmentDirections.actionVideoFragmentToChatMessagesFragment()
             findNavController().navigate(action)
         }
 
-        binding.clImageContainer.setOnClickListener {
-            showBackArrow()
+        // This is listener for zoom on image and for showing/removing top layout
+        binding.ivFullImage.setOnClickListener {
+            showBar()
         }
 
-        binding.clVideoContainer.setOnClickListener {
-            showBackArrow()
+        binding.clMedia.setOnClickListener {
+            showBar()
+        }
+
+        binding.vvVideo.setOnClickListener {
+            showBar()
         }
     }
 
-    private fun showBackArrow() {
-        if (clicked) {
-            binding.clBackArrow.visibility = View.VISIBLE
-        } else {
-            binding.clBackArrow.visibility = View.GONE
-        }
-        clicked = !clicked
+    private fun showBar() {
+        val showBars = binding.clTopBar.visibility == View.GONE && binding.flBottomBar.visibility == View.GONE
+        binding.clTopBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION).withEndAction {
+            binding.clTopBar.visibility = if (showBars) View.VISIBLE else View.GONE
+        }.start()
+
+        binding.flBottomBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION).withEndAction {
+            binding.flBottomBar.visibility = if (showBars) View.VISIBLE else View.GONE
+        }.start()
     }
 
     private fun initializePicture() {
@@ -87,6 +102,7 @@ class MediaFragment : Fragment() {
         binding.clImageContainer.visibility = View.VISIBLE
         Glide.with(this)
             .load(imagePath)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(binding.ivFullImage)
     }
 
@@ -96,6 +112,7 @@ class MediaFragment : Fragment() {
 
         Glide.with(this)
             .load(videoPath)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(binding.ivVideoHolder)
 
         player = context?.let {

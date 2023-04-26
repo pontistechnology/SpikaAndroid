@@ -1,5 +1,5 @@
 <resources>
-    <!-- LAYOUT -->
+    <!-- Layout -->
     <dimen name="two_hundred_seventy_two_dp">272dp</dimen>
     <dimen name="two_hundred_fourteen_dp">214dp</dimen>
     <dimen name="two_hundred">200dp</dimen>
@@ -35,11 +35,12 @@
     <dimen name="two_dp_margin">2dp</dimen>
     <dimen name="one_dp_margin">1dp</dimen>
 
-    <!-- TEXT -->
+    <!-- Text -->
     <dimen name="thirty_eight_sp_text">38sp</dimen>
     <dimen name="thirty_sp_text">30sp</dimen>
     <dimen name="twenty_eight_sp_text">28sp</dimen>
     <dimen name="twenty_sp_text">20sp</dimen>
+    <dimen name="eighteen_sp_text">18sp</dimen>
     <dimen name="sixteen_sp_text">16sp</dimen>
     <dimen name="fifteen_sp_text">15sp</dimen>
     <dimen name="fourteen_sp_text">14sp</dimen>
@@ -47,7 +48,8 @@
     <dimen name="eleven_sp_text">11sp</dimen>
     <dimen name="nine_sp_text">9sp</dimen>
 
-    <!--IMAGES-->
+    <!--Images-->
+    <dimen name="image_max_width">300dp</dimen>
     <dimen name="thirty_five_dp">35dp</dimen>
 
 </resources>

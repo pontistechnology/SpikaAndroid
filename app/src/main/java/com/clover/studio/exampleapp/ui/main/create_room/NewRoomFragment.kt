@@ -15,19 +15,21 @@ import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.databinding.FragmentNewRoomBinding
-import com.clover.studio.exampleapp.ui.main.*
+import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
 import com.clover.studio.exampleapp.ui.main.contacts.ContactsAdapter
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.EventObserver
-import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.Extensions.sortUsersByLocale
-import com.google.gson.Gson
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 import kotlin.streams.toList
@@ -42,10 +44,13 @@ class NewRoomFragment : BaseFragment() {
     private var filteredList: MutableList<UserAndPhoneUser> = ArrayList()
     private var user: User? = null
     private var isRoomUpdate = false
+    private var newGroupFlag = false
 
     private var bindingSetup: FragmentNewRoomBinding? = null
 
     private val binding get() = bindingSetup!!
+
+    private var localId: Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,6 +63,7 @@ class NewRoomFragment : BaseFragment() {
             NewRoomFragmentArgs.fromBundle(bundle)
         else null
 
+        localId = viewModel.getLocalUserId()!!
         initializeObservers()
         setupAdapter(false)
         initializeViews()
@@ -117,11 +123,15 @@ class NewRoomFragment : BaseFragment() {
     }
 
     private fun handleGroupChat() {
+        // Clear data if old data is still present
+        selectedUsers.clear()
         binding.clSelectedContacts.visibility = View.VISIBLE
         binding.tvSelectedNumber.text = getString(R.string.users_selected, selectedUsers.size)
         binding.tvNewGroupChat.visibility = View.GONE
         binding.tvNext.visibility = View.VISIBLE
         binding.tvTitle.text = getString(R.string.select_members)
+
+        newGroupFlag = true
 
         setupAdapter(true)
         initializeObservers()
@@ -153,7 +163,19 @@ class NewRoomFragment : BaseFragment() {
             } else {
                 user = it.user
                 showProgress(false)
-                it.user.id.let { id -> viewModel.checkIfRoomExists(id) }
+                it.user.id.let { id ->
+                    run {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
+                            val roomId = viewModel.checkIfUserInPrivateRoom(id)
+                            if (roomId != null) {
+                                viewModel.getRoomWithUsers(roomId)
+                            } else {
+                                viewModel.checkIfRoomExists(id)
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -212,9 +234,14 @@ class NewRoomFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.getUserAndPhoneUser().observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                userList = it.toMutableList()
+        viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
+            if (it.responseData != null) {
+                userList = it.responseData.toMutableList()
+
+                if (newGroupFlag) {
+                    userList.removeIf { userData -> userData.user.isBot }
+                }
+
                 val users = userList.sortUsersByLocale(requireContext())
                 userList = users.toMutableList()
                 contactsAdapter.submitList(users)
@@ -222,16 +249,19 @@ class NewRoomFragment : BaseFragment() {
         }
 
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomWithUsersFetched -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     hideProgress()
-                    val gson = Gson()
-                    val roomData = gson.toJson(it.roomWithUsers)
                     if (isRoomUpdate) {
                         findNavController().popBackStack(R.id.chatDetailsFragment, false)
                         isRoomUpdate = false
                     } else {
-                        activity?.let { parent -> startChatScreenActivity(parent, roomData) }
+                        activity?.let { parent ->
+                            startChatScreenActivity(
+                                parent,
+                                it.responseData!!
+                            )
+                        }
                         findNavController().popBackStack(R.id.mainFragment, false)
                     }
                 }
@@ -244,12 +274,12 @@ class NewRoomFragment : BaseFragment() {
         })
 
         viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomExists -> {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
                     Timber.d("Room already exists")
-                    viewModel.getRoomWithUsers(it.roomData.roomId)
+                    viewModel.getRoomWithUsers(it.responseData?.data?.room?.roomId!!)
                 }
-                is RoomNotFound -> {
+                Resource.Status.ERROR -> {
                     Timber.d("Room not found, creating new one")
                     val jsonObject = JsonObject()
 
@@ -257,7 +287,7 @@ class NewRoomFragment : BaseFragment() {
                     userIdsArray.add(user?.id)
 
                     jsonObject.addProperty(Const.JsonFields.NAME, user?.displayName)
-                    jsonObject.addProperty(Const.JsonFields.AVATAR_URL, user?.avatarUrl)
+                    jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, user?.avatarFileId)
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
                     jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
 
@@ -272,14 +302,11 @@ class NewRoomFragment : BaseFragment() {
         })
 
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is RoomCreated -> {
-                    handleRoomData(it.roomData)
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    handleRoomData(it.responseData?.data?.room!!)
                 }
-                is RoomUpdated -> {
-                    handleRoomData(it.roomData)
-                }
-                is RoomCreateFailed -> {
+                Resource.Status.ERROR -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))
                     Timber.d("Failed to create room")
@@ -300,9 +327,6 @@ class NewRoomFragment : BaseFragment() {
 
     private fun handleRoomData(chatRoom: ChatRoom) {
         hideProgress()
-        val gson = Gson()
-        val roomData = gson.toJson(chatRoom)
-        Timber.d("Room data = $roomData")
         viewModel.getRoomWithUsers(chatRoom.roomId)
     }
 
@@ -365,7 +389,7 @@ class NewRoomFragment : BaseFragment() {
         binding.svContactsSearch.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
-                    Tools.hideKeyboard(requireActivity(), view)
+                    hideKeyboard(view)
                 }
             }
         }

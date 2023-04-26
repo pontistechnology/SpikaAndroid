@@ -4,10 +4,12 @@ import android.content.Context
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.*
 import com.clover.studio.exampleapp.data.repositories.*
+import com.clover.studio.exampleapp.data.repositories.data_sources.ChatRemoteDataSource
+import com.clover.studio.exampleapp.data.repositories.data_sources.MainRemoteDataSource
+import com.clover.studio.exampleapp.data.repositories.data_sources.OnboardingRemoteDataSource
+import com.clover.studio.exampleapp.data.repositories.data_sources.SSERemoteDataSource
 import com.clover.studio.exampleapp.data.services.ChatService
-import com.clover.studio.exampleapp.data.services.OnboardingService
 import com.clover.studio.exampleapp.data.services.RetrofitService
-import com.clover.studio.exampleapp.data.services.SSEService
 import com.clover.studio.exampleapp.utils.SSEManager
 import com.clover.studio.exampleapp.utils.UploadDownloadManager
 import dagger.Module
@@ -30,65 +32,72 @@ object RepositoryModule {
     @Singleton
     @Provides
     fun provideChatRepository(
-        chatService: ChatService,
+        chatRemoteDataSource: ChatRemoteDataSource,
         roomDao: ChatRoomDao,
         messageDao: MessageDao,
         userDao: UserDao,
+        roomUserDao: RoomUserDao,
+        notesDao: NotesDao,
         appDatabase: AppDatabase,
-        sharedPrefs: SharedPreferencesRepository
     ) =
         ChatRepositoryImpl(
-            chatService,
+            chatRemoteDataSource,
             roomDao,
             messageDao,
             userDao,
+            roomUserDao,
+            notesDao,
             appDatabase,
-            sharedPrefs
         )
 
     @Singleton
     @Provides
     fun provideMainRepository(
-        retrofitService: RetrofitService,
+        mainRemoteDataSource: MainRemoteDataSource,
         userDao: UserDao,
         chatRoomDao: ChatRoomDao,
+        roomUserDao: RoomUserDao,
         appDatabase: AppDatabase,
         sharedPrefs: SharedPreferencesRepository
     ) =
         MainRepositoryImpl(
-            retrofitService,
+            mainRemoteDataSource,
             userDao,
             chatRoomDao,
+            roomUserDao,
             appDatabase,
             sharedPrefs
         )
 
+
     @Singleton
     @Provides
     fun provideOnboardingRepository(
-        retrofitService: OnboardingService,
+        onboardingRemoteDataSource: OnboardingRemoteDataSource,
         userDao: UserDao,
         phoneUserDao: PhoneUserDao,
         sharedPrefs: SharedPreferencesRepository
     ) =
-        OnboardingRepositoryImpl(retrofitService, userDao, phoneUserDao, sharedPrefs)
+        OnboardingRepositoryImpl(onboardingRemoteDataSource, userDao, phoneUserDao, sharedPrefs)
 
     @Singleton
     @Provides
     fun provideSSERepository(
+        sseRemoteDataSource: SSERemoteDataSource,
         sharedPrefs: SharedPreferencesRepository,
-        sseService: SSEService,
         messageDao: MessageDao,
         messageRecordsDao: MessageRecordsDao,
         chatRoomDao: ChatRoomDao,
+        roomUserDao: RoomUserDao,
         appDatabase: AppDatabase,
         userDao: UserDao
     ) = SSERepositoryImpl(
+        sseRemoteDataSource,
         sharedPrefs,
-        sseService,
         messageDao,
         messageRecordsDao,
         chatRoomDao,
+        roomUserDao,
         appDatabase,
         userDao
     )
@@ -106,4 +115,20 @@ object RepositoryModule {
     fun provideUploadDownloadManager(
         repository: MainRepositoryImpl
     ) = UploadDownloadManager(repository)
+
+    @Singleton
+    @Provides
+    fun provideMainDataSource(
+        retrofitService: RetrofitService,
+        sharedPrefs: SharedPreferencesRepository
+    ) =
+        MainRemoteDataSource(retrofitService, sharedPrefs)
+
+    @Singleton
+    @Provides
+    fun provideChatDataSource(
+        retrofitService: ChatService,
+        sharedPrefs: SharedPreferencesRepository
+    ) =
+        ChatRemoteDataSource(retrofitService, sharedPrefs)
 }
