@@ -43,24 +43,36 @@ import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.JsonMessage
-import com.clover.studio.exampleapp.data.models.entity.*
+import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.MessageBody
+import com.clover.studio.exampleapp.data.models.entity.MessageFile
+import com.clover.studio.exampleapp.data.models.entity.MessageRecords
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.ui.ReactionContainer
 import com.clover.studio.exampleapp.ui.ReactionsContainer
-import com.clover.studio.exampleapp.utils.*
+import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.MessageSwipeController
+import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.getChunkSize
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.getFileMimeType
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 
@@ -390,7 +402,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.tvOk.setOnClickListener {
             bindingSetup.clBlockContact.visibility = View.GONE
-        }
+        }*/
 
         bindingSetup.tvUnblock.setOnClickListener {
             DialogError.getInstance(requireContext(),
@@ -401,10 +413,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 object : DialogInteraction {
                     override fun onSecondOptionClicked() {
                         roomWithUsers.users.firstOrNull { user -> user.id != localUserId }
-                            ?.let { it1 -> viewModel.deleteBlockForSpecificUser(it1.id) }
+                            ?.let { user -> viewModel.deleteBlockForSpecificUser(user.id) }
                     }
                 })
-        }*/
+        }
 
         bindingSetup.tvSave.setOnClickListener {
             editMessage()
@@ -595,6 +607,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                     bindingSetup.rvChat.scrollToPosition(0)
                 }
+
                 Resource.Status.ERROR -> Timber.d("Message send fail")
                 else -> Timber.d("Other error")
             }
@@ -645,9 +658,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             }
                         }
                     }
+
                     Resource.Status.LOADING -> {
                         // Loading
                     }
+
                     else -> {
                         // Error
                     }
@@ -665,20 +680,37 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 when (it.status) {
                     Resource.Status.SUCCESS -> {
                         Timber.d("Blocked users fetched successfully")
-                        /*  Block dialog:
+//                        /*  Block dialog:
                         if (it.responseData != null) {
                             val containsElement =
                                 roomWithUsers.users.any { user -> it.responseData.find { blockedUser -> blockedUser.id == user.id } != null }
                             if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
                                 if (containsElement) {
                                     bindingSetup.clContactBlocked.visibility = View.VISIBLE
-                                    bindingSetup.clBlockContact.visibility = View.GONE
+//                                    bindingSetup.clBlockContact.visibility = View.GONE
                                 } else bindingSetup.clContactBlocked.visibility = View.GONE
                             }
-                        }
-                        else bindingSetup.clContactBlocked.visibility = View.GONE */
+                        } else bindingSetup.clContactBlocked.visibility = View.GONE
+//                        */
                     }
-                    Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
+
+                    Resource.Status.ERROR -> {
+                        Timber.d("Failed to fetch blocked users")
+                        context?.let { context ->
+                            DialogError.getInstance(
+                                context,
+                                getString(R.string.error),
+                                it.message,
+                                null,
+                                getString(R.string.ok),
+                                object : DialogInteraction {
+                                    override fun onSecondOptionClicked() {
+                                        // ignore
+                                    }
+                                })
+                        }
+                    }
+
                     else -> Timber.d("Other error")
                 }
             })
@@ -860,6 +892,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
                             message
                         )
+
                         else -> Timber.d("No other action currently")
                     }
                 }
@@ -880,6 +913,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         bindingSetup.clBottomReplyAction.visibility = View.VISIBLE
                         handleMessageReply(messagesRecords[position].message)
                     }
+
                     Const.UserActions.ACTION_LEFT -> {
                         bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
                         bindingSetup.clDetailsAction.visibility = View.VISIBLE
@@ -1173,6 +1207,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(bindingSetup.replyAction.ivReplyImage)
             }
+
             Const.JsonFields.AUDIO_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
@@ -1186,6 +1221,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     0
                 )
             }
+
             Const.JsonFields.FILE_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
                 bindingSetup.replyAction.ivReplyImage.visibility = View.GONE
@@ -1199,6 +1235,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     0
                 )
             }
+
             else -> {
                 bindingSetup.replyAction.ivReplyImage.visibility = View.GONE
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.GONE
