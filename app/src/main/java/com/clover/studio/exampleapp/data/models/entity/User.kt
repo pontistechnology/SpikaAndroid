@@ -20,8 +20,8 @@ data class User(
     @ColumnInfo(name = "display_name")
     val displayName: String?,
 
-    @ColumnInfo(name = "avatar_url")
-    val avatarUrl: String?,
+    @ColumnInfo(name = "avatar_file_id")
+    val avatarFileId: Long?,
 
     @ColumnInfo(name = "telephone_number")
     val telephoneNumber: String?,
@@ -39,9 +39,17 @@ data class User(
     val modifiedAt: Long?,
 
     @ColumnInfo(name = "selected")
-    var selected: Boolean = false
+    var selected: Boolean = false,
+
+    @ColumnInfo(name = "is_bot")
+    var isBot : Boolean = false
+
 ) : Parcelable {
     @Ignore
     @IgnoredOnParcel
     var isAdmin: Boolean = false
+
+    @Ignore
+    @IgnoredOnParcel
+    val hasAvatar: Boolean = avatarFileId != null && avatarFileId > 0L
 }

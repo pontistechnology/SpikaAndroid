@@ -1,11 +1,13 @@
 package com.clover.studio.exampleapp.data.models.entity
 
-import android.graphics.Bitmap
-import android.net.Uri
+import android.os.Parcelable
 import androidx.room.*
 import com.clover.studio.exampleapp.data.AppDatabase
+import com.clover.studio.exampleapp.data.models.FileMetadata
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_MESSAGE)
 data class Message @JvmOverloads constructor(
 
@@ -62,9 +64,9 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "deleted")
     val deleted: Boolean?,
 
-    @SerializedName("reply")
-    @ColumnInfo(name = "reply")
-    val reply: Boolean?,
+    @SerializedName("replyId")
+    @ColumnInfo(name = "reply_id")
+    val replyId: Long?,
 
     @SerializedName("localId")
     @ColumnInfo(name = "local_id")
@@ -88,25 +90,27 @@ data class Message @JvmOverloads constructor(
     var messagePosition: Int = 0,
 
     @Ignore
-    var senderMessage: Boolean = false,
+    var uploadProgress: Int = 0
 
     // @Ignore
     // var roomUser: String = ""
-)
+) : Parcelable
 
+@Parcelize
 data class MessageBody(
     var referenceMessage: ReferenceMessage?,
     var text: String?,
     var fileId: Long?,
     var thumbId: Long?,
     var file: MessageFile?,
-    var thumb: MessageFile?
-)
+    var thumb: MessageFile?,
+) : Parcelable
 
+@Parcelize
 data class ReferenceMessage(
     var id: Int?,
     var fromUserId: Int?,
-    var totalDeviceCount: Int?,
+    var totalUserCount: Int?,
     var deliveredCount: Int?,
     var seenCount: Int?,
     var roomId: Int?,
@@ -116,19 +120,23 @@ data class ReferenceMessage(
     val modifiedAt: Long?,
     val deleted: Boolean?,
     val reply: Boolean?,
-)
+) : Parcelable
 
+@Parcelize
 data class ReplyBody(
     var text: String?,
+    var fileId: Long?,
+    var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?,
-)
+) : Parcelable
 
+@Parcelize
 data class MessageFile(
+    val id: Long,
     val fileName: String,
     val mimeType: String,
-    val path: String,
     val size: Long,
+    val metadata: FileMetadata?,
     val uri: String?
-)
-
+) : Parcelable

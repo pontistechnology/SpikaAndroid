@@ -41,6 +41,9 @@
         <action
             android:id="@+id/action_chatDetailsFragment_to_chatMessagesFragment2"
             app:destination="@id/chatMessagesFragment" />
+        <action
+            android:id="@+id/action_chatDetailsFragment_to_notesFragment"
+            app:destination="@id/notesFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatMessagesFragment"
@@ -57,6 +60,9 @@
             android:name="scrollDown"
             app:argType="boolean"
             android:defaultValue="true" />
+        <action
+            android:id="@+id/action_chatMessagesFragment_to_contactDetailsFragment2"
+            app:destination="@id/contactDetailsFragment2" />
     </fragment>
     <fragment
         android:id="@+id/mediaFragment"
@@ -76,5 +82,78 @@
             android:name="picturePath"
             android:defaultValue="null"
             app:argType="string" />
+        <argument
+            android:name="mediaInfo"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/notesFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.chat_details.notes.NotesFragment"
+        android:label="fragment_notes"
+        tools:layout="@layout/fragment_notes" >
+        <action
+            android:id="@+id/action_notesFragment_to_chatDetailsFragment"
+            app:destination="@id/chatDetailsFragment" />
+        <argument
+            android:name="roomId"
+            android:defaultValue="0"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_notesFragment_to_notesDetailsFragment"
+            app:destination="@id/notesDetailsFragment" />
+        <action
+            android:id="@+id/action_notesFragment_to_newNoteFragment"
+            app:destination="@id/newNoteFragment" />
+        <action
+            android:id="@+id/action_notesFragment_to_contactDetailsFragment2"
+            app:destination="@id/contactDetailsFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/notesDetailsFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.chat_details.notes.NotesDetailsFragment"
+        android:label="fragment_notes_details"
+        tools:layout="@layout/fragment_notes_details" >
+        <action
+            android:id="@+id/action_notesDetailsFragment_to_notesFragment"
+            app:destination="@id/notesFragment" />
+        <argument
+            android:name="noteId"
+            android:defaultValue="0"
+            app:argType="integer" />
+        <argument
+            android:name="notesDetails"
+            android:defaultValue="null"
+            app:argType="string" />
+
+        <argument
+            android:name="notesName"
+            android:defaultValue="null"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/newNoteFragment"
+        android:name="com.clover.studio.exampleapp.ui.main.chat_details.notes.NewNoteFragment"
+        android:label="fragment_new_note"
+        tools:layout="@layout/fragment_new_note" >
+        <action
+            android:id="@+id/action_newNoteFragment_to_notesFragment"
+            app:destination="@id/notesFragment" />
+        <argument
+            android:name="roomId"
+            android:defaultValue="0"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/contactDetailsFragment2"
+        android:name="com.clover.studio.exampleapp.ui.main.contact_details.ContactDetailsFragment"
+        android:label="fragment_contact_details"
+        tools:layout="@layout/fragment_contact_details" >
+        <action
+            android:id="@+id/action_contactDetailsFragment2_to_chatMessagesFragment"
+            app:destination="@id/chatMessagesFragment" />
+        <action
+            android:id="@+id/action_contactDetailsFragment2_to_notesFragment"
+            app:destination="@id/notesFragment" />
     </fragment>
 </navigation>

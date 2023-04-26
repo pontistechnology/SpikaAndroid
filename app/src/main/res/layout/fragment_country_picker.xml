@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/twenty_dp_margin"
         android:background="@drawable/bg_search_field"
+        android:backgroundTint="@color/message_other"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_cancel"

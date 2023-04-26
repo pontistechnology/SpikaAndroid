@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -14,8 +15,6 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.MessageDetailsItemBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
-import java.text.SimpleDateFormat
-import java.util.*
 
 class MessageDetailsAdapter(
     private val context: Context,
@@ -35,30 +34,71 @@ class MessageDetailsAdapter(
     override fun onBindViewHolder(holder: MessageDetailsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { messageRecord ->
-                val calendar = Calendar.getInstance()
-                calendar.timeInMillis = messageRecord.createdAt
-                val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm")
-                val dateTime = simpleDateFormat.format(calendar.timeInMillis).toString()
-                binding.tvSeenDate.text = dateTime
-
-                if (messageRecord.type == Const.JsonFields.SEEN) {
+                // Show sender header - this is first and only message record for sender
+                if (Const.JsonFields.SENT == messageRecord.type) {
+                    binding.tvDetailsHeader.text = context.getString(R.string.sender_actions)
+                    binding.ivMessageState.setImageResource(R.drawable.img_sender_actions)
+                    binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
+                        0,
+                        0,
+                        R.drawable.img_sent,
+                        0
+                    )
+                    // Show edited information about sender:
+                    if (messageRecord.createdAt != messageRecord.modifiedAt) {
+                        binding.ivNoEditedTime.visibility = View.GONE
+                        binding.tvEditedTime.text = Tools.fullDateFormat(messageRecord.modifiedAt!!)
+                        binding.ivEditedTime.visibility = View.VISIBLE
+                        binding.tvEditedTime.visibility = View.VISIBLE
+                    } else {
+                        binding.ivEditedTime.visibility = View.VISIBLE
+                        binding.ivNoEditedTime.visibility = View.VISIBLE
+                        binding.tvEditedTime.visibility = View.GONE
+                    }
+                } else if (Const.JsonFields.SEEN == messageRecord.type) {
                     binding.tvDetailsHeader.text = context.getString(R.string.read_by)
                     binding.ivMessageState.setImageResource(R.drawable.img_seen)
-                } else {
+                    binding.tvEditedTime.visibility = View.GONE
+                    binding.ivEditedTime.visibility = View.GONE
+                    binding.ivNoEditedTime.visibility = View.GONE
+                    binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
+                        0,
+                        0,
+                        0,
+                        0
+                    )
+                } else if (Const.JsonFields.DELIVERED == messageRecord.type) {
                     binding.tvDetailsHeader.text = context.getString(R.string.delivered_to)
                     binding.ivMessageState.setImageResource(R.drawable.img_delivered)
+                    binding.tvEditedTime.visibility = View.GONE
+                    binding.ivEditedTime.visibility = View.GONE
+                    binding.ivNoEditedTime.visibility = View.GONE
+                    binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
+                        0,
+                        0,
+                        0,
+                        0
+                    )
                 }
 
                 for (user in roomWithUsers.users) {
                     if (messageRecord.userId == user.id) {
                         binding.tvSeenUsername.text = user.displayName
                         Glide.with(context)
-                            .load(user.avatarUrl?.let { Tools.getFileUrl(it) })
-                            .placeholder(context.getDrawable(R.drawable.img_user_placeholder))
+                            .load(user.avatarFileId?.let { Tools.getFilePathUrl(it) })
+                            .placeholder(
+                                AppCompatResources.getDrawable(
+                                    context,
+                                    R.drawable.img_user_placeholder
+                                )
+                            )
+                            .centerCrop()
                             .into(binding.ivUserAvatar)
                         break
                     }
                 }
+
+                binding.tvUserTime.text = Tools.fullDateFormat(messageRecord.createdAt)
 
                 if (position > 0) {
                     val previousItem = getItem(position - 1).type

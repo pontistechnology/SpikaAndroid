@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_user_reaction_avatar"
+        android:layout_width="@dimen/forty_two_dp"
+        android:layout_height="@dimen/forty_two_dp"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:layout_marginBottom="@dimen/eight_dp_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/circle"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/tv_username_reaction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:fontFamily="@font/montserrat"
+        android:text="@string/username"
+        android:textSize="@dimen/fourteen_sp_text"
+        app:layout_constraintStart_toEndOf="@+id/iv_user_reaction_avatar"
+        app:layout_constraintTop_toTopOf="@+id/iv_user_reaction_avatar" />
+
+    <com.vanniktech.emoji.EmojiTextView
+        android:id="@+id/tv_user_reaction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:gravity="center"
+        android:textSize="@dimen/sixteen_sp_text"
+        app:emojiSize="@dimen/twenty_four_dp_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_tmp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/eight_dp_margin"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:visibility="gone"
+        android:textSize="@dimen/twelve_sp_text"
+        android:fontFamily="@font/montserrat"
+        app:layout_constraintStart_toEndOf="@+id/iv_user_reaction_avatar"
+        app:layout_constraintTop_toBottomOf="@+id/tv_username_reaction" />
+</androidx.constraintlayout.widget.ConstraintLayout>
