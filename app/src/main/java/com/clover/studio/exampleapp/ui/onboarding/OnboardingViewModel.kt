@@ -156,10 +156,10 @@ class OnboardingViewModel @Inject constructor(
         sharedPrefs.writeDeviceId(deviceId)
     }
 
-    fun readDeviceId(): String {
-        var deviceId: String
+    fun readDeviceId(): String? {
+        var deviceId: String?
         runBlocking {
-            deviceId = sharedPrefs.readDeviceId().toString()
+            deviceId = sharedPrefs.readDeviceId()
         }
         return deviceId
     }
