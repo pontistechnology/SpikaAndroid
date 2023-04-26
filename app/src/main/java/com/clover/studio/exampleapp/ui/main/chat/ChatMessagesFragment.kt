@@ -763,7 +763,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
                     }
 
-                    Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
                     else -> Timber.d("Other error")
                 }
             })
@@ -2036,10 +2035,24 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     override fun onBackPressed(): Boolean {
-        return if (uploadInProgress) {
+        if (uploadInProgress) {
             showUploadError(getString(R.string.upload_in_progress))
-            false
-        } else true
+            return false
+        }
+        val bottomSheets = listOf(
+            bottomSheetReactionsAction,
+            bottomSheetBehaviour,
+            bottomSheetDetailsAction,
+            bottomSheetMessageActions
+        )
+
+        for (bottomSheet in bottomSheets) {
+            if (bottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+                return false
+            }
+        }
+        return true
     }
 
     override fun onResume() {
