@@ -29,7 +29,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -88,7 +88,7 @@ enum class UploadMimeTypes {
 
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
-    private val viewModel: ChatViewModel by activityViewModels()
+    private val viewModel: ChatViewModel by viewModels()
     private val args: ChatMessagesFragmentArgs by navArgs()
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
@@ -109,6 +109,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var mediaType: UploadMimeTypes? = null
     private var uploadPieces = 0
     private var uploadInProgress = false
+    private var isFetching = false
 
     private var isAdmin = false
     private var progress = 0
@@ -132,9 +133,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var replyId: Long? = 0L
     private lateinit var emojiPopup: EmojiPopup
 
-    private var oldPosition = 0
     private var scrollYDistance = 0
     private var heightDiff = 0
+    private var newMessagesCount = 0
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
@@ -187,6 +188,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         localUserId = viewModel.getLocalUserId()!!
 
+        Timber.d("Load check: ChatMessagesFragment view created")
         // Check if we have left the room, if so, disable bottom message interaction
         if (roomWithUsers.room.roomExit == true) {
             bindingSetup.clRoomExit.visibility = View.VISIBLE
@@ -324,7 +326,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 // This condition checks if the RecyclerView is at the bottom
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     bindingSetup.cvNewMessages.visibility = View.GONE
-                    oldPosition = messagesRecords.size
+                    newMessagesCount = 0
                     scrollYDistance = 0
                 }
             }
@@ -338,7 +340,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             bindingSetup.rvChat.scrollToPosition(0)
             bindingSetup.cvNewMessages.visibility = View.GONE
             scrollYDistance = 0
-            oldPosition = messagesRecords.size
+            newMessagesCount = 0
         }
 
         bindingSetup.etMessage.addTextChangedListener {
@@ -625,49 +627,99 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })*/
 
-        viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
-            .observe(viewLifecycleOwner) {
-                when (it.status) {
-                    Resource.Status.SUCCESS -> {
-                        messagesRecords.clear()
-                        if (it.responseData?.message?.isNotEmpty() == true) {
-                            /* Block dialog:
-                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-                                val containsElement =
-                                    it.responseData.message.any { message -> localUserId == message.message.fromUserId }
-                                if (containsElement) bindingSetup.clBlockContact.visibility =
-                                    View.GONE
-                                else bindingSetup.clBlockContact.visibility = View.VISIBLE
-                            } */
+        viewModel.getMessageAndRecords(roomWithUsers.room.roomId).observe(viewLifecycleOwner) {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    Timber.d("Load check: ChatMessagesFragment messages fetched")
+                    messagesRecords.clear()
+                    if (it.responseData?.isNotEmpty() == true) {
+                        /* Block dialog:
+                        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                            val containsElement =
+                                it.responseData.message.any { message -> localUserId == message.message.fromUserId }
+                            if (containsElement) bindingSetup.clBlockContact.visibility =
+                                View.GONE
+                            else bindingSetup.clBlockContact.visibility = View.VISIBLE
+                        } */
 
-                            it.responseData.message.forEach { msg ->
-                                messagesRecords.add(msg)
-                            }
-                            messagesRecords.sortByDescending { messages -> messages.message.createdAt }
-                            // messagesRecords.toList -> for DiffUtil class
-                            chatAdapter.submitList(messagesRecords.toList())
+                        it.responseData.forEach { msg ->
+                            messagesRecords.add(msg)
+                        }
+                        messagesRecords = messagesRecords.distinct().toMutableList()
+//                        messagesRecords.sortByDescending { messages -> messages.message.createdAt }
+                        // messagesRecords.toList -> for DiffUtil class
+                        Timber.d("Load check: ChatMessagesFragment submitting messages to adapter, ${messagesRecords.map { message -> message.message.body }}")
+                        chatAdapter.submitList(messagesRecords.toList())
 
-                            if (oldPosition != messagesRecords.size) {
-                                showNewMessage(messagesRecords.first())
-                            }
 
-                            if (firstEnter) {
-                                oldPosition = messagesRecords.size
-                                bindingSetup.rvChat.scrollToPosition(0)
-                                firstEnter = false
-                            }
+                        if (firstEnter) {
+                            newMessagesCount = 0
+                            bindingSetup.rvChat.scrollToPosition(0)
+                            firstEnter = false
                         }
                     }
+                }
 
-                    Resource.Status.LOADING -> {
-                        // Loading
-                    }
+                Resource.Status.LOADING -> {
+                    // Loading
+                }
 
-                    else -> {
-                        // Error
-                    }
+                else -> {
+                    // Error
                 }
             }
+        }
+
+        viewModel.newMessageReceivedListener.observe(viewLifecycleOwner, EventObserver { message ->
+            message.responseData?.let {
+                if (message.responseData.roomId == roomWithUsers.room.roomId) {
+                    newMessagesCount++
+                    showNewMessage(it)
+                }
+            }
+        })
+
+//        viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
+//            .observe(viewLifecycleOwner) {
+//                when (it.status) {
+//                    Resource.Status.SUCCESS -> {
+//                        messagesRecords.clear()
+//                        if (it.responseData?.message?.isNotEmpty() == true) {
+//                            /* Block dialog:
+//                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+//                                val containsElement =
+//                                    it.responseData.message.any { message -> localUserId == message.message.fromUserId }
+//                                if (containsElement) bindingSetup.clBlockContact.visibility =
+//                                    View.GONE
+//                                else bindingSetup.clBlockContact.visibility = View.VISIBLE
+//                            } */
+//
+//                            it.responseData.message.forEach { msg ->
+//                                messagesRecords.add(msg)
+//                            }
+//                            messagesRecords.sortByDescending { messages -> messages.message.createdAt }
+//                            // messagesRecords.toList -> for DiffUtil class
+//                            chatAdapter.submitList(messagesRecords.toList())
+//
+//                            if (oldPosition != messagesRecords.size) {
+//                                showNewMessage(messagesRecords.first())
+//                            }
+//
+//                            if (firstEnter) {
+//                                oldPosition = messagesRecords.size
+//                                bindingSetup.rvChat.scrollToPosition(0)
+//                                firstEnter = false
+//                            }
+//                        }
+//                    }
+//                    Resource.Status.LOADING -> {
+//                        // Loading
+//                    }
+//                    else -> {
+//                        // Error
+//                    }
+//                }
+//            }
 
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
@@ -711,6 +763,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
                     }
 
+                    Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
                     else -> Timber.d("Other error")
                 }
             })
@@ -833,9 +886,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         })
     }
 
-    private fun showNewMessage(msg: MessageAndRecords) {
+    private fun showNewMessage(newMessage: Message) {
         // If we send message
-        if (msg.message.fromUserId == localUserId) {
+        if (newMessage.fromUserId == localUserId) {
             scrollToPosition()
         } else {
             // If we received message and keyboard is open:
@@ -852,13 +905,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             // If we are somewhere up in chat, show new message dialog
             else {
                 bindingSetup.cvNewMessages.visibility = View.VISIBLE
-                val newMessages = messagesRecords.size - oldPosition
-                if (newMessages == 1) {
+                if (newMessagesCount == 1) {
                     bindingSetup.tvNewMessage.text =
-                        getString(R.string.new_messages, newMessages.toString(), "")
+                        getString(R.string.new_messages, newMessagesCount.toString(), "")
                 } else {
                     bindingSetup.tvNewMessage.text =
-                        getString(R.string.new_messages, newMessages.toString(), "s")
+                        getString(R.string.new_messages, newMessagesCount.toString(), "s")
                 }
             }
         }
@@ -866,7 +918,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun scrollToPosition() {
-        oldPosition = messagesRecords.size
+        newMessagesCount = 0
         bindingSetup.rvChat.smoothScrollToPosition(0)
         scrollYDistance = 0
     }
@@ -904,6 +956,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.rvChat.adapter = chatAdapter
         layoutManager.stackFromEnd = true
         bindingSetup.rvChat.layoutManager = layoutManager
+
+        bindingSetup.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
+                val totalItemCount = layoutManager.itemCount
+                if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
+                    Timber.d("Fetching next batch of data")
+                    viewModel.fetchNextSet(roomWithUsers.room.roomId)
+                    isFetching = true
+                } else if (lastVisiblePosition != totalItemCount - 1) {
+                    isFetching = false // Reset the flag when user scrolls away from the bottom
+                }
+            }
+        })
 
         val messageSwipeController =
             MessageSwipeController(context!!, messagesRecords, onSwipeAction = { action, position ->
