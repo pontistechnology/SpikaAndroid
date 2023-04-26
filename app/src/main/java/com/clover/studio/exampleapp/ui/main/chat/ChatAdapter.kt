@@ -394,25 +394,6 @@ class ChatAdapter(
                     holder.binding.tvUsername.visibility = View.VISIBLE
                 }
 
-                /* Reactions section: */
-                // Get reactions from database
-                val reactions = Reactions(0, 0, 0, 0, 0, 0)
-                val reactionText = getDatabaseReaction(it, reactions)
-
-                /** Show reactions: */
-                ChatAdapterHelper.bindReactions(
-                    it,
-                    holder.binding.tvReactedEmoji,
-                    holder.binding.cvReactedEmoji
-                )
-
-                /** Send new reaction: */
-                sendReaction(it, holder.binding.clContainer, holder.absoluteAdapterPosition)
-
-                holder.binding.cvReactedEmoji.setOnClickListener { _ ->
-                    onMessageInteraction.invoke(Const.UserActions.SHOW_MESSAGE_REACTIONS, it)
-                }
-
                 /** Show reactions: */
                 ChatAdapterHelper.bindReactions(
                     it,
@@ -740,7 +721,6 @@ class ChatAdapter(
                 view.text = time
             }
         }
-
     }
 
     private class MessageAndRecordsDiffCallback : DiffUtil.ItemCallback<MessageAndRecords>() {
@@ -750,15 +730,6 @@ class ChatAdapter(
         ): Boolean {
             return oldItem.message.id == newItem.message.id
         }
-
-        override fun areContentsTheSame(
-            oldItem: MessageAndRecords,
-            newItem: MessageAndRecords
-        ): Boolean {
-            return oldItem == newItem
-        }
-    }
-}
 
         override fun areContentsTheSame(
             oldItem: MessageAndRecords,

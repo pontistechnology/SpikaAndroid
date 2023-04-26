@@ -164,10 +164,6 @@
                 android:id="@+id/tv_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/four_dp_margin"
-                android:layout_marginTop="@dimen/two_dp_margin"
-                android:layout_marginEnd="@dimen/four_dp_margin"
-                android:layout_marginBottom="@dimen/two_dp_margin"
                 android:autoLink="all"
                 android:background="@drawable/bg_message_received"
                 android:fontFamily="@font/montserrat"
@@ -233,7 +229,6 @@
                     app:shapeAppearanceOverlay="@style/chat_image"
                     tools:srcCompat="@tools:sample/avatars" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_videos"
