@@ -101,6 +101,18 @@ class ChatRepositoryImpl @Inject constructor(
         )
     }
 
+    override fun getMessagesAndRecords(
+        roomId: Int,
+        limit: Int,
+        offset: Int
+    ) =
+        queryDatabase(
+            databaseQuery = { messageDao.getMessagesAndRecords(roomId, limit, offset) }
+        )
+
+    override suspend fun getMessageCount(roomId: Int) =
+        messageDao.getMessageCount(roomId)
+
     override suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int) {
         queryDatabaseCoreData(
             databaseQuery = { roomDao.updateRoomVisited(visitedTimestamp, roomId) }
@@ -309,6 +321,12 @@ interface ChatRepository {
     suspend fun sendMessagesSeen(roomId: Int)
     suspend fun deleteMessage(messageId: Int, target: String)
     suspend fun editMessage(messageId: Int, jsonObject: JsonObject)
+    fun getMessagesAndRecords(
+        roomId: Int,
+        limit: Int,
+        offset: Int
+    ): LiveData<Resource<List<MessageAndRecords>>>
+    suspend fun getMessageCount(roomId: Int): Int
 
     // Room calls
     suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int)

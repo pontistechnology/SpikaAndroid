@@ -1,7 +1,9 @@
 package com.clover.studio.exampleapp.data.daos
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
 
 @Dao
@@ -22,6 +24,12 @@ interface MessageDao : BaseDao<Message> {
         replyId: Long,
         localId: String
     )
+
+    @Query("SELECT * FROM message WHERE room_id= :roomId ORDER BY created_at DESC LIMIT :limit OFFSET :offset")
+    fun getMessagesAndRecords(roomId: Int, limit: Int, offset: Int): LiveData<List<MessageAndRecords>>
+
+    @Query("SELECT COUNT(*) FROM message WHERE room_id= :roomId")
+    suspend fun getMessageCount(roomId: Int): Int
 
     @Transaction
     @Query("SELECT * FROM message WHERE id=:messageId LIMIT 1")
