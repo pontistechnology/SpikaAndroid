@@ -27,10 +27,13 @@ class SplashActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         bindingSetup = ActivitySplashBinding.inflate(layoutInflater)
 
-        if (viewModel.getUserTheme() == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED){
+        if (viewModel.getUserTheme() == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
             val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
             when (uiModeManager.nightMode) {
-                UiModeManager.MODE_NIGHT_YES -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                UiModeManager.MODE_NIGHT_YES -> AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_YES
+                )
+
                 else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
         } else {
@@ -65,7 +68,7 @@ class SplashActivity : BaseActivity() {
     }
 
     private fun goToMainActivity() {
-        startTimerAndNavigate { startMainActivity(this@SplashActivity) }
+        startMainActivity(this@SplashActivity)
     }
 
     private fun startTimerAndNavigate(location: () -> Unit) {
