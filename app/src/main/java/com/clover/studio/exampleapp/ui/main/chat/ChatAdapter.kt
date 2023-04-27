@@ -394,11 +394,6 @@ class ChatAdapter(
                     holder.binding.tvUsername.visibility = View.VISIBLE
                 }
 
-                /* Reactions section: */
-                // Get reactions from database
-                val reactions = Reactions(0, 0, 0, 0, 0, 0)
-                val reactionText = getDatabaseReaction(it, reactions)
-
                 /** Show reactions: */
                 ChatAdapterHelper.bindReactions(
                     it,
@@ -726,7 +721,6 @@ class ChatAdapter(
                 view.text = time
             }
         }
-
     }
 
     private class MessageAndRecordsDiffCallback : DiffUtil.ItemCallback<MessageAndRecords>() {
