@@ -118,10 +118,17 @@ class RoomsAdapter(
 
                 // The second condition handles cases where some rooms have unread counts but have
                 // no locally stored messages in them
-                if (roomItem.roomWithUsers.room.unreadCount != 0 && roomItem.message?.isNotEmpty() == true) {
+                val maxTimestamp =
+                    roomItem.message?.maxByOrNull { it.message.modifiedAt!! }?.message?.modifiedAt
+
+                if (roomItem.roomWithUsers.room.visitedRoom != null && maxTimestamp != null && maxTimestamp <= roomItem.roomWithUsers.room.visitedRoom!!) {
+                    binding.tvNewMessages.visibility = View.GONE
+                } else if (roomItem.roomWithUsers.room.unreadCount > 0 && roomItem.message?.isNotEmpty() == true) {
                     binding.tvNewMessages.text = roomItem.roomWithUsers.room.unreadCount.toString()
                     binding.tvNewMessages.visibility = View.VISIBLE
-                } else binding.tvNewMessages.visibility = View.GONE
+                } else {
+                    binding.tvNewMessages.visibility = View.GONE
+                }
 
                 itemView.setOnClickListener {
                     roomItem.let {
@@ -146,27 +153,5 @@ class RoomsAdapter(
             newItem: RoomAndMessageAndRecords
         ) =
             oldItem == newItem
-    }
-
-    private fun checkIfMessageSeen(
-        roomItem: RoomAndMessageAndRecords,
-        messageAndRecords: MessageAndRecords,
-    ): Boolean {
-
-        // This handles case where a message would be sent later to the app via socket since
-        // the socket will try to send data until it succeeds.
-        if (roomItem.roomWithUsers.room.visitedRoom != null) {
-            if (messageAndRecords.message.modifiedAt != null && messageAndRecords.message.modifiedAt <= roomItem.roomWithUsers.room.visitedRoom!!) return true
-        }
-
-        if (messageAndRecords.records != null) {
-            val myRecords = messageAndRecords.records.filter { it.userId.toString() == myUserId }
-            for (record in myRecords) {
-                if (record.type == Const.JsonFields.SEEN) {
-                    return true
-                }
-            }
-        }
-        return false
     }
 }
