@@ -120,6 +120,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var bottomSheetReplyAction: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetDetailsAction: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetReactionsAction: BottomSheetBehavior<ConstraintLayout>
+    private lateinit var bottomSheets: List<BottomSheetBehavior<ConstraintLayout>>
 
     private lateinit var storagePermission: ActivityResultLauncher<String>
     private var exoPlayer: ExoPlayer? = null
@@ -182,6 +183,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheetReplyAction = BottomSheetBehavior.from(bindingSetup.replyAction.root)
         bottomSheetDetailsAction = BottomSheetBehavior.from(bindingSetup.detailsAction.root)
         bottomSheetReactionsAction = BottomSheetBehavior.from(bindingSetup.reactionsDetails.root)
+
+        bottomSheets = listOf(
+            bottomSheetReactionsAction,
+            bottomSheetBehaviour,
+            bottomSheetDetailsAction,
+            bottomSheetMessageActions
+        )
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
@@ -2039,12 +2047,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             showUploadError(getString(R.string.upload_in_progress))
             return false
         }
-        val bottomSheets = listOf(
-            bottomSheetReactionsAction,
-            bottomSheetBehaviour,
-            bottomSheetDetailsAction,
-            bottomSheetMessageActions
-        )
 
         for (bottomSheet in bottomSheets) {
             if (bottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
@@ -2058,16 +2060,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     override fun onResume() {
         super.onResume()
         firstEnter = args.scrollDown
-        bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+
+        for (bottomSheet in bottomSheets) {
+            bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
         bindingSetup.clBottomMessageActions.visibility = View.GONE
-        bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
         bindingSetup.clBottomSheet.visibility = View.GONE
-        bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
         bindingSetup.clDetailsAction.visibility = View.GONE
-        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
         bindingSetup.clBottomReplyAction.visibility = View.GONE
-        bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_COLLAPSED
         bindingSetup.clReactionsDetails.visibility = View.GONE
+
         viewModel.getBlockedUsersList()
     }
 
