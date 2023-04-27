@@ -9,6 +9,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.clover.studio.exampleapp.data.AppDatabase
 import org.junit.Assert.*
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import timber.log.Timber
 import java.io.IOException
@@ -16,6 +17,7 @@ import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 class MigrationTest {
+    @JvmField
     @Rule
     var helper: MigrationTestHelper = MigrationTestHelper(
         InstrumentationRegistry.getInstrumentation(), Objects.requireNonNull(
@@ -27,13 +29,13 @@ class MigrationTest {
      * Implement below migration test when testing actual migrations. Change function and adapt to
      * your needs
      */
-//    @Test
-//    @Throws(IOException::class)
-//    fun migrate1To2() {
-//        val currentVersion = 1
-//        val newVersion = 2
-//        testMigration(currentVersion, newVersion, AppDatabase.MIGRATION_1_2)
-//    }
+    @Test
+    @Throws(IOException::class)
+    fun migrate1To2() {
+        val currentVersion = 1
+        val newVersion = 2
+        testMigration(currentVersion, newVersion, AppDatabase.MIGRATION_1_2)
+    }
 
     @Throws(IOException::class)
     private fun testMigration(currentVersion: Int, newVersion: Int, migration: Migration) {
