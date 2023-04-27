@@ -15,6 +15,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.data.models.networking.responses.MessageResponse
 import com.clover.studio.exampleapp.data.models.networking.responses.NotesResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
@@ -51,7 +52,7 @@ class ChatViewModel @Inject constructor(
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val newMessageReceivedListener = MutableLiveData<Message?>()
-    val newAvatarUploaded = MutableLiveData<Pair<Long, Int>?>()
+    val roomInfoUpdated = MutableLiveData<Event<Resource<RoomResponse?>>>()
     private val liveDataLimit = MutableLiveData(20)
 
     init {
@@ -110,7 +111,7 @@ class ChatViewModel @Inject constructor(
 
     fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
         CoroutineScope(Dispatchers.IO).launch {
-            repository.updateRoom(jsonObject, roomId, userId)
+            resolveResponseStatus(roomInfoUpdated, repository.updateRoom(jsonObject, roomId, userId) )
         }
 
     fun isUserAdmin(roomId: Int, userId: Int): Boolean {
@@ -407,12 +408,6 @@ class ChatViewModel @Inject constructor(
                 mediaUploadListener,
                 Resource(Resource.Status.ERROR, null, ex.message.toString())
             )
-        }
-    }
-
-    fun updateAvatar(newAvatarFileId: Long, roomId: Int) {
-        viewModelScope.launch {
-            newAvatarUploaded.value = Pair(newAvatarFileId, roomId)
         }
     }
 }

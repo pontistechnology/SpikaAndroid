@@ -226,7 +226,6 @@ class ChatDetailsFragment : BaseFragment() {
             }
 
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
-            viewModel.updateAvatar(newAvatarFileId, roomWithUsers.room.roomId)
 
             binding.tvDone.visibility = View.GONE
             binding.ivCallUser.visibility = View.VISIBLE

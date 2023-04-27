@@ -892,11 +892,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
-        viewModel.newAvatarUploaded.observe(viewLifecycleOwner) {
-            if (it?.second == roomWithUsers.room.roomId) {
-                setAvatarAndName(it.first, roomWithUsers.room.name!!)
+        viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    if (it.responseData?.data?.room?.roomId == roomWithUsers.room.roomId) {
+                        setAvatarAndName(
+                            it.responseData.data.room.avatarFileId!!,
+                            it.responseData.data.room.name!!,
+                        )
+                    }
+                }
+
+                Resource.Status.ERROR -> Timber.d("Error while updating room data")
+                else -> Timber.d("Other error")
             }
-        }
+        })
     }
 
     private fun showNewMessage(newMessage: Message) {
