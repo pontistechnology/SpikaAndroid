@@ -50,7 +50,8 @@ class ChatViewModel @Inject constructor(
     val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
-    val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
+    val newMessageReceivedListener = MutableLiveData<Message?>()
+    val newAvatarUploaded = MutableLiveData<Pair<Long, Int>?>()
     private val liveDataLimit = MutableLiveData(20)
 
     init {
@@ -72,10 +73,7 @@ class ChatViewModel @Inject constructor(
 
     override fun newMessageReceived(message: Message) {
         viewModelScope.launch {
-            resolveResponseStatus(
-                newMessageReceivedListener,
-                Resource(Resource.Status.SUCCESS, message, "")
-            )
+            newMessageReceivedListener.postValue(message)
             updateCounterLimit()
         }
     }
@@ -409,6 +407,12 @@ class ChatViewModel @Inject constructor(
                 mediaUploadListener,
                 Resource(Resource.Status.ERROR, null, ex.message.toString())
             )
+        }
+    }
+
+    fun updateAvatar(newAvatarFileId: Long, roomId: Int) {
+        viewModelScope.launch {
+            newAvatarUploaded.value = Pair(newAvatarFileId, roomId)
         }
     }
 }

@@ -78,14 +78,14 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun initializeObservers() {
-        viewModel.newMessageReceivedListener.observe(this, EventObserver { message ->
-            message.responseData?.roomId?.let {
+        viewModel.newMessageReceivedListener.observe(this) { message ->
+            message?.roomId?.let {
                 viewModel.getRoomWithUsers(
                     it,
-                    message.responseData
+                    message
                 )
             }
-        })
+        }
 
         viewModel.roomDataListener.observe(this, EventObserver {
             when (it.status) {
@@ -95,6 +95,7 @@ class ChatScreenActivity : BaseActivity() {
                         replaceChatScreenActivity(this, roomWithUsers)
                     }
                 }
+
                 Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
                 else -> Timber.d("Other error")
             }
@@ -194,6 +195,7 @@ class ChatScreenActivity : BaseActivity() {
                         handler.postDelayed(runnable, 5000)
                     }
                 }
+
                 Resource.Status.ERROR -> Timber.d("Failed to fetch room with users")
                 else -> Timber.d("Other error")
             }
