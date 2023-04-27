@@ -65,7 +65,7 @@ android {
         }
 
         dev {
-            applicationIdSuffix ".debug"
+            applicationIdSuffix ".dev"
             versionNameSuffix "_dev"
 
             debuggable true

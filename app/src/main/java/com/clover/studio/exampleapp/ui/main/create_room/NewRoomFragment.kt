@@ -311,11 +311,6 @@ class NewRoomFragment : BaseFragment() {
                     showRoomCreationError(getString(R.string.failed_room_creation))
                     Timber.d("Failed to create room")
                 }
-                is RoomUpdateFailed -> {
-                    hideProgress()
-                    showRoomCreationError(getString(R.string.failed_room_update))
-                    Timber.d("Failed to update room")
-                }
                 else -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.something_went_wrong))

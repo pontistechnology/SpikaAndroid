@@ -102,15 +102,6 @@ class ChatViewModel @Inject constructor(
         repository.deleteLocalMessage(message)
     }
 
-    fun deleteLocalMessage(message: Message) = viewModelScope.launch {
-        try {
-            repository.deleteLocalMessage(message)
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
-            return@launch
-        }
-    }
-
     fun sendMessagesSeen(roomId: Int) = viewModelScope.launch {
         repository.sendMessagesSeen(roomId)
     }
@@ -176,10 +167,6 @@ class ChatViewModel @Inject constructor(
 
     fun getChatRoomAndMessageAndRecordsById(roomId: Int) =
         repository.getChatRoomAndMessageAndRecordsById(roomId)
-
-    fun getChatRoomAndMessageAndRecordsById(roomId: Int) = liveData {
-        emitSource(repository.getChatRoomAndMessageAndRecordsById(roomId))
-    }
 
     fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
         resolveResponseStatus(roomDataListener, repository.getSingleRoomData(roomId))

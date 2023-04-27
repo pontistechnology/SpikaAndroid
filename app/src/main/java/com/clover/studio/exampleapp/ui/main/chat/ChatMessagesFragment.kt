@@ -132,13 +132,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var editedMessageId = 0
     private var replyId: Long? = 0L
     private lateinit var emojiPopup: EmojiPopup
-    private lateinit var storagePermission: ActivityResultLauncher<String>
-    private lateinit var storedMessage: Message
-    private var oldPosition = 0
-    private var scrollYDistance = 0
-    private var sent = false
-    private var heightDiff = 0
-    private var exoPlayer: ExoPlayer? = null
 
     private var scrollYDistance = 0
     private var heightDiff = 0
