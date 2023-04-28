@@ -29,7 +29,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -88,7 +88,7 @@ enum class UploadMimeTypes {
 
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
-    private val viewModel: ChatViewModel by viewModels()
+    private val viewModel: ChatViewModel by activityViewModels()
     private val args: ChatMessagesFragmentArgs by navArgs()
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
@@ -678,14 +678,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        viewModel.newMessageReceivedListener.observe(viewLifecycleOwner, EventObserver { message ->
-            message.responseData?.let {
-                if (message.responseData.roomId == roomWithUsers.room.roomId) {
+        viewModel.newMessageReceivedListener.observe(viewLifecycleOwner) { message ->
+            message?.let {
+                if (message.roomId == roomWithUsers.room.roomId) {
                     newMessagesCount++
                     showNewMessage(it)
                 }
             }
-        })
+        }
 
 //        viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
 //            .observe(viewLifecycleOwner) {
@@ -889,6 +889,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
 
                 else -> Timber.d("Other upload error")
+            }
+        })
+
+        viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    if (it.responseData?.data?.room?.roomId == roomWithUsers.room.roomId) {
+                        setAvatarAndName(
+                            it.responseData.data.room.avatarFileId ?: 0L,
+                            it.responseData.data.room.name!!,
+                        )
+                    }
+                }
+
+                Resource.Status.ERROR -> Timber.d("Error while updating room data")
+                else -> Timber.d("Other error")
             }
         })
     }

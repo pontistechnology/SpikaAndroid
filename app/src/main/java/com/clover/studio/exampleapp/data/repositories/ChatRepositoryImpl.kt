@@ -9,6 +9,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.data.models.networking.responses.MessageResponse
 import com.clover.studio.exampleapp.data.models.networking.responses.NotesResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
 import com.clover.studio.exampleapp.data.repositories.data_sources.ChatRemoteDataSource
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.helpers.Resource
@@ -129,7 +130,7 @@ class ChatRepositoryImpl @Inject constructor(
             databaseQuery = { roomDao.getRoomAndUsers(roomId) }
         )
 
-    override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) {
+    override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) : Resource<RoomResponse> {
         val response = performRestOperation(
             networkCall = { chatRemoteDataSource.updateRoom(jsonObject, roomId) })
 
@@ -184,6 +185,7 @@ class ChatRepositoryImpl @Inject constructor(
                 }
             }
         }
+        return response
     }
 
     override suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean? =
@@ -332,7 +334,7 @@ interface ChatRepository {
     suspend fun updatedRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int)
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     suspend fun getRoomWithUsers(roomId: Int): Resource<RoomWithUsers>
-    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int)
+    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) : Resource<RoomResponse>
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
     suspend fun getSingleRoomData(roomId: Int): Resource<RoomAndMessageAndRecords>
     fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<Resource<RoomAndMessageAndRecords>>

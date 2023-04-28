@@ -15,6 +15,7 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
 import com.clover.studio.exampleapp.data.models.networking.responses.MessageResponse
 import com.clover.studio.exampleapp.data.models.networking.responses.NotesResponse
+import com.clover.studio.exampleapp.data.models.networking.responses.RoomResponse
 import com.clover.studio.exampleapp.data.repositories.ChatRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
@@ -50,7 +51,8 @@ class ChatViewModel @Inject constructor(
     val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
-    val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
+    val newMessageReceivedListener = MutableLiveData<Message?>()
+    val roomInfoUpdated = MutableLiveData<Event<Resource<RoomResponse?>>>()
     private val liveDataLimit = MutableLiveData(20)
 
     init {
@@ -72,10 +74,7 @@ class ChatViewModel @Inject constructor(
 
     override fun newMessageReceived(message: Message) {
         viewModelScope.launch {
-            resolveResponseStatus(
-                newMessageReceivedListener,
-                Resource(Resource.Status.SUCCESS, message, "")
-            )
+            newMessageReceivedListener.postValue(message)
             updateCounterLimit()
         }
     }
@@ -112,7 +111,7 @@ class ChatViewModel @Inject constructor(
 
     fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
         CoroutineScope(Dispatchers.IO).launch {
-            repository.updateRoom(jsonObject, roomId, userId)
+            resolveResponseStatus(roomInfoUpdated, repository.updateRoom(jsonObject, roomId, userId) )
         }
 
     fun isUserAdmin(roomId: Int, userId: Int): Boolean {

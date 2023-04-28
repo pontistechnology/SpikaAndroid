@@ -24,11 +24,15 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.databinding.FragmentChatDetailsBinding
 import com.clover.studio.exampleapp.ui.main.chat.ChatViewModel
-import com.clover.studio.exampleapp.utils.*
+import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.EventObserver
+import com.clover.studio.exampleapp.utils.Tools
+import com.clover.studio.exampleapp.utils.UploadDownloadManager
 import com.clover.studio.exampleapp.utils.dialog.ChooserDialog
 import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
+import com.clover.studio.exampleapp.utils.getChunkSize
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -359,6 +363,7 @@ class ChatDetailsFragment : BaseFragment() {
                         }
                     }
                 }
+
                 binding.swMute.id -> {
                     if (buttonView.isPressed) {
                         if (isChecked) {
@@ -399,9 +404,11 @@ class ChatDetailsFragment : BaseFragment() {
                             }
                         }
                     }
+
                     Resource.Status.LOADING -> {
                         // Add loading bar
                     }
+
                     else -> {
                         Timber.d("Error: $data")
                     }
@@ -417,6 +424,7 @@ class ChatDetailsFragment : BaseFragment() {
                         progress++
                     } else progress = 0
                 }
+
                 Resource.Status.SUCCESS -> {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
@@ -428,12 +436,14 @@ class ChatDetailsFragment : BaseFragment() {
                     newAvatarFileId = it.responseData!!.fileId
                     isUploading = false
                 }
+
                 Resource.Status.ERROR -> {
                     Timber.d("Upload Error")
                     requireActivity().runOnUiThread {
                         showUploadError(it.message!!)
                     }
                 }
+
                 else -> {
                     Toast.makeText(
                         requireContext(),
