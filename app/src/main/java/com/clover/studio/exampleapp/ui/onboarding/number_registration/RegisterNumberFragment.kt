@@ -32,13 +32,14 @@ import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.Resource
+import com.clover.studio.exampleapp.utils.permissions
 import com.google.gson.JsonObject
 import timber.log.Timber
 
 class RegisterNumberFragment : BaseFragment() {
     private val viewModel: OnboardingViewModel by activityViewModels()
     private lateinit var countryCode: String
-    private lateinit var contactsPermission: ActivityResultLauncher<String>
+    private lateinit var multiplePermissionLauncher: ActivityResultLauncher<Array<String>>
 
     private var bindingSetup: FragmentRegisterNumberBinding? = null
 
@@ -63,7 +64,9 @@ class RegisterNumberFragment : BaseFragment() {
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
 
         checkUser()
-        checkContactsPermission()
+        checkMultiplePermissions()
+//        checkContactsPermission()
+//        checkNotificationPermission()
         setTextListener()
         setClickListeners()
         setObservers()
@@ -116,9 +119,11 @@ class RegisterNumberFragment : BaseFragment() {
                         R.id.action_splashFragment_to_verificationFragment, bundle
                     )
                 }
+
                 Resource.Status.LOADING -> {
                     binding.btnNext.isEnabled = false
                 }
+
                 Resource.Status.ERROR -> {
                     DialogError.getInstance(requireContext(),
                         getString(R.string.registration_error),
@@ -135,6 +140,7 @@ class RegisterNumberFragment : BaseFragment() {
                         })
                     binding.btnNext.isEnabled = true
                 }
+
                 else -> Timber.d("Other error")
             }
         })
@@ -251,33 +257,36 @@ class RegisterNumberFragment : BaseFragment() {
         viewModel.writeContactsToSharedPref(phoneUserSet.toList())
     }
 
-    private fun checkContactsPermission() {
-        contactsPermission =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-                if (it) {
-                    fetchAllUserContacts()
-                } else {
-                    Timber.d("Couldn't send contacts. No permission granted.")
+    private fun checkMultiplePermissions() {
+        multiplePermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                if (it.isNotEmpty()) {
+                    for (permission in it) {
+                        if (permission.key == Manifest.permission.READ_CONTACTS) {
+                            if (permission.value) {
+                                Timber.d("Fetching all user contacts")
+                                fetchAllUserContacts()
+                                break
+                            } else Timber.d("Couldn't send contacts. No permission granted.")
+                        }
+                    }
                 }
             }
 
-        when {
-            context?.let {
+        if (context?.let {
                 ContextCompat.checkSelfPermission(
                     it,
                     Manifest.permission.READ_CONTACTS
                 )
-            } == PackageManager.PERMISSION_GRANTED -> {
-                if (!viewModel.areUsersFetched()) {
-                    fetchAllUserContacts()
-                }
+            } == PackageManager.PERMISSION_GRANTED) {
+            if (!viewModel.areUsersFetched()) {
+                fetchAllUserContacts()
             }
-
-            shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {
-                // TODO show why permission is needed
-            }
-
-            else -> contactsPermission.launch(Manifest.permission.READ_CONTACTS)
-        }
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) || shouldShowRequestPermissionRationale(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        ) {
+            // TODO show why permission is needed
+        } else multiplePermissionLauncher.launch(permissions.toTypedArray())
     }
 }
