@@ -897,7 +897,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 Resource.Status.SUCCESS -> {
                     if (it.responseData?.data?.room?.roomId == roomWithUsers.room.roomId) {
                         setAvatarAndName(
-                            it.responseData.data.room.avatarFileId!!,
+                            it.responseData.data.room.avatarFileId ?: 0L,
                             it.responseData.data.room.name!!,
                         )
                     }
