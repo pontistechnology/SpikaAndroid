@@ -175,6 +175,7 @@ object ChatAdapterHelper {
         params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
         val original = chatMessage.message.body?.text?.length
         clReplyMessage.visibility = View.VISIBLE
+        val username = tvUsername.text.length
 
         if (sender) {
             clContainer.setBackgroundResource(R.drawable.bg_message_send)
@@ -276,7 +277,7 @@ object ChatAdapterHelper {
                 val reply = replyText?.length
 
                 if (original != null && reply != null) {
-                    if (original >= reply && original >= TEXT_SIZE_SMALL) {
+                    if (original >= reply && original >= TEXT_SIZE_SMALL && username < original) {
                         params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                     }
                 }
@@ -334,6 +335,7 @@ object ChatAdapterHelper {
                     null
                 )
             )
+
             Const.FileExtensions.ZIP, Const.FileExtensions.RAR -> ivFileType.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     context.resources,
@@ -341,6 +343,7 @@ object ChatAdapterHelper {
                     null
                 )
             )
+
             Const.FileExtensions.MP3, Const.FileExtensions.WAW -> ivFileType.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     context.resources,
@@ -348,6 +351,7 @@ object ChatAdapterHelper {
                     null
                 )
             )
+
             else -> ivFileType.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     context.resources,
