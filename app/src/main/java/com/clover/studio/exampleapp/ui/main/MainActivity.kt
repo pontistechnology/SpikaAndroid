@@ -1,17 +1,22 @@
 package com.clover.studio.exampleapp.ui.main
 
+import android.Manifest
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.asLiveData
 import com.bumptech.glide.Glide
 import com.clover.studio.exampleapp.R
@@ -25,6 +30,7 @@ import com.clover.studio.exampleapp.utils.dialog.DialogError
 import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.Resource
+import com.clover.studio.exampleapp.utils.notificationPermission
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.JsonObject
@@ -42,6 +48,7 @@ class MainActivity : BaseActivity() {
 
     private val viewModel: MainViewModel by viewModels()
     private lateinit var bindingSetup: ActivityMainBinding
+    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
     private var handler = Handler(Looper.getMainLooper())
     private var runnable: Runnable = Runnable {
         Timber.d("Ending handler")
@@ -57,6 +64,7 @@ class MainActivity : BaseActivity() {
                 UiModeManager.MODE_NIGHT_YES -> AppCompatDelegate.setDefaultNightMode(
                     AppCompatDelegate.MODE_NIGHT_YES
                 )
+
                 else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
         } else {
@@ -67,6 +75,7 @@ class MainActivity : BaseActivity() {
         val view = bindingSetup.root
         setContentView(view)
 
+        checkNotificationPermission()
         initializeObservers()
         sendPushTokenToServer()
         checkIntentExtras()
@@ -106,6 +115,7 @@ class MainActivity : BaseActivity() {
                     }
                     Timber.d("Main Success!")
                 }
+
                 Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
                 else -> Timber.d("Other error")
             }
@@ -210,6 +220,7 @@ class MainActivity : BaseActivity() {
                         handler.postDelayed(runnable, 5000)
                     }
                 }
+
                 Resource.Status.ERROR -> Timber.d("Failed to fetch room with users")
                 else -> Timber.d("Other error")
             }
@@ -234,6 +245,33 @@ class MainActivity : BaseActivity() {
                     })
             }
         })
+    }
+
+    private fun checkNotificationPermission() {
+        notificationPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                if (!it) {
+                    Timber.d("Couldn't send notifications. No permission granted.")
+                }
+            }
+
+        if (
+            ContextCompat.checkSelfPermission(
+                this@MainActivity,
+                Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // ignore
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) || shouldShowRequestPermissionRationale(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        ) {
+            // TODO show why permission is needed
+        } else {
+            if (notificationPermission.isNotEmpty()) {
+                notificationPermissionLauncher.launch(notificationPermission)
+            }
+        }
     }
 
     private fun sendPushTokenToServer() {
