@@ -92,4 +92,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
 
     @Query("UPDATE room SET room_exit =:roomExit WHERE room_id LIKE :roomId")
     suspend fun updateRoomExit(roomId: Int, roomExit: Boolean)
+
+    @Query("UPDATE room SET deleted =:deleted WHERE room_id LIKE :roomId")
+    suspend fun updateRoomDeleted(roomId: Int, deleted: Boolean)
 }

@@ -272,10 +272,12 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteRoom(roomId: Int) {
-        performRestOperation(
-            networkCall = { chatRemoteDataSource.deleteRoom(roomId) },
-            saveCallResult = { roomDao.deleteRoom(roomId) }
-        )
+        CoroutineScope(Dispatchers.IO).launch {
+            performRestOperation(
+                networkCall = { chatRemoteDataSource.deleteRoom(roomId) },
+                saveCallResult = { roomDao.updateRoomDeleted(roomId, true) }
+            )
+        }
     }
 
     override suspend fun leaveRoom(roomId: Int) {

@@ -26,9 +26,6 @@ data class ChatRoom @JvmOverloads constructor(
     val type: String?,
 
     // Used only for local db insert logic
-    @Ignore
-    val deleted: Boolean = false,
-
     @ColumnInfo(name = "avatar_file_id")
     val avatarFileId: Long?,
 
@@ -46,6 +43,9 @@ data class ChatRoom @JvmOverloads constructor(
 
     @ColumnInfo(name = "room_exit")
     var roomExit: Boolean?,
+
+    @ColumnInfo(name = "deleted")
+    var deleted: Boolean = false,
 
     @ColumnInfo(name = "unread_count")
     var unreadCount: Int = 0
