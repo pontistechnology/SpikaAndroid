@@ -5,6 +5,8 @@ import retrofit2.Response
 import timber.log.Timber
 
 const val TOKEN_EXPIRED = 401
+
+// This is not correct anymore, 403 doesn't necessarily mean token invalid
 const val TOKEN_INVALID_CODE = 403
 
 abstract class BaseDataSource {
