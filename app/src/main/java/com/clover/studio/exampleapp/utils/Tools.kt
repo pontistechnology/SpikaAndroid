@@ -23,8 +23,6 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.MainApplication
@@ -43,7 +41,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -64,12 +61,13 @@ object Tools {
             is IllegalArgumentException -> Timber.d("IllegalArgumentException ${ex.message}")
             is IOException -> Timber.d("IOException ${ex.message}")
             is HttpException ->
-                if (TOKEN_EXPIRED_CODE == ex.code() || TOKEN_INVALID_CODE == ex.code()) {
+                if (TOKEN_EXPIRED_CODE == ex.code()) {
                     Timber.d("Token error: ${ex.code()} ${ex.message}")
                     return true
                 } else {
                     Timber.d("HttpException: ${ex.code()} ${ex.message}")
                 }
+
             else -> Timber.d("UnknownError: ${ex.message}")
         }
         return false
@@ -254,6 +252,7 @@ object Tools {
                 val inputStream = context.contentResolver.openInputStream(selectedImage)
                 BitmapFactory.decodeStream(inputStream)
             }
+
             else -> null
         } ?: return null
 

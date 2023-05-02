@@ -15,8 +15,7 @@ abstract class BaseDataSource {
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) return Resource.success(body)
-            }
-            else if (TOKEN_EXPIRED == response.code() || TOKEN_INVALID_CODE == response.code() ){
+            } else if (TOKEN_EXPIRED == response.code()) {
                 return Resource.tokenExpired("Token expired, user will be logged out of the app")
             }
 
