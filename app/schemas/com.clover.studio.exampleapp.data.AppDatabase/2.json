@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "dc7eea642e7995c0539335aa0bea4285",
+    "identityHash": "3ab1674ed56071d7285c2762c2806c7d",
     "entities": [
       {
         "tableName": "user",
@@ -248,7 +248,7 @@
       },
       {
         "tableName": "room",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `visited_room` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))",
         "fields": [
           {
             "fieldPath": "roomId",
@@ -283,12 +283,6 @@
           {
             "fieldPath": "modifiedAt",
             "columnName": "modified_at",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "visitedRoom",
-            "columnName": "visited_room",
             "affinity": "INTEGER",
             "notNull": false
           },
@@ -475,7 +469,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dc7eea642e7995c0539335aa0bea4285')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3ab1674ed56071d7285c2762c2806c7d')"
     ]
   }
 }

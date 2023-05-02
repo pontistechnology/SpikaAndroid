@@ -38,8 +38,9 @@ data class ChatRoom @JvmOverloads constructor(
     @ColumnInfo(name = "modified_at")
     val modifiedAt: Long?,
 
-    @ColumnInfo(name = "visited_room")
-    var visitedRoom: Long?,
+    // Removed since we are using unread count from model
+//    @ColumnInfo(name = "visited_room")
+//    var visitedRoom: Long?,
 
     @ColumnInfo(name = "muted")
     var muted: Boolean,

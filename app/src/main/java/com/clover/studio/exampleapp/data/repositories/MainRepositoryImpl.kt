@@ -111,7 +111,7 @@ class MainRepositoryImpl @Inject constructor(
 
     override fun getChatRoomAndMessageAndRecords() =
         queryDatabase(
-            databaseQuery = { chatRoomDao.getDistinctChatRoomAndMessageAndRecords() }
+            databaseQuery = { chatRoomDao.getChatRoomAndMessageAndRecords() }
         )
 
     override fun getRoomsUnreadCount() =
@@ -164,6 +164,22 @@ class MainRepositoryImpl @Inject constructor(
                 queryDatabaseCoreData(
                     databaseQuery = { chatRoomDao.upsert(roomsToUpdate) }
                 )
+            }
+        }
+    }
+
+    override suspend fun updateUnreadCount(roomId: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val currentRooms = chatRoomDao.getAllRooms()
+            val roomsToUpdate: MutableList<ChatRoom> = ArrayList()
+            for (room in currentRooms) {
+                if (roomId == room.roomId) {
+                    room.unreadCount = 0
+                    queryDatabaseCoreData(
+                        databaseQuery = { chatRoomDao.upsert(roomsToUpdate) }
+                    )
+                    break
+                }
             }
         }
     }
@@ -361,6 +377,7 @@ interface MainRepository {
     fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithLatestMessage>>>
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): Resource<RoomResponse>
     suspend fun getUnreadCount()
+    suspend fun updateUnreadCount(roomId: Int)
     fun getRoomsUnreadCount(): LiveData<Resource<Int>>
 
     // Settings calls

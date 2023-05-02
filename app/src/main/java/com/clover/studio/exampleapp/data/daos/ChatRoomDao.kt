@@ -36,9 +36,6 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("UPDATE room SET pinned = :pinned WHERE room_id LIKE :roomId")
     suspend fun updateRoomPinned(pinned: Boolean, roomId: Int)
 
-    @Query("UPDATE room SET visited_room =:visitedRoom WHERE room_id LIKE :roomId")
-    suspend fun updateRoomVisited(visitedRoom: Long, roomId: Int)
-
     /**
      * Use this method to delete rooms from local db. We cannot rely on the above one because
      * chat rooms might come with a field that is ignored.
@@ -71,9 +68,6 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("SELECT * FROM room")
     fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
 
-    fun getDistinctChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>> =
-        getChatRoomAndMessageAndRecords().getDistinct()
-
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getSingleRoomData(roomId: Int): RoomAndMessageAndRecords
@@ -99,9 +93,6 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     // This method copies locally added fields to the database if present
     @Transaction
     suspend fun updateRoomTable(oldData: ChatRoom?, newData: ChatRoom) {
-        if (oldData?.visitedRoom != null && newData.visitedRoom == null) {
-            newData.visitedRoom = oldData.visitedRoom
-        }
         upsert(newData)
     }
 
@@ -109,9 +100,6 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     suspend fun updateRoomTable(chatRoomUpdate: List<ChatRoomUpdate>) {
         val chatRooms: MutableList<ChatRoom> = ArrayList()
         for (chatRoom in chatRoomUpdate) {
-            if (chatRoom.oldRoom?.visitedRoom != null && chatRoom.newRoom.visitedRoom == null) {
-                chatRoom.newRoom.visitedRoom = chatRoom.oldRoom.visitedRoom
-            }
             chatRooms.add(chatRoom.newRoom)
         }
         upsert(chatRooms)
