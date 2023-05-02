@@ -348,18 +348,18 @@
         app:layout_constraintTop_toBottomOf="@id/iv_arrow_back" />
 
     <View
+        android:id="@+id/v_hide_typing"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/two_dp_margin"
         android:background="@color/main"
         android:clickable="true"
         android:elevation="@dimen/one_dp_margin"
         android:focusable="true"
-        android:id="@+id/v_hide_typing"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/two_dp_margin"
-        android:layout_width="0dp"
         android:outlineProvider="none"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/iv_camera"
+        app:layout_constraintEnd_toStartOf="@+id/iv_microphone"
         app:layout_constraintStart_toEndOf="@+id/iv_add"
         app:layout_constraintTop_toTopOf="@+id/divider" />
 
