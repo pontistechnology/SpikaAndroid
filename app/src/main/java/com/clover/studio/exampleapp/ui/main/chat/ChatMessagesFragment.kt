@@ -101,6 +101,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var detailsMessageAdapter: MessageDetailsAdapter
     private lateinit var messageReactionAdapter: MessageReactionAdapter
+    var itemTouchHelper: ItemTouchHelper? = null
 
     private var currentMediaLocation: MutableList<Uri> = ArrayList()
     private var filesSelected: MutableList<Uri> = ArrayList()
@@ -657,8 +658,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 //                        messagesRecords.sortByDescending { messages -> messages.message.createdAt }
                         // messagesRecords.toList -> for DiffUtil class
                         Timber.d("Load check: ChatMessagesFragment submitting messages to adapter, ${messagesRecords.map { message -> message.message.body }}")
-                        chatAdapter.submitList(messagesRecords.toList())
 
+                        chatAdapter.submitList(messagesRecords.toList())
+                        updateSwipeController()
 
                         if (firstEnter) {
                             newMessagesCount = 0
@@ -995,6 +997,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
+        // Notify backend of messages seen
+        viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
+
+        // Update room visited
+        viewModel.updateRoomVisitedTimestamp(System.currentTimeMillis(), roomWithUsers.room.roomId)
+    }
+
+    private fun updateSwipeController() {
+        Timber.d("Messaages list size = ${messagesRecords.size}")
+        itemTouchHelper?.attachToRecyclerView(null)
         val messageSwipeController =
             MessageSwipeController(context!!, messagesRecords, onSwipeAction = { action, position ->
                 when (action) {
@@ -1012,14 +1024,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             })
 
-        val itemTouchHelper = ItemTouchHelper(messageSwipeController)
-        itemTouchHelper.attachToRecyclerView(bindingSetup.rvChat)
-
-        // Notify backend of messages seen
-        viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
-
-        // Update room visited
-        viewModel.updateRoomVisitedTimestamp(System.currentTimeMillis(), roomWithUsers.room.roomId)
+        itemTouchHelper = ItemTouchHelper(messageSwipeController)
+        itemTouchHelper!!.attachToRecyclerView(bindingSetup.rvChat)
     }
 
     private fun setUpMessageDetailsAdapter() {
