@@ -9,6 +9,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class RoomAndMessageAndRecords(
     @Embedded val roomWithUsers: RoomWithUsers,
-    @Relation(entity = Message::class, parentColumn = "room_id", entityColumn = "room_id")
+    @Relation(entity = Message::class, parentColumn = "room_id", entityColumn = "room_id_message")
     val message: List<MessageAndRecords>?,
 ) : Parcelable

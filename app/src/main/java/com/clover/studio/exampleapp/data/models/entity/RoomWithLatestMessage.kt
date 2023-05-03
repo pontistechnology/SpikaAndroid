@@ -12,6 +12,6 @@ data class RoomWithLatestMessage(
     @Relation(
         entity = Message::class,
         parentColumn = "room_id",
-        entityColumn = "room_id"
-    ) val message: List<Message>?,
+        entityColumn = "room_id_message"
+    ) val message: Message?,
 ) : Parcelable

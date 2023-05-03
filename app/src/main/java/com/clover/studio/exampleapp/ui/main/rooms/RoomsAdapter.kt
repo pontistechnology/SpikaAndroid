@@ -78,14 +78,14 @@ class RoomsAdapter(
                     )
                 )
 
-                if (!roomItem.message.isNullOrEmpty()) {
-                    val sortedList = roomItem.message.sortedBy { it.createdAt }
-                    val lastMessage = sortedList.last().body
+                if (roomItem.message != null) {
+                    val sortedList = roomItem.message
+                    val lastMessage = sortedList.body
                     var textUserName = ""
 
                     if (Const.JsonFields.GROUP == roomItem.roomWithUsers.room.type) {
                         for (user in roomItem.roomWithUsers.users) {
-                            if (sortedList.last().fromUserId == user.id) {
+                            if (sortedList.fromUserId == user.id) {
                                 textUserName = user.displayName.toString() + ": "
                                 break
                             }
@@ -97,7 +97,7 @@ class RoomsAdapter(
                             append(
                                 context.getString(
                                     R.string.generic_shared,
-                                    sortedList.last().type.toString()
+                                    sortedList.type.toString()
                                         .replaceFirstChar { it.uppercase() })
                             )
                         }
@@ -106,7 +106,7 @@ class RoomsAdapter(
                         append(lastMessage?.text.toString())
                     }
 
-                    val time = roomItem.message.last().createdAt?.let {
+                    val time = roomItem.message.createdAt?.let {
                         getRelativeTimeSpan(it)
                     }
 
@@ -123,7 +123,7 @@ class RoomsAdapter(
                     binding.tvNewMessages.visibility = View.GONE
                 }
 
-              if (roomItem.roomWithUsers.room.unreadCount > 0 && roomItem.message?.isNotEmpty() == true) {
+                if (roomItem.roomWithUsers.room.unreadCount > 0 && roomItem.message != null) {
                     binding.tvNewMessages.text = roomItem.roomWithUsers.room.unreadCount.toString()
                     binding.tvNewMessages.visibility = View.VISIBLE
                 } else {

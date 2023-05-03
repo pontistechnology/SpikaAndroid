@@ -103,18 +103,19 @@ class RoomsFragment : BaseFragment() {
                 binding.tvNoChats.visibility = View.GONE
 
                 roomList = it.responseData.toMutableList()
+
                 val nonEmptyRoomList = it.responseData.filter { roomData ->
-                    Const.JsonFields.GROUP == roomData.roomWithUsers.room.type || roomData.message?.isNotEmpty() == true
+                    Const.JsonFields.GROUP == roomData.roomWithUsers.room.type || roomData.message != null
                 }
 
                 val pinnedRooms = roomList.filter { roomItem -> roomItem.roomWithUsers.room.pinned }
-                    .sortedBy { pinnedRoom -> pinnedRoom.roomWithUsers.room.name }
+                    .sortedBy { pinnedRoom -> pinnedRoom.message?.createdAt }.reversed()
 
                 try {
                     sortedList =
                         nonEmptyRoomList.sortedWith(compareBy(nullsFirst()) { roomItem ->
-                            if (!roomItem.message.isNullOrEmpty()) {
-                                roomItem.message.last { message -> message.createdAt != null }.createdAt
+                            if (roomItem.message != null) {
+                                roomItem.message.createdAt
                             } else null
                         }).reversed().toMutableList()
                 } catch (ex: Exception) {
