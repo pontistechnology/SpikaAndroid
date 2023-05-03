@@ -9,7 +9,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.RoomWithLatestMessage
 import com.clover.studio.exampleapp.databinding.FragmentChatBinding
 import com.clover.studio.exampleapp.ui.main.MainViewModel
 import com.clover.studio.exampleapp.ui.main.chat.startChatScreenActivity
@@ -21,9 +21,9 @@ import timber.log.Timber
 class RoomsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var roomsAdapter: RoomsAdapter
-    private var roomList: MutableList<RoomAndMessageAndRecords> = mutableListOf()
-    private var filteredList: MutableList<RoomAndMessageAndRecords> = ArrayList()
-    private var sortedList: MutableList<RoomAndMessageAndRecords> = ArrayList()
+    private var roomList: MutableList<RoomWithLatestMessage> = mutableListOf()
+    private var filteredList: MutableList<RoomWithLatestMessage> = ArrayList()
+    private var sortedList: MutableList<RoomWithLatestMessage> = ArrayList()
     private var bindingSetup: FragmentChatBinding? = null
 
     private val binding get() = bindingSetup!!
@@ -98,7 +98,7 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.getChatRoomAndMessageAndRecords().observe(viewLifecycleOwner) {
+        viewModel.getChatRoomsWithLatestMessage().observe(viewLifecycleOwner) {
             if (it.responseData != null) {
                 binding.tvNoChats.visibility = View.GONE
 
@@ -114,7 +114,7 @@ class RoomsFragment : BaseFragment() {
                     sortedList =
                         nonEmptyRoomList.sortedWith(compareBy(nullsFirst()) { roomItem ->
                             if (!roomItem.message.isNullOrEmpty()) {
-                                roomItem.message.last { message -> message.message.createdAt != null }.message.createdAt
+                                roomItem.message.last { message -> message.createdAt != null }.createdAt
                             } else null
                         }).reversed().toMutableList()
                 } catch (ex: Exception) {

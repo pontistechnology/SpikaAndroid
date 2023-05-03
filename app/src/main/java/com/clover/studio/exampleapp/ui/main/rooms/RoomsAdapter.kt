@@ -11,8 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.exampleapp.R
-import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
-import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.RoomWithLatestMessage
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
@@ -21,8 +20,8 @@ import com.clover.studio.exampleapp.utils.Tools.getRelativeTimeSpan
 class RoomsAdapter(
     private val context: Context,
     private val myUserId: String,
-    private val onItemClick: ((item: RoomAndMessageAndRecords) -> Unit)
-) : ListAdapter<RoomAndMessageAndRecords, RoomsAdapter.RoomsViewHolder>(RoomsDiffCallback()) {
+    private val onItemClick: ((item: RoomWithLatestMessage) -> Unit)
+) : ListAdapter<RoomWithLatestMessage, RoomsAdapter.RoomsViewHolder>(RoomsDiffCallback()) {
     inner class RoomsViewHolder(val binding: ItemChatRoomBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -80,26 +79,34 @@ class RoomsAdapter(
                 )
 
                 if (!roomItem.message.isNullOrEmpty()) {
-                    val sortedList = roomItem.message.sortedBy { it.message.createdAt }
-                    val lastMessage = sortedList.last().message.body
+                    val sortedList = roomItem.message.sortedBy { it.createdAt }
+                    val lastMessage = sortedList.last().body
                     var textUserName = ""
 
                     if (Const.JsonFields.GROUP == roomItem.roomWithUsers.room.type) {
                         for (user in roomItem.roomWithUsers.users) {
-                            if (sortedList.last().message.fromUserId == user.id) {
+                            if (sortedList.last().fromUserId == user.id) {
                                 textUserName = user.displayName.toString() + ": "
                                 break
                             }
                         }
                     }
                     if (lastMessage?.text.isNullOrEmpty()) {
-                        binding.tvLastMessage.text = textUserName + context.getString(
-                            R.string.generic_shared,
-                            sortedList.last().message.type.toString()
-                                .replaceFirstChar { it.uppercase() })
-                    } else binding.tvLastMessage.text = textUserName + lastMessage?.text.toString()
+                        binding.tvLastMessage.text = buildString {
+                            append(textUserName)
+                            append(
+                                context.getString(
+                                    R.string.generic_shared,
+                                    sortedList.last().type.toString()
+                                        .replaceFirstChar { it.uppercase() })
+                            )
+                        }
+                    } else binding.tvLastMessage.text = buildString {
+                        append(textUserName)
+                        append(lastMessage?.text.toString())
+                    }
 
-                    val time = roomItem.message.last().message.createdAt?.let {
+                    val time = roomItem.message.last().createdAt?.let {
                         getRelativeTimeSpan(it)
                     }
 
@@ -116,14 +123,7 @@ class RoomsAdapter(
                     binding.tvNewMessages.visibility = View.GONE
                 }
 
-                // The second condition handles cases where some rooms have unread counts but have
-                // no locally stored messages in them
-                val maxTimestamp =
-                    roomItem.message?.maxByOrNull { it.message.modifiedAt!! }?.message?.modifiedAt
-
-                if (roomItem.roomWithUsers.room.visitedRoom != null && maxTimestamp != null && maxTimestamp <= roomItem.roomWithUsers.room.visitedRoom!!) {
-                    binding.tvNewMessages.visibility = View.GONE
-                } else if (roomItem.roomWithUsers.room.unreadCount > 0 && roomItem.message?.isNotEmpty() == true) {
+              if (roomItem.roomWithUsers.room.unreadCount > 0 && roomItem.message?.isNotEmpty() == true) {
                     binding.tvNewMessages.text = roomItem.roomWithUsers.room.unreadCount.toString()
                     binding.tvNewMessages.visibility = View.VISIBLE
                 } else {
@@ -140,17 +140,17 @@ class RoomsAdapter(
     }
 
 
-    private class RoomsDiffCallback : DiffUtil.ItemCallback<RoomAndMessageAndRecords>() {
+    private class RoomsDiffCallback : DiffUtil.ItemCallback<RoomWithLatestMessage>() {
 
         override fun areItemsTheSame(
-            oldItem: RoomAndMessageAndRecords,
-            newItem: RoomAndMessageAndRecords
+            oldItem: RoomWithLatestMessage,
+            newItem: RoomWithLatestMessage
         ) =
             oldItem.roomWithUsers.room.roomId == newItem.roomWithUsers.room.roomId
 
         override fun areContentsTheSame(
-            oldItem: RoomAndMessageAndRecords,
-            newItem: RoomAndMessageAndRecords
+            oldItem: RoomWithLatestMessage,
+            newItem: RoomWithLatestMessage
         ) =
             oldItem == newItem
     }
