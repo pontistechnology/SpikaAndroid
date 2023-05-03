@@ -107,7 +107,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 }
 
                 // Filter message if its from my user, don't show notification for it
-                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && response.message.muted == false && !MainApplication.isInForeground) {
+                if (response.message.muted == false && !MainApplication.isInForeground) {
                     Timber.d("Extras: ${response.message.roomId}")
                     val intent = Intent(baseContext, MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -159,7 +159,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             // This can be used to add a summary to the notification which will
                             // tell the user how many more messages are there. We can think about
                             // this later because it requires a way to follow count of new messages
-//                            inboxStyle.setSummaryText("+${existingMessageCount - MAX_MESSAGES + 1} more messages")
+                            if (response.message.unreadCount > 3) {
+                                inboxStyle.setSummaryText("+${response.message.unreadCount - MAX_MESSAGES} more messages")
+                            }
                             builder.setStyle(inboxStyle)
                             builder.setNumber(existingMessageCount + 1)
                         } else {
