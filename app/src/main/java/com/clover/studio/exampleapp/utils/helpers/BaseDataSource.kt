@@ -5,6 +5,8 @@ import retrofit2.Response
 import timber.log.Timber
 
 const val TOKEN_EXPIRED = 401
+
+// This is not correct anymore, 403 doesn't necessarily mean token invalid
 const val TOKEN_INVALID_CODE = 403
 
 abstract class BaseDataSource {
@@ -15,8 +17,7 @@ abstract class BaseDataSource {
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) return Resource.success(body)
-            }
-            else if (TOKEN_EXPIRED == response.code() || TOKEN_INVALID_CODE == response.code() ){
+            } else if (TOKEN_EXPIRED == response.code()) {
                 return Resource.tokenExpired("Token expired, user will be logged out of the app")
             }
 
