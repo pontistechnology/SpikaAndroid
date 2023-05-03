@@ -49,6 +49,19 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("DELETE FROM room")
     suspend fun removeRooms()
 
+//    @Transaction
+//    @Query(
+//        "SELECT room.*, message.* FROM room\n" +
+//                "LEFT JOIN (SELECT room_id, MAX(created_at) AS max_created_at FROM message GROUP BY room_id)\n" +
+//                "AS latestMessageTime ON room.room_id = latestMessageTime.room_id LEFT JOIN message\n" +
+//                "ON message.room_id = room.room_id AND message.created_at = latestMessageTime.max_created_at\n"
+//    )
+//    fun getAllRoomsWithLatestMessageAndRecord(): LiveData<List<RoomWithLatestMessage>>
+
+    @Transaction
+    @Query("SELECT * FROM room")
+    fun getAllRoomsWithLatestMessageAndRecord(): LiveData<List<RoomWithLatestMessage>>
+
     @Transaction
     @Query(
         "SELECT room.*, message.* FROM room\n" +
