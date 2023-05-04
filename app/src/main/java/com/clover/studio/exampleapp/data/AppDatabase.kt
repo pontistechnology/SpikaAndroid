@@ -63,7 +63,7 @@ abstract class AppDatabase : RoomDatabase() {
             Room.databaseBuilder(appContext, AppDatabase::class.java, "MainDatabase")
                 .addMigrations(
                     MIGRATION_1_2,
-                    // MIGRATION_2_3,
+                    MIGRATION_2_3
                 )
                 .fallbackToDestructiveMigration()
                 .build()
@@ -81,6 +81,16 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0")
             }
         }
+
+        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN type TO type_message")
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN room_id TO room_id_message")
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN created_at TO created_at_message")
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN modified_at TO modified_at_message")
+            }
+        }
+
         /* Database migration from version 2 to 3.
             This part is commented out until we decide to migrate the database. Until then, we'll be
             adding new changes to the database in the comments
