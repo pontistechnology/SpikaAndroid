@@ -72,6 +72,9 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "local_id")
     val localId: String?,
 
+    @Ignore
+    val unreadCount: Int = 0,
+
     // Two field below are used for firebase messaging and are not needed in the local db
     @Ignore
     @SerializedName("fromUserName")
