@@ -248,7 +248,7 @@
       },
       {
         "tableName": "room",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `visited_room` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))",
         "fields": [
           {
             "fieldPath": "roomId",
@@ -283,6 +283,12 @@
           {
             "fieldPath": "modifiedAt",
             "columnName": "modified_at",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "visitedRoom",
+            "columnName": "visited_room",
             "affinity": "INTEGER",
             "notNull": false
           },
