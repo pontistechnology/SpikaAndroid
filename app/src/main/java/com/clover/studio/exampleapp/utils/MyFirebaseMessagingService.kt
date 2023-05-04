@@ -124,7 +124,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             }
                         }
                     val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
-                        .setSmallIcon(R.drawable.img_spika_logo)
+                        .setSmallIcon(R.drawable.img_spika_push_black)
                         .setContentTitle(title)
                         .setContentText(content)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
