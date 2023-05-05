@@ -449,7 +449,7 @@ class SSERepositoryImpl @Inject constructor(
 
     override suspend fun deleteRoom(roomId: Int) {
         queryDatabaseCoreData(
-            databaseQuery = { chatRoomDao.deleteRoom(roomId) }
+            databaseQuery = { chatRoomDao.updateRoomDeleted(roomId, true) }
         )
     }
 
