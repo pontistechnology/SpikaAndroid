@@ -59,19 +59,8 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun createNewRoom(jsonObject: JsonObject): Resource<RoomResponse> {
         val response = performRestOperation(
             networkCall = { mainRemoteDataSource.createNewRoom(jsonObject) },
+            saveCallResult = { it.data?.room?.let { room -> chatRoomDao.upsert(room) } }
         )
-
-        val oldRoom = response.responseData?.data?.room?.roomId?.let {
-            queryDatabaseCoreData(
-                databaseQuery = { chatRoomDao.getRoomById(it) }
-            ).responseData
-        }
-
-        response.responseData?.data?.room?.let {
-            queryDatabaseCoreData(
-                databaseQuery = { chatRoomDao.updateRoomTable(oldRoom, it) }
-            )
-        }
 
         CoroutineScope(Dispatchers.IO).launch {
             appDatabase.runInTransaction {
@@ -220,17 +209,8 @@ class MainRepositoryImpl @Inject constructor(
     ): Resource<RoomResponse> {
         val response = performRestOperation(
             networkCall = { mainRemoteDataSource.updateRoom(jsonObject, roomId) },
+            saveCallResult = { it.data?.room?.let { room -> chatRoomDao.upsert(room) } }
         )
-
-        val oldRoom = queryDatabaseCoreData(
-            databaseQuery = { chatRoomDao.getRoomById(roomId) }
-        ).responseData
-
-        response.responseData?.data?.room?.let {
-            queryDatabaseCoreData(
-                databaseQuery = { chatRoomDao.updateRoomTable(oldRoom, it) }
-            )
-        }
 
         if (response.responseData?.data?.room != null) {
             val room = response.responseData.data.room

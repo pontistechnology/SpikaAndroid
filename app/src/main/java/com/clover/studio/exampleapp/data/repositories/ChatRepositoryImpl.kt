@@ -2,8 +2,17 @@ package com.clover.studio.exampleapp.data.repositories
 
 import androidx.lifecycle.LiveData
 import com.clover.studio.exampleapp.data.AppDatabase
-import com.clover.studio.exampleapp.data.daos.*
-import com.clover.studio.exampleapp.data.models.entity.*
+import com.clover.studio.exampleapp.data.daos.ChatRoomDao
+import com.clover.studio.exampleapp.data.daos.MessageDao
+import com.clover.studio.exampleapp.data.daos.NotesDao
+import com.clover.studio.exampleapp.data.daos.RoomUserDao
+import com.clover.studio.exampleapp.data.daos.UserDao
+import com.clover.studio.exampleapp.data.models.entity.ChatRoom
+import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.Note
+import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.NewNote
@@ -124,18 +133,20 @@ class ChatRepositoryImpl @Inject constructor(
             databaseQuery = { roomDao.getRoomAndUsers(roomId) }
         )
 
-    override suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) : Resource<RoomResponse> {
+    override suspend fun updateRoom(
+        jsonObject: JsonObject,
+        roomId: Int,
+        userId: Int
+    ): Resource<RoomResponse> {
         val response = performRestOperation(
             networkCall = { chatRemoteDataSource.updateRoom(jsonObject, roomId) })
 
         CoroutineScope(Dispatchers.IO).launch {
             appDatabase.runInTransaction {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val oldRoom = roomDao.getRoomById(roomId)
-
                     response.responseData?.data?.room?.let {
                         queryDatabaseCoreData(
-                            databaseQuery = { roomDao.updateRoomTable(oldRoom, it) }
+                            databaseQuery = { roomDao.upsert(it) }
                         )
                     }
 
@@ -322,12 +333,13 @@ interface ChatRepository {
         limit: Int,
         offset: Int
     ): LiveData<Resource<List<MessageAndRecords>>>
+
     suspend fun getMessageCount(roomId: Int): Int
 
     // Room calls
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     suspend fun getRoomWithUsers(roomId: Int): Resource<RoomWithUsers>
-    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) : Resource<RoomResponse>
+    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): Resource<RoomResponse>
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
     suspend fun getSingleRoomData(roomId: Int): Resource<RoomAndMessageAndRecords>
     fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<Resource<RoomAndMessageAndRecords>>

@@ -90,21 +90,6 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("UPDATE room SET unread_count = 0 WHERE room_id LIKE :roomId")
     suspend fun resetUnreadCount(roomId: Int)
 
-    // This method copies locally added fields to the database if present
-    @Transaction
-    suspend fun updateRoomTable(oldData: ChatRoom?, newData: ChatRoom) {
-        upsert(newData)
-    }
-
-    @Transaction
-    suspend fun updateRoomTable(chatRoomUpdate: List<ChatRoomUpdate>) {
-        val chatRooms: MutableList<ChatRoom> = ArrayList()
-        for (chatRoom in chatRoomUpdate) {
-            chatRooms.add(chatRoom.newRoom)
-        }
-        upsert(chatRooms)
-    }
-
     @Query("UPDATE room SET room_exit =:roomExit WHERE room_id LIKE :roomId")
     suspend fun updateRoomExit(roomId: Int, roomExit: Boolean)
 }

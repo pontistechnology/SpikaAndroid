@@ -1,13 +1,16 @@
 package com.clover.studio.exampleapp.data.repositories
 
 import com.clover.studio.exampleapp.data.AppDatabase
-import com.clover.studio.exampleapp.data.daos.*
+import com.clover.studio.exampleapp.data.daos.ChatRoomDao
+import com.clover.studio.exampleapp.data.daos.MessageDao
+import com.clover.studio.exampleapp.data.daos.MessageRecordsDao
+import com.clover.studio.exampleapp.data.daos.RoomUserDao
+import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.MessageRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
-import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate
 import com.clover.studio.exampleapp.data.repositories.data_sources.SSERemoteDataSource
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.performRestOperation
@@ -212,16 +215,9 @@ class SSERepositoryImpl @Inject constructor(
                         val users: MutableList<User> = ArrayList()
                         val rooms: MutableList<ChatRoom> = ArrayList()
                         val roomUsers: MutableList<RoomUser> = ArrayList()
-                        val chatRooms: MutableList<ChatRoomUpdate> = ArrayList()
                         for (room in response.responseData.data.rooms) {
                             if (!room.deleted) {
                                 Timber.d("Adding room ${room.name}")
-
-                                val oldData = queryDatabaseCoreData(
-                                    databaseQuery = { chatRoomDao.getRoomById(room.roomId) }
-                                ).responseData
-
-                                chatRooms.add(ChatRoomUpdate(oldData, room))
 
                                 for (user in room.users) {
                                     user.user?.let { users.add(it) }
@@ -237,7 +233,7 @@ class SSERepositoryImpl @Inject constructor(
                             rooms.add(room)
                         }
                         queryDatabaseCoreData(
-                            databaseQuery = { chatRoomDao.updateRoomTable(chatRooms) }
+                            databaseQuery = { chatRoomDao.upsert(rooms) }
                         )
                         queryDatabaseCoreData(
                             databaseQuery = { userDao.upsert(users) }
@@ -392,12 +388,8 @@ class SSERepositoryImpl @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             appDatabase.runInTransaction {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val oldRoom = queryDatabaseCoreData(
-                        databaseQuery = { chatRoomDao.getRoomById(room.roomId) }
-                    ).responseData
-
                     queryDatabaseCoreData(
-                        databaseQuery = { chatRoomDao.updateRoomTable(oldRoom, room) }
+                        databaseQuery = { chatRoomDao.upsert(room) }
                     )
 
                     val users: MutableList<User> = ArrayList()
