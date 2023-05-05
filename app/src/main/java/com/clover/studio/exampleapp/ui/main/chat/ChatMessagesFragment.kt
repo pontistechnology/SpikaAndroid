@@ -1001,7 +1001,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
 
         // Update room visited
-        viewModel.updateRoomVisitedTimestamp(System.currentTimeMillis(), roomWithUsers.room.roomId)
+        viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
     }
 
     private fun updateSwipeController() {
@@ -1867,12 +1867,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
 
                 override fun onSecondOptionClicked() {
-                    // Update room visited
-                    roomWithUsers.room.visitedRoom = System.currentTimeMillis()
-                    viewModel.updateRoomVisitedTimestamp(
-                        System.currentTimeMillis(),
-                        roomWithUsers.room.roomId
-                    )
+                    viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
                     if (unsentMessages.isNotEmpty()) {
                         viewModel.deleteLocalMessages(unsentMessages)
                     }
@@ -2060,12 +2055,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (uploadInProgress) {
             showUploadError(getString(R.string.upload_in_progress))
         } else {
-            // Update room visited
-            roomWithUsers.room.visitedRoom = System.currentTimeMillis()
-            viewModel.updateRoomVisitedTimestamp(
-                System.currentTimeMillis(),
-                roomWithUsers.room.roomId
-            )
+            viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
             activity!!.finish()
         }
     }

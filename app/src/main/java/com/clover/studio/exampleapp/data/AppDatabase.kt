@@ -41,6 +41,9 @@ abstract class AppDatabase : RoomDatabase() {
             const val TABLE_ROOM_USER = "room_user"
             const val TABLE_NOTES = "notes"
 
+            // tables for removing columns or modifications SQLite cannot handle without dropping
+            const val TABLE_CHAT_ROOM_NEW = "room_new"
+
             // general field names
             const val ID = "id"
         }
@@ -84,6 +87,10 @@ abstract class AppDatabase : RoomDatabase() {
 
         val MIGRATION_2_3: Migration = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS " + TablesInfo.TABLE_CHAT_ROOM_NEW + " (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))")
+                database.execSQL("DROP TABLE " + TablesInfo.TABLE_CHAT_ROOM)
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM_NEW + " RENAME TO " + TablesInfo.TABLE_CHAT_ROOM)
+
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN type TO type_message")
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN room_id TO room_id_message")
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN created_at TO created_at_message")
