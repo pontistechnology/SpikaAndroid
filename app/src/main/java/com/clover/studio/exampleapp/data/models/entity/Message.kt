@@ -40,11 +40,11 @@ data class Message @JvmOverloads constructor(
     val seenCount: Int?,
 
     @SerializedName("roomId")
-    @ColumnInfo(name = "room_id")
+    @ColumnInfo(name = "room_id_message")
     val roomId: Int?,
 
     @SerializedName("type")
-    @ColumnInfo(name = "type")
+    @ColumnInfo(name = "type_message")
     var type: String?,
 
     @SerializedName("body")
@@ -53,11 +53,11 @@ data class Message @JvmOverloads constructor(
     val body: MessageBody?,
 
     @SerializedName("createdAt")
-    @ColumnInfo(name = "created_at")
+    @ColumnInfo(name = "created_at_message")
     val createdAt: Long?,
 
     @SerializedName("modifiedAt")
-    @ColumnInfo(name = "modified_at")
+    @ColumnInfo(name = "modified_at_message")
     val modifiedAt: Long?,
 
     @SerializedName("deleted")

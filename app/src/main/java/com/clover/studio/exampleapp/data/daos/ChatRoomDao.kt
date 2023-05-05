@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.RoomWithLatestMessage
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate
 import com.clover.studio.exampleapp.utils.helpers.Extensions.getDistinct
@@ -47,6 +48,15 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
 
     @Query("DELETE FROM room")
     suspend fun removeRooms()
+
+    @Transaction
+    @Query(
+        "SELECT room.*, message.* FROM room\n" +
+                "LEFT JOIN (SELECT room_id_message, MAX(created_at_message) AS max_created_at FROM message GROUP BY room_id_message)\n" +
+                "AS latestMessageTime ON room.room_id = latestMessageTime.room_id_message LEFT JOIN message\n" +
+                "ON message.room_id_message = room.room_id AND message.created_at_message = latestMessageTime.max_created_at\n"
+    )
+    fun getAllRoomsWithLatestMessageAndRecord(): LiveData<List<RoomWithLatestMessage>>
 
     @Transaction
     @Query("SELECT * FROM room")

@@ -7,8 +7,11 @@ import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class RoomAndMessageAndRecords(
+data class RoomWithLatestMessage(
     @Embedded val roomWithUsers: RoomWithUsers,
-    @Relation(entity = Message::class, parentColumn = "room_id", entityColumn = "room_id_message")
-    val message: List<MessageAndRecords>?,
+    @Relation(
+        entity = Message::class,
+        parentColumn = "room_id",
+        entityColumn = "room_id_message"
+    ) val message: Message?,
 ) : Parcelable
