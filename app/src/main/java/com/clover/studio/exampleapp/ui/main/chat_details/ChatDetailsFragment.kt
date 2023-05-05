@@ -208,8 +208,8 @@ class ChatDetailsFragment : BaseFragment() {
                 binding.etEnterGroupName.visibility = View.VISIBLE
                 binding.tvDone.visibility = View.VISIBLE
                 binding.tvGroupName.visibility = View.INVISIBLE
-                binding.ivCallUser.visibility = View.GONE
-                binding.ivVideoCall.visibility = View.GONE
+                binding.ivCallUser.visibility = View.INVISIBLE
+                binding.ivVideoCall.visibility = View.INVISIBLE
             }
         }
 
@@ -429,8 +429,8 @@ class ChatDetailsFragment : BaseFragment() {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
                         binding.clProgressScreen.visibility = View.GONE
-                        binding.ivVideoCall.visibility = View.GONE
-                        binding.ivCallUser.visibility = View.GONE
+                        binding.ivVideoCall.visibility = View.INVISIBLE
+                        binding.ivCallUser.visibility = View.INVISIBLE
                         binding.tvDone.visibility = View.VISIBLE
                     }
                     newAvatarFileId = it.responseData!!.fileId
@@ -549,6 +549,7 @@ class ChatDetailsFragment : BaseFragment() {
             if (modifiedList.size > 3) {
                 adapter.submitList(modifiedList.subList(0, 3).toList())
                 binding.tvSeeMoreLess.visibility = View.VISIBLE
+                binding.tvSeeMoreLess.text = context!!.getString(R.string.see_more)
                 allUsers = true
             } else {
                 adapter.submitList(modifiedList.toList())
