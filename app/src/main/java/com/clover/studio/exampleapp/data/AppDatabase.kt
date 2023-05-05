@@ -95,6 +95,8 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN room_id TO room_id_message")
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN created_at TO created_at_message")
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN modified_at TO modified_at_message")
+
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM + " ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0")
             }
         }
 

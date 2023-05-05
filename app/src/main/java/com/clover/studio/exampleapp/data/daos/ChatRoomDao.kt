@@ -56,15 +56,6 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     fun getAllRoomsWithLatestMessageAndRecord(): LiveData<List<RoomWithLatestMessage>>
 
     @Transaction
-    @Query(
-        "SELECT room.*, message.* FROM room\n" +
-                "LEFT JOIN (SELECT room_id_message, MAX(created_at_message) AS max_created_at FROM message GROUP BY room_id_message)\n" +
-                "AS latestMessageTime ON room.room_id = latestMessageTime.room_id_message LEFT JOIN message\n" +
-                "ON message.room_id_message = room.room_id AND message.created_at_message = latestMessageTime.max_created_at\n"
-    )
-    fun getAllRoomsWithLatestMessageAndRecord(): LiveData<List<RoomWithLatestMessage>>
-
-    @Transaction
     @Query("SELECT * FROM room")
     fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
 
@@ -92,4 +83,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
 
     @Query("UPDATE room SET room_exit =:roomExit WHERE room_id LIKE :roomId")
     suspend fun updateRoomExit(roomId: Int, roomExit: Boolean)
+
+    @Query("UPDATE room SET deleted =:deleted WHERE room_id LIKE :roomId")
+    suspend fun updateRoomDeleted(roomId: Int, deleted: Boolean)
 }

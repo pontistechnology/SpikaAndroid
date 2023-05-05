@@ -198,9 +198,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         localUserId = viewModel.getLocalUserId()!!
 
         Timber.d("Load check: ChatMessagesFragment view created")
-        // Check if we have left the room, if so, disable bottom message interaction
-        if (roomWithUsers.room.roomExit == true) {
+        // Check if we have left the room or if room is deleted, if so, disable bottom message interaction
+        Timber.d("deleted: ${roomWithUsers.room}")
+
+        if (roomWithUsers.room.roomExit == true || roomWithUsers.room.deleted) {
             bindingSetup.clRoomExit.visibility = View.VISIBLE
+            setUpAdapter()
+            initializeObservers()
         } else {
             bindingSetup.clRoomExit.visibility = View.GONE
             checkStoragePermission()
@@ -232,7 +236,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         setAvatarAndName(avatarFileId, userName)
 
-        if (roomWithUsers.room.roomExit == true) {
+        if (roomWithUsers.room.roomExit == true || roomWithUsers.room.deleted) {
             bindingSetup.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
             bindingSetup.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
             bindingSetup.ivVideoCall.isEnabled = false
@@ -959,18 +963,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             onMessageInteraction = { event, message ->
                 // Block dialog:
                 // if (bindingSetup.clContactBlocked.visibility != View.VISIBLE) {
-                run {
-                    when (event) {
-                        Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                        Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
-                        Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
-                        Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
-                        Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
-                        Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
-                            message
-                        )
+                if (!roomWithUsers.room.deleted && roomWithUsers.room.roomExit == false) {
+                    run {
+                        when (event) {
+                            Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
+                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
+                            Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
+                            Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
+                            Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
+                            Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
+                                message
+                            )
 
-                        else -> Timber.d("No other action currently")
+                            else -> Timber.d("No other action currently")
+                        }
                     }
                 }
                 // }
