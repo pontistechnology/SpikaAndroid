@@ -50,7 +50,7 @@
         android:layout_marginBottom="@dimen/ten_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/number_example"
-        android:textSize="@dimen/fourteen_sp_text"
+        android:textSize="@dimen/twelve_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/tv_file_title"
         app:layout_constraintTop_toBottomOf="@id/tv_file_title" />
@@ -59,7 +59,7 @@
         android:id="@+id/iv_download_file"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/two_dp_margin"
+        android:layout_marginStart="@dimen/eight_dp_margin"
         android:layout_marginEnd="@dimen/eight_dp_margin"
         app:layout_constraintBottom_toBottomOf="@+id/tv_file_size"
         app:layout_constraintEnd_toEndOf="parent"

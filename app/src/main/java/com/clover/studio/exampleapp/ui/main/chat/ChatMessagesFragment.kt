@@ -1884,10 +1884,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleUserSelectedFile(uri: Uri) {
         bindingSetup.vHideTyping.visibility = View.VISIBLE
         bindingSetup.ivCamera.visibility = View.GONE
-        if (getFileMimeType(context!!, uri)?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
+
+        val fileMimeType = getFileMimeType(context, uri)
+        if (fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true && !fileMimeType.contains(
+                Const.JsonFields.AVI_TYPE
+            )
+        ) {
             convertVideo(uri)
-        } else if (getFileMimeType(context!!, uri)?.contains(Const.JsonFields.IMAGE_TYPE) == true
-            && getFileMimeType(context!!, uri)?.contains(Const.JsonFields.SVG_TYPE) == false
+        } else if (fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true && !fileMimeType.contains(
+                Const.JsonFields.SVG_TYPE
+            )
         ) {
             convertImageToBitmap(uri)
         } else {
