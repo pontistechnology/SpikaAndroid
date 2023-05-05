@@ -229,8 +229,8 @@ class SSERepositoryImpl @Inject constructor(
                                         )
                                     )
                                 }
+                                rooms.add(room)
                             }
-                            rooms.add(room)
                         }
                         queryDatabaseCoreData(
                             databaseQuery = { chatRoomDao.upsert(rooms) }
