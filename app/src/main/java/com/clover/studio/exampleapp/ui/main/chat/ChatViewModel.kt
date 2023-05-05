@@ -105,10 +105,6 @@ class ChatViewModel @Inject constructor(
         repository.sendMessagesSeen(roomId)
     }
 
-    fun updateRoomVisitedTimestamp(visitedTimestamp: Long, roomId: Int) = viewModelScope.launch {
-        repository.updatedRoomVisitedTimestamp(visitedTimestamp, roomId)
-    }
-
     fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
         CoroutineScope(Dispatchers.IO).launch {
             resolveResponseStatus(roomInfoUpdated, repository.updateRoom(jsonObject, roomId, userId) )
@@ -281,6 +277,10 @@ class ChatViewModel @Inject constructor(
 
     fun getUnreadCount() = viewModelScope.launch {
         mainRepository.getUnreadCount()
+    }
+
+    fun updateUnreadCount(roomId: Int) = viewModelScope.launch {
+        mainRepository.updateUnreadCount(roomId)
     }
 
     fun uploadFile(
