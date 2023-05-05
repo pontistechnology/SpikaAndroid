@@ -7,6 +7,7 @@ import com.clover.studio.exampleapp.data.daos.RoomUserDao
 import com.clover.studio.exampleapp.data.daos.UserDao
 import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
+import com.clover.studio.exampleapp.data.models.entity.RoomWithLatestMessage
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.entity.UserAndPhoneUser
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
@@ -122,6 +123,12 @@ class MainRepositoryImpl @Inject constructor(
         queryDatabase(
             databaseQuery = { chatRoomDao.getRoomAndUsersLiveData(roomId) }
         )
+
+    override fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithLatestMessage>>> =
+        queryDatabase(
+            databaseQuery = { chatRoomDao.getAllRoomsWithLatestMessageAndRecord() }
+        )
+
 
     override suspend fun getSingleRoomData(roomId: Int) =
         queryDatabaseCoreData(
@@ -351,6 +358,7 @@ interface MainRepository {
     suspend fun handleRoomPin(roomId: Int, doPin: Boolean)
     fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
+    fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithLatestMessage>>>
     suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): Resource<RoomResponse>
     suspend fun getUnreadCount()
     fun getRoomsUnreadCount(): LiveData<Resource<Int>>

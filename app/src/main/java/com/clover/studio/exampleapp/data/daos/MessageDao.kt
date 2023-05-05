@@ -9,7 +9,7 @@ import com.clover.studio.exampleapp.data.models.entity.MessageBody
 @Dao
 interface MessageDao : BaseDao<Message> {
 
-    @Query("UPDATE message SET id = :id, from_user_id = :fromUserId, total_user_count = :totalUserCount, delivered_count = :deliveredCount, seen_count = :seenCount, type = :type, body = :body, created_at = :createdAt, modified_at = :modifiedAt, deleted = :deleted, reply_id = :replyId WHERE local_id = :localId")
+    @Query("UPDATE message SET id = :id, from_user_id = :fromUserId, total_user_count = :totalUserCount, delivered_count = :deliveredCount, seen_count = :seenCount, type_message = :type, body = :body, created_at_message = :createdAt, modified_at_message = :modifiedAt, deleted = :deleted, reply_id = :replyId WHERE local_id = :localId")
     suspend fun updateMessage(
         id: Int,
         fromUserId: Int,
@@ -25,10 +25,10 @@ interface MessageDao : BaseDao<Message> {
         localId: String
     )
 
-    @Query("SELECT * FROM message WHERE room_id= :roomId ORDER BY created_at DESC LIMIT :limit OFFSET :offset")
+    @Query("SELECT * FROM message WHERE room_id_message= :roomId ORDER BY created_at_message DESC LIMIT :limit OFFSET :offset")
     fun getMessagesAndRecords(roomId: Int, limit: Int, offset: Int): LiveData<List<MessageAndRecords>>
 
-    @Query("SELECT COUNT(*) FROM message WHERE room_id= :roomId")
+    @Query("SELECT COUNT(*) FROM message WHERE room_id_message= :roomId")
     suspend fun getMessageCount(roomId: Int): Int
 
     @Transaction
