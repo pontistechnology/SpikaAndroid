@@ -98,6 +98,7 @@ class Const {
             const val TEXT_TYPE = "text"
             const val IMAGE_TYPE = "image"
             const val SVG_TYPE = "svg"
+            const val AVI_TYPE = "avi"
 
             // File upload
             const val CHUNK = "chunk"

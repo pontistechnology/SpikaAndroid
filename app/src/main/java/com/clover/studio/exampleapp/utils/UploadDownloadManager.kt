@@ -58,7 +58,11 @@ class UploadDownloadManager constructor(
         val time: Int
         val width: Int
         val height: Int
-        val mimeType = activity.contentResolver.getType(fileUri)!!
+        var mimeType = activity.contentResolver.getType(fileUri)!!
+
+        if (mimeType.contains(Const.JsonFields.AVI_TYPE)){
+            mimeType = Const.JsonFields.FILE_TYPE
+        }
 
         // Check mime type of file being sent. If it is a media file get metadata for image or video
         // respectively
