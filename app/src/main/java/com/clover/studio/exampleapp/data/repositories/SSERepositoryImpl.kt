@@ -476,7 +476,7 @@ class SSERepositoryImpl @Inject constructor(
                             break
                         }
                     }
-                    roomsToUpdate.add(room)
+                    if (!room.deleted) roomsToUpdate.add(room)
                 }
                 Timber.d("Rooms to update: $roomsToUpdate")
                 queryDatabaseCoreData(
