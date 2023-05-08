@@ -201,7 +201,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // Check if we have left the room or if room is deleted, if so, disable bottom message interaction
         Timber.d("deleted: ${roomWithUsers.room}")
 
-        if (roomWithUsers.room.roomExit == true || roomWithUsers.room.deleted) {
+        if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
             bindingSetup.clRoomExit.visibility = View.VISIBLE
             setUpAdapter()
             initializeObservers()
@@ -236,7 +236,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         setAvatarAndName(avatarFileId, userName)
 
-        if (roomWithUsers.room.roomExit == true || roomWithUsers.room.deleted) {
+        if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
             bindingSetup.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
             bindingSetup.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
             bindingSetup.ivVideoCall.isEnabled = false
@@ -963,7 +963,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             onMessageInteraction = { event, message ->
                 // Block dialog:
                 // if (bindingSetup.clContactBlocked.visibility != View.VISIBLE) {
-                if (!roomWithUsers.room.deleted && roomWithUsers.room.roomExit == false) {
+                if (!roomWithUsers.room.deleted && !roomWithUsers.room.roomExit) {
                     run {
                         when (event) {
                             Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)

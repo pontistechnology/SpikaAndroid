@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "d9b79612946c3e5f2a232d864ac79402",
+    "identityHash": "c65ddea5a8da4cba25da9b2772839c2f",
     "entities": [
       {
         "tableName": "user",
@@ -130,7 +130,7 @@
       },
       {
         "tableName": "message",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `from_user_id` INTEGER, `total_user_count` INTEGER, `delivered_count` INTEGER, `seen_count` INTEGER, `room_id_message` INTEGER, `type_message` TEXT, `body` TEXT, `created_at_message` INTEGER, `modified_at_message` INTEGER, `deleted` INTEGER, `reply_id` INTEGER, `local_id` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `from_user_id` INTEGER, `total_user_count` INTEGER, `delivered_count` INTEGER, `seen_count` INTEGER, `room_id_message` INTEGER, `type_message` TEXT, `body` TEXT, `created_at_message` INTEGER, `modified_at_message` INTEGER, `deleted_message` INTEGER, `reply_id` INTEGER, `local_id` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -194,7 +194,7 @@
           },
           {
             "fieldPath": "deleted",
-            "columnName": "deleted",
+            "columnName": "deleted_message",
             "affinity": "INTEGER",
             "notNull": false
           },
@@ -248,7 +248,7 @@
       },
       {
         "tableName": "room",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER, `deleted` INTEGER NOT NULL, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER NOT NULL, `deleted` INTEGER NOT NULL, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))",
         "fields": [
           {
             "fieldPath": "roomId",
@@ -302,7 +302,7 @@
             "fieldPath": "roomExit",
             "columnName": "room_exit",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "deleted",
@@ -475,7 +475,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd9b79612946c3e5f2a232d864ac79402')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c65ddea5a8da4cba25da9b2772839c2f')"
     ]
   }
 }

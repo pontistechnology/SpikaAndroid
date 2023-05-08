@@ -6,7 +6,6 @@ import com.clover.studio.exampleapp.data.models.entity.ChatRoom
 import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.RoomWithLatestMessage
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
-import com.clover.studio.exampleapp.data.models.networking.ChatRoomUpdate
 import com.clover.studio.exampleapp.utils.helpers.Extensions.getDistinct
 
 @Dao
