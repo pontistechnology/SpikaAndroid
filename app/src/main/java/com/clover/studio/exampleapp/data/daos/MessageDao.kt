@@ -9,7 +9,7 @@ import com.clover.studio.exampleapp.data.models.entity.MessageBody
 @Dao
 interface MessageDao : BaseDao<Message> {
 
-    @Query("UPDATE message SET id = :id, from_user_id = :fromUserId, total_user_count = :totalUserCount, delivered_count = :deliveredCount, seen_count = :seenCount, type_message = :type, body = :body, created_at_message = :createdAt, modified_at_message = :modifiedAt, deleted = :deleted, reply_id = :replyId WHERE local_id = :localId")
+    @Query("UPDATE message SET id = :id, from_user_id = :fromUserId, total_user_count = :totalUserCount, delivered_count = :deliveredCount, seen_count = :seenCount, type_message = :type, body = :body, created_at_message = :createdAt, modified_at_message = :modifiedAt, deleted_message = :deleted, reply_id = :replyId WHERE local_id = :localId")
     suspend fun updateMessage(
         id: Int,
         fromUserId: Int,

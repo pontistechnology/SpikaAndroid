@@ -166,7 +166,7 @@ class ChatDetailsFragment : BaseFragment() {
                 binding.ivAddMember.visibility = View.VISIBLE
             }
 
-            if (roomWithUsers.room.roomExit != true) {
+            if (!roomWithUsers.room.roomExit) {
                 binding.tvExitGroup.visibility = View.VISIBLE
             } else {
                 binding.tvExitGroup.visibility = View.GONE

@@ -42,7 +42,7 @@ data class ChatRoom @JvmOverloads constructor(
     var pinned: Boolean,
 
     @ColumnInfo(name = "room_exit")
-    var roomExit: Boolean?,
+    var roomExit: Boolean = false,
 
     @ColumnInfo(name = "deleted")
     var deleted: Boolean = false,
