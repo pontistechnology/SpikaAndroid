@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "d9b79612946c3e5f2a232d864ac79402",
+    "identityHash": "09cec4cdc08de175bf21988b0748fdb5",
     "entities": [
       {
         "tableName": "user",
@@ -248,7 +248,7 @@
       },
       {
         "tableName": "room",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER, `deleted` INTEGER NOT NULL, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER NOT NULL, `deleted` INTEGER NOT NULL, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))",
         "fields": [
           {
             "fieldPath": "roomId",
@@ -302,7 +302,7 @@
             "fieldPath": "roomExit",
             "columnName": "room_exit",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "deleted",
@@ -475,7 +475,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd9b79612946c3e5f2a232d864ac79402')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '09cec4cdc08de175bf21988b0748fdb5')"
     ]
   }
 }

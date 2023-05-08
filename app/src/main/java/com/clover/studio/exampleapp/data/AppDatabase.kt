@@ -88,7 +88,7 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_2_3: Migration = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM + " ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0")
-                database.execSQL("CREATE TABLE IF NOT EXISTS " + TablesInfo.TABLE_CHAT_ROOM_NEW + " (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER,  `deleted` INTEGER NOT NULL, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))")
+                database.execSQL("CREATE TABLE IF NOT EXISTS " + TablesInfo.TABLE_CHAT_ROOM_NEW + " (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER NOT NULL,  `deleted` INTEGER NOT NULL, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))")
                 database.execSQL("INSERT INTO " + TablesInfo.TABLE_CHAT_ROOM_NEW + " (room_id, name, type, avatar_file_id, created_at, modified_at, muted, pinned, room_exit, deleted, unread_count) SELECT room_id, name, type, avatar_file_id, created_at, modified_at, muted, pinned, room_exit, deleted, unread_count FROM room")
                 database.execSQL("DROP TABLE " + TablesInfo.TABLE_CHAT_ROOM)
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM_NEW + " RENAME TO " + TablesInfo.TABLE_CHAT_ROOM)
