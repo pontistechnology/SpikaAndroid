@@ -172,26 +172,28 @@ class UploadDownloadManager constructor(
             val file = repository.verifyFile(uploadFile.fileToJson()).responseData?.data?.file
             Timber.d("UploadDownload FilePath = ${file?.path}")
             Timber.d("Mime type = $mimeType")
-            if (isThumbnail) file?.path?.let {
-                fileUploadListener.fileUploadVerified(
-                    it,
-                    mimeType,
-                    file.id.toLong(),
-                    0,
-                    file.type!!,
-                    messageBody
-                )
-            }
-            else file?.path?.let {
-                fileUploadListener.fileUploadVerified(
-                    it,
-                    mimeType,
-                    0,
-                    file.id.toLong(),
-                    file.type!!,
-                    messageBody
-                )
-            }
+            if (file != null) {
+                if (isThumbnail) file.path?.let {
+                    fileUploadListener.fileUploadVerified(
+                        it,
+                        mimeType,
+                        file.id.toLong(),
+                        0,
+                        file.type!!,
+                        messageBody
+                    )
+                }
+                else file.path?.let {
+                    fileUploadListener.fileUploadVerified(
+                        it,
+                        mimeType,
+                        0,
+                        file.id.toLong(),
+                        file.type!!,
+                        messageBody
+                    )
+                }
+            } else fileUploadListener.fileUploadError("Some error")
 
         } catch (ex: Exception) {
             Tools.checkError(ex)

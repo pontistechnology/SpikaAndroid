@@ -658,7 +658,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         it.responseData.forEach { msg ->
                             messagesRecords.add(msg)
                         }
-                        messagesRecords = messagesRecords.distinct().toMutableList()
+//                        messagesRecords = messagesRecords.distinct().toMutableList()
 //                        messagesRecords.sortByDescending { messages -> messages.message.createdAt }
                         // messagesRecords.toList -> for DiffUtil class
                         Timber.d("Load check: ChatMessagesFragment submitting messages to adapter, ${messagesRecords.map { message -> message.message.body }}")
@@ -671,7 +671,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             bindingSetup.rvChat.scrollToPosition(0)
                             firstEnter = false
                         }
-                    }
+                    // This else clause handles the issue where the firs message in the chat failed
+                    // to be sent or uploaded. It would remain in the list otherwise.
+                    } else chatAdapter.submitList(messagesRecords.toList())
                 }
 
                 Resource.Status.LOADING -> {
@@ -1798,20 +1800,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      * Reset upload fields and clear local cache on success or critical fail
      */
     private fun resetUploadFields() {
-        if (!uploadInProgress) {
-            Timber.d("resetting upload")
-            if (tempMessageCounter >= -1) {
-                viewModel.deleteLocalMessages(unsentMessages)
-                tempMessageCounter = -1
-            }
-
-            currentMediaLocation.clear()
-            filesSelected.clear()
-            thumbnailUris.clear()
-            uploadInProgress = false
-            unsentMessages.clear()
-            context?.cacheDir?.deleteRecursively()
+        Timber.d("resetting upload")
+        if (tempMessageCounter >= -1) {
+            viewModel.deleteLocalMessages(unsentMessages)
+            tempMessageCounter = -1
         }
+
+        currentMediaLocation.clear()
+        filesSelected.clear()
+        thumbnailUris.clear()
+        uploadInProgress = false
+        unsentMessages.clear()
+        context?.cacheDir?.deleteRecursively()
     }
 
     /**
