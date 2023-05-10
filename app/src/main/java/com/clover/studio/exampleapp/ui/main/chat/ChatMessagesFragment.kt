@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
@@ -1184,25 +1185,30 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleDownloadFile(message: MessageAndRecords) {
-        when {
-            context?.let {
-                ContextCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-            } == PackageManager.PERMISSION_GRANTED -> {
-                Tools.downloadFile(context!!, message.message)
-            }
+        // Seems that WRITE_EXTERNAL_STORAGE check returns true for Android versions 12 and below,
+        // but false for Android version 13. If scoped storage is correctly implemented, the
+        // download will work without the need to check permission.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            when {
+                context?.let {
+                    ContextCompat.checkSelfPermission(
+                        it,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )
+                } == PackageManager.PERMISSION_GRANTED -> {
+                    Tools.downloadFile(context!!, message.message)
+                }
 
-            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
-                // TODO show why permission is needed
-            }
+                shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
+                    // TODO show why permission is needed
+                }
 
-            else -> {
-                storedMessage = message.message
-                storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                else -> {
+                    storedMessage = message.message
+                    storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                }
             }
-        }
+        } else Tools.downloadFile(context!!, message.message)
     }
 
     private fun handleDownloadCancelFile(message: MessageAndRecords) {
