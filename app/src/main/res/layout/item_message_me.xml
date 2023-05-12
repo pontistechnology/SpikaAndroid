@@ -384,7 +384,7 @@
             android:fontFamily="@font/montserrat"
             android:text="@string/audio_duration"
             android:textColor="@color/border"
-            android:textSize="@dimen/fourteen_sp_text"
+            android:textSize="@dimen/twelve_sp_text"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/cl_container"
             app:layout_constraintEnd_toStartOf="@+id/cl_container"
