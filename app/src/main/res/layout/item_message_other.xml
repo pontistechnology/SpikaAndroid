@@ -34,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/five_dp_margin"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintStart_toEndOf="@+id/cl_container"
             app:layout_constraintTop_toTopOf="@+id/cl_container">
 
@@ -340,7 +340,7 @@
             android:text="@string/audio_duration"
             android:textColor="@color/border"
             android:textSize="@dimen/twelve_sp_text"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/cl_container"
             app:layout_constraintStart_toEndOf="@id/cl_container" />
     </androidx.constraintlayout.widget.ConstraintLayout>
