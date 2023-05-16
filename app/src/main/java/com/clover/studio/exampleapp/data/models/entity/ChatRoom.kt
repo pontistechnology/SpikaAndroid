@@ -20,14 +20,14 @@ data class ChatRoom @JvmOverloads constructor(
     val roomId: Int,
 
     @ColumnInfo(name = "name")
-    val name: String?,
+    var name: String?,
 
     @ColumnInfo(name = "type")
     val type: String?,
 
     // Used only for local db insert logic
     @ColumnInfo(name = "avatar_file_id")
-    val avatarFileId: Long?,
+    var avatarFileId: Long?,
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long?,
@@ -56,5 +56,5 @@ data class ChatRoom @JvmOverloads constructor(
 
     @Ignore
     @IgnoredOnParcel
-    val hasAvatar: Boolean = avatarFileId != null && avatarFileId > 0L
+    val hasAvatar: Boolean = avatarFileId != null && avatarFileId!! > 0L
 }
