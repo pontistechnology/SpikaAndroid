@@ -49,6 +49,7 @@ import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.data.models.entity.MessageFile
 import com.clover.studio.exampleapp.data.models.entity.MessageRecords
+import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
 import com.clover.studio.exampleapp.ui.ImageSelectedContainer
@@ -94,6 +95,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
     private lateinit var roomWithUsers: RoomWithUsers
+    private lateinit var user: User
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
     private var unsentMessages: MutableList<Message> = ArrayList()
     private lateinit var storedMessage: Message
@@ -194,6 +196,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
+        roomWithUsers.users.firstOrNull { it.id.toString() != localUserId.toString() }
+            ?.let { user = it }
+
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
         localUserId = viewModel.getLocalUserId()!!
@@ -226,9 +231,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun initViews() {
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            val user =
-                roomWithUsers.users.firstOrNull { it.id.toString() != localUserId.toString() }
-            avatarFileId = user?.avatarFileId!!
+            avatarFileId = user.avatarFileId!!
             userName = user.displayName.toString()
         } else {
             avatarFileId = roomWithUsers.room.avatarFileId!!
@@ -905,10 +908,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (it.responseData?.data?.room?.roomId == roomWithUsers.room.roomId) {
-                        setAvatarAndName(
-                            it.responseData.data.room.avatarFileId ?: 0L,
-                            it.responseData.data.room.name!!,
-                        )
+                        val avatarFile = it.responseData.data.room.avatarFileId ?: 0L
+                        val roomName = it.responseData.data.room.name ?: ""
+                        roomWithUsers.room.apply {
+                            avatarFileId = avatarFile
+                            name = roomName
+                        }
+                        setAvatarAndName(avatarFile, roomName)
                     }
                 }
 
