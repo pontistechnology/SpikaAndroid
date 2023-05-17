@@ -1125,7 +1125,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMessageAction(msg: MessageAndRecords) {
-        if (msg.message.deleted == null) {
+        if (msg.message.deleted == null || msg.message.deleted == true) {
             return
         }
 
@@ -1139,7 +1139,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val fromUserId = msg.message.fromUserId
 
         bindingSetup.messageActions.tvDelete.visibility =
-            if (fromUserId == localId && !msg.message.deleted) View.VISIBLE else View.GONE
+            if (fromUserId == localId) View.VISIBLE else View.GONE
 
         bindingSetup.messageActions.tvEdit.visibility =
             if (fromUserId == localId && Const.JsonFields.TEXT_TYPE == msg.message.type) View.VISIBLE else View.GONE
