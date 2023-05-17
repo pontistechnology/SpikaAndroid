@@ -196,17 +196,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
-        roomWithUsers.users.firstOrNull { it.id.toString() != localUserId.toString() }
-            ?.let { user = it }
+        localUserId = viewModel.getLocalUserId()!!
+        user = roomWithUsers.users.firstOrNull { it.id.toString() != localUserId.toString() }!!
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
-        localUserId = viewModel.getLocalUserId()!!
-
-        Timber.d("Load check: ChatMessagesFragment view created")
+        // Timber.d("Load check: ChatMessagesFragment view created")
         // Check if we have left the room or if room is deleted, if so, disable bottom message interaction
-        Timber.d("deleted: ${roomWithUsers.room}")
-
         if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
             bindingSetup.clRoomExit.visibility = View.VISIBLE
             setUpAdapter()
@@ -665,7 +661,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 //                        messagesRecords = messagesRecords.distinct().toMutableList()
 //                        messagesRecords.sortByDescending { messages -> messages.message.createdAt }
                         // messagesRecords.toList -> for DiffUtil class
-                        Timber.d("Load check: ChatMessagesFragment submitting messages to adapter, ${messagesRecords.map { message -> message.message.body }}")
+                        // Timber.d("Load check: ChatMessagesFragment submitting messages to adapter, ${messagesRecords.map { message -> message.message.body }}")
 
                         chatAdapter.submitList(messagesRecords.toList())
                         updateSwipeController()
