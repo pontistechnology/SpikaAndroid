@@ -671,8 +671,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             bindingSetup.rvChat.scrollToPosition(0)
                             firstEnter = false
                         }
-                    // This else clause handles the issue where the firs message in the chat failed
-                    // to be sent or uploaded. It would remain in the list otherwise.
+                        // This else clause handles the issue where the firs message in the chat failed
+                        // to be sent or uploaded. It would remain in the list otherwise.
                     } else chatAdapter.submitList(messagesRecords.toList())
                 }
 
@@ -1125,7 +1125,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMessageAction(msg: MessageAndRecords) {
-        if (msg.records?.isNotEmpty() == false) {
+        if (msg.message.deleted == null) {
             return
         }
 
@@ -1139,7 +1139,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val fromUserId = msg.message.fromUserId
 
         bindingSetup.messageActions.tvDelete.visibility =
-            if (fromUserId == localId && !msg.message.deleted!!) View.VISIBLE else View.GONE
+            if (fromUserId == localId && !msg.message.deleted) View.VISIBLE else View.GONE
 
         bindingSetup.messageActions.tvEdit.visibility =
             if (fromUserId == localId && Const.JsonFields.TEXT_TYPE == msg.message.type) View.VISIBLE else View.GONE

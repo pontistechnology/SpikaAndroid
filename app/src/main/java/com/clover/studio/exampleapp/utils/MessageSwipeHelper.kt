@@ -53,8 +53,9 @@ class MessageSwipeController(
         replyImage = AppCompatResources.getDrawable(context, R.drawable.img_reply_item)
         infoImage = AppCompatResources.getDrawable(context, R.drawable.img_info_item)
 
-        return if (messageRecords[viewHolder.absoluteAdapterPosition].message.deleted != null
-            && messageRecords[viewHolder.absoluteAdapterPosition].message.deleted!!) {
+        return if (messageRecords[viewHolder.absoluteAdapterPosition].message.deleted == null
+            || messageRecords[viewHolder.absoluteAdapterPosition].message.deleted == true
+        ) {
             // Disable swipe for deleted messages
             makeMovementFlags(ACTION_STATE_IDLE, 0)
         } else {
