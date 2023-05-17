@@ -671,8 +671,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             bindingSetup.rvChat.scrollToPosition(0)
                             firstEnter = false
                         }
-                    // This else clause handles the issue where the firs message in the chat failed
-                    // to be sent or uploaded. It would remain in the list otherwise.
+                        // This else clause handles the issue where the firs message in the chat failed
+                        // to be sent or uploaded. It would remain in the list otherwise.
                     } else chatAdapter.submitList(messagesRecords.toList())
                 }
 
@@ -798,6 +798,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         } else progress = 0
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on piece")
+                        handleUploadError(UploadMimeTypes.FILE)
                     }
                 }
 
@@ -847,6 +848,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on piece")
+                        handleUploadError(UploadMimeTypes.MEDIA)
                     }
                 }
 
@@ -972,7 +974,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     run {
                         when (event) {
                             Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message)
+                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile()
                             Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                             Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                             Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
@@ -1123,6 +1125,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMessageAction(msg: MessageAndRecords) {
+        if (msg.message.deleted == null || msg.message.deleted == true) {
+            return
+        }
+
         val reactionsContainer = ReactionsContainer(this.context!!, null)
         bindingSetup.messageActions.reactionsContainer.addView(reactionsContainer)
         bottomSheetMessageActions.state = BottomSheetBehavior.STATE_EXPANDED
@@ -1133,7 +1139,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val fromUserId = msg.message.fromUserId
 
         bindingSetup.messageActions.tvDelete.visibility =
-            if (fromUserId == localId && !msg.message.deleted!!) View.VISIBLE else View.GONE
+            if (fromUserId == localId) View.VISIBLE else View.GONE
 
         bindingSetup.messageActions.tvEdit.visibility =
             if (fromUserId == localId && Const.JsonFields.TEXT_TYPE == msg.message.type) View.VISIBLE else View.GONE
@@ -1215,9 +1221,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         } else Tools.downloadFile(context!!, message.message)
     }
 
-    private fun handleDownloadCancelFile(message: MessageAndRecords) {
-        // For now, message object is not necessary but maybe we can use it later
-        showUploadError(getString(R.string.upload_file_in_progress))
+    private fun handleDownloadCancelFile() {
+        showUploadError(getString(R.string.upload_file_in_progress), false)
     }
 
     private fun handleMediaNavigation(chatMessage: MessageAndRecords) {
@@ -1737,6 +1742,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Const.JsonFields.FILE_TYPE
         }
 
+        viewModel.startUploadFile()
+
         viewModel.uploadFile(
             requireActivity(),
             filesSelected.first(),
@@ -1790,6 +1797,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     Const.JsonFields.VIDEO_TYPE
                 }
             }
+
+        viewModel.startUploadFile()
 
         viewModel.uploadMedia(
             requireActivity(),
@@ -1869,7 +1878,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         ).show()
     }
 
-    private fun showUploadError(errorMessage: String) {
+    private fun showUploadError(errorMessage: String, exit: Boolean) {
         DialogError.getInstance(activity!!,
             getString(R.string.warning),
             errorMessage,
@@ -1885,7 +1894,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     if (unsentMessages.isNotEmpty()) {
                         viewModel.deleteLocalMessages(unsentMessages)
                     }
-                    activity!!.finish()
+
+                    viewModel.cancelUploadFile()
+                    uploadInProgress = false
+
+                    if (exit) {
+                        activity!!.finish()
+                    }
                 }
             })
     }
@@ -2067,7 +2082,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun onBackArrowPressed() {
         if (uploadInProgress) {
-            showUploadError(getString(R.string.upload_in_progress))
+            showUploadError(getString(R.string.upload_in_progress), true)
         } else {
             viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
             activity!!.finish()
@@ -2076,7 +2091,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     override fun onBackPressed(): Boolean {
         if (uploadInProgress) {
-            showUploadError(getString(R.string.upload_in_progress))
+            showUploadError(getString(R.string.upload_in_progress), true)
             return false
         }
 

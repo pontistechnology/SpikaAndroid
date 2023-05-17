@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.data.repositories
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.RoomUserDao
@@ -25,7 +26,6 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -34,8 +34,10 @@ class MainRepositoryImpl @Inject constructor(
     private val chatRoomDao: ChatRoomDao,
     private val roomUserDao: RoomUserDao,
     private val appDatabase: AppDatabase,
-    private val sharedPrefs: SharedPreferencesRepository
+    private val sharedPrefs: SharedPreferencesRepository,
 ) : MainRepository {
+
+    var uploadInProgress = MutableLiveData(true)
 
     override suspend fun getUserRooms() =
         performRestOperation(
@@ -149,7 +151,7 @@ class MainRepositoryImpl @Inject constructor(
                     }
                     roomsToUpdate.add(room)
                 }
-                Timber.d("Rooms to update: $roomsToUpdate")
+                // Timber.d("Rooms to update: $roomsToUpdate")
                 queryDatabaseCoreData(
                     databaseQuery = { chatRoomDao.upsert(roomsToUpdate) }
                 )
@@ -192,10 +194,25 @@ class MainRepositoryImpl @Inject constructor(
         return data
     }
 
-    override suspend fun uploadFiles(jsonObject: JsonObject) =
-        performRestOperation(
-            networkCall = { mainRemoteDataSource.uploadFile(jsonObject) },
-        )
+    override suspend fun uploadFiles(jsonObject: JsonObject): Resource<FileResponse> {
+        val response: Resource<FileResponse> = if (uploadInProgress.value == true) {
+            performRestOperation(
+                networkCall = { mainRemoteDataSource.uploadFile(jsonObject) },
+            )
+        } else {
+            Resource(Resource.Status.ERROR, null, "Download is canceled")
+        }
+        return response
+    }
+
+
+    override suspend fun cancelUpload() {
+        uploadInProgress.value = false
+    }
+
+    override suspend fun startUpload() {
+        uploadInProgress.value = true
+    }
 
     override suspend fun verifyFile(jsonObject: JsonObject) =
         performRestOperation(
@@ -372,4 +389,8 @@ interface MainRepository {
     suspend fun blockUser(blockedId: Int)
     suspend fun deleteBlock(userId: Int)
     suspend fun deleteBlockForSpecificUser(userId: Int): Resource<List<User>>
+
+    // Upload file
+    suspend fun cancelUpload()
+    suspend fun startUpload()
 }

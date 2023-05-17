@@ -107,7 +107,10 @@ class ChatViewModel @Inject constructor(
 
     fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
         CoroutineScope(Dispatchers.IO).launch {
-            resolveResponseStatus(roomInfoUpdated, repository.updateRoom(jsonObject, roomId, userId) )
+            resolveResponseStatus(
+                roomInfoUpdated,
+                repository.updateRoom(jsonObject, roomId, userId)
+            )
         }
 
     fun isUserAdmin(roomId: Int, userId: Int): Boolean {
@@ -259,14 +262,14 @@ class ChatViewModel @Inject constructor(
         mainRepository.getBlockedList()
     }
 
-    // Block methods
-    fun blockUser(blockedId: Int) = viewModelScope.launch {
-        mainRepository.blockUser(blockedId)
-    }
-
-    fun deleteBlock(userId: Int) = viewModelScope.launch {
-        mainRepository.deleteBlock(userId)
-    }
+// Block methods
+//    fun blockUser(blockedId: Int) = viewModelScope.launch {
+//        mainRepository.blockUser(blockedId)
+//    }
+//
+//    fun deleteBlock(userId: Int) = viewModelScope.launch {
+//        mainRepository.deleteBlock(userId)
+//    }
 
     fun deleteBlockForSpecificUser(userId: Int) = viewModelScope.launch {
         resolveResponseStatus(
@@ -281,6 +284,14 @@ class ChatViewModel @Inject constructor(
 
     fun updateUnreadCount(roomId: Int) = viewModelScope.launch {
         mainRepository.updateUnreadCount(roomId)
+    }
+
+    fun startUploadFile() = viewModelScope.launch {
+        mainRepository.startUpload()
+    }
+
+    fun cancelUploadFile() = viewModelScope.launch {
+        mainRepository.cancelUpload()
     }
 
     fun uploadFile(

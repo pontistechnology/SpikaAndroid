@@ -117,6 +117,7 @@ class ChatAdapter(
                             calendar
                         )
                     }
+
                     Const.JsonFields.IMAGE_TYPE -> {
                         setViewsVisibility(holder.binding.clImageChat, holder)
 
@@ -143,6 +144,7 @@ class ChatAdapter(
                             )
                         }
                     }
+
                     Const.JsonFields.FILE_TYPE -> {
                         setViewsVisibility(holder.binding.fileLayout.clFileMessage, holder)
                         addFiles(
@@ -176,6 +178,7 @@ class ChatAdapter(
                             )
                         }
                     }
+
                     Const.JsonFields.VIDEO_TYPE -> {
                         setViewsVisibility(holder.binding.clVideos, holder)
                         bindVideo(
@@ -185,6 +188,7 @@ class ChatAdapter(
                             holder.binding.ivPlayButton
                         )
                     }
+
                     Const.JsonFields.AUDIO_TYPE -> {
                         setViewsVisibility(holder.binding.cvAudio, holder)
 
@@ -210,6 +214,7 @@ class ChatAdapter(
                             )
                         }
                     }
+
                     else -> {
                         setViewsVisibility(holder.binding.tvMessage, holder)
                     }
@@ -290,6 +295,7 @@ class ChatAdapter(
                             calendar
                         )
                     }
+
                     Const.JsonFields.IMAGE_TYPE -> {
                         setViewsVisibility(holder.binding.clImageChat, holder)
                         bindImage(
@@ -298,6 +304,7 @@ class ChatAdapter(
                             holder.binding.clContainer
                         )
                     }
+
                     Const.JsonFields.VIDEO_TYPE -> {
                         setViewsVisibility(holder.binding.clVideos, holder)
                         bindVideo(
@@ -308,6 +315,7 @@ class ChatAdapter(
                         )
 
                     }
+
                     Const.JsonFields.FILE_TYPE -> {
                         setViewsVisibility(holder.binding.fileLayout.clFileMessage, holder)
                         holder.binding.fileLayout.clFileMessage.setBackgroundResource(R.drawable.bg_message_received)
@@ -323,6 +331,7 @@ class ChatAdapter(
                             it.message.body?.file?.fileName?.substringAfterLast(".")!!
                         )
                     }
+
                     Const.JsonFields.AUDIO_TYPE -> {
                         setViewsVisibility(holder.binding.cvAudio, holder)
                         bindAudio(
@@ -333,6 +342,7 @@ class ChatAdapter(
                             holder.binding.audioLayout.tvAudioDuration
                         )
                     }
+
                     else -> {
                         setViewsVisibility(holder.binding.tvMessage, holder)
                     }
@@ -463,9 +473,9 @@ class ChatAdapter(
 
         tvMessage.movementMethod = LinkMovementMethod.getInstance()
         tvMessage.setOnLongClickListener {
-            if (!(chatMessage.message.deleted == true || (chatMessage.message.body?.text == context.getString(
+            if (!(chatMessage.message.body?.text == context.getString(
                     R.string.deleted_message
-                ) && (chatMessage.message.modifiedAt != chatMessage.message.createdAt)))
+                ) && (chatMessage.message.modifiedAt != chatMessage.message.createdAt))
             ) {
                 chatMessage.message.messagePosition = holder.absoluteAdapterPosition
                 onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)
