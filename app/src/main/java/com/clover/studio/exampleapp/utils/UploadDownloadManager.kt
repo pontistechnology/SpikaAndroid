@@ -61,6 +61,7 @@ class UploadDownloadManager constructor(
         val width: Int
         val height: Int
         var mimeType = activity.contentResolver.getType(fileUri)!!
+        cancelUpload = false
 
         if (mimeType.contains(Const.JsonFields.AVI_TYPE)){
             mimeType = Const.JsonFields.FILE_TYPE
