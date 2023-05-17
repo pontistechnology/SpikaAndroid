@@ -11,6 +11,7 @@ import com.clover.studio.exampleapp.data.models.FileMetadata
 import com.clover.studio.exampleapp.data.models.UploadFile
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import com.clover.studio.exampleapp.data.repositories.MainRepositoryImpl
+import com.clover.studio.exampleapp.utils.helpers.Resource
 import timber.log.Timber
 import java.io.BufferedInputStream
 import java.io.File
@@ -32,6 +33,7 @@ class UploadDownloadManager constructor(
     private val repository: MainRepositoryImpl
 ) {
     private var chunkCount = 0
+    private var cancelUpload = false
 
     /**
      * Method will handle file upload process. The caller will have to supply the required parameters
@@ -59,6 +61,7 @@ class UploadDownloadManager constructor(
         val width: Int
         val height: Int
         var mimeType = activity.contentResolver.getType(fileUri)!!
+        cancelUpload = false
 
         if (mimeType.contains(Const.JsonFields.AVI_TYPE)){
             mimeType = Const.JsonFields.FILE_TYPE
@@ -97,7 +100,8 @@ class UploadDownloadManager constructor(
             var piece = 0L
             val temp = ByteArray(getChunkSize(file.length()))
             val randomId = UUID.randomUUID().toString().substring(0, 7)
-            while (bis.read(temp).also { len = it } > 0) {
+
+            while ((bis.read(temp).also { len = it } > 0) && !cancelUpload) {
                 val uploadFile = UploadFile(
                     Base64.encodeToString(
                         temp,
@@ -144,7 +148,12 @@ class UploadDownloadManager constructor(
         fileUploadListener: FileUploadListener
     ) {
         try {
-            repository.uploadFiles(uploadFile.chunkToJson())
+            val response = repository.uploadFiles(uploadFile.chunkToJson())
+            if (Resource.Status.ERROR == response.status) {
+                cancelUpload = true
+                fileUploadListener.fileUploadError("Download is canceled")
+                return
+            }
             fileUploadListener.filePieceUploaded()
         } catch (ex: Exception) {
             Tools.checkError(ex)
