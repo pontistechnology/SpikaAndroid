@@ -101,12 +101,7 @@ class UploadDownloadManager constructor(
             val temp = ByteArray(getChunkSize(file.length()))
             val randomId = UUID.randomUUID().toString().substring(0, 7)
 
-            Timber.d("Upload Download Manager canceled: $cancelUpload")
-
             while ((bis.read(temp).also { len = it } > 0) && !cancelUpload) {
-
-                Timber.d("here")
-
                 val uploadFile = UploadFile(
                     Base64.encodeToString(
                         temp,
@@ -154,7 +149,6 @@ class UploadDownloadManager constructor(
     ) {
         try {
             val response = repository.uploadFiles(uploadFile.chunkToJson())
-            Timber.d("Response: $response")
             if (Resource.Status.ERROR == response.status) {
                 cancelUpload = true
                 fileUploadListener.fileUploadError("Download is canceled")

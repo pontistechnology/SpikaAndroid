@@ -26,7 +26,6 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -196,27 +195,23 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun uploadFiles(jsonObject: JsonObject): Resource<FileResponse> {
-        Timber.d("Main repo, upload file: ${uploadInProgress.value}")
-        var response: Resource<FileResponse>? = if (uploadInProgress.value == true) {
+        val response: Resource<FileResponse> = if (uploadInProgress.value == true) {
             performRestOperation(
                 networkCall = { mainRemoteDataSource.uploadFile(jsonObject) },
             )
         } else {
             Resource(Resource.Status.ERROR, null, "Download is canceled")
         }
-        Timber.d("Main repo: ${response.toString()}")
-        return response!!
+        return response
     }
 
 
     override suspend fun cancelUpload() {
         uploadInProgress.value = false
-        Timber.d("Main repo cancel: ${uploadInProgress.value}")
     }
 
     override suspend fun startUpload() {
         uploadInProgress.value = true
-        Timber.d("Main repo start: ${uploadInProgress.value}")
     }
 
     override suspend fun verifyFile(jsonObject: JsonObject) =
