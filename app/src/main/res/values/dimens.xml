@@ -34,6 +34,7 @@
     <dimen name="three_dp_margin">3dp</dimen>
     <dimen name="two_dp_margin">2dp</dimen>
     <dimen name="one_dp_margin">1dp</dimen>
+    <dimen name="zero_eight_dp">.8dp</dimen>
 
     <!-- Text -->
     <dimen name="thirty_eight_sp_text">38sp</dimen>
