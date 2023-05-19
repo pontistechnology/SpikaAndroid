@@ -53,6 +53,11 @@ class RoomsFragment : BaseFragment() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
                     Timber.d("Query: $query")
+
+                    // If room list is not empty, code will go through each element of the list
+                    // and check if its name corresponds to the users query. Logic also handles
+                    // private rooms with special logic, going through list of users in that
+                    // room and selecting the one who's id is not the local user id.
                     if (sortedList.isNotEmpty()) {
                         val myUserId = viewModel.getLocalUserId().toString()
                         for (room in sortedList) {
