@@ -54,10 +54,19 @@ class RoomsFragment : BaseFragment() {
                 if (query != null) {
                     Timber.d("Query: $query")
                     if (sortedList.isNotEmpty()) {
+                        val myUserId = viewModel.getLocalUserId().toString()
                         for (room in sortedList) {
-                            if (room.roomWithUsers.room.name?.lowercase()
-                                    ?.contains(query, ignoreCase = true) == true
-                            ) {
+                            val shouldAddRoom =
+                                if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
+                                    room.roomWithUsers.users.any {
+                                        myUserId != it.id.toString() && it.displayName?.lowercase()
+                                            ?.contains(query, ignoreCase = true) == true
+                                    }
+                                } else {
+                                    room.roomWithUsers.room.name?.lowercase()
+                                        ?.contains(query, ignoreCase = true) == true
+                                }
+                            if (shouldAddRoom) {
                                 filteredList.add(room)
                             }
                         }
@@ -71,11 +80,25 @@ class RoomsFragment : BaseFragment() {
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
                     Timber.d("Query: $query")
+
+                    // If room list is not empty, code will go through each element of the list
+                    // and check if its name corresponds to the users query. Logic also handles
+                    // private rooms with special logic, going through list of users in that
+                    // room and selecting the one who's id is not the local user id.
                     if (sortedList.isNotEmpty()) {
+                        val myUserId = viewModel.getLocalUserId().toString()
                         for (room in sortedList) {
-                            if (room.roomWithUsers.room.name?.lowercase()
-                                    ?.contains(query, ignoreCase = true) == true
-                            ) {
+                            val shouldAddRoom =
+                                if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
+                                    room.roomWithUsers.users.any {
+                                        myUserId != it.id.toString() && it.displayName?.lowercase()
+                                            ?.contains(query, ignoreCase = true) == true
+                                    }
+                                } else {
+                                    room.roomWithUsers.room.name?.lowercase()
+                                        ?.contains(query, ignoreCase = true) == true
+                                }
+                            if (shouldAddRoom) {
                                 filteredList.add(room)
                             }
                         }
