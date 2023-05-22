@@ -26,6 +26,8 @@ class RoomsFragment : BaseFragment() {
     private var sortedList: MutableList<RoomWithLatestMessage> = ArrayList()
     private var bindingSetup: FragmentChatBinding? = null
 
+    private var userSearching = false
+
     private val binding get() = bindingSetup!!
 
     override fun onCreateView(
@@ -52,29 +54,35 @@ class RoomsFragment : BaseFragment() {
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
-                    Timber.d("Query: $query")
+                    if (query.isNotEmpty()) {
+                        userSearching = true
+                        Timber.d("Query: $query")
 
-                    // If room list is not empty, code will go through each element of the list
-                    // and check if its name corresponds to the users query. Logic also handles
-                    // private rooms with special logic, going through list of users in that
-                    // room and selecting the one who's id is not the local user id.
-                    if (sortedList.isNotEmpty()) {
-                        val myUserId = viewModel.getLocalUserId().toString()
-                        for (room in sortedList) {
-                            val shouldAddRoom =
-                                if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
-                                    room.roomWithUsers.users.any {
-                                        myUserId != it.id.toString() && it.displayName?.lowercase()
+                        // If room list is not empty, code will go through each element of the list
+                        // and check if its name corresponds to the users query. Logic also handles
+                        // private rooms with special logic, going through list of users in that
+                        // room and selecting the one who's id is not the local user id.
+                        if (sortedList.isNotEmpty()) {
+                            val myUserId = viewModel.getLocalUserId().toString()
+                            for (room in sortedList) {
+                                val shouldAddRoom =
+                                    if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
+                                        room.roomWithUsers.users.any {
+                                            myUserId != it.id.toString() && it.displayName?.lowercase()
+                                                ?.contains(query, ignoreCase = true) == true
+                                        }
+                                    } else {
+                                        room.roomWithUsers.room.name?.lowercase()
                                             ?.contains(query, ignoreCase = true) == true
                                     }
-                                } else {
-                                    room.roomWithUsers.room.name?.lowercase()
-                                        ?.contains(query, ignoreCase = true) == true
+                                if (shouldAddRoom) {
+                                    filteredList.add(room)
                                 }
-                            if (shouldAddRoom) {
-                                filteredList.add(room)
                             }
                         }
+                    } else {
+                        userSearching = false
+                        roomsAdapter.submitList(sortedList)
                     }
                     roomsAdapter.submitList(ArrayList(filteredList))
                     filteredList.clear()
@@ -84,32 +92,38 @@ class RoomsFragment : BaseFragment() {
 
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
-                    Timber.d("Query: $query")
+                    if (query.isNotEmpty()) {
+                        userSearching = true
+                        Timber.d("Query: $query")
 
-                    // If room list is not empty, code will go through each element of the list
-                    // and check if its name corresponds to the users query. Logic also handles
-                    // private rooms with special logic, going through list of users in that
-                    // room and selecting the one who's id is not the local user id.
-                    if (sortedList.isNotEmpty()) {
-                        val myUserId = viewModel.getLocalUserId().toString()
-                        for (room in sortedList) {
-                            val shouldAddRoom =
-                                if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
-                                    room.roomWithUsers.users.any {
-                                        myUserId != it.id.toString() && it.displayName?.lowercase()
+                        // If room list is not empty, code will go through each element of the list
+                        // and check if its name corresponds to the users query. Logic also handles
+                        // private rooms with special logic, going through list of users in that
+                        // room and selecting the one who's id is not the local user id.
+                        if (sortedList.isNotEmpty()) {
+                            val myUserId = viewModel.getLocalUserId().toString()
+                            for (room in sortedList) {
+                                val shouldAddRoom =
+                                    if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
+                                        room.roomWithUsers.users.any {
+                                            myUserId != it.id.toString() && it.displayName?.lowercase()
+                                                ?.contains(query, ignoreCase = true) == true
+                                        }
+                                    } else {
+                                        room.roomWithUsers.room.name?.lowercase()
                                             ?.contains(query, ignoreCase = true) == true
                                     }
-                                } else {
-                                    room.roomWithUsers.room.name?.lowercase()
-                                        ?.contains(query, ignoreCase = true) == true
+                                if (shouldAddRoom) {
+                                    filteredList.add(room)
                                 }
-                            if (shouldAddRoom) {
-                                filteredList.add(room)
                             }
                         }
+                        roomsAdapter.submitList(ArrayList(filteredList))
+                        filteredList.clear()
+                    } else {
+                        userSearching = false
+                        roomsAdapter.submitList(sortedList)
                     }
-                    roomsAdapter.submitList(ArrayList(filteredList))
-                    filteredList.clear()
                 }
                 binding.rvRooms.scrollToPosition(0)
                 return true
@@ -156,7 +170,10 @@ class RoomsFragment : BaseFragment() {
 
                 // Calling .toSet() here caused a crash in the app, so don't add it.
                 sortedList = (pinnedRooms + (sortedList - pinnedRooms)).toMutableList()
-                roomsAdapter.submitList(sortedList)
+
+                if (!userSearching) {
+                    roomsAdapter.submitList(sortedList)
+                }
             }
         }
     }
