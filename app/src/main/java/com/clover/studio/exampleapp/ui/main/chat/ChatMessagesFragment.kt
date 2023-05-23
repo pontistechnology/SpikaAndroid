@@ -95,7 +95,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
     private lateinit var roomWithUsers: RoomWithUsers
-    private lateinit var user: User
+    private var user: User? = null
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
     private var unsentMessages: MutableList<Message> = ArrayList()
     private lateinit var storedMessage: Message
@@ -197,7 +197,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
         localUserId = viewModel.getLocalUserId()!!
-        user = roomWithUsers.users.firstOrNull { it.id.toString() != localUserId.toString() }!!
+
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            user = roomWithUsers.users.firstOrNull { it.id.toString() != localUserId.toString() }
+        }
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
@@ -227,8 +230,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun initViews() {
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            avatarFileId = user.avatarFileId!!
-            userName = user.displayName.toString()
+            avatarFileId = user?.avatarFileId!!
+            userName = user?.displayName.toString()
         } else {
             avatarFileId = roomWithUsers.room.avatarFileId!!
             userName = roomWithUsers.room.name.toString()
