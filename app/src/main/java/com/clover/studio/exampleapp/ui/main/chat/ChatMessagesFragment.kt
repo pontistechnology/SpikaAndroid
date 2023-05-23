@@ -1,6 +1,7 @@
 package com.clover.studio.exampleapp.ui.main.chat
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context.CLIPBOARD_SERVICE
@@ -105,6 +106,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var detailsMessageAdapter: MessageDetailsAdapter
     private lateinit var messageReactionAdapter: MessageReactionAdapter
     var itemTouchHelper: ItemTouchHelper? = null
+    var valueAnimator: ValueAnimator? = null
 
     private var currentMediaLocation: MutableList<Uri> = ArrayList()
     private var filesSelected: MutableList<Uri> = ArrayList()
@@ -341,7 +343,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 super.onScrollStateChanged(recyclerView, newState)
                 // This condition checks if the RecyclerView is at the bottom
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    bindingSetup.cvNewMessages.visibility = View.GONE
+                    bindingSetup.cvNewMessages.visibility = View.INVISIBLE
                     newMessagesCount = 0
                     scrollYDistance = 0
                 }
@@ -354,7 +356,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.cvNewMessages.setOnClickListener {
             bindingSetup.rvChat.scrollToPosition(0)
-            bindingSetup.cvNewMessages.visibility = View.GONE
+            bindingSetup.cvNewMessages.visibility = View.INVISIBLE
             scrollYDistance = 0
             newMessagesCount = 0
         }
@@ -623,7 +625,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             } else resetUploadFields()
                         }, 2000)
                     }
-                    bindingSetup.rvChat.scrollToPosition(0)
                 }
 
                 Resource.Status.ERROR -> Timber.d("Message send fail")
@@ -631,17 +632,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
-        /*viewModel.getMessagesTimestampListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                is MessagesTimestampFetched -> {
-                    Timber.d("Messages timestamp fetched")
-                    messages = it.messages as MutableList<Message>
-                    //chatAdapter.submitList(it.messages)
-                }
-                is MessageTimestampFetchFail -> Timber.d("Failed to fetch messages timestamp")
-                else -> Timber.d("Other error")
-            }
-        })*/
+//        viewModel.getMessagesTimestampListener.observe(viewLifecycleOwner, EventObserver {
+//            when (it) {
+//                is MessagesTimestampFetched -> {
+//                    Timber.d("Messages timestamp fetched")
+//                    messages = it.messages as MutableList<Message>
+//                    //chatAdapter.submitList(it.messages)
+//                }
+//                is MessageTimestampFetchFail -> Timber.d("Failed to fetch messages timestamp")
+//                else -> Timber.d("Other error")
+//            }
+//        })
 
         viewModel.getMessageAndRecords(roomWithUsers.room.roomId).observe(viewLifecycleOwner) {
             when (it.status) {
@@ -695,7 +696,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
 
                     newMessagesCount++
-                    showNewMessage(it)
+                    showNewMessage()
                 }
             }
         }
@@ -927,35 +928,58 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         })
     }
 
-    private fun showNewMessage(newMessage: Message) {
-        // If we send message
-        if (newMessage.fromUserId == localUserId) {
+    private fun showNewMessage() {
+        valueAnimator?.end()
+        valueAnimator?.removeAllUpdateListeners()
+        bindingSetup.cvBottomArrow.visibility = View.GONE
+
+        if (heightDiff >= MIN_HEIGHT_DIFF && scrollYDistance > SCROLL_DISTANCE_POSITIVE) {
+            scrollYDistance -= heightDiff
+        }
+
+        if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
+            || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
+        ) {
             scrollToPosition()
         } else {
-            // If we received message and keyboard is open:
-            if (heightDiff >= MIN_HEIGHT_DIFF && scrollYDistance > SCROLL_DISTANCE_POSITIVE) {
-                scrollYDistance -= heightDiff
+            bindingSetup.cvNewMessages.visibility = View.VISIBLE
+
+            if (newMessagesCount == 1) {
+                bindingSetup.tvNewMessage.text =
+                    getString(R.string.new_messages, newMessagesCount.toString(), "").trim()
+            } else {
+                bindingSetup.tvNewMessage.text =
+                    getString(R.string.new_messages, newMessagesCount.toString(), "s").trim()
             }
-            // We need to check where we are in recycler view:
-            // If we are somewhere bottom
-            if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
-                || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
-            ) {
-                scrollToPosition()
-            }
-            // If we are somewhere up in chat, show new message dialog
-            else {
-                bindingSetup.cvNewMessages.visibility = View.VISIBLE
-                if (newMessagesCount == 1) {
-                    bindingSetup.tvNewMessage.text =
-                        getString(R.string.new_messages, newMessagesCount.toString(), "")
-                } else {
-                    bindingSetup.tvNewMessage.text =
-                        getString(R.string.new_messages, newMessagesCount.toString(), "s")
+
+            if (newMessagesCount == 1) {
+                val startWidth = bindingSetup.ivBottomArrow.width
+                val endWidth = (bindingSetup.tvNewMessage.width + bindingSetup.ivBottomArrow.width)
+
+                valueAnimator = ValueAnimator.ofInt(startWidth, endWidth).apply {
+                    addUpdateListener { valueAnimator ->
+                        val layoutParams = bindingSetup.cvNewMessages.layoutParams
+                        layoutParams.width = valueAnimator.animatedValue as Int
+                        bindingSetup.cvNewMessages.layoutParams = layoutParams
+                        //bindingSetup.cvNewMessages.requestLayout()
+                    }
+                    duration = 300
                 }
+                valueAnimator?.start()
             }
         }
         return
+    }
+
+    private fun showBottomArrow() {
+        if (!((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
+                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
+        ) {
+            bindingSetup.cvNewMessages.visibility = View.INVISIBLE
+            bindingSetup.cvBottomArrow.visibility = View.VISIBLE
+
+        }
+
     }
 
     private fun scrollToPosition() {
@@ -1012,6 +1036,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 } else if (lastVisiblePosition != totalItemCount - 1) {
                     isFetching = false // Reset the flag when user scrolls away from the bottom
                 }
+                showBottomArrow()
             }
         })
 
@@ -1023,7 +1048,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun updateSwipeController() {
-        Timber.d("Messaages list size = ${messagesRecords.size}")
+        // Timber.d("Messaages list size = ${messagesRecords.size}")
         itemTouchHelper?.attachToRecyclerView(null)
         val messageSwipeController =
             MessageSwipeController(context!!, messagesRecords, onSwipeAction = { action, position ->
