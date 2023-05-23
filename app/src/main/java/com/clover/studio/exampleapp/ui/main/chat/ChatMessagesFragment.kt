@@ -643,7 +643,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.getMessageAndRecords(roomWithUsers.room.roomId).observe(viewLifecycleOwner) {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    Timber.d("Load check: ChatMessagesFragment messages fetched")
                     messagesRecords.clear()
                     if (it.responseData?.isNotEmpty() == true) {
                         /* Block dialog:
@@ -689,6 +688,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.newMessageReceivedListener.observe(viewLifecycleOwner) { message ->
             message?.let {
                 if (message.roomId == roomWithUsers.room.roomId) {
+                    // Notify backend of messages seen
+                    viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
+
                     newMessagesCount++
                     showNewMessage(it)
                 }
