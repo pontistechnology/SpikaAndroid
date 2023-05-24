@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -29,6 +30,8 @@ class MainApplication : Application(), LifecycleEventObserver {
     @Inject
     lateinit var sharedPrefs: SharedPreferencesRepository
 
+    lateinit var phonebookIntent: Intent
+
     companion object {
         lateinit var appContext: Context
         var isInForeground = false
@@ -47,6 +50,15 @@ class MainApplication : Application(), LifecycleEventObserver {
 
         // Emoji:
         EmojiManager.install(GoogleEmojiProvider())
+
+        // PhonebookService:
+        startPhonebookService()
+    }
+
+    private fun startPhonebookService() {
+        Timber.d("Starting phonebook service")
+        phonebookIntent = Intent(this, PhonebookService::class.java)
+        startService(phonebookIntent)
     }
 
     fun getContext(): Context {
@@ -80,21 +92,28 @@ class MainApplication : Application(), LifecycleEventObserver {
                 }
                 isInForeground = true
             }
+
             Lifecycle.Event.ON_CREATE -> {
                 // ignore
             }
+
             Lifecycle.Event.ON_RESUME -> {
                 // ignore
             }
+
             Lifecycle.Event.ON_PAUSE -> {
                 // ignore
             }
+
             Lifecycle.Event.ON_STOP -> {
                 isInForeground = false
             }
+
             Lifecycle.Event.ON_DESTROY -> {
                 isInForeground = false
+                stopService(phonebookIntent)
             }
+
             Lifecycle.Event.ON_ANY -> {
                 // ignore
             }
