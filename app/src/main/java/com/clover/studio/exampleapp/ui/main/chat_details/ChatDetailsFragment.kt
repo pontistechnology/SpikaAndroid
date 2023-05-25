@@ -55,6 +55,7 @@ class ChatDetailsFragment : BaseFragment() {
     private lateinit var adapter: ChatDetailsAdapter
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var roomUsers: MutableList<User> = ArrayList()
+    private lateinit var roomWithUsers : RoomWithUsers
     private var progress: Long = 1L
     private var uploadPieces: Int = 0
     private var roomId: Int? = null
@@ -110,7 +111,8 @@ class ChatDetailsFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Fetch room data sent from previous fragment
-        roomId = args.roomId
+        // roomId = args.roomId
+        roomWithUsers = args.roomId
         isAdmin = args.isAdmin
     }
 
@@ -121,6 +123,7 @@ class ChatDetailsFragment : BaseFragment() {
         bindingSetup = FragmentChatDetailsBinding.inflate(inflater, container, false)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        initializeViews(roomWithUsers)
         initializeObservers()
         handleUserStatusViews(isAdmin)
 
@@ -154,6 +157,7 @@ class ChatDetailsFragment : BaseFragment() {
             binding.ivAddMember.visibility = View.GONE
             binding.tvDelete.visibility = View.GONE
         } else {
+            //updateRoomUserList(roomWithUsers)
             setupAdapter(isAdmin, roomWithUsers.room.type.toString())
             binding.clMemberList.visibility = View.VISIBLE
             userName = roomWithUsers.room.name.toString()
@@ -173,7 +177,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
 
         }
-        binding.tvTitle.text = roomWithUsers.room.type
+        binding.chatHeader.tvTitle.text = roomWithUsers.room.type
 
         // Set room muted or not muted on switch
         binding.swMute.isChecked = roomWithUsers.room.muted
@@ -186,6 +190,7 @@ class ChatDetailsFragment : BaseFragment() {
             setAvatarAndUsername(avatarFileId, userName)
         }
         initializeListeners(roomWithUsers)
+        updateRoomUserList(roomWithUsers)
     }
 
     private fun initializeListeners(roomWithUsers: RoomWithUsers) {
@@ -208,8 +213,8 @@ class ChatDetailsFragment : BaseFragment() {
                 binding.etEnterGroupName.visibility = View.VISIBLE
                 binding.tvDone.visibility = View.VISIBLE
                 binding.tvGroupName.visibility = View.INVISIBLE
-                binding.ivCallUser.visibility = View.INVISIBLE
-                binding.ivVideoCall.visibility = View.INVISIBLE
+                binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
+                binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
             }
         }
 
@@ -228,8 +233,8 @@ class ChatDetailsFragment : BaseFragment() {
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
 
             binding.tvDone.visibility = View.GONE
-            binding.ivCallUser.visibility = View.VISIBLE
-            binding.ivVideoCall.visibility = View.VISIBLE
+            binding.chatHeader.ivCallUser.visibility = View.VISIBLE
+            binding.chatHeader.ivVideoCall.visibility = View.VISIBLE
             binding.etEnterGroupName.visibility = View.INVISIBLE
             binding.tvGroupName.visibility = View.VISIBLE
         }
@@ -264,7 +269,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        binding.ivBack.setOnClickListener {
+        binding.chatHeader.ivArrowBack.setOnClickListener {
             val action =
                 ChatDetailsFragmentDirections.actionChatDetailsFragmentToChatMessagesFragment2()
             findNavController().navigate(action)
@@ -385,36 +390,36 @@ class ChatDetailsFragment : BaseFragment() {
             Glide.with(this)
                 .load(avatarFileId.let { Tools.getFilePathUrl(it) })
                 .centerCrop()
-                .into(binding.ivUserImage)
+                .into(binding.chatHeader.ivUserImage)
         }
         binding.tvGroupName.text = username
-        binding.tvChatName.text = username
+        binding.chatHeader.tvChatName.text = username
     }
 
     private fun initializeObservers() {
-        roomId?.let {
-            viewModel.getRoomAndUsers(it).observe(viewLifecycleOwner) { data ->
-                when (data.status) {
-                    Resource.Status.SUCCESS -> {
-                        val roomWithUsers = data.responseData
-                        if (roomWithUsers != null) {
-                            initializeViews(roomWithUsers)
-                            if (Const.JsonFields.GROUP == roomWithUsers.room.type) {
-                                updateRoomUserList(roomWithUsers)
-                            }
-                        }
-                    }
-
-                    Resource.Status.LOADING -> {
-                        // Add loading bar
-                    }
-
-                    else -> {
-                        Timber.d("Error: $data")
-                    }
-                }
-            }
-        }
+//        roomId?.let {
+//            viewModel.getRoomAndUsers(it).observe(viewLifecycleOwner) { data ->
+//                when (data.status) {
+//                    Resource.Status.SUCCESS -> {
+//                        val roomWithUsers = data.responseData
+//                        if (roomWithUsers != null) {
+//                            initializeViews(roomWithUsers)
+//                            if (Const.JsonFields.GROUP == roomWithUsers.room.type) {
+//                                updateRoomUserList(roomWithUsers)
+//                            }
+//                        }
+//                    }
+//
+//                    Resource.Status.LOADING -> {
+//                        // Add loading bar
+//                    }
+//
+//                    else -> {
+//                        Timber.d("Error: $data")
+//                    }
+//                }
+//            }
+//        }
 
         viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
@@ -429,8 +434,8 @@ class ChatDetailsFragment : BaseFragment() {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
                         binding.clProgressScreen.visibility = View.GONE
-                        binding.ivVideoCall.visibility = View.INVISIBLE
-                        binding.ivCallUser.visibility = View.INVISIBLE
+                        binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
+                        binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
                         binding.tvDone.visibility = View.VISIBLE
                     }
                     newAvatarFileId = it.responseData!!.fileId
