@@ -329,13 +329,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        // TODO ask Matko if we want to scroll down if we open keyboard
-//        bindingSetup.rvChat.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
-//            if (bottom < oldBottom) {
-//                bindingSetup.rvChat.smoothScrollToPosition(0)
-//            }
-//        }
-
         bindingSetup.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 scrollYDistance += dy
@@ -642,18 +635,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 else -> Timber.d("Other error")
             }
         })
-
-//        viewModel.getMessagesTimestampListener.observe(viewLifecycleOwner, EventObserver {
-//            when (it) {
-//                is MessagesTimestampFetched -> {
-//                    Timber.d("Messages timestamp fetched")
-//                    messages = it.messages as MutableList<Message>
-//                    //chatAdapter.submitList(it.messages)
-//                }
-//                is MessageTimestampFetchFail -> Timber.d("Failed to fetch messages timestamp")
-//                else -> Timber.d("Other error")
-//            }
-//        })
 
         viewModel.getMessageAndRecords(roomWithUsers.room.roomId).observe(viewLifecycleOwner) {
             when (it.status) {
@@ -962,12 +943,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             if (newMessagesCount == 1) {
                 bindingSetup.tvNewMessage.text =
                     getString(R.string.new_messages, newMessagesCount.toString(), "").trim()
-            } else {
-                bindingSetup.tvNewMessage.text =
-                    getString(R.string.new_messages, newMessagesCount.toString(), "s").trim()
-            }
 
-            if (newMessagesCount == 1) {
                 val startWidth = bindingSetup.ivBottomArrow.width
                 val endWidth = (bindingSetup.tvNewMessage.width + bindingSetup.ivBottomArrow.width)
 
@@ -980,6 +956,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     duration = NEW_MESSAGE_ANIMATION_DURATION
                 }
                 valueAnimator?.start()
+
+            } else {
+                bindingSetup.tvNewMessage.text =
+                    getString(R.string.new_messages, newMessagesCount.toString(), "s").trim()
             }
         }
         return
