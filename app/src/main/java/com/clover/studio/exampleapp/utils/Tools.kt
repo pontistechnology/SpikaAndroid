@@ -186,40 +186,30 @@ object Tools {
         )
     }
 
-    private fun calculateSHA256FileHash(updateFile: File?): String? {
-        val digest: MessageDigest = try {
-            MessageDigest.getInstance("SHA-256")
-        } catch (e: NoSuchAlgorithmException) {
-            Timber.d("Exception while getting digest", e)
-            return null
-        }
-        val inputStream: InputStream = try {
-            FileInputStream(updateFile)
-        } catch (e: FileNotFoundException) {
-            Timber.d("Exception while getting FileInputStream", e)
-            return null
-        }
+    private fun calculateSHA256FileHash(updateFile: File?): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        val inputStream = updateFile?.inputStream()
         val buffer = ByteArray(8192)
-        var read: Int
-        return try {
-            while (inputStream.read(buffer).also { read = it } > 0) {
-                digest.update(buffer, 0, read)
+        var bytesRead: Int
+
+        do {
+            bytesRead = inputStream?.read(buffer)!!
+            if (bytesRead > 0) {
+                digest.update(buffer, 0, bytesRead)
             }
-            val sha256sum: ByteArray = digest.digest()
-            val bigInt = BigInteger(1, sha256sum)
-            var output: String = bigInt.toString(16)
-            // Fill to 32 chars
-            output = String.format("%32s", output).replace(' ', '0')
-            output
-        } catch (e: IOException) {
-            throw RuntimeException("Unable to process file for SHA-256", e)
-        } finally {
-            try {
-                inputStream.close()
-            } catch (e: IOException) {
-                Timber.d("Exception on closing SHA-256 input stream", e)
-            }
+        } while (bytesRead != -1)
+
+        inputStream.close()
+
+        val hashBytes = digest.digest()
+        val hexString = StringBuilder()
+
+        for (byte in hashBytes) {
+            val hex = String.format("%02x", byte)
+            hexString.append(hex)
         }
+
+        return hexString.toString()
     }
 
     /**
