@@ -17,6 +17,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.User
@@ -55,6 +56,7 @@ class ChatDetailsFragment : BaseFragment() {
     private lateinit var adapter: ChatDetailsAdapter
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var roomUsers: MutableList<User> = ArrayList()
+    private lateinit var roomWithUsers: RoomWithUsers
     private var progress: Long = 1L
     private var uploadPieces: Int = 0
     private var roomId: Int? = null
@@ -110,8 +112,9 @@ class ChatDetailsFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Fetch room data sent from previous fragment
-        roomId = args.roomId
+        roomWithUsers = args.roomWithUsers
         isAdmin = args.isAdmin
+        roomId = roomWithUsers.room.roomId
     }
 
     override fun onCreateView(
@@ -121,6 +124,7 @@ class ChatDetailsFragment : BaseFragment() {
         bindingSetup = FragmentChatDetailsBinding.inflate(inflater, container, false)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        initializeViews(roomWithUsers)
         initializeObservers()
         handleUserStatusViews(isAdmin)
 
@@ -138,42 +142,26 @@ class ChatDetailsFragment : BaseFragment() {
     }
 
     private fun initializeViews(roomWithUsers: RoomWithUsers) {
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            for (roomUser in roomWithUsers.users) {
-                if (viewModel.getLocalUserId().toString() != roomUser.id.toString()) {
-                    userName = roomUser.displayName.toString()
-                    avatarFileId = roomUser.avatarFileId!!
-                    break
-                } else {
-                    userName = roomUser.displayName.toString()
-                    avatarFileId = roomUser.avatarFileId!!
-                }
-            }
-            binding.clMemberList.visibility = View.GONE
-            binding.tvExitGroup.visibility = View.GONE
-            binding.ivAddMember.visibility = View.GONE
-            binding.tvDelete.visibility = View.GONE
-        } else {
-            setupAdapter(isAdmin, roomWithUsers.room.type.toString())
-            binding.clMemberList.visibility = View.VISIBLE
-            userName = roomWithUsers.room.name.toString()
-            avatarFileId = roomWithUsers.room.avatarFileId!!
-            binding.tvMembersNumber.text =
-                getString(R.string.number_of_members, roomWithUsers.users.size)
+        setupAdapter(isAdmin, roomWithUsers.room.type.toString())
+        binding.clMemberList.visibility = View.VISIBLE
+        userName = roomWithUsers.room.name.toString()
+        avatarFileId = roomWithUsers.room.avatarFileId!!
 
-            if (isAdmin) {
-                binding.tvDelete.visibility = View.VISIBLE
-                binding.ivAddMember.visibility = View.VISIBLE
-            }
+        binding.tvMembersNumber.text =
+            getString(R.string.number_of_members, roomWithUsers.users.size)
 
-            if (!roomWithUsers.room.roomExit) {
-                binding.tvExitGroup.visibility = View.VISIBLE
-            } else {
-                binding.tvExitGroup.visibility = View.GONE
-            }
-
+        if (isAdmin) {
+            binding.tvDelete.visibility = View.VISIBLE
+            binding.ivAddMember.visibility = View.VISIBLE
         }
-        binding.tvTitle.text = roomWithUsers.room.type
+
+        if (!roomWithUsers.room.roomExit) {
+            binding.tvExitGroup.visibility = View.VISIBLE
+        } else {
+            binding.tvExitGroup.visibility = View.GONE
+        }
+
+        binding.chatHeader.tvTitle.text = roomWithUsers.room.type
 
         // Set room muted or not muted on switch
         binding.swMute.isChecked = roomWithUsers.room.muted
@@ -208,8 +196,8 @@ class ChatDetailsFragment : BaseFragment() {
                 binding.etEnterGroupName.visibility = View.VISIBLE
                 binding.tvDone.visibility = View.VISIBLE
                 binding.tvGroupName.visibility = View.INVISIBLE
-                binding.ivCallUser.visibility = View.INVISIBLE
-                binding.ivVideoCall.visibility = View.INVISIBLE
+                binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
+                binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
             }
         }
 
@@ -228,8 +216,8 @@ class ChatDetailsFragment : BaseFragment() {
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
 
             binding.tvDone.visibility = View.GONE
-            binding.ivCallUser.visibility = View.VISIBLE
-            binding.ivVideoCall.visibility = View.VISIBLE
+            binding.chatHeader.ivCallUser.visibility = View.VISIBLE
+            binding.chatHeader.ivVideoCall.visibility = View.VISIBLE
             binding.etEnterGroupName.visibility = View.INVISIBLE
             binding.tvGroupName.visibility = View.VISIBLE
         }
@@ -264,7 +252,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        binding.ivBack.setOnClickListener {
+        binding.chatHeader.ivArrowBack.setOnClickListener {
             val action =
                 ChatDetailsFragmentDirections.actionChatDetailsFragmentToChatMessagesFragment2()
             findNavController().navigate(action)
@@ -381,14 +369,16 @@ class ChatDetailsFragment : BaseFragment() {
             Glide.with(this)
                 .load(avatarFileId.let { Tools.getFilePathUrl(it) })
                 .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .into(binding.ivPickAvatar)
             Glide.with(this)
                 .load(avatarFileId.let { Tools.getFilePathUrl(it) })
                 .centerCrop()
-                .into(binding.ivUserImage)
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .into(binding.chatHeader.ivUserImage)
         }
         binding.tvGroupName.text = username
-        binding.tvChatName.text = username
+        binding.chatHeader.tvChatName.text = username
     }
 
     private fun initializeObservers() {
@@ -429,8 +419,8 @@ class ChatDetailsFragment : BaseFragment() {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
                         binding.clProgressScreen.visibility = View.GONE
-                        binding.ivVideoCall.visibility = View.INVISIBLE
-                        binding.ivCallUser.visibility = View.INVISIBLE
+                        binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
+                        binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
                         binding.tvDone.visibility = View.VISIBLE
                     }
                     newAvatarFileId = it.responseData!!.fileId

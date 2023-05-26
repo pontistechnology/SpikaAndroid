@@ -243,17 +243,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         setAvatarAndName(avatarFileId, userName)
 
         if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
-            bindingSetup.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
-            bindingSetup.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
-            bindingSetup.ivVideoCall.isEnabled = false
-            bindingSetup.ivCallUser.isEnabled = false
+            bindingSetup.chatHeader.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
+            bindingSetup.chatHeader.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
+            bindingSetup.chatHeader.ivVideoCall.isEnabled = false
+            bindingSetup.chatHeader.ivCallUser.isEnabled = false
         }
 
-        bindingSetup.tvTitle.text = roomWithUsers.room.type
+        bindingSetup.chatHeader.tvTitle.text = roomWithUsers.room.type
     }
 
     private fun setAvatarAndName(avatarFileId: Long, userName: String) {
-        bindingSetup.tvChatName.text = userName
+        bindingSetup.chatHeader.tvChatName.text = userName
         Glide.with(this)
             .load(avatarFileId.let { Tools.getFilePathUrl(it) })
             .placeholder(
@@ -264,7 +264,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             )
             .centerCrop()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .into(bindingSetup.ivUserImage)
+            .into(bindingSetup.chatHeader.ivUserImage)
     }
 
     private fun checkIsUserAdmin() {
@@ -274,12 +274,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun initListeners() {
-        bindingSetup.clHeader.setOnClickListener {
+        bindingSetup.chatHeader.clHeader.setOnClickListener {
             if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
                 val bundle =
                     bundleOf(
                         Const.Navigation.USER_PROFILE to roomWithUsers.users.firstOrNull { user -> user.id != localUserId },
-                        Const.Navigation.ROOM_ID to roomWithUsers.room.roomId
+                        Const.Navigation.ROOM_ID to roomWithUsers.room.roomId,
                     )
                 findNavController().navigate(
                     R.id.action_chatMessagesFragment_to_contactDetailsFragment2,
@@ -288,14 +288,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             } else {
                 val action =
                     ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
-                        roomWithUsers.room.roomId,
+                        roomWithUsers,
                         isAdmin
                     )
                 findNavController().navigate(action)
             }
         }
 
-        bindingSetup.ivArrowBack.setOnClickListener {
+        bindingSetup.chatHeader.ivArrowBack.setOnClickListener {
             onBackArrowPressed()
         }
 
@@ -429,7 +429,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.tvUnblock.setOnClickListener {
             DialogError.getInstance(requireContext(),
                 getString(R.string.unblock_user),
-                getString(R.string.unblock_description, bindingSetup.tvChatName.text),
+                getString(R.string.unblock_description, bindingSetup.chatHeader.tvChatName.text),
                 getString(R.string.no),
                 getString(R.string.unblock),
                 object : DialogInteraction {
