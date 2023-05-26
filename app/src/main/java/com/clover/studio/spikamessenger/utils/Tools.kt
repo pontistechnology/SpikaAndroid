@@ -1,10 +1,12 @@
 package com.clover.studio.spikamessenger.utils
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DownloadManager
 import android.content.ContentResolver
 import android.content.Context
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.database.DatabaseUtils
 import android.graphics.Bitmap
@@ -23,6 +25,7 @@ import android.widget.Toast
 import androidx.collection.ArraySet
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
@@ -491,30 +494,37 @@ object Tools {
 
     @SuppressLint("Range")
     fun fetchPhonebookContacts(context: Context, countryCode: String?): List<PhoneUser>? {
-        val phoneUsers: MutableList<PhoneUser> = ArrayList()
-        val phones: Cursor? = context.contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            null,
-            null,
-            null,
-            null
-        )
-        while (phones?.moveToNext()!!) {
-            val name =
-                phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-            val phoneNumber =
-                phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-
-            val phoneUser = PhoneUser(
-                name,
-                formatE164Number(context, countryCode, phoneNumber).toString()
+        if (context.let {
+                ContextCompat.checkSelfPermission(
+                    it,
+                    Manifest.permission.READ_CONTACTS
+                )
+            } == PackageManager.PERMISSION_GRANTED) {
+            val phoneUsers: MutableList<PhoneUser> = ArrayList()
+            val phones: Cursor? = context.contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
             )
-            phoneUsers.add(phoneUser)
-            Timber.d("Adding phone user: ${phoneUser.name} ${phoneUser.number}")
-        }
-        DatabaseUtils.dumpCursor(phones)
+            while (phones?.moveToNext()!!) {
+                val name =
+                    phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                val phoneNumber =
+                    phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
 
-        return phoneUsers
+                val phoneUser = PhoneUser(
+                    name,
+                    formatE164Number(context, countryCode, phoneNumber).toString()
+                )
+                phoneUsers.add(phoneUser)
+                Timber.d("Adding phone user: ${phoneUser.name} ${phoneUser.number}")
+            }
+            DatabaseUtils.dumpCursor(phones)
+
+            return phoneUsers
+        } else return null
     }
 
     fun getContactsNumbersHashed(
