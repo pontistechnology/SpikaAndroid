@@ -31,9 +31,8 @@
             android:id="@+id/action_chatDetailsFragment_to_newRoomFragment2"
             app:destination="@id/newRoomFragment2" />
         <argument
-            android:name="roomId"
-            app:argType="integer"
-            android:defaultValue="0" />
+            android:name="roomWithUsers"
+            app:argType="com.clover.studio.exampleapp.data.models.junction.RoomWithUsers" />
         <argument
             android:name="isAdmin"
             app:argType="boolean"

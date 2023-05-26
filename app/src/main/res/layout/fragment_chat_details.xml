@@ -11,79 +11,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/iv_back"
-            android:layout_width="wrap_content"
+        <include
+            android:id="@+id/chat_header"
+            layout="@layout/chat_header"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/sixteen_dp_margin"
-            android:layout_marginTop="@dimen/sixteen_dp_margin"
-            android:padding="@dimen/ten_dp_margin"
-            android:rotation="180"
-            android:src="@drawable/img_arrow_forward"
-            app:layout_constraintEnd_toStartOf="@id/iv_user_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/primary_color" />
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/iv_user_image"
-            android:layout_width="@dimen/forty_two_dp"
-            android:layout_height="@dimen/forty_two_dp"
-            android:layout_marginStart="@dimen/eight_dp_margin"
-            android:background="@drawable/img_selector_background"
-            android:backgroundTint="@color/light_blue"
-            android:scaleType="fitXY"
-            android:src="@drawable/img_user_placeholder"
-            app:layout_constraintBottom_toBottomOf="@id/iv_back"
-            app:layout_constraintStart_toEndOf="@id/iv_back"
-            app:layout_constraintTop_toTopOf="@id/iv_back"
-            app:shapeAppearanceOverlay="@style/circle" />
-
-        <TextView
-            android:id="@+id/tv_chat_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/eight_dp_margin"
-            android:fontFamily="@font/montserrat"
-            android:text="@string/enter_username"
-            android:textSize="@dimen/fourteen_sp_text"
-            app:layout_constraintEnd_toStartOf="@+id/iv_video_call"
-            app:layout_constraintStart_toEndOf="@id/iv_user_image"
-            app:layout_constraintTop_toTopOf="@id/iv_user_image" />
-
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/eight_dp_margin"
-            android:fontFamily="@font/montserrat"
-            android:text="@string/enter_username"
-            android:textSize="@dimen/fourteen_sp_text"
-            android:visibility="visible"
-            app:layout_constraintEnd_toStartOf="@+id/iv_video_call"
-            app:layout_constraintStart_toEndOf="@id/iv_user_image"
-            app:layout_constraintTop_toBottomOf="@id/tv_chat_name" />
-
-        <ImageView
-            android:id="@+id/iv_call_user"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/sixteen_dp_margin"
-            android:layout_marginEnd="@dimen/sixteen_dp_margin"
-            android:padding="@dimen/ten_dp_margin"
-            android:src="@drawable/img_phone"
+            app:behavior_peekHeight="0dp"
+            app:layout_anchorGravity="bottom"
+            app:layout_behavior="@string/bottom_sheet_behavior"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/iv_video_call"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:padding="@dimen/ten_dp_margin"
-            android:src="@drawable/img_video"
-            app:layout_constraintEnd_toStartOf="@id/iv_call_user"
-            app:layout_constraintStart_toEndOf="@+id/tv_chat_name"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -95,7 +32,7 @@
             android:textColor="@color/primary_color"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/iv_user_image" />
+            app:layout_constraintTop_toTopOf="@id/chat_header" />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_pick_avatar"
@@ -110,7 +47,7 @@
             app:layout_constraintBottom_toTopOf="@id/tv_group_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title"
+            app:layout_constraintTop_toBottomOf="@+id/chat_header"
             app:shapeAppearanceOverlay="@style/circle" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -172,9 +109,9 @@
             android:text="@string/done"
             android:textColor="@color/primary_color"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/tv_title"
+            app:layout_constraintBottom_toBottomOf="@id/chat_header"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tv_chat_name" />
+            app:layout_constraintTop_toTopOf="@id/chat_header" />
 
         <EditText
             android:id="@+id/et_enter_group_name"
