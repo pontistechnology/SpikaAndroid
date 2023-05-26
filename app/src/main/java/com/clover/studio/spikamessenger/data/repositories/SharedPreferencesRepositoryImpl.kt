@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.reflect.Type
+import java.sql.Timestamp
 
 
 class SharedPreferencesRepositoryImpl(
@@ -144,6 +145,14 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun readRoomTimestamp(): Long =
         getPrefs().getLong(Const.PrefsData.ROOM_SYNC, 0)
 
+    override suspend fun writeContactSyncTimestamp(contactSyncTimestamp: Long) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun readContactSyncTimestamp(): Long? {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun writeFirstAppStart(firstAppStart: Boolean) {
         with(getPrefs().edit()) {
             putBoolean(
@@ -270,6 +279,8 @@ interface SharedPreferencesRepository {
     suspend fun readUserTimestamp(): Long?
     suspend fun writeRoomTimestamp(roomTimestamp: Long)
     suspend fun readRoomTimestamp(): Long?
+    suspend fun writeContactSyncTimestamp(contactSyncTimestamp: Long)
+    suspend fun readContactSyncTimestamp(): Long?
 
     suspend fun writeFirstAppStart(firstAppStart: Boolean)
     suspend fun isFirstAppStart(): Boolean
