@@ -3,10 +3,7 @@ package com.clover.studio.spikamessenger.ui.onboarding.number_registration
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.database.Cursor
-import android.database.DatabaseUtils
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -14,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.collection.ArraySet
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
@@ -224,37 +220,18 @@ class RegisterNumberFragment : BaseFragment() {
 
     @SuppressLint("Range")
     private fun fetchAllUserContacts() {
-        val phoneUserSet: MutableSet<String> = ArraySet()
-        val phoneUsers: MutableList<PhoneUser> = ArrayList()
-        val phones: Cursor? = requireActivity().contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            null,
-            null,
-            null,
-            null
-        )
-        while (phones?.moveToNext()!!) {
-            val name =
-                phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-            val phoneNumber =
-                phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+        val contacts = Tools.fetchPhonebookContacts(requireContext(), countryCode)
 
-            val phoneUser = PhoneUser(
-                name,
-                formatE164Number(requireContext(), countryCode, phoneNumber).toString()
+        if (contacts != null) {
+            viewModel.writePhoneUsers(contacts)
+            viewModel.writeContactsToSharedPref(
+                Tools.getContactsNumbersHashed(
+                    requireContext(),
+                    countryCode,
+                    contacts
+                ).toList()
             )
-            phoneUsers.add(phoneUser)
-            phoneUserSet.add(
-                hashString(
-                    formatE164Number(requireContext(), countryCode, phoneNumber).toString()
-                )
-            )
-            Timber.d("Adding phone user: ${phoneUser.name} ${phoneUser.number}")
         }
-        DatabaseUtils.dumpCursor(phones)
-
-        viewModel.writePhoneUsers(phoneUsers)
-        viewModel.writeContactsToSharedPref(phoneUserSet.toList())
     }
 
     private fun checkMultiplePermissions() {

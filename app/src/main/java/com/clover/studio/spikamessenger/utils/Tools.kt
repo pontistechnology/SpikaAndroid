@@ -1,21 +1,28 @@
 package com.clover.studio.spikamessenger.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DownloadManager
 import android.content.ContentResolver
 import android.content.Context
+import android.database.Cursor
+import android.database.DatabaseUtils
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.*
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.ContactsContract
 import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.util.TypedValue
 import android.widget.Toast
+import androidx.collection.ArraySet
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
@@ -480,6 +487,52 @@ object Tools {
         }
         muxer.stop()
         muxer.release()
+    }
+
+    @SuppressLint("Range")
+    fun fetchPhonebookContacts(context: Context, countryCode: String?): List<PhoneUser>? {
+        val phoneUsers: MutableList<PhoneUser> = ArrayList()
+        val phones: Cursor? = context.contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        )
+        while (phones?.moveToNext()!!) {
+            val name =
+                phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+            val phoneNumber =
+                phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+
+            val phoneUser = PhoneUser(
+                name,
+                formatE164Number(context, countryCode, phoneNumber).toString()
+            )
+            phoneUsers.add(phoneUser)
+            Timber.d("Adding phone user: ${phoneUser.name} ${phoneUser.number}")
+        }
+        DatabaseUtils.dumpCursor(phones)
+
+        return phoneUsers
+    }
+
+    fun getContactsNumbersHashed(
+        context: Context,
+        countryCode: String?,
+        phoneUser: List<PhoneUser>
+    ): Set<String> {
+        val phoneUserSet: MutableSet<String> = ArraySet()
+
+        for (user in phoneUser) {
+            phoneUserSet.add(
+                hashString(
+                    formatE164Number(context, countryCode, user.number).toString()
+                )
+            )
+        }
+
+        return phoneUserSet
     }
 
     fun dp(value: Float, context: Context): Int {
