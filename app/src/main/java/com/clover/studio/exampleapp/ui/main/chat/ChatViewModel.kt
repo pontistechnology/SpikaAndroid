@@ -50,6 +50,7 @@ class ChatViewModel @Inject constructor(
     val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
     val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
+    val noteDeletionListener = MutableLiveData<Event<NoteDeletion>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val newMessageReceivedListener = MutableLiveData<Message?>()
     val roomInfoUpdated = MutableLiveData<Event<Resource<RoomResponse?>>>()
@@ -243,7 +244,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun deleteNote(noteId: Int) = viewModelScope.launch {
-        repository.deleteNote(noteId)
+        noteDeletionListener.postValue(Event(NoteDeletion(repository.deleteNote(noteId))))
     }
 
     fun unregisterSharedPrefsReceiver() = viewModelScope.launch {
@@ -424,6 +425,7 @@ class ChatViewModel @Inject constructor(
 }
 
 class RoomNotificationData(val response: Resource<RoomWithUsers>, val message: Message)
+class NoteDeletion(val response: Resource<NotesResponse>)
 class FileUploadVerified(
     val path: String,
     val mimeType: String,
