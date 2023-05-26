@@ -96,7 +96,7 @@ class MainViewModel @Inject constructor(
 //        checkRoomExistsListener.postValue(Event(repository.getRoomById(userId)))
     }
 
-    fun createNewRoom(jsonObject: JsonObject) = viewModelScope.launch {
+    fun createNewRoom(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
         resolveResponseStatus(createRoomListener, repository.createNewRoom(jsonObject))
     }
 
@@ -157,7 +157,7 @@ class MainViewModel @Inject constructor(
         resolveResponseStatus(usersListener, repository.updateUserData(jsonObject))
     }
 
-    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = viewModelScope.launch {
+    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = CoroutineScope(Dispatchers.IO).launch {
         Timber.d("RoomDataCalled")
         resolveResponseStatus(createRoomListener, repository.updateRoom(jsonObject, roomId, userId))
     }

@@ -51,7 +51,7 @@ class NotesDetailsFragment : BaseFragment() {
     private fun initializeObservers() {
         viewModel.noteCreationListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
-                 Resource.Status.SUCCESS -> {
+                Resource.Status.SUCCESS -> {
                     binding.tvTitle.visibility = View.VISIBLE
                     binding.tvNotesDetails.visibility = View.VISIBLE
                     binding.etTitle.visibility = View.GONE
@@ -64,16 +64,36 @@ class NotesDetailsFragment : BaseFragment() {
 
                     markdownNotes()
                 }
+
                 Resource.Status.ERROR -> Toast.makeText(
                     context,
                     getString(R.string.note_creation_failed),
                     Toast.LENGTH_SHORT
                 ).show()
+
                 else -> {
                     // Deleted
-                    activity?.onBackPressed()
+                    activity?.onBackPressedDispatcher?.onBackPressed()
                     Timber.d("Other error")
                 }
+            }
+        })
+
+        viewModel.noteDeletionListener.observe(viewLifecycleOwner, EventObserver {
+            when (it.response.status) {
+                Resource.Status.SUCCESS -> {
+                    activity?.onBackPressedDispatcher?.onBackPressed()
+                }
+
+                Resource.Status.ERROR -> {
+                    Toast.makeText(
+                        context,
+                        getString(R.string.failed_delete_note),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                else -> Timber.d("Other error")
             }
         })
     }
