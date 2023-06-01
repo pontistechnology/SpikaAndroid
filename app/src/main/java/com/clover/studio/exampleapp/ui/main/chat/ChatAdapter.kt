@@ -44,6 +44,7 @@ private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 private var oldPosition = -1
 private var firstPlay = true
 private var playerListener: Player.Listener? = null
+private var upload = false
 
 class ChatAdapter(
     private val context: Context,
@@ -123,7 +124,7 @@ class ChatAdapter(
                         setViewsVisibility(holder.binding.clImageChat, holder)
 
                         /** Uploading image: */
-                        if (it.message.body?.file?.uri != null) {
+                        if (it.message.body?.file?.uri != null && !upload) {
                             holder.binding.clProgressScreen.visibility = View.VISIBLE
                             loadMedia(
                                 context,
@@ -134,15 +135,19 @@ class ChatAdapter(
                                     R.drawable.img_image_placeholder
                                 )
                             )
+                            upload = true
                             // Update the progress bar of the media item currently being uploaded
                             holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
                         } else {
+                            if (!upload){
+                                bindImage(
+                                    it,
+                                    holder.binding.ivChatImage,
+                                    holder.binding.clContainer
+                                )
+                            }
+                            upload = false
                             holder.binding.clProgressScreen.visibility = View.GONE
-                            bindImage(
-                                it,
-                                holder.binding.ivChatImage,
-                                holder.binding.clContainer
-                            )
                         }
                     }
 
@@ -478,7 +483,7 @@ class ChatAdapter(
         clContainer: ConstraintLayout
     ) {
 
-        val imagePath = chatMessage.message.body?.thumb?.id?.let { imagePath ->
+        val imagePath = chatMessage.message.body?.file?.id?.let { imagePath ->
             Tools.getFilePathUrl(
                 imagePath
             )

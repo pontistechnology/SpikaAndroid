@@ -66,7 +66,7 @@ object ChatAdapterHelper {
         Glide.with(context)
             .load(mediaPath)
             .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-            .placeholder(drawable)
+//            .placeholder(drawable)
             .dontTransform()
             .dontAnimate()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
