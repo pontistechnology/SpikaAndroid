@@ -63,7 +63,7 @@ class UploadDownloadManager constructor(
         var mimeType = activity.contentResolver.getType(fileUri)!!
         cancelUpload = false
 
-        if (mimeType.contains(Const.JsonFields.AVI_TYPE)){
+        if (mimeType.contains(Const.JsonFields.AVI_TYPE)) {
             mimeType = Const.JsonFields.FILE_TYPE
         }
 
@@ -151,7 +151,7 @@ class UploadDownloadManager constructor(
             val response = repository.uploadFiles(uploadFile.chunkToJson())
             if (Resource.Status.ERROR == response.status) {
                 cancelUpload = true
-                fileUploadListener.fileUploadError("Download is canceled")
+                fileUploadListener.fileUploadError("File upload canceled")
                 return
             }
             fileUploadListener.filePieceUploaded()

@@ -58,6 +58,7 @@
     <string name="image_failed_upload">Image could not be uploaded. Try again or continue without image. %s</string>
     <string name="picture_upload_failed">Picture upload failed.</string>
     <string name="failed_file_upload">Failed to upload file</string>
+    <string name="canceled_file_upload">File upload canceled</string>
 
     <!--Chat media actions-->
     <string name="sound">Sound</string>
