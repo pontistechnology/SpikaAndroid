@@ -257,8 +257,11 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncContacts() {
+        Timber.d("Sync contacts initial")
         if (!sharedPrefs.isTeamMode()) {
+            Timber.d("Sync contacts messenger mode")
             if (sharedPrefs.readContactSyncTimestamp() == 0L || System.currentTimeMillis() < (sharedPrefs.readContactSyncTimestamp() + Const.Time.DAY)) {
+                Timber.d("Sync contacts day passed")
                 val contacts = Tools.fetchPhonebookContacts(
                     MainApplication.appContext,
                     sharedPrefs.readCountryCode()

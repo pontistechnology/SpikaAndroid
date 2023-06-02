@@ -9,9 +9,19 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.ContactsContract
+import com.clover.studio.exampleapp.data.repositories.SSERepositoryImpl
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PhonebookService : Service() {
+    @Inject
+    lateinit var sseRepository: SSERepositoryImpl
+
     private lateinit var phonebookObserver: PhonebookObserver
 
     override fun onCreate() {
@@ -39,7 +49,10 @@ class PhonebookService : Service() {
         override fun onChange(selfChange: Boolean) {
             super.onChange(selfChange)
             // Handle the phonebook change here
-            Timber.d("Phonebook changed")
+            Timber.d("Sync contacts phonebook changed")
+            CoroutineScope(Dispatchers.IO).launch {
+                sseRepository.syncContacts()
+            }
         }
 
         fun registerObserver() {
