@@ -30,8 +30,6 @@ class MainApplication : Application(), LifecycleEventObserver {
     @Inject
     lateinit var sharedPrefs: SharedPreferencesRepository
 
-    lateinit var phonebookIntent: Intent
-
     companion object {
         lateinit var appContext: Context
         var isInForeground = false
@@ -50,15 +48,6 @@ class MainApplication : Application(), LifecycleEventObserver {
 
         // Emoji:
         EmojiManager.install(GoogleEmojiProvider())
-
-        // PhonebookService:
-        startPhonebookService()
-    }
-
-    private fun startPhonebookService() {
-        Timber.d("Starting phonebook service")
-        phonebookIntent = Intent(this, PhonebookService::class.java)
-        startService(phonebookIntent)
     }
 
     fun getContext(): Context {
@@ -111,7 +100,6 @@ class MainApplication : Application(), LifecycleEventObserver {
 
             Lifecycle.Event.ON_DESTROY -> {
                 isInForeground = false
-                stopService(phonebookIntent)
             }
 
             Lifecycle.Event.ON_ANY -> {

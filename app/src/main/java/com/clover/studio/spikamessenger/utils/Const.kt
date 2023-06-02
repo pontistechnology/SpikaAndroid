@@ -192,6 +192,8 @@ class Const {
             const val LAST_UPDATE = "lastUpdate"
             const val ID = "id"
             const val TARGET = "target"
+            const val AVATAR_ID = "avatarFileId"
+            const val IS_LAST_PAGE = "isLastPage"
         }
     }
 

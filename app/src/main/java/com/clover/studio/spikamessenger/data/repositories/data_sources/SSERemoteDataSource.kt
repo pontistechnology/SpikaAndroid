@@ -38,4 +38,8 @@ class SSERemoteDataSource @Inject constructor(
     suspend fun getUnreadCount() = getResult {
         retrofitService.getUnreadCount(getHeaderMap(sharedPrefs.readToken()))
     }
+
+    suspend fun syncContacts(contacts: List<String>, isLastPage: Boolean) = getResult {
+        retrofitService.syncContacts(getHeaderMap(sharedPrefs.readToken()), contacts, isLastPage)
+    }
 }

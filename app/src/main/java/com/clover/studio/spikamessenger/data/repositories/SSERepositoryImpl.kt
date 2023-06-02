@@ -24,6 +24,8 @@ import timber.log.Timber
 import java.util.stream.Collectors
 import javax.inject.Inject
 
+const val CONTACTS_BATCH = 40
+
 class SSERepositoryImpl @Inject constructor(
     private val sseRemoteDataSource: SSERemoteDataSource,
     private val sharedPrefs: SharedPreferencesRepository,
@@ -251,6 +253,20 @@ class SSERepositoryImpl @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    override suspend fun syncContacts() {
+        val contacts = Tools.fetchPhonebookContacts(MainApplication.appContext, "+385")
+        if (contacts != null) {
+            val phoneNumbersHashed = Tools.getContactsNumbersHashed(
+                MainApplication.appContext,
+                "+385",
+                contacts
+            ).toList()
+
+            // Beginning offset is always 0
+            syncNextBatch(phoneNumbersHashed, 0)
         }
     }
 
@@ -485,6 +501,31 @@ class SSERepositoryImpl @Inject constructor(
             }
         }
     }
+
+    private suspend fun syncNextBatch(contacts: List<String>, offset: Int) {
+        val endIndex = (offset + CONTACTS_BATCH).coerceAtMost(contacts.size)
+        val batchedList = contacts.subList(offset, endIndex)
+
+        Timber.d("Batched list: ${contacts.size}, ${batchedList.size}, ${batchedList.map { it }}")
+
+        val isLastPage = offset + CONTACTS_BATCH > contacts.size
+
+        val response = performRestOperation(
+            networkCall = {
+                sseRemoteDataSource.syncContacts(
+                    contacts = batchedList,
+                    isLastPage = isLastPage
+                )
+            },
+            saveCallResult = { it.data?.list?.let { users -> userDao.upsert(users) } }
+        )
+
+        if (Resource.Status.SUCCESS == response.status) {
+            if (!isLastPage) {
+                syncNextBatch(contacts, offset + CONTACTS_BATCH)
+            }
+        }
+    }
 }
 
 interface SSERepository {
@@ -492,6 +533,7 @@ interface SSERepository {
     suspend fun syncMessages()
     suspend fun syncUsers()
     suspend fun syncRooms()
+    suspend fun syncContacts()
     suspend fun sendMessageDelivered(messageId: Int)
     suspend fun writeMessages(message: Message)
     suspend fun writeMessageRecord(messageRecords: MessageRecords)

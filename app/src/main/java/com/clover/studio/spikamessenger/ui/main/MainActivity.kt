@@ -75,6 +75,19 @@ class MainActivity : BaseActivity() {
         initializeObservers()
         sendPushTokenToServer()
         checkIntentExtras()
+        startPhonebookService()
+    }
+
+    private fun startPhonebookService() {
+        if (ContextCompat.checkSelfPermission(
+                this@MainActivity,
+                Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            Timber.d("Starting phonebook service")
+            phonebookService = Intent(this, PhonebookService::class.java)
+            startService(phonebookService)
+        }
     }
 
     private fun checkIntentExtras() {
@@ -302,5 +315,10 @@ class MainActivity : BaseActivity() {
         }
 
         viewModel.getUnreadCount()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopService(phonebookService)
     }
 }

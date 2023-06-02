@@ -41,4 +41,12 @@ interface SSEService {
     suspend fun getUnreadCount(
         @HeaderMap headers: Map<String, String?>
     ): Response<UnreadCountResponse>
+
+    @FormUrlEncoded
+    @POST(Const.Networking.API_CONTACTS)
+    suspend fun syncContacts(
+        @HeaderMap headers: Map<String, String?>,
+        @Field(Const.Networking.CONTACTS) contacts: List<String>,
+        @Field(Const.Networking.IS_LAST_PAGE) isLastPage: Boolean
+    ): Response<ContactsSyncResponse>
 }
