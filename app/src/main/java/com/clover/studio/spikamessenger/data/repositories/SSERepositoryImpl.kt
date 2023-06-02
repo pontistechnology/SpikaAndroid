@@ -257,16 +257,23 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncContacts() {
-        val contacts = Tools.fetchPhonebookContacts(MainApplication.appContext, "+385")
-        if (contacts != null) {
-            val phoneNumbersHashed = Tools.getContactsNumbersHashed(
-                MainApplication.appContext,
-                "+385",
-                contacts
-            ).toList()
+        if (!sharedPrefs.isTeamMode()) {
+            if (sharedPrefs.readContactSyncTimestamp() == 0L || System.currentTimeMillis() < (sharedPrefs.readContactSyncTimestamp() + Const.Time.DAY)) {
+                val contacts = Tools.fetchPhonebookContacts(
+                    MainApplication.appContext,
+                    sharedPrefs.readCountryCode()
+                )
+                if (contacts != null) {
+                    val phoneNumbersHashed = Tools.getContactsNumbersHashed(
+                        MainApplication.appContext,
+                        sharedPrefs.readCountryCode(),
+                        contacts
+                    ).toList()
 
-            // Beginning offset is always 0
-            syncNextBatch(phoneNumbersHashed, 0)
+                    // Beginning offset is always 0
+                    syncNextBatch(phoneNumbersHashed, 0)
+                }
+            }
         }
     }
 
@@ -502,6 +509,22 @@ class SSERepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getAppMode(): Boolean {
+        val response = performRestOperation(
+            networkCall = { sseRemoteDataSource.getAppMode() }
+        )
+
+        if (response.responseData?.data?.teamMode != null) {
+            if (response.responseData.data.teamMode) {
+                sharedPrefs.writeAppMode(response.responseData.data.teamMode)
+            }
+            return response.responseData.data.teamMode
+        }
+
+        return sharedPrefs.isTeamMode()
+    }
+
+
     private suspend fun syncNextBatch(contacts: List<String>, offset: Int) {
         val endIndex = (offset + CONTACTS_BATCH).coerceAtMost(contacts.size)
         val batchedList = contacts.subList(offset, endIndex)
@@ -543,6 +566,7 @@ interface SSERepository {
     suspend fun deleteRoom(roomId: Int)
     suspend fun resetUnreadCount(roomId: Int)
     suspend fun getUnreadCount()
+    suspend fun getAppMode(): Boolean
 }
 
 private fun getMessageIdJson(messageIds: List<Int?>): JsonObject {

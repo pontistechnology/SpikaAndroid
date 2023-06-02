@@ -82,7 +82,7 @@ interface ChatService {
         @Path(Const.Networking.ROOM_ID) roomId: Int
     ): Response<RoomResponse>
 
-    @GET(Const.Networking.API_GET_SETTINGS)
+    @GET(Const.Networking.API_USER_SETTINGS)
     suspend fun getSettings(
         @HeaderMap headers: Map<String, String?>
     ): Response<SettingsResponse>

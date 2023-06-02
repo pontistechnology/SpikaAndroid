@@ -18,6 +18,12 @@ class Const {
         }
     }
 
+    class Time {
+        companion object {
+            const val DAY = 24 * 60 * 60
+        }
+    }
+
     class UserActions {
         companion object {
             const val DELETE_MESSAGE_ME = "user"
@@ -174,6 +180,9 @@ class Const {
             const val API_MESSAGES_SEEN = "api/messenger/messages/{roomId}/seen"
             const val API_UPDATE_MESSAGE = "api/messenger/messages/{id}"
             const val API_UNREAD_COUNT = "api/messenger/rooms/unread-count"
+            const val API_USER_SETTINGS = "api/messenger/me/settings"
+            const val API_UPDATE_MESSAGE = "api/messenger/messages/{id}"
+            const val API_LEAVE_ROOM = "api/messenger/rooms/{id}/leave"
 
             // Notes
             const val API_NOTES = "api/messenger/notes/roomId/{roomId}"
@@ -183,6 +192,8 @@ class Const {
             const val API_BLOCK = "api/messenger/blocks"
             const val API_DELETE_BLOCK = "api/messenger/blocks/{id}"
             const val API_DELETE_BLOCK_FOR_USER = "api/messenger/blocks/userId/{userId}"
+            const val API_ROOM_BLOCKS = "api/messenger/blocks/rooms/{roomId}"
+            const val API_SETTINGS = "api/messenger/settings"
 
             // Queries
             const val ROOM_ID = "roomId"
@@ -227,12 +238,14 @@ class Const {
             const val COUNTRY_CODE = "countryCode"
             const val REGISTERED = "registered"
             const val BLOCKED_USERS = "blocked_users"
+            const val IS_TEAM_MODE = "is_team_mode"
 
             // Sync
             const val MESSAGE_RECORD_SYNC = "message_record_sync"
             const val MESSAGE_SYNC = "message_sync"
             const val USER_SYNC = "user_sync"
             const val ROOM_SYNC = "room_sync"
+            const val CONTACT_SYNC = "contact_sync"
 
             // Theme
             const val THEME = "theme"

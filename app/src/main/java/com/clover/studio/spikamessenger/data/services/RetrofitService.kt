@@ -88,10 +88,10 @@ interface RetrofitService {
         @Body jsonObject: JsonObject
     ): Response<FileResponse>
 
-    @GET(Const.Networking.API_GET_SETTINGS)
+    @GET(Const.Networking.API_USER_SETTINGS)
     suspend fun getSettings(
         @HeaderMap headers: Map<String, String?>
-    ): Response<SettingsResponse>
+    ): Response<UserSettingsResponse>
 
     // Start Block section
     @GET(Const.Networking.API_BLOCK)

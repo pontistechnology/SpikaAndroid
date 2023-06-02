@@ -42,4 +42,8 @@ class SSERemoteDataSource @Inject constructor(
     suspend fun syncContacts(contacts: List<String>, isLastPage: Boolean) = getResult {
         retrofitService.syncContacts(getHeaderMap(sharedPrefs.readToken()), contacts, isLastPage)
     }
+
+    suspend fun getAppMode() = getResult {
+        retrofitService.getAppMode(getHeaderMap(sharedPrefs.readToken()))
+    }
 }

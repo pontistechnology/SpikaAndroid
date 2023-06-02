@@ -49,4 +49,9 @@ interface SSEService {
         @Field(Const.Networking.CONTACTS) contacts: List<String>,
         @Field(Const.Networking.IS_LAST_PAGE) isLastPage: Boolean
     ): Response<ContactsSyncResponse>
+
+    @GET(Const.Networking.API_SETTINGS)
+    suspend fun getAppMode(
+        @HeaderMap headers: Map<String, String?>
+    ): Response<SettingsResponse>
 }

@@ -12,7 +12,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.reflect.Type
-import java.sql.Timestamp
 
 
 class SharedPreferencesRepositoryImpl(
@@ -105,6 +104,19 @@ class SharedPreferencesRepositoryImpl(
     override suspend fun isFirstSSELaunch(): Boolean =
         getPrefs().getBoolean(Const.PrefsData.DATA_SYNCED, true)
 
+    override suspend fun writeAppMode(isTeamMode: Boolean) {
+        with(getPrefs().edit()) {
+            putBoolean(
+                Const.PrefsData.IS_TEAM_MODE,
+                isTeamMode
+            )
+            commit()
+        }
+    }
+
+    override suspend fun isTeamMode(): Boolean =
+        getPrefs().getBoolean(Const.PrefsData.IS_TEAM_MODE, false)
+
     override suspend fun writeMessageRecordTimestamp(messageRecordTimestamp: Long) {
         with(getPrefs().edit()) {
             putLong(Const.PrefsData.MESSAGE_RECORD_SYNC, messageRecordTimestamp)
@@ -146,12 +158,14 @@ class SharedPreferencesRepositoryImpl(
         getPrefs().getLong(Const.PrefsData.ROOM_SYNC, 0)
 
     override suspend fun writeContactSyncTimestamp(contactSyncTimestamp: Long) {
-        TODO("Not yet implemented")
+        with(getPrefs().edit()) {
+            putLong(Const.PrefsData.CONTACT_SYNC, contactSyncTimestamp)
+            commit()
+        }
     }
 
-    override suspend fun readContactSyncTimestamp(): Long? {
-        TODO("Not yet implemented")
-    }
+    override suspend fun readContactSyncTimestamp(): Long =
+        getPrefs().getLong(Const.PrefsData.CONTACT_SYNC, 0)
 
     override suspend fun writeFirstAppStart(firstAppStart: Boolean) {
         with(getPrefs().edit()) {
@@ -269,6 +283,8 @@ interface SharedPreferencesRepository {
     suspend fun setNewUser(newUser: Boolean)
     suspend fun writeFirstSSELaunch()
     suspend fun isFirstSSELaunch(): Boolean
+    suspend fun writeAppMode(isTeamMode: Boolean)
+    suspend fun isTeamMode(): Boolean
 
     // Sync
     suspend fun writeMessageRecordTimestamp(messageRecordTimestamp: Long)
@@ -280,7 +296,7 @@ interface SharedPreferencesRepository {
     suspend fun writeRoomTimestamp(roomTimestamp: Long)
     suspend fun readRoomTimestamp(): Long?
     suspend fun writeContactSyncTimestamp(contactSyncTimestamp: Long)
-    suspend fun readContactSyncTimestamp(): Long?
+    suspend fun readContactSyncTimestamp(): Long
 
     suspend fun writeFirstAppStart(firstAppStart: Boolean)
     suspend fun isFirstAppStart(): Boolean
