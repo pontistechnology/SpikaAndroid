@@ -543,7 +543,15 @@ class SSERepositoryImpl @Inject constructor(
                     isLastPage = isLastPage
                 )
             },
-            saveCallResult = { it.data?.list?.let { users -> userDao.upsert(users) } }
+            saveCallResult = {
+                it.data?.list?.let { users -> userDao.upsert(users) }
+
+                // We can use below function to remove users from the local database which are not
+                // present in the response of the server. Keep in mind, we have to have the complete
+                // user list. Server returns the list in batches.
+//                it.data?.list?.map { user -> user.id }
+//                    ?.let { users -> userDao.removeSpecificUsers(users) }
+            }
         )
 
         if (Resource.Status.SUCCESS == response.status) {
