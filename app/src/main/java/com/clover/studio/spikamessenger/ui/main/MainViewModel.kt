@@ -45,6 +45,7 @@ class MainViewModel @Inject constructor(
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
     val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
+    val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
 
     init {
         sseManager.setupListener(this)
@@ -157,10 +158,14 @@ class MainViewModel @Inject constructor(
         resolveResponseStatus(usersListener, repository.updateUserData(jsonObject))
     }
 
-    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) = CoroutineScope(Dispatchers.IO).launch {
-        Timber.d("RoomDataCalled")
-        resolveResponseStatus(createRoomListener, repository.updateRoom(jsonObject, roomId, userId))
-    }
+    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
+        CoroutineScope(Dispatchers.IO).launch {
+            Timber.d("RoomDataCalled")
+            resolveResponseStatus(
+                createRoomListener,
+                repository.updateRoom(jsonObject, roomId, userId)
+            )
+        }
 
     fun unregisterSharedPrefsReceiver() = viewModelScope.launch {
         sharedPrefsRepo.unregisterSharedPrefsReceiver()
@@ -285,6 +290,10 @@ class MainViewModel @Inject constructor(
 
     fun writeUserTheme(userTheme: Int) = viewModelScope.launch {
         sharedPrefsRepo.writeUserTheme(userTheme)
+    }
+
+    fun syncUsers() = CoroutineScope(Dispatchers.IO).launch {
+        resolveResponseStatus(contactSyncListener, repository.syncContacts())
     }
 }
 

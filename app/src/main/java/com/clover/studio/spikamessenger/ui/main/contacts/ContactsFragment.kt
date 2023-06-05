@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -24,7 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class ContactsFragment : BaseFragment() {
+class ContactsFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var contactsAdapter: ContactsAdapter
     private lateinit var userList: MutableList<UserAndPhoneUser>
@@ -45,10 +46,15 @@ class ContactsFragment : BaseFragment() {
 
         localId = viewModel.getLocalUserId()!!
         setupAdapter()
+        setupSwipeToRefresh()
         setupSearchView()
         initializeObservers()
 
         return binding.root
+    }
+
+    private fun setupSwipeToRefresh() {
+        binding.srlRefreshContacts.setOnRefreshListener(this)
     }
 
     private fun initializeObservers() {
@@ -88,6 +94,7 @@ class ContactsFragment : BaseFragment() {
                         )
                     }
                 }
+
                 Resource.Status.ERROR -> {
                     if (selectedUser != null) {
                         val bundle = bundleOf(Const.Navigation.USER_PROFILE to selectedUser)
@@ -97,7 +104,29 @@ class ContactsFragment : BaseFragment() {
                         )
                     }
                 }
+
                 else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.contactSyncListener.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    Timber.d("Contact sync success")
+                    binding.srlRefreshContacts.isRefreshing = false
+                }
+
+                Resource.Status.ERROR -> {
+                    Timber.d("Contact sync error")
+                    Toast.makeText(activity, getString(R.string.error), Toast.LENGTH_SHORT).show()
+                    binding.srlRefreshContacts.isRefreshing = false
+                }
+
+                else -> {
+                    Timber.d("Contact sync else")
+                    Toast.makeText(activity, getString(R.string.error), Toast.LENGTH_SHORT).show()
+                    binding.srlRefreshContacts.isRefreshing = false
+                }
             }
         })
     }
@@ -198,4 +227,7 @@ class ContactsFragment : BaseFragment() {
         setupSearchView()
     }
 
+    override fun onRefresh() {
+        viewModel.syncUsers()
+    }
 }

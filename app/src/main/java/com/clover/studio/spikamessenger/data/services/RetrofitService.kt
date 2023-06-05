@@ -117,6 +117,14 @@ interface RetrofitService {
         @Path(Const.Networking.USER_ID) userId: Int
     ): Response<BlockResponse>
 
+    @FormUrlEncoded
+    @POST(Const.Networking.API_CONTACTS)
+    suspend fun syncContacts(
+        @HeaderMap headers: Map<String, String?>,
+        @Field(Const.Networking.CONTACTS) contacts: List<String>,
+        @Field(Const.Networking.IS_LAST_PAGE) isLastPage: Boolean
+    ): Response<ContactsSyncResponse>
+
     // TODO add remaining block API
     // End block section
 }

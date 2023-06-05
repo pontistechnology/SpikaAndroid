@@ -26,6 +26,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -109,6 +110,24 @@ class MainRepositoryImpl @Inject constructor(
         queryDatabase(
             databaseQuery = { chatRoomDao.getDistinctRoomsUnreadCount() }
         )
+
+    override suspend fun syncContacts(): Resource<ContactsSyncResponse> {
+        Timber.d("List has been refreshed")
+        val contacts = Tools.fetchPhonebookContacts(
+            MainApplication.appContext,
+            sharedPrefs.readCountryCode()
+        )
+        if (contacts != null) {
+            val phoneNumbersHashed = Tools.getContactsNumbersHashed(
+                MainApplication.appContext,
+                sharedPrefs.readCountryCode(),
+                contacts
+            ).toList()
+
+            // Beginning offset is always 0
+            return syncNextBatch(phoneNumbersHashed, 0)
+        } else return Resource<ContactsSyncResponse>(Resource.Status.ERROR, null, null)
+    }
 
     override fun getRoomWithUsersLiveData(roomId: Int) =
         queryDatabase(
@@ -351,6 +370,44 @@ class MainRepositoryImpl @Inject constructor(
             )
         }
     }
+
+    private suspend fun syncNextBatch(
+        contacts: List<String>,
+        offset: Int
+    ): Resource<ContactsSyncResponse> {
+        val endIndex = (offset + CONTACTS_BATCH).coerceAtMost(contacts.size)
+        val batchedList = contacts.subList(offset, endIndex)
+
+        Timber.d("Batched list: ${contacts.size}, ${batchedList.size}, ${batchedList.map { it }}")
+
+        val isLastPage = offset + CONTACTS_BATCH > contacts.size
+
+        val response = performRestOperation(
+            networkCall = {
+                mainRemoteDataSource.syncContacts(
+                    contacts = batchedList,
+                    isLastPage = isLastPage
+                )
+            },
+            saveCallResult = {
+                it.data?.list?.let { users -> userDao.upsert(users) }
+
+                // We can use below function to remove users from the local database which are not
+                // present in the response of the server. Keep in mind, we have to have the complete
+                // user list. Server returns the list in batches.
+//                it.data?.list?.map { user -> user.id }
+//                    ?.let { users -> userDao.removeSpecificUsers(users) }
+            }
+        )
+
+        if (Resource.Status.SUCCESS == response.status) {
+            if (!isLastPage) {
+                syncNextBatch(contacts, offset + CONTACTS_BATCH)
+            }
+        } else return response
+
+        return response
+    }
 }
 
 interface MainRepository {
@@ -376,6 +433,7 @@ interface MainRepository {
     suspend fun getUnreadCount()
     suspend fun updateUnreadCount(roomId: Int)
     fun getRoomsUnreadCount(): LiveData<Resource<Int>>
+    suspend fun syncContacts(): Resource<ContactsSyncResponse>
 
     // Settings calls
     suspend fun updatePushToken(jsonObject: JsonObject): Resource<Unit>
