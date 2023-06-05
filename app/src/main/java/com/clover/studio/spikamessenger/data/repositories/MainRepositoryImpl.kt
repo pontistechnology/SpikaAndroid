@@ -26,7 +26,6 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -112,21 +111,40 @@ class MainRepositoryImpl @Inject constructor(
         )
 
     override suspend fun syncContacts(): Resource<ContactsSyncResponse> {
-        Timber.d("List has been refreshed")
-        val contacts = Tools.fetchPhonebookContacts(
-            MainApplication.appContext,
-            sharedPrefs.readCountryCode()
-        )
-        if (contacts != null) {
-            val phoneNumbersHashed = Tools.getContactsNumbersHashed(
-                MainApplication.appContext,
-                sharedPrefs.readCountryCode(),
-                contacts
-            ).toList()
+        if (!sharedPrefs.isTeamMode()) {
+            if (sharedPrefs.readContactSyncTimestamp() == 0L || System.currentTimeMillis() < (sharedPrefs.readContactSyncTimestamp() + Const.Time.DAY)) {
+                val contacts = Tools.fetchPhonebookContacts(
+                    MainApplication.appContext,
+                    sharedPrefs.readCountryCode()
+                )
+                return if (contacts != null) {
+                    val phoneNumbersHashed = Tools.getContactsNumbersHashed(
+                        MainApplication.appContext,
+                        sharedPrefs.readCountryCode(),
+                        contacts
+                    ).toList()
 
-            // Beginning offset is always 0
-            return syncNextBatch(phoneNumbersHashed, 0)
-        } else return Resource<ContactsSyncResponse>(Resource.Status.ERROR, null, null)
+                    // Beginning offset is always 0
+                    syncNextBatch(phoneNumbersHashed, 0, ArrayList())
+                } else Resource<ContactsSyncResponse>(
+                    Resource.Status.ERROR,
+                    null,
+                    "Contacts are empty"
+                )
+            } else {
+                return Resource<ContactsSyncResponse>(
+                    Resource.Status.ERROR,
+                    null,
+                    "Not enough time passed for sync"
+                )
+            }
+        } else {
+            return Resource<ContactsSyncResponse>(
+                Resource.Status.SUCCESS,
+                null,
+                "App is in team mode"
+            )
+        }
     }
 
     override fun getRoomWithUsersLiveData(roomId: Int) =
@@ -373,12 +391,12 @@ class MainRepositoryImpl @Inject constructor(
 
     private suspend fun syncNextBatch(
         contacts: List<String>,
-        offset: Int
+        offset: Int,
+        contactList: MutableList<User>
     ): Resource<ContactsSyncResponse> {
         val endIndex = (offset + CONTACTS_BATCH).coerceAtMost(contacts.size)
         val batchedList = contacts.subList(offset, endIndex)
 
-        Timber.d("Batched list: ${contacts.size}, ${batchedList.size}, ${batchedList.map { it }}")
 
         val isLastPage = offset + CONTACTS_BATCH > contacts.size
 
@@ -390,20 +408,21 @@ class MainRepositoryImpl @Inject constructor(
                 )
             },
             saveCallResult = {
-                it.data?.list?.let { users -> userDao.upsert(users) }
-
-                // We can use below function to remove users from the local database which are not
-                // present in the response of the server. Keep in mind, we have to have the complete
-                // user list. Server returns the list in batches.
-//                it.data?.list?.map { user -> user.id }
-//                    ?.let { users -> userDao.removeSpecificUsers(users) }
+                if (isLastPage) {
+                    it.data?.list?.let { users -> contactList.addAll(users) }
+                    userDao.upsert(contactList)
+                    contactList.map { user -> user.id }
+                        .let { users -> userDao.removeSpecificUsers(users) }
+                } else {
+                    it.data?.list?.let { users -> contactList.addAll(users) }
+                }
             }
         )
 
         if (Resource.Status.SUCCESS == response.status) {
             if (!isLastPage) {
-                syncNextBatch(contacts, offset + CONTACTS_BATCH)
-            }
+                syncNextBatch(contacts, offset + CONTACTS_BATCH, contactList)
+            } else return response
         } else return response
 
         return response

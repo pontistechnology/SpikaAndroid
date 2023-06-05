@@ -257,11 +257,8 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncContacts() {
-        Timber.d("Sync contacts initial")
         if (!sharedPrefs.isTeamMode()) {
-            Timber.d("Sync contacts messenger mode")
             if (sharedPrefs.readContactSyncTimestamp() == 0L || System.currentTimeMillis() < (sharedPrefs.readContactSyncTimestamp() + Const.Time.DAY)) {
-                Timber.d("Sync contacts day passed")
                 val contacts = Tools.fetchPhonebookContacts(
                     MainApplication.appContext,
                     sharedPrefs.readCountryCode()
@@ -274,7 +271,7 @@ class SSERepositoryImpl @Inject constructor(
                     ).toList()
 
                     // Beginning offset is always 0
-                    syncNextBatch(phoneNumbersHashed, 0)
+                    syncNextBatch(phoneNumbersHashed, 0, ArrayList())
                 }
             }
         }
@@ -528,11 +525,13 @@ class SSERepositoryImpl @Inject constructor(
     }
 
 
-    private suspend fun syncNextBatch(contacts: List<String>, offset: Int) {
+    private suspend fun syncNextBatch(
+        contacts: List<String>,
+        offset: Int,
+        contactList: MutableList<User>
+    ) {
         val endIndex = (offset + CONTACTS_BATCH).coerceAtMost(contacts.size)
         val batchedList = contacts.subList(offset, endIndex)
-
-        Timber.d("Batched list: ${contacts.size}, ${batchedList.size}, ${batchedList.map { it }}")
 
         val isLastPage = offset + CONTACTS_BATCH > contacts.size
 
@@ -544,19 +543,20 @@ class SSERepositoryImpl @Inject constructor(
                 )
             },
             saveCallResult = {
-                it.data?.list?.let { users -> userDao.upsert(users) }
-
-                // We can use below function to remove users from the local database which are not
-                // present in the response of the server. Keep in mind, we have to have the complete
-                // user list. Server returns the list in batches.
-//                it.data?.list?.map { user -> user.id }
-//                    ?.let { users -> userDao.removeSpecificUsers(users) }
+                if (isLastPage) {
+                    it.data?.list?.let { users -> contactList.addAll(users) }
+                    userDao.upsert(contactList)
+                    contactList.map { user -> user.id }
+                        .let { users -> userDao.removeSpecificUsers(users) }
+                } else {
+                    it.data?.list?.let { users -> contactList.addAll(users) }
+                }
             }
         )
 
         if (Resource.Status.SUCCESS == response.status) {
             if (!isLastPage) {
-                syncNextBatch(contacts, offset + CONTACTS_BATCH)
+                syncNextBatch(contacts, offset + CONTACTS_BATCH, contactList)
             }
         }
     }
