@@ -5,6 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.clover.studio.exampleapp.R
@@ -19,7 +23,15 @@ import com.clover.studio.exampleapp.utils.extendables.BaseActivity
 import com.clover.studio.exampleapp.utils.extendables.DialogInteraction
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import dagger.hilt.android.AndroidEntryPoint
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import timber.log.Timber
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import javax.inject.Inject
 
 
@@ -80,6 +92,36 @@ class ChatScreenActivity : BaseActivity() {
                     it,
                     message
                 )
+            }
+
+
+            if (message?.type == Const.JsonFields.IMAGE_TYPE || message?.type == Const.JsonFields.VIDEO_TYPE) {
+                val request = Request.Builder()
+                    .url(Tools.getFilePathUrl(message.body?.fileId!!))
+                    .build()
+
+                val client = OkHttpClient()
+                client.newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        e.printStackTrace()
+                    }
+
+                    override fun onResponse(call: Call, response: Response) {
+                        val inputStream = response.body?.byteStream()
+                        val file = File(
+                            getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                            "${message.localId}.jpg"
+                        )
+
+                        val outputStream = FileOutputStream(file)
+                        inputStream?.use { input ->
+                            outputStream.use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        outputStream.close()
+                    }
+                })
             }
         }
 

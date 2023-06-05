@@ -37,7 +37,6 @@ import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.addFiles
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.showHideUserInformation
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -123,12 +122,7 @@ class ChatAdapter(
 
                     Const.JsonFields.IMAGE_TYPE -> {
                         setViewsVisibility(holder.binding.clImageChat, holder)
-
-                        val tempDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-                        val mediaPath = "$tempDir/${it.message.localId}.jpg"
-                        loadMedia(context, mediaPath, holder.binding.ivChatImage)
-
-                        Timber.d("$tempDir/${it.message.localId}")
+                        bindImage(it, holder.binding.ivChatImage, holder.binding.clImageChat)
 
                         /** Uploading image: */
                         if (it.message.body?.file?.uri != null) {
@@ -467,15 +461,12 @@ class ChatAdapter(
         clContainer: ConstraintLayout
     ) {
 
-        val imagePath = chatMessage.message.body?.file?.id?.let { imagePath ->
-            Tools.getFilePathUrl(
-                imagePath
-            )
-        }
+        val tempDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val mediaPath = "$tempDir/${chatMessage.message.localId}.jpg"
 
         loadMedia(
             context,
-            imagePath!!,
+            mediaPath,
             ivChatImage,
         )
 

@@ -7,6 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Environment
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -29,7 +33,15 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import timber.log.Timber
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 
 fun startMainActivity(fromActivity: Activity) = fromActivity.apply {
@@ -97,6 +109,35 @@ class MainActivity : BaseActivity() {
                     it,
                     message.responseData
                 )
+            }
+
+            if (message.responseData?.type == Const.JsonFields.IMAGE_TYPE || message.responseData?.type == Const.JsonFields.VIDEO_TYPE) {
+                val request = Request.Builder()
+                    .url(Tools.getFilePathUrl(message.responseData.body?.fileId!!))
+                    .build()
+
+                val client = OkHttpClient()
+                client.newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        e.printStackTrace()
+                    }
+
+                    override fun onResponse(call: Call, response: Response) {
+                        val inputStream = response.body?.byteStream()
+                        val file = File(
+                            getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                            "${message.responseData.localId}.jpg"
+                        )
+                        val outputStream = FileOutputStream(file)
+
+                        inputStream?.use { input ->
+                            outputStream.use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        outputStream.close()
+                    }
+                })
             }
         })
 

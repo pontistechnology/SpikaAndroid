@@ -24,6 +24,11 @@ import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -150,7 +155,8 @@ object Tools {
     @Throws(IOException::class)
     fun createImageFile(activity: Activity?): File {
         // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val timeStamp: String =
+            SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val storageDir: File? = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         val file = File.createTempFile(
             "JPEG_${timeStamp}_", /* prefix */
@@ -556,7 +562,38 @@ object Tools {
         return imagePath
     }
 
-    //    private fun calculateInSampleSize(
+    // TODO
+    fun downloadChatImage(message: Message, externalFilesDir: File?) {
+        val request = Request.Builder()
+            .url(getFilePathUrl(message.body?.fileId!!))
+            .build()
+
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val inputStream = response.body?.byteStream()
+                val fileName = "${message.localId}.jpg"
+                val file = File(externalFilesDir, fileName)
+
+                val outputStream = FileOutputStream(file)
+
+                inputStream?.use { input ->
+                    outputStream.use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                outputStream.close()
+            }
+        })
+    }
+}
+
+
+//    private fun calculateInSampleSize(
 //        options: BitmapFactory.Options,
 //    ): Int {
 //        // Raw height and width of image
@@ -612,4 +649,4 @@ object Tools {
 //            roomId?.let { notify(it, builder.build()) }
 //        }
 //    }
-}
+
