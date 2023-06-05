@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.text.format.DateUtils
@@ -36,6 +37,7 @@ import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.addFiles
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.showHideUserInformation
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -44,7 +46,6 @@ private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 private var oldPosition = -1
 private var firstPlay = true
 private var playerListener: Player.Listener? = null
-private var upload = false
 
 class ChatAdapter(
     private val context: Context,
@@ -123,30 +124,17 @@ class ChatAdapter(
                     Const.JsonFields.IMAGE_TYPE -> {
                         setViewsVisibility(holder.binding.clImageChat, holder)
 
+                        val tempDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                        val mediaPath = "$tempDir/${it.message.localId}.jpg"
+                        loadMedia(context, mediaPath, holder.binding.ivChatImage)
+
+                        Timber.d("$tempDir/${it.message.localId}")
+
                         /** Uploading image: */
-                        if (it.message.body?.file?.uri != null && !upload) {
+                        if (it.message.body?.file?.uri != null) {
                             holder.binding.clProgressScreen.visibility = View.VISIBLE
-                            loadMedia(
-                                context,
-                                it.message.body.file?.uri!!,
-                                holder.binding.ivChatImage,
-                                AppCompatResources.getDrawable(
-                                    context,
-                                    R.drawable.img_image_placeholder
-                                )
-                            )
-                            upload = true
-                            // Update the progress bar of the media item currently being uploaded
                             holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
                         } else {
-                            if (!upload){
-                                bindImage(
-                                    it,
-                                    holder.binding.ivChatImage,
-                                    holder.binding.clContainer
-                                )
-                            }
-                            upload = false
                             holder.binding.clProgressScreen.visibility = View.GONE
                         }
                     }
@@ -166,7 +154,7 @@ class ChatAdapter(
                             holder.binding.fileLayout.tvFileTitle.text =
                                 it!!.message.body?.file?.fileName
                             holder.binding.fileLayout.tvFileSize.text =
-                                Tools.calculateFileSize(it.message.body.file?.size!!).toString()
+                                Tools.calculateFileSize(it.message.body.file?.size!!)
                             holder.binding.fileLayout.pbFile.secondaryProgress =
                                 it.message.uploadProgress
                             holder.binding.fileLayout.ivCancelFile.setOnClickListener { _ ->
@@ -400,10 +388,6 @@ class ChatAdapter(
                                 context,
                                 userPath!!,
                                 holder.binding.ivUserImage,
-                                AppCompatResources.getDrawable(
-                                    context,
-                                    R.drawable.img_user_placeholder
-                                )
                             )
                         }
                     }
@@ -493,7 +477,6 @@ class ChatAdapter(
             context,
             imagePath!!,
             ivChatImage,
-            AppCompatResources.getDrawable(context, R.drawable.img_image_placeholder)
         )
 
         clContainer.setOnClickListener {
@@ -509,17 +492,13 @@ class ChatAdapter(
         clVideos: ConstraintLayout,
         ivPlayButton: ImageView
     ) {
-        val videoThumb = chatMessage.message.body?.thumb?.id?.let { videoThumb ->
-            Tools.getFilePathUrl(
-                videoThumb
-            )
-        }
+        val tempDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val mediaPath = "$tempDir/${chatMessage.message.localId}.jpg"
 
         loadMedia(
             context,
-            videoThumb!!,
+            mediaPath,
             ivVideoThumbnail,
-            AppCompatResources.getDrawable(context, R.drawable.img_camera_black)
         )
 
         clVideos.visibility = View.VISIBLE
@@ -541,7 +520,6 @@ class ChatAdapter(
         tvFileTitle.text = it!!.message.body?.file?.fileName
         val sizeText =
             Tools.calculateFileSize(it.message.body?.file?.size!!)
-                .toString()
         tvFileSize.text = sizeText
 
         ivDownloadFile.setOnTouchListener { _, event ->

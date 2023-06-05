@@ -2,6 +2,7 @@ package com.clover.studio.exampleapp.utils
 
 import android.app.Activity
 import android.app.DownloadManager
+import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -13,29 +14,21 @@ import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.text.TextUtils
 import android.text.format.DateUtils
-import android.util.Log
 import android.util.TypedValue
-import android.widget.RemoteViews
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.MainApplication
-import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
-import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -46,12 +39,12 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 
 
-const val BITMAP_WIDTH = 512
-const val BITMAP_HEIGHT = 512
 const val TO_MEGABYTE = 1000000
 const val TO_KILOBYTE = 1000
 const val TOKEN_EXPIRED_CODE = 401
-const val TOKEN_INVALID_CODE = 403
+//const val BITMAP_WIDTH = 512
+//const val BITMAP_HEIGHT = 512
+//const val TOKEN_INVALID_CODE = 403
 
 object Tools {
 
@@ -146,7 +139,7 @@ object Tools {
         return outputFile
     }
 
-    fun calculateFileSize(size: Long): String? {
+    fun calculateFileSize(size: Long): String {
         val df = DecimalFormat("#.##")
         if (size > TO_MEGABYTE) {
             return df.format(size.toFloat().div(TO_MEGABYTE)) + "MB"
@@ -157,7 +150,7 @@ object Tools {
     @Throws(IOException::class)
     fun createImageFile(activity: Activity?): File {
         // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val storageDir: File? = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         val file = File.createTempFile(
             "JPEG_${timeStamp}_", /* prefix */
@@ -270,38 +263,6 @@ object Tools {
         return rotateImageIfRequired(context, resizedBitmap, selectedImage!!)
     }
 
-    private fun calculateInSampleSize(
-        options: BitmapFactory.Options,
-    ): Int {
-        // Raw height and width of image
-        val height = options.outHeight
-        val width = options.outWidth
-        var inSampleSize = 1
-        if (height > BITMAP_HEIGHT || width > BITMAP_WIDTH) {
-
-            // Calculate ratios of height and width to requested height and width
-            val heightRatio = (height.toFloat() / BITMAP_HEIGHT.toFloat()).roundToInt()
-            val widthRatio = (width.toFloat() / BITMAP_WIDTH.toFloat()).roundToInt()
-
-            // Choose the smallest ratio as inSampleSize value, this will guarantee a final image
-            // with both dimensions larger than or equal to the requested height and width.
-            inSampleSize = if (heightRatio < widthRatio) heightRatio else widthRatio
-
-            // This offers some additional logic in case the image has a strange
-            // aspect ratio. For example, a panorama may have a much larger
-            // width than height. In these cases the total pixels might still
-            // end up being too large to fit comfortably in memory, so we should
-            // be more aggressive with sample down the image (=larger inSampleSize).
-            val totalPixels = (width * height).toFloat()
-
-            // Anything more than 2x the requested pixels we'll sample down further
-            val totalReqPixelsCap = (BITMAP_WIDTH * BITMAP_HEIGHT * 2).toFloat()
-            while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
-                inSampleSize++
-            }
-        }
-        return inSampleSize
-    }
 
     @Throws(IOException::class)
     private fun rotateImageIfRequired(context: Context, img: Bitmap, selectedImage: Uri): Bitmap? {
@@ -323,7 +284,7 @@ object Tools {
         activity: Activity,
         currentPhotoLocation: Uri,
         extension: String
-    ): String? {
+    ): String {
         val sha256FileHash: String?
         val inputStream =
             activity.contentResolver.openInputStream(currentPhotoLocation)
@@ -522,14 +483,14 @@ object Tools {
             bufferInfo.offset = offset
             bufferInfo.size = extractor.readSampleData(dstBuf, offset)
             if (bufferInfo.size < 0) {
-                Log.d("LOGTAG", "Saw input EOS.")
+                Timber.tag("LOGTAG").d("Saw input EOS.")
                 bufferInfo.size = 0
                 break
             } else {
                 bufferInfo.presentationTimeUs = extractor.sampleTime
                 // Code used when trimming videos
                 if (endMs > 0 && bufferInfo.presentationTimeUs > endMs * 1000L) {
-                    Log.d("LOGTAG", "The current sample is over the trim end time.")
+                    Timber.tag("LOGTAG").d("The current sample is over the trim end time.")
                     break
                 } else {
                     bufferInfo.flags = extractor.sampleFlags
@@ -563,4 +524,92 @@ object Tools {
         }
 
     }
+
+    fun saveMediaToStorage(
+        context: Context,
+        contentResolver: ContentResolver,
+        mediaUri: Uri,
+        id: String?
+    ): String? {
+        val inputStream = contentResolver.openInputStream(mediaUri)
+        var outputStream: OutputStream? = null
+        var imagePath: String? = null
+
+        try {
+            val tempDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+            Timber.d("Temp dir: $tempDir")
+            val fileName = "$id.jpg"
+            val tempFile = File(tempDir, fileName)
+
+            outputStream = FileOutputStream(tempFile)
+            inputStream?.copyTo(outputStream)
+
+            imagePath = tempFile.absolutePath
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            inputStream?.close()
+            outputStream?.close()
+        }
+
+        return imagePath
+    }
+
+    //    private fun calculateInSampleSize(
+//        options: BitmapFactory.Options,
+//    ): Int {
+//        // Raw height and width of image
+//        val height = options.outHeight
+//        val width = options.outWidth
+//        var inSampleSize = 1
+//        if (height > BITMAP_HEIGHT || width > BITMAP_WIDTH) {
+//
+//            // Calculate ratios of height and width to requested height and width
+//            val heightRatio = (height.toFloat() / BITMAP_HEIGHT.toFloat()).roundToInt()
+//            val widthRatio = (width.toFloat() / BITMAP_WIDTH.toFloat()).roundToInt()
+//
+//            // Choose the smallest ratio as inSampleSize value, this will guarantee a final image
+//            // with both dimensions larger than or equal to the requested height and width.
+//            inSampleSize = if (heightRatio < widthRatio) heightRatio else widthRatio
+//
+//            // This offers some additional logic in case the image has a strange
+//            // aspect ratio. For example, a panorama may have a much larger
+//            // width than height. In these cases the total pixels might still
+//            // end up being too large to fit comfortably in memory, so we should
+//            // be more aggressive with sample down the image (=larger inSampleSize).
+//            val totalPixels = (width * height).toFloat()
+//
+//            // Anything more than 2x the requested pixels we'll sample down further
+//            val totalReqPixelsCap = (BITMAP_WIDTH * BITMAP_HEIGHT * 2).toFloat()
+//            while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
+//                inSampleSize++
+//            }
+//        }
+//        return inSampleSize
+//    }
+
+//        fun createCustomNotification(
+//        activity: Activity,
+//        title: String?,
+//        text: String?,
+//        imageUrl: String?,
+//        roomId: Int?
+//    ) {
+//        val remoteViews = RemoteViews(activity.packageName, R.layout.dialog_notification)
+//        remoteViews.setImageViewUri(R.id.iv_user_image, imageUrl?.toUri())
+//        remoteViews.setTextViewText(R.id.tv_title, title)
+//        remoteViews.setTextViewText(R.id.tv_message, text)
+//
+//        val builder = NotificationCompat.Builder(activity, CHANNEL_ID)
+//            .setSmallIcon(R.drawable.img_spika_logo)
+//            .setContentTitle(title)
+//            .setContentText(text)
+//            .setPriority(NotificationCompat.PRIORITY_HIGH)
+//            .setCustomContentView(remoteViews)
+//        with(NotificationManagerCompat.from(activity)) {
+//            // notificationId is a unique int for each notification that you must define
+//            roomId?.let { notify(it, builder.build()) }
+//        }
+//    }
 }

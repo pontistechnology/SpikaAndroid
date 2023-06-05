@@ -1691,6 +1691,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             messageBody
         )
 
+        val imagePath =
+            Tools.saveMediaToStorage(
+                context!!,
+                requireActivity().contentResolver,
+                mediaUri,
+                tempMessage.localId
+            )
+        Timber.d("ImagePath: $imagePath")
+        Timber.d("Local id: ${tempMessage.localId}")
+
         Timber.d("Temporary message: $tempMessage")
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)

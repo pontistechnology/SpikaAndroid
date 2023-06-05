@@ -2,7 +2,6 @@ package com.clover.studio.exampleapp.utils.helpers
 
 import android.content.ContentResolver
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -10,7 +9,6 @@ import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
@@ -60,15 +58,12 @@ object ChatAdapterHelper {
      * @param context - Context
      * @param mediaPath - Path of media item
      * @param imageView - ImageView where we want to load the image
-     * @param drawable - Drawable that is used as a placeholder while the media item is loaded
      * */
-    fun loadMedia(context: Context, mediaPath: String, imageView: ImageView, drawable: Drawable?) {
+    fun loadMedia(context: Context, mediaPath: String, imageView: ImageView) {
         Glide.with(context)
             .load(mediaPath)
             .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-//            .placeholder(drawable)
             .dontTransform()
-            .dontAnimate()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(imageView)
     }
@@ -229,7 +224,6 @@ object ChatAdapterHelper {
                     context,
                     imagePath!!,
                     ivReplyImage,
-                    AppCompatResources.getDrawable(context, R.drawable.img_image_placeholder)
                 )
             }
             /** Audio type */
