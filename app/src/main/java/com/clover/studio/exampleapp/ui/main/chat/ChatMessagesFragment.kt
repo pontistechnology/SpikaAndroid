@@ -796,7 +796,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         } else progress = 0
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on piece")
-                        handleUploadError(UploadMimeTypes.FILE)
+                        handleUploadError(UploadMimeTypes.FILE, it.message)
                     }
                 }
 
@@ -818,12 +818,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         // update room data
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on verify")
-                        handleUploadError(UploadMimeTypes.FILE)
+                        handleUploadError(UploadMimeTypes.FILE, it.message)
                     }
                 }
 
                 Resource.Status.ERROR -> {
-                    handleUploadError(UploadMimeTypes.FILE)
+                    handleUploadError(UploadMimeTypes.FILE, it.message)
                 }
 
                 else -> Timber.d("Other upload error")
@@ -846,7 +846,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on piece")
-                        handleUploadError(UploadMimeTypes.MEDIA)
+                        handleUploadError(UploadMimeTypes.MEDIA, it.message)
                     }
                 }
 
@@ -888,12 +888,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
                     } catch (ex: Exception) {
                         Timber.d("File upload failed on verified")
-                        handleUploadError(UploadMimeTypes.MEDIA)
+                        handleUploadError(UploadMimeTypes.MEDIA, it.message)
                     }
                 }
 
                 Resource.Status.ERROR -> {
-                    handleUploadError(UploadMimeTypes.MEDIA)
+                    handleUploadError(UploadMimeTypes.MEDIA, it.message)
                 }
 
                 else -> Timber.d("Other upload error")
@@ -1865,7 +1865,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      *
      * Also displays a toast message for failed uploads.
      */
-    private fun handleUploadError(typeFailed: UploadMimeTypes) {
+    private fun handleUploadError(typeFailed: UploadMimeTypes, message: String?) {
         tempMessageCounter -= 1
 
         if (UploadMimeTypes.MEDIA == typeFailed) {
@@ -1899,9 +1899,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             } else resetUploadFields()
         } else resetUploadFields()
 
+        val description = if (message == getString(R.string.canceled_file_upload)) {
+            getString(R.string.canceled_file_upload)
+        } else {
+            getString(R.string.failed_file_upload)
+        }
+
         Toast.makeText(
             activity!!.baseContext,
-            getString(R.string.failed_file_upload),
+            description,
             Toast.LENGTH_SHORT
         ).show()
     }
