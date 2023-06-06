@@ -9,9 +9,24 @@ import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.helpers.BaseDataSource
 import com.clover.studio.exampleapp.utils.helpers.Resource
 import com.clover.studio.exampleapp.utils.helpers.RestOperations
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+
+private val mutex = Mutex()
 
 interface BaseRepository {
     suspend fun syncContacts(
+        userDao: UserDao,
+        shouldRefresh: Boolean,
+        sharedPrefs: SharedPreferencesRepository,
+        baseDataSource: BaseDataSource
+    ): Resource<ContactsSyncResponse> {
+        return mutex.withLock {
+            startContactsSync(userDao, shouldRefresh, sharedPrefs, baseDataSource)
+        }
+    }
+
+    private suspend fun startContactsSync(
         userDao: UserDao,
         shouldRefresh: Boolean,
         sharedPrefs: SharedPreferencesRepository,
