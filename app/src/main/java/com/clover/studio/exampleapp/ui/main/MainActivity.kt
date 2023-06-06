@@ -111,7 +111,7 @@ class MainActivity : BaseActivity() {
                 )
             }
 
-            if (message.responseData?.type == Const.JsonFields.IMAGE_TYPE || message.responseData?.type == Const.JsonFields.VIDEO_TYPE) {
+            if (Const.JsonFields.IMAGE_TYPE == message.responseData?.type || Const.JsonFields.VIDEO_TYPE == message.responseData?.type) {
                 val request = Request.Builder()
                     .url(Tools.getFilePathUrl(message.responseData.body?.fileId!!))
                     .build()
@@ -126,7 +126,7 @@ class MainActivity : BaseActivity() {
                         val inputStream = response.body?.byteStream()
                         val file = File(
                             getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                            "${message.responseData.localId}.jpg"
+                            "${message.responseData.localId}.${Const.FileExtensions.JPG}"
                         )
                         val outputStream = FileOutputStream(file)
 

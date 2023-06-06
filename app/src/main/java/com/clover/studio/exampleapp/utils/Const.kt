@@ -12,12 +12,12 @@ class Const {
             const val GO_ACCOUNT_CREATION = "go_account_creation"
             const val SELECTED_USERS = "selected_users"
             const val ROOM_ID = "roomId"
-            const val IS_ADMIN = "is_admin"
-            const val USER_IDS = "user_ids"
-            const val USER_NUMBER = "user_number"
             const val NOTE_ID = "noteId"
             const val NOTES_DETAILS = "notesDetails"
             const val NOTES_NAME = "notesName"
+//            const val IS_ADMIN = "is_admin"
+//            const val USER_IDS = "user_ids"
+//            const val USER_NUMBER = "user_number"
         }
     }
 
@@ -52,11 +52,12 @@ class Const {
             const val RAR = "rar"
             const val MP3 = "mp3"
             const val WAW = "waw"
-            const val MP4 = "mp4"
-            const val MKV = "mkv"
-            const val JPEG = "jpeg"
-            const val PNG = "png"
+            const val JPG = "jpg"
             const val AUDIO = "audio/mpeg"
+//            const val MP4 = "mp4"
+//            const val MKV = "mkv"
+//            const val JPEG = "jpeg"
+//            const val PNG = "png"
         }
     }
 
@@ -88,8 +89,8 @@ class Const {
             // Mime types
             const val IMAGE = "image/*"
             const val FILE = "*/*"
-            const val VIDEO = "video/*"
-            const val AUDIO = "audio/*"
+//            const val VIDEO = "video/*"
+//            const val AUDIO = "audio/*"
 
             // File types
             const val AVATAR_TYPE = "avatar"
@@ -110,7 +111,6 @@ class Const {
             const val FILE_NAME = "fileName"
             const val TYPE = "type"
             const val FILE_HASH = "fileHash"
-            const val RELATION_ID = "relationId"
             const val CLIENT_ID = "clientId"
             const val FILE_ID = "fileId"
             const val THUMB_ID = "thumbId"
@@ -119,6 +119,7 @@ class Const {
             const val WIDTH = "width"
             const val HEIGHT = "height"
             const val DURATION = "duration"
+//            const val RELATION_ID = "relationId"
 
             // Chat
             const val ROOM_ID = "roomId"
@@ -147,10 +148,12 @@ class Const {
             // Sync Data
             const val API_SYNC_MESSAGES = "api/messenger/messages/sync/{lastUpdate}"
             const val API_SYNC_MESSAGE_RECORDS = "api/messenger/message-records/sync/{lastUpdate}"
-            const val API_POST_REACTION = "api/messenger/message-records"
-            const val API_DELETE_REACTION = "api/messenger/message-records/{id}"
             const val API_SYNC_USERS = "api/messenger/users/sync/{lastUpdate}"
             const val API_SYNC_ROOMS = "api/messenger/rooms/sync/{lastUpdate}"
+
+            // Reactions
+            const val API_POST_REACTION = "api/messenger/message-records"
+//            const val API_DELETE_REACTION = "api/messenger/message-records/{id}"
 
             const val API_AUTH = "api/messenger/auth"
             const val API_VERIFY_CODE = "api/messenger/auth/verify"
@@ -160,14 +163,14 @@ class Const {
             const val API_UPLOAD_FILE = "api/upload/files" // Fix
             const val API_VERIFY_FILE = "api/upload/files/verify" // Fix
             const val API_POST_MESSAGE = "api/messenger/messages"
-            const val API_GET_MESSAGES = "api/messenger/messages/roomId/{roomId}" // Fix
-            const val API_GET_MESSAGES_TIMESTAMP = "api/messenger/messages"
+//            const val API_GET_MESSAGES = "api/messenger/messages/roomId/{roomId}" // Fix
+//            const val API_GET_MESSAGES_TIMESTAMP = "api/messenger/messages"
+//            const val API_GET_MESSAGE_RECORDS = "api/messenger/messages/{messageId}/message-records"
             const val API_MESSAGE_DELIVERED = "api/messenger/messages/delivered" // Fix
             const val API_GET_ROOM_BY_ID = "api/messenger/rooms/users/{userId}"
             const val API_POST_NEW_ROOM = "api/messenger/rooms" // Fix
             const val API_SSE_STREAM = "api/sse"
             const val API_UPDATE_TOKEN = "api/messenger/device"
-            const val API_GET_MESSAGE_RECORDS = "api/messenger/messages/{messageId}/message-records"
             const val API_MESSAGES_SEEN = "api/messenger/messages/{roomId}/seen"
             const val API_UPDATE_ROOM = "api/messenger/rooms/{roomId}" // Fix
             const val API_MUTE_ROOM = "api/messenger/rooms/{roomId}/mute"
@@ -181,23 +184,23 @@ class Const {
             const val API_NOTES = "api/messenger/notes/roomId/{roomId}"
             const val API_MANAGE_NOTE = "api/messenger/notes/{id}"
             const val API_BLOCK = "api/messenger/blocks"
-            const val API_CREATE_BLOCK = "api/messenger/blocks/{roomId}"
             const val API_DELETE_BLOCK = "api/messenger/blocks/{id}"
             const val API_DELETE_BLOCK_FOR_USER = "api/messenger/blocks/userId/{userId}"
-            const val API_ROOM_BLOCKS = "api/messenger/blocks/rooms/{roomId}"
+//            const val API_ROOM_BLOCKS = "api/messenger/blocks/rooms/{roomId}"
+//            const val API_CREATE_BLOCK = "api/messenger/blocks/{roomId}"
 
             // Queries
-            const val TIMESTAMP = "timestamp"
             const val ROOM_ID = "roomId"
             const val CONTACTS = "contacts"
             const val USER_ID = "userId"
-            const val DEVICE_ID = "deviceId"
             const val MESSAGE_ID = "messageId"
             const val LAST_UPDATE = "lastUpdate"
-            const val PAGE = "page"
             const val ID = "id"
             const val TARGET = "target"
-            const val AVATAR_ID = "avatarFileId"
+//            const val AVATAR_ID = "avatarFileId"
+//            const val PAGE = "page"
+//            const val DEVICE_ID = "deviceId"
+//            const val TIMESTAMP = "timestamp"
         }
     }
 

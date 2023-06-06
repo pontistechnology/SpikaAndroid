@@ -1260,9 +1260,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         var videoPath = ""
         var picturePath = ""
         if (chatMessage.message.type == Const.JsonFields.IMAGE_TYPE) {
-            picturePath = chatMessage.message.body?.fileId?.let {
-                Tools.getFilePathUrl(it)
-            }.toString()
+            val directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            picturePath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
         } else {
             videoPath = chatMessage.message.body?.file?.id.let {
                 Tools.getFilePathUrl(

@@ -542,15 +542,9 @@ object Tools {
         var imagePath: String? = null
 
         try {
-            val tempDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-
-            Timber.d("Temp dir: $tempDir")
-            val fileName = "$id.jpg"
-            val tempFile = File(tempDir, fileName)
-
+            val tempFile = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),  "$id.${Const.FileExtensions.JPG}")
             outputStream = FileOutputStream(tempFile)
             inputStream?.copyTo(outputStream)
-
             imagePath = tempFile.absolutePath
         } catch (e: IOException) {
             e.printStackTrace()
@@ -576,7 +570,7 @@ object Tools {
 
             override fun onResponse(call: Call, response: Response) {
                 val inputStream = response.body?.byteStream()
-                val fileName = "${message.localId}.jpg"
+                val fileName = "${message.localId}.${Const.FileExtensions.JPG}"
                 val file = File(externalFilesDir, fileName)
 
                 val outputStream = FileOutputStream(file)

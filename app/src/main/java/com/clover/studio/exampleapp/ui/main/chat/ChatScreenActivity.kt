@@ -95,7 +95,7 @@ class ChatScreenActivity : BaseActivity() {
             }
 
 
-            if (message?.type == Const.JsonFields.IMAGE_TYPE || message?.type == Const.JsonFields.VIDEO_TYPE) {
+            if (Const.JsonFields.IMAGE_TYPE == message?.type || Const.JsonFields.VIDEO_TYPE == message?.type) {
                 val request = Request.Builder()
                     .url(Tools.getFilePathUrl(message.body?.fileId!!))
                     .build()
@@ -110,7 +110,7 @@ class ChatScreenActivity : BaseActivity() {
                         val inputStream = response.body?.byteStream()
                         val file = File(
                             getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                            "${message.localId}.jpg"
+                            "${message.localId}.${Const.FileExtensions.JPG}"
                         )
 
                         val outputStream = FileOutputStream(file)

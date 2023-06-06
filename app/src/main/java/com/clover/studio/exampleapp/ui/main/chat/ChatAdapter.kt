@@ -84,6 +84,7 @@ class ChatAdapter(
     }
 
     private var handler = Handler(Looper.getMainLooper())
+    private var directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -460,10 +461,7 @@ class ChatAdapter(
         ivChatImage: ImageView,
         clContainer: ConstraintLayout
     ) {
-
-        val tempDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val mediaPath = "$tempDir/${chatMessage.message.localId}.jpg"
-
+        val mediaPath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
         loadMedia(
             context,
             mediaPath,
@@ -483,9 +481,7 @@ class ChatAdapter(
         clVideos: ConstraintLayout,
         ivPlayButton: ImageView
     ) {
-        val tempDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val mediaPath = "$tempDir/${chatMessage.message.localId}.jpg"
-
+        val mediaPath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
         loadMedia(
             context,
             mediaPath,
