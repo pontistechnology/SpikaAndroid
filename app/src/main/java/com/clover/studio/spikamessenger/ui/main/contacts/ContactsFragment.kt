@@ -228,6 +228,6 @@ class ContactsFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     }
 
     override fun onRefresh() {
-        viewModel.syncUsers()
+        viewModel.syncContacts()
     }
 }

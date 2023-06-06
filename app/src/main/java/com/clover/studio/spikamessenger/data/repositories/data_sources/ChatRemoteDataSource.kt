@@ -84,4 +84,12 @@ class ChatRemoteDataSource @Inject constructor(
     suspend fun getUnreadCount() = getResult {
         retrofitService.getUnreadCount(getHeaderMap(sharedPrefs.readToken()))
     }
+
+    override suspend fun syncContacts(
+        contacts: List<String>,
+        isLastPage: Boolean
+    ): Resource<ContactsSyncResponse> {
+        // This should never be called
+        return Resource<ContactsSyncResponse>(Resource.Status.ERROR, null, null)
+    }
 }

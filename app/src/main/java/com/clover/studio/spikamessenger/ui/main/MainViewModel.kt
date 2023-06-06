@@ -292,8 +292,8 @@ class MainViewModel @Inject constructor(
         sharedPrefsRepo.writeUserTheme(userTheme)
     }
 
-    fun syncUsers() = CoroutineScope(Dispatchers.IO).launch {
-        resolveResponseStatus(contactSyncListener, repository.syncContacts())
+    fun syncContacts() = CoroutineScope(Dispatchers.IO).launch {
+        resolveResponseStatus(contactSyncListener, repository.syncContacts(true))
     }
 }
 

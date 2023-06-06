@@ -27,4 +27,12 @@ class OnboardingRemoteDataSource @Inject constructor(
     suspend fun updateUser(jsonObject: JsonObject) = getResult {
         retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), jsonObject)
     }
+
+    override suspend fun syncContacts(
+        contacts: List<String>,
+        isLastPage: Boolean
+    ): Resource<ContactsSyncResponse> {
+        // This should never be called
+        return Resource<ContactsSyncResponse>(Resource.Status.ERROR, null, null)
+    }
 }

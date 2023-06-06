@@ -10,6 +10,10 @@ const val TOKEN_EXPIRED = 401
 const val TOKEN_INVALID_CODE = 403
 
 abstract class BaseDataSource {
+    abstract suspend fun syncContacts(
+        contacts: List<String>,
+        isLastPage: Boolean
+    ): Resource<ContactsSyncResponse>
 
     protected suspend fun <T> getResult(call: suspend () -> Response<T>): Resource<T> {
         try {

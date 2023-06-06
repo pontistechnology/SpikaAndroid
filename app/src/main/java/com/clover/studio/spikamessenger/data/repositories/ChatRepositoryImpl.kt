@@ -320,7 +320,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 }
 
-interface ChatRepository {
+interface ChatRepository: BaseRepository {
     // Message calls
     suspend fun sendMessage(jsonObject: JsonObject): Resource<MessageResponse>
     suspend fun storeMessageLocally(message: Message)

@@ -76,12 +76,12 @@ class SSEManager @Inject constructor(
                     if (!sharedPrefs.isFirstSSELaunch()) {
                         launch { repo.syncMessageRecords() }
                         launch { repo.syncMessages() }
-                        launch { repo.syncContacts() }
+                        launch { repo.syncContacts(false) }
                         launch { repo.syncUsers() }
                         launch { repo.syncRooms() }
                     } else {
                         launch { repo.syncUsers() }
-                        launch { repo.syncContacts() }
+                        launch { repo.syncContacts(false) }
                         launch { repo.syncRooms() }
                     }
 

@@ -256,25 +256,8 @@ class SSERepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun syncContacts() {
-        if (!sharedPrefs.isTeamMode()) {
-            if (sharedPrefs.readContactSyncTimestamp() == 0L || System.currentTimeMillis() < (sharedPrefs.readContactSyncTimestamp() + Const.Time.DAY)) {
-                val contacts = Tools.fetchPhonebookContacts(
-                    MainApplication.appContext,
-                    sharedPrefs.readCountryCode()
-                )
-                if (contacts != null) {
-                    val phoneNumbersHashed = Tools.getContactsNumbersHashed(
-                        MainApplication.appContext,
-                        sharedPrefs.readCountryCode(),
-                        contacts
-                    ).toList()
-
-                    // Beginning offset is always 0
-                    syncNextBatch(phoneNumbersHashed, 0, ArrayList())
-                }
-            }
-        }
+    suspend fun syncContacts(shouldRefresh: Boolean) {
+        syncContacts(userDao, shouldRefresh, sharedPrefs, sseRemoteDataSource)
     }
 
     override suspend fun sendMessageDelivered(messageId: Int) {
@@ -525,49 +508,13 @@ class SSERepositoryImpl @Inject constructor(
     }
 
 
-    private suspend fun syncNextBatch(
-        contacts: List<String>,
-        offset: Int,
-        contactList: MutableList<User>
-    ) {
-        val endIndex = (offset + CONTACTS_BATCH).coerceAtMost(contacts.size)
-        val batchedList = contacts.subList(offset, endIndex)
-
-        val isLastPage = offset + CONTACTS_BATCH > contacts.size
-
-        val response = performRestOperation(
-            networkCall = {
-                sseRemoteDataSource.syncContacts(
-                    contacts = batchedList,
-                    isLastPage = isLastPage
-                )
-            },
-            saveCallResult = {
-                if (isLastPage) {
-                    it.data?.list?.let { users -> contactList.addAll(users) }
-                    userDao.upsert(contactList)
-                    contactList.map { user -> user.id }
-                        .let { users -> userDao.removeSpecificUsers(users) }
-                } else {
-                    it.data?.list?.let { users -> contactList.addAll(users) }
-                }
-            }
-        )
-
-        if (Resource.Status.SUCCESS == response.status) {
-            if (!isLastPage) {
-                syncNextBatch(contacts, offset + CONTACTS_BATCH, contactList)
-            }
-        }
-    }
 }
 
-interface SSERepository {
+interface SSERepository : BaseRepository {
     suspend fun syncMessageRecords()
     suspend fun syncMessages()
     suspend fun syncUsers()
     suspend fun syncRooms()
-    suspend fun syncContacts()
     suspend fun sendMessageDelivered(messageId: Int)
     suspend fun writeMessages(message: Message)
     suspend fun writeMessageRecord(messageRecords: MessageRecords)

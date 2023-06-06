@@ -51,7 +51,7 @@ class PhonebookService : Service() {
             // Handle the phonebook change here
             Timber.d("Sync contacts phonebook changed")
             CoroutineScope(Dispatchers.IO).launch {
-                sseRepository.syncContacts()
+                sseRepository.syncContacts(true)
             }
         }
 

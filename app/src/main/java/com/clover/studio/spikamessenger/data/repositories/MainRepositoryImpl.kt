@@ -37,7 +37,7 @@ class MainRepositoryImpl @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository,
 ) : MainRepository {
 
-    var uploadInProgress = MutableLiveData(true)
+    private var uploadInProgress = MutableLiveData(true)
 
     override suspend fun getUserRooms() =
         performRestOperation(
@@ -110,41 +110,13 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getDistinctRoomsUnreadCount() }
         )
 
-    override suspend fun syncContacts(): Resource<ContactsSyncResponse> {
-        if (!sharedPrefs.isTeamMode()) {
-            if (sharedPrefs.readContactSyncTimestamp() == 0L || System.currentTimeMillis() < (sharedPrefs.readContactSyncTimestamp() + Const.Time.DAY)) {
-                val contacts = Tools.fetchPhonebookContacts(
-                    MainApplication.appContext,
-                    sharedPrefs.readCountryCode()
-                )
-                return if (contacts != null) {
-                    val phoneNumbersHashed = Tools.getContactsNumbersHashed(
-                        MainApplication.appContext,
-                        sharedPrefs.readCountryCode(),
-                        contacts
-                    ).toList()
-
-                    // Beginning offset is always 0
-                    syncNextBatch(phoneNumbersHashed, 0, ArrayList())
-                } else Resource<ContactsSyncResponse>(
-                    Resource.Status.ERROR,
-                    null,
-                    "Contacts are empty"
-                )
-            } else {
-                return Resource<ContactsSyncResponse>(
-                    Resource.Status.ERROR,
-                    null,
-                    "Not enough time passed for sync"
-                )
-            }
-        } else {
-            return Resource<ContactsSyncResponse>(
-                Resource.Status.SUCCESS,
-                null,
-                "App is in team mode"
-            )
-        }
+    suspend fun syncContacts(shouldRefresh: Boolean): Resource<ContactsSyncResponse> {
+        return syncContacts(
+            userDao,
+            shouldRefresh,
+            sharedPrefs,
+            baseDataSource = mainRemoteDataSource
+        )
     }
 
     override fun getRoomWithUsersLiveData(roomId: Int) =
@@ -388,48 +360,9 @@ class MainRepositoryImpl @Inject constructor(
             )
         }
     }
-
-    private suspend fun syncNextBatch(
-        contacts: List<String>,
-        offset: Int,
-        contactList: MutableList<User>
-    ): Resource<ContactsSyncResponse> {
-        val endIndex = (offset + CONTACTS_BATCH).coerceAtMost(contacts.size)
-        val batchedList = contacts.subList(offset, endIndex)
-
-
-        val isLastPage = offset + CONTACTS_BATCH > contacts.size
-
-        val response = performRestOperation(
-            networkCall = {
-                mainRemoteDataSource.syncContacts(
-                    contacts = batchedList,
-                    isLastPage = isLastPage
-                )
-            },
-            saveCallResult = {
-                if (isLastPage) {
-                    it.data?.list?.let { users -> contactList.addAll(users) }
-                    userDao.upsert(contactList)
-                    contactList.map { user -> user.id }
-                        .let { users -> userDao.removeSpecificUsers(users) }
-                } else {
-                    it.data?.list?.let { users -> contactList.addAll(users) }
-                }
-            }
-        )
-
-        if (Resource.Status.SUCCESS == response.status) {
-            if (!isLastPage) {
-                syncNextBatch(contacts, offset + CONTACTS_BATCH, contactList)
-            } else return response
-        } else return response
-
-        return response
-    }
 }
 
-interface MainRepository {
+interface MainRepository: BaseRepository {
     // User calls
     suspend fun getUserByID(id: Int): LiveData<Resource<User>>
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
@@ -452,7 +385,6 @@ interface MainRepository {
     suspend fun getUnreadCount()
     suspend fun updateUnreadCount(roomId: Int)
     fun getRoomsUnreadCount(): LiveData<Resource<Int>>
-    suspend fun syncContacts(): Resource<ContactsSyncResponse>
 
     // Settings calls
     suspend fun updatePushToken(jsonObject: JsonObject): Resource<Unit>
