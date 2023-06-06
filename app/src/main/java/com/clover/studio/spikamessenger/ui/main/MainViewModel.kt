@@ -293,7 +293,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun syncContacts() = CoroutineScope(Dispatchers.IO).launch {
-        resolveResponseStatus(contactSyncListener, repository.syncContacts(true))
+        resolveResponseStatus(contactSyncListener, repository.syncContacts(shouldRefresh = true))
     }
 }
 
