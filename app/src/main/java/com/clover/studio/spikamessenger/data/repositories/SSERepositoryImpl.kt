@@ -256,7 +256,7 @@ class SSERepositoryImpl @Inject constructor(
         }
     }
 
-    suspend fun syncContacts(shouldRefresh: Boolean) {
+    suspend fun syncContacts(shouldRefresh: Boolean = false) {
         syncContacts(userDao, shouldRefresh, sharedPrefs, sseRemoteDataSource)
     }
 

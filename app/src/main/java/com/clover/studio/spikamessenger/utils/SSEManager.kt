@@ -71,17 +71,18 @@ class SSEManager @Inject constructor(
                 // Check that connection returned 200 OK and then launch all the sync calls
                 // asynchronously
                 if (conn.responseCode == HttpsURLConnection.HTTP_OK) {
+                    // TODO store settings object only once to shared pref
                     val mode = repo.getAppMode()
                     Timber.d("App mode = $mode")
                     if (!sharedPrefs.isFirstSSELaunch()) {
                         launch { repo.syncMessageRecords() }
                         launch { repo.syncMessages() }
-                        launch { repo.syncContacts(shouldRefresh = false) }
+                        launch { repo.syncContacts() }
                         launch { repo.syncUsers() }
                         launch { repo.syncRooms() }
                     } else {
                         launch { repo.syncUsers() }
-                        launch { repo.syncContacts(shouldRefresh = false) }
+                        launch { repo.syncContacts() }
                         launch { repo.syncRooms() }
                     }
 
