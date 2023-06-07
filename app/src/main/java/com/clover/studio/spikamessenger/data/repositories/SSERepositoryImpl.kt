@@ -24,7 +24,6 @@ import timber.log.Timber
 import java.util.stream.Collectors
 import javax.inject.Inject
 
-const val CONTACTS_BATCH = 40
 
 class SSERepositoryImpl @Inject constructor(
     private val sseRemoteDataSource: SSERemoteDataSource,

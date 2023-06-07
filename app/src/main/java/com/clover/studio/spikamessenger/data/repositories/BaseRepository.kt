@@ -12,6 +12,7 @@ import com.clover.studio.exampleapp.utils.helpers.RestOperations
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+const val CONTACTS_BATCH = 40
 private val mutex = Mutex()
 
 interface BaseRepository {
