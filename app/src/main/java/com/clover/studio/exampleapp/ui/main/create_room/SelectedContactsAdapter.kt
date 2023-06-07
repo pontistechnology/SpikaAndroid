@@ -30,7 +30,7 @@ class SelectedContactsAdapter(
     override fun onBindViewHolder(holder: ContactsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { userItem ->
-                binding.tvUserName.text = userItem.phoneUser?.name ?: userItem.user.displayName
+                binding.tvUserName.text = userItem.phoneUser?.name ?: userItem.user.formattedDisplayName
                 Glide.with(context)
                     .load(userItem.user.avatarFileId?.let { Tools.getFilePathUrl(it) })
                     .placeholder(R.drawable.img_user_placeholder)

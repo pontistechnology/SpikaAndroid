@@ -234,7 +234,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun initViews() {
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             avatarFileId = user?.avatarFileId!!
-            userName = user?.displayName.toString()
+            userName = user?.formattedDisplayName.toString()
         } else {
             avatarFileId = roomWithUsers.room.avatarFileId!!
             userName = roomWithUsers.room.name.toString()
@@ -1261,7 +1261,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             )
         } else {
             val userName =
-                roomWithUsers.users.firstOrNull { it.id == chatMessage.message.fromUserId }!!.displayName
+                roomWithUsers.users.firstOrNull { it.id == chatMessage.message.fromUserId }!!.formattedDisplayName
             context!!.getString(
                 R.string.user_sent_on,
                 userName,
@@ -1306,7 +1306,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val user = roomWithUsers.users.firstOrNull {
             it.id == message.fromUserId
         }
-        bindingSetup.replyAction.tvUsername.text = user!!.displayName
+        bindingSetup.replyAction.tvUsername.text = user!!.formattedDisplayName
 
         when (message.type) {
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {

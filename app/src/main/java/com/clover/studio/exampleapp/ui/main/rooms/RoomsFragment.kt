@@ -68,8 +68,8 @@ class RoomsFragment : BaseFragment() {
                                 val shouldAddRoom =
                                     if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
                                         room.roomWithUsers.users.any {
-                                            myUserId != it.id.toString() && it.displayName?.lowercase()
-                                                ?.contains(query, ignoreCase = true) == true
+                                            myUserId != it.id.toString() && it.formattedDisplayName.lowercase()
+                                                .contains(query, ignoreCase = true)
                                         }
                                     } else {
                                         room.roomWithUsers.room.name?.lowercase()
@@ -106,8 +106,8 @@ class RoomsFragment : BaseFragment() {
                                 val shouldAddRoom =
                                     if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
                                         room.roomWithUsers.users.any {
-                                            myUserId != it.id.toString() && it.displayName?.lowercase()
-                                                ?.contains(query, ignoreCase = true) == true
+                                            myUserId != it.id.toString() && it.formattedDisplayName.lowercase()
+                                                .contains(query, ignoreCase = true)
                                         }
                                     } else {
                                         room.roomWithUsers.room.name?.lowercase()

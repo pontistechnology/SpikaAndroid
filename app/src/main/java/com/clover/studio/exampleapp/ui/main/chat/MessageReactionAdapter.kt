@@ -35,7 +35,7 @@ class MessageReactionAdapter(
             holder.binding.tvUserReaction.text = it.reaction
             for (user in roomWithUsers.users) {
                 if (it.userId == user.id) {
-                    holder.binding.tvUsernameReaction.text = user.displayName
+                    holder.binding.tvUsernameReaction.text = user.formattedDisplayName
                     Glide.with(context)
                         .load(user.avatarFileId?.let { fileId -> Tools.getFilePathUrl(fileId) })
                         .placeholder(R.drawable.img_user_placeholder)

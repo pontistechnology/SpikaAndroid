@@ -286,7 +286,7 @@ class NewRoomFragment : BaseFragment() {
                     val userIdsArray = JsonArray()
                     userIdsArray.add(user?.id)
 
-                    jsonObject.addProperty(Const.JsonFields.NAME, user?.displayName)
+                    jsonObject.addProperty(Const.JsonFields.NAME, user?.formattedDisplayName)
                     jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, user?.avatarFileId)
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
                     jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
@@ -335,11 +335,11 @@ class NewRoomFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
-                            if ((user.phoneUser?.name?.lowercase()?.contains(
+                            if (user.phoneUser?.name?.lowercase()?.contains(
                                     query,
                                     ignoreCase = true
-                                ) ?: user.user.displayName?.lowercase()
-                                    ?.contains(query, ignoreCase = true)) == true
+                                ) ?: user.user.formattedDisplayName.lowercase()
+                                    .contains(query, ignoreCase = true)
                             ) {
                                 filteredList.add(user)
                             }
@@ -360,11 +360,11 @@ class NewRoomFragment : BaseFragment() {
                     Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
-                            if ((user.phoneUser?.name?.lowercase()?.contains(
+                            if (user.phoneUser?.name?.lowercase()?.contains(
                                     query,
                                     ignoreCase = true
-                                ) ?: user.user.displayName?.lowercase()
-                                    ?.contains(query, ignoreCase = true)) == true
+                                ) ?: user.user.formattedDisplayName.lowercase()
+                                    .contains(query, ignoreCase = true)
                             ) {
                                 filteredList.add(user)
                             }

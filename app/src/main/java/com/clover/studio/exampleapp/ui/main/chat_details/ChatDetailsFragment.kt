@@ -477,7 +477,7 @@ class ChatDetailsFragment : BaseFragment() {
             null
         }
 
-        user.displayName?.let {
+        user.formattedDisplayName.let {
             ChooserDialog.getInstance(requireContext(),
                 it,
                 null,

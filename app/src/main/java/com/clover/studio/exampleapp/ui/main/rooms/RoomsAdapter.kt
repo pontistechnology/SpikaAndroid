@@ -12,7 +12,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.RoomWithLatestMessage
-import com.clover.studio.exampleapp.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.exampleapp.databinding.ItemChatRoomBinding
 import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
@@ -41,11 +40,11 @@ class RoomsAdapter(
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
                     for (roomUser in roomItem.roomWithUsers.users) {
                         if (myUserId != roomUser.id.toString()) {
-                            userName = roomUser.displayName.toString()
+                            userName = roomUser.formattedDisplayName
                             avatarFileId = roomUser.avatarFileId!!
                             break
                         } else {
-                            userName = roomUser.displayName.toString()
+                            userName = roomUser.formattedDisplayName
                             avatarFileId = roomUser.avatarFileId!!
                         }
                     }
@@ -87,7 +86,7 @@ class RoomsAdapter(
                     if (Const.JsonFields.GROUP == roomItem.roomWithUsers.room.type) {
                         for (user in roomItem.roomWithUsers.users) {
                             if (sortedList.fromUserId == user.id) {
-                                textUserName = user.displayName.toString() + ": "
+                                textUserName = user.formattedDisplayName + ": "
                                 break
                             }
                         }

@@ -385,7 +385,7 @@ class ChatAdapter(
                 } else {
                     for (roomUser in users) {
                         if (it.message.fromUserId == roomUser.id) {
-                            holder.binding.tvUsername.text = roomUser.displayName
+                            holder.binding.tvUsername.text = roomUser.formattedDisplayName
                             val userPath = roomUser.avatarFileId?.let { fileId ->
                                 Tools.getFilePathUrl(fileId)
                             }

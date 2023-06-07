@@ -83,7 +83,7 @@ class MessageDetailsAdapter(
 
                 for (user in roomWithUsers.users) {
                     if (messageRecord.userId == user.id) {
-                        binding.tvSeenUsername.text = user.displayName
+                        binding.tvSeenUsername.text = user.formattedDisplayName
                         Glide.with(context)
                             .load(user.avatarFileId?.let { Tools.getFilePathUrl(it) })
                             .placeholder(

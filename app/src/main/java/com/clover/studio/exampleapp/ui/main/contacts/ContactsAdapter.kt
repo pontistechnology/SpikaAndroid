@@ -53,8 +53,9 @@ class ContactsAdapter(
                 } else binding.cbUserSelected.visibility = View.GONE
 
                 binding.tvHeader.text = userItem.phoneUser?.name?.uppercase()?.substring(0, 1)
-                    ?: userItem.user.displayName?.uppercase()?.substring(0, 1)
-                binding.tvUsername.text = userItem.phoneUser?.name ?: userItem.user.displayName
+                    ?: userItem.user.formattedDisplayName?.uppercase()?.substring(0, 1)
+                binding.tvUsername.text =
+                    userItem.phoneUser?.name ?: userItem.user.formattedDisplayName
                 binding.tvTitle.text = userItem.user.telephoneNumber
 
                 if (userItem.user.hasAvatar) {
@@ -73,10 +74,11 @@ class ContactsAdapter(
                 if (position > 0) {
                     val previousItem =
                         getItem(position - 1).phoneUser?.name?.lowercase()?.substring(0, 1)
-                            ?: getItem(position - 1).user.displayName?.lowercase()?.substring(0, 1)
+                            ?: getItem(position - 1).user.formattedDisplayName?.lowercase()
+                                ?.substring(0, 1)
 
                     val currentItem = userItem.phoneUser?.name?.lowercase()?.substring(0, 1)
-                        ?: userItem.user.displayName?.lowercase()?.substring(0, 1)
+                        ?: userItem.user.formattedDisplayName?.lowercase()?.substring(0, 1)
 
                     if (previousItem == currentItem) {
                         binding.tvHeader.visibility = View.GONE
