@@ -37,6 +37,7 @@ import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.addFiles
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.showHideUserInformation
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -461,7 +462,16 @@ class ChatAdapter(
         ivChatImage: ImageView,
         clContainer: ConstraintLayout
     ) {
-        val mediaPath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
+        var mediaPath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
+        Timber.d("media path: $mediaPath")
+        // TODO
+        if (mediaPath.isNullOrEmpty()){
+            mediaPath = chatMessage.message.body?.fileId?.let {
+                Tools.getFilePathUrl(
+                    it
+                )
+            }.toString()
+        }
         loadMedia(
             context,
             mediaPath,
@@ -470,6 +480,11 @@ class ChatAdapter(
 
         clContainer.setOnClickListener {
             onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
+        }
+
+        clContainer.setOnLongClickListener {
+            onMessageInteraction(Const.UserActions.MESSAGE_ACTION, chatMessage)
+            true
         }
 
         return

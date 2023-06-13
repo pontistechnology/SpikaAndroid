@@ -187,6 +187,10 @@ object ChatAdapterHelper {
                 if (original!! >= TEXT_SIZE_BIG) {
                     params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                 }
+
+//                val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+//                val imagePath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
+
                 val imagePath =
                     chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
                         Tools.getFilePathUrl(
