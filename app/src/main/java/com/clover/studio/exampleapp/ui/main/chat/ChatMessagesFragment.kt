@@ -123,6 +123,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var uploadPieces = 0
     private var uploadInProgress = false
     private var isFetching = false
+    private var directory: File? = null
 
     private var isAdmin = false
     private var progress = 0
@@ -237,6 +238,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun initViews() {
+        directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             avatarFileId = user?.avatarFileId!!
             userName = user?.formattedDisplayName.toString()
@@ -1260,7 +1262,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         var videoPath = ""
         var picturePath = ""
         if (chatMessage.message.type == Const.JsonFields.IMAGE_TYPE) {
-            val directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
             picturePath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
         } else {
             videoPath = chatMessage.message.body?.file?.id.let {
@@ -1299,12 +1300,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
                 bindingSetup.replyAction.ivReplyImage.visibility = View.VISIBLE
-                val imagePath =
-                    message.body?.fileId?.let { imagePath ->
-                        Tools.getFilePathUrl(
-                            imagePath
-                        )
-                    }
                 if (Const.JsonFields.IMAGE_TYPE == message.type) {
                     bindingSetup.replyAction.tvReplyMedia.text = getString(
                         R.string.media,
@@ -1331,7 +1326,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
                 Glide.with(this)
-                    .load(imagePath)
+                    .load("$directory/${message.localId}.${Const.FileExtensions.JPG}")
                     .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                     .placeholder(R.drawable.img_image_placeholder)
                     .dontTransform()

@@ -85,14 +85,17 @@ class MediaFragment : BaseFragment() {
     }
 
     private fun showBar() {
-        val showBars = binding.clTopBar.visibility == View.GONE && binding.flBottomBar.visibility == View.GONE
-        binding.clTopBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION).withEndAction {
-            binding.clTopBar.visibility = if (showBars) View.VISIBLE else View.GONE
-        }.start()
+        val showBars =
+            binding.clTopBar.visibility == View.GONE && binding.flBottomBar.visibility == View.GONE
+        binding.clTopBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION)
+            .withEndAction {
+                binding.clTopBar.visibility = if (showBars) View.VISIBLE else View.GONE
+            }.start()
 
-        binding.flBottomBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION).withEndAction {
-            binding.flBottomBar.visibility = if (showBars) View.VISIBLE else View.GONE
-        }.start()
+        binding.flBottomBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION)
+            .withEndAction {
+                binding.flBottomBar.visibility = if (showBars) View.VISIBLE else View.GONE
+            }.start()
     }
 
     private fun initializePicture() {

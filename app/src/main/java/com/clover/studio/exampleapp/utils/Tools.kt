@@ -24,11 +24,6 @@ import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.data.models.entity.MessageBody
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -39,7 +34,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
+import kotlin.math.ln
 import kotlin.math.min
+import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -542,10 +539,16 @@ object Tools {
         var imagePath: String? = null
 
         try {
-            val tempFile = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),  "$id.${Const.FileExtensions.JPG}")
+            val tempFile = File(
+                context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                "$id.${Const.FileExtensions.JPG}"
+            )
             outputStream = FileOutputStream(tempFile)
             inputStream?.copyTo(outputStream)
             imagePath = tempFile.absolutePath
+
+            // compressImageFile(tempFile)
+
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {
@@ -556,33 +559,62 @@ object Tools {
         return imagePath
     }
 
-    // TODO
-    fun downloadChatImage(message: Message, externalFilesDir: File?) {
-        val request = Request.Builder()
-            .url(getFilePathUrl(message.body?.fileId!!))
-            .build()
+    private fun compressImageFile(file: File) {
+        val originalBitmap = decodeFile(file)
 
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-            }
+        // Specify the desired compression quality (0-100)
+        val compressionQuality = 70
 
-            override fun onResponse(call: Call, response: Response) {
-                val inputStream = response.body?.byteStream()
-                val fileName = "${message.localId}.${Const.FileExtensions.JPG}"
-                val file = File(externalFilesDir, fileName)
+        val outputStream = FileOutputStream(file)
+        originalBitmap.compress(Bitmap.CompressFormat.JPEG, compressionQuality, outputStream)
 
-                val outputStream = FileOutputStream(file)
+        outputStream.flush()
+        outputStream.close()
+    }
 
-                inputStream?.use { input ->
-                    outputStream.use { output ->
-                        input.copyTo(output)
-                    }
-                }
-                outputStream.close()
-            }
-        })
+    private fun decodeFile(f: File): Bitmap {
+        var b: Bitmap? = null
+
+        // Decode image size
+        val o = BitmapFactory.Options()
+        o.inJustDecodeBounds = true
+        var fis: FileInputStream? = null
+        try {
+            fis = FileInputStream(f)
+            BitmapFactory.decodeStream(fis, null, o)
+            fis.close()
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        val IMAGE_MAX_SIZE = 1024
+        var scale = 1
+        if (o.outHeight > IMAGE_MAX_SIZE || o.outWidth > IMAGE_MAX_SIZE) {
+            scale = 2.0.pow(
+                ceil(
+                    ln(
+                        IMAGE_MAX_SIZE / o.outHeight.coerceAtLeast(o.outWidth).toDouble()
+                    ) / ln(0.5)
+                ).toInt().toDouble()
+            ).toInt()
+        }
+
+        // Decode with inSampleSize
+        val o2 = BitmapFactory.Options()
+        o2.inSampleSize = scale
+        try {
+            fis = FileInputStream(f)
+            b = BitmapFactory.decodeStream(fis, null, o2)
+            fis.close()
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        Timber.d("Width: ${b!!.width}, Height: ${b.height}")
+
+        return b
     }
 }
 
