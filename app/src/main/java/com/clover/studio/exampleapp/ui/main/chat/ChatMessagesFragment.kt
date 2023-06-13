@@ -90,6 +90,11 @@ enum class UploadMimeTypes {
     IMAGE, VIDEO, FILE, MEDIA
 }
 
+data class TempUri(
+    val uri: Uri,
+    val type: UploadMimeTypes
+)
+
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private val viewModel: ChatViewModel by activityViewModels()
@@ -112,6 +117,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var currentMediaLocation: MutableList<Uri> = ArrayList()
     private var filesSelected: MutableList<Uri> = ArrayList()
     private var thumbnailUris: MutableList<Uri> = ArrayList()
+    private var tempFilesToCreate: MutableList<TempUri> = ArrayList()
     private var photoImageUri: Uri? = null
     private var mediaType: UploadMimeTypes? = null
     private var uploadPieces = 0
@@ -383,33 +389,46 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 createTempTextMessage()
                 sendMessage()
             } else if (currentMediaLocation.isNotEmpty()) {
-                for (thumbnail in thumbnailUris) {
-                    createTempMediaMessage(thumbnail)
+                val mediaUri = tempFilesToCreate.filter { UploadMimeTypes.MEDIA == it.type }
+                for (media in mediaUri) {
+                    createTempMediaMessage(media.uri)
                 }
 
                 if (filesSelected.isNotEmpty()) {
-                    for (file in filesSelected) {
-                        createTempFileMessage(file)
+                    val filesUri = tempFilesToCreate.filter { UploadMimeTypes.FILE == it.type }
+                    for (file in filesUri) {
+                        createTempFileMessage(file.uri)
                     }
                 }
-                Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    if (getFileMimeType(
-                            context!!,
-                            currentMediaLocation.first()
-                        )?.contains(Const.JsonFields.IMAGE_TYPE) == true
-                    ) {
-                        uploadImage()
-                    } else {
-                        uploadVideo()
-                    }
-                }, 2000)
+
+                tempFilesToCreate.clear()
+
+                if (!uploadInProgress) {
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        if (getFileMimeType(
+                                context!!,
+                                currentMediaLocation.first()
+                            )?.contains(Const.JsonFields.IMAGE_TYPE) == true
+                        ) {
+                            uploadImage()
+                        } else {
+                            uploadVideo()
+                        }
+                    }, 2000)
+                }
             } else if (filesSelected.isNotEmpty()) {
-                for (file in filesSelected) {
-                    createTempFileMessage(file)
+                val filesUri = tempFilesToCreate.filter { UploadMimeTypes.FILE == it.type }
+                for (file in filesUri) {
+                    createTempFileMessage(file.uri)
                 }
-                Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    uploadFile()
-                }, 2000)
+
+                tempFilesToCreate.clear()
+
+                if (!uploadInProgress) {
+                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                        uploadFile()
+                    }, 2000)
+                }
             }
             bindingSetup.etMessage.setText("")
             hideSendButton()
@@ -1961,6 +1980,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun displayFileInContainer(uri: Uri) {
         filesSelected.add(uri)
+        tempFilesToCreate.add(TempUri(uri, UploadMimeTypes.FILE))
         val imageSelected = ImageSelectedContainer(activity!!, null)
         var fileName = ""
         val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
@@ -2046,6 +2066,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
             thumbnailUris.add(thumbnailUri)
             currentMediaLocation.add(fileUri)
+            tempFilesToCreate.add(TempUri(thumbnailUri, UploadMimeTypes.MEDIA))
         }
     }
 
@@ -2087,6 +2108,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // Create thumbnail for the image which will also be sent to the backend
         thumbnailUris.add(thumbnailUri)
         currentMediaLocation.add(bitmapUri)
+        tempFilesToCreate.add(TempUri(thumbnailUri, UploadMimeTypes.MEDIA))
     }
 
     private fun checkStoragePermission() {
