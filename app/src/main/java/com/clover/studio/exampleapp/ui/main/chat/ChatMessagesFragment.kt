@@ -123,7 +123,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var uploadPieces = 0
     private var uploadInProgress = false
     private var isFetching = false
-    private var directory: File? = null
+    private var directory : File? = null
 
     private var isAdmin = false
     private var progress = 0
@@ -1857,9 +1857,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         currentMediaLocation.clear()
         filesSelected.clear()
         thumbnailUris.clear()
+
+        // TODO - ask Matko if this solution is ok
+        deleteThumbnail(context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!)
+
         uploadInProgress = false
         //unsentMessages.clear()
         context?.cacheDir?.deleteRecursively()
+    }
+
+    private fun deleteThumbnail(directory: File) {
+        val files = directory.listFiles { _, name -> name.startsWith("JPEG") }
+        files?.forEach { file ->
+            if (file.isFile) {
+                file.delete()
+            }
+        }
     }
 
     /**

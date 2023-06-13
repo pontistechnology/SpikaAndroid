@@ -15,7 +15,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.MessageRecords
@@ -29,6 +28,8 @@ import com.vanniktech.emoji.EmojiTextView
 const val MAX_REACTIONS = 3
 private const val TEXT_SIZE_BIG = 11
 private const val TEXT_SIZE_SMALL = 5
+const val MAX_WIDTH = 256
+const val MAX_HEIGHT = 300
 
 object ChatAdapterHelper {
 
@@ -62,7 +63,7 @@ object ChatAdapterHelper {
     fun loadMedia(context: Context, mediaPath: String, imageView: ImageView) {
         Glide.with(context)
             .load(mediaPath)
-            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+            .override(MAX_WIDTH, MAX_HEIGHT)
             .dontTransform()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(imageView)

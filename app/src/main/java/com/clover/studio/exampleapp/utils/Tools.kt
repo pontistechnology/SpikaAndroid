@@ -34,7 +34,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
-import kotlin.math.ln
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -544,10 +543,14 @@ object Tools {
                 "$id.${Const.FileExtensions.JPG}"
             )
             outputStream = FileOutputStream(tempFile)
-            inputStream?.copyTo(outputStream)
+
+            // Simple compression
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+
+            //inputStream?.copyTo(outputStream)
             imagePath = tempFile.absolutePath
 
-            // compressImageFile(tempFile)
 
         } catch (e: IOException) {
             e.printStackTrace()
@@ -559,63 +562,60 @@ object Tools {
         return imagePath
     }
 
-    private fun compressImageFile(file: File) {
-        val originalBitmap = decodeFile(file)
+//    private fun compressImageFile(file: File) {
+//        val originalBitmap = decodeFile(file)
+//
+//        val outputStream = FileOutputStream(file)
+//        originalBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+//
+//        outputStream.flush()
+//        outputStream.close()
+//    }
 
-        // Specify the desired compression quality (0-100)
-        val compressionQuality = 70
-
-        val outputStream = FileOutputStream(file)
-        originalBitmap.compress(Bitmap.CompressFormat.JPEG, compressionQuality, outputStream)
-
-        outputStream.flush()
-        outputStream.close()
-    }
-
-    private fun decodeFile(f: File): Bitmap {
-        var b: Bitmap? = null
-
-        // Decode image size
-        val o = BitmapFactory.Options()
-        o.inJustDecodeBounds = true
-        var fis: FileInputStream? = null
-        try {
-            fis = FileInputStream(f)
-            BitmapFactory.decodeStream(fis, null, o)
-            fis.close()
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        val IMAGE_MAX_SIZE = 1024
-        var scale = 1
-        if (o.outHeight > IMAGE_MAX_SIZE || o.outWidth > IMAGE_MAX_SIZE) {
-            scale = 2.0.pow(
-                ceil(
-                    ln(
-                        IMAGE_MAX_SIZE / o.outHeight.coerceAtLeast(o.outWidth).toDouble()
-                    ) / ln(0.5)
-                ).toInt().toDouble()
-            ).toInt()
-        }
-
-        // Decode with inSampleSize
-        val o2 = BitmapFactory.Options()
-        o2.inSampleSize = scale
-        try {
-            fis = FileInputStream(f)
-            b = BitmapFactory.decodeStream(fis, null, o2)
-            fis.close()
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        Timber.d("Width: ${b!!.width}, Height: ${b.height}")
-
-        return b
-    }
+//    private fun decodeFile(f: File): Bitmap {
+//        var b: Bitmap? = null
+//
+//        // Decode image size
+//        val o = BitmapFactory.Options()
+//        o.inJustDecodeBounds = true
+//        var fis: FileInputStream? = null
+//        try {
+//            fis = FileInputStream(f)
+//            BitmapFactory.decodeStream(fis, null, o)
+//            fis.close()
+//        } catch (e: FileNotFoundException) {
+//            e.printStackTrace()
+//        } catch (e: IOException) {
+//            e.printStackTrace()
+//        }
+//        val IMAGE_MAX_SIZE = 1024
+//        var scale = 1
+//        if (o.outHeight > IMAGE_MAX_SIZE || o.outWidth > IMAGE_MAX_SIZE) {
+//            scale = 2.0.pow(
+//                ceil(
+//                    ln(
+//                        IMAGE_MAX_SIZE / o.outHeight.coerceAtLeast(o.outWidth).toDouble()
+//                    ) / ln(0.5)
+//                ).toInt().toDouble()
+//            ).toInt()
+//        }
+//
+//        // Decode with inSampleSize
+//        val o2 = BitmapFactory.Options()
+//        o2.inSampleSize = scale
+//        try {
+//            fis = FileInputStream(f)
+//            b = BitmapFactory.decodeStream(fis, null, o2)
+//            fis.close()
+//        } catch (e: FileNotFoundException) {
+//            e.printStackTrace()
+//        } catch (e: IOException) {
+//            e.printStackTrace()
+//        }
+//        Timber.d("Width: ${b!!.width}, Height: ${b.height}")
+//
+//        return b
+//    }
 }
 
 
