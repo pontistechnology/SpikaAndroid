@@ -112,6 +112,7 @@ class ChatAdapter(
                         setViewsVisibility(holder.binding.tvMessage, holder)
                         bindText(holder, holder.binding.tvMessage, it, true)
                         showMessageTime(
+                            it,
                             holder.binding.tvTime,
                             holder.binding.tvMessage,
                             calendar
@@ -267,7 +268,7 @@ class ChatAdapter(
                 /** Show date header: */
                 showDateHeader(position, date, holder.binding.tvSectionHeader, it.message)
 
-                ChatAdapterHelper.showMessageStatus(context, it, holder.binding.ivMessageStatus)
+                ChatAdapterHelper.showMessageStatus(it, holder.binding.ivMessageStatus)
 
             } else {
                 /** View holder for messages from other users */
@@ -290,6 +291,7 @@ class ChatAdapter(
                         bindText(holder, holder.binding.tvMessage, it, false)
                         holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                         showMessageTime(
+                            it,
                             holder.binding.tvTime,
                             holder.binding.tvMessage,
                             calendar
@@ -439,43 +441,29 @@ class ChatAdapter(
     ) {
         if (chatMessage.message.deleted == true || (chatMessage.message.body?.text == context.getString(
                 R.string.deleted_message
-            ) && (chatMessage.message.modifiedAt != chatMessage.message.createdAt))
+            )
+                    && (chatMessage.message.modifiedAt != chatMessage.message.createdAt))
         ) {
-            tvMessage.text =
-                context.getString(R.string.message_deleted_text)
-            tvMessage.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
-            tvMessage.setTextColor(
-                ContextCompat.getColor(
-                    context,
-                    R.color.text_tertiary
-                )
-            )
-            tvMessage.background = AppCompatResources.getDrawable(
-                context,
-                R.drawable.img_deleted_message
-            )
+            tvMessage.text = context.getString(R.string.message_deleted_text)
+//            tvMessage.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+            tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
+            tvMessage.background =
+                AppCompatResources.getDrawable(context, R.drawable.img_deleted_message)
         } else {
             tvMessage.text = chatMessage.message.body?.text
-            if (sender) {
-                tvMessage.background =
-                    AppCompatResources.getDrawable(context, R.drawable.bg_message_send)
-            } else {
-                tvMessage.background =
-                    AppCompatResources.getDrawable(context, R.drawable.bg_message_received)
-            }
-            tvMessage.setTextColor(
-                ContextCompat.getColor(
-                    context,
-                    R.color.text_primary
-                )
+
+
+            tvMessage.background = AppCompatResources.getDrawable(
+                context,
+                if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
             )
+            tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
         }
 
         tvMessage.movementMethod = LinkMovementMethod.getInstance()
         tvMessage.setOnLongClickListener {
-            if (!(chatMessage.message.body?.text == context.getString(
-                    R.string.deleted_message
-                ) && (chatMessage.message.modifiedAt != chatMessage.message.createdAt))
+            if (!(chatMessage.message.body?.text == context.getString(R.string.deleted_message) &&
+                        (chatMessage.message.modifiedAt != chatMessage.message.createdAt))
             ) {
                 chatMessage.message.messagePosition = holder.absoluteAdapterPosition
                 onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)
@@ -674,20 +662,23 @@ class ChatAdapter(
 
     /** A method that shows the time of a message when it is tapped */
     private fun showMessageTime(
+        message: MessageAndRecords,
         tvTime: TextView,
         tvMessage: TextView,
         calendar: Calendar
     ) {
         tvMessage.setOnClickListener {
-            if (tvTime.visibility == View.GONE) {
-                tvTime.visibility = View.VISIBLE
-                val simpleDateFormat =
-                    SimpleDateFormat("HH:mm", Locale.getDefault())
-                val dateTime =
-                    simpleDateFormat.format(calendar.timeInMillis).toString()
-                tvTime.text = dateTime
+            tvTime.visibility = if (tvTime.visibility == View.GONE) {
+                tvTime.text =
+                    SimpleDateFormat("HH:mm", Locale.getDefault()).format(calendar.timeInMillis)
+                        .toString()
+                View.VISIBLE
             } else {
-                tvTime.visibility = View.GONE
+                View.GONE
+            }
+            // Resend message:
+            if (message.message.deliveredCount == -1) {
+                onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, message)
             }
         }
     }

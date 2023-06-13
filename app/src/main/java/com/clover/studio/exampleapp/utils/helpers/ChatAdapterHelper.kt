@@ -13,7 +13,6 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -283,83 +282,54 @@ object ChatAdapterHelper {
                 }
             }
         }
-
     }
 
     /** The method that displays the status of the message for the sender only - sending, sent, delivered */
     fun showMessageStatus(
-        context: Context,
         chatMessage: MessageAndRecords?,
         ivMessageStatus: ImageView
     ) {
-        if (chatMessage!!.message.totalUserCount != 0) {
-            if (chatMessage.message.totalUserCount == chatMessage.message.seenCount) {
-                ivMessageStatus.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        context,
-                        R.drawable.img_seen
-                    )
-                )
-            } else if (chatMessage.message.totalUserCount == chatMessage.message.deliveredCount) {
-                ivMessageStatus.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        context,
-                        R.drawable.img_done
-                    )
-                )
-            } else if (chatMessage.message.deliveredCount!! >= 0) {
-                ivMessageStatus.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        context,
-                        R.drawable.img_sent
-                    )
-                )
+
+        val message = chatMessage?.message
+        when {
+            message?.totalUserCount == 0 -> {
+                ivMessageStatus.setImageResource(R.drawable.img_clock)
             }
-        } else {
-            ivMessageStatus.setImageDrawable(
-                ContextCompat.getDrawable(
-                    context,
-                    R.drawable.img_clock
-                )
-            )
+
+            message?.totalUserCount == message?.seenCount -> {
+                ivMessageStatus.setImageResource(R.drawable.img_seen)
+            }
+
+            message?.totalUserCount == message?.deliveredCount -> {
+                ivMessageStatus.setImageResource(R.drawable.img_done)
+            }
+
+            message?.deliveredCount != null && message.deliveredCount >= 0 -> {
+                ivMessageStatus.setImageResource(R.drawable.img_sent)
+            }
+
+            message?.deliveredCount == -1 -> {
+                ivMessageStatus.setImageResource(R.drawable.img_alert)
+            }
         }
     }
 
     /** A method that displays a file icon depending on the file type */
     fun addFiles(context: Context, ivFileType: ImageView, fileExtension: String) {
-        when (fileExtension) {
-            Const.FileExtensions.PDF -> ivFileType.setImageDrawable(
-                ResourcesCompat.getDrawable(
-                    context.resources,
-                    R.drawable.img_pdf_black,
-                    null
-                )
-            )
-
-            Const.FileExtensions.ZIP, Const.FileExtensions.RAR -> ivFileType.setImageDrawable(
-                ResourcesCompat.getDrawable(
-                    context.resources,
-                    R.drawable.img_folder_zip,
-                    null
-                )
-            )
-
-            Const.FileExtensions.MP3, Const.FileExtensions.WAW -> ivFileType.setImageDrawable(
-                ResourcesCompat.getDrawable(
-                    context.resources,
-                    R.drawable.img_audio_file,
-                    null
-                )
-            )
-
-            else -> ivFileType.setImageDrawable(
-                ResourcesCompat.getDrawable(
-                    context.resources,
-                    R.drawable.img_file_black,
-                    null
-                )
-            )
+        val drawableResId = when (fileExtension) {
+            Const.FileExtensions.PDF -> R.drawable.img_pdf_black
+            Const.FileExtensions.ZIP, Const.FileExtensions.RAR -> R.drawable.img_folder_zip
+            Const.FileExtensions.MP3, Const.FileExtensions.WAW -> R.drawable.img_audio_file
+            else -> R.drawable.img_file_black
         }
+
+        ivFileType.setImageDrawable(
+            ResourcesCompat.getDrawable(
+                context.resources,
+                drawableResId,
+                null
+            )
+        )
     }
 
     /** A method that shows/does not show the name and picture of another user if the messages are

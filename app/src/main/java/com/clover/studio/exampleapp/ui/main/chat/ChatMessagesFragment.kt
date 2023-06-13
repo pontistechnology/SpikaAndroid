@@ -618,9 +618,27 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                     bindingSetup.rvChat.smoothScrollToPosition(0)
                     bindingSetup.cvBottomArrow.visibility = View.GONE
+
+                    if (unsentMessages.isNotEmpty()){
+                        Timber.d("it: ${it.responseData?.data?.message}")
+
+                        val message = unsentMessages.find { msg ->  msg.localId == it.responseData?.data?.message?.localId}
+                        Timber.d("message to be removed: $message")
+                        unsentMessages.remove(message)
+
+                        Timber.d("Unsent deleted:: ${unsentMessages.size}  $unsentMessages")
+                    }
                 }
 
-                Resource.Status.ERROR -> Timber.d("Message send fail")
+                Resource.Status.ERROR -> {
+                    Timber.d("Message send fail")
+                    Timber.d("Message unsent: ${unsentMessages.size}, $unsentMessages")
+
+//                    chatAdapter.getItemViewType()
+//                    val failedMessage = messagesRecords.find { msg -> msg.message.localId == it.responseData?.data?.message?.localId}
+//                    chatAdapter.notifyItemChanged(messagesRecords.indexOf(failedMessage))
+
+                }
                 else -> Timber.d("Other error")
             }
         })
@@ -671,7 +689,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 if (message.roomId == roomWithUsers.room.roomId) {
                     // Notify backend of messages seen
                     viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
-
                     newMessagesCount++
                     showNewMessage()
                 }
@@ -751,9 +768,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 it.responseData.fileId
                             sendMessage(
                                 it.responseData.fileType,
-                                it.responseData.messageBody?.fileId!!,
+                                it.responseData.messageBody?.text!!,
+                                it.responseData.messageBody.fileId!!,
                                 0,
-                                unsentMessages.first().localId!!
+                                unsentMessages.first().localId!!,
                             )
                             filesSelected.removeFirst()
                             uploadInProgress = false
@@ -801,9 +819,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                             sendMessage(
                                 it.responseData.fileType,
-                                it.responseData.messageBody?.fileId!!,
+                                it.responseData.messageBody?.text!!,
+                                it.responseData.messageBody.fileId!!,
                                 it.responseData.messageBody.thumbId!!,
-                                unsentMessages.first().localId!!
+                                unsentMessages.first().localId!!,
                             )
                             currentMediaLocation.removeFirst()
                             uploadInProgress = false
@@ -861,6 +880,48 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 else -> Timber.d("Other error")
             }
         })
+
+        //        viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
+//            .observe(viewLifecycleOwner) {
+//                when (it.status) {
+//                    Resource.Status.SUCCESS -> {
+//                        messagesRecords.clear()
+//                        if (it.responseData?.message?.isNotEmpty() == true) {
+//                            /* Block dialog:
+//                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+//                                val containsElement =
+//                                    it.responseData.message.any { message -> localUserId == message.message.fromUserId }
+//                                if (containsElement) bindingSetup.clBlockContact.visibility =
+//                                    View.GONE
+//                                else bindingSetup.clBlockContact.visibility = View.VISIBLE
+//                            } */
+//
+//                            it.responseData.message.forEach { msg ->
+//                                messagesRecords.add(msg)
+//                            }
+//                            messagesRecords.sortByDescending { messages -> messages.message.createdAt }
+//                            // messagesRecords.toList -> for DiffUtil class
+//                            chatAdapter.submitList(messagesRecords.toList())
+//
+//                            if (oldPosition != messagesRecords.size) {
+//                                showNewMessage(messagesRecords.first())
+//                            }
+//
+//                            if (firstEnter) {
+//                                oldPosition = messagesRecords.size
+//                                bindingSetup.rvChat.scrollToPosition(0)
+//                                firstEnter = false
+//                            }
+//                        }
+//                    }
+//                    Resource.Status.LOADING -> {
+//                        // Loading
+//                    }
+//                    else -> {
+//                        // Error
+//                    }
+//                }
+//            }
     }
 
     private fun showNewMessage() {
@@ -948,6 +1009,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile()
                             Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                             Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
+                            Const.UserActions.RESEND_MESSAGE -> handleMessageResend(message)
                             Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
                             Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
                                 message
@@ -1093,6 +1155,24 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (position != -1) {
             bindingSetup.rvChat.scrollToPosition(position)
         }
+    }
+
+    private fun handleMessageResend(message: MessageAndRecords){
+        ChooserDialog.getInstance(requireContext(),
+            "Resend",
+            null,
+            "Resend message",
+            "",
+            object : DialogInteraction {
+                override fun onFirstOptionClicked() {
+                    resendMessage(message.message)
+                }
+
+                override fun onSecondOptionClicked() {
+                    // Ignore
+                }
+            })
+
     }
 
     private fun handleMessageAction(msg: MessageAndRecords) {
@@ -1487,13 +1567,28 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
     }
 
+    private fun resendMessage(message: Message){
+        try {
+            sendMessage (
+                messageFileType = Const.JsonFields.TEXT_TYPE,
+                text = message.body?.text!!,
+                fileId = 0,
+                thumbId = 0,
+                message.localId.toString(),
+            )
+        } catch (e: Exception) {
+            Timber.d("Send message exception: $e")
+        }
+    }
+
     private fun sendMessage() {
         try {
             sendMessage(
                 messageFileType = Const.JsonFields.TEXT_TYPE,
+                text = bindingSetup.etMessage.text.toString(),
                 0,
                 0,
-                unsentMessages.first().localId!!
+                unsentMessages.first().localId!!,
             )
         } catch (e: Exception) {
             Timber.d("Send message exception: $e")
@@ -1502,12 +1597,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun sendMessage(
         messageFileType: String,
+        text: String,
         fileId: Long,
         thumbId: Long,
-        localId: String
+        localId: String,
     ) {
         val jsonMessage = JsonMessage(
-            bindingSetup.etMessage.text.toString(),
+            text,
             messageFileType,
             fileId,
             thumbId,
@@ -1515,10 +1611,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             localId,
             replyId
         )
+
         val jsonObject = jsonMessage.messageToJson()
         Timber.d("Message object: $jsonObject")
         viewModel.sendMessage(jsonObject)
-        unsentMessages.removeFirst()
 
         if (replyId != 0L) {
             replyId = 0L
@@ -1786,14 +1882,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      * Reset upload fields and clear local cache on success or critical fail
      */
     private fun resetUploadFields() {
-        Timber.d("resetting upload")
+        Timber.d("Resetting upload")
         viewModel.deleteLocalMessages(unsentMessages)
 
         currentMediaLocation.clear()
         filesSelected.clear()
         thumbnailUris.clear()
         uploadInProgress = false
-        unsentMessages.clear()
+        //unsentMessages.clear()
         context?.cacheDir?.deleteRecursively()
     }
 
