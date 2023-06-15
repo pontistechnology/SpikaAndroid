@@ -5,6 +5,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.clover.studio.exampleapp.MainApplication
+import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.AppDatabase
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
@@ -52,4 +54,9 @@ data class User(
     @Ignore
     @IgnoredOnParcel
     val hasAvatar: Boolean = avatarFileId != null && avatarFileId > 0L
+
+    @get:Ignore
+    @IgnoredOnParcel
+    val formattedDisplayName: String
+        get() = displayName?.takeIf { it.isNotEmpty() } ?: MainApplication.appContext.getString(R.string.unknown_user)
 }

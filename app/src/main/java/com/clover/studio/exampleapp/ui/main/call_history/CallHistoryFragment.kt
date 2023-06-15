@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.databinding.FragmentCallHistoryBinding
-import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import timber.log.Timber
 
@@ -66,7 +65,11 @@ class CallHistoryFragment : BaseFragment() {
                     if (query != null) {
                         Timber.d("Query: $query")
                         for (user in userList) {
-                            if (user.displayName?.contains(query, ignoreCase = true) == true) {
+                            if (user.formattedDisplayName?.contains(
+                                    query,
+                                    ignoreCase = true
+                                ) == true
+                            ) {
                                 filteredList.add(user)
                             }
                         }
@@ -81,7 +84,11 @@ class CallHistoryFragment : BaseFragment() {
                     if (query != null) {
                         Timber.d("Query: $query")
                         for (user in userList) {
-                            if (user.displayName?.contains(query, ignoreCase = true) == true) {
+                            if (user.formattedDisplayName?.contains(
+                                    query,
+                                    ignoreCase = true
+                                ) == true
+                            ) {
                                 filteredList.add(user)
                             }
                         }

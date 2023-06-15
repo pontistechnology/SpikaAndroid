@@ -142,7 +142,7 @@ class SettingsFragment : BaseFragment() {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
             val response = it.responseData
             if (response != null) {
-                binding.tvUsername.text = response.displayName ?: getString(R.string.no_username)
+                binding.tvUsername.text = response.formattedDisplayName
                 binding.tvPhoneNumber.text = response.telephoneNumber
                 avatarId = response.avatarFileId
 
