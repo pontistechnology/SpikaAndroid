@@ -126,7 +126,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var isAdmin = false
     private var progress = 0
-    private var tempMessageCounter = -1
 
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
@@ -388,45 +387,26 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             if (bindingSetup.etMessage.text?.isNotEmpty() == true) {
                 createTempTextMessage()
                 sendMessage()
-            } else if (currentMediaLocation.isNotEmpty()) {
-                val mediaUri = tempFilesToCreate.filter { UploadMimeTypes.MEDIA == it.type }
-                for (media in mediaUri) {
-                    createTempMediaMessage(media.uri)
-                }
-
-                if (filesSelected.isNotEmpty()) {
-                    val filesUri = tempFilesToCreate.filter { UploadMimeTypes.FILE == it.type }
-                    for (file in filesUri) {
-                        createTempFileMessage(file.uri)
+            } else if (tempFilesToCreate.isNotEmpty()) {
+                for (tempFile in tempFilesToCreate) {
+                    if (UploadMimeTypes.MEDIA == tempFile.type) {
+                        createTempMediaMessage(tempFile.uri)
+                    } else if (UploadMimeTypes.FILE == tempFile.type) {
+                        createTempFileMessage(tempFile.uri)
                     }
                 }
 
                 tempFilesToCreate.clear()
 
-                if (!uploadInProgress) {
+                if (!uploadInProgress && unsentMessages.isNotEmpty()) {
                     Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                        if (getFileMimeType(
-                                context!!,
-                                currentMediaLocation.first()
-                            )?.contains(Const.JsonFields.IMAGE_TYPE) == true
-                        ) {
+                        if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE) {
                             uploadImage()
-                        } else {
+                        } else if (unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE) {
                             uploadVideo()
+                        } else if (filesSelected.isNotEmpty()) {
+                            uploadFile()
                         }
-                    }, 2000)
-                }
-            } else if (filesSelected.isNotEmpty()) {
-                val filesUri = tempFilesToCreate.filter { UploadMimeTypes.FILE == it.type }
-                for (file in filesUri) {
-                    createTempFileMessage(file.uri)
-                }
-
-                tempFilesToCreate.clear()
-
-                if (!uploadInProgress) {
-                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                        uploadFile()
                     }, 2000)
                 }
             }
@@ -620,29 +600,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    tempMessageCounter -= 1
 
                     // Delay next message sending by 2 seconds for better user experience.
                     // Could be removed if we deem it not needed.
                     if (!uploadInProgress) {
                         Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                            if (currentMediaLocation.isNotEmpty()) {
-                                if (getFileMimeType(
-                                        context!!,
-                                        currentMediaLocation.first()
-                                    )?.contains(Const.JsonFields.IMAGE_TYPE) == true
-                                ) {
+                            if (unsentMessages.isNotEmpty()) {
+                                if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE) {
                                     uploadImage()
-                                } else if (getFileMimeType(
-                                        context!!,
-                                        currentMediaLocation.first()
-                                    )?.contains(
-                                        Const.JsonFields.VIDEO_TYPE
-                                    ) == true
-                                )
+                                } else if (unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE) {
                                     uploadVideo()
-                            } else if (filesSelected.isNotEmpty()) {
-                                uploadFile()
+                                } else if (filesSelected.isNotEmpty()) {
+                                    uploadFile()
+                                }
                             } else resetUploadFields()
                         }, 2000)
                     }
@@ -672,10 +642,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         it.responseData.forEach { msg ->
                             messagesRecords.add(msg)
                         }
-//                        messagesRecords = messagesRecords.distinct().toMutableList()
-//                        messagesRecords.sortByDescending { messages -> messages.message.createdAt }
-                        // messagesRecords.toList -> for DiffUtil class
-                        // Timber.d("Load check: ChatMessagesFragment submitting messages to adapter, ${messagesRecords.map { message -> message.message.body }}")
 
                         chatAdapter.submitList(messagesRecords.toList())
                         updateSwipeController()
@@ -711,48 +677,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
         }
-
-//        viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
-//            .observe(viewLifecycleOwner) {
-//                when (it.status) {
-//                    Resource.Status.SUCCESS -> {
-//                        messagesRecords.clear()
-//                        if (it.responseData?.message?.isNotEmpty() == true) {
-//                            /* Block dialog:
-//                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-//                                val containsElement =
-//                                    it.responseData.message.any { message -> localUserId == message.message.fromUserId }
-//                                if (containsElement) bindingSetup.clBlockContact.visibility =
-//                                    View.GONE
-//                                else bindingSetup.clBlockContact.visibility = View.VISIBLE
-//                            } */
-//
-//                            it.responseData.message.forEach { msg ->
-//                                messagesRecords.add(msg)
-//                            }
-//                            messagesRecords.sortByDescending { messages -> messages.message.createdAt }
-//                            // messagesRecords.toList -> for DiffUtil class
-//                            chatAdapter.submitList(messagesRecords.toList())
-//
-//                            if (oldPosition != messagesRecords.size) {
-//                                showNewMessage(messagesRecords.first())
-//                            }
-//
-//                            if (firstEnter) {
-//                                oldPosition = messagesRecords.size
-//                                bindingSetup.rvChat.scrollToPosition(0)
-//                                firstEnter = false
-//                            }
-//                        }
-//                    }
-//                    Resource.Status.LOADING -> {
-//                        // Loading
-//                    }
-//                    else -> {
-//                        // Error
-//                    }
-//                }
-//            }
 
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
@@ -1602,11 +1526,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun createTempTextMessage() {
-        tempMessageCounter += 1
         val messageBody =
             MessageBody(null, bindingSetup.etMessage.text.toString(), 1, 1, null, null)
+
         val tempMessage = Tools.createTemporaryMessage(
-            tempMessageCounter,
+            getUniqueRandomId(),
             localUserId,
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT_TYPE,
@@ -1644,7 +1568,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             fileName
         )
 
-        tempMessageCounter += 1
         val messageBody = MessageBody(
             null,
             null,
@@ -1662,7 +1585,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         val tempMessage = Tools.createTemporaryMessage(
-            tempMessageCounter,
+            getUniqueRandomId(),
             localUserId,
             roomWithUsers.room.roomId,
             type,
@@ -1682,7 +1605,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      * which will hold the bitmap thumbnail.
      */
     private fun createTempMediaMessage(mediaUri: Uri) {
-        tempMessageCounter += 1
         val messageBody = MessageBody(
             null,
             null,
@@ -1701,7 +1623,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         // Media file is always thumbnail first. Therefore, we are sending CHAT_IMAGE as type
         val tempMessage = Tools.createTemporaryMessage(
-            tempMessageCounter,
+            getUniqueRandomId(),
             localUserId,
             roomWithUsers.room.roomId,
             Const.JsonFields.IMAGE_TYPE,
@@ -1865,10 +1787,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      */
     private fun resetUploadFields() {
         Timber.d("resetting upload")
-        if (tempMessageCounter >= -1) {
-            viewModel.deleteLocalMessages(unsentMessages)
-            tempMessageCounter = -1
-        }
+        viewModel.deleteLocalMessages(unsentMessages)
 
         currentMediaLocation.clear()
         filesSelected.clear()
@@ -1885,8 +1804,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      * Also displays a toast message for failed uploads.
      */
     private fun handleUploadError(typeFailed: UploadMimeTypes, message: String?) {
-        tempMessageCounter -= 1
-
         if (UploadMimeTypes.MEDIA == typeFailed) {
             currentMediaLocation.removeFirst()
             if (unsentMessages.isNotEmpty()) {
@@ -2134,6 +2051,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         message!!.message.uploadProgress = (progress * 100) / maxProgress
 
         activity!!.runOnUiThread { chatAdapter.notifyItemChanged(messagesRecords.indexOf(message)) }
+    }
+
+    private fun getUniqueRandomId(): Int {
+        var randomId = Tools.generateRandomInt()
+
+        while (unsentMessages.any { randomId == it.id }) {
+            randomId = Tools.generateRandomInt()
+        }
+
+        return randomId
     }
 
     private fun onBackArrowPressed() {
