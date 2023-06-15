@@ -2053,6 +2053,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         activity!!.runOnUiThread { chatAdapter.notifyItemChanged(messagesRecords.indexOf(message)) }
     }
 
+    /**
+     * Method creates a random Integer from its lowest value to 0. This is to ensure that the
+     * message in question is a temporary message, since all real messages have positive values.
+     * After creating a random value, the method will check the current list containing unsent
+     * messages and see if any of the items currently have the random number designated. This
+     * ensures that no two unsent messages have the same id value. If it finds the same value
+     * in the list, it will generate a new value and goi through the check again.
+     **/
     private fun getUniqueRandomId(): Int {
         var randomId = Tools.generateRandomInt()
 
