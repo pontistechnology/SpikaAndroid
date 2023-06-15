@@ -30,7 +30,7 @@ class GroupInformationAdapter(
     override fun onBindViewHolder(holder: ContactsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { userItem ->
-                binding.tvUsername.text = userItem.phoneUser?.name ?: userItem.user.displayName
+                binding.tvUsername.text = userItem.phoneUser?.name ?: userItem.user.formattedDisplayName
                 binding.tvTitle.text = userItem.user.telephoneNumber
                 Glide.with(context)
                     .load(userItem.user.avatarFileId?.let { Tools.getFilePathUrl(it) })

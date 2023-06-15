@@ -145,11 +145,11 @@ class ContactsFragment : BaseFragment() {
                 if (query != null) {
                     if (::userList.isInitialized) {
                         for (user in userList) {
-                            if ((user.phoneUser?.name?.lowercase()?.contains(
+                            if (user.phoneUser?.name?.lowercase()?.contains(
                                     query,
                                     ignoreCase = true
-                                ) ?: user.user.displayName?.lowercase()
-                                    ?.contains(query, ignoreCase = true)) == true
+                                ) ?: user.user.formattedDisplayName.lowercase()
+                                    .contains(query, ignoreCase = true)
                             ) {
                                 filteredList.add(user)
                             }
@@ -166,11 +166,11 @@ class ContactsFragment : BaseFragment() {
                 if (query != null) {
                     if (::userList.isInitialized) {
                         for (user in userList) {
-                            if ((user.phoneUser?.name?.lowercase()?.contains(
+                            if (user.phoneUser?.name?.lowercase()?.contains(
                                     query,
                                     ignoreCase = true
-                                ) ?: user.user.displayName?.lowercase()
-                                    ?.contains(query, ignoreCase = true)) == true
+                                ) ?: user.user.formattedDisplayName.lowercase()
+                                    .contains(query, ignoreCase = true)
                             ) {
                                 filteredList.add(user)
                             }

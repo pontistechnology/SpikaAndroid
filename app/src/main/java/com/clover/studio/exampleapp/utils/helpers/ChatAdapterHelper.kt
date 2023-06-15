@@ -184,7 +184,7 @@ object ChatAdapterHelper {
         }
 
         tvUsername.text =
-            users.firstOrNull { it.id == chatMessage.message.body?.referenceMessage?.fromUserId }!!.displayName
+            users.firstOrNull { it.id == chatMessage.message.body?.referenceMessage?.fromUserId }!!.formattedDisplayName
 
         when (chatMessage.message.body?.referenceMessage?.type) {
             /**Image or video type*/

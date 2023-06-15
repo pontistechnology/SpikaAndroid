@@ -124,7 +124,7 @@ class ContactDetailsFragment : BaseFragment() {
 //                    val adminUserIds = JsonArray()
 //                    adminUserIds.add(3)
 
-                    jsonObject.addProperty(Const.JsonFields.NAME, user?.displayName)
+                    jsonObject.addProperty(Const.JsonFields.NAME, user?.formattedDisplayName)
                     jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, user?.avatarFileId)
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
 //                    jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
@@ -178,8 +178,8 @@ class ContactDetailsFragment : BaseFragment() {
 
     private fun initializeViews() {
         if (user != null) {
-            binding.tvUsername.text = user?.displayName
-            binding.tvPageName.text = user?.displayName
+            binding.tvUsername.text = user?.formattedDisplayName
+            binding.tvPageName.text = user?.formattedDisplayName
 
             binding.ivChat.setOnClickListener {
                 user?.id?.let { id ->
@@ -230,7 +230,7 @@ class ContactDetailsFragment : BaseFragment() {
             } else {
                 DialogError.getInstance(requireContext(),
                     getString(R.string.unblock_user),
-                    getString(R.string.unblock_description, user?.displayName),
+                    getString(R.string.unblock_description, user?.formattedDisplayName),
                     getString(R.string.no),
                     getString(R.string.unblock),
                     object : DialogInteraction {

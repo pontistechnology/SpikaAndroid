@@ -30,7 +30,7 @@ class BlockedUserAdapter(
     override fun onBindViewHolder(holder: BlockedUserViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { blockedUser ->
-                binding.tvUserName.text = blockedUser.displayName
+                binding.tvUserName.text = blockedUser.formattedDisplayName
                 binding.tvUserNumber.text = blockedUser.telephoneNumber
 
                 Glide.with(context).load(blockedUser.avatarFileId?.let { Tools.getFilePathUrl(it) })

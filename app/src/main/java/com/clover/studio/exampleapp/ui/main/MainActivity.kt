@@ -154,12 +154,12 @@ class MainActivity : BaseActivity() {
                                 if (user.id != myUserId && user.id == it.message.fromUserId) {
                                     val content =
                                         if (it.message.type != Const.JsonFields.TEXT_TYPE) {
-                                            user.displayName + ": " + getString(
+                                            user.formattedDisplayName + ": " + getString(
                                                 R.string.generic_shared,
                                                 it.message.type.toString()
                                                     .replaceFirstChar { type -> type.uppercase() })
                                         } else {
-                                            user.displayName + ": " + it.message.body?.text.toString()
+                                            user.formattedDisplayName + ": " + it.message.body?.text.toString()
                                         }
 
                                     bindingSetup.cvNotification.tvMessage.text =
@@ -189,7 +189,8 @@ class MainActivity : BaseActivity() {
                                             it.message.body?.text.toString()
                                         }
 
-                                    bindingSetup.cvNotification.tvTitle.text = user.displayName
+                                    bindingSetup.cvNotification.tvTitle.text =
+                                        user.formattedDisplayName
                                     bindingSetup.cvNotification.tvMessage.text =
                                         content
                                     break

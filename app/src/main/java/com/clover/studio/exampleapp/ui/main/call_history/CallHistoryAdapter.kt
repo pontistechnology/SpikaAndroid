@@ -29,7 +29,7 @@ class CallHistoryAdapter(
     override fun onBindViewHolder(holder: CallHistoryViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { userItem ->
-                binding.tvUsername.text = userItem.displayName
+                binding.tvUsername.text = userItem.formattedDisplayName
 //                binding.tvCallDirection = // TODO set direction text
 //                binding.ivCallIcon.setImageDrawable() // TODO set image for call icon
 //                binding.tvCallTime.text = // TODO set call time

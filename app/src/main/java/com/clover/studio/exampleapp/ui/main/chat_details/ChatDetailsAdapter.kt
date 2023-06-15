@@ -34,7 +34,7 @@ class ChatDetailsAdapter(
     override fun onBindViewHolder(holder: ChatDetailsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { userItem ->
-                binding.tvUsername.text = userItem.displayName
+                binding.tvUsername.text = userItem.formattedDisplayName
                 binding.tvTitle.text = userItem.telephoneNumber
                 Glide.with(context).load(userItem.avatarFileId?.let { Tools.getFilePathUrl(it) })
                     .placeholder(R.drawable.img_user_placeholder)
