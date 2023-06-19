@@ -5,6 +5,7 @@ package com.clover.studio.exampleapp.utils
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
+import androidx.core.app.NotificationManagerCompat
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.data.models.entity.Message
@@ -12,7 +13,6 @@ import com.clover.studio.exampleapp.data.models.networking.responses.StreamingRe
 import com.clover.studio.exampleapp.data.repositories.SSERepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
 import com.clover.studio.exampleapp.utils.helpers.GsonProvider
-import com.google.gson.Gson
 import kotlinx.coroutines.*
 import okio.IOException
 import org.json.JSONObject
@@ -92,6 +92,7 @@ class SSEManager @Inject constructor(
                         line.startsWith("message:") -> { // get event name
                             Timber.d("Copy message event $line")
                         }
+
                         line.startsWith("data:") -> { // get data
                             Timber.d("Copy data event $line")
 
@@ -125,21 +126,36 @@ class SSEManager @Inject constructor(
                                         }
                                         repo.getUnreadCount()
                                     }
+
                                     Const.JsonFields.UPDATE_MESSAGE -> {
                                         response.data?.message?.let { repo.writeMessages(it) }
                                     }
+
                                     Const.JsonFields.DELETE_MESSAGE -> {
                                         // We replace old message with new one displaying "Deleted
                                         // message" in its text field
                                         response.data?.message?.let { repo.writeMessages(it) }
                                     }
+
                                     Const.JsonFields.NEW_MESSAGE_RECORD -> {
                                         response.data?.messageRecord?.let {
                                             repo.writeMessageRecord(
                                                 it
                                             )
+
+                                            // Check if message record is seen event and if it is my id
+                                            // Remove the notification for that room if it exists
+                                            if (Const.JsonFields.SEEN == it.type && sharedPrefs.readUserId() == it.userId) {
+                                                it.recordMessage?.roomId?.let { roomId ->
+                                                    NotificationManagerCompat.from(MainApplication.appContext)
+                                                        .cancel(
+                                                            roomId
+                                                        )
+                                                }
+                                            }
                                         }
                                     }
+
                                     Const.JsonFields.DELETE_MESSAGE_RECORD -> {
                                         response.data?.messageRecord?.let {
                                             repo.deleteMessageRecord(
@@ -147,30 +163,36 @@ class SSEManager @Inject constructor(
                                             )
                                         }
                                     }
+
                                     Const.JsonFields.USER_UPDATE -> {
                                         CoroutineScope(Dispatchers.IO).launch {
                                             response.data?.user?.let { repo.writeUser(it) }
                                         }
                                     }
+
                                     Const.JsonFields.NEW_ROOM -> {
                                         CoroutineScope(Dispatchers.IO).launch {
                                             response.data?.room?.let { repo.writeRoom(it) }
                                         }
                                     }
+
                                     Const.JsonFields.UPDATE_ROOM -> {
                                         CoroutineScope(Dispatchers.IO).launch {
                                             response.data?.room?.let { repo.writeRoom(it) }
                                         }
                                     }
+
                                     Const.JsonFields.DELETE_ROOM -> {
                                         response.data?.room?.let { repo.deleteRoom(it.roomId) }
                                     }
+
                                     Const.JsonFields.SEEN_ROOM -> {
                                         response.data?.roomId?.let { repo.resetUnreadCount(it) }
                                     }
                                 }
                             }
                         }
+
                         line.isEmpty() -> { // empty line, finished block. Emit the event
                             Timber.d("Emitting event")
                         }
