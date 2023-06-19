@@ -35,8 +35,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
 import kotlin.math.min
-import kotlin.math.pow
-import kotlin.math.roundToInt
 import kotlin.random.Random
 
 
@@ -332,29 +330,29 @@ object Tools {
         return Random.nextInt(Int.MIN_VALUE, 0)
     }
 
-    fun createCustomNotification(
-        activity: Activity,
-        title: String?,
-        text: String?,
-        imageUrl: String?,
-        roomId: Int?
-    ) {
-        val remoteViews = RemoteViews(activity.packageName, R.layout.dialog_notification)
-        remoteViews.setImageViewUri(R.id.iv_user_image, imageUrl?.toUri())
-        remoteViews.setTextViewText(R.id.tv_title, title)
-        remoteViews.setTextViewText(R.id.tv_message, text)
-
-        val builder = NotificationCompat.Builder(activity, CHANNEL_ID)
-            .setSmallIcon(R.drawable.img_spika_logo)
-            .setContentTitle(title)
-            .setContentText(text)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCustomContentView(remoteViews)
-        with(NotificationManagerCompat.from(activity)) {
-            // notificationId is a unique int for each notification that you must define
-            roomId?.let { notify(it, builder.build()) }
-        }
-    }
+//    fun createCustomNotification(
+//        activity: Activity,
+//        title: String?,
+//        text: String?,
+//        imageUrl: String?,
+//        roomId: Int?
+//    ) {
+//        val remoteViews = RemoteViews(activity.packageName, R.layout.dialog_notification)
+//        remoteViews.setImageViewUri(R.id.iv_user_image, imageUrl?.toUri())
+//        remoteViews.setTextViewText(R.id.tv_title, title)
+//        remoteViews.setTextViewText(R.id.tv_message, text)
+//
+//        val builder = NotificationCompat.Builder(activity, CHANNEL_ID)
+//            .setSmallIcon(R.drawable.img_spika_logo)
+//            .setContentTitle(title)
+//            .setContentText(text)
+//            .setPriority(NotificationCompat.PRIORITY_HIGH)
+//            .setCustomContentView(remoteViews)
+//        with(NotificationManagerCompat.from(activity)) {
+//            // notificationId is a unique int for each notification that you must define
+//            roomId?.let { notify(it, builder.build()) }
+//        }
+//    }
 
     fun downloadFile(context: Context, message: Message) {
         try {

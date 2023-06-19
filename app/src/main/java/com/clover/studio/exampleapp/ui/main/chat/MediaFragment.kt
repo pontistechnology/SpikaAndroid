@@ -3,6 +3,7 @@ package com.clover.studio.exampleapp.ui.main.chat
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,9 +14,20 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.databinding.FragmentMediaBinding
+import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.MediaPlayer
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 const val BAR_ANIMATION = 500L
 
@@ -32,15 +44,15 @@ class MediaFragment : BaseFragment() {
     private var playbackPosition = 0L
     private val playbackStateListener: Player.Listener = playbackStateListener()
 
-    private var videoPath: String? = null
-    private var imagePath: String? = null
     private var mediaInfo: String? = null
+    private var message: Message? = null
+    private var picturePath: String = ""
+    private var videoPath: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        videoPath = args.videoPath
-        imagePath = args.picturePath
         mediaInfo = args.mediaInfo
+        message = args.message
     }
 
     override fun onCreateView(
@@ -51,10 +63,19 @@ class MediaFragment : BaseFragment() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         initializeViews()
         initializeListeners()
-        if (imagePath?.isEmpty() == true) {
-            initializeVideo()
+
+        if (message?.type == Const.JsonFields.IMAGE_TYPE) {
+            picturePath = message?.body?.fileId?.let {
+                Tools.getFilePathUrl(it)
+            }.toString()
+            initializePicture(picturePath)
         } else {
-            initializePicture()
+            videoPath = message?.body?.file?.id.let {
+                Tools.getFilePathUrl(
+                    it!!
+                )
+            }.toString()
+            initializeVideo(videoPath)
         }
 
         return binding.root
@@ -98,7 +119,7 @@ class MediaFragment : BaseFragment() {
             }.start()
     }
 
-    private fun initializePicture() {
+    private fun initializePicture(imagePath: String) {
         binding.clVideoLoading.visibility = View.GONE
         binding.clVideoContainer.visibility = View.GONE
 
@@ -109,7 +130,7 @@ class MediaFragment : BaseFragment() {
             .into(binding.ivFullImage)
     }
 
-    private fun initializeVideo() {
+    private fun initializeVideo(videoPath: String) {
         binding.clImageContainer.visibility = View.GONE
         binding.clVideoLoading.visibility = View.VISIBLE
 
@@ -141,6 +162,36 @@ class MediaFragment : BaseFragment() {
         binding.clVideoContainer.visibility = View.VISIBLE
     }
 
+    // TODO download
+    private fun downloadMedia() {
+        val request = Request.Builder()
+            .url("")
+            .build()
+
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val inputStream = response.body?.byteStream()
+                val file = File(
+                    context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                    "localId.${Const.FileExtensions.JPG}"
+                )
+
+                val outputStream = FileOutputStream(file)
+                inputStream?.use { input ->
+                    outputStream.use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                outputStream.close()
+            }
+        })
+    }
+
     private fun releasePlayer() {
         player?.let { exoPlayer ->
             exoPlayer.stop()
@@ -158,15 +209,15 @@ class MediaFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
-        if (imagePath?.isEmpty() == true) {
-            initializeVideo()
+        if (message?.type == Const.JsonFields.VIDEO_TYPE) {
+            initializeVideo(videoPath)
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (imagePath?.isEmpty() == true) {
-            initializeVideo()
+        if (message?.type == Const.JsonFields.VIDEO_TYPE) {
+            initializeVideo(videoPath)
         }
     }
 

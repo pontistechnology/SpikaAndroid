@@ -37,7 +37,7 @@ import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.addFiles
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.showHideUserInformation
-import timber.log.Timber
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -463,15 +463,16 @@ class ChatAdapter(
         clContainer: ConstraintLayout
     ) {
         var mediaPath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
-        Timber.d("media path: $mediaPath")
-        // TODO
-        if (mediaPath.isNullOrEmpty()){
-            mediaPath = chatMessage.message.body?.fileId?.let {
+
+        val file = File(mediaPath)
+        if (!file.exists()) {
+            mediaPath = chatMessage.message.body?.thumb?.id?.let { imagePath ->
                 Tools.getFilePathUrl(
-                    it
+                    imagePath
                 )
             }.toString()
         }
+
         loadMedia(
             context,
             mediaPath,
@@ -496,7 +497,17 @@ class ChatAdapter(
         clVideos: ConstraintLayout,
         ivPlayButton: ImageView
     ) {
-        val mediaPath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
+        var mediaPath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
+
+        val file = File(mediaPath)
+        if (!file.exists()) {
+            mediaPath = chatMessage.message.body?.thumb?.id?.let { imagePath ->
+                Tools.getFilePathUrl(
+                    imagePath
+                )
+            }.toString()
+        }
+
         loadMedia(
             context,
             mediaPath,
