@@ -43,6 +43,8 @@ class MainActivity : BaseActivity() {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var bindingSetup: ActivityMainBinding
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
+
+    /** These two fields are used for the room notification, which has been removed temporarily **/
 //    private var handler = Handler(Looper.getMainLooper())
 //    private var runnable: Runnable = Runnable {
 //        Timber.d("Ending handler")

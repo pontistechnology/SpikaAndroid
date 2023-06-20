@@ -44,6 +44,8 @@ class ChatScreenActivity : BaseActivity() {
 
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private val viewModel: ChatViewModel by viewModels()
+
+    /** These two fields are used for the room notification, which has been removed temporarily **/
 //    private var handler = Handler(Looper.getMainLooper())
 //    private var runnable: Runnable = Runnable {
 //        Timber.d("Ending handler")
