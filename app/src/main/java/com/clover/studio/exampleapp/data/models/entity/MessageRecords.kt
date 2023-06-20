@@ -9,7 +9,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 @Entity(tableName = AppDatabase.TablesInfo.TABLE_MESSAGE_RECORDS)
-data class MessageRecords(
+data class MessageRecords @JvmOverloads constructor(
     @PrimaryKey
     @ColumnInfo(name = "id")
     val id: Long,
@@ -35,7 +35,10 @@ data class MessageRecords(
     @ColumnInfo(name = "record_message")
     @SerializedName("message")
     @TypeConverters(TypeConverter::class)
-    val recordMessage: RecordMessage?
+    val recordMessage: RecordMessage?,
+
+    @Ignore
+    var roomId: Int = 0
 ) : Parcelable
 
 @Parcelize

@@ -71,7 +71,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     FirebaseResponse::class.java
                 )
             CoroutineScope(Dispatchers.IO).launch {
-//                chatRepo.storeMessageLocally(response.message)
+                chatRepo.storeMessageLocally(response.message)
 
                 val messageObject = JsonObject()
                 val messageArray = JsonArray()
@@ -86,7 +86,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 // TODO
                 val title: String
                 val content: String
-                if (response.groupName.isEmpty()) {
+                if (response.messageAttributes.groupName.isNullOrEmpty()) {
                     content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
                         getString(
                             R.string.generic_shared,
@@ -94,20 +94,20 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     } else {
                         response.message.body?.text.toString()
                     }
-                    title = response.fromUserName
+                    title = response.messageAttributes.fromUserName
                 } else {
                     content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
-                        response.fromUserName + ": " + getString(
+                        response.messageAttributes.fromUserName + ": " + getString(
                             R.string.generic_shared,
                             response.message.type.toString().replaceFirstChar { it.uppercase() })
                     } else {
-                        response.fromUserName + ": " + response.message.body?.text.toString()
+                        response.messageAttributes.fromUserName + ": " + response.message.body?.text.toString()
                     }
-                    title = response.groupName
+                    title = response.messageAttributes.groupName.toString()
                 }
 
                 // Filter message if its from my user, don't show notification for it
-                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && !response.muted && !MainApplication.isInForeground) {
+                if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && !response.roomAttributes.muted && !MainApplication.isInForeground) {
                     Timber.d("Extras: ${response.message.roomId}")
                     val intent = Intent(baseContext, MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -158,8 +158,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             )
                             // This can be used to add a summary to the notification which will
                             // tell the user how many more messages are there.
-                            if (response.unreadCount > 3) {
-                                inboxStyle.setSummaryText("+${response.unreadCount - MAX_MESSAGES} more messages")
+                            if (response.roomAttributes.unreadCount > 3) {
+                                inboxStyle.setSummaryText("+${response.roomAttributes.unreadCount - MAX_MESSAGES} more messages")
                             }
                             builder.setStyle(inboxStyle)
                             builder.setNumber(existingMessageCount + 1)

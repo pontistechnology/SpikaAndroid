@@ -146,7 +146,7 @@ class SSEManager @Inject constructor(
                                             // Check if message record is seen event and if it is my id
                                             // Remove the notification for that room if it exists
                                             if (Const.JsonFields.SEEN == it.type && sharedPrefs.readUserId() == it.userId) {
-                                                it.recordMessage?.roomId?.let { roomId ->
+                                                it.roomId.let { roomId ->
                                                     NotificationManagerCompat.from(MainApplication.appContext)
                                                         .cancel(
                                                             roomId
