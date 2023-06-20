@@ -1574,7 +1574,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             1,
             1,
             MessageFile(1, fileName, "", fileStream.length(), null, null),
-            null,
+            null
         )
 
         var type = activity!!.contentResolver.getType(uri)
@@ -1618,7 +1618,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 null,
                 mediaUri.toString()
             ),
-            null,
+            null
         )
 
         // Media file is always thumbnail first. Therefore, we are sending CHAT_IMAGE as type
