@@ -1603,7 +1603,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             messageBody
         )
         unsentMessages.add(tempMessage)
-
         viewModel.storeMessageLocally(tempMessage)
 
         inputStream.close()
@@ -1642,16 +1641,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             messageBody
         )
 
-        val imagePath =
-            Tools.saveMediaToStorage(
-                context!!,
-                requireActivity().contentResolver,
-                mediaUri,
-                tempMessage.localId
-            )
-        Timber.d("ImagePath: $imagePath")
-        Timber.d("Local id: ${tempMessage.localId}")
-        Timber.d("Temporary message: $tempMessage")
+        Tools.saveMediaToStorage(
+            context!!,
+            requireActivity().contentResolver,
+            mediaUri,
+            tempMessage.localId
+        )
 
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
