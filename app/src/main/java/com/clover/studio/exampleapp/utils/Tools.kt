@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.random.Random
 
 
 const val BITMAP_WIDTH = 512
@@ -364,6 +365,10 @@ object Tools {
 
     }
 
+    fun generateRandomInt(): Int {
+        return Random.nextInt(Int.MIN_VALUE, 0)
+    }
+
     fun createCustomNotification(
         activity: Activity,
         title: String?,
@@ -410,20 +415,14 @@ object Tools {
     }
 
     fun createTemporaryMessage(
-        counter: Int,
+        id: Int,
         localUserId: Int?,
         roomId: Int,
         messageType: String,
         messageBody: MessageBody
     ): Message {
-        // Time added will secure that the temporary items are at the bottom of the list
-        var timeAdded = 100000
-        if (counter > 0) {
-            timeAdded += (counter + 1) * timeAdded
-        }
-
         return Message(
-            counter,
+            id,
             localUserId,
             0,
             -1,
@@ -431,7 +430,7 @@ object Tools {
             roomId,
             messageType,
             messageBody,
-            System.currentTimeMillis() + timeAdded,
+            System.currentTimeMillis(),
             null,
             null,
             null,
