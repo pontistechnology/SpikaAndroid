@@ -1,7 +1,5 @@
 package com.clover.studio.exampleapp.data.repositories
 
-import android.os.Environment
-import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.data.AppDatabase
 import com.clover.studio.exampleapp.data.daos.ChatRoomDao
 import com.clover.studio.exampleapp.data.daos.MessageDao
@@ -15,7 +13,6 @@ import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomUser
 import com.clover.studio.exampleapp.data.repositories.data_sources.SSERemoteDataSource
 import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.performRestOperation
 import com.clover.studio.exampleapp.utils.helpers.RestOperations.queryDatabaseCoreData
 import com.google.gson.JsonArray
@@ -23,15 +20,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
 import timber.log.Timber
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.util.stream.Collectors
 import javax.inject.Inject
 
@@ -155,36 +144,6 @@ class SSERepositoryImpl @Inject constructor(
             for (message in response.responseData.data.messages) {
                 messages.add(message)
                 messageIds.add(message.id)
-
-                if (Const.JsonFields.IMAGE_TYPE == message.type || Const.JsonFields.VIDEO_TYPE == message.type) {
-                    Timber.d("Here, SSE repository, Image/video")
-                    val request = Request.Builder()
-                        .url(Tools.getFilePathUrl(message.body?.fileId!!))
-                        .build()
-
-                    val client = OkHttpClient()
-                    client.newCall(request).enqueue(object : Callback {
-                        override fun onFailure(call: Call, e: IOException) {
-                            e.printStackTrace()
-                        }
-
-                        override fun onResponse(call: Call, response: Response) {
-                            val inputStream = response.body?.byteStream()
-                            val file = File(
-                                MainApplication.appContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                                "${message.localId}.${Const.FileExtensions.JPG}"
-                            )
-                            val outputStream = FileOutputStream(file)
-
-                            inputStream?.use { input ->
-                                outputStream.use { output ->
-                                    input.copyTo(output)
-                                }
-                            }
-                            outputStream.close()
-                        }
-                    })
-                }
             }
 
             queryDatabaseCoreData(

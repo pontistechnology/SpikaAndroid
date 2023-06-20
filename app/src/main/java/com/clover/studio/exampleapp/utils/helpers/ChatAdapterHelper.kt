@@ -168,8 +168,12 @@ object ChatAdapterHelper {
         val params =
             clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
         params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-        val original = chatMessage.message.body?.text?.length
+        var original = chatMessage.message.body?.text?.length
         clReplyMessage.visibility = View.VISIBLE
+        val firstLineStart = chatMessage.message.body?.text?.lines()?.get(0)
+        if (firstLineStart?.length!! < TEXT_SIZE_SMALL) {
+            original = firstLineStart.length
+        }
         val username = tvUsername.text.length
 
         if (sender) {
@@ -179,24 +183,15 @@ object ChatAdapterHelper {
         }
 
         tvUsername.text =
-            users.firstOrNull { it.id == chatMessage.message.body?.referenceMessage?.fromUserId }!!.formattedDisplayName
+            users.firstOrNull { it.id == chatMessage.message.body.referenceMessage?.fromUserId }!!.formattedDisplayName
 
-        when (chatMessage.message.body?.referenceMessage?.type) {
+        when (chatMessage.message.body.referenceMessage?.type) {
             /**Image or video type*/
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
                 if (original!! >= TEXT_SIZE_BIG) {
                     params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                 }
 
-//                val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-//                val imagePath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
-
-                val imagePath =
-                    chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
-                        Tools.getFilePathUrl(
-                            imagePath
-                        )
-                    }
                 if (chatMessage.message.body.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
                     tvReplyMedia.text = context.getString(
                         R.string.media,
@@ -225,6 +220,12 @@ object ChatAdapterHelper {
                 ivReplyImage.visibility = View.VISIBLE
                 tvReplyMedia.visibility = View.VISIBLE
 
+                val imagePath =
+                    chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
+                        Tools.getFilePathUrl(
+                            imagePath
+                        )
+                    }
                 loadMedia(
                     context,
                     imagePath!!,
@@ -270,7 +271,7 @@ object ChatAdapterHelper {
                 ivReplyImage.visibility = View.GONE
                 tvReplyMedia.visibility = View.GONE
 
-                val replyText = chatMessage.message.body?.referenceMessage?.body?.text
+                val replyText = chatMessage.message.body.referenceMessage?.body?.text
                 tvMessageReply.text = replyText
                 val reply = replyText?.length
 

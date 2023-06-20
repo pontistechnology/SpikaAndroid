@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.text.format.DateUtils
@@ -37,7 +36,6 @@ import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.addFiles
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.exampleapp.utils.helpers.ChatAdapterHelper.showHideUserInformation
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -85,7 +83,6 @@ class ChatAdapter(
     }
 
     private var handler = Handler(Looper.getMainLooper())
-    private var directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -135,6 +132,16 @@ class ChatAdapter(
                         }
                     }
 
+                    Const.JsonFields.VIDEO_TYPE -> {
+                        setViewsVisibility(holder.binding.clVideos, holder)
+                        bindVideo(
+                            it,
+                            holder.binding.ivVideoThumbnail,
+                            holder.binding.clVideos,
+                            holder.binding.ivPlayButton
+                        )
+                    }
+
                     Const.JsonFields.FILE_TYPE -> {
                         setViewsVisibility(holder.binding.fileLayout.clFileMessage, holder)
                         addFiles(
@@ -167,16 +174,6 @@ class ChatAdapter(
                                 holder.binding.fileLayout.ivDownloadFile
                             )
                         }
-                    }
-
-                    Const.JsonFields.VIDEO_TYPE -> {
-                        setViewsVisibility(holder.binding.clVideos, holder)
-                        bindVideo(
-                            it,
-                            holder.binding.ivVideoThumbnail,
-                            holder.binding.clVideos,
-                            holder.binding.ivPlayButton
-                        )
                     }
 
                     Const.JsonFields.AUDIO_TYPE -> {
@@ -292,7 +289,7 @@ class ChatAdapter(
                         bindImage(
                             it,
                             holder.binding.ivChatImage,
-                            holder.binding.clContainer
+                            holder.binding.clImageChat
                         )
                     }
 
@@ -462,17 +459,7 @@ class ChatAdapter(
         ivChatImage: ImageView,
         clContainer: ConstraintLayout
     ) {
-        var mediaPath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
-
-        val file = File(mediaPath)
-        if (!file.exists()) {
-            mediaPath = chatMessage.message.body?.thumb?.id?.let { imagePath ->
-                Tools.getFilePathUrl(
-                    imagePath
-                )
-            }.toString()
-        }
-
+        val mediaPath = Tools.getMediaFile(context, chatMessage.message)
         loadMedia(
             context,
             mediaPath,
@@ -497,17 +484,7 @@ class ChatAdapter(
         clVideos: ConstraintLayout,
         ivPlayButton: ImageView
     ) {
-        var mediaPath = "$directory/${chatMessage.message.localId}.${Const.FileExtensions.JPG}"
-
-        val file = File(mediaPath)
-        if (!file.exists()) {
-            mediaPath = chatMessage.message.body?.thumb?.id?.let { imagePath ->
-                Tools.getFilePathUrl(
-                    imagePath
-                )
-            }.toString()
-        }
-
+        val mediaPath = Tools.getMediaFile(context, chatMessage.message)
         loadMedia(
             context,
             mediaPath,

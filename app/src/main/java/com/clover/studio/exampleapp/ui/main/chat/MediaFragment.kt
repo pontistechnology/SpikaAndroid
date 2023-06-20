@@ -3,7 +3,6 @@ package com.clover.studio.exampleapp.ui.main.chat
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,14 +19,6 @@ import com.clover.studio.exampleapp.utils.Const
 import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.MediaPlayer
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 
 const val BAR_ANIMATION = 500L
 
@@ -46,8 +37,6 @@ class MediaFragment : BaseFragment() {
 
     private var mediaInfo: String? = null
     private var message: Message? = null
-    private var picturePath: String = ""
-    private var videoPath: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,17 +54,9 @@ class MediaFragment : BaseFragment() {
         initializeListeners()
 
         if (message?.type == Const.JsonFields.IMAGE_TYPE) {
-            picturePath = message?.body?.fileId?.let {
-                Tools.getFilePathUrl(it)
-            }.toString()
-            initializePicture(picturePath)
+            initializePicture()
         } else {
-            videoPath = message?.body?.file?.id.let {
-                Tools.getFilePathUrl(
-                    it!!
-                )
-            }.toString()
-            initializeVideo(videoPath)
+            initializeVideo()
         }
 
         return binding.root
@@ -119,7 +100,11 @@ class MediaFragment : BaseFragment() {
             }.start()
     }
 
-    private fun initializePicture(imagePath: String) {
+    private fun initializePicture() {
+        val imagePath = message?.body?.fileId?.let {
+            Tools.getFilePathUrl(it)
+        }.toString()
+
         binding.clVideoLoading.visibility = View.GONE
         binding.clVideoContainer.visibility = View.GONE
 
@@ -130,7 +115,13 @@ class MediaFragment : BaseFragment() {
             .into(binding.ivFullImage)
     }
 
-    private fun initializeVideo(videoPath: String) {
+    private fun initializeVideo() {
+        val videoPath = message?.body?.file?.id.let {
+            Tools.getFilePathUrl(
+                it!!
+            )
+        }.toString()
+
         binding.clImageContainer.visibility = View.GONE
         binding.clVideoLoading.visibility = View.VISIBLE
 
@@ -162,36 +153,6 @@ class MediaFragment : BaseFragment() {
         binding.clVideoContainer.visibility = View.VISIBLE
     }
 
-    // TODO download
-    private fun downloadMedia() {
-        val request = Request.Builder()
-            .url("")
-            .build()
-
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val inputStream = response.body?.byteStream()
-                val file = File(
-                    context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                    "localId.${Const.FileExtensions.JPG}"
-                )
-
-                val outputStream = FileOutputStream(file)
-                inputStream?.use { input ->
-                    outputStream.use { output ->
-                        input.copyTo(output)
-                    }
-                }
-                outputStream.close()
-            }
-        })
-    }
-
     private fun releasePlayer() {
         player?.let { exoPlayer ->
             exoPlayer.stop()
@@ -210,14 +171,14 @@ class MediaFragment : BaseFragment() {
     override fun onStart() {
         super.onStart()
         if (message?.type == Const.JsonFields.VIDEO_TYPE) {
-            initializeVideo(videoPath)
+            initializeVideo()
         }
     }
 
     override fun onResume() {
         super.onResume()
         if (message?.type == Const.JsonFields.VIDEO_TYPE) {
-            initializeVideo(videoPath)
+            initializeVideo()
         }
     }
 
@@ -243,3 +204,32 @@ private fun playbackStateListener() = object : Player.Listener {
         }
     }
 }
+
+// private fun downloadMedia() {
+//        val request = Request.Builder()
+//            .url("")
+//            .build()
+//
+//        val client = OkHttpClient()
+//        client.newCall(request).enqueue(object : Callback {
+//            override fun onFailure(call: Call, e: IOException) {
+//                e.printStackTrace()
+//            }
+//
+//            override fun onResponse(call: Call, response: Response) {
+//                val inputStream = response.body?.byteStream()
+//                val file = File(
+//                    context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+//                    "localId.${Const.FileExtensions.JPG}"
+//                )
+//
+//                val outputStream = FileOutputStream(file)
+//                inputStream?.use { input ->
+//                    outputStream.use { output ->
+//                        input.copyTo(output)
+//                    }
+//                }
+//                outputStream.close()
+//            }
+//        })
+//    }

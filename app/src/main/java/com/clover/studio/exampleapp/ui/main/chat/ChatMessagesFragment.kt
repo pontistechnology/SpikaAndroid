@@ -70,11 +70,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 
@@ -122,7 +118,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var uploadPieces = 0
     private var uploadInProgress = false
     private var isFetching = false
-    private var directory : File? = null
+    private var directory: File? = null
 
     private var isAdmin = false
     private var progress = 0
@@ -953,7 +949,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                             Const.UserActions.RESEND_MESSAGE -> handleMessageResend(message)
                             Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
-                            Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(message)
+                            Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
+                                message
+                            )
                             else -> Timber.d("No other action currently")
                         }
                     }
@@ -1242,13 +1240,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleMessageReply(message: Message) {
         bindingSetup.vTransparent.visibility = View.VISIBLE
         replyId = message.id.toLong()
-        if (message.fromUserId == localUserId) {
-            bindingSetup.replyAction.clReplyContainer.background =
-                AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_send)
+        val backgroundResId = if (message.fromUserId == localUserId) {
+            R.drawable.bg_message_send
         } else {
-            bindingSetup.replyAction.clReplyContainer.background =
-                AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_received)
+            R.drawable.bg_message_received
         }
+        bindingSetup.replyAction.clReplyContainer.setBackgroundResource(backgroundResId)
 
         val user = roomWithUsers.users.firstOrNull {
             it.id == message.fromUserId
@@ -1283,14 +1280,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         0
                     )
                 }
+                val mediaPath = Tools.getMediaFile(this.context!!, message)
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
                 Glide.with(this)
-                        // TODO
-                    .load("$directory/${message.localId}.${Const.FileExtensions.JPG}")
+                    .load(mediaPath)
                     .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                     .placeholder(R.drawable.img_image_placeholder)
                     .dontTransform()
-                    .dontAnimate()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(bindingSetup.replyAction.ivReplyImage)
             }
@@ -1819,21 +1815,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         filesSelected.clear()
         thumbnailUris.clear()
 
-        // TODO - ask Matko if this solution is ok
-        deleteThumbnail(context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!)
+        Tools.deleteTemporaryMedia(context!!)
 
         uploadInProgress = false
         //unsentMessages.clear()
         context?.cacheDir?.deleteRecursively()
-    }
-
-    private fun deleteThumbnail(directory: File) {
-        val files = directory.listFiles { _, name -> name.startsWith("JPEG") }
-        files?.forEach { file ->
-            if (file.isFile) {
-                file.delete()
-            }
-        }
     }
 
     /**
@@ -1844,7 +1830,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      */
     private fun handleUploadError(typeFailed: UploadMimeTypes, message: String?) {
         if (UploadMimeTypes.MEDIA == typeFailed) {
-            currentMediaLocation.removeFirst()
+            if (currentMediaLocation.isNotEmpty()) {
+                currentMediaLocation.removeFirst()
+            }
             if (unsentMessages.isNotEmpty()) {
                 viewModel.deleteLocalMessage(unsentMessages.first())
             }
@@ -1941,29 +1929,25 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val bitmap = mmr.frameAtTime
 
         // This will actually stop the UI block while decoding the video
-        CoroutineScope(Dispatchers.IO).launch {
-            val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
-            val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
+        val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
+        val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
 
-            withContext(Dispatchers.IO) {
-                file.createNewFile()
-            }
+        file.createNewFile()
 
-            val filePath = file.absolutePath
-            Tools.genVideoUsingMuxer(videoUri, filePath)
-            val fileUri = FileProvider.getUriForFile(
-                MainApplication.appContext,
-                BuildConfig.APPLICATION_ID + ".fileprovider",
-                file
-            )
-            val thumbnail =
-                ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
-            val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
+        val filePath = file.absolutePath
+        Tools.genVideoUsingMuxer(videoUri, filePath)
+        val fileUri = FileProvider.getUriForFile(
+            MainApplication.appContext,
+            BuildConfig.APPLICATION_ID + ".fileprovider",
+            file
+        )
+        val thumbnail =
+            ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
+        val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
 
-            thumbnailUris.add(thumbnailUri)
-            currentMediaLocation.add(fileUri)
-            tempFilesToCreate.add(TempUri(thumbnailUri, UploadMimeTypes.MEDIA))
-        }
+        thumbnailUris.add(thumbnailUri)
+        currentMediaLocation.add(fileUri)
+        tempFilesToCreate.add(TempUri(thumbnailUri, UploadMimeTypes.MEDIA))
     }
 
     private fun convertImageToBitmap(imageUri: Uri?) {
@@ -1983,7 +1967,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         tempFilesToCreate.add(TempUri(thumbnailUri, UploadMimeTypes.MEDIA))
     }
 
-    private fun sendFile(){
+    private fun sendFile() {
         if (tempFilesToCreate.isNotEmpty()) {
             for (tempFile in tempFilesToCreate) {
                 if (UploadMimeTypes.MEDIA == tempFile.type) {

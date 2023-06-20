@@ -152,13 +152,11 @@ object Tools {
         val timeStamp: String =
             SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val storageDir: File? = activity?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val file = File.createTempFile(
+        return File.createTempFile(
             "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
         )
-        file.deleteOnExit()
-        return file
     }
 
     fun convertBitmapToUri(activity: Activity, bitmap: Bitmap): Uri {
@@ -329,30 +327,6 @@ object Tools {
     fun generateRandomInt(): Int {
         return Random.nextInt(Int.MIN_VALUE, 0)
     }
-
-//    fun createCustomNotification(
-//        activity: Activity,
-//        title: String?,
-//        text: String?,
-//        imageUrl: String?,
-//        roomId: Int?
-//    ) {
-//        val remoteViews = RemoteViews(activity.packageName, R.layout.dialog_notification)
-//        remoteViews.setImageViewUri(R.id.iv_user_image, imageUrl?.toUri())
-//        remoteViews.setTextViewText(R.id.tv_title, title)
-//        remoteViews.setTextViewText(R.id.tv_message, text)
-//
-//        val builder = NotificationCompat.Builder(activity, CHANNEL_ID)
-//            .setSmallIcon(R.drawable.img_spika_logo)
-//            .setContentTitle(title)
-//            .setContentText(text)
-//            .setPriority(NotificationCompat.PRIORITY_HIGH)
-//            .setCustomContentView(remoteViews)
-//        with(NotificationManagerCompat.from(activity)) {
-//            // notificationId is a unique int for each notification that you must define
-//            roomId?.let { notify(it, builder.build()) }
-//        }
-//    }
 
     fun downloadFile(context: Context, message: Message) {
         try {
@@ -560,6 +534,32 @@ object Tools {
         return imagePath
     }
 
+     fun getMediaFile(context: Context, message: Message) : String{
+        val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
+        val file = File(mediaPath)
+        if (!file.exists()) {
+            mediaPath = message.body?.thumb?.id?.let { imagePath ->
+                getFilePathUrl(
+                    imagePath
+                )
+            }.toString()
+        }
+        return mediaPath
+    }
+
+    fun deleteTemporaryMedia(context: Context){
+        val imagesDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        imagesDirectory?.listFiles { _, name -> name.startsWith("JPEG") }?.forEach { file ->
+            file.delete()
+        }
+
+        val videoDirectory = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+        videoDirectory?.listFiles { _, name -> name.startsWith("VIDEO") }?.forEach { file ->
+            file.delete()
+        }
+    }
+
 //    private fun compressImageFile(file: File) {
 //        val originalBitmap = decodeFile(file)
 //
@@ -651,6 +651,30 @@ object Tools {
 //    }
 
 //        fun createCustomNotification(
+//        activity: Activity,
+//        title: String?,
+//        text: String?,
+//        imageUrl: String?,
+//        roomId: Int?
+//    ) {
+//        val remoteViews = RemoteViews(activity.packageName, R.layout.dialog_notification)
+//        remoteViews.setImageViewUri(R.id.iv_user_image, imageUrl?.toUri())
+//        remoteViews.setTextViewText(R.id.tv_title, title)
+//        remoteViews.setTextViewText(R.id.tv_message, text)
+//
+//        val builder = NotificationCompat.Builder(activity, CHANNEL_ID)
+//            .setSmallIcon(R.drawable.img_spika_logo)
+//            .setContentTitle(title)
+//            .setContentText(text)
+//            .setPriority(NotificationCompat.PRIORITY_HIGH)
+//            .setCustomContentView(remoteViews)
+//        with(NotificationManagerCompat.from(activity)) {
+//            // notificationId is a unique int for each notification that you must define
+//            roomId?.let { notify(it, builder.build()) }
+//        }
+//    }
+
+//    fun createCustomNotification(
 //        activity: Activity,
 //        title: String?,
 //        text: String?,
