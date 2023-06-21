@@ -334,6 +334,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
+        // This listener is for keyboard opening
+        bindingSetup.rvChat.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+            if (bottom < oldBottom) {
+                if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
+                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
+                ) {
+                    bindingSetup.rvChat.smoothScrollToPosition(0)
+                }
+            }
+        }
+
         bindingSetup.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 scrollYDistance += dy
@@ -600,7 +611,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-
                     // Delay next message sending by 2 seconds for better user experience.
                     // Could be removed if we deem it not needed.
                     if (!uploadInProgress) {
@@ -616,31 +626,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             } else resetUploadFields()
                         }, 2000)
                     }
-                    bindingSetup.rvChat.smoothScrollToPosition(0)
-                    bindingSetup.cvBottomArrow.visibility = View.GONE
-
                     if (unsentMessages.isNotEmpty()){
-                        Timber.d("it: ${it.responseData?.data?.message}")
-
                         val message = unsentMessages.find { msg ->  msg.localId == it.responseData?.data?.message?.localId}
-                        Timber.d("message to be removed: $message")
                         unsentMessages.remove(message)
-
-                        Timber.d("Unsent deleted:: ${unsentMessages.size}  $unsentMessages")
                     }
                 }
-
                 Resource.Status.ERROR -> {
                     Timber.d("Message send fail")
-                    Timber.d("Message unsent: ${unsentMessages.size}, $unsentMessages")
-
-//                    chatAdapter.getItemViewType()
-//                    val failedMessage = messagesRecords.find { msg -> msg.message.localId == it.responseData?.data?.message?.localId}
-//                    chatAdapter.notifyItemChanged(messagesRecords.indexOf(failedMessage))
-
                 }
                 else -> Timber.d("Other error")
             }
+            senderScroll()
         })
 
         viewModel.getMessageAndRecords(roomWithUsers.room.roomId).observe(viewLifecycleOwner) {
@@ -880,48 +876,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 else -> Timber.d("Other error")
             }
         })
+    }
 
-        //        viewModel.getChatRoomAndMessageAndRecordsById(roomWithUsers.room.roomId)
-//            .observe(viewLifecycleOwner) {
-//                when (it.status) {
-//                    Resource.Status.SUCCESS -> {
-//                        messagesRecords.clear()
-//                        if (it.responseData?.message?.isNotEmpty() == true) {
-//                            /* Block dialog:
-//                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-//                                val containsElement =
-//                                    it.responseData.message.any { message -> localUserId == message.message.fromUserId }
-//                                if (containsElement) bindingSetup.clBlockContact.visibility =
-//                                    View.GONE
-//                                else bindingSetup.clBlockContact.visibility = View.VISIBLE
-//                            } */
-//
-//                            it.responseData.message.forEach { msg ->
-//                                messagesRecords.add(msg)
-//                            }
-//                            messagesRecords.sortByDescending { messages -> messages.message.createdAt }
-//                            // messagesRecords.toList -> for DiffUtil class
-//                            chatAdapter.submitList(messagesRecords.toList())
-//
-//                            if (oldPosition != messagesRecords.size) {
-//                                showNewMessage(messagesRecords.first())
-//                            }
-//
-//                            if (firstEnter) {
-//                                oldPosition = messagesRecords.size
-//                                bindingSetup.rvChat.scrollToPosition(0)
-//                                firstEnter = false
-//                            }
-//                        }
-//                    }
-//                    Resource.Status.LOADING -> {
-//                        // Loading
-//                    }
-//                    else -> {
-//                        // Error
-//                    }
-//                }
-//            }
+    private fun senderScroll(){
+        if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
+            || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
+        ) {
+            scrollToPosition()
+            bindingSetup.cvBottomArrow.visibility = View.GONE
+        } else {
+            bindingSetup.cvBottomArrow.visibility = View.VISIBLE
+        }
     }
 
     private fun showNewMessage() {
