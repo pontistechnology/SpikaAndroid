@@ -9,6 +9,8 @@ import androidx.core.app.NotificationManagerCompat
 import com.clover.studio.exampleapp.BuildConfig
 import com.clover.studio.exampleapp.MainApplication
 import com.clover.studio.exampleapp.data.models.entity.Message
+import com.clover.studio.exampleapp.data.models.entity.MessageRecords
+import com.clover.studio.exampleapp.data.models.entity.RecordMessage
 import com.clover.studio.exampleapp.data.models.networking.responses.StreamingResponse
 import com.clover.studio.exampleapp.data.repositories.SSERepositoryImpl
 import com.clover.studio.exampleapp.data.repositories.SharedPreferencesRepository
@@ -21,7 +23,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
 import javax.net.ssl.HttpsURLConnection
-
 
 class SSEManager @Inject constructor(
     private val repo: SSERepositoryImpl,
@@ -138,11 +139,28 @@ class SSEManager @Inject constructor(
                                     }
 
                                     Const.JsonFields.NEW_MESSAGE_RECORD -> {
+                                        response.data?.let {
+                                            if (it.messageRecord != null) {
+                                                val record = MessageRecords(
+                                                    id = it.messageRecord.id,
+                                                    messageId = it.messageRecord.messageId,
+                                                    userId = it.messageRecord.userId,
+                                                    type = it.messageRecord.type,
+                                                    reaction = it.messageRecord.reaction,
+                                                    modifiedAt = it.messageRecord.modifiedAt,
+                                                    createdAt = it.messageRecord.createdAt,
+                                                    recordMessage = RecordMessage(
+                                                        id = it.messageRecord.messageId.toLong(),
+                                                        totalUserCount = it.totalUserCount ?: 0,
+                                                        deliveredCount = it.deliveredCount ?: 0,
+                                                        seenCount = it.seenCount ?: 0,
+                                                        roomId = it.messageRecord.roomId
+                                                    )
+                                                )
+                                                repo.writeMessageRecord(record)
+                                            }
+                                        }
                                         response.data?.messageRecord?.let {
-                                            repo.writeMessageRecord(
-                                                it
-                                            )
-
                                             // Check if message record is seen event and if it is my id
                                             // Remove the notification for that room if it exists
                                             if (Const.JsonFields.SEEN == it.type && sharedPrefs.readUserId() == it.userId) {

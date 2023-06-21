@@ -84,33 +84,32 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 //                chatRepo.sendMessageDelivered(messageObject)
                     chatRepo.getUnreadCount()
 
-                    // TODO
-                    val title: String
-                    val content: String
-                    if (response.messageAttributes.groupName.isNullOrEmpty()) {
-                        content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
-                            getString(
-                                R.string.generic_shared,
-                                response.message.type.toString()
-                                    .replaceFirstChar { it.uppercase() })
-                        } else {
-                            response.message.body?.text.toString()
-                        }
-                        title = response.messageAttributes.fromUserName
-                    } else {
-                        content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
-                            response.messageAttributes.fromUserName + ": " + getString(
-                                R.string.generic_shared,
-                                response.message.type.toString()
-                                    .replaceFirstChar { it.uppercase() })
-                        } else {
-                            response.messageAttributes.fromUserName + ": " + response.message.body?.text.toString()
-                        }
-                        title = response.messageAttributes.groupName.toString()
-                    }
-
                     // Filter message if its from my user, don't show notification for it
                     if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && !response.roomAttributes.muted && !MainApplication.isInForeground) {
+                        val title: String
+                        val content: String
+                        if (response.messageAttributes.groupName.isNullOrEmpty()) {
+                            content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
+                                getString(
+                                    R.string.generic_shared,
+                                    response.message.type.toString()
+                                        .replaceFirstChar { it.uppercase() })
+                            } else {
+                                response.message.body?.text.toString()
+                            }
+                            title = response.messageAttributes.fromUserName
+                        } else {
+                            content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
+                                response.messageAttributes.fromUserName + ": " + getString(
+                                    R.string.generic_shared,
+                                    response.message.type.toString()
+                                        .replaceFirstChar { it.uppercase() })
+                            } else {
+                                response.messageAttributes.fromUserName + ": " + response.message.body?.text.toString()
+                            }
+                            title = response.messageAttributes.groupName.toString()
+                        }
+
                         Timber.d("Extras: ${response.message.roomId}")
                         val intent = Intent(baseContext, MainActivity::class.java).apply {
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

@@ -14,6 +14,7 @@ data class MessageRecords @JvmOverloads constructor(
     @ColumnInfo(name = "id")
     val id: Long,
 
+    // TODO change this to Long
     @ColumnInfo(name = "message_id")
     val messageId: Int,
 
