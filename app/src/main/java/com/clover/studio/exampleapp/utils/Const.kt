@@ -29,6 +29,7 @@ class Const {
             const val DOWNLOAD_CANCEL = "download_cancel"
             const val MESSAGE_ACTION = "action"
             const val MESSAGE_REPLY = "reply"
+            const val RESEND_MESSAGE = "resend"
             const val USER_REMOVE = "remove_user"
             const val USER_OPTIONS = "user_options"
             const val SHOW_MESSAGE_REACTIONS = "show_message_reactions"
