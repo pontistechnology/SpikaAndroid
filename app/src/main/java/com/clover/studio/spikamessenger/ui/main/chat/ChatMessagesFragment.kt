@@ -94,7 +94,6 @@ data class TempUri(
 @AndroidEntryPoint
 class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private val viewModel: ChatViewModel by activityViewModels()
-    private val args: ChatMessagesFragmentArgs by navArgs()
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
     private lateinit var roomWithUsers: RoomWithUsers
@@ -634,6 +633,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         chatAdapter.submitList(messagesRecords.toList())
                         updateSwipeController()
 
+                        if (viewModel.mediaPosition.value != 0 && viewModel.mediaPosition.value != null){
+                            bindingSetup.rvChat.scrollToPosition(viewModel.mediaPosition.value!!)
+                            viewModel.mediaPosition.postValue(0)
+                        }
+
+                        // TODO
                         if (firstEnter) {
                             newMessagesCount = 0
                             bindingSetup.rvChat.scrollToPosition(0)
@@ -1215,6 +1220,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMediaNavigation(chatMessage: MessageAndRecords) {
+        val mediaPosition = chatAdapter.currentList.indexOf(chatMessage)
+        viewModel.mediaPosition.postValue(mediaPosition)
+
         val mediaInfo: String = if (chatMessage.message.fromUserId == localUserId) {
             context!!.getString(
                 R.string.you_sent_on,
@@ -2058,7 +2066,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     override fun onResume() {
         super.onResume()
-        firstEnter = args.scrollDown
 
         for (bottomSheet in bottomSheets) {
             bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED

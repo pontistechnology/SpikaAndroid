@@ -55,6 +55,7 @@ class ChatViewModel @Inject constructor(
     val newMessageReceivedListener = MutableLiveData<Message?>()
     val roomInfoUpdated = MutableLiveData<Event<Resource<RoomResponse?>>>()
     private val liveDataLimit = MutableLiveData(20)
+    val mediaPosition = MutableLiveData(0)
 
     init {
         sseManager.setupListener(this)
