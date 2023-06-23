@@ -34,7 +34,6 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -135,7 +134,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var avatarFileId = 0L
     private var userName = ""
-    private var firstEnter = true
     private var isEditing = false
     private var originalText = ""
     private var editedMessageId = 0
@@ -341,23 +339,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
         }
-
-        bindingSetup.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                scrollYDistance += dy
-            }
-
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                // This condition checks if the RecyclerView is at the bottom
-                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    bindingSetup.cvNewMessages.visibility = View.INVISIBLE
-                    bindingSetup.cvBottomArrow.visibility = View.GONE
-                    newMessagesCount = 0
-                    scrollYDistance = 0
-                }
-            }
-        })
 
         bindingSetup.root.viewTreeObserver.addOnGlobalLayoutListener {
             heightDiff = bindingSetup.root.rootView.height - bindingSetup.root.height
@@ -599,65 +580,60 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             } else resetUploadFields()
                         }, 2000)
                     }
-                    if (unsentMessages.isNotEmpty()){
-                        val message = unsentMessages.find { msg ->  msg.localId == it.responseData?.data?.message?.localId}
+                    if (unsentMessages.isNotEmpty()) {
+                        val message =
+                            unsentMessages.find { msg -> msg.localId == it.responseData?.data?.message?.localId }
                         unsentMessages.remove(message)
                     }
                 }
+
                 Resource.Status.ERROR -> {
                     Timber.d("Message send fail")
                 }
+
                 else -> Timber.d("Other error")
             }
             senderScroll()
         })
 
-        viewModel.getMessageAndRecords(roomWithUsers.room.roomId).observe(viewLifecycleOwner) {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
-                    messagesRecords.clear()
-                    if (it.responseData?.isNotEmpty() == true) {
-                        /* Block dialog:
-                        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-                            val containsElement =
-                                it.responseData.message.any { message -> localUserId == message.message.fromUserId }
-                            if (containsElement) bindingSetup.clBlockContact.visibility =
-                                View.GONE
-                            else bindingSetup.clBlockContact.visibility = View.VISIBLE
-                        } */
+        viewModel.getMessageAndRecords(roomId = roomWithUsers.room.roomId)
+            .observe(viewLifecycleOwner) {
+                when (it.status) {
+                    Resource.Status.SUCCESS -> {
+                        messagesRecords.clear()
+                        if (it.responseData?.isNotEmpty() == true) {
+                            it.responseData.forEach { msg ->
+                                messagesRecords.add(msg)
+                            }
 
-                        it.responseData.forEach { msg ->
-                            messagesRecords.add(msg)
-                        }
+                            chatAdapter.submitList(messagesRecords.toList())
+                            updateSwipeController()
 
-                        chatAdapter.submitList(messagesRecords.toList())
-                        updateSwipeController()
+                            val mediaPosition = viewModel.mediaPosition.value
+                            if (mediaPosition != null && mediaPosition != 0) {
+                                bindingSetup.rvChat.scrollToPosition(viewModel.mediaPosition.value!!)
+                                viewModel.mediaPosition.postValue(0)
+                            }
 
-                        if (viewModel.mediaPosition.value != 0 && viewModel.mediaPosition.value != null){
-                            bindingSetup.rvChat.scrollToPosition(viewModel.mediaPosition.value!!)
-                            viewModel.mediaPosition.postValue(0)
-                        }
+                            if (mediaPosition == null) {
+                                newMessagesCount = 0
+                                bindingSetup.rvChat.scrollToPosition(0)
+                                viewModel.mediaPosition.postValue(0)
+                            }
+                            // This else clause handles the issue where the firs message in the chat failed
+                            // to be sent or uploaded. It would remain in the list otherwise.
+                        } else chatAdapter.submitList(messagesRecords.toList())
+                    }
 
-                        // TODO
-                        if (firstEnter) {
-                            newMessagesCount = 0
-                            bindingSetup.rvChat.scrollToPosition(0)
-                            firstEnter = false
-                        }
-                        // This else clause handles the issue where the firs message in the chat failed
-                        // to be sent or uploaded. It would remain in the list otherwise.
-                    } else chatAdapter.submitList(messagesRecords.toList())
-                }
+                    Resource.Status.LOADING -> {
+                        Timber.d("Message get loading")
+                    }
 
-                Resource.Status.LOADING -> {
-                    // Loading
-                }
-
-                else -> {
-                    // Error
+                    else -> {
+                        Timber.d("Message get error")
+                    }
                 }
             }
-        }
 
         viewModel.newMessageReceivedListener.observe(viewLifecycleOwner) { message ->
             message?.let {
@@ -681,18 +657,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 when (it.status) {
                     Resource.Status.SUCCESS -> {
                         Timber.d("Blocked users fetched successfully")
-//                        /*  Block dialog:
                         if (it.responseData != null) {
                             val containsElement =
                                 roomWithUsers.users.any { user -> it.responseData.find { blockedUser -> blockedUser.id == user.id } != null }
                             if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
                                 if (containsElement) {
                                     bindingSetup.clContactBlocked.visibility = View.VISIBLE
-//                                    bindingSetup.clBlockContact.visibility = View.GONE
                                 } else bindingSetup.clContactBlocked.visibility = View.GONE
                             }
                         } else bindingSetup.clContactBlocked.visibility = View.GONE
-//                        */
                     }
 
                     Resource.Status.ERROR -> {
@@ -706,7 +679,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 getString(R.string.ok),
                                 object : DialogInteraction {
                                     override fun onSecondOptionClicked() {
-                                        // ignore
+                                        // Ignore
                                     }
                                 })
                         }
@@ -855,9 +828,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 else -> Timber.d("Other error")
             }
         })
+
+        viewModel.sendMessagesSeen(roomId = roomWithUsers.room.roomId)
+
+        viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
     }
 
-    private fun senderScroll(){
+    private fun senderScroll() {
         if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
             || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
         ) {
@@ -974,6 +951,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
+                scrollYDistance += dy
+
                 val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
                 val totalItemCount = layoutManager.itemCount
                 if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
@@ -985,13 +964,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
                 showBottomArrow()
             }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                // This condition checks if the RecyclerView is at the bottom
+                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    bindingSetup.cvNewMessages.visibility = View.INVISIBLE
+                    bindingSetup.cvBottomArrow.visibility = View.GONE
+                    newMessagesCount = 0
+                    scrollYDistance = 0
+                }
+            }
         })
-
-        // Notify backend of messages seen
-        viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
-
-        // Update room visited
-        viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
     }
 
     private fun updateSwipeController() {
@@ -1100,7 +1084,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
     }
 
-    private fun handleMessageResend(message: MessageAndRecords){
+    private fun handleMessageResend(message: MessageAndRecords) {
         ChooserDialog.getInstance(requireContext(),
             "Resend",
             null,
@@ -1491,9 +1475,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
     }
 
-    private fun resendMessage(message: Message){
+    private fun resendMessage(message: Message) {
         try {
-            sendMessage (
+            sendMessage(
                 messageFileType = Const.JsonFields.TEXT_TYPE,
                 text = message.body?.text!!,
                 fileId = 0,
