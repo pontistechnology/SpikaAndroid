@@ -207,22 +207,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
         // Timber.d("Load check: ChatMessagesFragment view created")
-        // Check if we have left the room or if room is deleted, if so, disable bottom message interaction
         if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
             bindingSetup.clRoomExit.visibility = View.VISIBLE
-            setUpAdapter()
-            initializeObservers()
         } else {
             bindingSetup.clRoomExit.visibility = View.GONE
             checkStoragePermission()
-            setUpAdapter()
             setUpMessageDetailsAdapter()
             setUpMessageReactionAdapter()
-            initializeObservers()
             checkIsUserAdmin()
         }
+        initializeObservers()
         initViews()
         initListeners()
+        setUpAdapter()
 
         // Clear notifications for this room
         NotificationManagerCompat.from(requireContext()).cancel(roomWithUsers.room.roomId)
@@ -353,7 +350,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.cvBottomArrow.setOnClickListener {
             bindingSetup.rvChat.scrollToPosition(0)
-            bindingSetup.cvBottomArrow.visibility = View.GONE
+            bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
             scrollYDistance = 0
         }
 
@@ -609,16 +606,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             chatAdapter.submitList(messagesRecords.toList())
                             updateSwipeController()
 
-                            val mediaPosition = viewModel.mediaPosition.value
+                            val mediaPosition = viewModel.mediaPosition.value?.first
                             if (mediaPosition != null && mediaPosition != 0) {
-                                bindingSetup.rvChat.scrollToPosition(viewModel.mediaPosition.value!!)
-                                viewModel.mediaPosition.postValue(0)
+                                bindingSetup.rvChat.scrollToPosition(mediaPosition)
+                                scrollYDistance = viewModel.mediaPosition.value?.second ?: 0
+                                viewModel.mediaPosition.postValue(Pair(0, scrollYDistance))
                             }
 
                             if (mediaPosition == null) {
                                 newMessagesCount = 0
                                 bindingSetup.rvChat.scrollToPosition(0)
-                                viewModel.mediaPosition.postValue(0)
+                                viewModel.mediaPosition.postValue(Pair(0, 0))
                             }
                             // This else clause handles the issue where the firs message in the chat failed
                             // to be sent or uploaded. It would remain in the list otherwise.
@@ -626,7 +624,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
 
                     Resource.Status.LOADING -> {
-                        Timber.d("Message get loading")
                     }
 
                     else -> {
@@ -839,7 +836,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
         ) {
             scrollToPosition()
-            bindingSetup.cvBottomArrow.visibility = View.GONE
+            bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
         } else {
             bindingSetup.cvBottomArrow.visibility = View.VISIBLE
         }
@@ -848,7 +845,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun showNewMessage() {
         valueAnimator?.end()
         valueAnimator?.removeAllUpdateListeners()
-        bindingSetup.cvBottomArrow.visibility = View.GONE
+        bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
 
         // If we received message and keyboard is open:
         if (heightDiff >= MIN_HEIGHT_DIFF && scrollYDistance > SCROLL_DISTANCE_POSITIVE) {
@@ -901,7 +898,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 bindingSetup.cvNewMessages.visibility = View.INVISIBLE
                 bindingSetup.cvBottomArrow.visibility = View.VISIBLE
             } else {
-                bindingSetup.cvBottomArrow.visibility = View.GONE
+                bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
             }
         }
     }
@@ -970,7 +967,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 // This condition checks if the RecyclerView is at the bottom
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     bindingSetup.cvNewMessages.visibility = View.INVISIBLE
-                    bindingSetup.cvBottomArrow.visibility = View.GONE
+                    bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
                     newMessagesCount = 0
                     scrollYDistance = 0
                 }
@@ -1205,7 +1202,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun handleMediaNavigation(chatMessage: MessageAndRecords) {
         val mediaPosition = chatAdapter.currentList.indexOf(chatMessage)
-        viewModel.mediaPosition.postValue(mediaPosition)
+        viewModel.mediaPosition.postValue(Pair(mediaPosition, scrollYDistance))
 
         val mediaInfo: String = if (chatMessage.message.fromUserId == localUserId) {
             context!!.getString(
@@ -1227,6 +1224,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 mediaInfo = mediaInfo,
                 message = chatMessage.message
             )
+
         findNavController().navigate(action)
     }
 
