@@ -35,6 +35,7 @@ import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
+import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*

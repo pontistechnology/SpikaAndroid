@@ -1,9 +1,11 @@
 package com.clover.studio.spikamessenger.data.repositories.data_sources
 
+import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.data.services.OnboardingService
 import com.clover.studio.spikamessenger.utils.Tools.getHeaderMap
 import com.clover.studio.spikamessenger.utils.helpers.BaseDataSource
+import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.gson.JsonObject
 import javax.inject.Inject
 

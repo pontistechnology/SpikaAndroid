@@ -70,7 +70,7 @@ class OnboardingRepositoryImpl @Inject constructor(
     }
 }
 
-interface OnboardingRepository: BaseRepository {
+interface OnboardingRepository : BaseRepository {
     suspend fun sendUserData(jsonObject: JsonObject): Resource<AuthResponse>
     suspend fun verifyUserCode(jsonObject: JsonObject): Resource<AuthResponse>
     suspend fun sendUserContacts(contacts: List<String>): Resource<AuthResponse>

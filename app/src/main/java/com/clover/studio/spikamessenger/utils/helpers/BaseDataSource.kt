@@ -1,5 +1,6 @@
 package com.clover.studio.spikamessenger.utils.helpers
 
+import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
 import com.clover.studio.spikamessenger.utils.Tools
 import retrofit2.Response
 import timber.log.Timber

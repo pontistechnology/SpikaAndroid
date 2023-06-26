@@ -12,6 +12,7 @@ import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndReco
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.responses.AuthResponse
+import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
 import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository

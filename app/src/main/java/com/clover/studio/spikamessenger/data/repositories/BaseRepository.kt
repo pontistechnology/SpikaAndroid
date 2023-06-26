@@ -1,14 +1,14 @@
 package com.clover.studio.spikamessenger.data.repositories
 
-import com.clover.studio.exampleapp.MainApplication
-import com.clover.studio.exampleapp.data.daos.UserDao
-import com.clover.studio.exampleapp.data.models.entity.User
-import com.clover.studio.exampleapp.data.models.networking.responses.ContactsSyncResponse
-import com.clover.studio.exampleapp.utils.Const
-import com.clover.studio.exampleapp.utils.Tools
-import com.clover.studio.exampleapp.utils.helpers.BaseDataSource
-import com.clover.studio.exampleapp.utils.helpers.Resource
-import com.clover.studio.exampleapp.utils.helpers.RestOperations
+import com.clover.studio.spikamessenger.MainApplication
+import com.clover.studio.spikamessenger.data.daos.UserDao
+import com.clover.studio.spikamessenger.data.models.entity.User
+import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
+import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.Tools
+import com.clover.studio.spikamessenger.utils.helpers.BaseDataSource
+import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.clover.studio.spikamessenger.utils.helpers.RestOperations
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 

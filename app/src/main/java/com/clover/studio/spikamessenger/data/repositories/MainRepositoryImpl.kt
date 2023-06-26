@@ -14,6 +14,7 @@ import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.responses.AuthResponse
+import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.FileResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.Settings
@@ -362,7 +363,7 @@ class MainRepositoryImpl @Inject constructor(
     }
 }
 
-interface MainRepository: BaseRepository {
+interface MainRepository : BaseRepository {
     // User calls
     suspend fun getUserByID(id: Int): LiveData<Resource<User>>
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
