@@ -27,6 +27,12 @@ android {
             keyAlias 'release'
             keyPassword 'spika1234'
         }
+        messenger {
+            storeFile file('/Library/Android/messenger-keystore')
+            storePassword 'spikaMessenger1234'
+            keyAlias 'messenger'
+            keyPassword 'spikaMessenger1234'
+        }
     }
     compileSdk 33
 
@@ -107,6 +113,33 @@ android {
             buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
 
             signingConfig signingConfigs.release
+        }
+
+        messengerDebug {
+            applicationIdSuffix ".messenger"
+            versionNameSuffix "_messengerDebug"
+
+            debuggable true
+            minifyEnabled false
+
+            resValue "string", "APP_NAME", "Spika Messenger"
+            buildConfigField("String", "SERVER_URL", "\"https://messenger-dev.spika.chat/\"")
+
+            signingConfig signingConfigs.release
+        }
+
+        messenger {
+            applicationIdSuffix ".messenger"
+
+            debuggable false
+            minifyEnabled false
+
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            resValue "string", "APP_NAME", "Spika Messenger"
+            buildConfigField("String", "SERVER_URL", "\"https://messenger-dev.spika.chat/\"")
+
+            signingConfig signingConfigs.messenger
         }
     }
     compileOptions {
