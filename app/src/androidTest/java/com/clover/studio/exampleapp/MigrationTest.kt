@@ -1,4 +1,4 @@
-package com.clover.studio.exampleapp
+package com.clover.studio.spikamessenger
 
 import androidx.room.migration.Migration
 import androidx.room.testing.MigrationTestHelper
@@ -6,7 +6,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.clover.studio.exampleapp.data.AppDatabase
+import com.clover.studio.spikamessenger.data.AppDatabase
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test

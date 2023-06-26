@@ -35,7 +35,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.clover.studio.exampleapp"
+        applicationId "com.clover.studio.spikamessenger"
         minSdk 24
         targetSdk 33
         versionCode 100023
@@ -83,7 +83,7 @@ android {
         }
 
         releaseDebug {
-            applicationIdSuffix ".debug"
+            applicationIdSuffix ".release"
             versionNameSuffix "_releaseDebug"
 
             debuggable true
@@ -96,7 +96,7 @@ android {
         }
 
         release {
-            applicationIdSuffix ".debug"
+            applicationIdSuffix ".release"
 
             debuggable false
             minifyEnabled false
