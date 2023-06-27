@@ -15,9 +15,15 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.AuthRes
 import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
 import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.SSERepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.ui.main.chat.MediaUploadVerified
-import com.clover.studio.spikamessenger.utils.*
+import com.clover.studio.spikamessenger.utils.Event
+import com.clover.studio.spikamessenger.utils.FileUploadListener
+import com.clover.studio.spikamessenger.utils.SSEListener
+import com.clover.studio.spikamessenger.utils.SSEManager
+import com.clover.studio.spikamessenger.utils.Tools
+import com.clover.studio.spikamessenger.utils.UploadDownloadManager
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +41,7 @@ class MainViewModel @Inject constructor(
     private val repository: MainRepositoryImpl,
     private val sharedPrefsRepo: SharedPreferencesRepository,
     private val sseManager: SSEManager,
+    private val sseRepository: SSERepositoryImpl,
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel(), SSEListener {
     val usersListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
@@ -294,7 +301,15 @@ class MainViewModel @Inject constructor(
     }
 
     fun syncContacts() = CoroutineScope(Dispatchers.IO).launch {
-        resolveResponseStatus(contactSyncListener, repository.syncContacts(shouldRefresh = true))
+        if (sharedPrefsRepo.isTeamMode()) {
+            sseRepository.syncUsers()
+            contactSyncListener.postValue(Event(Resource(Resource.Status.SUCCESS, null, null)))
+        } else {
+            resolveResponseStatus(
+                contactSyncListener,
+                repository.syncContacts(shouldRefresh = true)
+            )
+        }
     }
 }
 
