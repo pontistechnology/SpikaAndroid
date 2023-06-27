@@ -16,10 +16,7 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file('/Library/Android/release-keystore')
-            storePassword 'spika1234'
-            keyAlias 'release'
-            keyPassword 'spika1234'
+            storeFile file('/Library/Android/debug.keystore')
         }
         release {
             storeFile file('/Library/Android/release-keystore')
@@ -98,7 +95,7 @@ android {
             resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
 
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
 
         release {
@@ -125,7 +122,7 @@ android {
             resValue "string", "APP_NAME", "Spika Messenger"
             buildConfigField("String", "SERVER_URL", "\"https://messenger-dev.spika.chat/\"")
 
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
 
         messenger {
