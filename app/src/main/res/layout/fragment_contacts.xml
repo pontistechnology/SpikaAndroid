@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clickable="true"
-    android:focusableInTouchMode="true"
-    tools:context=".ui.main.rooms.RoomsFragment">
+    android:orientation="vertical"
+    tools:context=".ui.main.contacts.ContactsFragment">
 
     <TextView
         android:id="@+id/tv_screen_name"
@@ -16,9 +15,7 @@
         android:layout_marginTop="@dimen/eight_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/contacts"
-        android:textSize="@dimen/twenty_eight_sp_text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="@dimen/twenty_eight_sp_text" />
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/sv_contacts_search"
@@ -27,25 +24,18 @@
         android:layout_margin="@dimen/twenty_dp_margin"
         android:background="@drawable/bg_search_field"
         android:backgroundTint="@color/message_other"
-        app:layout_constraintBottom_toTopOf="@id/srlRefreshContacts"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_screen_name"
         app:queryBackground="@android:color/transparent"
         app:queryHint="@string/call_history_search_hint" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/srlRefreshContacts"
+        android:id="@+id/srl_refresh_contacts"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sv_contacts_search">
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_contacts"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

@@ -10,12 +10,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.databinding.FragmentContactsBinding
-import com.clover.studio.spikamessenger.ui.main.*
+import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
@@ -26,7 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class ContactsFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
+class ContactsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var contactsAdapter: ContactsAdapter
     private lateinit var userList: MutableList<UserAndPhoneUser>
@@ -55,7 +54,10 @@ class ContactsFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     }
 
     private fun setupSwipeToRefresh() {
-        binding.srlRefreshContacts.setOnRefreshListener(this)
+        binding.srlRefreshContacts.setOnRefreshListener {
+            viewModel.syncContacts()
+        }
+        binding.srlRefreshContacts.isEnabled = true
     }
 
     private fun initializeObservers() {
@@ -226,9 +228,5 @@ class ContactsFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     override fun onResume() {
         super.onResume()
         setupSearchView()
-    }
-
-    override fun onRefresh() {
-        viewModel.syncContacts()
     }
 }
