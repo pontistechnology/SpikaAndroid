@@ -79,7 +79,7 @@
             app:nullable="true" />
         <argument
             android:name="message"
-            app:argType="com.clover.studio.exampleapp.data.models.entity.Message" />
+            app:argType="com.clover.studio.spikamessenger.data.models.entity.Message" />
     </fragment>
     <fragment
         android:id="@+id/notesFragment"
