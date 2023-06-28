@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.clover.studio.exampleapp">
+    package="com.clover.studio.spikamessenger">
 
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
 
@@ -15,7 +15,7 @@
         android:required="false" />
 
     <application
-        android:name=".MainApplication"
+        android:name="com.clover.studio.spikamessenger.MainApplication"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
@@ -26,14 +26,14 @@
         android:theme="@style/Theme.ExampleApp"
         tools:replace="android:allowBackup, android:label">
         <activity
-            android:name=".ui.main.chat.ChatScreenActivity"
+            android:name="com.clover.studio.spikamessenger.ui.main.chat.ChatScreenActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"
-            android:parentActivityName=".ui.main.MainActivity"
+            android:parentActivityName="com.clover.studio.spikamessenger.ui.main.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.splash.SplashActivity"
+            android:name="com.clover.studio.spikamessenger.ui.splash.SplashActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
@@ -44,12 +44,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.onboarding.OnboardingActivity"
+            android:name="com.clover.studio.spikamessenger.ui.onboarding.OnboardingActivity"
             android:exported="false"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name="com.clover.studio.spikamessenger.ui.main.MainActivity"
             android:exported="false"
             android:finishOnTaskLaunch="true"
             android:launchMode="singleTask"
@@ -66,7 +66,7 @@
         </provider>
 
         <service
-            android:name=".utils.MyFirebaseMessagingService"
+            android:name="com.clover.studio.spikamessenger.utils.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -74,7 +74,7 @@
         </service>
 
         <receiver
-            android:name=".utils.SmsReceiver"
+            android:name="com.clover.studio.spikamessenger.utils.SmsReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
@@ -82,6 +82,11 @@
                 <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".utils.helpers.PhonebookService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>

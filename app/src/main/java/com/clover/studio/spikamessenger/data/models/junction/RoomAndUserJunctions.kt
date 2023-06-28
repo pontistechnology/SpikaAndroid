@@ -1,0 +1,31 @@
+package com.clover.studio.spikamessenger.data.models.junction
+
+import android.os.Parcelable
+import androidx.room.Embedded
+import androidx.room.Junction
+import androidx.room.Relation
+import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
+import com.clover.studio.spikamessenger.data.models.entity.User
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class UserWithRooms(
+    @Embedded val user: User,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "room_id",
+        associateBy = Junction(RoomUser::class)
+    )
+    val chatRooms: List<ChatRoom>
+) : Parcelable
+
+@Parcelize
+data class RoomWithUsers(
+    @Embedded val room: ChatRoom,
+    @Relation(
+        parentColumn = "room_id",
+        entityColumn = "id",
+        associateBy = Junction(RoomUser::class)
+    )
+    val users: List<User>
+) : Parcelable

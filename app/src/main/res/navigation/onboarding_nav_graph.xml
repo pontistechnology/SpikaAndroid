@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.clover.studio.exampleapp.ui.onboarding.number_registration.RegisterNumberFragment"
+        android:name="com.clover.studio.spikamessenger.ui.onboarding.number_registration.RegisterNumberFragment"
         android:label="fragment_splash"
         tools:layout="@layout/fragment_register_number" >
         <action
@@ -32,7 +32,7 @@
     </fragment>
     <fragment
         android:id="@+id/countryPickerFragment"
-        android:name="com.clover.studio.exampleapp.ui.onboarding.country_picker.CountryPickerFragment"
+        android:name="com.clover.studio.spikamessenger.ui.onboarding.country_picker.CountryPickerFragment"
         android:label="fragment_country_picker"
         tools:layout="@layout/fragment_country_picker" >
         <action
@@ -45,7 +45,7 @@
     </fragment>
     <fragment
         android:id="@+id/verificationFragment"
-        android:name="com.clover.studio.exampleapp.ui.onboarding.verification.VerificationFragment"
+        android:name="com.clover.studio.spikamessenger.ui.onboarding.verification.VerificationFragment"
         android:label="VerificationFragment" >
         <action
             android:id="@+id/action_verificationFragment_to_accountCreationFragment"
@@ -57,7 +57,7 @@
     </fragment>
     <fragment
         android:id="@+id/accountCreationFragment"
-        android:name="com.clover.studio.exampleapp.ui.onboarding.account_creation.AccountCreationFragment"
+        android:name="com.clover.studio.spikamessenger.ui.onboarding.account_creation.AccountCreationFragment"
         android:label="fragment_account_creation"
         tools:layout="@layout/fragment_account_creation" />
 </navigation>
