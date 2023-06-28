@@ -1,18 +1,11 @@
 package com.clover.studio.spikamessenger.utils.helpers
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.Service
-import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
-import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.FileUploadListener
@@ -22,7 +15,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -39,22 +31,9 @@ class UploadService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val items = intent?.getParcelableArrayListExtra<FileData>("files")
 
-        // Create a notification channel (required for Android Oreo and above)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId = "upload_channel"
-            val channelName = "Upload Service Channel"
-            val channel =
-                NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
-            channel.lightColor = Color.BLUE
-            channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-            val notificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-
         val notification = NotificationCompat.Builder(this, "upload_channel")
-            .setContentTitle("Uploading files")
-            .setContentText("Uploading in progress...")
+            .setContentTitle(getString(R.string.uploading_files))
+            .setContentText(getString(R.string.upload_in_progress_notification))
             .setSmallIcon(R.drawable.img_spika_push_black)
             .build()
 
@@ -78,17 +57,11 @@ class UploadService : Service() {
 
     private suspend fun uploadItems(items: List<FileData>) {
         for (item in items) {
-            // Synchronous upload logic for each item
-            // Implement your own upload logic here
             uploadItem(item)
         }
     }
 
     private suspend fun uploadItem(item: FileData) {
-        // Implement your own upload logic here
-        // For example, you can use Retrofit, OkHttp, or other libraries
-        // to send the item to the web server
-        // You can also handle the response from the server if needed
         uploadDownloadManager.uploadFile(item, object : FileUploadListener {
             override fun filePieceUploaded() {
 
