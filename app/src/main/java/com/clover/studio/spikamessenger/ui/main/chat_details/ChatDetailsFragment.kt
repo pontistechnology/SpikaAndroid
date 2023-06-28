@@ -407,7 +407,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
+        viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.LOADING -> {
                     if (progress <= uploadPieces) {
@@ -566,7 +566,7 @@ class ChatDetailsFragment : BaseFragment() {
             binding.progressBar.max = uploadPieces
             Timber.d("File upload start")
             isUploading = true
-            viewModel.uploadMedia(
+            viewModel.uploadFile(
                 FileData(
                     currentPhotoLocation,
                     Const.JsonFields.AVATAR_TYPE,

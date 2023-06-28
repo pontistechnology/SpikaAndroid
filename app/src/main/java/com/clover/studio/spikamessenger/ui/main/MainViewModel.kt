@@ -17,7 +17,7 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.RoomRes
 import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SSERepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
-import com.clover.studio.spikamessenger.ui.main.chat.MediaUploadVerified
+import com.clover.studio.spikamessenger.ui.main.chat.FileUploadVerified
 import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.SSEListener
@@ -50,7 +50,7 @@ class MainViewModel @Inject constructor(
     val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
-    val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
+    val mediaUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
     val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
     val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
     val deleteUserListener = MutableLiveData<Event<Resource<DeleteUserResponse?>>>()
@@ -253,7 +253,7 @@ class MainViewModel @Inject constructor(
                         fileType: String,
                         messageBody: MessageBody?
                     ) {
-                        val response = MediaUploadVerified(
+                        val response = FileUploadVerified(
                             path,
                             mimeType,
                             thumbId,

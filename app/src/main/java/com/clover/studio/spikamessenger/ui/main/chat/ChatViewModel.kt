@@ -46,7 +46,6 @@ class ChatViewModel @Inject constructor(
     val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
-    val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val noteDeletionListener = MutableLiveData<Event<NoteDeletion>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
@@ -356,14 +355,14 @@ class ChatViewModel @Inject constructor(
                 object : FileUploadListener {
                     override fun filePieceUploaded() {
                         resolveResponseStatus(
-                            mediaUploadListener,
-                            Resource(Resource.Status.LOADING, null, fileData.isThumbnail.toString())
+                            fileUploadListener,
+                            Resource(Resource.Status.LOADING, null, isThumbnail.toString())
                         )
                     }
 
                     override fun fileUploadError(description: String) {
                         resolveResponseStatus(
-                            mediaUploadListener,
+                            fileUploadListener,
                             Resource(Resource.Status.ERROR, null, description)
                         )
                     }
@@ -376,7 +375,7 @@ class ChatViewModel @Inject constructor(
                         fileType: String,
                         messageBody: MessageBody?
                     ) {
-                        val response = MediaUploadVerified(
+                        val response = FileUploadVerified(
                             path,
                             mimeType,
                             thumbId,
@@ -386,14 +385,14 @@ class ChatViewModel @Inject constructor(
                             fileData.isThumbnail
                         )
                         resolveResponseStatus(
-                            mediaUploadListener,
+                            fileUploadListener,
                             Resource(Resource.Status.SUCCESS, response, "")
                         )
                     }
                 })
         } catch (ex: Exception) {
             resolveResponseStatus(
-                mediaUploadListener,
+                fileUploadListener,
                 Resource(Resource.Status.ERROR, null, ex.message.toString())
             )
         }
@@ -403,15 +402,6 @@ class ChatViewModel @Inject constructor(
 class RoomNotificationData(val response: Resource<RoomWithUsers>, val message: Message)
 class NoteDeletion(val response: Resource<NotesResponse>)
 class FileUploadVerified(
-    val path: String,
-    val mimeType: String,
-    val thumbId: Long,
-    val fileId: Long,
-    val fileType: String,
-    val messageBody: MessageBody?
-)
-
-class MediaUploadVerified(
     val path: String,
     val mimeType: String,
     val thumbId: Long,
