@@ -170,14 +170,14 @@ class MediaFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
-        if (message?.type == Const.JsonFields.VIDEO_TYPE) {
+        if (Const.JsonFields.VIDEO_TYPE == message?.type) {
             initializeVideo()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (message?.type == Const.JsonFields.VIDEO_TYPE) {
+        if (Const.JsonFields.VIDEO_TYPE == message?.type) {
             initializeVideo()
         }
     }
@@ -205,6 +205,7 @@ private fun playbackStateListener() = object : Player.Listener {
     }
 }
 
+/** This method will be used later to download media items from MediaFragment*/
 // private fun downloadMedia() {
 //        val request = Request.Builder()
 //            .url("")

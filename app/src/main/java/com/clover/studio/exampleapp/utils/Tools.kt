@@ -534,7 +534,7 @@ object Tools {
         return imagePath
     }
 
-     fun getMediaFile(context: Context, message: Message) : String{
+    fun getMediaFile(context: Context, message: Message): String {
         val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
         val file = File(mediaPath)
@@ -548,7 +548,7 @@ object Tools {
         return mediaPath
     }
 
-    fun deleteTemporaryMedia(context: Context){
+    fun deleteTemporaryMedia(context: Context) {
         val imagesDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         imagesDirectory?.listFiles { _, name -> name.startsWith("JPEG") }?.forEach { file ->
             file.delete()
@@ -559,142 +559,6 @@ object Tools {
             file.delete()
         }
     }
-
-//    private fun compressImageFile(file: File) {
-//        val originalBitmap = decodeFile(file)
-//
-//        val outputStream = FileOutputStream(file)
-//        originalBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-//
-//        outputStream.flush()
-//        outputStream.close()
-//    }
-
-//    private fun decodeFile(f: File): Bitmap {
-//        var b: Bitmap? = null
-//
-//        // Decode image size
-//        val o = BitmapFactory.Options()
-//        o.inJustDecodeBounds = true
-//        var fis: FileInputStream? = null
-//        try {
-//            fis = FileInputStream(f)
-//            BitmapFactory.decodeStream(fis, null, o)
-//            fis.close()
-//        } catch (e: FileNotFoundException) {
-//            e.printStackTrace()
-//        } catch (e: IOException) {
-//            e.printStackTrace()
-//        }
-//        val IMAGE_MAX_SIZE = 1024
-//        var scale = 1
-//        if (o.outHeight > IMAGE_MAX_SIZE || o.outWidth > IMAGE_MAX_SIZE) {
-//            scale = 2.0.pow(
-//                ceil(
-//                    ln(
-//                        IMAGE_MAX_SIZE / o.outHeight.coerceAtLeast(o.outWidth).toDouble()
-//                    ) / ln(0.5)
-//                ).toInt().toDouble()
-//            ).toInt()
-//        }
-//
-//        // Decode with inSampleSize
-//        val o2 = BitmapFactory.Options()
-//        o2.inSampleSize = scale
-//        try {
-//            fis = FileInputStream(f)
-//            b = BitmapFactory.decodeStream(fis, null, o2)
-//            fis.close()
-//        } catch (e: FileNotFoundException) {
-//            e.printStackTrace()
-//        } catch (e: IOException) {
-//            e.printStackTrace()
-//        }
-//        Timber.d("Width: ${b!!.width}, Height: ${b.height}")
-//
-//        return b
-//    }
 }
 
-
-//    private fun calculateInSampleSize(
-//        options: BitmapFactory.Options,
-//    ): Int {
-//        // Raw height and width of image
-//        val height = options.outHeight
-//        val width = options.outWidth
-//        var inSampleSize = 1
-//        if (height > BITMAP_HEIGHT || width > BITMAP_WIDTH) {
-//
-//            // Calculate ratios of height and width to requested height and width
-//            val heightRatio = (height.toFloat() / BITMAP_HEIGHT.toFloat()).roundToInt()
-//            val widthRatio = (width.toFloat() / BITMAP_WIDTH.toFloat()).roundToInt()
-//
-//            // Choose the smallest ratio as inSampleSize value, this will guarantee a final image
-//            // with both dimensions larger than or equal to the requested height and width.
-//            inSampleSize = if (heightRatio < widthRatio) heightRatio else widthRatio
-//
-//            // This offers some additional logic in case the image has a strange
-//            // aspect ratio. For example, a panorama may have a much larger
-//            // width than height. In these cases the total pixels might still
-//            // end up being too large to fit comfortably in memory, so we should
-//            // be more aggressive with sample down the image (=larger inSampleSize).
-//            val totalPixels = (width * height).toFloat()
-//
-//            // Anything more than 2x the requested pixels we'll sample down further
-//            val totalReqPixelsCap = (BITMAP_WIDTH * BITMAP_HEIGHT * 2).toFloat()
-//            while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
-//                inSampleSize++
-//            }
-//        }
-//        return inSampleSize
-//    }
-
-//        fun createCustomNotification(
-//        activity: Activity,
-//        title: String?,
-//        text: String?,
-//        imageUrl: String?,
-//        roomId: Int?
-//    ) {
-//        val remoteViews = RemoteViews(activity.packageName, R.layout.dialog_notification)
-//        remoteViews.setImageViewUri(R.id.iv_user_image, imageUrl?.toUri())
-//        remoteViews.setTextViewText(R.id.tv_title, title)
-//        remoteViews.setTextViewText(R.id.tv_message, text)
-//
-//        val builder = NotificationCompat.Builder(activity, CHANNEL_ID)
-//            .setSmallIcon(R.drawable.img_spika_logo)
-//            .setContentTitle(title)
-//            .setContentText(text)
-//            .setPriority(NotificationCompat.PRIORITY_HIGH)
-//            .setCustomContentView(remoteViews)
-//        with(NotificationManagerCompat.from(activity)) {
-//            // notificationId is a unique int for each notification that you must define
-//            roomId?.let { notify(it, builder.build()) }
-//        }
-//    }
-
-//    fun createCustomNotification(
-//        activity: Activity,
-//        title: String?,
-//        text: String?,
-//        imageUrl: String?,
-//        roomId: Int?
-//    ) {
-//        val remoteViews = RemoteViews(activity.packageName, R.layout.dialog_notification)
-//        remoteViews.setImageViewUri(R.id.iv_user_image, imageUrl?.toUri())
-//        remoteViews.setTextViewText(R.id.tv_title, title)
-//        remoteViews.setTextViewText(R.id.tv_message, text)
-//
-//        val builder = NotificationCompat.Builder(activity, CHANNEL_ID)
-//            .setSmallIcon(R.drawable.img_spika_logo)
-//            .setContentTitle(title)
-//            .setContentText(text)
-//            .setPriority(NotificationCompat.PRIORITY_HIGH)
-//            .setCustomContentView(remoteViews)
-//        with(NotificationManagerCompat.from(activity)) {
-//            // notificationId is a unique int for each notification that you must define
-//            roomId?.let { notify(it, builder.build()) }
-//        }
-//    }
 
