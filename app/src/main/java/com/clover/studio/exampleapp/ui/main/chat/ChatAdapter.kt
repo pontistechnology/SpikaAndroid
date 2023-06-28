@@ -121,29 +121,25 @@ class ChatAdapter(
 
                     Const.JsonFields.IMAGE_TYPE -> {
                         setViewsVisibility(holder.binding.clImageChat, holder)
+                        bindImage(it, holder.binding.ivChatImage, holder.binding.clImageChat)
 
                         /** Uploading image: */
                         if (it.message.body?.file?.uri != null) {
                             holder.binding.clProgressScreen.visibility = View.VISIBLE
-                            loadMedia(
-                                context,
-                                it.message.body.file?.uri!!,
-                                holder.binding.ivChatImage,
-                                AppCompatResources.getDrawable(
-                                    context,
-                                    R.drawable.img_image_placeholder
-                                )
-                            )
-                            // Update the progress bar of the media item currently being uploaded
                             holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
                         } else {
                             holder.binding.clProgressScreen.visibility = View.GONE
-                            bindImage(
-                                it,
-                                holder.binding.ivChatImage,
-                                holder.binding.clContainer
-                            )
                         }
+                    }
+
+                    Const.JsonFields.VIDEO_TYPE -> {
+                        setViewsVisibility(holder.binding.clVideos, holder)
+                        bindVideo(
+                            it,
+                            holder.binding.ivVideoThumbnail,
+                            holder.binding.clVideos,
+                            holder.binding.ivPlayButton
+                        )
                     }
 
                     Const.JsonFields.FILE_TYPE -> {
@@ -161,7 +157,7 @@ class ChatAdapter(
                             holder.binding.fileLayout.tvFileTitle.text =
                                 it!!.message.body?.file?.fileName
                             holder.binding.fileLayout.tvFileSize.text =
-                                Tools.calculateFileSize(it.message.body.file?.size!!).toString()
+                                Tools.calculateFileSize(it.message.body.file?.size!!)
                             holder.binding.fileLayout.pbFile.secondaryProgress =
                                 it.message.uploadProgress
                             holder.binding.fileLayout.ivCancelFile.setOnClickListener { _ ->
@@ -178,16 +174,6 @@ class ChatAdapter(
                                 holder.binding.fileLayout.ivDownloadFile
                             )
                         }
-                    }
-
-                    Const.JsonFields.VIDEO_TYPE -> {
-                        setViewsVisibility(holder.binding.clVideos, holder)
-                        bindVideo(
-                            it,
-                            holder.binding.ivVideoThumbnail,
-                            holder.binding.clVideos,
-                            holder.binding.ivPlayButton
-                        )
                     }
 
                     Const.JsonFields.AUDIO_TYPE -> {
@@ -303,7 +289,7 @@ class ChatAdapter(
                         bindImage(
                             it,
                             holder.binding.ivChatImage,
-                            holder.binding.clContainer
+                            holder.binding.clImageChat
                         )
                     }
 
@@ -395,10 +381,6 @@ class ChatAdapter(
                                 context,
                                 userPath!!,
                                 holder.binding.ivUserImage,
-                                AppCompatResources.getDrawable(
-                                    context,
-                                    R.drawable.img_user_placeholder
-                                )
                             )
                         }
                     }
@@ -477,22 +459,20 @@ class ChatAdapter(
         ivChatImage: ImageView,
         clContainer: ConstraintLayout
     ) {
-
-        val imagePath = chatMessage.message.body?.thumb?.id?.let { imagePath ->
-            Tools.getFilePathUrl(
-                imagePath
-            )
-        }
-
+        val mediaPath = Tools.getMediaFile(context, chatMessage.message)
         loadMedia(
             context,
-            imagePath!!,
+            mediaPath,
             ivChatImage,
-            AppCompatResources.getDrawable(context, R.drawable.img_image_placeholder)
         )
 
         clContainer.setOnClickListener {
             onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
+        }
+
+        clContainer.setOnLongClickListener {
+            onMessageInteraction(Const.UserActions.MESSAGE_ACTION, chatMessage)
+            true
         }
 
         return
@@ -504,17 +484,11 @@ class ChatAdapter(
         clVideos: ConstraintLayout,
         ivPlayButton: ImageView
     ) {
-        val videoThumb = chatMessage.message.body?.thumb?.id?.let { videoThumb ->
-            Tools.getFilePathUrl(
-                videoThumb
-            )
-        }
-
+        val mediaPath = Tools.getMediaFile(context, chatMessage.message)
         loadMedia(
             context,
-            videoThumb!!,
+            mediaPath,
             ivVideoThumbnail,
-            AppCompatResources.getDrawable(context, R.drawable.img_camera_black)
         )
 
         clVideos.visibility = View.VISIBLE
@@ -536,7 +510,6 @@ class ChatAdapter(
         tvFileTitle.text = it!!.message.body?.file?.fileName
         val sizeText =
             Tools.calculateFileSize(it.message.body?.file?.size!!)
-                .toString()
         tvFileSize.text = sizeText
 
         ivDownloadFile.setOnTouchListener { _, event ->

@@ -13,7 +13,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.clover.studio.exampleapp.data.models.entity.Message
 import com.clover.studio.exampleapp.databinding.FragmentMediaBinding
+import com.clover.studio.exampleapp.utils.Const
+import com.clover.studio.exampleapp.utils.Tools
 import com.clover.studio.exampleapp.utils.extendables.BaseFragment
 import com.clover.studio.exampleapp.utils.helpers.MediaPlayer
 
@@ -32,15 +35,13 @@ class MediaFragment : BaseFragment() {
     private var playbackPosition = 0L
     private val playbackStateListener: Player.Listener = playbackStateListener()
 
-    private var videoPath: String? = null
-    private var imagePath: String? = null
     private var mediaInfo: String? = null
+    private var message: Message? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        videoPath = args.videoPath
-        imagePath = args.picturePath
         mediaInfo = args.mediaInfo
+        message = args.message
     }
 
     override fun onCreateView(
@@ -51,10 +52,11 @@ class MediaFragment : BaseFragment() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         initializeViews()
         initializeListeners()
-        if (imagePath?.isEmpty() == true) {
-            initializeVideo()
-        } else {
+
+        if (message?.type == Const.JsonFields.IMAGE_TYPE) {
             initializePicture()
+        } else {
+            initializeVideo()
         }
 
         return binding.root
@@ -85,17 +87,24 @@ class MediaFragment : BaseFragment() {
     }
 
     private fun showBar() {
-        val showBars = binding.clTopBar.visibility == View.GONE && binding.flBottomBar.visibility == View.GONE
-        binding.clTopBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION).withEndAction {
-            binding.clTopBar.visibility = if (showBars) View.VISIBLE else View.GONE
-        }.start()
+        val showBars =
+            binding.clTopBar.visibility == View.GONE && binding.flBottomBar.visibility == View.GONE
+        binding.clTopBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION)
+            .withEndAction {
+                binding.clTopBar.visibility = if (showBars) View.VISIBLE else View.GONE
+            }.start()
 
-        binding.flBottomBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION).withEndAction {
-            binding.flBottomBar.visibility = if (showBars) View.VISIBLE else View.GONE
-        }.start()
+        binding.flBottomBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION)
+            .withEndAction {
+                binding.flBottomBar.visibility = if (showBars) View.VISIBLE else View.GONE
+            }.start()
     }
 
     private fun initializePicture() {
+        val imagePath = message?.body?.fileId?.let {
+            Tools.getFilePathUrl(it)
+        }.toString()
+
         binding.clVideoLoading.visibility = View.GONE
         binding.clVideoContainer.visibility = View.GONE
 
@@ -107,6 +116,12 @@ class MediaFragment : BaseFragment() {
     }
 
     private fun initializeVideo() {
+        val videoPath = message?.body?.file?.id.let {
+            Tools.getFilePathUrl(
+                it!!
+            )
+        }.toString()
+
         binding.clImageContainer.visibility = View.GONE
         binding.clVideoLoading.visibility = View.VISIBLE
 
@@ -155,14 +170,14 @@ class MediaFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
-        if (imagePath?.isEmpty() == true) {
+        if (Const.JsonFields.VIDEO_TYPE == message?.type) {
             initializeVideo()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (imagePath?.isEmpty() == true) {
+        if (Const.JsonFields.VIDEO_TYPE == message?.type) {
             initializeVideo()
         }
     }
@@ -189,3 +204,33 @@ private fun playbackStateListener() = object : Player.Listener {
         }
     }
 }
+
+/** This method will be used later to download media items from MediaFragment*/
+// private fun downloadMedia() {
+//        val request = Request.Builder()
+//            .url("")
+//            .build()
+//
+//        val client = OkHttpClient()
+//        client.newCall(request).enqueue(object : Callback {
+//            override fun onFailure(call: Call, e: IOException) {
+//                e.printStackTrace()
+//            }
+//
+//            override fun onResponse(call: Call, response: Response) {
+//                val inputStream = response.body?.byteStream()
+//                val file = File(
+//                    context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+//                    "localId.${Const.FileExtensions.JPG}"
+//                )
+//
+//                val outputStream = FileOutputStream(file)
+//                inputStream?.use { input ->
+//                    outputStream.use { output ->
+//                        input.copyTo(output)
+//                    }
+//                }
+//                outputStream.close()
+//            }
+//        })
+//    }
