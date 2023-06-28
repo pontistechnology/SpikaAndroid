@@ -16,16 +16,19 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file('/Library/Android/release-keystore')
-            storePassword 'spika1234'
-            keyAlias 'release'
-            keyPassword 'spika1234'
+            storeFile file('/Library/Android/debug.keystore')
         }
         release {
             storeFile file('/Library/Android/release-keystore')
             storePassword 'spika1234'
             keyAlias 'release'
             keyPassword 'spika1234'
+        }
+        messenger {
+            storeFile file('/Library/Android/messenger-keystore')
+            storePassword 'spikaMessenger1234'
+            keyAlias 'messenger'
+            keyPassword 'spikaMessenger1234'
         }
     }
     compileSdk 33
@@ -35,7 +38,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.clover.studio.exampleapp"
+        applicationId "com.clover.studio.spikamessenger"
         minSdk 24
         targetSdk 33
         versionCode 100023
@@ -83,7 +86,7 @@ android {
         }
 
         releaseDebug {
-            applicationIdSuffix ".debug"
+            applicationIdSuffix ".release"
             versionNameSuffix "_releaseDebug"
 
             debuggable true
@@ -92,11 +95,11 @@ android {
             resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
 
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
 
         release {
-            applicationIdSuffix ".debug"
+            applicationIdSuffix ".release"
 
             debuggable false
             minifyEnabled false
@@ -107,6 +110,33 @@ android {
             buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
 
             signingConfig signingConfigs.release
+        }
+
+        messengerDebug {
+            applicationIdSuffix ".messenger"
+            versionNameSuffix "_messengerDebug"
+
+            debuggable true
+            minifyEnabled false
+
+            resValue "string", "APP_NAME", "Spika Messenger"
+            buildConfigField("String", "SERVER_URL", "\"https://messenger-dev.spika.chat/\"")
+
+            signingConfig signingConfigs.debug
+        }
+
+        messenger {
+            applicationIdSuffix ".messenger"
+
+            debuggable false
+            minifyEnabled false
+
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            resValue "string", "APP_NAME", "Spika Messenger"
+            buildConfigField("String", "SERVER_URL", "\"https://messenger-dev.spika.chat/\"")
+
+            signingConfig signingConfigs.messenger
         }
     }
     compileOptions {

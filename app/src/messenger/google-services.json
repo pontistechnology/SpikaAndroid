@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "715689517757",
+    "project_id": "spika-messenger-dev",
+    "storage_bucket": "spika-messenger-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:715689517757:android:3e4fb8decb0a88a44c0dd4",
+        "android_client_info": {
+          "package_name": "com.clover.studio.spikamessenger.messenger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "715689517757-40q04c4n1cltr1dp6jjdc2qo1ckldugi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBTdmlDCLNTGrK5peJ6_jWLc9bfF7ROvk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "715689517757-40q04c4n1cltr1dp6jjdc2qo1ckldugi.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "715689517757-vicebe9517pk78qff2f7c59rqdd6mn90.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "studio.clover.SpikaMessenger"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
