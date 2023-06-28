@@ -55,10 +55,6 @@
         <action
             android:id="@+id/action_chatMessagesFragment_to_chatDetailsFragment"
             app:destination="@id/chatDetailsFragment" />
-        <argument
-            android:name="scrollDown"
-            android:defaultValue="true"
-            app:argType="boolean" />
         <action
             android:id="@+id/action_chatMessagesFragment_to_contactDetailsFragment2"
             app:destination="@id/contactDetailsFragment2" />
@@ -71,7 +67,6 @@
         <action
             android:id="@+id/action_videoFragment_to_chatMessagesFragment"
             app:destination="@id/chatMessagesFragment"
-            app:launchSingleTop="true"
             app:popUpTo="@id/chatMessagesFragment" />
         <argument
             android:name="mediaInfo"
