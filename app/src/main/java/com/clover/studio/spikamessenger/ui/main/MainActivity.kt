@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.asLiveData
-import com.clover.studio.exampleapp.utils.helpers.PhonebookService
+import com.clover.studio.spikamessenger.utils.helpers.PhonebookService
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.ActivityMainBinding
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
