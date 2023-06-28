@@ -2,7 +2,6 @@ package com.clover.studio.exampleapp.utils.helpers
 
 import android.content.ContentResolver
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -10,14 +9,12 @@ import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.target.Target
 import com.clover.studio.exampleapp.R
 import com.clover.studio.exampleapp.data.models.entity.MessageAndRecords
 import com.clover.studio.exampleapp.data.models.entity.MessageRecords
@@ -31,6 +28,8 @@ import com.vanniktech.emoji.EmojiTextView
 const val MAX_REACTIONS = 3
 private const val TEXT_SIZE_BIG = 11
 private const val TEXT_SIZE_SMALL = 5
+const val MAX_WIDTH = 256
+const val MAX_HEIGHT = 300
 
 object ChatAdapterHelper {
 
@@ -60,15 +59,12 @@ object ChatAdapterHelper {
      * @param context - Context
      * @param mediaPath - Path of media item
      * @param imageView - ImageView where we want to load the image
-     * @param drawable - Drawable that is used as a placeholder while the media item is loaded
      * */
-    fun loadMedia(context: Context, mediaPath: String, imageView: ImageView, drawable: Drawable?) {
+    fun loadMedia(context: Context, mediaPath: String, imageView: ImageView) {
         Glide.with(context)
             .load(mediaPath)
-            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-            .placeholder(drawable)
+            .override(MAX_WIDTH, MAX_HEIGHT)
             .dontTransform()
-            .dontAnimate()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(imageView)
     }
@@ -172,8 +168,12 @@ object ChatAdapterHelper {
         val params =
             clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
         params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-        val original = chatMessage.message.body?.text?.length
+        var original = chatMessage.message.body?.text?.length
         clReplyMessage.visibility = View.VISIBLE
+        val firstLineStart = chatMessage.message.body?.text?.lines()?.get(0)
+        if (firstLineStart?.length!! < TEXT_SIZE_SMALL) {
+            original = firstLineStart.length
+        }
         val username = tvUsername.text.length
 
         if (sender) {
@@ -183,20 +183,15 @@ object ChatAdapterHelper {
         }
 
         tvUsername.text =
-            users.firstOrNull { it.id == chatMessage.message.body?.referenceMessage?.fromUserId }!!.formattedDisplayName
+            users.firstOrNull { it.id == chatMessage.message.body.referenceMessage?.fromUserId }!!.formattedDisplayName
 
-        when (chatMessage.message.body?.referenceMessage?.type) {
+        when (chatMessage.message.body.referenceMessage?.type) {
             /**Image or video type*/
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
                 if (original!! >= TEXT_SIZE_BIG) {
                     params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
                 }
-                val imagePath =
-                    chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
-                        Tools.getFilePathUrl(
-                            imagePath
-                        )
-                    }
+
                 if (chatMessage.message.body.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
                     tvReplyMedia.text = context.getString(
                         R.string.media,
@@ -225,11 +220,16 @@ object ChatAdapterHelper {
                 ivReplyImage.visibility = View.VISIBLE
                 tvReplyMedia.visibility = View.VISIBLE
 
+                val imagePath =
+                    chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
+                        Tools.getFilePathUrl(
+                            imagePath
+                        )
+                    }
                 loadMedia(
                     context,
                     imagePath!!,
                     ivReplyImage,
-                    AppCompatResources.getDrawable(context, R.drawable.img_image_placeholder)
                 )
             }
             /** Audio type */
@@ -271,7 +271,7 @@ object ChatAdapterHelper {
                 ivReplyImage.visibility = View.GONE
                 tvReplyMedia.visibility = View.GONE
 
-                val replyText = chatMessage.message.body?.referenceMessage?.body?.text
+                val replyText = chatMessage.message.body.referenceMessage?.body?.text
                 tvMessageReply.text = replyText
                 val reply = replyText?.length
 

@@ -53,7 +53,6 @@ import com.clover.studio.exampleapp.data.models.entity.MessageRecords
 import com.clover.studio.exampleapp.data.models.entity.User
 import com.clover.studio.exampleapp.data.models.junction.RoomWithUsers
 import com.clover.studio.exampleapp.databinding.FragmentChatMessagesBinding
-import com.clover.studio.exampleapp.ui.ImageSelectedContainer
 import com.clover.studio.exampleapp.ui.ReactionContainer
 import com.clover.studio.exampleapp.ui.ReactionsContainer
 import com.clover.studio.exampleapp.utils.Const
@@ -71,11 +70,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 
@@ -92,7 +87,7 @@ enum class UploadMimeTypes {
 
 data class TempUri(
     val uri: Uri,
-    val type: UploadMimeTypes
+    val type: UploadMimeTypes,
 )
 
 @AndroidEntryPoint
@@ -123,6 +118,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var uploadPieces = 0
     private var uploadInProgress = false
     private var isFetching = false
+    private var directory: File? = null
 
     private var isAdmin = false
     private var progress = 0
@@ -237,6 +233,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun initViews() {
+        directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             avatarFileId = user?.avatarFileId!!
             userName = user?.formattedDisplayName.toString()
@@ -322,9 +319,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         bindingSetup.ivBtnEmoji.setOnClickListener {
-            emojiPopup.toggle() // Toggles visibility of the Popup.
-            emojiPopup.dismiss() // Dismisses the Popup.
-            emojiPopup.isShowing // Returns true when Popup is showing.
+            emojiPopup.toggle()
+            emojiPopup.dismiss()
+            emojiPopup.isShowing
             bindingSetup.ivAdd.rotation = ROTATION_OFF
         }
 
@@ -392,49 +389,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         bindingSetup.ivButtonSend.setOnClickListener {
             bindingSetup.vHideTyping.visibility = View.GONE
-            val imageContainer = bindingSetup.llImagesContainer
-            imageContainer.removeAllViews()
             bindingSetup.vTransparent.visibility = View.GONE
             if (bindingSetup.etMessage.text?.isNotEmpty() == true) {
                 createTempTextMessage()
                 sendMessage()
-            } else if (tempFilesToCreate.isNotEmpty()) {
-                for (tempFile in tempFilesToCreate) {
-                    if (UploadMimeTypes.MEDIA == tempFile.type) {
-                        createTempMediaMessage(tempFile.uri)
-                    } else if (UploadMimeTypes.FILE == tempFile.type) {
-                        createTempFileMessage(tempFile.uri)
-                    }
-                }
-
-                tempFilesToCreate.clear()
-
-                if (!uploadInProgress && unsentMessages.isNotEmpty()) {
-                    Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                        if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE) {
-                            uploadImage()
-                        } else if (unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE) {
-                            uploadVideo()
-                        } else if (filesSelected.isNotEmpty()) {
-                            uploadFile()
-                        }
-                    }, 2000)
-                }
             }
             bindingSetup.etMessage.setText("")
             hideSendButton()
         }
-
-        /* Block dialog:
-        bindingSetup.tvBlock.setOnClickListener {
-            val userIdToBlock =
-                roomWithUsers.users.firstOrNull { user -> user.id != localUserId }
-            userIdToBlock?.let { idToBlock -> viewModel.blockUser(idToBlock.id) }
-        }
-
-        bindingSetup.tvOk.setOnClickListener {
-            bindingSetup.clBlockContact.visibility = View.GONE
-        }*/
 
         bindingSetup.tvUnblock.setOnClickListener {
             DialogError.getInstance(requireContext(),
@@ -456,6 +418,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         initBottomSheetsListeners()
+
+        /* Block dialog:
+        bindingSetup.tvBlock.setOnClickListener {
+            val userIdToBlock =
+                roomWithUsers.users.firstOrNull { user -> user.id != localUserId }
+            userIdToBlock?.let { idToBlock -> viewModel.blockUser(idToBlock.id) }
+        }
+
+        bindingSetup.tvOk.setOnClickListener {
+            bindingSetup.clBlockContact.visibility = View.GONE
+        }*/
     }
 
     private fun initBottomSheetsListeners() {
@@ -979,7 +952,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
                                 message
                             )
-
                             else -> Timber.d("No other action currently")
                         }
                     }
@@ -1257,25 +1229,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             )
         }
 
-        var videoPath = ""
-        var picturePath = ""
-        if (chatMessage.message.type == Const.JsonFields.IMAGE_TYPE) {
-            picturePath = chatMessage.message.body?.fileId?.let {
-                Tools.getFilePathUrl(it)
-            }.toString()
-        } else {
-            videoPath = chatMessage.message.body?.file?.id.let {
-                Tools.getFilePathUrl(
-                    it!!
-                )
-            }.toString()
-        }
-
         val action =
             ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
                 mediaInfo = mediaInfo,
-                videoPath = videoPath,
-                picturePath = picturePath
+                message = chatMessage.message
             )
         findNavController().navigate(action)
     }
@@ -1283,13 +1240,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleMessageReply(message: Message) {
         bindingSetup.vTransparent.visibility = View.VISIBLE
         replyId = message.id.toLong()
-        if (message.fromUserId == localUserId) {
-            bindingSetup.replyAction.clReplyContainer.background =
-                AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_send)
+        val backgroundResId = if (message.fromUserId == localUserId) {
+            R.drawable.bg_message_send
         } else {
-            bindingSetup.replyAction.clReplyContainer.background =
-                AppCompatResources.getDrawable(requireContext(), R.drawable.bg_message_received)
+            R.drawable.bg_message_received
         }
+        bindingSetup.replyAction.clReplyContainer.setBackgroundResource(backgroundResId)
 
         val user = roomWithUsers.users.firstOrNull {
             it.id == message.fromUserId
@@ -1300,12 +1256,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
                 bindingSetup.replyAction.tvMessage.visibility = View.GONE
                 bindingSetup.replyAction.ivReplyImage.visibility = View.VISIBLE
-                val imagePath =
-                    message.body?.fileId?.let { imagePath ->
-                        Tools.getFilePathUrl(
-                            imagePath
-                        )
-                    }
                 if (Const.JsonFields.IMAGE_TYPE == message.type) {
                     bindingSetup.replyAction.tvReplyMedia.text = getString(
                         R.string.media,
@@ -1330,13 +1280,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         0
                     )
                 }
+                val mediaPath = Tools.getMediaFile(this.context!!, message)
                 bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
                 Glide.with(this)
-                    .load(imagePath)
+                    .load(mediaPath)
                     .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                     .placeholder(R.drawable.img_image_placeholder)
                     .dontTransform()
-                    .dontAnimate()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(bindingSetup.replyAction.ivReplyImage)
             }
@@ -1691,7 +1641,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             messageBody
         )
 
-        Timber.d("Temporary message: $tempMessage")
+        Tools.saveMediaToStorage(
+            context!!,
+            requireActivity().contentResolver,
+            mediaUri,
+            tempMessage.localId
+        )
+
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
     }
@@ -1853,6 +1809,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         currentMediaLocation.clear()
         filesSelected.clear()
         thumbnailUris.clear()
+
+        Tools.deleteTemporaryMedia(context!!)
+
         uploadInProgress = false
         //unsentMessages.clear()
         context?.cacheDir?.deleteRecursively()
@@ -1866,7 +1825,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      */
     private fun handleUploadError(typeFailed: UploadMimeTypes, message: String?) {
         if (UploadMimeTypes.MEDIA == typeFailed) {
-            currentMediaLocation.removeFirst()
+            if (currentMediaLocation.isNotEmpty()) {
+                currentMediaLocation.removeFirst()
+            }
             if (unsentMessages.isNotEmpty()) {
                 viewModel.deleteLocalMessage(unsentMessages.first())
             }
@@ -1937,7 +1898,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleUserSelectedFile(uri: Uri) {
-        bindingSetup.vHideTyping.visibility = View.VISIBLE
         bindingSetup.ivCamera.visibility = View.GONE
 
         val fileMimeType = getFileMimeType(context, uri)
@@ -1952,42 +1912,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         ) {
             convertImageToBitmap(uri)
         } else {
-            displayFileInContainer(uri)
+            filesSelected.add(uri)
+            tempFilesToCreate.add(TempUri(uri, UploadMimeTypes.FILE))
         }
-    }
-
-    private fun displayFileInContainer(uri: Uri) {
-        filesSelected.add(uri)
-        tempFilesToCreate.add(TempUri(uri, UploadMimeTypes.FILE))
-        val imageSelected = ImageSelectedContainer(activity!!, null)
-        var fileName = ""
-        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
-
-        val cr = activity!!.contentResolver
-        cr.query(uri, projection, null, null, null)?.use { metaCursor ->
-            if (metaCursor.moveToFirst()) {
-                fileName = metaCursor.getString(0)
-            }
-        }
-
-        imageSelected.setFile(cr.getType(uri)!!, fileName)
-        imageSelected.setButtonListener(object : ImageSelectedContainer.RemoveImageSelected {
-            override fun removeImage() {
-                Timber.d("Files selected 1: $filesSelected")
-                filesSelected.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
-                Timber.d("Files selected 2: $filesSelected")
-                bindingSetup.llImagesContainer.removeView(imageSelected)
-                bindingSetup.ivAdd.rotation = ROTATION_OFF
-                if (bindingSetup.llImagesContainer.childCount == 0) {
-                    hideSendButton()
-                    bindingSetup.vHideTyping.visibility = View.GONE
-                    bindingSetup.vTransparent.visibility = View.GONE
-                }
-            }
-        })
-        activity!!.runOnUiThread { showSendButton() }
-        bindingSetup.llImagesContainer.addView(imageSelected)
-        bindingSetup.vTransparent.visibility = View.VISIBLE
+        sendFile()
     }
 
     private fun convertVideo(videoUri: Uri) {
@@ -1995,57 +1923,26 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         mmr.setDataSource(context, videoUri)
         val bitmap = mmr.frameAtTime
 
-        val imageSelected = ImageSelectedContainer(activity!!, null)
-        bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap!!) }
-        bindingSetup.llImagesContainer.addView(imageSelected)
-        bindingSetup.vTransparent.visibility = View.VISIBLE
-
-        activity!!.runOnUiThread { showSendButton() }
-        imageSelected.setButtonListener(object :
-            ImageSelectedContainer.RemoveImageSelected {
-            override fun removeImage() {
-                Timber.d("Media selected 1: $currentMediaLocation")
-                thumbnailUris.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
-                currentMediaLocation.removeAt(
-                    bindingSetup.llImagesContainer.indexOfChild(
-                        imageSelected
-                    )
-                )
-                Timber.d("Media selected 2: $currentMediaLocation")
-                bindingSetup.llImagesContainer.removeView(imageSelected)
-                bindingSetup.ivAdd.rotation = ROTATION_OFF
-                if (bindingSetup.llImagesContainer.childCount == 0) {
-                    bindingSetup.vHideTyping.visibility = View.GONE
-                    hideSendButton()
-                    bindingSetup.vTransparent.visibility = View.GONE
-                }
-            }
-        })
-
         // This will actually stop the UI block while decoding the video
-        CoroutineScope(Dispatchers.IO).launch {
-            val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
-            val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
+        val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
+        val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
 
-            withContext(Dispatchers.IO) {
-                file.createNewFile()
-            }
+        file.createNewFile()
 
-            val filePath = file.absolutePath
-            Tools.genVideoUsingMuxer(videoUri, filePath)
-            val fileUri = FileProvider.getUriForFile(
-                MainApplication.appContext,
-                BuildConfig.APPLICATION_ID + ".fileprovider",
-                file
-            )
-            val thumbnail =
-                ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
-            val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
+        val filePath = file.absolutePath
+        Tools.genVideoUsingMuxer(videoUri, filePath)
+        val fileUri = FileProvider.getUriForFile(
+            MainApplication.appContext,
+            BuildConfig.APPLICATION_ID + ".fileprovider",
+            file
+        )
+        val thumbnail =
+            ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
+        val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
 
-            thumbnailUris.add(thumbnailUri)
-            currentMediaLocation.add(fileUri)
-            tempFilesToCreate.add(TempUri(thumbnailUri, UploadMimeTypes.MEDIA))
-        }
+        thumbnailUris.add(thumbnailUri)
+        currentMediaLocation.add(fileUri)
+        tempFilesToCreate.add(TempUri(thumbnailUri, UploadMimeTypes.MEDIA))
     }
 
     private fun convertImageToBitmap(imageUri: Uri?) {
@@ -2053,32 +1950,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Tools.handleSamplingAndRotationBitmap(activity!!, imageUri, false)
         val bitmapUri = Tools.convertBitmapToUri(activity!!, bitmap!!)
 
-        val imageSelected = ImageSelectedContainer(context!!, null)
-        bitmap.let { imageBitmap -> imageSelected.setImage(imageBitmap) }
-        bindingSetup.llImagesContainer.addView(imageSelected)
-        bindingSetup.vTransparent.visibility = View.VISIBLE
-
         activity!!.runOnUiThread { showSendButton() }
-        imageSelected.setButtonListener(object :
-            ImageSelectedContainer.RemoveImageSelected {
-            override fun removeImage() {
-                Timber.d("Media selected 1: $currentMediaLocation")
-                thumbnailUris.removeAt(bindingSetup.llImagesContainer.indexOfChild(imageSelected))
-                currentMediaLocation.removeAt(
-                    bindingSetup.llImagesContainer.indexOfChild(
-                        imageSelected
-                    )
-                )
-                Timber.d("Media selected 2: $currentMediaLocation")
-                bindingSetup.llImagesContainer.removeView(imageSelected)
-                bindingSetup.ivAdd.rotation = ROTATION_OFF
-                if (bindingSetup.llImagesContainer.childCount == 0) {
-                    bindingSetup.vHideTyping.visibility = View.GONE
-                    hideSendButton()
-                    bindingSetup.vTransparent.visibility = View.GONE
-                }
-            }
-        })
+
         val thumbnail =
             Tools.handleSamplingAndRotationBitmap(activity!!, bitmapUri, true)
         val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail!!)
@@ -2089,15 +1962,30 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         tempFilesToCreate.add(TempUri(thumbnailUri, UploadMimeTypes.MEDIA))
     }
 
-    private fun checkStoragePermission() {
-        storagePermission =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-                if (it) {
-                    context?.let { context -> Tools.downloadFile(context, storedMessage) }
-                } else {
-                    Timber.d("Couldn't download file. No permission granted.")
+    private fun sendFile() {
+        if (tempFilesToCreate.isNotEmpty()) {
+            for (tempFile in tempFilesToCreate) {
+                if (UploadMimeTypes.MEDIA == tempFile.type) {
+                    createTempMediaMessage(tempFile.uri)
+                } else if (UploadMimeTypes.FILE == tempFile.type) {
+                    createTempFileMessage(tempFile.uri)
                 }
             }
+
+            tempFilesToCreate.clear()
+
+            if (!uploadInProgress && unsentMessages.isNotEmpty()) {
+                Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                    if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE) {
+                        uploadImage()
+                    } else if (unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE) {
+                        uploadVideo()
+                    } else if (filesSelected.isNotEmpty()) {
+                        uploadFile()
+                    }
+                }, 2000)
+            }
+        }
     }
 
     /**
@@ -2130,6 +2018,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         return randomId
+    }
+
+    private fun checkStoragePermission() {
+        storagePermission =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                if (it) {
+                    context?.let { context -> Tools.downloadFile(context, storedMessage) }
+                } else {
+                    Timber.d("Couldn't download file. No permission granted.")
+                }
+            }
     }
 
     private fun onBackArrowPressed() {
