@@ -16,16 +16,22 @@ import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.databinding.FragmentAccountCreationBinding
 import com.clover.studio.spikamessenger.ui.main.startMainActivity
 import com.clover.studio.spikamessenger.ui.onboarding.OnboardingViewModel
-import com.clover.studio.spikamessenger.utils.*
+import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.EventObserver
+import com.clover.studio.spikamessenger.utils.FileUploadListener
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.convertBitmapToUri
+import com.clover.studio.spikamessenger.utils.UploadDownloadManager
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
+import com.clover.studio.spikamessenger.utils.getChunkSize
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -115,6 +121,7 @@ class AccountCreationFragment : BaseFragment() {
                 Resource.Status.SUCCESS -> {
                     startMainActivity(requireActivity())
                 }
+
                 Resource.Status.ERROR -> Timber.d("Error updating user")
                 else -> Timber.d("Other error")
             }
@@ -217,7 +224,6 @@ class AccountCreationFragment : BaseFragment() {
                     requireActivity().contentResolver.openInputStream(currentPhotoLocation)
 
                 val fileStream = Tools.copyStreamToFile(
-                    requireActivity(),
                     inputStream!!,
                     activity?.contentResolver?.getType(currentPhotoLocation)!!
                 )
@@ -230,13 +236,15 @@ class AccountCreationFragment : BaseFragment() {
                 Timber.d("File upload start")
                 CoroutineScope(Dispatchers.IO).launch {
                     uploadDownloadManager.uploadFile(
-                        requireActivity(),
-                        currentPhotoLocation,
-                        Const.JsonFields.AVATAR_TYPE,
-                        uploadPieces,
-                        fileStream,
-                        null,
-                        false,
+                        FileData(
+                            currentPhotoLocation,
+                            Const.JsonFields.AVATAR_TYPE,
+                            uploadPieces,
+                            fileStream,
+                            null,
+                            false,
+                            null
+                        ),
                         object : FileUploadListener {
                             override fun filePieceUploaded() {
                                 if (progress <= uploadPieces) {

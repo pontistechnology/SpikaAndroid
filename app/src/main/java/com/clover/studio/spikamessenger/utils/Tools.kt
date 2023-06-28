@@ -125,7 +125,6 @@ object Tools {
     }
 
     fun copyStreamToFile(
-        activity: Activity,
         inputStream: InputStream,
         extension: String,
         fileName: String = ""
@@ -135,7 +134,7 @@ object Tools {
             tempFileName =
                 "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}"
         }
-        val outputFile = File(activity.cacheDir, tempFileName)
+        val outputFile = File(MainApplication.appContext.cacheDir, tempFileName)
         inputStream.use { input ->
             val outputStream = FileOutputStream(outputFile)
             outputStream.use { output ->
@@ -292,15 +291,14 @@ object Tools {
     }
 
     fun sha256HashFromUri(
-        activity: Activity,
         currentPhotoLocation: Uri,
         extension: String
     ): String {
         val sha256FileHash: String?
         val inputStream =
-            activity.contentResolver.openInputStream(currentPhotoLocation)
+            MainApplication.appContext.contentResolver.openInputStream(currentPhotoLocation)
         sha256FileHash =
-            calculateSHA256FileHash(copyStreamToFile(activity, inputStream!!, extension))
+            calculateSHA256FileHash(copyStreamToFile(inputStream!!, extension))
 
         return sha256FileHash
     }

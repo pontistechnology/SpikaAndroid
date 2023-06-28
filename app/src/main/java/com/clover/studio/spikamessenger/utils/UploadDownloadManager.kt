@@ -2,11 +2,12 @@
 
 package com.clover.studio.spikamessenger.utils
 
-import android.app.Activity
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Base64
+import com.clover.studio.spikamessenger.MainApplication
+import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.UploadFile
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
@@ -47,20 +48,14 @@ class UploadDownloadManager constructor(
      * @param fileUploadListener The interface listener which will notify caller about update status.
      */
     suspend fun uploadFile(
-        activity: Activity,
-        fileUri: Uri,
-        fileType: String,
-        filePieces: Int,
-        file: File,
-        messageBody: MessageBody?,
-        isThumbnail: Boolean = false,
+        fileData: FileData,
         fileUploadListener: FileUploadListener
     ) {
         var fileMetadata: FileMetadata? = null
         val time: Int
         val width: Int
         val height: Int
-        var mimeType = activity.contentResolver.getType(fileUri)!!
+        var mimeType = MainApplication.appContext.contentResolver.getType(fileData.fileUri)!!
         cancelUpload = false
 
         if (mimeType.contains(Const.JsonFields.AVI_TYPE)) {
@@ -69,10 +64,10 @@ class UploadDownloadManager constructor(
 
         // Check mime type of file being sent. If it is a media file get metadata for image or video
         // respectively
-        if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || isThumbnail) {
+        if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || fileData.isThumbnail) {
             val options = BitmapFactory.Options()
             options.inJustDecodeBounds = true
-            BitmapFactory.decodeFile(file.absolutePath, options)
+            BitmapFactory.decodeFile(fileData.file.absolutePath, options)
             height = options.outHeight
             width = options.outWidth
 
@@ -80,7 +75,7 @@ class UploadDownloadManager constructor(
             Timber.d("File metadata: $fileMetadata")
         } else if (mimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
             val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(activity, fileUri)
+            retriever.setDataSource(MainApplication.appContext, fileData.fileUri)
             time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
                 .toInt()
             width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
@@ -95,10 +90,10 @@ class UploadDownloadManager constructor(
         }
 
         chunkCount = 0
-        BufferedInputStream(FileInputStream(file)).use { bis ->
+        BufferedInputStream(FileInputStream(fileData.file)).use { bis ->
             var len: Int
             var piece = 0L
-            val temp = ByteArray(getChunkSize(file.length()))
+            val temp = ByteArray(getChunkSize(fileData.file.length()))
             val randomId = UUID.randomUUID().toString().substring(0, 7)
 
             while ((bis.read(temp).also { len = it } > 0) && !cancelUpload) {
@@ -110,17 +105,16 @@ class UploadDownloadManager constructor(
                         0
                     ),
                     piece,
-                    filePieces,
-                    file.length(),
+                    fileData.filePieces,
+                    fileData.file.length(),
                     mimeType,
-                    file.name.toString(),
+                    fileData.file.name.toString(),
                     randomId,
                     Tools.sha256HashFromUri(
-                        activity,
-                        fileUri,
+                        fileData.fileUri,
                         mimeType
                     ),
-                    fileType,
+                    fileData.fileType,
                     fileMetadata
                 )
 
@@ -128,9 +122,9 @@ class UploadDownloadManager constructor(
                 startUploadAPI(
                     uploadFile,
                     mimeType,
-                    filePieces,
-                    isThumbnail,
-                    messageBody,
+                    fileData.filePieces,
+                    fileData.isThumbnail,
+                    fileData.messageBody,
                     fileUploadListener
                 )
 

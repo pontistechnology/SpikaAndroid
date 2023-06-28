@@ -1,12 +1,11 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
-import android.app.Activity
-import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
+import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
@@ -33,7 +32,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -297,23 +295,12 @@ class ChatViewModel @Inject constructor(
     }
 
     fun uploadFile(
-        activity: Activity,
-        uri: Uri,
-        uploadPieces: Int,
-        fileStream: File,
-        type: String,
-        messageBody: MessageBody?
+        fileData: FileData
     ) =
         viewModelScope.launch {
             try {
                 uploadDownloadManager.uploadFile(
-                    activity,
-                    uri,
-                    type,
-                    uploadPieces,
-                    fileStream,
-                    messageBody,
-                    false,
+                    fileData,
                     object : FileUploadListener {
                         override fun filePieceUploaded() {
                             resolveResponseStatus(
@@ -361,28 +348,16 @@ class ChatViewModel @Inject constructor(
         }
 
     fun uploadMedia(
-        activity: Activity,
-        uri: Uri,
-        fileType: String,
-        uploadPieces: Int,
-        fileStream: File,
-        messageBody: MessageBody?,
-        isThumbnail: Boolean
+        fileData: FileData
     ) = viewModelScope.launch {
         try {
             uploadDownloadManager.uploadFile(
-                activity,
-                uri,
-                fileType,
-                uploadPieces,
-                fileStream,
-                messageBody,
-                isThumbnail,
+                fileData,
                 object : FileUploadListener {
                     override fun filePieceUploaded() {
                         resolveResponseStatus(
                             mediaUploadListener,
-                            Resource(Resource.Status.LOADING, null, isThumbnail.toString())
+                            Resource(Resource.Status.LOADING, null, fileData.isThumbnail.toString())
                         )
                     }
 
@@ -408,7 +383,7 @@ class ChatViewModel @Inject constructor(
                             fileId,
                             fileType,
                             messageBody,
-                            isThumbnail
+                            fileData.isThumbnail
                         )
                         resolveResponseStatus(
                             mediaUploadListener,

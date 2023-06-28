@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
     <uses-feature
@@ -84,6 +85,11 @@
 
         <service
             android:name=".utils.helpers.PhonebookService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
+            android:name=".utils.helpers.UploadService"
             android:enabled="true"
             android:exported="false" />
     </application>

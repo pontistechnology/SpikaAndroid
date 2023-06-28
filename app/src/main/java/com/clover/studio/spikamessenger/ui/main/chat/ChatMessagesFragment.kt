@@ -5,6 +5,7 @@ import android.animation.ValueAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context.CLIPBOARD_SERVICE
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.media.MediaMetadataRetriever
@@ -43,6 +44,7 @@ import com.bumptech.glide.request.target.Target
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
@@ -65,6 +67,7 @@ import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.getChunkSize
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.getFileMimeType
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
@@ -1564,7 +1567,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         val fileStream = Tools.copyStreamToFile(
-            activity!!,
             inputStream!!,
             activity!!.contentResolver.getType(uri)!!,
             fileName
@@ -1700,7 +1702,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         val fileStream = Tools.copyStreamToFile(
-            activity!!,
             inputStream!!,
             getFileMimeType(context!!, filesSelected.first())!!,
             fileName
@@ -1721,14 +1722,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         viewModel.startUploadFile()
 
-        viewModel.uploadFile(
-            requireActivity(),
-            filesSelected.first(),
-            uploadPieces,
-            fileStream,
-            type,
-            messageBody
-        )
+        val data =
+            FileData(
+                filesSelected.first(),
+                type,
+                uploadPieces,
+                fileStream,
+                messageBody,
+                false,
+                unsentMessages.first().localId!!
+            )
+
+        startUploadService(arrayListOf(data))
+
+//        viewModel.uploadFile(
+//            FileData(filesSelected.first(), type, uploadPieces, fileStream, messageBody, false)
+//        )
 
         inputStream.close()
     }
@@ -1754,7 +1763,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             activity!!.contentResolver.openInputStream(uri)
 
         val fileStream = Tools.copyStreamToFile(
-            activity!!,
             inputStream!!,
             getFileMimeType(context!!, uri)!!
         )
@@ -1777,15 +1785,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         viewModel.startUploadFile()
 
-        viewModel.uploadMedia(
-            requireActivity(),
+        val data = FileData(
             uri,
             fileType,
             uploadPieces,
             fileStream,
             messageBodyNew,
-            isThumbnail
+            isThumbnail,
+            unsentMessages.first().localId!!
         )
+
+        startUploadService(arrayListOf(data))
+//        viewModel.uploadMedia(
+//            FileData(uri, fileType, uploadPieces, fileStream, messageBodyNew, isThumbnail)
+//        )
 
         inputStream.close()
     }
@@ -2029,6 +2042,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
             activity!!.finish()
         }
+    }
+
+    private fun startUploadService(files: ArrayList<FileData>) {
+        val intent = Intent(MainApplication.appContext, UploadService::class.java)
+        intent.putParcelableArrayListExtra("files", files)
+        MainApplication.appContext.startService(intent)
     }
 
     override fun onBackPressed(): Boolean {
