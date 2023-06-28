@@ -48,6 +48,7 @@ import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
+import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.Message
@@ -1713,6 +1714,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun onBackArrowPressed() {
         viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
         activity!!.finish()
+    }
+
+    private fun startUploadService(files: ArrayList<FileData>) {
+        val intent = Intent(MainApplication.appContext, UploadService::class.java)
+        intent.putParcelableArrayListExtra("files", files)
+        MainApplication.appContext.startService(intent)
     }
 
     override fun onBackPressed(): Boolean {
