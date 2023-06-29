@@ -51,6 +51,7 @@ class Const {
     class IntentExtras {
         companion object {
             const val ROOM_ID_EXTRA = "room_id_extra"
+            const val FILES_EXTRA = "files"
         }
     }
 

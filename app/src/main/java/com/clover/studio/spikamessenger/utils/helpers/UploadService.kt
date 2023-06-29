@@ -7,6 +7,7 @@ import androidx.core.app.NotificationCompat
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
+import com.clover.studio.spikamessenger.utils.CHANNEL_ID
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.UploadDownloadManager
@@ -29,9 +30,9 @@ class UploadService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val items = intent?.getParcelableArrayListExtra<FileData>("files")
+        val items = intent?.getParcelableArrayListExtra<FileData>(Const.IntentExtras.FILES_EXTRA)
 
-        val notification = NotificationCompat.Builder(this, "upload_channel")
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.uploading_files))
             .setContentText(getString(R.string.upload_in_progress_notification))
             .setSmallIcon(R.drawable.img_spika_push_black)
