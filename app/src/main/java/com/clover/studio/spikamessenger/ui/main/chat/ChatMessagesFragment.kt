@@ -1688,7 +1688,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 fileStream,
                 messageBody,
                 false,
-                unsentMessages.first().localId!!
+                unsentMessages.first().localId!!,
+                roomWithUsers.room.roomId
             )
 
         startUploadService(arrayListOf(data))
@@ -1750,7 +1751,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             fileStream,
             messageBodyNew,
             isThumbnail,
-            unsentMessages.first().localId!!
+            unsentMessages.first().localId!!,
+            roomWithUsers.room.roomId
         )
 
         startUploadService(arrayListOf(data))

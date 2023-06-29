@@ -6,7 +6,9 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
+import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
+import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
 import com.clover.studio.spikamessenger.utils.CHANNEL_ID
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.FileUploadListener
@@ -16,12 +18,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class UploadService : Service() {
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
+
+    @Inject
+    lateinit var chatRepositoryImpl: ChatRepositoryImpl
 
     private var uploadJob: Job? = null
 
@@ -84,39 +90,41 @@ class UploadService : Service() {
                     if (fileId > 0) item.messageBody?.fileId =
                         fileId
 
-//                    sendMessage(
-//                        fileType,
-//                        messageBody?.text!!,
-//                        messageBody.fileId!!,
-//                        messageBody.thumbId!!,
-//                        1,
-//                        item.localId,
-//                    )
+                    sendMessage(
+                        fileType,
+                        messageBody?.text!!,
+                        messageBody.fileId!!,
+                        messageBody.thumbId!!,
+                        item.roomId,
+                        item.localId!!,
+                    )
                 }
             }
         })
     }
 
-//    private fun sendMessage(
-//        messageFileType: String,
-//        text: String,
-//        fileId: Long,
-//        thumbId: Long,
-//        roomId: Int,
-//        localId: String,
-//    ) {
-//        val jsonMessage = JsonMessage(
-//            text,
-//            messageFileType,
-//            fileId,
-//            thumbId,
-//            roomId,
-//            localId,
-//            null
-//        )
-//
-//        val jsonObject = jsonMessage.messageToJson()
-//        Timber.d("Message object: $jsonObject")
-//        viewModel.sendMessage(jsonObject)
-//    }
+    private fun sendMessage(
+        messageFileType: String,
+        text: String,
+        fileId: Long,
+        thumbId: Long,
+        roomId: Int,
+        localId: String,
+    ) {
+        val jsonMessage = JsonMessage(
+            text,
+            messageFileType,
+            fileId,
+            thumbId,
+            roomId,
+            localId,
+            null
+        )
+
+        val jsonObject = jsonMessage.messageToJson()
+        Timber.d("Message object: $jsonObject")
+        CoroutineScope(Dispatchers.Default).launch {
+            chatRepositoryImpl.sendMessage(jsonObject)
+        }
+    }
 }

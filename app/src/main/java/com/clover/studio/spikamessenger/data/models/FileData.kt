@@ -14,6 +14,7 @@ data class FileData(
     val file: File,
     val messageBody: MessageBody?,
     val isThumbnail: Boolean = false,
-    val localId: String?
+    val localId: String?,
+    val roomId: Int
     // roomid
 ) : Parcelable
