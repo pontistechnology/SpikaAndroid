@@ -32,11 +32,13 @@ import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.data.AppDatabase
+import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
+import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -624,6 +626,51 @@ object Tools {
         }
     }
 
+    fun getMetadata(
+        activity: Activity,
+        mediaUri: Uri,
+        mimeType: String,
+        isThumbnail: Boolean
+    ): FileMetadata? {
+        var fileMetadata: FileMetadata? = null
+
+        val height: Int
+        val width: Int
+        val time: Int
+
+        val inputStream = activity.contentResolver.openInputStream(mediaUri)
+
+        val fileStream = copyStreamToFile(
+            activity = activity,
+            inputStream = inputStream!!,
+            ChatAdapterHelper.getFileMimeType(activity, mediaUri)!!
+        )
+
+        if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || isThumbnail) {
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            BitmapFactory.decodeFile(fileStream.absolutePath, options)
+            height = options.outHeight
+            width = options.outWidth
+
+            fileMetadata = FileMetadata(width, height, null)
+            Timber.d("File metadata: $fileMetadata")
+        } else if (mimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(activity, mediaUri)
+            time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
+                .toInt()
+            width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
+                .toInt()
+            height =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!
+                    .toInt()
+            retriever.release()
+
+            fileMetadata = FileMetadata(width, height, time)
+            Timber.d("File metadata: $fileMetadata")
+        }
+
     fun openTermsAndConditions(activity: Activity) {
         val uri =
             Uri.parse(Const.Urls.TERMS_AND_CONDITIONS)
@@ -641,4 +688,8 @@ object Tools {
     }
 }
 
+        inputStream.close()
 
+        return fileMetadata
+    }
+}

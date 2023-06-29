@@ -238,7 +238,7 @@ class GroupInformationFragment : BaseFragment() {
             }
         })
 
-        viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
+        viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.LOADING -> {
                     if (progress <= uploadPieces) {

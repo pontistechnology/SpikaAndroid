@@ -140,6 +140,6 @@ data class MessageFile(
     val fileName: String,
     val mimeType: String,
     val size: Long,
-    val metadata: FileMetadata?,
+    val metaData: FileMetadata?,
     val uri: String?
 ) : Parcelable

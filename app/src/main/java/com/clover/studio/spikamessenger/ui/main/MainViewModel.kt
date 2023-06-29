@@ -50,7 +50,7 @@ class MainViewModel @Inject constructor(
     val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
-    val mediaUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
+    val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
     val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
     val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
     val deleteUserListener = MutableLiveData<Event<Resource<DeleteUserResponse?>>>()
@@ -233,14 +233,14 @@ class MainViewModel @Inject constructor(
                 object : FileUploadListener {
                     override fun filePieceUploaded() {
                         resolveResponseStatus(
-                            mediaUploadListener,
-                            Resource(Resource.Status.LOADING, null, "")
+                            fileUploadListener,
+                            Resource(Resource.Status.LOADING, null, isThumbnail.toString())
                         )
                     }
 
                     override fun fileUploadError(description: String) {
                         resolveResponseStatus(
-                            mediaUploadListener,
+                            fileUploadListener,
                             Resource(Resource.Status.ERROR, null, description)
                         )
                     }
@@ -263,14 +263,14 @@ class MainViewModel @Inject constructor(
                             fileData.isThumbnail
                         )
                         resolveResponseStatus(
-                            mediaUploadListener,
+                            fileUploadListener,
                             Resource(Resource.Status.SUCCESS, response, "")
                         )
                     }
                 })
         } catch (ex: Exception) {
             resolveResponseStatus(
-                mediaUploadListener,
+                fileUploadListener,
                 Resource(Resource.Status.ERROR, null, ex.message.toString())
             )
         }

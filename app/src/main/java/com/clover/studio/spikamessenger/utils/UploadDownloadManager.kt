@@ -51,10 +51,6 @@ class UploadDownloadManager constructor(
         fileData: FileData,
         fileUploadListener: FileUploadListener
     ) {
-        var fileMetadata: FileMetadata? = null
-        val time: Int
-        val width: Int
-        val height: Int
         var mimeType = MainApplication.appContext.contentResolver.getType(fileData.fileUri)!!
         cancelUpload = false
 
@@ -62,32 +58,8 @@ class UploadDownloadManager constructor(
             mimeType = Const.JsonFields.FILE_TYPE
         }
 
-        // Check mime type of file being sent. If it is a media file get metadata for image or video
-        // respectively
-        if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || fileData.isThumbnail) {
-            val options = BitmapFactory.Options()
-            options.inJustDecodeBounds = true
-            BitmapFactory.decodeFile(fileData.file.absolutePath, options)
-            height = options.outHeight
-            width = options.outWidth
-
-            fileMetadata = FileMetadata(width, height, null)
-            Timber.d("File metadata: $fileMetadata")
-        } else if (mimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
-            val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(MainApplication.appContext, fileData.fileUri)
-            time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
-                .toInt()
-            width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
-                .toInt()
-            height =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!
-                    .toInt()
-            retriever.release()
-
-            fileMetadata = FileMetadata(width, height, time)
-            Timber.d("File metadata: $fileMetadata")
-        }
+        val fileMetadata: FileMetadata? =
+            Tools.getMetadata(MainApplication.appContext, fileUri, mimeType, isThumbnail)
 
         chunkCount = 0
         BufferedInputStream(FileInputStream(fileData.file)).use { bis ->
