@@ -61,24 +61,24 @@ class UploadDownloadManager constructor(
 
             while ((bis.read(temp).also { len = it } > 0) && !cancelUpload) {
                 val uploadFile = UploadFile(
-                    Base64.encodeToString(
+                    chunk = Base64.encodeToString(
                         temp,
                         0,
                         len,
                         0
                     ),
-                    piece,
-                    fileData.filePieces,
-                    fileData.file.length(),
-                    mimeType,
-                    fileData.file.name.toString(),
-                    randomId,
-                    Tools.sha256HashFromUri(
+                    offset = piece,
+                    total = fileData.filePieces,
+                    size = fileData.file.length(),
+                    mimeType = mimeType,
+                    fileName = fileData.file.name.toString(),
+                    clientId = randomId,
+                    fileHash = Tools.sha256HashFromUri(
                         fileData.fileUri,
                         mimeType
                     ),
-                    fileData.fileType,
-                    fileMetadata
+                    type = fileData.fileType,
+                    metaData = fileMetadata
                 )
 
                 Timber.d("Chunk count $chunkCount")

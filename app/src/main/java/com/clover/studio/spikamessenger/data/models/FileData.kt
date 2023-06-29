@@ -16,5 +16,4 @@ data class FileData(
     val isThumbnail: Boolean = false,
     val localId: String?,
     val roomId: Int
-    // roomid
 ) : Parcelable

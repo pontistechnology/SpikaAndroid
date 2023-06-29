@@ -243,7 +243,8 @@ class AccountCreationFragment : BaseFragment() {
                             fileStream,
                             null,
                             false,
-                            null
+                            null,
+                            0
                         ),
                         object : FileUploadListener {
                             override fun filePieceUploaded() {

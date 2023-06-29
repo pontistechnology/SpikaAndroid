@@ -288,7 +288,8 @@ class SettingsFragment : BaseFragment() {
                         fileStream,
                         null,
                         false,
-                        null
+                        null,
+                        0
                     ),
                     object :
                         FileUploadListener {

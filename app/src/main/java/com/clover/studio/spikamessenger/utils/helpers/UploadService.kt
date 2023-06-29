@@ -64,6 +64,7 @@ class UploadService : Service() {
 
     private suspend fun uploadItems(items: List<FileData>) {
         for (item in items) {
+            Timber.d("item: $item")
             uploadItem(item)
         }
     }
@@ -86,19 +87,22 @@ class UploadService : Service() {
                 fileType: String,
                 messageBody: MessageBody?
             ) {
-                if (!item.isThumbnail) {
+//                if (!item.isThumbnail) {
+
+                Timber.d("message id: ${item.messageBody?.fileId}")
+
                     if (fileId > 0) item.messageBody?.fileId =
                         fileId
 
                     sendMessage(
-                        fileType,
-                        messageBody?.text!!,
-                        messageBody.fileId!!,
-                        messageBody.thumbId!!,
-                        item.roomId,
-                        item.localId!!,
+                        messageFileType = fileType,
+                        text = messageBody?.text!!,
+                        fileId = messageBody.fileId!!,
+                        thumbId = messageBody.thumbId!!,
+                        roomId = item.roomId,
+                        localId = item.localId!!,
                     )
-                }
+//                }
             }
         })
     }

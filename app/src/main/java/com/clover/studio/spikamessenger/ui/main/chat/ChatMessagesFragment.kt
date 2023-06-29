@@ -16,7 +16,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,12 +59,12 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.MessageSwipeController
 import com.clover.studio.spikamessenger.utils.Tools
+import com.clover.studio.spikamessenger.utils.Tools.getFileMimeType
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.getChunkSize
-import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.getFileMimeType
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -83,13 +82,9 @@ private const val ROTATION_ON = 45f
 private const val ROTATION_OFF = 0f
 private const val NEW_MESSAGE_ANIMATION_DURATION = 300L
 
-enum class UploadMimeTypes {
-    IMAGE, VIDEO, FILE, MEDIA
-}
-
 data class TempUri(
     val uri: Uri,
-    val type: UploadMimeTypes,
+    val type: String,
 )
 
 @AndroidEntryPoint
@@ -114,8 +109,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var filesSelected: MutableList<Uri> = ArrayList()
     private var thumbnailUris: MutableList<Uri> = ArrayList()
     private var tempFilesToCreate: MutableList<TempUri> = ArrayList()
+
+    private var uploadFiles: ArrayList<FileData> = ArrayList()
+    private var selectedFiles: MutableList<Uri> = ArrayList()
+
     private var photoImageUri: Uri? = null
-    private var mediaType: UploadMimeTypes? = null
     private var uploadPieces = 0
     private var uploadInProgress = false
     private var isFetching = false
@@ -152,8 +150,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
             if (it != null) {
                 for (uri in it) {
-                    handleUserSelectedFile(uri)
+                    selectedFiles.add(uri)
                 }
+                handleUserSelectedFile(selectedFiles)
             }
         }
 
@@ -161,8 +160,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
             if (it != null) {
                 for (uri in it) {
-                    handleUserSelectedFile(uri)
+                    selectedFiles.add(uri)
                 }
+                handleUserSelectedFile(selectedFiles)
             } else {
                 Timber.d("Gallery error")
             }
@@ -172,7 +172,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
                 if (photoImageUri != null) {
-                    handleUserSelectedFile(photoImageUri!!)
+                    selectedFiles.add(photoImageUri!!)
+                    handleUserSelectedFile(selectedFiles)
                 } else {
                     Timber.d("Photo error")
                 }
@@ -573,12 +574,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     if (!uploadInProgress) {
                         Handler(Looper.getMainLooper()).postDelayed(Runnable {
                             if (unsentMessages.isNotEmpty()) {
-                                if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE) {
+                                if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE
+                                    || unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE
+                                ) {
                                     uploadImage()
-                                } else if (unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE) {
-                                    uploadVideo()
                                 } else if (filesSelected.isNotEmpty()) {
-                                    uploadFile()
+                                    uploadFiles(false, filesSelected.first(), null)
                                 }
                             } else resetUploadFields()
                         }, 2000)
@@ -745,7 +746,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     uploadInProgress = false
                                 } else {
                                     responseData.messageBody?.let { messageBody ->
-                                        uploadMedia(
+                                        uploadFiles(
                                             false,
                                             currentMediaLocation.first(),
                                             messageBody
@@ -1511,96 +1512,53 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      *
      * @param uri Uri of the file being sent and with which the temporary message will be created.
      */
-    private fun createTempFileMessage(uri: Uri) {
-        val inputStream =
-            activity!!.contentResolver.openInputStream(uri)
-        var fileName = ""
-        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
 
-        val cr = activity!!.contentResolver
-        cr.query(uri, projection, null, null, null)?.use { metaCursor ->
-            if (metaCursor.moveToFirst()) {
-                fileName = metaCursor.getString(0)
-            }
+    private fun createTempMessage(uri: Uri, type: String) {
+        val fileName = Tools.getFileNameFromUri(uri)
+        var size = 0L
+
+        if (type == Const.JsonFields.FILE_TYPE) {
+            val inputStream =
+                activity!!.contentResolver.openInputStream(uri)
+            size = Tools.copyStreamToFile(
+                inputStream!!,
+                activity!!.contentResolver.getType(uri)!!,
+                fileName
+            ).length()
+            inputStream.close()
         }
 
-        val fileStream = Tools.copyStreamToFile(
-            inputStream!!,
-            activity!!.contentResolver.getType(uri)!!,
-            fileName
-        )
-
-        val messageBody = MessageBody(
-            null,
-            null,
-            1,
-            1,
-            MessageFile(1, fileName, "", fileStream.length(), null, null),
-            null
-        )
-
-        var type = activity!!.contentResolver.getType(uri)
-        type = if (type == Const.FileExtensions.AUDIO) {
+        val typeMedia = if (activity!!.contentResolver.getType(uri) == Const.FileExtensions.AUDIO)
             Const.JsonFields.AUDIO_TYPE
-        } else {
-            Const.JsonFields.FILE_TYPE
+        else
+            type
+
+        val tempMessage = Tools.createTemporaryMessage(
+            id = getUniqueRandomId(),
+            localUserId = localUserId,
+            roomId = roomWithUsers.room.roomId,
+            messageType = typeMedia,
+            messageBody = MessageBody(
+                referenceMessage = null,
+                text = null,
+                fileId = 1,
+                thumbId = 1,
+                file = MessageFile(1, fileName, "", size, null, uri.toString()),
+                thumb = null
+            )
+        )
+
+        unsentMessages.add(tempMessage)
+        viewModel.storeMessageLocally(tempMessage)
+
+        if (typeMedia == Const.JsonFields.IMAGE_TYPE || typeMedia == Const.JsonFields.VIDEO_TYPE) {
+            Tools.saveMediaToStorage(
+                context!!,
+                requireActivity().contentResolver,
+                uri,
+                tempMessage.localId
+            )
         }
-
-        val tempMessage = Tools.createTemporaryMessage(
-            getUniqueRandomId(),
-            localUserId,
-            roomWithUsers.room.roomId,
-            type,
-            messageBody
-        )
-        unsentMessages.add(tempMessage)
-        viewModel.storeMessageLocally(tempMessage)
-
-        inputStream.close()
-    }
-
-    /**
-     * Creating temporary media message which will be shown to the user inside of the
-     * chat adapter while the media file is uploading
-     *
-     * @param mediaUri uri of the media file for which a temporary image file will be created
-     * which will hold the bitmap thumbnail.
-     */
-    private fun createTempMediaMessage(mediaUri: Uri) {
-        val messageBody = MessageBody(
-            null,
-            null,
-            1,
-            1,
-            MessageFile(
-                1,
-                "",
-                "",
-                0,
-                null,
-                mediaUri.toString()
-            ),
-            null
-        )
-
-        // Media file is always thumbnail first. Therefore, we are sending CHAT_IMAGE as type
-        val tempMessage = Tools.createTemporaryMessage(
-            getUniqueRandomId(),
-            localUserId,
-            roomWithUsers.room.roomId,
-            Const.JsonFields.IMAGE_TYPE,
-            messageBody
-        )
-
-        Tools.saveMediaToStorage(
-            context!!,
-            requireActivity().contentResolver,
-            mediaUri,
-            tempMessage.localId
-        )
-
-        unsentMessages.add(tempMessage)
-        viewModel.storeMessageLocally(tempMessage)
     }
 
     private fun chooseFile() {
@@ -1622,93 +1580,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         takePhotoContract.launch(photoImageUri)
     }
 
-    private fun uploadThumbnail() {
-        mediaType = UploadMimeTypes.IMAGE
-        uploadMedia(true, thumbnailUris.first(), messageBody = null)
-    }
-
-    private fun uploadVideoThumbnail() {
-        mediaType = UploadMimeTypes.VIDEO
-        uploadMedia(true, thumbnailUris.first(), messageBody = null)
-    }
-
     private fun uploadImage() {
-        uploadThumbnail()
+        uploadFiles(true, thumbnailUris.first(), messageBody = null)
     }
 
-    private fun uploadVideo() {
-        uploadVideoThumbnail()
-    }
-
-    /**
-     * Method used for uploading files to the backend
-     */
-    private fun uploadFile() {
-        uploadInProgress = true
-        val messageBody = MessageBody(null, "", 0, 0, null, null)
-        val inputStream =
-            activity!!.contentResolver.openInputStream(filesSelected.first())
-
-        var fileName = ""
-        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
-
-        val cr = activity!!.contentResolver
-        cr.query(filesSelected.first(), projection, null, null, null)?.use { metaCursor ->
-            if (metaCursor.moveToFirst()) {
-                fileName = metaCursor.getString(0)
-            }
-        }
-
-        val fileStream = Tools.copyStreamToFile(
-            inputStream!!,
-            getFileMimeType(context!!, filesSelected.first())!!,
-            fileName
-        )
-
-        uploadPieces =
-            if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
-                (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
-            else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
-        progress = 0
-
-        var type = getFileMimeType(context!!, filesSelected.first())!!
-        type = if (Const.FileExtensions.AUDIO == type) {
-            Const.JsonFields.AUDIO_TYPE
-        } else {
-            Const.JsonFields.FILE_TYPE
-        }
-
-        viewModel.startUploadFile()
-
-        val data =
-            FileData(
-                filesSelected.first(),
-                type,
-                uploadPieces,
-                fileStream,
-                messageBody,
-                false,
-                unsentMessages.first().localId!!,
-                roomWithUsers.room.roomId
-            )
-
-        startUploadService(arrayListOf(data))
-
-//        viewModel.uploadFile(
-//            FileData(filesSelected.first(), type, uploadPieces, fileStream, messageBody, false)
-//        )
-
-        inputStream.close()
-    }
-
-    /**
-     * One method used for uploading images and video files. They can be discerned by the
-     * mediaType field send to the constructor.
-     *
-     * @param isThumbnail Declare if a thumbnail is being sent or a media file
-     * @param uri Uri of the media/thumbnail file
-     */
-    private fun uploadMedia(
+    private fun uploadFiles(
         isThumbnail: Boolean,
         uri: Uri,
         messageBody: MessageBody?
@@ -1721,9 +1597,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val inputStream =
             activity!!.contentResolver.openInputStream(uri)
 
+        val fileName = Tools.getFileNameFromUri(uri)
         val fileStream = Tools.copyStreamToFile(
-            inputStream!!,
-            getFileMimeType(context!!, uri)!!
+            inputStream = inputStream!!,
+            extension = getFileMimeType(context!!, uri)!!,
+            fileName = fileName
         )
         uploadPieces =
             if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
@@ -1731,34 +1609,24 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
         progress = 0
 
-        val fileType: String =
-            if (getFileMimeType(context!!, uri)!!.contains(Const.JsonFields.IMAGE_TYPE)) {
-                Const.JsonFields.IMAGE_TYPE
-            } else {
-                if (isThumbnail) {
-                    Const.JsonFields.IMAGE_TYPE
-                } else {
-                    Const.JsonFields.VIDEO_TYPE
-                }
-            }
+        //viewModel.startUploadFile()
 
-        viewModel.startUploadFile()
+        val fileType = Tools.getFileType(uri)
+        Timber.d("filetype: $fileType")
 
         val data = FileData(
-            uri,
-            fileType,
-            uploadPieces,
-            fileStream,
-            messageBodyNew,
-            isThumbnail,
-            unsentMessages.first().localId!!,
-            roomWithUsers.room.roomId
+            fileUri = uri,
+            fileType = fileType,
+            filePieces = uploadPieces,
+            file = fileStream,
+            messageBody = messageBodyNew,
+            isThumbnail = isThumbnail,
+            localId = unsentMessages.first().localId!!,
+            roomId = roomWithUsers.room.roomId
         )
 
-        startUploadService(arrayListOf(data))
-//        viewModel.uploadMedia(
-//            FileData(uri, fileType, uploadPieces, fileStream, messageBodyNew, isThumbnail)
-//        )
+        uploadFiles.add(data)
+        Timber.d("uploadfiles: $uploadFiles")
 
         inputStream.close()
     }
@@ -1793,15 +1661,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             unsentMessages.removeFirstOrNull()
 
             if (currentMediaLocation.isNotEmpty()) {
-                if (getFileMimeType(
-                        context!!,
-                        currentMediaLocation.first()
-                    )?.contains(Const.JsonFields.IMAGE_TYPE) == true
-                ) {
-                    uploadImage()
-                } else {
-                    uploadVideo()
-                }
+                uploadImage()
             } else resetUploadFields()
 
         } else if (Const.JsonFields.FILE_TYPE == typeFailed) {
@@ -1810,7 +1670,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             unsentMessages.removeFirst()
 
             if (filesSelected.isNotEmpty()) {
-                uploadFile()
+                uploadFiles(false, filesSelected.first(), null)
             } else resetUploadFields()
         } else resetUploadFields()
 
@@ -1854,93 +1714,91 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             })
     }
 
-    private fun handleUserSelectedFile(uri: Uri) {
+    private fun handleUserSelectedFile(selectedFilesUris: MutableList<Uri>) {
         bindingSetup.ivCamera.visibility = View.GONE
 
-        val fileMimeType = getFileMimeType(context, uri)
-        if (fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true && !fileMimeType.contains(
-                Const.JsonFields.AVI_TYPE
-            )
-        ) {
-            convertVideo(uri)
-        } else if (fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true && !fileMimeType.contains(
-                Const.JsonFields.SVG_TYPE
-            )
-        ) {
-            convertImageToBitmap(uri)
-        } else {
-            filesSelected.add(uri)
-            tempFilesToCreate.add(TempUri(uri, UploadMimeTypes.FILE))
+        for (uri in selectedFilesUris) {
+            Timber.d("uri: $uri")
+            val fileMimeType = getFileMimeType(context, uri)
+            // TODO add checks for svg avi types
+            if (fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
+                fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true
+            ) {
+                convertMedia(uri, fileMimeType)
+            } else {
+                filesSelected.add(uri)
+                tempFilesToCreate.add(TempUri(uri, Const.JsonFields.FILE_TYPE))
+            }
+            sendFile()
         }
-        sendFile()
+
+        // TODO Call upload service
+        Timber.d("Files:: $uploadFiles, ${uploadFiles.size}")
+
+        // Service:
+        startUploadService(uploadFiles)
+
+        // Clear list:
+        uploadFiles.clear()
+
     }
 
-    private fun convertVideo(videoUri: Uri) {
-        val mmr = MediaMetadataRetriever()
-        mmr.setDataSource(context, videoUri)
-        val bitmap = mmr.frameAtTime
+    private fun convertMedia(uri: Uri, fileMimeType: String?) {
+        val thumbnailUri: Uri
+        val fileUri: Uri
 
-        // This will actually stop the UI block while decoding the video
-        val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
-        val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
+        if (fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
+            val mmr = MediaMetadataRetriever()
+            mmr.setDataSource(context, uri)
+            val bitmap = mmr.frameAtTime
 
-        file.createNewFile()
+            val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
+            val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
 
-        val filePath = file.absolutePath
-        Tools.genVideoUsingMuxer(videoUri, filePath)
-        val fileUri = FileProvider.getUriForFile(
-            MainApplication.appContext,
-            BuildConfig.APPLICATION_ID + ".fileprovider",
-            file
-        )
-        val thumbnail =
-            ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
-        val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
+            file.createNewFile()
+
+            val filePath = file.absolutePath
+            Tools.genVideoUsingMuxer(uri, filePath)
+            fileUri = FileProvider.getUriForFile(
+                MainApplication.appContext,
+                BuildConfig.APPLICATION_ID + ".fileprovider",
+                file
+            )
+            val thumbnail =
+                ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
+            thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
+            tempFilesToCreate.add(TempUri(thumbnailUri, Const.JsonFields.VIDEO_TYPE))
+        } else {
+            Timber.d("image")
+            val bitmap =
+                Tools.handleSamplingAndRotationBitmap(activity!!, uri, false)
+            fileUri = Tools.convertBitmapToUri(activity!!, bitmap!!)
+
+            val thumbnail =
+                Tools.handleSamplingAndRotationBitmap(activity!!, fileUri, true)
+            thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail!!)
+            tempFilesToCreate.add(TempUri(thumbnailUri, Const.JsonFields.IMAGE_TYPE))
+        }
 
         thumbnailUris.add(thumbnailUri)
         currentMediaLocation.add(fileUri)
-        tempFilesToCreate.add(TempUri(thumbnailUri, UploadMimeTypes.MEDIA))
-    }
-
-    private fun convertImageToBitmap(imageUri: Uri?) {
-        val bitmap =
-            Tools.handleSamplingAndRotationBitmap(activity!!, imageUri, false)
-        val bitmapUri = Tools.convertBitmapToUri(activity!!, bitmap!!)
-
-        activity!!.runOnUiThread { showSendButton() }
-
-        val thumbnail =
-            Tools.handleSamplingAndRotationBitmap(activity!!, bitmapUri, true)
-        val thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail!!)
-
-        // Create thumbnail for the image which will also be sent to the backend
-        thumbnailUris.add(thumbnailUri)
-        currentMediaLocation.add(bitmapUri)
-        tempFilesToCreate.add(TempUri(thumbnailUri, UploadMimeTypes.MEDIA))
     }
 
     private fun sendFile() {
         if (tempFilesToCreate.isNotEmpty()) {
             for (tempFile in tempFilesToCreate) {
-                if (UploadMimeTypes.MEDIA == tempFile.type) {
-                    createTempMediaMessage(tempFile.uri)
-                } else if (UploadMimeTypes.FILE == tempFile.type) {
-                    createTempFileMessage(tempFile.uri)
-                }
+                createTempMessage(tempFile.uri, tempFile.type)
             }
-
             tempFilesToCreate.clear()
 
             if (!uploadInProgress && unsentMessages.isNotEmpty()) {
-                Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE) {
-                        uploadImage()
-                    } else if (unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE) {
-                        uploadVideo()
-                    } else if (filesSelected.isNotEmpty()) {
-                        uploadFile()
-                    }
-                }, 2000)
+                if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE ||
+                    unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE
+                ) {
+                    uploadImage()
+                } else if (filesSelected.isNotEmpty()) {
+                    uploadFiles(false, filesSelected.first(), null)
+                }
             }
         }
     }

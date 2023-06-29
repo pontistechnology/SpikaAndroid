@@ -1,8 +1,6 @@
 package com.clover.studio.spikamessenger.utils.helpers
 
-import android.content.ContentResolver
 import android.content.Context
-import android.net.Uri
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
@@ -370,10 +368,5 @@ object ChatAdapterHelper {
             holder.binding.tvUsername.visibility = View.VISIBLE
             holder.binding.ivUserImage.visibility = View.VISIBLE
         }
-    }
-
-    fun getFileMimeType(context: Context?, uri: Uri): String? {
-        val cR: ContentResolver = context!!.contentResolver
-        return cR.getType(uri)
     }
 }

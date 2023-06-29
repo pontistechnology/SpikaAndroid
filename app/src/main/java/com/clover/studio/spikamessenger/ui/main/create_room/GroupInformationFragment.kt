@@ -323,7 +323,8 @@ class GroupInformationFragment : BaseFragment() {
                     fileStream,
                     null,
                     false,
-                    null
+                    null,
+                    0
                 )
             )
             binding.clProgressScreen.visibility = View.VISIBLE
