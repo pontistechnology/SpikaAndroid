@@ -696,4 +696,32 @@ object Tools {
         val cR: ContentResolver = context!!.contentResolver
         return cR.getType(uri)
     }
+
+    fun getFileNameFromUri(uri: Uri): String {
+        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
+        val cursor =
+            MainApplication.appContext.contentResolver.query(uri, projection, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                return it.getString(0)
+            }
+        }
+        return ""
+    }
+
+    fun getFileType(uri: Uri): String {
+        val mimeType = getFileMimeType(MainApplication.appContext, uri)
+
+        return when {
+            mimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true -> Const.JsonFields.IMAGE_TYPE
+            mimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true -> Const.JsonFields.VIDEO_TYPE
+            mimeType?.contains(Const.JsonFields.AUDIO_TYPE) == true -> Const.JsonFields.AUDIO_TYPE
+            else -> Const.JsonFields.FILE_TYPE
+        }
+    }
+
+    fun getFileMimeType(context: Context?, uri: Uri): String? {
+        val cR: ContentResolver = context!!.contentResolver
+        return cR.getType(uri)
+    }
 }
