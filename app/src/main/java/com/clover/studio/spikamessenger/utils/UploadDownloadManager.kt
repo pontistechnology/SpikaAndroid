@@ -2,9 +2,6 @@
 
 package com.clover.studio.spikamessenger.utils
 
-import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
-import android.net.Uri
 import android.util.Base64
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.data.models.FileData
@@ -15,7 +12,6 @@ import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import timber.log.Timber
 import java.io.BufferedInputStream
-import java.io.File
 import java.io.FileInputStream
 import java.util.*
 
@@ -38,13 +34,8 @@ class UploadDownloadManager constructor(
 
     /**
      * Method will handle file upload process. The caller will have to supply the required parameters
-     *
-     * @param activity The calling activity
-     * @param fileUri The Uri path value of the file being uploaded
-     * @param fileType The type of the file being uploaded, in the context of the app. (avatar, message, group avatar...)
-     * @param filePieces The number of the pieces the file has been divided to based on the maximum
      *  chunk size
-     * @param file The file that is being uploaded to the backend
+     *  @param fileData
      * @param fileUploadListener The interface listener which will notify caller about update status.
      */
     suspend fun uploadFile(
@@ -59,7 +50,7 @@ class UploadDownloadManager constructor(
         }
 
         val fileMetadata: FileMetadata? =
-            Tools.getMetadata(MainApplication.appContext, fileUri, mimeType, isThumbnail)
+            Tools.getMetadata(fileData.fileUri, mimeType, fileData.isThumbnail)
 
         chunkCount = 0
         BufferedInputStream(FileInputStream(fileData.file)).use { bis ->

@@ -234,7 +234,7 @@ class MainViewModel @Inject constructor(
                     override fun filePieceUploaded() {
                         resolveResponseStatus(
                             fileUploadListener,
-                            Resource(Resource.Status.LOADING, null, isThumbnail.toString())
+                            Resource(Resource.Status.LOADING, null, fileData.isThumbnail.toString())
                         )
                     }
 

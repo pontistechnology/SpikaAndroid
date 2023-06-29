@@ -627,7 +627,6 @@ object Tools {
     }
 
     fun getMetadata(
-        activity: Activity,
         mediaUri: Uri,
         mimeType: String,
         isThumbnail: Boolean
@@ -638,12 +637,11 @@ object Tools {
         val width: Int
         val time: Int
 
-        val inputStream = activity.contentResolver.openInputStream(mediaUri)
+        val inputStream = MainApplication.appContext.contentResolver.openInputStream(mediaUri)
 
         val fileStream = copyStreamToFile(
-            activity = activity,
             inputStream = inputStream!!,
-            ChatAdapterHelper.getFileMimeType(activity, mediaUri)!!
+            ChatAdapterHelper.getFileMimeType(MainApplication.appContext, mediaUri)!!
         )
 
         if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || isThumbnail) {
@@ -657,7 +655,7 @@ object Tools {
             Timber.d("File metadata: $fileMetadata")
         } else if (mimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
             val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(activity, mediaUri)
+            retriever.setDataSource(MainApplication.appContext, mediaUri)
             time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
                 .toInt()
             width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
