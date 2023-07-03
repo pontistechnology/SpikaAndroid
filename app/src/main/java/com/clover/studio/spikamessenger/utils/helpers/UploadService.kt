@@ -30,6 +30,7 @@ class UploadService : Service() {
     lateinit var chatRepositoryImpl: ChatRepositoryImpl
 
     private var uploadJob: Job? = null
+    private var localIdMap: MutableMap<String, Long> = mutableMapOf()
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -87,22 +88,29 @@ class UploadService : Service() {
                 fileType: String,
                 messageBody: MessageBody?
             ) {
-//                if (!item.isThumbnail) {
+                if (!item.isThumbnail) {
+                    Timber.d("message id: ${item.messageBody?.fileId}")
 
-                Timber.d("message id: ${item.messageBody?.fileId}")
+                    var fileThumbId: Long? = null
 
-                    if (fileId > 0) item.messageBody?.fileId =
+                    if (fileId > 0) messageBody?.fileId =
                         fileId
+
+                    if (localIdMap[item.localId] != 0L) {
+                        fileThumbId = localIdMap[item.localId]
+                    }
 
                     sendMessage(
                         messageFileType = fileType,
                         text = messageBody?.text!!,
                         fileId = messageBody.fileId!!,
-                        thumbId = messageBody.thumbId!!,
+                        thumbId = fileThumbId ?: messageBody.thumbId!!,
                         roomId = item.roomId,
                         localId = item.localId!!,
                     )
-//                }
+                } else {
+                    item.localId?.let { localIdMap.put(it, thumbId) }
+                }
             }
         })
     }

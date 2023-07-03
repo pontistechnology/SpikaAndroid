@@ -1594,7 +1594,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (messageBodyNew == null) {
             messageBodyNew = MessageBody(null, "", 0, 0, null, null)
         }
-        val inputStream =
+        var inputStream =
             activity!!.contentResolver.openInputStream(uri)
 
         val fileName = Tools.getFileNameFromUri(uri)
@@ -1610,22 +1610,66 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         progress = 0
 
         //viewModel.startUploadFile()
-
         val fileType = Tools.getFileType(uri)
         Timber.d("filetype: $fileType")
 
-        val data = FileData(
-            fileUri = uri,
-            fileType = fileType,
-            filePieces = uploadPieces,
-            file = fileStream,
-            messageBody = messageBodyNew,
-            isThumbnail = isThumbnail,
-            localId = unsentMessages.first().localId!!,
-            roomId = roomWithUsers.room.roomId
-        )
+        val uploadData: MutableList<FileData> = ArrayList()
 
-        uploadFiles.add(data)
+        // TODO Ivana, this should be cleaned up. Some code duplication but the idea is there. If you're dealing with a media file we first need to create the thumbnail file and then the actual file. The upload service will handle adding thumbId to the message body
+        if (isThumbnail) {
+            val data = FileData(
+                fileUri = uri,
+                fileType = fileType,
+                filePieces = uploadPieces,
+                file = fileStream,
+                messageBody = messageBodyNew,
+                isThumbnail = true,
+                localId = unsentMessages.first().localId!!,
+                roomId = roomWithUsers.room.roomId
+            )
+
+            inputStream = activity!!.contentResolver.openInputStream(currentMediaLocation.first())
+
+            val imageFileName = Tools.getFileNameFromUri(currentMediaLocation.first())
+            val imageFileStream = Tools.copyStreamToFile(
+                inputStream = inputStream!!,
+                extension = getFileMimeType(context!!, currentMediaLocation.first())!!,
+                fileName = imageFileName
+            )
+            uploadPieces =
+                if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
+                    (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
+                else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
+
+            val imageData = FileData(
+                fileUri = currentMediaLocation.first(),
+                fileType = fileType,
+                filePieces = uploadPieces,
+                file = imageFileStream,
+                messageBody = messageBodyNew,
+                isThumbnail = false,
+                localId = unsentMessages.first().localId!!,
+                roomId = roomWithUsers.room.roomId
+            )
+
+            uploadData.add(data)
+            uploadData.add(imageData)
+        } else {
+            val data = FileData(
+                fileUri = uri,
+                fileType = fileType,
+                filePieces = uploadPieces,
+                file = fileStream,
+                messageBody = messageBodyNew,
+                isThumbnail = false,
+                localId = unsentMessages.first().localId!!,
+                roomId = roomWithUsers.room.roomId
+            )
+
+            uploadData.add(data)
+        }
+
+        uploadFiles.addAll(uploadData)
         Timber.d("uploadfiles: $uploadFiles")
 
         inputStream.close()
