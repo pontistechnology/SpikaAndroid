@@ -2,6 +2,7 @@ package com.clover.studio.spikamessenger.utils.helpers
 
 import android.app.Service
 import android.content.Intent
+import android.os.Binder
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.clover.studio.spikamessenger.R
@@ -32,8 +33,24 @@ class UploadService : Service() {
     private var uploadJob: Job? = null
     private var localIdMap: MutableMap<String, Long> = mutableMapOf()
 
-    override fun onBind(intent: Intent): IBinder? {
-        return null
+    private val binder = UploadServiceBinder()
+    private var callbackListener: FileUploadCallback? = null
+    private var count = 0
+
+    inner class UploadServiceBinder : Binder() {
+        fun getService(): UploadService = this@UploadService
+    }
+
+    override fun onBind(intent: Intent?): IBinder {
+        return binder
+    }
+
+    fun setCallbackListener(listener: FileUploadCallback) {
+        callbackListener = listener
+    }
+
+    private fun updateProgress(progress: Int, maxProgress: Int, localId: String) {
+        callbackListener?.updateUploadProgressBar(progress, maxProgress, localId)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -73,6 +90,11 @@ class UploadService : Service() {
     private suspend fun uploadItem(item: FileData) {
         uploadDownloadManager.uploadFile(item, object : FileUploadListener {
             override fun filePieceUploaded() {
+                if (!item.isThumbnail) {
+                    count += 1
+                    Timber.d("Count $count, ${item.filePieces}")
+                    updateProgress(count, item.filePieces, item.localId.toString())
+                }
 
             }
 
@@ -138,5 +160,9 @@ class UploadService : Service() {
         CoroutineScope(Dispatchers.Default).launch {
             chatRepositoryImpl.sendMessage(jsonObject)
         }
+    }
+
+    interface FileUploadCallback {
+        fun updateUploadProgressBar(progress: Int, maxProgress: Int, localId: String?)
     }
 }

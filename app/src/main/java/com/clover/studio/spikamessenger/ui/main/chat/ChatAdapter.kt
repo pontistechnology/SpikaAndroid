@@ -36,6 +36,7 @@ import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.addFiles
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHideUserInformation
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -124,9 +125,11 @@ class ChatAdapter(
                         bindImage(it, holder.binding.ivChatImage, holder.binding.clImageChat)
 
                         /** Uploading image: */
-                        if (it.message.body?.file?.uri != null) {
+                        // ID of unsent message is -
+                        if (it.message.id < 0) {
                             holder.binding.clProgressScreen.visibility = View.VISIBLE
                             holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
+                            Timber.d("Chat Adapter progress: ${it.message.uploadProgress}")
                         } else {
                             holder.binding.clProgressScreen.visibility = View.GONE
                         }
