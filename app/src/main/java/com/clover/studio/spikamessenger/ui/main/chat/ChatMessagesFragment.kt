@@ -571,19 +571,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 Resource.Status.SUCCESS -> {
                     // Delay next message sending by 2 seconds for better user experience.
                     // Could be removed if we deem it not needed.
-                    if (!uploadInProgress) {
-                        Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                            if (unsentMessages.isNotEmpty()) {
-                                if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE
-                                    || unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE
-                                ) {
-                                    uploadImage()
-                                } else if (filesSelected.isNotEmpty()) {
-                                    uploadFiles(false, filesSelected.first(), null)
-                                }
-                            } else resetUploadFields()
-                        }, 2000)
-                    }
                     if (unsentMessages.isNotEmpty()) {
                         val message =
                             unsentMessages.find { msg -> msg.localId == it.responseData?.data?.message?.localId }
@@ -694,81 +681,81 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             })
         }
 
-        viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.LOADING -> {
-                    try {
-                        if (it.message == "false" && progress <= uploadPieces) {
-                            updateUploadProgressBar(
-                                progress + 1,
-                                uploadPieces,
-                                unsentMessages.first().localId!!
-                            )
-                            progress++
-                        } else {
-                            progress = 0
-                        }
-                    } catch (ex: Exception) {
-                        Timber.d("File upload failed on piece")
-                        handleUploadError(it.responseData?.fileType, it.message)
-                    }
-                }
-
-                Resource.Status.SUCCESS -> {
-                    try {
-                        it.responseData?.let { responseData ->
-                            if (responseData.fileType == Const.JsonFields.FILE_TYPE) {
-                                requireActivity().runOnUiThread {
-                                    Timber.d("Successfully sent file")
-                                    responseData.messageBody?.fileId = responseData.fileId
-                                    sendMessage(
-                                        responseData.fileType,
-                                        responseData.messageBody?.text!!,
-                                        responseData.messageBody.fileId!!,
-                                        0,
-                                        unsentMessages.first().localId!!,
-                                    )
-                                    filesSelected.removeFirst()
-                                    uploadInProgress = false
-                                }
-                            } else {
-                                if (!responseData.isThumbnail) {
-                                    responseData.messageBody?.fileId = responseData.fileId
-
-                                    sendMessage(
-                                        responseData.fileType,
-                                        responseData.messageBody?.text!!,
-                                        responseData.messageBody.fileId!!,
-                                        responseData.messageBody.thumbId!!,
-                                        unsentMessages.first().localId!!,
-                                    )
-                                    currentMediaLocation.removeFirst()
-                                    uploadInProgress = false
-                                } else {
-                                    responseData.messageBody?.let { messageBody ->
-                                        uploadFiles(
-                                            false,
-                                            currentMediaLocation.first(),
-                                            messageBody
-                                        )
-                                    }
-                                    thumbnailUris.removeFirst()
-                                }
-                            }
-                        }
-                    } catch (ex: Exception) {
-                        Timber.d("File upload failed on verified")
-                        handleUploadError(it.responseData?.fileType, it.message)
-                    }
-                }
-
-                Resource.Status.ERROR -> {
-                    handleUploadError(it.responseData?.fileType, it.message)
-                }
-
-                else -> Timber.d("Other upload error")
-            }
-        })
+//        viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
+//            when (it.status) {
+//                Resource.Status.LOADING -> {
+//                    try {
+//                        if (it.message == "false" && progress <= uploadPieces) {
+//                            updateUploadProgressBar(
+//                                progress + 1,
+//                                uploadPieces,
+//                                unsentMessages.first().localId!!
+//                            )
+//                            progress++
+//                        } else {
+//                            progress = 0
+//                        }
+//                    } catch (ex: Exception) {
+//                        Timber.d("File upload failed on piece")
+////                        handleUploadError(it.responseData?.fileType, it.message)
+//                    }
+//                }
+//
+//                Resource.Status.SUCCESS -> {
+//                    try {
+//                        it.responseData?.let { responseData ->
+//                            if (responseData.fileType == Const.JsonFields.FILE_TYPE) {
+//                                requireActivity().runOnUiThread {
+//                                    Timber.d("Successfully sent file")
+//                                    responseData.messageBody?.fileId = responseData.fileId
+//                                    sendMessage(
+//                                        responseData.fileType,
+//                                        responseData.messageBody?.text!!,
+//                                        responseData.messageBody.fileId!!,
+//                                        0,
+//                                        unsentMessages.first().localId!!,
+//                                    )
+//                                    filesSelected.removeFirst()
+//                                    uploadInProgress = false
+//                                }
+//                            } else {
+//                                if (!responseData.isThumbnail) {
+//                                    responseData.messageBody?.fileId = responseData.fileId
+//
+//                                    sendMessage(
+//                                        responseData.fileType,
+//                                        responseData.messageBody?.text!!,
+//                                        responseData.messageBody.fileId!!,
+//                                        responseData.messageBody.thumbId!!,
+//                                        unsentMessages.first().localId!!,
+//                                    )
+//                                    currentMediaLocation.removeFirst()
+//                                    uploadInProgress = false
+//                                } else {
+//                                    responseData.messageBody?.let { messageBody ->
+//                                        uploadFiles(
+//                                            false,
+//                                            currentMediaLocation.first(),
+//                                            messageBody
+//                                        )
+//                                    }
+//                                    thumbnailUris.removeFirst()
+//                                }
+//                            }
+//                        }
+//                    } catch (ex: Exception) {
+//                        Timber.d("File upload failed on verified")
+////                        handleUploadError(it.responseData?.fileType, it.message)
+//                    }
+//                }
+//
+//                Resource.Status.ERROR -> {
+////                    handleUploadError(it.responseData?.fileType, it.message)
+//                }
+//
+//                else -> Timber.d("Other upload error")
+//            }
+//        })
 
         viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
@@ -1436,16 +1423,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun resendMessage(message: Message) {
-        try {
-            sendMessage(
-                messageFileType = Const.JsonFields.TEXT_TYPE,
-                text = message.body?.text!!,
-                fileId = 0,
-                thumbId = 0,
-                message.localId.toString(),
-            )
-        } catch (e: Exception) {
-            Timber.d("Send message exception: $e")
+        if (Const.JsonFields.TEXT_TYPE == message.type) {
+            try {
+                sendMessage(
+                    messageFileType = Const.JsonFields.TEXT_TYPE,
+                    text = message.body?.text!!,
+                    fileId = 0,
+                    thumbId = 0,
+                    message.localId.toString(),
+                )
+            } catch (e: Exception) {
+                Timber.d("Send message exception: $e")
+            }
+        } else {
+            // TODO resend media
         }
     }
 
@@ -1580,16 +1571,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         takePhotoContract.launch(photoImageUri)
     }
 
-    private fun uploadImage() {
-        uploadFiles(true, thumbnailUris.first(), messageBody = null)
+    private fun uploadImage(localId: String) {
+        uploadFiles(true, thumbnailUris.first(), messageBody = null, localId)
     }
 
     private fun uploadFiles(
         isThumbnail: Boolean,
         uri: Uri,
-        messageBody: MessageBody?
+        messageBody: MessageBody?,
+        localId: String
     ) {
-        uploadInProgress = true
+
+        Timber.d("Current media location: $currentMediaLocation")
+
         var messageBodyNew = messageBody
         if (messageBodyNew == null) {
             messageBodyNew = MessageBody(null, "", 0, 0, null, null)
@@ -1607,39 +1601,29 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
                 (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
             else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
-        progress = 0
 
-        //viewModel.startUploadFile()
         val fileType = Tools.getFileType(uri)
-        Timber.d("filetype: $fileType")
-
         val uploadData: MutableList<FileData> = ArrayList()
 
-        // TODO Ivana, this should be cleaned up. Some code duplication but the idea is there. If you're dealing with a media file we first need to create the thumbnail file and then the actual file. The upload service will handle adding thumbId to the message body
+        val data = FileData(
+            fileUri = uri,
+            fileType = fileType,
+            filePieces = uploadPieces,
+            file = fileStream,
+            messageBody = messageBodyNew,
+            isThumbnail = isThumbnail,
+            localId = localId,
+            roomId = roomWithUsers.room.roomId
+        )
+
         if (isThumbnail) {
-            val data = FileData(
-                fileUri = uri,
-                fileType = fileType,
-                filePieces = uploadPieces,
-                file = fileStream,
-                messageBody = messageBodyNew,
-                isThumbnail = true,
-                localId = unsentMessages.first().localId!!,
-                roomId = roomWithUsers.room.roomId
-            )
-
             inputStream = activity!!.contentResolver.openInputStream(currentMediaLocation.first())
-
             val imageFileName = Tools.getFileNameFromUri(currentMediaLocation.first())
             val imageFileStream = Tools.copyStreamToFile(
                 inputStream = inputStream!!,
                 extension = getFileMimeType(context!!, currentMediaLocation.first())!!,
                 fileName = imageFileName
             )
-            uploadPieces =
-                if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
-                    (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
-                else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
             val imageData = FileData(
                 fileUri = currentMediaLocation.first(),
@@ -1648,29 +1632,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 file = imageFileStream,
                 messageBody = messageBodyNew,
                 isThumbnail = false,
-                localId = unsentMessages.first().localId!!,
+                localId = localId,
                 roomId = roomWithUsers.room.roomId
             )
 
             uploadData.add(data)
             uploadData.add(imageData)
-        } else {
-            val data = FileData(
-                fileUri = uri,
-                fileType = fileType,
-                filePieces = uploadPieces,
-                file = fileStream,
-                messageBody = messageBodyNew,
-                isThumbnail = false,
-                localId = unsentMessages.first().localId!!,
-                roomId = roomWithUsers.room.roomId
-            )
 
+            currentMediaLocation.removeFirst()
+            thumbnailUris.removeFirst()
+
+        } else {
             uploadData.add(data)
         }
 
         uploadFiles.addAll(uploadData)
-        Timber.d("uploadfiles: $uploadFiles")
 
         inputStream.close()
     }
@@ -1688,7 +1664,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         Tools.deleteTemporaryMedia(context!!)
 
-        uploadInProgress = false
         context?.cacheDir?.deleteRecursively()
     }
 
@@ -1698,38 +1673,38 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
      *
      * Also displays a toast message for failed uploads.
      */
-    private fun handleUploadError(typeFailed: String?, message: String?) {
-        if (Const.JsonFields.IMAGE_TYPE == typeFailed || Const.JsonFields.VIDEO_TYPE == typeFailed) {
-            currentMediaLocation.removeFirstOrNull()
-            unsentMessages.firstOrNull()?.let { viewModel.deleteLocalMessage(it) }
-            unsentMessages.removeFirstOrNull()
-
-            if (currentMediaLocation.isNotEmpty()) {
-                uploadImage()
-            } else resetUploadFields()
-
-        } else if (Const.JsonFields.FILE_TYPE == typeFailed) {
-            filesSelected.removeFirst()
-            viewModel.deleteLocalMessage(unsentMessages.first())
-            unsentMessages.removeFirst()
-
-            if (filesSelected.isNotEmpty()) {
-                uploadFiles(false, filesSelected.first(), null)
-            } else resetUploadFields()
-        } else resetUploadFields()
-
-        val description = if (message == getString(R.string.canceled_file_upload)) {
-            getString(R.string.canceled_file_upload)
-        } else {
-            getString(R.string.failed_file_upload)
-        }
-
-        Toast.makeText(
-            activity!!.baseContext,
-            description,
-            Toast.LENGTH_SHORT
-        ).show()
-    }
+//    private fun handleUploadError(typeFailed: String?, message: String?) {
+//        if (Const.JsonFields.IMAGE_TYPE == typeFailed || Const.JsonFields.VIDEO_TYPE == typeFailed) {
+//            currentMediaLocation.removeFirstOrNull()
+//            unsentMessages.firstOrNull()?.let { viewModel.deleteLocalMessage(it) }
+//            unsentMessages.removeFirstOrNull()
+//
+//            if (currentMediaLocation.isNotEmpty()) {
+//                uploadImage()
+//            } else resetUploadFields()
+//
+//        } else if (Const.JsonFields.FILE_TYPE == typeFailed) {
+//            filesSelected.removeFirst()
+//            viewModel.deleteLocalMessage(unsentMessages.first())
+//            unsentMessages.removeFirst()
+//
+//            if (filesSelected.isNotEmpty()) {
+//                uploadFiles(false, filesSelected.first(), null)
+//            } else resetUploadFields()
+//        } else resetUploadFields()
+//
+//        val description = if (message == getString(R.string.canceled_file_upload)) {
+//            getString(R.string.canceled_file_upload)
+//        } else {
+//            getString(R.string.failed_file_upload)
+//        }
+//
+//        Toast.makeText(
+//            activity!!.baseContext,
+//            description,
+//            Toast.LENGTH_SHORT
+//        ).show()
+//    }
 
     private fun showUploadError(errorMessage: String, exit: Boolean) {
         DialogError.getInstance(activity!!,
@@ -1762,19 +1737,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.ivCamera.visibility = View.GONE
 
         for (uri in selectedFilesUris) {
-            Timber.d("uri: $uri")
             val fileMimeType = getFileMimeType(context, uri)
             // TODO add checks for svg avi types
             if (fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
                 fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true
             ) {
                 convertMedia(uri, fileMimeType)
+                Timber.d("convert media")
             } else {
                 filesSelected.add(uri)
                 tempFilesToCreate.add(TempUri(uri, Const.JsonFields.FILE_TYPE))
             }
-            sendFile()
         }
+
+        sendFile()
 
         // TODO Call upload service
         Timber.d("Files:: $uploadFiles, ${uploadFiles.size}")
@@ -1782,9 +1758,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // Service:
         startUploadService(uploadFiles)
 
-        // Clear list:
+        // Clear list - reset fields:
         uploadFiles.clear()
+        selectedFilesUris.clear()
+        tempFilesToCreate.clear()
+        unsentMessages.clear()
 
+        Timber.d("Files:: $uploadFiles")
+        Timber.d("Selected files:: $selectedFilesUris")
     }
 
     private fun convertMedia(uri: Uri, fileMimeType: String?) {
@@ -1835,13 +1816,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
             tempFilesToCreate.clear()
 
-            if (!uploadInProgress && unsentMessages.isNotEmpty()) {
-                if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE ||
-                    unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE
-                ) {
-                    uploadImage()
-                } else if (filesSelected.isNotEmpty()) {
-                    uploadFiles(false, filesSelected.first(), null)
+            Timber.d("Unsent: $unsentMessages")
+
+            if (unsentMessages.isNotEmpty()) {
+                for (unsentMessage in unsentMessages) {
+                    if (unsentMessage.type == Const.JsonFields.IMAGE_TYPE ||
+                        unsentMessage.type == Const.JsonFields.VIDEO_TYPE
+                    ) {
+                        uploadImage(unsentMessage.localId!!)
+                    } else if (filesSelected.isNotEmpty()) {
+                        uploadFiles(
+                            isThumbnail = false,
+                            uri = filesSelected.first(),
+                            messageBody = null,
+                            unsentMessage.localId!!
+                        )
+                    }
                 }
             }
         }

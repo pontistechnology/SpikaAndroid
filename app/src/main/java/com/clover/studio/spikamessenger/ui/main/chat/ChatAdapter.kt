@@ -467,7 +467,11 @@ class ChatAdapter(
         )
 
         clContainer.setOnClickListener {
-            onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
+            if (chatMessage.message.deliveredCount == -1) {
+                onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
+            } else {
+                onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
+            }
         }
 
         clContainer.setOnLongClickListener {
