@@ -190,34 +190,15 @@ class SSERepositoryImpl @Inject constructor(
                 },
                 shouldSyncMore = {
                     it.data?.hasNext == true
-                },
-                page = 1
+                }
             )
 
         if (Resource.Status.SUCCESS == response.status) {
-//            val maxTimestamp = users.maxByOrNull { it.modifiedAt!! }?.modifiedAt
-//            Timber.d("MaxTimestamp users: $maxTimestamp")
-//            if (maxTimestamp != null && maxTimestamp > userTimestamp) {
-//                sharedPrefs.writeUserTimestamp(maxTimestamp)
-//            }
-        }
-
-        val users: MutableList<User> = ArrayList()
-        if (response.responseData?.data?.users?.isNotEmpty() == true) {
-            for (user in response.responseData.data.users) {
-                users.add(user)
-            }
-
-            queryDatabaseCoreData(
-                databaseQuery = { userDao.upsert(users) }
-            )
-
-            if (users.isNotEmpty()) {
-                val maxTimestamp = users.maxByOrNull { it.modifiedAt!! }?.modifiedAt
-                Timber.d("MaxTimestamp users: $maxTimestamp")
-                if (maxTimestamp != null && maxTimestamp > userTimestamp) {
-                    sharedPrefs.writeUserTimestamp(maxTimestamp)
-                }
+            val maxTimestamp =
+                response.responseData?.data?.list?.maxByOrNull { it.modifiedAt!! }?.modifiedAt
+            Timber.d("MaxTimestamp users: $maxTimestamp")
+            if (maxTimestamp != null && maxTimestamp > userTimestamp) {
+                sharedPrefs.writeUserTimestamp(maxTimestamp)
             }
         }
     }
@@ -532,7 +513,7 @@ class SSERepositoryImpl @Inject constructor(
         networkCall: suspend (page: Int) -> Resource<A>,
         saveCallResult: (suspend (A) -> Unit),
         shouldSyncMore: (A) -> Boolean,
-        page: Int
+        page: Int = 1
     ): Resource<A> {
         val response = performRestOperation(
             networkCall = {
