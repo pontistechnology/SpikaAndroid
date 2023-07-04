@@ -8,5 +8,8 @@ data class MessageRecordsResponse(
 )
 
 data class Records(
-    val messageRecords: List<MessageRecords>
+    val list: List<MessageRecords>,
+    val limit: Int?,
+    val count: Int?,
+    val hasNext: Boolean?
 )

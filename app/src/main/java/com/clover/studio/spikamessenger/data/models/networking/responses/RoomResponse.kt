@@ -13,7 +13,8 @@ data class RoomData(
     val rooms: List<ChatRoom>?,
     val room: ChatRoom?,
     val count: Long?,
-    val limit: Long?
+    val limit: Long?,
+    val hasNext: Boolean?
 )
 
 data class RoomUsers(

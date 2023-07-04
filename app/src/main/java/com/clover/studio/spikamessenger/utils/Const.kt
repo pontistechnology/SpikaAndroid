@@ -203,6 +203,7 @@ class Const {
             const val TARGET = "target"
             const val AVATAR_ID = "avatarFileId"
             const val IS_LAST_PAGE = "isLastPage"
+            const val PAGE = "page"
         }
     }
 
