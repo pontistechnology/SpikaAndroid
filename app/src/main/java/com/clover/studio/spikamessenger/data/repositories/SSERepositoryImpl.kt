@@ -182,16 +182,16 @@ class SSERepositoryImpl @Inject constructor(
 
         val response =
             syncNextBatch(
-                userTimestamp,
-                userDao,
-                { sseRemoteDataSource.syncUsers(userTimestamp, it) },
-                {
+                lastUpdate = userTimestamp,
+                dao = userDao,
+                networkCall = { sseRemoteDataSource.syncUsers(userTimestamp, it) },
+                saveCallResult = {
                     it.data?.list?.let { users -> userDao.upsert(users) }
                 },
-                {
+                shouldSyncMore = {
                     it.data?.hasNext == true
                 },
-                1
+                page = 1
             )
 
         if (Resource.Status.SUCCESS == response.status) {
