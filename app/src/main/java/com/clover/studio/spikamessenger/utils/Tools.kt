@@ -303,6 +303,8 @@ object Tools {
         sha256FileHash =
             calculateSHA256FileHash(copyStreamToFile(inputStream!!, extension))
 
+        inputStream.close()
+
         return sha256FileHash
     }
 
@@ -564,41 +566,6 @@ object Tools {
             e.printStackTrace()
         }
 
-    }
-
-    fun saveMediaToStorage(
-        context: Context,
-        contentResolver: ContentResolver,
-        mediaUri: Uri,
-        id: String?
-    ): String? {
-        val inputStream = contentResolver.openInputStream(mediaUri)
-        var outputStream: OutputStream? = null
-        var imagePath: String? = null
-
-        try {
-            val tempFile = File(
-                context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                "$id.${Const.FileExtensions.JPG}"
-            )
-            outputStream = FileOutputStream(tempFile)
-
-            // Simple compression
-            val bitmap = BitmapFactory.decodeStream(inputStream)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-
-            //inputStream?.copyTo(outputStream)
-            imagePath = tempFile.absolutePath
-
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
-            inputStream?.close()
-            outputStream?.close()
-        }
-
-        return imagePath
     }
 
     fun getMediaFile(context: Context, message: Message): String {

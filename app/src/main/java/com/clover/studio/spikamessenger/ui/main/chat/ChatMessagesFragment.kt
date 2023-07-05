@@ -50,7 +50,6 @@ import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
-import com.clover.studio.spikamessenger.data.models.entity.MessageFile
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -66,7 +65,8 @@ import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
-import com.clover.studio.spikamessenger.utils.getChunkSize
+import com.clover.studio.spikamessenger.utils.helpers.FilesHelper
+import com.clover.studio.spikamessenger.utils.helpers.FilesHelper.getUniqueRandomId
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -116,7 +116,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private lateinit var fileUploadService: UploadService
 
     private var photoImageUri: Uri? = null
-    private var uploadPieces = 0
     private var isFetching = false
     private var directory: File? = null
 
@@ -1414,7 +1413,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             MessageBody(null, bindingSetup.etMessage.text.toString(), 1, 1, null, null)
 
         val tempMessage = Tools.createTemporaryMessage(
-            getUniqueRandomId(),
+            getUniqueRandomId(unsentMessages),
             localUserId,
             roomWithUsers.room.roomId,
             Const.JsonFields.TEXT_TYPE,
@@ -1458,7 +1457,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         unsentMessages.clear()
     }
 
-    // TODO Maybe this method implement in Tools.kt or new FilesHelper
     private fun convertMedia(uri: Uri, fileMimeType: String?) {
         val thumbnailUri: Uri
         val fileUri: Uri
@@ -1499,6 +1497,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         currentMediaLocation.add(fileUri)
     }
 
+    // TODO Ivana - check cancel upload functionality, viewModel.cancelUploadFile()
     private fun sendFile() {
         if (tempFilesToCreate.isNotEmpty()) {
             for (tempFile in tempFilesToCreate) {
@@ -1532,59 +1531,24 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             uri = filesSelected.first(),
                             unsentMessage.localId!!
                         )
+                        filesSelected.removeFirst()
                     }
                 }
             }
         }
     }
 
-    // This also
     private fun createTempFileMessage(uri: Uri, type: String) {
-        val fileName = Tools.getFileNameFromUri(uri)
-        var size = 0L
-
-        if (type == Const.JsonFields.FILE_TYPE) {
-            val inputStream =
-                activity!!.contentResolver.openInputStream(uri)
-            size = Tools.copyStreamToFile(
-                inputStream!!,
-                activity!!.contentResolver.getType(uri)!!,
-                fileName
-            ).length()
-            inputStream.close()
-        }
-
-        val typeMedia = if (activity!!.contentResolver.getType(uri) == Const.FileExtensions.AUDIO)
-            Const.JsonFields.AUDIO_TYPE
-        else
-            type
-
-        val tempMessage = Tools.createTemporaryMessage(
-            id = getUniqueRandomId(),
+        val tempMessage = FilesHelper.createTempFile(
+            uri = uri,
+            type = type,
             localUserId = localUserId,
             roomId = roomWithUsers.room.roomId,
-            messageType = typeMedia,
-            messageBody = MessageBody(
-                referenceMessage = null,
-                text = null,
-                fileId = 1,
-                thumbId = 1,
-                file = MessageFile(1, fileName, "", size, null, uri.toString()),
-                thumb = null
-            )
+            unsentMessages = unsentMessages
         )
 
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
-
-        if (typeMedia == Const.JsonFields.IMAGE_TYPE || typeMedia == Const.JsonFields.VIDEO_TYPE) {
-            Tools.saveMediaToStorage(
-                context!!,
-                requireActivity().contentResolver,
-                uri,
-                tempMessage.localId
-            )
-        }
     }
 
     private fun uploadFiles(
@@ -1592,41 +1556,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         uri: Uri,
         localId: String
     ) {
-        Timber.d("Current media location: $currentMediaLocation")
-
-        val messageBody = MessageBody(null, "", 0, 0, null, null)
-        val inputStream =
-            activity!!.contentResolver.openInputStream(uri)
-
-        val fileName = Tools.getFileNameFromUri(uri)
-        val fileStream = Tools.copyStreamToFile(
-            inputStream = inputStream!!,
-            extension = getFileMimeType(context!!, uri)!!,
-            fileName = fileName
-        )
-        uploadPieces =
-            if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
-                (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
-            else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
-
-        val fileType = Tools.getFileType(uri)
         val uploadData: MutableList<FileData> = ArrayList()
-
-        val data = FileData(
-            fileUri = uri,
-            fileType = fileType,
-            filePieces = uploadPieces,
-            file = fileStream,
-            messageBody = messageBody,
-            isThumbnail = isThumbnail,
-            localId = localId,
-            roomId = roomWithUsers.room.roomId
-        )
-
-        uploadData.add(data)
+        uploadData.add(FilesHelper.uploadFile(isThumbnail, uri, localId, roomWithUsers.room.roomId))
         uploadFiles.addAll(uploadData)
-
-        inputStream.close()
     }
 
     // TODO Service
@@ -1666,10 +1598,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-
+            Timber.d("Disconnected")
         }
     }
 
+    // TODO Matko - resetUploadFields(), handleUploadError(), showUploadError()
 //    private fun resetUploadFields() {
 //        Timber.d("Resetting upload")
 //        viewModel.deleteLocalMessages(unsentMessages)
@@ -1743,24 +1676,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 //                }
 //            })
 //    }
-
-    /**
-     * Method creates a random Integer from its lowest value to 0. This is to ensure that the
-     * message in question is a temporary message, since all real messages have positive values.
-     * After creating a random value, the method will check the current list containing unsent
-     * messages and see if any of the items currently have the random number designated. This
-     * ensures that no two unsent messages have the same id value. If it finds the same value
-     * in the list, it will generate a new value and goi through the check again.
-     **/
-    private fun getUniqueRandomId(): Int {
-        var randomId = Tools.generateRandomInt()
-
-        while (unsentMessages.any { randomId == it.id }) {
-            randomId = Tools.generateRandomInt()
-        }
-
-        return randomId
-    }
 
     private fun checkStoragePermission() {
         storagePermission =
