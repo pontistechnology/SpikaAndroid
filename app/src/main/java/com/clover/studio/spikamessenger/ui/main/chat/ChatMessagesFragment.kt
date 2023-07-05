@@ -1580,10 +1580,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     localId: String?
                 ) {
                     Timber.d("Service: $progress $maxProgress $localId")
-                    val message = messagesRecords.firstOrNull { it.message.localId == localId }
 
-                    // TODO
-                    message!!.message.uploadProgress = (maxProgress / progress) * 100
+                    val message = messagesRecords.firstOrNull { it.message.localId == localId }
+                    message!!.message.uploadProgress = (progress * 100) / maxProgress
 
                     Timber.d("Upload progress: ${message.message.uploadProgress}")
                     activity!!.runOnUiThread {
