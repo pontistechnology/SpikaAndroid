@@ -629,6 +629,7 @@ object Tools {
         val sharedPrefs = SharedPreferencesRepositoryImpl(MainApplication.appContext)
         sharedPrefs.clearSharedPrefs()
         AppDatabase.nukeDb()
+        deleteTemporaryMedia(MainApplication.appContext)
         startOnboardingActivity(activity, false)
     }
 }
