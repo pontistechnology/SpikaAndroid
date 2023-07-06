@@ -109,7 +109,8 @@ class SSERepositoryImpl @Inject constructor(
                 }
 
                 if (messageRecords.isNotEmpty()) {
-                    val maxTimestamp = messageRecords.maxByOrNull { it.createdAt }?.createdAt
+                    val maxTimestamp =
+                        messageRecords.maxByOrNull { record -> record.createdAt }?.createdAt
                     Timber.d("MaxTimestamp message records timestamps: $maxTimestamp")
                     if (maxTimestamp != null && maxTimestamp > messageRecordsTimestamp) {
                         sharedPrefs.writeMessageRecordTimestamp(maxTimestamp)
@@ -528,6 +529,8 @@ class SSERepositoryImpl @Inject constructor(
                 saveCallResult(it)
             }
         )
+
+        response.responseData?.let { extraDataOperations(it) }
 
         if (Resource.Status.SUCCESS == response.status) {
             if (response.responseData?.let { shouldSyncMore(it) } == true) {
