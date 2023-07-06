@@ -222,4 +222,5 @@
     <string name="failed_to_delete_block_for_user">Failed to delete block for user</string>
     <string name="failed_delete_note">Failed to delete note, please try again.</string>
     <string name="unknown_user">Unknown user</string>
+    <string name="dat_deletion_warning">Your user and all his data will be deleted</string>
 </resources>

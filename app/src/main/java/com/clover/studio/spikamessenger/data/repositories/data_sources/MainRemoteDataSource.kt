@@ -84,6 +84,10 @@ class MainRemoteDataSource @Inject constructor(
         retrofitService.getUnreadCount(getHeaderMap(sharedPrefs.readToken()))
     }
 
+    suspend fun deleteUser() = getResult {
+        retrofitService.deleteUser(getHeaderMap(sharedPrefs.readToken()))
+    }
+
     override suspend fun syncContacts(contacts: List<String>, isLastPage: Boolean) = getResult {
         retrofitService.syncContacts(getHeaderMap(sharedPrefs.readToken()), contacts, isLastPage)
     }

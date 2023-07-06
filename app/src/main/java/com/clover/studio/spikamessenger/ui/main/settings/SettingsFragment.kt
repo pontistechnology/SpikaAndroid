@@ -20,12 +20,16 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.databinding.FragmentSettingsBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
-import com.clover.studio.spikamessenger.utils.*
+import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.FileUploadListener
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
+import com.clover.studio.spikamessenger.utils.UploadDownloadManager
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
+import com.clover.studio.spikamessenger.utils.getChunkSize
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -176,8 +180,10 @@ class SettingsFragment : BaseFragment() {
         when (viewModel.getUserTheme()) {
             AppCompatDelegate.MODE_NIGHT_NO -> binding.tvActiveTheme.text =
                 getString(R.string.light_theme)
+
             AppCompatDelegate.MODE_NIGHT_YES -> binding.tvActiveTheme.text =
                 getString(R.string.dark_theme)
+
             else -> binding.tvActiveTheme.text = getString(R.string.system_theme)
         }
     }
@@ -232,6 +238,23 @@ class SettingsFragment : BaseFragment() {
 
         binding.clAppearance.setOnClickListener {
             goToAppearanceSettings()
+        }
+
+        binding.clDeleteUser.setOnClickListener {
+            DialogError.getInstance(requireContext(),
+                getString(R.string.warning),
+                getString(R.string.dat_deletion_warning),
+                getString(R.string.cancel),
+                getString(R.string.ok),
+                object : DialogInteraction {
+                    override fun onFirstOptionClicked() {
+                        // Ignore
+                    }
+
+                    override fun onSecondOptionClicked() {
+                        viewModel.deleteUser()
+                    }
+                })
         }
     }
 

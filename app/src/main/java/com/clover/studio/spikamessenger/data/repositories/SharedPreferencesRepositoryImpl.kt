@@ -251,6 +251,13 @@ class SharedPreferencesRepositoryImpl(
         return getPrefs().getInt(Const.PrefsData.THEME, context.resources.configuration.uiMode)
     }
 
+    override fun clearSharedPrefs() {
+        with(getPrefs().edit()) {
+            clear()
+            commit()
+        }
+    }
+
     override fun unregisterSharedPrefsReceiver() {
         getPrefs().unregisterOnSharedPreferenceChangeListener(prefsListener)
     }
@@ -318,4 +325,6 @@ interface SharedPreferencesRepository {
     // Theme
     suspend fun writeUserTheme(userTheme: Int)
     suspend fun readUserTheme(): Int
+
+    fun clearSharedPrefs()
 }
