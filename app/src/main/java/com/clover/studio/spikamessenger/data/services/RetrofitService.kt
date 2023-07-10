@@ -125,6 +125,11 @@ interface RetrofitService {
         @Field(Const.Networking.IS_LAST_PAGE) isLastPage: Boolean
     ): Response<ContactsSyncResponse>
 
+    @DELETE(Const.Networking.API_UPDATE_USER)
+    suspend fun deleteUser(
+        @HeaderMap headers: Map<String, String?>
+    ): Response<DeleteUserResponse>
+
     // TODO add remaining block API
     // End block section
 }

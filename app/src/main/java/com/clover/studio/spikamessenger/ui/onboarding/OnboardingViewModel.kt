@@ -71,22 +71,24 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun sendContacts() = viewModelScope.launch {
-        val contacts: List<String>?
-        try {
-            contacts = sharedPrefs.readContacts()
-        } catch (ex: Exception) {
-            Tools.checkError(ex)
+        if (!sharedPrefs.isTeamMode()) {
+            val contacts: List<String>?
+            try {
+                contacts = sharedPrefs.readContacts()
+            } catch (ex: Exception) {
+                Tools.checkError(ex)
+                resolveResponseStatus(
+                    accountCreationListener,
+                    Resource(Resource.Status.ERROR, null, "")
+                )
+                return@launch
+            }
+            Timber.d("$contacts")
             resolveResponseStatus(
                 accountCreationListener,
-                Resource(Resource.Status.ERROR, null, "")
+                onboardingRepository.sendUserContacts(contacts!!)
             )
-            return@launch
         }
-        Timber.d("$contacts")
-        resolveResponseStatus(
-            accountCreationListener,
-            onboardingRepository.sendUserContacts(contacts!!)
-        )
     }
 
     fun writeContactsToSharedPref(contacts: List<String>) {

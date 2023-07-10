@@ -74,7 +74,7 @@ abstract class AppDatabase : RoomDatabase() {
         /**
          * Use method below to clear all database tables and get a clean slate
          */
-        fun nukeDb() {
+        suspend fun nukeDb() {
             buildDatabase(MainApplication.appContext).clearAllTables()
         }
 

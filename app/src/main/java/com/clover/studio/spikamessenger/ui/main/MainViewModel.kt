@@ -13,6 +13,7 @@ import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.responses.AuthResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
+import com.clover.studio.spikamessenger.data.models.networking.responses.DeleteUserResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
 import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SSERepositoryImpl
@@ -54,6 +55,7 @@ class MainViewModel @Inject constructor(
     val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
     val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
     val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
+    val deleteUserListener = MutableLiveData<Event<Resource<DeleteUserResponse?>>>()
 
     init {
         sseManager.setupListener(this)
@@ -310,6 +312,16 @@ class MainViewModel @Inject constructor(
                 repository.syncContacts(shouldRefresh = true)
             )
         }
+    }
+
+    fun deleteUser() = viewModelScope.launch {
+        resolveResponseStatus(deleteUserListener, repository.deleteUser())
+    }
+
+    fun isInTeamMode() = viewModelScope.launch {
+        if (sharedPrefsRepo.isTeamMode()) {
+            Timber.d("App is in team mode!")
+        } else Timber.d("App is in messenger mode!")
     }
 }
 

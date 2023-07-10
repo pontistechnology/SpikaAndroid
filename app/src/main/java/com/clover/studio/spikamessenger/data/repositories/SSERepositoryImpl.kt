@@ -13,6 +13,7 @@ import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomUser
 import com.clover.studio.spikamessenger.data.repositories.data_sources.SSERemoteDataSource
 import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.RestOperations.performRestOperation
 import com.clover.studio.spikamessenger.utils.helpers.RestOperations.queryDatabaseCoreData
 import com.google.gson.JsonArray
@@ -47,80 +48,79 @@ class SSERepositoryImpl @Inject constructor(
             sharedPrefs.writeMessageRecordTimestamp(System.currentTimeMillis())
         }
 
-        val response =
-            performRestOperation(
-                networkCall = { sseRemoteDataSource.syncMessageRecords(messageRecordsTimestamp) }
-            )
+        syncNextBatch(
+            lastUpdate = messageRecordsTimestamp,
+            networkCall = { sseRemoteDataSource.syncMessageRecords(messageRecordsTimestamp, it) },
+            saveCallResult = {
+                val messageRecords: MutableList<MessageRecords> = ArrayList()
+                val messageRecordsUpdates: MutableList<MessageRecords> = ArrayList()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            appDatabase.runInTransaction {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val messageRecords: MutableList<MessageRecords> = ArrayList()
-                    val messageRecordsUpdates: MutableList<MessageRecords> = ArrayList()
-
-                    if (response.responseData?.data != null) {
-                        for (record in response.responseData.data.messageRecords) {
-                            val databaseRecords = queryDatabaseCoreData(
-                                databaseQuery = {
-                                    messageRecordsDao.getMessageRecordId(
-                                        record.messageId,
-                                        record.userId,
-                                    )
-                                }
-                            ).responseData
-
-                            if (databaseRecords == null) {
-                                messageRecords.add(record)
-                            } else
-                                if (Const.JsonFields.SEEN == record.type) {
-                                    messageRecordsUpdates.add(record)
-                                } else if (Const.JsonFields.REACTION == record.type) {
-                                    val databaseReaction = queryDatabaseCoreData(
-                                        databaseQuery = {
-                                            messageRecordsDao.getMessageReactionId(
-                                                record.messageId,
-                                                record.userId
-                                            )
-                                        }
-                                    ).responseData
-                                    if (databaseReaction == null) {
-                                        messageRecords.add(record)
-                                    } else {
-                                        messageRecordsUpdates.add(record)
-                                    }
-                                }
-                        }
-                    }
-
-                    queryDatabaseCoreData(
-                        databaseQuery = { messageRecordsDao.upsert(messageRecords) }
-                    )
-
-                    // Since this is a transaction method this loop should insert all or none
-                    messageRecordsUpdates.forEach {
-                        queryDatabaseCoreData(
+                if (it.data.list.isNotEmpty()) {
+                    for (record in it.data.list) {
+                        val databaseRecords = queryDatabaseCoreData(
                             databaseQuery = {
-                                messageRecordsDao.updateMessageRecords(
-                                    it.userId,
-                                    it.type,
-                                    it.createdAt,
-                                    it.modifiedAt,
-                                    it.userId
+                                messageRecordsDao.getMessageRecordId(
+                                    record.messageId,
+                                    record.userId,
                                 )
                             }
-                        )
-                    }
+                        ).responseData
 
-                    if (messageRecords.isNotEmpty()) {
-                        val maxTimestamp = messageRecords.maxByOrNull { it.createdAt }?.createdAt
-                        Timber.d("MaxTimestamp message records timestamps: $maxTimestamp")
-                        if (maxTimestamp != null && maxTimestamp > messageRecordsTimestamp) {
-                            sharedPrefs.writeMessageRecordTimestamp(maxTimestamp)
-                        }
+                        if (databaseRecords == null) {
+                            messageRecords.add(record)
+                        } else
+                            if (Const.JsonFields.SEEN == record.type) {
+                                messageRecordsUpdates.add(record)
+                            } else if (Const.JsonFields.REACTION == record.type) {
+                                val databaseReaction = queryDatabaseCoreData(
+                                    databaseQuery = {
+                                        messageRecordsDao.getMessageReactionId(
+                                            record.messageId,
+                                            record.userId
+                                        )
+                                    }
+                                ).responseData
+                                if (databaseReaction == null) {
+                                    messageRecords.add(record)
+                                } else {
+                                    messageRecordsUpdates.add(record)
+                                }
+                            }
                     }
                 }
+
+                queryDatabaseCoreData(
+                    databaseQuery = { messageRecordsDao.upsert(messageRecords) }
+                )
+
+                // Since this is a transaction method this loop should insert all or none
+                messageRecordsUpdates.forEach {
+                    queryDatabaseCoreData(
+                        databaseQuery = {
+                            messageRecordsDao.updateMessageRecords(
+                                it.userId,
+                                it.type,
+                                it.createdAt,
+                                it.modifiedAt,
+                                it.userId
+                            )
+                        }
+                    )
+                }
+
+                if (messageRecords.isNotEmpty()) {
+                    val maxTimestamp =
+                        messageRecords.maxByOrNull { record -> record.createdAt }?.createdAt
+                    Timber.d("MaxTimestamp message records timestamps: $maxTimestamp")
+                    if (maxTimestamp != null && maxTimestamp > messageRecordsTimestamp) {
+                        sharedPrefs.writeMessageRecordTimestamp(maxTimestamp)
+                    }
+                }
+            },
+            shouldSyncMore = {
+                it.data.hasNext == true
             }
-        }
+        )
     }
 
     override suspend fun syncMessages() {
@@ -135,32 +135,32 @@ class SSERepositoryImpl @Inject constructor(
             sharedPrefs.writeMessageTimestamp(System.currentTimeMillis())
         }
 
-        val messageIds = ArrayList<Int>()
-        val response = performRestOperation(
-            networkCall = { sseRemoteDataSource.syncMessages(messageTimestamp) }
+        val response = syncNextBatch(
+            lastUpdate = messageTimestamp,
+            networkCall = { sseRemoteDataSource.syncMessages(messageTimestamp, it) },
+            saveCallResult = {
+                it.data?.list?.let { messages -> messageDao.upsert(messages) }
+            },
+            shouldSyncMore = {
+                it.data?.hasNext == true
+            },
+            extraDataOperations = {
+                val messagesIds = ArrayList<Int>()
+                if (it.data?.list?.isNotEmpty() == true) {
+                    for (message in it.data.list) {
+                        messagesIds.add(message.id)
+                    }
+                    sseRemoteDataSource.sendMessageDelivered(getMessageIdJson(messagesIds))
+                }
+            }
         )
 
-        val messages: MutableList<Message> = ArrayList()
-        if (response.responseData?.data?.messages?.isNotEmpty() == true) {
-            for (message in response.responseData.data.messages) {
-                messages.add(message)
-                messageIds.add(message.id)
-            }
-
-            queryDatabaseCoreData(
-                databaseQuery = { messageDao.upsert(messages) }
-            )
-
-            performRestOperation(
-                networkCall = { sseRemoteDataSource.sendMessageDelivered(getMessageIdJson(messageIds)) }
-            )
-
-            if (messages.isNotEmpty()) {
-                val maxTimestamp = messages.maxByOrNull { it.modifiedAt!! }?.modifiedAt
-                Timber.d("MaxTimestamp messages: $maxTimestamp")
-                if (maxTimestamp != null && maxTimestamp > messageTimestamp) {
-                    sharedPrefs.writeMessageTimestamp(maxTimestamp)
-                }
+        if (Resource.Status.SUCCESS == response.status) {
+            val maxTimestamp =
+                response.responseData?.data?.list?.maxByOrNull { it.modifiedAt!! }?.modifiedAt
+            Timber.d("MaxTimestamp messages: $maxTimestamp")
+            if (maxTimestamp != null && maxTimestamp > messageTimestamp) {
+                sharedPrefs.writeMessageTimestamp(maxTimestamp)
             }
         }
     }
@@ -173,31 +173,33 @@ class SSERepositoryImpl @Inject constructor(
             userTimestamp =
                 sharedPrefs.readUserTimestamp()!!
         } else {
-            // This is only for first launch
-            userTimestamp = System.currentTimeMillis()
-            sharedPrefs.writeUserTimestamp(System.currentTimeMillis())
+            if (sharedPrefs.isTeamMode()) {
+                userTimestamp = 0L
+            } else {
+                // This is only for first launch
+                userTimestamp = System.currentTimeMillis()
+                sharedPrefs.writeUserTimestamp(System.currentTimeMillis())
+            }
         }
 
-        val response = performRestOperation(
-            networkCall = { sseRemoteDataSource.syncUsers(userTimestamp) }
-        )
-
-        val users: MutableList<User> = ArrayList()
-        if (response.responseData?.data?.users?.isNotEmpty() == true) {
-            for (user in response.responseData.data.users) {
-                users.add(user)
-            }
-
-            queryDatabaseCoreData(
-                databaseQuery = { userDao.upsert(users) }
+        val response =
+            syncNextBatch(
+                lastUpdate = userTimestamp,
+                networkCall = { sseRemoteDataSource.syncUsers(userTimestamp, it) },
+                saveCallResult = {
+                    it.data?.list?.let { users -> userDao.upsert(users) }
+                },
+                shouldSyncMore = {
+                    it.data?.hasNext == true
+                }
             )
 
-            if (users.isNotEmpty()) {
-                val maxTimestamp = users.maxByOrNull { it.modifiedAt!! }?.modifiedAt
-                Timber.d("MaxTimestamp users: $maxTimestamp")
-                if (maxTimestamp != null && maxTimestamp > userTimestamp) {
-                    sharedPrefs.writeUserTimestamp(maxTimestamp)
-                }
+        if (Resource.Status.SUCCESS == response.status) {
+            val maxTimestamp =
+                response.responseData?.data?.list?.maxByOrNull { it.modifiedAt!! }?.modifiedAt
+            Timber.d("MaxTimestamp users: $maxTimestamp")
+            if (maxTimestamp != null && maxTimestamp > userTimestamp) {
+                sharedPrefs.writeUserTimestamp(maxTimestamp)
             }
         }
     }
@@ -205,54 +207,54 @@ class SSERepositoryImpl @Inject constructor(
     override suspend fun syncRooms() {
         Timber.d("Syncing rooms")
         val roomTimestamp: Long = sharedPrefs.readRoomTimestamp()!!
-        val response = performRestOperation(
-            networkCall = { sseRemoteDataSource.syncRooms(roomTimestamp) }
-        )
 
-        CoroutineScope(Dispatchers.IO).launch {
-            appDatabase.runInTransaction {
-                CoroutineScope(Dispatchers.IO).launch {
-                    if (response.responseData?.data?.rooms != null) {
-                        val users: MutableList<User> = ArrayList()
-                        val rooms: MutableList<ChatRoom> = ArrayList()
-                        val roomUsers: MutableList<RoomUser> = ArrayList()
-                        for (room in response.responseData.data.rooms) {
-                            if (!room.deleted) {
-                                Timber.d("Adding room ${room.name}")
+        syncNextBatch(
+            lastUpdate = roomTimestamp,
+            networkCall = { sseRemoteDataSource.syncRooms(roomTimestamp, it) },
+            saveCallResult = { roomResponse ->
+                if (roomResponse.data?.list?.isNotEmpty() == true) {
+                    val users: MutableList<User> = ArrayList()
+                    val rooms: MutableList<ChatRoom> = ArrayList()
+                    val roomUsers: MutableList<RoomUser> = ArrayList()
+                    for (room in roomResponse.data.list) {
+                        if (!room.deleted) {
+                            Timber.d("Adding room ${room.name}")
 
-                                for (user in room.users) {
-                                    user.user?.let { users.add(it) }
-                                    roomUsers.add(
-                                        RoomUser(
-                                            room.roomId,
-                                            user.userId,
-                                            user.isAdmin
-                                        )
+                            for (user in room.users) {
+                                user.user?.let { users.add(it) }
+                                roomUsers.add(
+                                    RoomUser(
+                                        room.roomId,
+                                        user.userId,
+                                        user.isAdmin
                                     )
-                                }
-                                rooms.add(room)
+                                )
                             }
+                            rooms.add(room)
                         }
-                        queryDatabaseCoreData(
-                            databaseQuery = { chatRoomDao.upsert(rooms) }
-                        )
-                        queryDatabaseCoreData(
-                            databaseQuery = { userDao.upsert(users) }
-                        )
-                        queryDatabaseCoreData(
-                            databaseQuery = { roomUserDao.upsert(roomUsers) }
-                        )
-                        if (rooms.isNotEmpty()) {
-                            val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
-                            Timber.d("MaxTimestamp rooms: $maxTimestamp, old timestamp = $roomTimestamp")
-                            if (maxTimestamp != null && maxTimestamp > roomTimestamp) {
-                                sharedPrefs.writeRoomTimestamp(maxTimestamp)
-                            }
+                    }
+                    queryDatabaseCoreData(
+                        databaseQuery = { chatRoomDao.upsert(rooms) }
+                    )
+                    queryDatabaseCoreData(
+                        databaseQuery = { userDao.upsert(users) }
+                    )
+                    queryDatabaseCoreData(
+                        databaseQuery = { roomUserDao.upsert(roomUsers) }
+                    )
+                    if (rooms.isNotEmpty()) {
+                        val maxTimestamp = rooms.maxByOrNull { it.modifiedAt!! }?.modifiedAt
+                        Timber.d("MaxTimestamp rooms: $maxTimestamp, old timestamp = $roomTimestamp")
+                        if (maxTimestamp != null && maxTimestamp > roomTimestamp) {
+                            sharedPrefs.writeRoomTimestamp(maxTimestamp)
                         }
                     }
                 }
+            },
+            shouldSyncMore = {
+                it.data?.hasNext == true
             }
-        }
+        )
     }
 
     suspend fun syncContacts(shouldRefresh: Boolean = false) {
@@ -506,7 +508,42 @@ class SSERepositoryImpl @Inject constructor(
         return sharedPrefs.isTeamMode()
     }
 
+    private suspend fun <A> syncNextBatch(
+        lastUpdate: Long,
+        networkCall: suspend (page: Int) -> Resource<A>,
+        saveCallResult: (suspend (A) -> Unit),
+        shouldSyncMore: (A) -> Boolean,
+        extraDataOperations: (suspend (A) -> Unit)? = null,
+        page: Int = 1
+    ): Resource<A> {
+        val response = performRestOperation(
+            networkCall = {
+                networkCall(page)
+            },
+            saveCallResult = {
+                saveCallResult(it)
+            }
+        )
 
+        if (extraDataOperations != null) {
+            response.responseData?.let { extraDataOperations(it) }
+        }
+
+        if (Resource.Status.SUCCESS == response.status) {
+            if (response.responseData?.let { shouldSyncMore(it) } == true) {
+                syncNextBatch(
+                    lastUpdate,
+                    networkCall,
+                    saveCallResult,
+                    shouldSyncMore,
+                    extraDataOperations,
+                    page + 1
+                )
+            } else return response
+        } else return response
+
+        return response
+    }
 }
 
 interface SSERepository : BaseRepository {

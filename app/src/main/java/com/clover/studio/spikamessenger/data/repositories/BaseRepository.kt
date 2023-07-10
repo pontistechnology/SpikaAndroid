@@ -79,7 +79,6 @@ interface BaseRepository {
         val endIndex = (offset + CONTACTS_BATCH).coerceAtMost(contacts.size)
         val batchedList = contacts.subList(offset, endIndex)
 
-
         val isLastPage = offset + CONTACTS_BATCH > contacts.size
 
         val response = RestOperations.performRestOperation(

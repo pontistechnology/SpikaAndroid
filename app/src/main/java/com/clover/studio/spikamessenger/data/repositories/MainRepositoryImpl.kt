@@ -15,6 +15,7 @@ import com.clover.studio.spikamessenger.data.models.junction.RoomUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.responses.AuthResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
+import com.clover.studio.spikamessenger.data.models.networking.responses.DeleteUserResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.FileResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.Settings
@@ -96,6 +97,12 @@ class MainRepositoryImpl @Inject constructor(
         queryDatabase(
             databaseQuery = { userDao.getUserAndPhoneUser(localId) }
         )
+
+    override suspend fun deleteUser(): Resource<DeleteUserResponse> {
+        return performRestOperation(
+            networkCall = { mainRemoteDataSource.deleteUser() }
+        )
+    }
 
     override suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
         return roomUserDao.doesPrivateRoomExistForUser(userId)
@@ -369,6 +376,7 @@ interface MainRepository : BaseRepository {
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
     fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
+    suspend fun deleteUser(): Resource<DeleteUserResponse>
 
     // Rooms calls
     suspend fun getUserRooms(): List<ChatRoom>?
