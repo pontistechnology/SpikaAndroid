@@ -243,7 +243,7 @@ class SettingsFragment : BaseFragment() {
         binding.clDeleteUser.setOnClickListener {
             DialogError.getInstance(requireContext(),
                 getString(R.string.warning),
-                getString(R.string.dat_deletion_warning),
+                getString(R.string.data_deletion_warning),
                 getString(R.string.cancel),
                 getString(R.string.ok),
                 object : DialogInteraction {
