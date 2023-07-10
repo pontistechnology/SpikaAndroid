@@ -36,7 +36,6 @@ import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.addFiles
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHideUserInformation
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -128,21 +127,29 @@ class ChatAdapter(
                         // ID of unsent message is -
                         if (it.message.id < 0) {
                             holder.binding.clProgressScreen.visibility = View.VISIBLE
+                            holder.binding.progressBar.visibility = View.VISIBLE
                             holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
-                            Timber.d("Chat Adapter progress: ${it.message.uploadProgress}")
                         } else {
                             holder.binding.clProgressScreen.visibility = View.GONE
                         }
                     }
 
                     Const.JsonFields.VIDEO_TYPE -> {
-                        setViewsVisibility(holder.binding.clVideos, holder)
-                        bindVideo(
-                            it,
-                            holder.binding.ivVideoThumbnail,
-                            holder.binding.clVideos,
-                            holder.binding.ivPlayButton
-                        )
+                        if (it.message.id < 0) {
+                            // Load thumbnail
+                            setViewsVisibility(holder.binding.clImageChat, holder)
+                            bindImage(it, holder.binding.ivChatImage, holder.binding.clImageChat)
+                            holder.binding.clProgressScreen.visibility = View.VISIBLE
+                            holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
+                        } else {
+                            setViewsVisibility(holder.binding.flVideos, holder)
+                            bindVideo(
+                                it,
+                                holder.binding.ivVideoThumbnail,
+                                holder.binding.ivPlayButton
+                            )
+                            holder.binding.clProgressScreen.visibility = View.GONE
+                        }
                     }
 
                     Const.JsonFields.FILE_TYPE -> {
@@ -235,9 +242,9 @@ class ChatAdapter(
 
                 /** Show edited layout: */
                 if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.clMessageEdited.visibility = View.VISIBLE
+                    holder.binding.tvMessageEdited.visibility = View.VISIBLE
                 } else {
-                    holder.binding.clMessageEdited.visibility = View.GONE
+                    holder.binding.tvMessageEdited.visibility = View.GONE
                 }
 
                 /** Show reactions: */
@@ -297,14 +304,12 @@ class ChatAdapter(
                     }
 
                     Const.JsonFields.VIDEO_TYPE -> {
-                        setViewsVisibility(holder.binding.clVideos, holder)
+                        setViewsVisibility(holder.binding.flVideos, holder)
                         bindVideo(
                             it,
                             holder.binding.ivVideoThumbnail,
-                            holder.binding.clVideos,
                             holder.binding.ivPlayButton
                         )
-
                     }
 
                     Const.JsonFields.FILE_TYPE -> {
@@ -364,9 +369,9 @@ class ChatAdapter(
 
                 /** Show edited layout: */
                 if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.clMessageEdited.visibility = View.VISIBLE
+                    holder.binding.tvMessageEdited.visibility = View.VISIBLE
                 } else {
-                    holder.binding.clMessageEdited.visibility = View.GONE
+                    holder.binding.tvMessageEdited.visibility = View.GONE
                 }
 
                 /** Show user names and avatars in group chat */
@@ -488,7 +493,6 @@ class ChatAdapter(
     private fun bindVideo(
         chatMessage: MessageAndRecords,
         ivVideoThumbnail: ImageView,
-        clVideos: ConstraintLayout,
         ivPlayButton: ImageView
     ) {
         val mediaPath = Tools.getMediaFile(context, chatMessage.message)
@@ -497,9 +501,6 @@ class ChatAdapter(
             mediaPath,
             ivVideoThumbnail,
         )
-
-        clVideos.visibility = View.VISIBLE
-        ivPlayButton.setImageResource(R.drawable.img_play)
 
         ivPlayButton.setOnClickListener {
             onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)

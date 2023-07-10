@@ -1585,12 +1585,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     message!!.message.uploadProgress = (progress * 100) / maxProgress
 
                     Timber.d("Upload progress: ${message.message.uploadProgress}")
-                    activity!!.runOnUiThread {
-                        chatAdapter.notifyItemChanged(
-                            messagesRecords.indexOf(
-                                message
+
+                    if (isVisible || isResumed) {
+                        Timber.d("Here::::")
+                        activity!!.runOnUiThread {
+                            chatAdapter.notifyItemChanged(
+                                messagesRecords.indexOf(
+                                    message
+                                )
                             )
-                        )
+                        }
                     }
                 }
             })

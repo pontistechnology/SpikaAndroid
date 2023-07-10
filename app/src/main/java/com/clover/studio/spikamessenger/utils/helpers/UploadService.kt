@@ -18,6 +18,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -81,11 +83,13 @@ class UploadService : Service() {
     }
 
     private suspend fun uploadItems(items: List<FileData>) {
-        for (item in items) {
-            Timber.d("Item: $item")
-            uploadItem(item)
-            count = 0
+        val uploadJobs = items.map { item ->
+            CoroutineScope(Dispatchers.Default).async {
+                uploadItem(item)
+                count = 0
+            }
         }
+        uploadJobs.awaitAll()
     }
 
     private suspend fun uploadItem(item: FileData) {
