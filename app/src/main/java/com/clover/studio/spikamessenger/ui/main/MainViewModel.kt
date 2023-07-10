@@ -317,6 +317,12 @@ class MainViewModel @Inject constructor(
     fun deleteUser() = viewModelScope.launch {
         resolveResponseStatus(deleteUserListener, repository.deleteUser())
     }
+
+    fun isInTeamMode() = viewModelScope.launch {
+        if (sharedPrefsRepo.isTeamMode()) {
+            Timber.d("App is in team mode!")
+        } else Timber.d("App is in messenger mode!")
+    }
 }
 
 class RoomNotificationData(

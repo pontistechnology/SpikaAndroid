@@ -275,6 +275,8 @@ class MainActivity : BaseActivity() {
                     })
             }
         })
+
+        viewModel.isInTeamMode()
     }
 
     private fun checkNotificationPermission() {

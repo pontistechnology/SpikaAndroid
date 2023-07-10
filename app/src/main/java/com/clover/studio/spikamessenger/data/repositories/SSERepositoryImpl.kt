@@ -176,9 +176,13 @@ class SSERepositoryImpl @Inject constructor(
             userTimestamp =
                 sharedPrefs.readUserTimestamp()!!
         } else {
-            // This is only for first launch
-            userTimestamp = System.currentTimeMillis()
-            sharedPrefs.writeUserTimestamp(System.currentTimeMillis())
+            if (sharedPrefs.isTeamMode()) {
+                userTimestamp = 0L
+            } else {
+                // This is only for first launch
+                userTimestamp = System.currentTimeMillis()
+                sharedPrefs.writeUserTimestamp(System.currentTimeMillis())
+            }
         }
 
         val response =
