@@ -66,9 +66,9 @@ class RegisterNumberFragment : BaseFragment() {
         setTextListener()
         setClickListeners()
         setObservers()
-
-        // Log check if token is present in shared prefs
-        viewModel.registerFlag(false)
+//
+//        // Log check if token is present in shared prefs
+//        viewModel.registerFlag(false)
         viewModel.readToken()
 
         return binding.root

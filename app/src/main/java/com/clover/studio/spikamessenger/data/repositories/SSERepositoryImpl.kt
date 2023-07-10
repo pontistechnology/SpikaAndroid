@@ -119,9 +119,6 @@ class SSERepositoryImpl @Inject constructor(
             },
             shouldSyncMore = {
                 it.data.hasNext == true
-            },
-            extraDataOperations = {
-                // ignore
             }
         )
     }
@@ -194,9 +191,6 @@ class SSERepositoryImpl @Inject constructor(
                 },
                 shouldSyncMore = {
                     it.data?.hasNext == true
-                },
-                extraDataOperations = {
-                    // ignore
                 }
             )
 
@@ -259,9 +253,6 @@ class SSERepositoryImpl @Inject constructor(
             },
             shouldSyncMore = {
                 it.data?.hasNext == true
-            },
-            extraDataOperations = {
-                // ignore
             }
         )
     }
@@ -522,7 +513,7 @@ class SSERepositoryImpl @Inject constructor(
         networkCall: suspend (page: Int) -> Resource<A>,
         saveCallResult: (suspend (A) -> Unit),
         shouldSyncMore: (A) -> Boolean,
-        extraDataOperations: (suspend (A) -> Unit),
+        extraDataOperations: (suspend (A) -> Unit)? = null,
         page: Int = 1
     ): Resource<A> {
         val response = performRestOperation(
@@ -534,7 +525,9 @@ class SSERepositoryImpl @Inject constructor(
             }
         )
 
-        response.responseData?.let { extraDataOperations(it) }
+        if (extraDataOperations != null) {
+            response.responseData?.let { extraDataOperations(it) }
+        }
 
         if (Resource.Status.SUCCESS == response.status) {
             if (response.responseData?.let { shouldSyncMore(it) } == true) {
