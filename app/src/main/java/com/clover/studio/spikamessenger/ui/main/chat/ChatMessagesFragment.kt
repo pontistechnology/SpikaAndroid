@@ -29,6 +29,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
@@ -1360,17 +1361,26 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun resendMessage(message: Message) {
-        if (Const.JsonFields.TEXT_TYPE == message.type) {
-            try {
-                sendMessage(
-                    text = message.body?.text!!,
-                    localId = message.localId.toString(),
-                )
-            } catch (e: Exception) {
-                Timber.d("Send message exception: $e")
+        when (message.type) {
+            Const.JsonFields.TEXT_TYPE -> {
+                try {
+                    sendMessage(
+                        text = message.body?.text!!,
+                        localId = message.localId.toString(),
+                    )
+                } catch (e: Exception) {
+                    Timber.d("Send message exception: $e")
+                }
             }
-        } else {
-            // TODO resend media
+
+            Const.JsonFields.IMAGE_TYPE -> {
+                val resendImage = message.body?.file?.uri?.toUri()
+                if (resendImage != null) {
+                    selectedFiles.add(resendImage)
+                    handleUserSelectedFile(selectedFiles)
+                }
+                viewModel.deleteLocalMessage(message)
+            }
         }
     }
 
@@ -1431,6 +1441,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.ivCamera.visibility = View.GONE
 
         for (uri in selectedFilesUris) {
+            Timber.d("Uri: $uri")
             val fileMimeType = getFileMimeType(context, uri)
             // TODO add checks for svg avi types
             if (fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
@@ -1671,7 +1682,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 //                    }
 //
 //                    viewModel.cancelUploadFile()
-//                    uploadInProgress = false
 //
 //                    if (exit) {
 //                        activity!!.finish()

@@ -18,8 +18,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -83,13 +81,17 @@ class UploadService : Service() {
     }
 
     private suspend fun uploadItems(items: List<FileData>) {
-        val uploadJobs = items.map { item ->
-            CoroutineScope(Dispatchers.Default).async {
-                uploadItem(item)
-                count = 0
-            }
+        for (item in items) {
+            uploadItem(item)
+            count = 0
         }
-        uploadJobs.awaitAll()
+//        val uploadJobs = items.map { item ->
+//            CoroutineScope(Dispatchers.Default).async {
+//                uploadItem(item)
+//                count = 0
+//            }
+//        }
+//        uploadJobs.awaitAll()
     }
 
     private suspend fun uploadItem(item: FileData) {

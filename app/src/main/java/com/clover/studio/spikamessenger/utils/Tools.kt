@@ -619,7 +619,7 @@ object Tools {
             height = options.outHeight
             width = options.outWidth
 
-            fileMetadata = FileMetadata(width, height, null)
+            fileMetadata = FileMetadata(width, height, 0)
             Timber.d("File metadata: $fileMetadata")
         } else if (mimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
             val retriever = MediaMetadataRetriever()
