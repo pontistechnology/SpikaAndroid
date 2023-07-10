@@ -5,9 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.View
 import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.clover.studio.spikamessenger.R
@@ -215,6 +212,7 @@ class ChatScreenActivity : BaseActivity() {
 
                         override fun onSecondOptionClicked() {
                             viewModel.setTokenExpiredFalse()
+                            viewModel.removeToken()
                             startOnboardingActivity(this@ChatScreenActivity, false)
                         }
                     })

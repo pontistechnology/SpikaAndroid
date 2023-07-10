@@ -18,7 +18,6 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.NotesRe
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
 import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
-import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.SSEListener
@@ -40,7 +39,6 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     private val repository: ChatRepositoryImpl,
     private val mainRepository: MainRepositoryImpl,
-    private val sharedPrefs: SharedPreferencesRepository,
     private val sseManager: SSEManager,
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel(), SSEListener {
