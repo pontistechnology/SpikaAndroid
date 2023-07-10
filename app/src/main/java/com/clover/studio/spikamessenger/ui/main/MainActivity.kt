@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.asLiveData
-import com.clover.studio.spikamessenger.utils.helpers.PhonebookService
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.ActivityMainBinding
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
@@ -24,6 +23,7 @@ import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseActivity
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
+import com.clover.studio.spikamessenger.utils.helpers.PhonebookService
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.notificationPermission
 import com.google.android.gms.tasks.OnCompleteListener
@@ -44,7 +44,7 @@ class MainActivity : BaseActivity() {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var bindingSetup: ActivityMainBinding
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
-    private lateinit var phonebookService: Intent
+    private var phonebookService: Intent? = null
 
     /** These two fields are used for the room notification, which has been removed temporarily **/
 //    private var handler = Handler(Looper.getMainLooper())
@@ -321,6 +321,8 @@ class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        stopService(phonebookService)
+        if (phonebookService != null) {
+            stopService(phonebookService)
+        }
     }
 }
