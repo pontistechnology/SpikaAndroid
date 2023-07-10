@@ -64,7 +64,10 @@ class OnboardingRepositoryImpl @Inject constructor(
                 saveCallResult = { userDao.upsert(it.data.user) }
             )
 
-        response.responseData?.data?.user?.id?.let { sharedPrefs.writeUserId(it) }
+        if (Resource.Status.SUCCESS == response.status) {
+            sharedPrefs.accountCreated(true)
+            response.responseData?.data?.user?.id?.let { sharedPrefs.writeUserId(it) }
+        }
 
         return response
     }

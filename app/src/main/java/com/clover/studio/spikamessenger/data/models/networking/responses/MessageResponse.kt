@@ -11,5 +11,7 @@ data class MessageData(
     val messages: List<Message>?,
     val count: Int?,
     val limit: Int?,
-    val message: Message?
+    val message: Message?,
+    val list: List<Message>?,
+    val hasNext: Boolean?
 )

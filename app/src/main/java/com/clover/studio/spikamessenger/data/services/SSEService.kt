@@ -10,25 +10,29 @@ interface SSEService {
     @GET(Const.Networking.API_SYNC_MESSAGES)
     suspend fun syncMessages(
         @HeaderMap headers: Map<String, String?>,
-        @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long
+        @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long,
+        @Query(Const.Networking.PAGE) page: Int
     ): Response<MessageResponse>
 
     @GET(Const.Networking.API_SYNC_MESSAGE_RECORDS)
     suspend fun syncMessageRecords(
         @HeaderMap headers: Map<String, String?>,
-        @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long
+        @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long,
+        @Query(Const.Networking.PAGE) page: Int
     ): Response<MessageRecordsResponse>
 
     @GET(Const.Networking.API_SYNC_USERS)
     suspend fun syncUsers(
         @HeaderMap headers: Map<String, String?>,
-        @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long
+        @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long,
+        @Query(Const.Networking.PAGE) page: Int
     ): Response<ContactResponse>
 
     @GET(Const.Networking.API_SYNC_ROOMS)
     suspend fun syncRooms(
         @HeaderMap headers: Map<String, String?>,
-        @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long
+        @Path(Const.Networking.LAST_UPDATE) lastUpdate: Long,
+        @Query(Const.Networking.PAGE) page: Int
     ): Response<RoomResponse>
 
     @POST(Const.Networking.API_MESSAGE_DELIVERED)

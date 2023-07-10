@@ -23,8 +23,6 @@ import android.text.format.DateUtils
 import android.util.TypedValue
 import android.widget.Toast
 import androidx.collection.ArraySet
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
@@ -32,10 +30,12 @@ import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
-import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.AppDatabase
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
+import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
+import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -623,6 +623,14 @@ object Tools {
         videoDirectory?.listFiles { _, name -> name.startsWith("VIDEO") }?.forEach { file ->
             file.delete()
         }
+    }
+
+    suspend fun clearUserData(activity: Activity) {
+        val sharedPrefs = SharedPreferencesRepositoryImpl(MainApplication.appContext)
+        sharedPrefs.clearSharedPrefs()
+        AppDatabase.nukeDb()
+        deleteTemporaryMedia(MainApplication.appContext)
+        startOnboardingActivity(activity, false)
     }
 }
 

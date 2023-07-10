@@ -12,23 +12,24 @@ class SSERemoteDataSource @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository
 ) : BaseDataSource() {
 
-    suspend fun syncMessageRecords(messageRecordsTimestamp: Long) = getResult {
+    suspend fun syncMessageRecords(messageRecordsTimestamp: Long, page: Int) = getResult {
         retrofitService.syncMessageRecords(
             getHeaderMap(sharedPrefs.readToken()),
-            messageRecordsTimestamp
+            messageRecordsTimestamp,
+            page
         )
     }
 
-    suspend fun syncMessages(messageTimestamp: Long) = getResult {
-        retrofitService.syncMessages(getHeaderMap(sharedPrefs.readToken()), messageTimestamp)
+    suspend fun syncMessages(messageTimestamp: Long, page: Int) = getResult {
+        retrofitService.syncMessages(getHeaderMap(sharedPrefs.readToken()), messageTimestamp, page)
     }
 
-    suspend fun syncUsers(userTimestamp: Long) = getResult {
-        retrofitService.syncUsers(getHeaderMap(sharedPrefs.readToken()), userTimestamp)
+    suspend fun syncUsers(userTimestamp: Long, page: Int) = getResult {
+        retrofitService.syncUsers(getHeaderMap(sharedPrefs.readToken()), userTimestamp, page)
     }
 
-    suspend fun syncRooms(roomTimestamp: Long) = getResult {
-        retrofitService.syncRooms(getHeaderMap(sharedPrefs.readToken()), roomTimestamp)
+    suspend fun syncRooms(roomTimestamp: Long, page: Int) = getResult {
+        retrofitService.syncRooms(getHeaderMap(sharedPrefs.readToken()), roomTimestamp, page)
     }
 
     suspend fun sendMessageDelivered(messageId: JsonObject) = getResult {
