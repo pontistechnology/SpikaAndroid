@@ -135,7 +135,7 @@ class SSERepositoryImpl @Inject constructor(
             sharedPrefs.writeMessageTimestamp(System.currentTimeMillis())
         }
 
-        val response = syncNextBatch(
+        syncNextBatch(
             lastUpdate = messageTimestamp,
             networkCall = { sseRemoteDataSource.syncMessages(messageTimestamp, it) },
             saveCallResult = {
@@ -151,18 +151,16 @@ class SSERepositoryImpl @Inject constructor(
                         messagesIds.add(message.id)
                     }
                     sseRemoteDataSource.sendMessageDelivered(getMessageIdJson(messagesIds))
+
+                    val maxTimestamp =
+                        it.data.list.maxByOrNull { message -> message.modifiedAt!! }?.modifiedAt
+                    Timber.d("MaxTimestamp messages: $maxTimestamp")
+                    if (maxTimestamp != null && maxTimestamp > messageTimestamp) {
+                        sharedPrefs.writeMessageTimestamp(maxTimestamp)
+                    }
                 }
             }
         )
-
-        if (Resource.Status.SUCCESS == response.status) {
-            val maxTimestamp =
-                response.responseData?.data?.list?.maxByOrNull { it.modifiedAt!! }?.modifiedAt
-            Timber.d("MaxTimestamp messages: $maxTimestamp")
-            if (maxTimestamp != null && maxTimestamp > messageTimestamp) {
-                sharedPrefs.writeMessageTimestamp(maxTimestamp)
-            }
-        }
     }
 
     override suspend fun syncUsers() {
@@ -182,26 +180,26 @@ class SSERepositoryImpl @Inject constructor(
             }
         }
 
-        val response =
-            syncNextBatch(
-                lastUpdate = userTimestamp,
-                networkCall = { sseRemoteDataSource.syncUsers(userTimestamp, it) },
-                saveCallResult = {
-                    it.data?.list?.let { users -> userDao.upsert(users) }
-                },
-                shouldSyncMore = {
-                    it.data?.hasNext == true
+        syncNextBatch(
+            lastUpdate = userTimestamp,
+            networkCall = { sseRemoteDataSource.syncUsers(userTimestamp, it) },
+            saveCallResult = {
+                it.data?.list?.let { users -> userDao.upsert(users) }
+            },
+            shouldSyncMore = {
+                it.data?.hasNext == true
+            },
+            extraDataOperations = {
+                if (it.data?.list?.isNotEmpty() == true) {
+                    val maxTimestamp =
+                        it.data.list.maxByOrNull { user -> user.modifiedAt!! }?.modifiedAt
+                    Timber.d("MaxTimestamp users: $maxTimestamp")
+                    if (maxTimestamp != null && maxTimestamp > userTimestamp) {
+                        sharedPrefs.writeUserTimestamp(maxTimestamp)
+                    }
                 }
-            )
-
-        if (Resource.Status.SUCCESS == response.status) {
-            val maxTimestamp =
-                response.responseData?.data?.list?.maxByOrNull { it.modifiedAt!! }?.modifiedAt
-            Timber.d("MaxTimestamp users: $maxTimestamp")
-            if (maxTimestamp != null && maxTimestamp > userTimestamp) {
-                sharedPrefs.writeUserTimestamp(maxTimestamp)
             }
-        }
+        )
     }
 
     override suspend fun syncRooms() {
