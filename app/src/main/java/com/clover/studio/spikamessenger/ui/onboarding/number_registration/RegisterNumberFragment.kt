@@ -16,13 +16,11 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.spikamessenger.R
-import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.databinding.FragmentRegisterNumberBinding
 import com.clover.studio.spikamessenger.ui.onboarding.OnboardingViewModel
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
-import com.clover.studio.spikamessenger.utils.Tools.formatE164Number
 import com.clover.studio.spikamessenger.utils.Tools.hashString
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
@@ -112,7 +110,7 @@ class RegisterNumberFragment : BaseFragment() {
                     viewModel.registerFlag(true)
                     viewModel.writeFirstAppStart()
                     findNavController().navigate(
-                        R.id.action_splashFragment_to_verificationFragment, bundle
+                        R.id.action_registerNumberFragment_to_verificationFragment, bundle
                     )
                 }
 
@@ -153,7 +151,7 @@ class RegisterNumberFragment : BaseFragment() {
                     viewModel.userPhoneNumberListener.value = binding.etPhoneNumber.text.toString()
                 }
                 findNavController().navigate(
-                    R.id.action_splashFragment_to_countryPickerFragment
+                    R.id.action_registerNumberFragment_to_countryPickerFragment
                 )
             }
         }

@@ -36,7 +36,9 @@ class OnboardingActivity : BaseActivity() {
         goToAccountCreation = intent.getBooleanExtra(Const.Navigation.GO_ACCOUNT_CREATION, false)
 
         if (goToAccountCreation) {
-            findNavController(R.id.container).navigate(R.id.action_splashFragment_to_accountCreationFragment)
+            findNavController(R.id.container).navigate(R.id.action_splashFragment_to_accountCreationFragment2)
         }
+
+        // TODO check if terms accepted and navigate to registration
     }
 }
