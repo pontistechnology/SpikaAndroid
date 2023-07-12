@@ -230,10 +230,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun initViews() {
         directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            avatarFileId = user?.avatarFileId!!
+            avatarFileId = user?.avatarFileId ?: 0
             userName = user?.formattedDisplayName.toString()
         } else {
-            avatarFileId = roomWithUsers.room.avatarFileId!!
+            avatarFileId = roomWithUsers.room.avatarFileId ?: 0
             userName = roomWithUsers.room.name.toString()
         }
 
