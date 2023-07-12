@@ -1,7 +1,5 @@
 package com.clover.studio.spikamessenger.ui.onboarding.terms_and_conditions
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
@@ -15,7 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.FragmentTermsAndConditionsBinding
-import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.Tools
 
 class TermsAndConditions : Fragment() {
     private var bindingSetup: FragmentTermsAndConditionsBinding? = null
@@ -41,11 +39,7 @@ class TermsAndConditions : Fragment() {
         val spannable = SpannableString(binding.tvWelcomeDescription.text)
         val clickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {
-                val uri =
-                    Uri.parse(Const.Urls.TERMS_AND_CONDITIONS)
-
-                val intent = Intent(Intent.ACTION_VIEW, uri)
-                startActivity(intent)
+                Tools.openTermsAndConditions(requireActivity())
             }
         }
         spannable.setSpan(
