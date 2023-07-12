@@ -194,6 +194,10 @@ class SettingsFragment : BaseFragment() {
         binding.clPrivacy.setOnClickListener {
             goToPrivacySettings()
         }
+
+        binding.flHelp.setOnClickListener {
+            goToHelp()
+        }
 //
 //        binding.clChat.setOnClickListener {
 //            goToChatSettings()
@@ -401,6 +405,10 @@ class SettingsFragment : BaseFragment() {
 
     private fun goToAppearanceSettings() {
         findNavController().navigate(R.id.action_mainFragment_to_appearanceSettings)
+    }
+
+    private fun goToHelp() {
+        findNavController().navigate(R.id.action_mainFragment_to_helpFragment)
     }
 
     private fun goToChatSettings() {
