@@ -257,4 +257,10 @@ class Const {
             const val AVATAR_FILE_ID: String = "avatarFileId"
         }
     }
+
+    class Urls {
+        companion object {
+            const val TERMS_AND_CONDITIONS = "https://clover.studio/projects/spika/spika-messenger-terms-and-coditions/"
+        }
+    }
 }

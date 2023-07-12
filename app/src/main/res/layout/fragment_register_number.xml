@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
+    android:focusable="true"
     android:focusableInTouchMode="true"
     tools:context=".ui.onboarding.number_registration.RegisterNumberFragment"
-    tools:ignore="contentDescription"
-    android:focusable="true">
+    tools:ignore="contentDescription">
 
     <ImageView
         android:id="@+id/iv_spika_logo"
@@ -110,6 +110,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_next"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/twenty_dp_margin"

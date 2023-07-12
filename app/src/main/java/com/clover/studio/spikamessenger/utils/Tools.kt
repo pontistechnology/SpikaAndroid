@@ -6,6 +6,7 @@ import android.app.Activity
 import android.app.DownloadManager
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.database.DatabaseUtils
@@ -623,6 +624,14 @@ object Tools {
         videoDirectory?.listFiles { _, name -> name.startsWith("VIDEO") }?.forEach { file ->
             file.delete()
         }
+    }
+
+    fun openTermsAndConditions(activity: Activity) {
+        val uri =
+            Uri.parse(Const.Urls.TERMS_AND_CONDITIONS)
+
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        activity.startActivity(intent)
     }
 
     suspend fun clearUserData(activity: Activity) {
