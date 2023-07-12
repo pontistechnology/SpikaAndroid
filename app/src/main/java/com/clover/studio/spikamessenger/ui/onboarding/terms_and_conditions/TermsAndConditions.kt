@@ -36,7 +36,8 @@ class TermsAndConditions : Fragment() {
             findNavController().navigate(R.id.action_splashFragment_to_registerNumberFragment)
         }
 
-        val spannable = SpannableString(binding.tvWelcomeDescription.text)
+        val textToSpan = binding.tvWelcomeDescription.text
+        val spannable = SpannableString(textToSpan)
         val clickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {
                 Tools.openTermsAndConditions(requireActivity())
@@ -48,12 +49,15 @@ class TermsAndConditions : Fragment() {
                     R.color.primary_color,
                     null
                 )
-            ), 35, binding.tvWelcomeDescription.text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            ),
+            textToSpan.indexOf(getString(R.string.terms_and_conditions)),
+            textToSpan.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         spannable.setSpan(
             clickableSpan,
-            35,
-            binding.tvWelcomeDescription.text.length,
+            textToSpan.indexOf(getString(R.string.terms_and_conditions)),
+            textToSpan.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
