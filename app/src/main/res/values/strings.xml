@@ -159,7 +159,7 @@
     <string name="thumbs_up_emoji">&#x1F44D;</string>
     <string name="praying_hands_emoji">&#x1F64F;</string>
     <string name="crying_face_emoji">&#x1F602;</string>
-    <string name="heart_emoji">&#x2764;</string>
+    <string name="heart_emoji">&#x2764;&#xFE0F;</string>
     <string name="astonished_emoji">&#x1F632;</string>
     <string name="disappointed_relieved_emoji">&#x1F625;</string>
 
