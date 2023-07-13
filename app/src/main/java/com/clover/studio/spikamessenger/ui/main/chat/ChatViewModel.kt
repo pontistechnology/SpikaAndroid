@@ -285,12 +285,9 @@ class ChatViewModel @Inject constructor(
         mainRepository.updateUnreadCount(roomId)
     }
 
-    fun startUploadFile() = viewModelScope.launch {
-        mainRepository.startUpload()
-    }
 
-    fun cancelUploadFile() = viewModelScope.launch {
-        mainRepository.cancelUpload()
+    fun cancelUploadFile(messageId: String) = viewModelScope.launch {
+        mainRepository.cancelUpload(messageId)
     }
 
     fun uploadFile(

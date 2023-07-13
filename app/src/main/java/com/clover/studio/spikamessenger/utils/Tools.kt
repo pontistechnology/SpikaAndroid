@@ -39,7 +39,6 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
-import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -636,6 +635,9 @@ object Tools {
             fileMetadata = FileMetadata(width, height, time)
             Timber.d("File metadata: $fileMetadata")
         }
+        inputStream.close()
+        return fileMetadata
+    }
 
     fun openTermsAndConditions(activity: Activity) {
         val uri =
@@ -651,12 +653,6 @@ object Tools {
         AppDatabase.nukeDb()
         deleteTemporaryMedia(MainApplication.appContext)
         startOnboardingActivity(activity, false)
-    }
-}
-
-        inputStream.close()
-
-        return fileMetadata
     }
 
     fun getFileNameFromUri(uri: Uri): String {

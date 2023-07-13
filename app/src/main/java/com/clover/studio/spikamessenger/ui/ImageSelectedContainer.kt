@@ -45,18 +45,4 @@ class ImageSelectedContainer(context: Context, attrs: AttributeSet?) :
     private fun handleButtonClicks() {
         binding.ivRemoveImage.setOnClickListener { removeImageSelected!!.removeImage() }
     }
-
-    fun setMaxProgress(progress: Int) {
-        binding.progressBar.max = progress
-        binding.clProgressScreen.visibility = View.VISIBLE
-        binding.ivRemoveImage.visibility = View.GONE
-    }
-
-    fun setUploadProgress(progress: Int) {
-        binding.progressBar.secondaryProgress = progress
-    }
-
-    fun hideProgressScreen() {
-        binding.clProgressScreen.visibility = View.GONE
-    }
 }

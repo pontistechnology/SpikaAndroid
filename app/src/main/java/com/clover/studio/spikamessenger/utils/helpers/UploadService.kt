@@ -53,6 +53,10 @@ class UploadService : Service() {
         callbackListener?.updateUploadProgressBar(progress, maxProgress, localId)
     }
 
+    private fun uploadingFinished() {
+        callbackListener?.uploadingFinished()
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val items = intent?.getParcelableArrayListExtra<FileData>(Const.IntentExtras.FILES_EXTRA)
 
@@ -81,17 +85,11 @@ class UploadService : Service() {
     }
 
     private suspend fun uploadItems(items: List<FileData>) {
-        for (item in items) {
-            uploadItem(item)
+        items.forEach {
+            uploadItem(it)
             count = 0
         }
-//        val uploadJobs = items.map { item ->
-//            CoroutineScope(Dispatchers.Default).async {
-//                uploadItem(item)
-//                count = 0
-//            }
-//        }
-//        uploadJobs.awaitAll()
+        uploadingFinished()
     }
 
     private suspend fun uploadItem(item: FileData) {
@@ -106,7 +104,11 @@ class UploadService : Service() {
             }
 
             override fun fileUploadError(description: String) {
-
+                // This is id of canceled message
+                Timber.d("Description: $description")
+//                itemsToUpload.removeIf{it.localId == description}
+//                Timber.d("Items to upload: $itemsToUpload")
+//                startUploading()
             }
 
             override fun fileUploadVerified(
@@ -169,5 +171,6 @@ class UploadService : Service() {
 
     interface FileUploadCallback {
         fun updateUploadProgressBar(progress: Int, maxProgress: Int, localId: String?)
+        fun uploadingFinished()
     }
 }

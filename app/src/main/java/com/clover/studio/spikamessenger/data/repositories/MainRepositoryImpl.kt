@@ -28,6 +28,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -39,7 +40,7 @@ class MainRepositoryImpl @Inject constructor(
     private val sharedPrefs: SharedPreferencesRepository,
 ) : MainRepository {
 
-    private var uploadInProgress = MutableLiveData(true)
+    private var uploadCanceled = MutableLiveData(Pair("", false))
 
     override suspend fun getUserRooms() =
         performRestOperation(
@@ -212,23 +213,20 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun uploadFiles(jsonObject: JsonObject): Resource<FileResponse> {
-        val response: Resource<FileResponse> = if (uploadInProgress.value == true) {
+        Timber.d("Upload canceled: ${uploadCanceled.value?.first}")
+        val response: Resource<FileResponse> = if (uploadCanceled.value?.second == false) {
             performRestOperation(
                 networkCall = { mainRemoteDataSource.uploadFile(jsonObject) },
             )
         } else {
-            Resource(Resource.Status.ERROR, null, "Download is canceled")
+            uploadCanceled.postValue(Pair(uploadCanceled.value?.first.toString(), false))
+            Resource(Resource.Status.ERROR, null, "${uploadCanceled.value?.first}")
         }
         return response
     }
 
-
-    override suspend fun cancelUpload() {
-        uploadInProgress.value = false
-    }
-
-    override suspend fun startUpload() {
-        uploadInProgress.value = true
+    override suspend fun cancelUpload(messageId: String) {
+        uploadCanceled.postValue(Pair(uploadCanceled.value?.first.toString(), true))
     }
 
     override suspend fun verifyFile(jsonObject: JsonObject) =
@@ -409,6 +407,5 @@ interface MainRepository : BaseRepository {
     suspend fun deleteBlockForSpecificUser(userId: Int): Resource<List<User>>
 
     // Upload file
-    suspend fun cancelUpload()
-    suspend fun startUpload()
+    suspend fun cancelUpload(messageId: String)
 }

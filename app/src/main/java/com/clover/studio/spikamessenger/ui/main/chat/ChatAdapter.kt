@@ -129,6 +129,9 @@ class ChatAdapter(
                             holder.binding.clProgressScreen.visibility = View.VISIBLE
                             holder.binding.progressBar.visibility = View.VISIBLE
                             holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
+                            holder.binding.ivCancelImage.setOnClickListener { _ ->
+                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
+                            }
                         } else {
                             holder.binding.clProgressScreen.visibility = View.GONE
                         }

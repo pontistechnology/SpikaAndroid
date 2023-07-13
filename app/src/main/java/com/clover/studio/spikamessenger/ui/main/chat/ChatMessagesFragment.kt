@@ -813,7 +813,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     run {
                         when (event) {
                             Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile()
+                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message.message)
                             Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                             Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                             Const.UserActions.RESEND_MESSAGE -> handleMessageResend(message)
@@ -1085,8 +1085,25 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         } else Tools.downloadFile(context!!, message.message)
     }
 
-    private fun handleDownloadCancelFile() {
-        // showUploadError(getString(R.string.upload_file_in_progress), false)
+    private fun handleDownloadCancelFile(message: Message) {
+        DialogError.getInstance(activity!!,
+            getString(R.string.warning),
+            "Are you sure to cancel upload?",
+            getString(R.string.back),
+            getString(R.string.ok),
+            object : DialogInteraction {
+                override fun onFirstOptionClicked() {
+                    // Ignore
+                }
+
+                override fun onSecondOptionClicked() {
+                    Timber.d("Message: $message")
+                    viewModel.cancelUploadFile(messageId = message.localId.toString())
+                    viewModel.deleteLocalMessage(message = message)
+
+                    viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
+                }
+            })
     }
 
     private fun handleMediaNavigation(chatMessage: MessageAndRecords) {
@@ -1597,16 +1614,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                     Timber.d("Upload progress: ${message.message.uploadProgress}")
 
-                    if (isVisible || isResumed) {
-                        Timber.d("Here::::")
-                        activity!!.runOnUiThread {
-                            chatAdapter.notifyItemChanged(
-                                messagesRecords.indexOf(
-                                    message
-                                )
+                    activity!!.runOnUiThread {
+                        chatAdapter.notifyItemChanged(
+                            messagesRecords.indexOf(
+                                message
                             )
-                        }
+                        )
+
                     }
+                }
+
+                override fun uploadingFinished() {
+                    Timber.d("Finished")
+                    Tools.deleteTemporaryMedia(context!!)
+                    context?.cacheDir?.deleteRecursively()
+
                 }
             })
         }
@@ -1615,80 +1637,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Timber.d("Disconnected")
         }
     }
-
-    // TODO Matko - resetUploadFields(), handleUploadError(), showUploadError()
-//    private fun resetUploadFields() {
-//        Timber.d("Resetting upload")
-//        viewModel.deleteLocalMessages(unsentMessages)
-//
-//        currentMediaLocation.clear()
-//        filesSelected.clear()
-//        thumbnailUris.clear()
-//
-//        Tools.deleteTemporaryMedia(context!!)
-//
-//        context?.cacheDir?.deleteRecursively()
-//    }
-
-
-//    private fun handleUploadError(typeFailed: String?, message: String?) {
-//        if (Const.JsonFields.IMAGE_TYPE == typeFailed || Const.JsonFields.VIDEO_TYPE == typeFailed) {
-//            currentMediaLocation.removeFirstOrNull()
-//            unsentMessages.firstOrNull()?.let { viewModel.deleteLocalMessage(it) }
-//            unsentMessages.removeFirstOrNull()
-//
-//            if (currentMediaLocation.isNotEmpty()) {
-//                uploadImage()
-//            } else resetUploadFields()
-//
-//        } else if (Const.JsonFields.FILE_TYPE == typeFailed) {
-//            filesSelected.removeFirst()
-//            viewModel.deleteLocalMessage(unsentMessages.first())
-//            unsentMessages.removeFirst()
-//
-//            if (filesSelected.isNotEmpty()) {
-//                uploadFiles(false, filesSelected.first(), null)
-//            } else resetUploadFields()
-//        } else resetUploadFields()
-//
-//        val description = if (message == getString(R.string.canceled_file_upload)) {
-//            getString(R.string.canceled_file_upload)
-//        } else {
-//            getString(R.string.failed_file_upload)
-//        }
-//
-//        Toast.makeText(
-//            activity!!.baseContext,
-//            description,
-//            Toast.LENGTH_SHORT
-//        ).show()
-//    }
-
-//    private fun showUploadError(errorMessage: String, exit: Boolean) {
-//        DialogError.getInstance(activity!!,
-//            getString(R.string.warning),
-//            errorMessage,
-//            getString(R.string.back),
-//            getString(R.string.ok),
-//            object : DialogInteraction {
-//                override fun onFirstOptionClicked() {
-//                    // ignore
-//                }
-//
-//                override fun onSecondOptionClicked() {
-//                    viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
-//                    if (unsentMessages.isNotEmpty()) {
-//                        viewModel.deleteLocalMessages(unsentMessages)
-//                    }
-//
-//                    viewModel.cancelUploadFile()
-//
-//                    if (exit) {
-//                        activity!!.finish()
-//                    }
-//                }
-//            })
-//    }
 
     private fun checkStoragePermission() {
         storagePermission =
@@ -1702,22 +1650,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun onBackArrowPressed() {
-//        if (uploadInProgress) {
-//            howUploadError(getString(R.string.upload_in_progress), true)
-//        } else {
-//            viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
-//            activity!!.finish()
-//        }
         viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
         activity!!.finish()
     }
 
     override fun onBackPressed(): Boolean {
-//        if (uploadInProgress) {
-//            showUploadError(getString(R.string.upload_in_progress), true)
-//            return false
-//        }
-
         for (bottomSheet in bottomSheets) {
             if (bottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED

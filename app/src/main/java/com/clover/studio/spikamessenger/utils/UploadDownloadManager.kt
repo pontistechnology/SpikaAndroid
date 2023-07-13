@@ -107,8 +107,9 @@ class UploadDownloadManager constructor(
         try {
             val response = repository.uploadFiles(uploadFile.chunkToJson())
             if (Resource.Status.ERROR == response.status) {
-                cancelUpload = true
-                fileUploadListener.fileUploadError("File upload canceled")
+                Timber.d("Resource: ${response.toString()}")
+                fileUploadListener.fileUploadError("${response.message}")
+                cancelUpload = false
                 return
             }
             fileUploadListener.filePieceUploaded()
