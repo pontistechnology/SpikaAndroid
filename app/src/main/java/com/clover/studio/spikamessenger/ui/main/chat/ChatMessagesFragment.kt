@@ -15,6 +15,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -120,6 +121,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var isAdmin = false
     private var progress = 0
+    private var listState: Parcelable? = null
 
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
@@ -130,6 +132,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private lateinit var storagePermission: ActivityResultLauncher<String>
     private var exoPlayer: ExoPlayer? = null
+    private var shouldScroll: Boolean = false
 
     private var avatarFileId = 0L
     private var userName = ""
@@ -180,6 +183,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         savedInstanceState: Bundle?
     ): View {
         super.onCreate(savedInstanceState)
+
+        if (listState != null) {
+            shouldScroll = true
+        }
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
@@ -397,17 +404,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         initBottomSheetsListeners()
-
-        /* Block dialog:
-        bindingSetup.tvBlock.setOnClickListener {
-            val userIdToBlock =
-                roomWithUsers.users.firstOrNull { user -> user.id != localUserId }
-            userIdToBlock?.let { idToBlock -> viewModel.blockUser(idToBlock.id) }
-        }
-
-        bindingSetup.tvOk.setOnClickListener {
-            bindingSetup.clBlockContact.visibility = View.GONE
-        }*/
     }
 
     private fun initBottomSheetsListeners() {
@@ -607,21 +603,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             chatAdapter.submitList(messagesRecords.toList())
                             updateSwipeController()
 
-                            val mediaPosition = viewModel.mediaPosition.value?.first
-                            if (mediaPosition != null && mediaPosition != 0) {
-                                bindingSetup.rvChat.scrollToPosition(mediaPosition)
-                                scrollYDistance = viewModel.mediaPosition.value?.second ?: 0
-                                viewModel.mediaPosition.postValue(Pair(0, scrollYDistance))
+                            if (listState == null && scrollYDistance == 0) {
+                                bindingSetup.rvChat.scrollToPosition(0)
                             }
 
-                            if (mediaPosition == null) {
-                                newMessagesCount = 0
-                                bindingSetup.rvChat.scrollToPosition(0)
-                                viewModel.mediaPosition.postValue(Pair(0, 0))
-                            }
                             // This else clause handles the issue where the firs message in the chat failed
                             // to be sent or uploaded. It would remain in the list otherwise.
                         } else chatAdapter.submitList(messagesRecords.toList())
+
+                        if (listState != null && shouldScroll) {
+                            bindingSetup.rvChat.layoutManager?.onRestoreInstanceState(listState)
+                            shouldScroll = false
+                        }
                     }
 
                     Resource.Status.LOADING -> {
@@ -2068,5 +2061,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             exoPlayer!!.release()
         }
         viewModel.unregisterSharedPrefsReceiver()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Timber.d("List state store = ${bindingSetup.rvChat.layoutManager?.onSaveInstanceState()}")
+        listState = bindingSetup.rvChat.layoutManager?.onSaveInstanceState()
     }
 }
