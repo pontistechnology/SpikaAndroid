@@ -14,6 +14,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
@@ -110,7 +111,13 @@ class ChatAdapter(
                 when (it.message.type) {
                     Const.JsonFields.TEXT_TYPE -> {
                         setViewsVisibility(holder.binding.tvMessage, holder)
-                        bindText(holder, holder.binding.tvMessage, it, true)
+                        bindText(
+                            holder,
+                            holder.binding.tvMessage,
+                            holder.binding.cvReactedEmoji,
+                            it,
+                            true
+                        )
                         showMessageTime(
                             it,
                             holder.binding.tvTime,
@@ -238,11 +245,13 @@ class ChatAdapter(
                 }
 
                 /** Show reactions: */
-                ChatAdapterHelper.bindReactions(
-                    it,
-                    holder.binding.tvReactedEmoji,
-                    holder.binding.cvReactedEmoji
-                )
+                if (it.message.deleted != null && !it.message.deleted) {
+                    ChatAdapterHelper.bindReactions(
+                        it,
+                        holder.binding.tvReactedEmoji,
+                        holder.binding.cvReactedEmoji
+                    )
+                }
 
                 holder.binding.cvReactedEmoji.setOnClickListener { _ ->
                     onMessageInteraction.invoke(Const.UserActions.SHOW_MESSAGE_REACTIONS, it)
@@ -274,7 +283,13 @@ class ChatAdapter(
                 when (it.message.type) {
                     Const.JsonFields.TEXT_TYPE -> {
                         setViewsVisibility(holder.binding.tvMessage, holder)
-                        bindText(holder, holder.binding.tvMessage, it, false)
+                        bindText(
+                            holder,
+                            holder.binding.tvMessage,
+                            holder.binding.cvReactedEmoji,
+                            it,
+                            false
+                        )
                         holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                         showMessageTime(
                             it,
@@ -389,11 +404,13 @@ class ChatAdapter(
                 }
 
                 /** Show reactions: */
-                ChatAdapterHelper.bindReactions(
-                    it,
-                    holder.binding.tvReactedEmoji,
-                    holder.binding.cvReactedEmoji
-                )
+                if (it.message.deleted != null && !it.message.deleted) {
+                    ChatAdapterHelper.bindReactions(
+                        it,
+                        holder.binding.tvReactedEmoji,
+                        holder.binding.cvReactedEmoji
+                    )
+                }
 
                 /** Send new reaction: */
                 sendReaction(it, holder.binding.clContainer, holder.absoluteAdapterPosition)
@@ -418,6 +435,7 @@ class ChatAdapter(
     private fun bindText(
         holder: ViewHolder,
         tvMessage: TextView,
+        cvReactedEmoji: CardView,
         chatMessage: MessageAndRecords,
         sender: Boolean,
     ) {
@@ -427,14 +445,12 @@ class ChatAdapter(
                     && (chatMessage.message.modifiedAt != chatMessage.message.createdAt))
         ) {
             tvMessage.text = context.getString(R.string.message_deleted_text)
-//            tvMessage.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
             tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
             tvMessage.background =
                 AppCompatResources.getDrawable(context, R.drawable.img_deleted_message)
+            cvReactedEmoji.visibility = View.GONE
         } else {
             tvMessage.text = chatMessage.message.body?.text
-
-
             tvMessage.background = AppCompatResources.getDrawable(
                 context,
                 if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
