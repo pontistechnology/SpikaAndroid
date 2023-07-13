@@ -300,8 +300,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
     }
 
-    private fun initListeners() {
-        bindingSetup.chatHeader.clHeader.setOnClickListener {
+    private fun initListeners() = with(bindingSetup) {
+        chatHeader.clHeader.setOnClickListener {
             if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
                 val bundle =
                     bundleOf(
@@ -322,11 +322,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        bindingSetup.chatHeader.ivArrowBack.setOnClickListener {
+        chatHeader.ivArrowBack.setOnClickListener {
             onBackArrowPressed()
         }
 
-        bindingSetup.ivCamera.setOnClickListener {
+        ivCamera.setOnClickListener {
             ChooserDialog.getInstance(context!!,
                 getString(R.string.placeholder_title),
                 null,
@@ -347,17 +347,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             emojiPopup.toggle()
             emojiPopup.dismiss()
             emojiPopup.isShowing
-            bindingSetup.ivAdd.rotation = ROTATION_OFF
+            ivAdd.rotation = ROTATION_OFF
         }
 
-        bindingSetup.etMessage.setOnClickListener {
+        etMessage.setOnClickListener {
             if (emojiPopup.isShowing) {
                 emojiPopup.dismiss()
             }
         }
 
         // This listener is for keyboard opening
-        bindingSetup.rvChat.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+        rvChat.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
             if (bottom < oldBottom) {
                 if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
                     || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
@@ -367,24 +367,24 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        bindingSetup.root.viewTreeObserver.addOnGlobalLayoutListener {
+        root.viewTreeObserver.addOnGlobalLayoutListener {
             heightDiff = bindingSetup.root.rootView.height - bindingSetup.root.height
         }
 
-        bindingSetup.cvNewMessages.setOnClickListener {
-            bindingSetup.rvChat.scrollToPosition(0)
-            bindingSetup.cvNewMessages.visibility = View.INVISIBLE
+        cvNewMessages.setOnClickListener {
+            rvChat.scrollToPosition(0)
+            cvNewMessages.visibility = View.INVISIBLE
             scrollYDistance = 0
             newMessagesCount = 0
         }
 
-        bindingSetup.cvBottomArrow.setOnClickListener {
-            bindingSetup.rvChat.scrollToPosition(0)
-            bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
+        cvBottomArrow.setOnClickListener {
+            rvChat.scrollToPosition(0)
+            cvBottomArrow.visibility = View.INVISIBLE
             scrollYDistance = 0
         }
 
-        bindingSetup.etMessage.addTextChangedListener {
+        etMessage.addTextChangedListener {
             if (!isEditing) {
                 if (it?.isNotEmpty() == true) {
                     showSendButton()
@@ -395,20 +395,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        bindingSetup.ivButtonSend.setOnClickListener {
-            bindingSetup.vHideTyping.visibility = View.GONE
-            bindingSetup.vTransparent.visibility = View.GONE
-            if (bindingSetup.etMessage.text?.isNotEmpty() == true) {
+        ivButtonSend.setOnClickListener {
+            vHideTyping.visibility = View.GONE
+            vTransparent.visibility = View.GONE
+            if (etMessage.text?.isNotEmpty() == true) {
                 createTempTextMessage()
                 sendMessage()
             }
-            bindingSetup.etMessage.setText("")
+            etMessage.setText("")
             hideSendButton()
             bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
             bindingSetup.clBottomReplyAction.visibility = View.GONE
         }
 
-        bindingSetup.tvUnblock.setOnClickListener {
+        tvUnblock.setOnClickListener {
             DialogError.getInstance(requireContext(),
                 getString(R.string.unblock_user),
                 getString(R.string.unblock_description, bindingSetup.chatHeader.tvChatName.text),
@@ -422,7 +422,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 })
         }
 
-        bindingSetup.tvSave.setOnClickListener {
+        tvSave.setOnClickListener {
             editMessage()
             resetEditingFields()
         }
@@ -430,48 +430,48 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         initBottomSheetsListeners()
     }
 
-    private fun initBottomSheetsListeners() {
+    private fun initBottomSheetsListeners() = with(bindingSetup) {
         // Initial visibility of bottom sheets
-        bindingSetup.clBottomSheet.visibility = View.GONE
-        bindingSetup.clBottomMessageActions.visibility = View.GONE
-        bindingSetup.clDetailsAction.visibility = View.GONE
-        bindingSetup.clBottomReplyAction.visibility = View.GONE
-        bindingSetup.clReactionsDetails.visibility = View.GONE
+        clBottomSheet.visibility = View.GONE
+        clBottomMessageActions.visibility = View.GONE
+        clDetailsAction.visibility = View.GONE
+        clBottomReplyAction.visibility = View.GONE
+        clReactionsDetails.visibility = View.GONE
 
         // Bottom sheet listeners
-        bindingSetup.ivAdd.setOnClickListener {
+        ivAdd.setOnClickListener {
             if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
                 replyId = 0L
                 bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
-                bindingSetup.clBottomReplyAction.visibility = View.GONE
+                clBottomReplyAction.visibility = View.GONE
             }
             if (!isEditing) {
                 if (bottomSheetBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
-                    bindingSetup.ivAdd.rotation = ROTATION_ON
+                    ivAdd.rotation = ROTATION_ON
                     bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
-                    bindingSetup.vTransparent.visibility = View.VISIBLE
-                    bindingSetup.clBottomSheet.visibility = View.VISIBLE
+                    vTransparent.visibility = View.VISIBLE
+                    clBottomSheet.visibility = View.VISIBLE
                 }
             } else {
                 resetEditingFields()
             }
         }
 
-        bindingSetup.bottomSheet.btnFiles.setOnClickListener {
+        bottomSheet.btnFiles.setOnClickListener {
             chooseFile()
             rotationAnimation()
         }
 
-        bindingSetup.messageActions.ivRemove.setOnClickListener {
+        messageActions.ivRemove.setOnClickListener {
             closeMessageSheet()
         }
 
-        bindingSetup.reactionsDetails.ivRemove.setOnClickListener {
+        reactionsDetails.ivRemove.setOnClickListener {
             bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_COLLAPSED
             bindingSetup.clReactionsDetails.visibility = View.GONE
         }
 
-        bindingSetup.replyAction.ivRemove.setOnClickListener {
+        replyAction.ivRemove.setOnClickListener {
             if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
                 bindingSetup.clBottomReplyAction.visibility = View.GONE
@@ -479,7 +479,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        bindingSetup.detailsAction.ivRemove.setOnClickListener {
+        detailsAction.ivRemove.setOnClickListener {
             if (bottomSheetDetailsAction.state == BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
                 bindingSetup.clDetailsAction.visibility = View.GONE
@@ -487,21 +487,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        bindingSetup.bottomSheet.ivRemove.setOnClickListener {
+        bottomSheet.ivRemove.setOnClickListener {
             bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
             bindingSetup.clBottomSheet.visibility = View.GONE
             rotationAnimation()
         }
 
-        bindingSetup.bottomSheet.btnLibrary.setOnClickListener {
+        bottomSheet.btnLibrary.setOnClickListener {
             chooseImage()
             rotationAnimation()
         }
 
-        bindingSetup.bottomSheet.btnLocation.setOnClickListener {
+        bottomSheet.btnLocation.setOnClickListener {
             rotationAnimation()
         }
-        bindingSetup.bottomSheet.btnContact.setOnClickListener {
+
+        bottomSheet.btnContact.setOnClickListener {
             rotationAnimation()
         }
 
@@ -613,6 +614,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             updateSwipeController()
 
                             if (listState == null && scrollYDistance == 0) {
+                                newMessagesCount = 0
                                 bindingSetup.rvChat.scrollToPosition(0)
                             }
                         } else chatAdapter.submitList(messagesRecords.toList())
@@ -634,9 +636,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
 
         viewModel.newMessageReceivedListener.observe(viewLifecycleOwner) { message ->
+            Timber.d("Message received! $message")
             message?.let {
                 if (message.roomId == roomWithUsers.room.roomId) {
-                    // Notify backend of messages seen
                     viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
                     newMessagesCount++
                     showNewMessage()
@@ -1291,43 +1293,43 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.sendReaction(jsonObject)
     }
 
-    private fun resetEditingFields() {
+    private fun resetEditingFields() = with(bindingSetup){
         editedMessageId = 0
         isEditing = false
         originalText = ""
-        bindingSetup.ivAdd.rotation = ROTATION_OFF
-        bindingSetup.tvSave.visibility = View.GONE
-        bindingSetup.ivCamera.visibility = View.VISIBLE
-        bindingSetup.ivMicrophone.visibility = View.VISIBLE
-        bindingSetup.etMessage.text!!.clear()
-        bindingSetup.etMessage.setText("")
+        ivAdd.rotation = ROTATION_OFF
+        tvSave.visibility = View.GONE
+        ivCamera.visibility = View.VISIBLE
+        ivMicrophone.visibility = View.VISIBLE
+        etMessage.text!!.clear()
+        etMessage.setText("")
     }
 
-    private fun rotationAnimation() {
+    private fun rotationAnimation() = with(bindingSetup){
         bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-        bindingSetup.clBottomSheet.visibility = View.GONE
-        bindingSetup.vTransparent.visibility = View.GONE
-        bindingSetup.ivAdd.rotation = ROTATION_OFF
+        clBottomSheet.visibility = View.GONE
+        vTransparent.visibility = View.GONE
+        ivAdd.rotation = ROTATION_OFF
     }
 
-    private fun showSendButton() {
-        bindingSetup.ivCamera.visibility = View.INVISIBLE
-        bindingSetup.ivMicrophone.visibility = View.INVISIBLE
-        bindingSetup.ivButtonSend.visibility = View.VISIBLE
-        bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
+    private fun showSendButton() = with(bindingSetup) {
+        ivCamera.visibility = View.INVISIBLE
+        ivMicrophone.visibility = View.INVISIBLE
+        ivButtonSend.visibility = View.VISIBLE
+        clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
             endToStart = bindingSetup.ivButtonSend.id
         }
-        bindingSetup.ivAdd.rotation = ROTATION_OFF
+        ivAdd.rotation = ROTATION_OFF
     }
 
-    private fun hideSendButton() {
-        bindingSetup.ivCamera.visibility = View.VISIBLE
-        bindingSetup.ivMicrophone.visibility = View.VISIBLE
-        bindingSetup.ivButtonSend.visibility = View.GONE
-        bindingSetup.clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
+    private fun hideSendButton() = with(bindingSetup){
+        ivCamera.visibility = View.VISIBLE
+        ivMicrophone.visibility = View.VISIBLE
+        ivButtonSend.visibility = View.GONE
+        clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
             endToStart = bindingSetup.ivCamera.id
         }
-        bindingSetup.ivAdd.rotation = ROTATION_OFF
+        ivAdd.rotation = ROTATION_OFF
     }
 
     private fun showDeleteMessageDialog(message: Message) {
@@ -1338,17 +1340,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             getString(R.string.delete_for_me),
             object : DialogInteraction {
                 override fun onFirstOptionClicked() {
-                    deleteMessage(message.id, Const.UserActions.DELETE_MESSAGE_ALL)
+                    deleteMessage(message, Const.UserActions.DELETE_MESSAGE_ALL)
                 }
 
                 override fun onSecondOptionClicked() {
-                    deleteMessage(message.id, Const.UserActions.DELETE_MESSAGE_ME)
+                    deleteMessage(message, Const.UserActions.DELETE_MESSAGE_ME)
                 }
             })
     }
 
-    private fun deleteMessage(messageId: Int, target: String) {
-        viewModel.deleteMessage(messageId, target)
+    private fun deleteMessage(message: Message, target: String) {
+        viewModel.deleteMessage(message.id, target)
+        val deletedMessage = messagesRecords.firstOrNull { it.message.localId == message.localId }
+        chatAdapter.notifyItemChanged(messagesRecords.indexOf(deletedMessage))
     }
 
     private fun editMessage() {
