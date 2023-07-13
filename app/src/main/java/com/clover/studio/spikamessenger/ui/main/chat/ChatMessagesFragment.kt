@@ -123,6 +123,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var directory: File? = null
 
     private var isAdmin = false
+    private var listState: Parcelable? = null
 
     private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
     private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
@@ -133,6 +134,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private lateinit var storagePermission: ActivityResultLauncher<String>
     private var exoPlayer: ExoPlayer? = null
+    private var shouldScroll: Boolean = false
 
     private var avatarFileId = 0L
     private var userName = ""
@@ -205,6 +207,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         savedInstanceState: Bundle?
     ): View {
         super.onCreate(savedInstanceState)
+
+        if (listState != null) {
+            shouldScroll = true
+        }
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
@@ -422,17 +428,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         initBottomSheetsListeners()
-
-        /* Block dialog:
-        bindingSetup.tvBlock.setOnClickListener {
-            val userIdToBlock =
-                roomWithUsers.users.firstOrNull { user -> user.id != localUserId }
-            userIdToBlock?.let { idToBlock -> viewModel.blockUser(idToBlock.id) }
-        }
-
-        bindingSetup.tvOk.setOnClickListener {
-            bindingSetup.clBlockContact.visibility = View.GONE
-        }*/
     }
 
     private fun initBottomSheetsListeners() {
@@ -617,19 +612,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             chatAdapter.submitList(messagesRecords.toList())
                             updateSwipeController()
 
-                            val mediaPosition = viewModel.mediaPosition.value?.first
-                            if (mediaPosition != null && mediaPosition != 0) {
-                                bindingSetup.rvChat.scrollToPosition(mediaPosition)
-                                scrollYDistance = viewModel.mediaPosition.value?.second ?: 0
-                                viewModel.mediaPosition.postValue(Pair(0, scrollYDistance))
-                            }
-
-                            if (mediaPosition == null) {
-                                newMessagesCount = 0
+                            if (listState == null && scrollYDistance == 0) {
                                 bindingSetup.rvChat.scrollToPosition(0)
-                                viewModel.mediaPosition.postValue(Pair(0, 0))
                             }
                         } else chatAdapter.submitList(messagesRecords.toList())
+
+                        if (listState != null && shouldScroll) {
+                            bindingSetup.rvChat.layoutManager?.onRestoreInstanceState(listState)
+                            shouldScroll = false
+                        }
                     }
 
                     Resource.Status.LOADING -> {
@@ -1720,5 +1711,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             exoPlayer!!.release()
         }
         viewModel.unregisterSharedPrefsReceiver()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Timber.d("List state store = ${bindingSetup.rvChat.layoutManager?.onSaveInstanceState()}")
+        listState = bindingSetup.rvChat.layoutManager?.onSaveInstanceState()
     }
 }
