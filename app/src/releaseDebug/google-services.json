@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "545730644006",
+    "project_id": "spika-ultimate",
+    "storage_bucket": "spika-ultimate.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545730644006:android:bb162b653804f1000d3ee7",
+        "android_client_info": {
+          "package_name": "com.clover.studio.exampleapp.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "545730644006-imgrj0ohiaassgukuep4vh1cj5uefuss.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhRRUUn-PaCHf8LSamVewAi7oX85VOTfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "545730644006-imgrj0ohiaassgukuep4vh1cj5uefuss.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "545730644006-cpr9og9jj9vta36tqtboij6jj1r4qj10.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "studio.clover.Spika"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545730644006:android:f06d326fbffcc3c70d3ee7",
+        "android_client_info": {
+          "package_name": "com.clover.studio.spikamessenger.release"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "545730644006-imgrj0ohiaassgukuep4vh1cj5uefuss.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhRRUUn-PaCHf8LSamVewAi7oX85VOTfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "545730644006-imgrj0ohiaassgukuep4vh1cj5uefuss.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "545730644006-cpr9og9jj9vta36tqtboij6jj1r4qj10.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "studio.clover.Spika"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
