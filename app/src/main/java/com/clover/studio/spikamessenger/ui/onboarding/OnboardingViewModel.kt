@@ -70,6 +70,14 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
+    fun isTeamMode(): Boolean {
+        var isTeamMode: Boolean
+        runBlocking {
+            isTeamMode = sharedPrefs.isTeamMode()
+        }
+        return isTeamMode
+    }
+
     fun sendContacts() = viewModelScope.launch {
         if (!sharedPrefs.isTeamMode()) {
             val contacts: List<String>?
