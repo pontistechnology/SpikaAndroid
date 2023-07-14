@@ -52,7 +52,7 @@ class ChatViewModel @Inject constructor(
     val newMessageReceivedListener = MutableLiveData<Message?>()
     val roomInfoUpdated = MutableLiveData<Event<Resource<RoomResponse?>>>()
     private val liveDataLimit = MutableLiveData(20)
-    val mediaPosition = MutableLiveData<Pair<Int, Int>>()
+    val messagesReceived = MutableLiveData<List<Message>>()
 
     init {
         sseManager.setupListener(this)
@@ -73,8 +73,22 @@ class ChatViewModel @Inject constructor(
 
     override fun newMessageReceived(message: Message) {
         viewModelScope.launch {
-            newMessageReceivedListener.postValue(message)
             updateCounterLimit()
+            val currentMessages = messagesReceived.value?.toMutableList() ?: mutableListOf()
+            val isMessageNew = currentMessages.none { it.id == message.id }
+
+            if (isMessageNew) {
+                currentMessages.add(message)
+                messagesReceived.value = currentMessages
+            }
+            Timber.d("Messages received: $messagesReceived")
+        }
+    }
+
+    fun clearMessages() {
+        viewModelScope.launch {
+            messagesReceived.value = emptyList()
+            Timber.d("Messages received cleared: ${messagesReceived.value}")
         }
     }
 
