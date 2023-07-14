@@ -119,7 +119,7 @@ android {
             debuggable true
             minifyEnabled false
 
-            resValue "string", "APP_NAME", "Spika Messenger"
+            resValue "string", "APP_NAME", "Spika Messenger Dev"
             buildConfigField("String", "SERVER_URL", "\"https://messenger-dev.spika.chat/\"")
 
             signingConfig signingConfigs.debug
