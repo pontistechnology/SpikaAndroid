@@ -144,7 +144,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var scrollYDistance = 0
     private var heightDiff = 0
-    private var newMessagesCount = 0
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
@@ -351,7 +350,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             rvChat.scrollToPosition(0)
             cvNewMessages.visibility = View.INVISIBLE
             scrollYDistance = 0
-            newMessagesCount = 0
+            viewModel.clearMessages()
         }
 
         cvBottomArrow.setOnClickListener {
@@ -560,26 +559,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    // Delay next message sending by 2 seconds for better user experience.
-                    // Could be removed if we deem it not needed.
                     if (!uploadInProgress) {
-                        Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                            if (unsentMessages.isNotEmpty()) {
-                                if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE) {
-                                    uploadImage()
-                                } else if (unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE) {
-                                    uploadVideo()
-                                } else if (filesSelected.isNotEmpty()) {
-                                    uploadFile()
-                                }
-                            } else resetUploadFields()
-                        }, 2000)
+                        if (unsentMessages.isNotEmpty()) {
+                            if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE) {
+                                uploadImage()
+                            } else if (unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE) {
+                                uploadVideo()
+                            } else if (filesSelected.isNotEmpty()) {
+                                uploadFile()
+                            }
+                        } else resetUploadFields()
                     }
                     if (unsentMessages.isNotEmpty()) {
                         val message =
                             unsentMessages.find { msg -> msg.localId == it.responseData?.data?.message?.localId }
                         unsentMessages.remove(message)
                     }
+                    senderScroll()
                 }
 
                 Resource.Status.ERROR -> {
@@ -605,7 +601,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             updateSwipeController()
 
                             if (listState == null && scrollYDistance == 0) {
-                                newMessagesCount = 0
                                 bindingSetup.rvChat.scrollToPosition(0)
                             }
 
@@ -626,14 +621,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
 
-        viewModel.newMessageReceivedListener.observe(viewLifecycleOwner) { message ->
-            Timber.d("Message received! $message")
-            message?.let {
-                if (message.roomId == roomWithUsers.room.roomId) {
-                    viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
-                    newMessagesCount++
-                    showNewMessage()
-                }
+        viewModel.messagesReceived.observe(viewLifecycleOwner) { messages ->
+            val receivedMessages = messages.filter { it.roomId == roomWithUsers.room.roomId
+                    && it.fromUserId != localUserId }
+            if (receivedMessages.isNotEmpty()){
+                showNewMessage(receivedMessages.size)
             }
         }
 
@@ -641,7 +633,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
                 if (it?.isNotEmpty() == true) {
                     viewModel.fetchBlockedUsersLocally(it)
-                } // else bindingSetup.clContactBlocked.visibility = View.GONE
+                }
             }
 
             viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
@@ -836,7 +828,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
     }
 
-    private fun showNewMessage() {
+    private fun showNewMessage(messagesSize: Int) {
         valueAnimator?.end()
         valueAnimator?.removeAllUpdateListeners()
         bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
@@ -846,19 +838,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             scrollYDistance -= heightDiff
         }
 
-        // We need to check where we are in recycler view:
-        // If we are somewhere bottom
-        if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
-            || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
+        if (!((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
+                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
         ) {
-            scrollToPosition()
-        } else {
-            // If we are somewhere up in chat, show new message dialog
             bindingSetup.cvNewMessages.visibility = View.VISIBLE
 
-            if (newMessagesCount == 1) {
+            if (messagesSize == 1 && bindingSetup.cvNewMessages.visibility == View.INVISIBLE) {
                 bindingSetup.tvNewMessage.text =
-                    getString(R.string.new_messages, newMessagesCount.toString(), "").trim()
+                    getString(R.string.new_messages, messagesSize.toString(), "").trim()
 
                 val startWidth = bindingSetup.ivBottomArrow.width
                 val endWidth = (bindingSetup.tvNewMessage.width + bindingSetup.ivBottomArrow.width)
@@ -875,32 +862,36 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
             } else {
                 bindingSetup.tvNewMessage.text =
-                    getString(R.string.new_messages, newMessagesCount.toString(), "s").trim()
+                    getString(R.string.new_messages, messagesSize.toString(), "s").trim()
             }
+        } else if (messagesSize > 0) {
+            viewModel.clearMessages()
         }
         return
     }
 
     private fun showBottomArrow() {
-        if (newMessagesCount == 0) {
-            if (heightDiff >= MIN_HEIGHT_DIFF && scrollYDistance > SCROLL_DISTANCE_POSITIVE) {
-                scrollYDistance -= heightDiff
-            }
-            if (!((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
-                        || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
-            ) {
-                bindingSetup.cvNewMessages.visibility = View.INVISIBLE
-                bindingSetup.cvBottomArrow.visibility = View.VISIBLE
-            } else {
+        if (heightDiff >= MIN_HEIGHT_DIFF && scrollYDistance > SCROLL_DISTANCE_POSITIVE) {
+            scrollYDistance -= heightDiff
+        }
+        // If we are somewhere up
+        if (!((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
+                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
+        ) {
+            if (bindingSetup.cvNewMessages.visibility == View.VISIBLE) {
                 bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
+            } else {
+                bindingSetup.cvBottomArrow.visibility = View.VISIBLE
             }
+        } else {
+            bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
         }
     }
 
     private fun scrollToPosition() {
-        newMessagesCount = 0
-        bindingSetup.rvChat.smoothScrollToPosition(0)
+        bindingSetup.rvChat.scrollToPosition(0)
         scrollYDistance = 0
+        return
     }
 
     private fun setUpAdapter() {
@@ -912,8 +903,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             exoPlayer!!,
             roomWithUsers.room.type,
             onMessageInteraction = { event, message ->
-                // Block dialog:
-                // if (bindingSetup.clContactBlocked.visibility != View.VISIBLE) {
                 if (!roomWithUsers.room.deleted && !roomWithUsers.room.roomExit) {
                     run {
                         when (event) {
@@ -922,7 +911,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                             Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                             Const.UserActions.RESEND_MESSAGE -> handleMessageResend(message)
-                            Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
+                            Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(
+                                message
+                            )
                             Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
                                 message
                             )
@@ -931,7 +922,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
                     }
                 }
-                // }
             }
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
@@ -963,8 +953,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     bindingSetup.cvNewMessages.visibility = View.INVISIBLE
                     bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
-                    newMessagesCount = 0
                     scrollYDistance = 0
+                    viewModel.clearMessages()
                 }
             }
         })
@@ -973,21 +963,24 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun updateSwipeController() {
         itemTouchHelper?.attachToRecyclerView(null)
         val messageSwipeController =
-            MessageSwipeController(context!!, messagesRecords, onSwipeAction = { action, position ->
-                when (action) {
-                    Const.UserActions.ACTION_RIGHT -> {
-                        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
-                        bindingSetup.clBottomReplyAction.visibility = View.VISIBLE
-                        handleMessageReply(messagesRecords[position].message)
-                    }
+            MessageSwipeController(
+                context!!,
+                messagesRecords,
+                onSwipeAction = { action, position ->
+                    when (action) {
+                        Const.UserActions.ACTION_RIGHT -> {
+                            bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
+                            bindingSetup.clBottomReplyAction.visibility = View.VISIBLE
+                            handleMessageReply(messagesRecords[position].message)
+                        }
 
-                    Const.UserActions.ACTION_LEFT -> {
-                        bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
-                        bindingSetup.clDetailsAction.visibility = View.VISIBLE
-                        getDetailsList(messagesRecords[position].message)
+                        Const.UserActions.ACTION_LEFT -> {
+                            bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
+                            bindingSetup.clDetailsAction.visibility = View.VISIBLE
+                            getDetailsList(messagesRecords[position].message)
+                        }
                     }
-                }
-            })
+                })
 
         itemTouchHelper = ItemTouchHelper(messageSwipeController)
         itemTouchHelper!!.attachToRecyclerView(bindingSetup.rvChat)
@@ -1094,27 +1087,27 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     }
 
-    private fun handleMessageAction(msg: MessageAndRecords) {
+    private fun handleMessageAction(msg: MessageAndRecords) = with(bindingSetup) {
         if (msg.message.deleted == null || msg.message.deleted == true) {
             return
         }
 
-        val reactionsContainer = ReactionsContainer(this.context!!, null)
-        bindingSetup.messageActions.reactionsContainer.addView(reactionsContainer)
+        val reactionsContainer = ReactionsContainer(requireContext(), null)
+        messageActions.reactionsContainer.addView(reactionsContainer)
         bottomSheetMessageActions.state = BottomSheetBehavior.STATE_EXPANDED
-        bindingSetup.clBottomMessageActions.visibility = View.VISIBLE
-        bindingSetup.vTransparent.visibility = View.VISIBLE
+        clBottomMessageActions.visibility = View.VISIBLE
+        vTransparent.visibility = View.VISIBLE
 
         val localId = viewModel.getLocalUserId()
         val fromUserId = msg.message.fromUserId
 
-        bindingSetup.messageActions.tvDelete.visibility =
+        messageActions.tvDelete.visibility =
             if (fromUserId == localId) View.VISIBLE else View.GONE
 
-        bindingSetup.messageActions.tvEdit.visibility =
+        messageActions.tvEdit.visibility =
             if (fromUserId == localId && Const.JsonFields.TEXT_TYPE == msg.message.type) View.VISIBLE else View.GONE
 
-        bindingSetup.messageActions.tvCopy.visibility =
+        messageActions.tvCopy.visibility =
             if (Const.JsonFields.TEXT_TYPE == msg.message.type) View.VISIBLE else View.GONE
 
         reactionsContainer.setButtonListener(object : ReactionsContainer.AddReaction {
@@ -1128,38 +1121,43 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
-        bindingSetup.messageActions.tvDelete.setOnClickListener {
+        messageActions.tvDelete.setOnClickListener {
             closeMessageSheet()
             showDeleteMessageDialog(msg.message)
         }
 
-        bindingSetup.messageActions.tvEdit.setOnClickListener {
+        messageActions.tvEdit.setOnClickListener {
             closeMessageSheet()
             handleMessageEdit(msg.message)
         }
 
-        bindingSetup.messageActions.tvReply.setOnClickListener {
+        messageActions.tvReply.setOnClickListener {
             closeMessageSheet()
             bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
-            bindingSetup.clBottomReplyAction.visibility = View.VISIBLE
+            clBottomReplyAction.visibility = View.VISIBLE
             handleMessageReply(msg.message)
         }
 
-        bindingSetup.messageActions.tvDetails.setOnClickListener {
+        messageActions.tvDetails.setOnClickListener {
             bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
-            bindingSetup.clBottomMessageActions.visibility = View.GONE
+            clBottomMessageActions.visibility = View.GONE
             getDetailsList(msg.message)
             bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
-            bindingSetup.clDetailsAction.visibility = View.VISIBLE
+            clDetailsAction.visibility = View.VISIBLE
         }
 
-        bindingSetup.messageActions.tvCopy.setOnClickListener {
-            val clipboard = requireContext().getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        messageActions.tvCopy.setOnClickListener {
+            val clipboard =
+                requireContext().getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
             val clip: ClipData = ClipData.newPlainText("", msg.message.body?.text.toString())
             clipboard.setPrimaryClip(clip)
             bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
-            bindingSetup.clBottomMessageActions.visibility = View.GONE
-            Toast.makeText(requireContext(), getString(R.string.text_copied), Toast.LENGTH_SHORT)
+            clBottomMessageActions.visibility = View.GONE
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.text_copied),
+                Toast.LENGTH_SHORT
+            )
                 .show()
         }
     }
@@ -1196,9 +1194,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleMediaNavigation(chatMessage: MessageAndRecords) {
-        val mediaPosition = chatAdapter.currentList.indexOf(chatMessage)
-        viewModel.mediaPosition.postValue(Pair(mediaPosition, scrollYDistance))
-
         val mediaInfo: String = if (chatMessage.message.fromUserId == localUserId) {
             context!!.getString(
                 R.string.you_sent_on,
@@ -1394,7 +1389,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.sendReaction(jsonObject)
     }
 
-    private fun resetEditingFields() = with(bindingSetup){
+    private fun resetEditingFields() = with(bindingSetup) {
         editedMessageId = 0
         isEditing = false
         originalText = ""
@@ -1406,7 +1401,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         etMessage.setText("")
     }
 
-    private fun rotationAnimation() = with(bindingSetup){
+    private fun rotationAnimation() = with(bindingSetup) {
         bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
         clBottomSheet.visibility = View.GONE
         vTransparent.visibility = View.GONE
@@ -1423,7 +1418,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         ivAdd.rotation = ROTATION_OFF
     }
 
-    private fun hideSendButton() = with(bindingSetup){
+    private fun hideSendButton() = with(bindingSetup) {
         ivCamera.visibility = View.VISIBLE
         ivMicrophone.visibility = View.VISIBLE
         ivButtonSend.visibility = View.GONE
@@ -1452,7 +1447,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun deleteMessage(message: Message, target: String) {
         viewModel.deleteMessage(message.id, target)
-        val deletedMessage = messagesRecords.firstOrNull { it.message.localId == message.localId }
+        val deletedMessage =
+            messagesRecords.firstOrNull { it.message.localId == message.localId }
         chatAdapter.notifyItemChanged(messagesRecords.indexOf(deletedMessage))
     }
 
