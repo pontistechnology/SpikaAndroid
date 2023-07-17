@@ -52,7 +52,6 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentChatMessagesBinding
-import com.clover.studio.spikamessenger.ui.ImageSelectedContainer
 import com.clover.studio.spikamessenger.ui.ReactionContainer
 import com.clover.studio.spikamessenger.ui.ReactionsContainer
 import com.clover.studio.spikamessenger.utils.Const
@@ -374,6 +373,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
             bindingSetup.etMessage.setText("")
             hideSendButton()
+            bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+            bindingSetup.clBottomReplyAction.visibility = View.GONE
         }
 
         bindingSetup.tvUnblock.setOnClickListener {
@@ -932,6 +933,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
                                 message
                             )
+
                             else -> Timber.d("No other action currently")
                         }
                     }
@@ -1436,8 +1438,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             endToStart = bindingSetup.ivCamera.id
         }
         bindingSetup.ivAdd.rotation = ROTATION_OFF
-        bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
-        bindingSetup.clBottomReplyAction.visibility = View.GONE
     }
 
     private fun showDeleteMessageDialog(message: Message) {
