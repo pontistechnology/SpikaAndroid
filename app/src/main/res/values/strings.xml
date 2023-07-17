@@ -6,13 +6,11 @@
     <string name="no_calls_yet">No calls yet.</string>
     <string name="call_history">Call history</string>
     <string name="call_history_search_hint"><font size="14">Search for contact, message, file…</font></string>
-    <string name="contact_search"><font size="14"> Search for contact</font></string>
     <string name="outgoing">Outgoing</string>
     <string name="chat">Chat</string>
     <string name="no_chats_yet">No chats yet.</string>
     <string name="pin_chat">Pin Chat</string>
     <string name="chat_search">Chat Search</string>
-    <string name="contacts">Contacts</string>
     <string name="privacy_explanation">See and share when messages have been read. This applies to all chats.</string>
     <string name="no_username">No Username</string>
     <string name="username">Username</string>
@@ -22,6 +20,13 @@
     <string name="show_notifications">Show Notifications</string>
     <string name="favourite_messages">Favourite Messages</string>
     <string name="type_here">Type here…</string>
+
+    <!--Contacts-->
+    <string name="contacts">Contacts</string>
+    <string name="save_contact">Save contact</string>
+    <string name="contact">Contact</string>
+    <string name="number_copied">Telephone number copied</string>
+    <string name="contact_search"><font size="14"> Search for contact</font></string>
 
     <!--Settings-->
     <string name="settings">Settings</string>
@@ -73,7 +78,6 @@
     <string name="file">File</string>
     <string name="library">Library</string>
     <string name="location">Location</string>
-    <string name="contact">Contact</string>
     <string name="more_actions">More actions</string>
     <string name="take_photo">Take Photo</string>
     <string name="action">Action</string>

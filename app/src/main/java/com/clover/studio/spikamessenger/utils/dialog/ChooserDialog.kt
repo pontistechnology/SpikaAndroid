@@ -56,58 +56,58 @@ class ChooserDialog(
         initViews()
     }
 
-    private fun initViews() {
-        if (title != null && title.isNotEmpty()) {
+    private fun initViews() = with(binding) {
+        if (!title.isNullOrEmpty()) {
             if (context.getString(R.string.delete) == title) {
                 // Change colors for delete options
-                binding.btnFirstOption.setTextColor(
+                btnFirstOption.setTextColor(
                     ContextCompat.getColor(
                         context,
                         R.color.style_red
                     )
                 )
-                binding.btnSecondOption.setTextColor(
+                btnSecondOption.setTextColor(
                     ContextCompat.getColor(
                         context,
                         R.color.style_red
                     )
                 )
-                binding.btnCancel.setTextColor(
+                btnCancel.setTextColor(
                     ContextCompat.getColor(
                         context,
                         R.color.primary_color
                     )
                 )
-                binding.tvTextTitle.visibility = View.GONE
+                tvTextTitle.visibility = View.GONE
             }
-            binding.tvTextTitle.text = title
+            tvTextTitle.text = title
         } else {
-            binding.tvTextTitle.visibility = View.GONE
+            tvTextTitle.visibility = View.GONE
         }
 
-        if (description != null && description.isNotEmpty())
-            binding.tvTextDescription.text = description
+        if (!description.isNullOrEmpty())
+            tvTextDescription.text = description
         else
-            binding.tvTextDescription.visibility = View.GONE
+            tvTextDescription.visibility = View.GONE
 
-        if (secondOption != null && secondOption.isNotEmpty())
-            binding.btnSecondOption.text = secondOption
+        if (!secondOption.isNullOrEmpty())
+            btnSecondOption.text = secondOption
         else
-            binding.btnSecondOption.visibility = View.GONE
+            btnSecondOption.visibility = View.GONE
 
-        binding.btnFirstOption.text = firstOption
+        btnFirstOption.text = firstOption
 
-        binding.btnSecondOption.setOnClickListener {
+        btnSecondOption.setOnClickListener {
             listener.onSecondOptionClicked()
             dismiss()
         }
 
-        binding.btnFirstOption.setOnClickListener {
+        btnFirstOption.setOnClickListener {
             listener.onFirstOptionClicked()
             dismiss()
         }
 
-        binding.btnCancel.setOnClickListener {
+        btnCancel.setOnClickListener {
             dismiss()
         }
     }
