@@ -222,7 +222,7 @@ class ChatDetailsFragment : BaseFragment() {
             binding.tvGroupName.visibility = View.VISIBLE
         }
 
-        binding.clNotes.setOnClickListener {
+        binding.flNotes.setOnClickListener {
             val action = roomId?.let { id ->
                 ChatDetailsFragmentDirections.actionChatDetailsFragmentToNotesFragment(
                     id
@@ -418,7 +418,7 @@ class ChatDetailsFragment : BaseFragment() {
                 Resource.Status.SUCCESS -> {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
-                        binding.clProgressScreen.visibility = View.GONE
+                        binding.flProgressScreen.visibility = View.GONE
                         binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
                         binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
                         binding.tvDone.visibility = View.VISIBLE
@@ -575,7 +575,7 @@ class ChatDetailsFragment : BaseFragment() {
                 null,
                 false
             )
-            binding.clProgressScreen.visibility = View.VISIBLE
+            binding.flProgressScreen.visibility = View.VISIBLE
         }
     }
 
@@ -594,7 +594,7 @@ class ChatDetailsFragment : BaseFragment() {
                     // ignore
                 }
             })
-        binding.clProgressScreen.visibility = View.GONE
+        binding.flProgressScreen.visibility = View.GONE
         binding.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
         Glide.with(this).clear(binding.ivPickAvatar)

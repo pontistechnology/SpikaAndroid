@@ -1,10 +1,16 @@
 package com.clover.studio.spikamessenger.ui.main.contact_details
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
+import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
@@ -20,6 +26,7 @@ import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
+import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
@@ -53,11 +60,11 @@ class ContactDetailsFragment : BaseFragment() {
                 getString(R.string.ok),
                 object : DialogInteraction {
                     override fun onFirstOptionClicked() {
-                        // ignore
+                        // Ignore
                     }
 
                     override fun onSecondOptionClicked() {
-                        // ignore
+                        // Ignore
                     }
                 })
             Timber.d("Failed to fetch user data")
@@ -146,6 +153,7 @@ class ContactDetailsFragment : BaseFragment() {
                         )
                     }
                 }
+
                 Resource.Status.ERROR -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")
             }
@@ -176,12 +184,33 @@ class ContactDetailsFragment : BaseFragment() {
         })
     }
 
-    private fun initializeViews() {
+    private fun initializeViews() = with(binding) {
         if (user != null) {
-            binding.tvUsername.text = user?.formattedDisplayName
-            binding.tvPageName.text = user?.formattedDisplayName
+            tvUsername.text = user?.formattedDisplayName
+            tvPageName.text = user?.formattedDisplayName
+            tvNumber.text = user?.telephoneNumber
 
-            binding.ivChat.setOnClickListener {
+            tvNumber.setOnClickListener {
+                ChooserDialog.getInstance(requireContext(),
+                    getString(R.string.contacts),
+                    null,
+                    getString(R.string.copy),
+                    getString(R.string.save_contact),
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            copyNumber(user?.telephoneNumber.toString())
+                        }
+
+                        override fun onSecondOptionClicked() {
+                            saveContactToPhone(
+                                user?.telephoneNumber.toString(),
+                                user?.displayName.toString()
+                            )
+                        }
+                    })
+            }
+
+            ivChat.setOnClickListener {
                 user?.id?.let { id ->
                     run {
                         CoroutineScope(Dispatchers.IO).launch {
@@ -197,7 +226,8 @@ class ContactDetailsFragment : BaseFragment() {
                 }
             }
 
-            Glide.with(this).load(user?.avatarFileId?.let { getFilePathUrl(it) })
+            Glide.with(this@ContactDetailsFragment)
+                .load(user?.avatarFileId?.let { getFilePathUrl(it) })
                 .placeholder(
                     ResourcesCompat.getDrawable(
                         requireContext().resources,
@@ -207,16 +237,16 @@ class ContactDetailsFragment : BaseFragment() {
                 )
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(binding.ivPickAvatar)
-            binding.clProgressScreen.visibility = View.GONE
+                .into(ivPickAvatar)
+            clProgressScreen.visibility = View.GONE
         }
 
-        binding.ivBack.setOnClickListener {
+        ivBack.setOnClickListener {
             requireActivity().onBackPressed()
         }
 
-        binding.tvBlocked.setOnClickListener {
-            if (binding.tvBlocked.text.equals(getString(R.string.block))) {
+        tvBlocked.setOnClickListener {
+            if (tvBlocked.text.equals(getString(R.string.block))) {
                 DialogError.getInstance(requireContext(),
                     getString(R.string.block_user),
                     getString(R.string.block_user_description),
@@ -242,17 +272,13 @@ class ContactDetailsFragment : BaseFragment() {
         }
 
         // Check if private room with user exists. Hide pin, mute and notes layouts if no room exists
-        if (roomId == 0) {
-            binding.clMute.visibility = View.GONE
-            binding.clPinChat.visibility = View.GONE
-            binding.clNotes.visibility = View.GONE
-        } else {
-            binding.clMute.visibility = View.VISIBLE
-            binding.clPinChat.visibility = View.VISIBLE
-            binding.clNotes.visibility = View.VISIBLE
-        }
+        val isVisible = roomId != 0
+        flMute.visibility = if (isVisible) View.VISIBLE else View.GONE
+        flPinChat.visibility = if (isVisible) View.VISIBLE else View.GONE
+        flNotes.visibility = if (isVisible) View.VISIBLE else View.GONE
 
-        binding.clNotes.setOnClickListener {
+
+        flNotes.setOnClickListener {
             if (activity is MainActivity) {
                 findNavController().navigate(
                     R.id.notesFragment2,
@@ -266,9 +292,32 @@ class ContactDetailsFragment : BaseFragment() {
             }
         }
 
-        binding.swMute.setOnCheckedChangeListener(multiListener)
+        swMute.setOnCheckedChangeListener(multiListener)
+        swPinChat.setOnCheckedChangeListener(multiListener)
+    }
 
-        binding.swPinChat.setOnCheckedChangeListener(multiListener)
+    private fun copyNumber(telephoneNumber: String) {
+        val clipboard =
+            requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip: ClipData = ClipData.newPlainText("", telephoneNumber)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(requireContext(), getString(R.string.number_copied), Toast.LENGTH_SHORT)
+            .show()
+
+    }
+
+    private fun saveContactToPhone(phoneNumber: String, phoneName: String) {
+        val intent = Intent(ContactsContract.Intents.Insert.ACTION)
+        intent.type = ContactsContract.RawContacts.CONTENT_TYPE
+
+        intent.putExtra(ContactsContract.Intents.Insert.PHONE, phoneNumber)
+        intent.putExtra(ContactsContract.Intents.Insert.NAME, phoneName)
+        intent.putExtra(
+            ContactsContract.Intents.Insert.PHONE_TYPE,
+            ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE
+        )
+
+        startActivity(intent)
     }
 
     // Listener which handles switch events and sends event to specific switch

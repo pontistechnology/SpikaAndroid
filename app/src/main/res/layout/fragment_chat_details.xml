@@ -70,8 +70,8 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_progress_screen"
+        <FrameLayout
+            android:id="@+id/fl_progress_screen"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:elevation="@dimen/five_dp_margin"
@@ -91,13 +91,11 @@
                 android:id="@+id/progress_bar"
                 android:layout_width="@dimen/seventy_dp"
                 android:layout_height="@dimen/seventy_dp"
+                android:layout_gravity="center"
                 android:indeterminateOnly="true"
                 android:indeterminateTint="@color/primary_color"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tv_done"
@@ -229,8 +227,8 @@
         <!--                app:layout_constraintTop_toTopOf="parent" />-->
         <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_notes"
+        <FrameLayout
+            android:id="@+id/fl_notes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/ten_dp_margin"
@@ -244,19 +242,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/montserrat"
-                android:text="@string/notes"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:text="@string/notes" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/img_arrow_forward"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_gravity="end"/>
+        </FrameLayout>
 
         <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
         <!--            android:id="@+id/cl_favorite_message"-->
@@ -286,14 +279,14 @@
         <!--                app:layout_constraintTop_toTopOf="parent" />-->
         <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_pin_chat"
+        <FrameLayout
+            android:id="@+id/fl_pin_chat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/twenty_dp_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cl_notes">
+            app:layout_constraintTop_toBottomOf="@id/fl_notes">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -301,28 +294,24 @@
                 android:layout_marginStart="@dimen/ten_dp_margin"
                 android:fontFamily="@font/montserrat"
                 android:text="@string/pin_chat"
-                android:textSize="@dimen/fourteen_sp_text"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:textSize="@dimen/fourteen_sp_text" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/sw_pin_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:theme="@style/CustomSwitch"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_gravity="end" />
+        </FrameLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_mute"
+        <FrameLayout
+            android:id="@+id/fl_mute"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/twenty_dp_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cl_pin_chat">
+            app:layout_constraintTop_toBottomOf="@id/fl_pin_chat">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -330,19 +319,15 @@
                 android:layout_marginStart="@dimen/ten_dp_margin"
                 android:fontFamily="@font/montserrat"
                 android:text="@string/mute"
-                android:textSize="@dimen/fourteen_sp_text"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:textSize="@dimen/fourteen_sp_text" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/sw_mute"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:theme="@style/CustomSwitch"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_gravity="end"/>
+        </FrameLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_member_list"
@@ -352,7 +337,7 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cl_mute">
+            app:layout_constraintTop_toBottomOf="@id/fl_mute">
             <!--            app:layout_constraintBottom_toTopOf="@id/tv_block"-->
 
             <TextView
@@ -448,6 +433,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cl_member_list" />
+
         <!--        app:layout_constraintTop_toBottomOf="@id/tv_report"-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
