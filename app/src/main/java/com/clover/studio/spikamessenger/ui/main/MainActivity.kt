@@ -77,10 +77,11 @@ class MainActivity : BaseActivity() {
         val view = bindingSetup.root
         setContentView(view)
 
+        checkIntentExtras()
+
         checkNotificationPermission()
         initializeObservers()
         sendPushTokenToServer()
-        checkIntentExtras()
         startPhonebookService()
     }
 
