@@ -49,7 +49,7 @@
             app:shapeAppearanceOverlay="@style/circle" />
 
         <FrameLayout
-            android:id="@+id/cl_progress_screen"
+            android:id="@+id/fl_progress_screen"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:elevation="@dimen/five_dp_margin"
@@ -176,7 +176,7 @@
         </FrameLayout>
 
         <FrameLayout
-            android:id="@+id/cl_call_history"
+            android:id="@+id/fl_call_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/ten_dp_margin"
@@ -206,7 +206,7 @@
             android:padding="@dimen/twenty_dp_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cl_call_history">
+            app:layout_constraintTop_toBottomOf="@id/fl_call_history">
 
             <TextView
                 android:layout_width="wrap_content"
