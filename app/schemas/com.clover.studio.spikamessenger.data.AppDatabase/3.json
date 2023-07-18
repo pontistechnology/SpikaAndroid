@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 2,
-    "identityHash": "3ab1674ed56071d7285c2762c2806c7d",
+    "version": 3,
+    "identityHash": "c8d763523717e5aca116b0fcaa03f986",
     "entities": [
       {
         "tableName": "user",
@@ -130,7 +130,7 @@
       },
       {
         "tableName": "message",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `from_user_id` INTEGER, `total_user_count` INTEGER, `delivered_count` INTEGER, `seen_count` INTEGER, `room_id` INTEGER, `type` TEXT, `body` TEXT, `created_at` INTEGER, `modified_at` INTEGER, `deleted` INTEGER, `reply_id` INTEGER, `local_id` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `from_user_id` INTEGER, `total_user_count` INTEGER, `delivered_count` INTEGER, `seen_count` INTEGER, `room_id_message` INTEGER, `type_message` TEXT, `body` TEXT, `created_at_message` INTEGER, `modified_at_message` INTEGER, `deleted_message` INTEGER, `reply_id` INTEGER, `local_id` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -164,13 +164,13 @@
           },
           {
             "fieldPath": "roomId",
-            "columnName": "room_id",
+            "columnName": "room_id_message",
             "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "type",
-            "columnName": "type",
+            "columnName": "type_message",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -182,19 +182,19 @@
           },
           {
             "fieldPath": "createdAt",
-            "columnName": "created_at",
+            "columnName": "created_at_message",
             "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "modifiedAt",
-            "columnName": "modified_at",
+            "columnName": "modified_at_message",
             "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "deleted",
-            "columnName": "deleted",
+            "columnName": "deleted_message",
             "affinity": "INTEGER",
             "notNull": false
           },
@@ -248,7 +248,7 @@
       },
       {
         "tableName": "room",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `visited_room` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER NOT NULL, `deleted` INTEGER NOT NULL, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))",
         "fields": [
           {
             "fieldPath": "roomId",
@@ -287,12 +287,6 @@
             "notNull": false
           },
           {
-            "fieldPath": "visitedRoom",
-            "columnName": "visited_room",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
             "fieldPath": "muted",
             "columnName": "muted",
             "affinity": "INTEGER",
@@ -308,7 +302,13 @@
             "fieldPath": "roomExit",
             "columnName": "room_exit",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
+          },
+          {
+            "fieldPath": "deleted",
+            "columnName": "deleted",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "unreadCount",
@@ -475,7 +475,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3ab1674ed56071d7285c2762c2806c7d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c8d763523717e5aca116b0fcaa03f986')"
     ]
   }
 }

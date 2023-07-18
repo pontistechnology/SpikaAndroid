@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 3,
-    "identityHash": "c65ddea5a8da4cba25da9b2772839c2f",
+    "version": 4,
+    "identityHash": "c8d763523717e5aca116b0fcaa03f986",
     "entities": [
       {
         "tableName": "user",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `display_name` TEXT, `avatar_file_id` INTEGER, `telephone_number` TEXT, `telephone_number_hashed` TEXT, `email_address` TEXT, `created_at` TEXT, `modified_at` INTEGER, `selected` INTEGER NOT NULL, `is_bot` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `display_name` TEXT, `avatar_file_id` INTEGER, `telephone_number` TEXT, `telephone_number_hashed` TEXT, `email_address` TEXT, `created_at` TEXT, `modified_at` INTEGER, `selected` INTEGER NOT NULL, `is_bot` INTEGER NOT NULL, `deleted` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -65,6 +65,12 @@
           {
             "fieldPath": "isBot",
             "columnName": "is_bot",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deleted",
+            "columnName": "deleted",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -475,7 +481,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c65ddea5a8da4cba25da9b2772839c2f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c8d763523717e5aca116b0fcaa03f986')"
     ]
   }
 }

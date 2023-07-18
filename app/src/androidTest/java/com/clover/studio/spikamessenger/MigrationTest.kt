@@ -31,27 +31,27 @@ class MigrationTest {
      */
     @Test
     @Throws(IOException::class)
-    fun migrate1To2() {
-        val currentVersion = 1
-        val newVersion = 2
-        testMigration(currentVersion, newVersion, AppDatabase.MIGRATION_1_2)
+    fun migrate3To4() {
+        val currentVersion = 3
+        val newVersion = 4
+        testMigration(currentVersion, newVersion, AppDatabase.MIGRATION_3_4)
     }
 
-    /** Migration 2 to 3 test, when needed */
-    @Test
-    @Throws(IOException::class)
-    fun migrate2To3() {
-        val currentVersion = 2
-        val newVersion = 3
-        testMigration(currentVersion, newVersion, AppDatabase.MIGRATION_2_3)
-    }
+//    /** Migration 4 to 5 test, when needed */
+//    @Test
+//    @Throws(IOException::class)
+//    fun migrate4To5() {
+//        val currentVersion = 4
+//        val newVersion = 5
+//        testMigration(currentVersion, newVersion, AppDatabase.MIGRATION_4_5)
+//    }
 
     @Throws(IOException::class)
     private fun testMigration(currentVersion: Int, newVersion: Int, migration: Migration) {
         var db: SupportSQLiteDatabase = helper.createDatabase(TEST_DB, currentVersion)
         db.execSQL(
-            "INSERT INTO " + AppDatabase.TablesInfo.TABLE_CHAT_ROOM + " (created_at, name, type, muted, pinned, unread_count) VALUES ('" + System.currentTimeMillis()
-                .toString() + "', 'TestName', 'TestType', '1', '2', '3')"
+            "INSERT INTO " + AppDatabase.TablesInfo.TABLE_CHAT_ROOM + " (created_at, name, type, muted, pinned, unread_count, room_exit, deleted) VALUES ('" + System.currentTimeMillis()
+                .toString() + "', 'TestName', 'TestType', '1', '0', '3', '1', '0')"
         )
         db.close()
         db = helper.runMigrationsAndValidate(TEST_DB, newVersion, true, migration)
