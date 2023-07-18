@@ -213,20 +213,20 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun uploadFiles(jsonObject: JsonObject): Resource<FileResponse> {
-        Timber.d("Upload canceled: ${uploadCanceled.value?.first}")
         val response: Resource<FileResponse> = if (uploadCanceled.value?.second == false) {
             performRestOperation(
                 networkCall = { mainRemoteDataSource.uploadFile(jsonObject) },
             )
         } else {
             uploadCanceled.postValue(Pair(uploadCanceled.value?.first.toString(), false))
-            Resource(Resource.Status.ERROR, null, "${uploadCanceled.value?.first}")
+            Resource(Resource.Status.CANCEL, null, uploadCanceled.value?.first.toString())
         }
         return response
     }
 
     override suspend fun cancelUpload(messageId: String) {
-        uploadCanceled.postValue(Pair(uploadCanceled.value?.first.toString(), true))
+        Timber.d("Message id: $messageId")
+        uploadCanceled.postValue(Pair(messageId, true))
     }
 
     override suspend fun verifyFile(jsonObject: JsonObject) =

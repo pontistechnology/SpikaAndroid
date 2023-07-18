@@ -335,6 +335,10 @@ class ChatViewModel @Inject constructor(
                                 Resource(Resource.Status.SUCCESS, response, "")
                             )
                         }
+
+                        override fun fileCanceledListener(messageId: String?) {
+                            // Ignore
+                        }
                     })
             } catch (ex: Exception) {
                 resolveResponseStatus(

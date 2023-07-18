@@ -282,6 +282,10 @@ class AccountCreationFragment : BaseFragment() {
 
                                 viewModel.updateUserData(jsonObject)
                             }
+
+                            override fun fileCanceledListener(messageId: String?) {
+
+                            }
                         })
                 }
                 binding.clProgressScreen.visibility = View.VISIBLE

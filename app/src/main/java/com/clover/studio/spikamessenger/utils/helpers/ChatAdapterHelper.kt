@@ -294,7 +294,6 @@ object ChatAdapterHelper {
             message?.totalUserCount == 0 -> {
                 ivMessageStatus.setImageResource(R.drawable.img_clock)
             }
-
             message?.totalUserCount == message?.seenCount -> {
                 ivMessageStatus.setImageResource(R.drawable.img_seen)
             }

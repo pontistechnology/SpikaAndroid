@@ -126,14 +126,16 @@ class ChatAdapter(
                         /** Uploading image: */
                         // ID of unsent message is -
                         if (it.message.id < 0) {
-                            holder.binding.clProgressScreen.visibility = View.VISIBLE
-                            holder.binding.progressBar.visibility = View.VISIBLE
-                            holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
+                            holder.binding.flProgressScreen.visibility = View.VISIBLE
+                            holder.binding.pbImages.visibility = View.VISIBLE
+                            holder.binding.pbImages.secondaryProgress = it.message.uploadProgress
+
                             holder.binding.ivCancelImage.setOnClickListener { _ ->
                                 onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
                             }
+
                         } else {
-                            holder.binding.clProgressScreen.visibility = View.GONE
+                            holder.binding.flProgressScreen.visibility = View.INVISIBLE
                         }
                     }
 
@@ -142,8 +144,13 @@ class ChatAdapter(
                             // Load thumbnail
                             setViewsVisibility(holder.binding.clImageChat, holder)
                             bindImage(it, holder.binding.ivChatImage, holder.binding.clImageChat)
-                            holder.binding.clProgressScreen.visibility = View.VISIBLE
-                            holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
+                            holder.binding.flProgressScreen.visibility = View.VISIBLE
+                            holder.binding.pbImages.secondaryProgress = it.message.uploadProgress
+                            if (it.message.uploadProgress > 0){
+                                holder.binding.ivCancelImage.setOnClickListener { _ ->
+                                    onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
+                                }
+                            }
                         } else {
                             setViewsVisibility(holder.binding.flVideos, holder)
                             bindVideo(
@@ -151,7 +158,7 @@ class ChatAdapter(
                                 holder.binding.ivVideoThumbnail,
                                 holder.binding.ivPlayButton
                             )
-                            holder.binding.clProgressScreen.visibility = View.GONE
+                            holder.binding.flProgressScreen.visibility = View.INVISIBLE
                         }
                     }
 
@@ -478,11 +485,14 @@ class ChatAdapter(
         )
 
         clContainer.setOnClickListener {
-            if (chatMessage.message.deliveredCount == -1) {
-                onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
-            } else {
+            if (chatMessage.message.id > 0){
                 onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
             }
+//            if (chatMessage.message.deliveredCount == -1) {
+//                onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
+//            } else {
+//                onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
+//            }
         }
 
         clContainer.setOnLongClickListener {

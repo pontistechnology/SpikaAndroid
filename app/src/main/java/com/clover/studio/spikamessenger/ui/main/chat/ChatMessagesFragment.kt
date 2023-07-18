@@ -21,6 +21,7 @@ import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -1100,7 +1101,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     Timber.d("Message: $message")
                     viewModel.cancelUploadFile(messageId = message.localId.toString())
                     viewModel.deleteLocalMessage(message = message)
-
                     viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
                 }
             })
@@ -1525,7 +1525,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         currentMediaLocation.add(fileUri)
     }
 
-    // TODO Ivana - check cancel upload functionality, viewModel.cancelUploadFile()
     private fun sendFile() {
         if (tempFilesToCreate.isNotEmpty()) {
             for (tempFile in tempFilesToCreate) {
@@ -1614,13 +1613,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                     Timber.d("Upload progress: ${message.message.uploadProgress}")
 
-                    activity!!.runOnUiThread {
-                        chatAdapter.notifyItemChanged(
-                            messagesRecords.indexOf(
-                                message
-                            )
-                        )
+                    if (isVisible || isResumed) {
+                        activity!!.runOnUiThread {
+                            bindingSetup.rvChat.findViewById<ProgressBar>(R.id.pb_images).visibility = View.VISIBLE
+                            bindingSetup.rvChat.findViewById<ProgressBar>(R.id.pb_images).progressDrawable = context?.getDrawable(R.drawable.custom_circular_progress)
 
+                            chatAdapter.notifyItemChanged(
+                                messagesRecords.indexOf(
+                                    message
+                                )
+                            )
+                        }
                     }
                 }
 

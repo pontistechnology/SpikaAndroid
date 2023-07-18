@@ -40,7 +40,7 @@ class UploadDownloadManager constructor(
      */
     suspend fun uploadFile(
         fileData: FileData,
-        fileUploadListener: FileUploadListener
+        fileUploadListener: FileUploadListener,
     ) {
         var mimeType = MainApplication.appContext.contentResolver.getType(fileData.fileUri)!!
         cancelUpload = false
@@ -53,6 +53,7 @@ class UploadDownloadManager constructor(
             Tools.getMetadata(fileData.fileUri, mimeType, fileData.isThumbnail)
 
         chunkCount = 0
+        cancelUpload = false
         BufferedInputStream(FileInputStream(fileData.file)).use { bis ->
             var len: Int
             var piece = 0L
@@ -88,7 +89,7 @@ class UploadDownloadManager constructor(
                     fileData.filePieces,
                     fileData.isThumbnail,
                     fileData.messageBody,
-                    fileUploadListener
+                    fileUploadListener,
                 )
 
                 piece++
@@ -102,14 +103,14 @@ class UploadDownloadManager constructor(
         chunks: Int,
         isThumbnail: Boolean = false,
         messageBody: MessageBody?,
-        fileUploadListener: FileUploadListener
+        fileUploadListener: FileUploadListener,
     ) {
         try {
             val response = repository.uploadFiles(uploadFile.chunkToJson())
-            if (Resource.Status.ERROR == response.status) {
-                Timber.d("Resource: ${response.toString()}")
-                fileUploadListener.fileUploadError("${response.message}")
-                cancelUpload = false
+            if (Resource.Status.CANCEL == response.status) {
+                Timber.d("Resource: $response")
+                fileUploadListener.fileCanceledListener(response.message)
+                cancelUpload = true
                 return
             }
             fileUploadListener.filePieceUploaded()
@@ -180,5 +181,8 @@ interface FileUploadListener {
         fileId: Long = 0,
         fileType: String,
         messageBody: MessageBody?
+    )
+    fun fileCanceledListener(
+        messageId: String?,
     )
 }

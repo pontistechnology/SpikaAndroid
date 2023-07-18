@@ -18,6 +18,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -36,6 +39,8 @@ class UploadService : Service() {
     private val binder = UploadServiceBinder()
     private var callbackListener: FileUploadCallback? = null
     private var count = 0
+
+    private val jobMap: MutableMap<String?, Job> = mutableMapOf()
 
     inner class UploadServiceBinder : Binder() {
         fun getService(): UploadService = this@UploadService
@@ -84,12 +89,94 @@ class UploadService : Service() {
         super.onDestroy()
     }
 
+//    private suspend fun uploadItems(items: List<FileData>) {
+//        val thumbnails = ArrayList<FileData>()
+//        val images = ArrayList<FileData>()
+//
+//
+//        items.forEach { item ->
+//            if (item.isThumbnail) {
+//                val job = thumbnailUploadScope.launch {
+//                        uploadItem(item)
+//                        thumbnails.add(item)
+//                }
+//                jobMap[item.localId] = job
+//                uploadJobs.add(job)
+//            }
+//        }
+//
+//        Timber.d("Thumbnails: $thumbnails")
+//        Timber.d("Upload jobs: $uploadJobs")
+//        uploadJobs.joinAll()
+//
+//        uploadJobs.forEach { job ->
+//            job.cancel()
+//        }
+//        uploadJobs.clear()
+//
+//        items.forEach { item ->
+//            if (!item.isThumbnail) {
+//                val job = nonThumbnailUploadScope.launch {
+//                    uploadItem(item)
+//                    images.add(item)
+//                }
+//                jobMap[item.localId] = job
+//                uploadJobs.add(job)
+//            }
+//        }
+//
+//        Timber.d("Images: $images")
+//        Timber.d("Upload jobs: $uploadJobs")
+//
+//        uploadJobs.joinAll()
+//        uploadJobs.clear()
+//
+//        cancelAllUploads()
+//    }
+
+
     private suspend fun uploadItems(items: List<FileData>) {
-        items.forEach {
-            uploadItem(it)
-            count = 0
+        coroutineScope {
+            val thumbnailJobs = items.filter { it.isThumbnail }.map { item ->
+                launch {
+                    uploadItem(item)
+                }.also { jobMap[item.localId] = it }
+            }
+
+            thumbnailJobs.joinAll()
+            Timber.d("Thumbnails jobs finished: ${thumbnailJobs.all { it.isCompleted }}")
+
+            while (!thumbnailJobs.all { it.isCompleted }) {
+                delay(100)
+            }
+
+            Timber.d("Job map after thumbnails: $jobMap")
+            thumbnailJobs.forEach {
+                it.cancel()
+            }
+
+            val imageJobs = items.filter { !it.isThumbnail }.map { item ->
+                launch {
+                    uploadItem(item)
+                }.also { jobMap[item.localId] = it }
+            }
+
+            Timber.d("Job map after images: $jobMap")
+
+            imageJobs.joinAll()
+            val allImagesJobsFinished = imageJobs.all { it.isCompleted }
+            if (allImagesJobsFinished) {
+                imageJobs.forEach {
+                    it.cancel()
+                }
+                resetUpload()
+            }
         }
-        uploadingFinished()
+    }
+
+    private fun resetUpload() {
+        Timber.d("Cleared all")
+        jobMap.clear()
     }
 
     private suspend fun uploadItem(item: FileData) {
@@ -100,15 +187,10 @@ class UploadService : Service() {
                     Timber.d("Count $count, ${item.filePieces}")
                     updateProgress(count, item.filePieces, item.localId.toString())
                 }
-
             }
 
             override fun fileUploadError(description: String) {
-                // This is id of canceled message
-                Timber.d("Description: $description")
-//                itemsToUpload.removeIf{it.localId == description}
-//                Timber.d("Items to upload: $itemsToUpload")
-//                startUploading()
+                Timber.d("File upload error")
             }
 
             override fun fileUploadVerified(
@@ -140,6 +222,17 @@ class UploadService : Service() {
                 } else {
                     item.localId?.let { localIdMap.put(it, thumbId) }
                 }
+            }
+
+            override fun fileCanceledListener(messageId: String?) {
+                Timber.d("Status canceled")
+                Timber.d("Message id: $messageId")
+                Timber.d("Job map: $jobMap")
+                if (messageId != null) {
+                    jobMap[messageId]?.cancel()
+                    jobMap.remove(messageId)
+                }
+                Timber.d("Job map removed: $jobMap")
             }
         })
     }

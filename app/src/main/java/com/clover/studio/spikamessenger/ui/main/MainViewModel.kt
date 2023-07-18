@@ -267,6 +267,9 @@ class MainViewModel @Inject constructor(
                             Resource(Resource.Status.SUCCESS, response, "")
                         )
                     }
+                    override fun fileCanceledListener(messageId: String?) {
+
+                    }
                 })
         } catch (ex: Exception) {
             resolveResponseStatus(
