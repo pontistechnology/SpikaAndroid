@@ -15,7 +15,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.target.Target
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
@@ -184,7 +183,7 @@ object ChatAdapterHelper {
         }
 
         tvUsername.text =
-            users.firstOrNull { it.id == chatMessage.message.body.referenceMessage?.fromUserId }!!.formattedDisplayName
+            users.firstOrNull { it.id == chatMessage.message.body.referenceMessage?.fromUserId }?.formattedDisplayName
 
         when (chatMessage.message.body.referenceMessage?.type) {
             /**Image or video type*/
