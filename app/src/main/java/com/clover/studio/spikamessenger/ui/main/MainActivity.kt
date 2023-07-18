@@ -78,7 +78,6 @@ class MainActivity : BaseActivity() {
         setContentView(view)
 
         checkIntentExtras()
-
         checkNotificationPermission()
         initializeObservers()
         sendPushTokenToServer()
