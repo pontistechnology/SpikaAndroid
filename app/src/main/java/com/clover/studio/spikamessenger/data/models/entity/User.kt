@@ -44,7 +44,10 @@ data class User(
     var selected: Boolean = false,
 
     @ColumnInfo(name = "is_bot")
-    var isBot : Boolean = false
+    var isBot: Boolean = false,
+
+    @ColumnInfo(name = "deleted")
+    val deleted: Boolean
 
 ) : Parcelable {
     @Ignore
@@ -58,5 +61,6 @@ data class User(
     @get:Ignore
     @IgnoredOnParcel
     val formattedDisplayName: String
-        get() = displayName?.takeIf { it.isNotEmpty() } ?: MainApplication.appContext.getString(R.string.unknown_user)
+        get() = displayName?.takeIf { it.isNotEmpty() }
+            ?: MainApplication.appContext.getString(R.string.unknown_user)
 }
