@@ -125,9 +125,10 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/ten_dp_margin"
             android:src="@drawable/img_video"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_call"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/iv_call"
-            app:layout_constraintTop_toBottomOf="@+id/tv_username" />
+            app:layout_constraintTop_toTopOf="@+id/iv_call" />
 
         <FrameLayout
             android:id="@+id/fl_shared_media"
