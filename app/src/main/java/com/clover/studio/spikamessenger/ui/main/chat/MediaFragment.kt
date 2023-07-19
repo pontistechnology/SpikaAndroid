@@ -1,6 +1,7 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
 import android.content.pm.ActivityInfo
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,12 +12,19 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.databinding.FragmentMediaBinding
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
+import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
+import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.MediaPlayer
 
 const val BAR_ANIMATION = 500L
@@ -81,6 +89,30 @@ class MediaFragment : BaseFragment() {
         vvVideo.setOnClickListener {
             showBar()
         }
+
+        tvMoreMedia.setOnClickListener {
+            ChooserDialog.getInstance(
+                requireContext(),
+                null,
+                null,
+                getString(R.string.download_media),
+                null,
+                object : DialogInteraction {
+                    override fun onFirstOptionClicked() {
+                        message?.let { msg ->
+                            Tools.downloadFile(
+                                requireContext(),
+                                msg,
+                            )
+                        }
+                    }
+
+                    override fun onSecondOptionClicked() {
+                        // Ignore
+                    }
+                }
+            )
+        }
     }
 
     private fun showBar() = with(binding) {
@@ -97,35 +129,51 @@ class MediaFragment : BaseFragment() {
             }.start()
     }
 
-    private fun initializePicture() {
+    private fun initializePicture() = with(binding) {
         val imagePath = message?.body?.fileId?.let {
             Tools.getFilePathUrl(it)
         }.toString()
 
-        binding.clVideoLoading.visibility = View.GONE
-        binding.clVideoContainer.visibility = View.GONE
+        clVideoContainer.visibility = View.GONE
+        clImageContainer.visibility = View.VISIBLE
 
-        binding.clImageContainer.visibility = View.VISIBLE
-        Glide.with(this)
+        Glide.with(this@MediaFragment)
             .load(imagePath)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .into(binding.ivFullImage)
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    // Ignore
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    pbMediaImage.visibility = View.GONE
+                    return false
+                }
+            })
+            .into(ivFullImage)
+
     }
 
-    private fun initializeVideo() {
+    private fun initializeVideo() = with(binding) {
         val videoPath = message?.body?.file?.id.let {
             Tools.getFilePathUrl(
                 it!!
             )
         }.toString()
 
-        binding.clImageContainer.visibility = View.GONE
-        binding.clVideoLoading.visibility = View.VISIBLE
-
-        Glide.with(this)
-            .load(videoPath)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .into(binding.ivVideoHolder)
+        clImageContainer.visibility = View.GONE
 
         player = context?.let {
             MediaPlayer.getInstance(it)
@@ -144,10 +192,9 @@ class MediaFragment : BaseFragment() {
                     exoPlayer.seekTo(currentItem, playbackPosition)
                     exoPlayer.addListener(playbackStateListener)
                     exoPlayer.prepare()
-                    binding.clVideoLoading.visibility = View.GONE
                 }
         }
-        binding.clVideoContainer.visibility = View.VISIBLE
+        clVideoContainer.visibility = View.VISIBLE
     }
 
     private fun releasePlayer() {
@@ -201,33 +248,3 @@ private fun playbackStateListener() = object : Player.Listener {
         }
     }
 }
-
-/** This method will be used later to download media items from MediaFragment*/
-// private fun downloadMedia() {
-//        val request = Request.Builder()
-//            .url("")
-//            .build()
-//
-//        val client = OkHttpClient()
-//        client.newCall(request).enqueue(object : Callback {
-//            override fun onFailure(call: Call, e: IOException) {
-//                e.printStackTrace()
-//            }
-//
-//            override fun onResponse(call: Call, response: Response) {
-//                val inputStream = response.body?.byteStream()
-//                val file = File(
-//                    context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-//                    "localId.${Const.FileExtensions.JPG}"
-//                )
-//
-//                val outputStream = FileOutputStream(file)
-//                inputStream?.use { input ->
-//                    outputStream.use { output ->
-//                        input.copyTo(output)
-//                    }
-//                }
-//                outputStream.close()
-//            }
-//        })
-//    }

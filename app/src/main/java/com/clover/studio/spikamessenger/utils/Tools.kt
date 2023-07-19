@@ -32,6 +32,7 @@ import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.AppDatabase
 import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.entity.Message
@@ -346,20 +347,31 @@ object Tools {
 
     fun downloadFile(context: Context, message: Message) {
         try {
-            val tmp = this.getFilePathUrl(message.body!!.fileId!!)
+            val tmp = getFilePathUrl(message.body!!.fileId!!)
             val request = DownloadManager.Request(Uri.parse(tmp))
             request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-            request.setTitle(message.body.file!!.fileName)
-            request.setDescription("The file is downloading")
+            request.setTitle(message.body.file?.fileName)
+            request.setDescription(MainApplication.appContext.getString(R.string.file_is_downloading))
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+
+            val appName = context.applicationInfo.loadLabel(context.packageManager).toString()
+            val subdirectory = File(context.getExternalFilesDir(null), appName)
+            if (!subdirectory.exists()) {
+                subdirectory.mkdirs()
+            }
+
             request.setDestinationInExternalPublicDir(
-                Environment.DIRECTORY_DOWNLOADS,
+                subdirectory.path,
                 message.body.file!!.fileName
             )
-            val manager =
-                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+
+            val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             manager.enqueue(request)
-            Toast.makeText(context, "File is downloading", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                MainApplication.appContext.getString(R.string.file_is_downloading),
+                Toast.LENGTH_LONG
+            ).show()
         } catch (e: Exception) {
             Timber.d("$e")
         }

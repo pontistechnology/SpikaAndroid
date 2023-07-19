@@ -1139,14 +1139,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun handleMediaNavigation(chatMessage: MessageAndRecords) {
         val mediaInfo: String = if (chatMessage.message.fromUserId == localUserId) {
-            context!!.getString(
+            requireContext().getString(
                 R.string.you_sent_on,
                 Tools.fullDateFormat(chatMessage.message.createdAt!!)
             )
         } else {
             val userName =
                 roomWithUsers.users.firstOrNull { it.id == chatMessage.message.fromUserId }!!.formattedDisplayName
-            context!!.getString(
+            requireContext().getString(
                 R.string.user_sent_on,
                 userName,
                 Tools.fullDateFormat(chatMessage.message.createdAt!!)
