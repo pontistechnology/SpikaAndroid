@@ -100,9 +100,9 @@ class RegisterNumberFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     val bundle = bundleOf(
-                        Const.Navigation.PHONE_NUMBER to countryCode + phoneNumber.toInt(),
+                        Const.Navigation.PHONE_NUMBER to countryCode + phoneNumber.trimStart('0'),
                         Const.Navigation.PHONE_NUMBER_HASHED to hashString(
-                            countryCode + phoneNumber.toInt()
+                            countryCode + phoneNumber.trimStart('0')
                         ),
                         Const.Navigation.COUNTRY_CODE to countryCode.substring(1),
                         Const.Navigation.DEVICE_ID to deviceId
@@ -198,11 +198,11 @@ class RegisterNumberFragment : BaseFragment() {
 
         jsonObject.addProperty(
             Const.JsonFields.TELEPHONE_NUMBER,
-            countryCode + phoneNumber.toInt()
+            countryCode + phoneNumber.trimStart('0')
         )
         jsonObject.addProperty(
             Const.JsonFields.TELEPHONE_NUMBER_HASHED, hashString(
-                countryCode + phoneNumber.toInt()
+                countryCode + phoneNumber.trimStart('0')
             )
         )
         jsonObject.addProperty(Const.JsonFields.COUNTRY_CODE, countryCode.substring(1))
