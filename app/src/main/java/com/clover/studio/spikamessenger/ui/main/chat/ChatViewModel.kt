@@ -81,7 +81,7 @@ class ChatViewModel @Inject constructor(
     fun sendMessage(jsonObject: JsonObject, localId: String) = viewModelScope.launch {
         val response = repository.sendMessage(jsonObject)
         if (response.status == Resource.Status.SUCCESS) {
-            resolveResponseStatus(messageSendListener, repository.sendMessage(jsonObject))
+            resolveResponseStatus(messageSendListener, response)
         } else {
             updateMessages(
                 Resource.Status.ERROR.toString(),
