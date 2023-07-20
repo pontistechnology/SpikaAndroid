@@ -78,8 +78,16 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
-        resolveResponseStatus(messageSendListener, repository.sendMessage(jsonObject))
+    fun sendMessage(jsonObject: JsonObject, localId: String) = viewModelScope.launch {
+        val response = repository.sendMessage(jsonObject)
+        if (response.status == Resource.Status.SUCCESS) {
+            resolveResponseStatus(messageSendListener, repository.sendMessage(jsonObject))
+        } else {
+            updateMessages(
+                Resource.Status.ERROR.toString(),
+                localId
+            )
+        }
     }
 
     fun getLocalUserId(): Int? {
@@ -219,6 +227,12 @@ class ChatViewModel @Inject constructor(
 
     fun deleteMessage(messageId: Int, target: String) = CoroutineScope(Dispatchers.IO).launch {
         repository.deleteMessage(messageId, target)
+    }
+
+    fun updateMessages(messageStatus: String, localId: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.updateMessageStatus(messageStatus, localId)
+        }
     }
 
     fun editMessage(messageId: Int, jsonObject: JsonObject) =

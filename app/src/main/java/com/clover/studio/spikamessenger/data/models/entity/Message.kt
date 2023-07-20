@@ -72,6 +72,9 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "local_id")
     val localId: String?,
 
+    @ColumnInfo("message_status")
+    var messageStatus: String?,
+
     @Ignore
     val unreadCount: Int = 0,
 

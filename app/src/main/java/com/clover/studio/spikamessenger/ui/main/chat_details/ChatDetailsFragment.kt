@@ -575,7 +575,8 @@ class ChatDetailsFragment : BaseFragment() {
                     null,
                     false,
                     null,
-                    roomWithUsers.room.roomId
+                    roomWithUsers.room.roomId,
+                    null
                 )
             )
             binding.flProgressScreen.visibility = View.VISIBLE

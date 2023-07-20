@@ -39,6 +39,7 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
+import com.clover.studio.spikamessenger.utils.helpers.Resource
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -384,7 +385,8 @@ object Tools {
             null,
             null,
             null,
-            generateRandomId()
+            generateRandomId(),
+            Resource.Status.LOADING.toString()
         )
     }
 

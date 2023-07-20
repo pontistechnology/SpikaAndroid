@@ -57,7 +57,8 @@ class ChatRepositoryImpl @Inject constructor(
                     it.data.message.modifiedAt!!,
                     it.data.message.deleted!!,
                     it.data.message.replyId ?: 0L,
-                    it.data.message.localId!!
+                    it.data.message.localId!!,
+                    Resource.Status.SUCCESS.toString(),
                 )
             })
 
@@ -102,6 +103,12 @@ class ChatRepositoryImpl @Inject constructor(
                 databaseQuery = { messageDao.upsert(deletedMessage) }
             )
         }
+    }
+
+    override suspend fun updateMessageStatus(messageStatus: String, localId: String) {
+        queryDatabaseCoreData(
+            databaseQuery = { messageDao.updateMessageStatus(messageStatus, localId) }
+        )
     }
 
     override suspend fun editMessage(messageId: Int, jsonObject: JsonObject) {
@@ -320,7 +327,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 }
 
-interface ChatRepository: BaseRepository {
+interface ChatRepository : BaseRepository {
     // Message calls
     suspend fun sendMessage(jsonObject: JsonObject): Resource<MessageResponse>
     suspend fun storeMessageLocally(message: Message)
@@ -336,6 +343,7 @@ interface ChatRepository: BaseRepository {
     ): LiveData<Resource<List<MessageAndRecords>>>
 
     suspend fun getMessageCount(roomId: Int): Int
+    suspend fun updateMessageStatus(messageStatus: String, localId: String)
 
     // Room calls
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>

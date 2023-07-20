@@ -244,7 +244,8 @@ class AccountCreationFragment : BaseFragment() {
                             null,
                             false,
                             null,
-                            0
+                            0,
+                            null
                         ),
                         object : FileUploadListener {
                             override fun filePieceUploaded() {

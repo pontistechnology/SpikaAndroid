@@ -23,6 +23,7 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.google.android.material.imageview.ShapeableImageView
 import com.vanniktech.emoji.EmojiTextView
+import timber.log.Timber
 
 const val MAX_REACTIONS = 3
 private const val TEXT_SIZE_BIG = 11
@@ -288,26 +289,26 @@ object ChatAdapterHelper {
         chatMessage: MessageAndRecords?,
         ivMessageStatus: ImageView
     ) {
-
         val message = chatMessage?.message
-        when {
-            message?.totalUserCount == 0 -> {
+        Timber.d("Status: ${message?.localId}, ${message?.messageStatus}")
+
+        when(message?.messageStatus){
+            Resource.Status.ERROR.toString() -> {
+                ivMessageStatus.setImageResource(R.drawable.img_alert)
+            }
+            Resource.Status.LOADING.toString() -> {
                 ivMessageStatus.setImageResource(R.drawable.img_clock)
             }
-            message?.totalUserCount == message?.seenCount -> {
-                ivMessageStatus.setImageResource(R.drawable.img_seen)
-            }
-
-            message?.totalUserCount == message?.deliveredCount -> {
-                ivMessageStatus.setImageResource(R.drawable.img_done)
-            }
-
-            message?.deliveredCount != null && message.deliveredCount >= 0 -> {
-                ivMessageStatus.setImageResource(R.drawable.img_sent)
-            }
-
-            message?.deliveredCount == -1 -> {
-                ivMessageStatus.setImageResource(R.drawable.img_alert)
+            Resource.Status.SUCCESS.toString(), null -> {
+                if (message?.totalUserCount == message?.seenCount){
+                    ivMessageStatus.setImageResource(R.drawable.img_seen)
+                }
+                else if (message?.totalUserCount == message?.deliveredCount) {
+                    ivMessageStatus.setImageResource(R.drawable.img_done)
+                }
+                else if (message?.deliveredCount != null && message.deliveredCount >= 0){
+                    ivMessageStatus.setImageResource(R.drawable.img_sent)
+                }
             }
         }
     }

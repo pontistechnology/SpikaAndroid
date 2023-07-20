@@ -324,7 +324,8 @@ class GroupInformationFragment : BaseFragment() {
                     null,
                     false,
                     null,
-                    0
+                    0,
+                    null
                 )
             )
             binding.clProgressScreen.visibility = View.VISIBLE

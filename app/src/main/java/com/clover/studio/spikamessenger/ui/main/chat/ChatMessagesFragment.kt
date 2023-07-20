@@ -21,7 +21,6 @@ import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,7 +29,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
@@ -587,8 +585,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    // Delay next message sending by 2 seconds for better user experience.
-                    // Could be removed if we deem it not needed.
                     if (unsentMessages.isNotEmpty()) {
                         val message =
                             unsentMessages.find { msg -> msg.localId == it.responseData?.data?.message?.localId }
@@ -597,7 +593,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
 
                 Resource.Status.ERROR -> {
-                    Timber.d("Message send fail")
+                    Timber.d("Message send fail: $it")
                 }
 
                 else -> Timber.d("Other error")
@@ -1391,12 +1387,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
 
             Const.JsonFields.IMAGE_TYPE -> {
-                val resendImage = message.body?.file?.uri?.toUri()
-                if (resendImage != null) {
-                    selectedFiles.add(resendImage)
-                    handleUserSelectedFile(selectedFiles)
-                }
-                viewModel.deleteLocalMessage(message)
+                Timber.d("Resend message: $message")
+//                val resendImage = message.body?.file?.uri?.toUri()
+//                if (resendImage != null) {
+//                    selectedFiles.add(resendImage)
+//                    handleUserSelectedFile(selectedFiles)
+//                }
+//                viewModel.deleteLocalMessage(message)
             }
         }
     }
@@ -1428,7 +1425,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         val jsonObject = jsonMessage.messageToJson()
         Timber.d("Message object: $jsonObject")
-        viewModel.sendMessage(jsonObject)
+        viewModel.sendMessage(jsonObject, localId)
 
         if (replyId != 0L) {
             replyId = 0L
@@ -1451,7 +1448,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         unsentMessages.add(0, tempMessage)
         viewModel.storeMessageLocally(tempMessage)
     }
-
 
     /** Files uploading */
     private fun handleUserSelectedFile(selectedFilesUris: MutableList<Uri>) {
@@ -1615,9 +1611,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                     if (isVisible || isResumed) {
                         activity!!.runOnUiThread {
-                            bindingSetup.rvChat.findViewById<ProgressBar>(R.id.pb_images).visibility = View.VISIBLE
-                            bindingSetup.rvChat.findViewById<ProgressBar>(R.id.pb_images).progressDrawable = context?.getDrawable(R.drawable.custom_circular_progress)
-
                             chatAdapter.notifyItemChanged(
                                 messagesRecords.indexOf(
                                     message
@@ -1627,11 +1620,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                 }
 
-                override fun uploadingFinished() {
-                    Timber.d("Finished")
+                override fun uploadingFinished(uploadedFiles: MutableList<FileData>) {
+                    Timber.d("Finished with following states: $uploadedFiles")
                     Tools.deleteTemporaryMedia(context!!)
                     context?.cacheDir?.deleteRecursively()
 
+                    if (uploadedFiles.isNotEmpty()) {
+                        uploadedFiles.forEach { item ->
+                            if (!item.isThumbnail) {
+                                viewModel.updateMessages(
+                                    item.messageStatus.toString(),
+                                    item.localId.toString()
+                                )
+                            }
+                        }
+                        uploadedFiles.clear()
+                        return
+                    }
                 }
             })
         }

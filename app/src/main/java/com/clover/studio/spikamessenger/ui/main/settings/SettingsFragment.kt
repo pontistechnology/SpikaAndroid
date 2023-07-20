@@ -289,7 +289,8 @@ class SettingsFragment : BaseFragment() {
                         null,
                         false,
                         null,
-                        0
+                        0,
+                        null
                     ),
                     object :
                         FileUploadListener {
@@ -326,6 +327,10 @@ class SettingsFragment : BaseFragment() {
 //                                Const.UserData.AVATAR_FILE_ID to fileId
 //                            )
                             viewModel.updateUserData(jsonObject)
+                        }
+
+                        override fun fileCanceledListener(messageId: String?) {
+                            // Ignore
                         }
 
                     })

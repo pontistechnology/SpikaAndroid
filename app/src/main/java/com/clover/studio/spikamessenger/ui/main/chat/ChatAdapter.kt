@@ -9,7 +9,9 @@ import android.os.Looper
 import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
 import android.view.*
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -36,6 +38,7 @@ import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.addFiles
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHideUserInformation
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -121,36 +124,28 @@ class ChatAdapter(
 
                     Const.JsonFields.IMAGE_TYPE -> {
                         setViewsVisibility(holder.binding.clImageChat, holder)
-                        bindImage(it, holder.binding.ivChatImage, holder.binding.clImageChat)
-
-                        /** Uploading image: */
-                        // ID of unsent message is -
-                        if (it.message.id < 0) {
-                            holder.binding.flProgressScreen.visibility = View.VISIBLE
-                            holder.binding.pbImages.visibility = View.VISIBLE
-                            holder.binding.pbImages.secondaryProgress = it.message.uploadProgress
-
-                            holder.binding.ivCancelImage.setOnClickListener { _ ->
-                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
-                            }
-
-                        } else {
-                            holder.binding.flProgressScreen.visibility = View.INVISIBLE
-                        }
+                        Timber.d("Message status: ${it.message.messageStatus}")
+                        bindLoadingImage(
+                            it,
+                            holder.binding.flProgressScreen,
+                            holder.binding.pbImages,
+                            holder.binding.ivCancelImage,
+                            holder.binding.ivChatImage,
+                            holder.binding.clContainer,
+                        )
                     }
 
                     Const.JsonFields.VIDEO_TYPE -> {
                         if (it.message.id < 0) {
-                            // Load thumbnail
                             setViewsVisibility(holder.binding.clImageChat, holder)
-                            bindImage(it, holder.binding.ivChatImage, holder.binding.clImageChat)
-                            holder.binding.flProgressScreen.visibility = View.VISIBLE
-                            holder.binding.pbImages.secondaryProgress = it.message.uploadProgress
-                            if (it.message.uploadProgress > 0){
-                                holder.binding.ivCancelImage.setOnClickListener { _ ->
-                                    onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
-                                }
-                            }
+                            bindLoadingImage(
+                                it,
+                                holder.binding.flProgressScreen,
+                                holder.binding.pbImages,
+                                holder.binding.ivCancelImage,
+                                holder.binding.ivChatImage,
+                                holder.binding.clContainer,
+                            )
                         } else {
                             setViewsVisibility(holder.binding.flVideos, holder)
                             bindVideo(
@@ -445,13 +440,11 @@ class ChatAdapter(
                     && (chatMessage.message.modifiedAt != chatMessage.message.createdAt))
         ) {
             tvMessage.text = context.getString(R.string.message_deleted_text)
-//            tvMessage.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
             tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
             tvMessage.background =
                 AppCompatResources.getDrawable(context, R.drawable.img_deleted_message)
         } else {
             tvMessage.text = chatMessage.message.body?.text
-
 
             tvMessage.background = AppCompatResources.getDrawable(
                 context,
@@ -485,14 +478,12 @@ class ChatAdapter(
         )
 
         clContainer.setOnClickListener {
-            if (chatMessage.message.id > 0){
+            if (chatMessage.message.id > 0) {
                 onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
             }
-//            if (chatMessage.message.deliveredCount == -1) {
-//                onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
-//            } else {
-//                onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
-//            }
+            if (chatMessage.message.messageStatus == "ERROR") {
+                onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
+            }
         }
 
         clContainer.setOnLongClickListener {
@@ -501,6 +492,60 @@ class ChatAdapter(
         }
 
         return
+    }
+
+    private fun bindLoadingImage(
+        chatMessage: MessageAndRecords,
+        flProgressScreen: FrameLayout,
+        pbImages: ProgressBar,
+        ivCancelImage: ImageView,
+        ivChatImage: ImageView,
+        clContainer: ConstraintLayout
+    ) {
+        val mediaPath = Tools.getMediaFile(context, chatMessage.message)
+        loadMedia(
+            context,
+            mediaPath,
+            ivChatImage,
+        )
+        when (chatMessage.message.messageStatus) {
+            "LOADING" -> {
+                Timber.d("Here loading")
+                flProgressScreen.visibility = View.VISIBLE
+                pbImages.visibility = View.VISIBLE
+                pbImages.secondaryProgress = chatMessage.message.uploadProgress
+
+                ivCancelImage.setOnClickListener {
+                    onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, chatMessage)
+                }
+            }
+
+            "ERROR" -> {
+                Timber.d("Here error")
+                flProgressScreen.visibility = View.VISIBLE
+                pbImages.visibility = View.GONE
+                ivCancelImage.visibility = View.GONE
+                clContainer.setOnClickListener {
+                    onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
+                }
+            }
+
+            "SUCCESS", null -> {
+                flProgressScreen.visibility = View.INVISIBLE
+                Timber.d("Here success")
+                clContainer.setOnClickListener {
+                    onMessageInteraction(
+                        Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT,
+                        chatMessage
+                    )
+                }
+
+                clContainer.setOnLongClickListener {
+                    onMessageInteraction(Const.UserActions.MESSAGE_ACTION, chatMessage)
+                    true
+                }
+            }
+        }
     }
 
     private fun bindVideo(

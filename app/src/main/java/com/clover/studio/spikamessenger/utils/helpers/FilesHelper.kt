@@ -50,7 +50,8 @@ object FilesHelper {
             messageBody = messageBody,
             isThumbnail = isThumbnail,
             localId = localId,
-            roomId = roomId
+            roomId = roomId,
+            messageStatus = null
         )
     }
 
@@ -118,11 +119,9 @@ object FilesHelper {
      **/
     fun getUniqueRandomId(unsentMessages: MutableList<Message>): Int {
         var randomId = Tools.generateRandomInt()
-
         while (unsentMessages.any { randomId == it.id }) {
             randomId = Tools.generateRandomInt()
         }
-
         return randomId
     }
 

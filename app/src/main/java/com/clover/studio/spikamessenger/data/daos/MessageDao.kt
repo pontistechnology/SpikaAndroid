@@ -9,7 +9,12 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 @Dao
 interface MessageDao : BaseDao<Message> {
 
-    @Query("UPDATE message SET id = :id, from_user_id = :fromUserId, total_user_count = :totalUserCount, delivered_count = :deliveredCount, seen_count = :seenCount, type_message = :type, body = :body, created_at_message = :createdAt, modified_at_message = :modifiedAt, deleted_message = :deleted, reply_id = :replyId WHERE local_id = :localId")
+    @Query(
+        "UPDATE message SET id = :id, from_user_id = :fromUserId, total_user_count = :totalUserCount," +
+                " delivered_count = :deliveredCount, seen_count = :seenCount, type_message = :type, body = :body," +
+                " created_at_message = :createdAt, modified_at_message = :modifiedAt, deleted_message = :deleted," +
+                " reply_id = :replyId, message_status=:status WHERE local_id = :localId"
+    )
     suspend fun updateMessage(
         id: Int,
         fromUserId: Int,
@@ -22,11 +27,16 @@ interface MessageDao : BaseDao<Message> {
         modifiedAt: Long,
         deleted: Boolean,
         replyId: Long,
-        localId: String
+        localId: String,
+        status: String
     )
 
     @Query("SELECT * FROM message WHERE room_id_message= :roomId ORDER BY created_at_message DESC LIMIT :limit OFFSET :offset")
-    fun getMessagesAndRecords(roomId: Int, limit: Int, offset: Int): LiveData<List<MessageAndRecords>>
+    fun getMessagesAndRecords(
+        roomId: Int,
+        limit: Int,
+        offset: Int
+    ): LiveData<List<MessageAndRecords>>
 
     @Query("SELECT COUNT(*) FROM message WHERE room_id_message= :roomId")
     suspend fun getMessageCount(roomId: Int): Int
@@ -54,4 +64,7 @@ interface MessageDao : BaseDao<Message> {
 
     @Query("DELETE FROM message")
     suspend fun removeMessages()
+
+    @Query("UPDATE message SET message_status=:messageStatus WHERE local_id=:localId")
+    suspend fun updateMessageStatus(messageStatus: String, localId: String)
 }
