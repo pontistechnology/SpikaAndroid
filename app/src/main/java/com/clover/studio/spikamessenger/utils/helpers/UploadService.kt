@@ -99,10 +99,14 @@ class UploadService : Service() {
             }
 
             thumbnailJobs.joinAll()
-            Timber.d("Thumbnails jobs finished: ${thumbnailJobs.all { it.isCompleted }}")
-            Timber.d("Job map after thumbnails: $jobMap")
-            thumbnailJobs.forEach {
-                it.cancel()
+//            Timber.d("Thumbnails jobs finished: ${thumbnailJobs.all { it.isCompleted }}")
+//            Timber.d("Job map after thumbnails: $jobMap")
+
+            if (thumbnailJobs.all{it.isCompleted}){
+                jobMap.clear()
+                thumbnailJobs.forEach {
+                    it.cancel()
+                }
             }
 
             val imageJobs = items.filter { !it.isThumbnail }.map { item ->
@@ -111,7 +115,7 @@ class UploadService : Service() {
                 }.also { jobMap[item.localId] = it }
             }
 
-            Timber.d("Job map after images: $jobMap")
+//            Timber.d("Job map after images: $jobMap")
 
             imageJobs.joinAll()
             imageJobs.forEach {
@@ -135,7 +139,7 @@ class UploadService : Service() {
             override fun filePieceUploaded() {
                 if (!item.isThumbnail) {
                     count += 1
-                    Timber.d("Count $count, ${item.filePieces}")
+//                    Timber.d("Count $count, ${item.filePieces}")
                     updateProgress(count, item.filePieces, item.localId.toString())
                 }
             }
