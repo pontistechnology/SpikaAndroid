@@ -91,7 +91,6 @@ class UploadDownloadManager constructor(
                     fileData.messageBody,
                     fileUploadListener,
                 )
-
                 piece++
             }
         }
@@ -108,7 +107,6 @@ class UploadDownloadManager constructor(
         try {
             val response = repository.uploadFiles(uploadFile.chunkToJson())
             if (Resource.Status.CANCEL == response.status) {
-                Timber.d("Resource: $response")
                 fileUploadListener.fileCanceledListener(response.message)
                 cancelUpload = true
                 return

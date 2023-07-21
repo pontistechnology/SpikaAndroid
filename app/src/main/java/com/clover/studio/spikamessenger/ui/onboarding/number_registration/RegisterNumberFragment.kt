@@ -26,7 +26,6 @@ import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.Resource
-import com.clover.studio.spikamessenger.utils.permissions
 import com.google.gson.JsonObject
 import timber.log.Timber
 
@@ -233,17 +232,27 @@ class RegisterNumberFragment : BaseFragment() {
     }
 
     private fun checkMultiplePermissions() {
+        val permissions = arrayOf(
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+
         multiplePermissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-                if (it.isNotEmpty()) {
-                    for (permission in it) {
-                        if (permission.key == Manifest.permission.READ_CONTACTS) {
-                            if (permission.value) {
-                                Timber.d("Fetching all user contacts")
-                                fetchAllUserContacts()
-                                break
-                            } else Timber.d("Couldn't send contacts. No permission granted.")
-                        }
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionsMap ->
+                if (permissionsMap.isNotEmpty()) {
+                    val readContactsPermissionGranted =
+                        permissionsMap[Manifest.permission.READ_CONTACTS]
+                    val readStoragePermissionGranted =
+                        permissionsMap[Manifest.permission.READ_EXTERNAL_STORAGE]
+                    val writeStoragePermissionGranted =
+                        permissionsMap[Manifest.permission.WRITE_EXTERNAL_STORAGE]
+
+                    if (readContactsPermissionGranted == true && readStoragePermissionGranted == true && writeStoragePermissionGranted == true) {
+                        Timber.d("Fetching all user contacts")
+                        fetchAllUserContacts()
+                    } else {
+                        Timber.d("Couldn't fetch contacts or access storage. Permissions not granted.")
                     }
                 }
             }
@@ -253,15 +262,30 @@ class RegisterNumberFragment : BaseFragment() {
                     it,
                     Manifest.permission.READ_CONTACTS
                 )
-            } == PackageManager.PERMISSION_GRANTED) {
+            } == PackageManager.PERMISSION_GRANTED &&
+            context?.let {
+                ContextCompat.checkSelfPermission(
+                    it,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                )
+            } == PackageManager.PERMISSION_GRANTED &&
+            context?.let {
+                ContextCompat.checkSelfPermission(
+                    it,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            } == PackageManager.PERMISSION_GRANTED
+        ) {
             if (!viewModel.areUsersFetched()) {
                 fetchAllUserContacts()
             }
-        } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) || shouldShowRequestPermissionRationale(
-                Manifest.permission.POST_NOTIFICATIONS
-            )
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) ||
+            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) ||
+            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         ) {
-            // TODO show why permission is needed
-        } else multiplePermissionLauncher.launch(permissions.toTypedArray())
+            // TODO show why permissions are needed
+        } else {
+            multiplePermissionLauncher.launch(permissions)
+        }
     }
 }

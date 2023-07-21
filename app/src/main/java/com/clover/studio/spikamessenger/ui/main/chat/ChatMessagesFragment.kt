@@ -29,6 +29,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
@@ -112,6 +113,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var tempFilesToCreate: MutableList<TempUri> = ArrayList()
     private var uploadFiles: ArrayList<FileData> = ArrayList()
     private var selectedFiles: MutableList<Uri> = ArrayList()
+    private var resendMessages: MutableList<Message> = ArrayList()
 
     private lateinit var fileUploadService: UploadService
 
@@ -655,7 +657,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
                 if (it?.isNotEmpty() == true) {
                     viewModel.fetchBlockedUsersLocally(it)
-                } // else bindingSetup.clContactBlocked.visibility = View.GONE
+                }
             }
 
             viewModel.blockedListListener.observe(viewLifecycleOwner, EventObserver {
@@ -1056,9 +1058,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleDownloadFile(message: MessageAndRecords) {
-        // Seems that WRITE_EXTERNAL_STORAGE check returns true for Android versions 12 and below,
-        // but false for Android version 13. If scoped storage is correctly implemented, the
-        // download will work without the need to check permission.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             when {
                 context?.let {
@@ -1374,6 +1373,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun resendMessage(message: Message) {
+        // TODO ask for permissions
         when (message.type) {
             Const.JsonFields.TEXT_TYPE -> {
                 try {
@@ -1386,14 +1386,25 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
 
+            Const.JsonFields.FILE_TYPE, Const.JsonFields.AUDIO_TYPE -> {
+                val resendMessage = message.body?.file?.uri?.toUri()
+                if (resendMessage != null) {
+                    selectedFiles.add(resendMessage)
+                    handleUserSelectedFile(selectedFiles)
+                }
+                viewModel.deleteLocalMessage(message)
+            }
+
             Const.JsonFields.IMAGE_TYPE -> {
                 Timber.d("Resend message: $message")
-//                val resendImage = message.body?.file?.uri?.toUri()
+//                val resendImage = resendMessages.find { it.localId == message.localId }
 //                if (resendImage != null) {
-//                    selectedFiles.add(resendImage)
+//                    val uri = resendImage.body?.file?.uri?.toUri()
+//                    uri?.let { selectedFiles.add(it) }
 //                    handleUserSelectedFile(selectedFiles)
+//                    resendMessages.remove(resendImage)
+//                    viewModel.deleteLocalMessage(message)
 //                }
-//                viewModel.deleteLocalMessage(message)
             }
         }
     }
@@ -1478,7 +1489,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         uploadFiles.clear()
         selectedFilesUris.clear()
         tempFilesToCreate.clear()
-        unsentMessages.clear()
     }
 
     private fun convertMedia(uri: Uri, fileMimeType: String?) {
@@ -1625,6 +1635,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     Tools.deleteTemporaryMedia(context!!)
                     context?.cacheDir?.deleteRecursively()
 
+                    Timber.d("Unsent messages: $unsentMessages")
+
                     if (uploadedFiles.isNotEmpty()) {
                         uploadedFiles.forEach { item ->
                             if (!item.isThumbnail) {
@@ -1632,9 +1644,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     item.messageStatus.toString(),
                                     item.localId.toString()
                                 )
+                                if (item.messageStatus == Resource.Status.ERROR) {
+                                    unsentMessages.find { it.localId == item.localId }
+                                        ?.let { resendMessages.add(it) }
+
+                                }
                             }
                         }
                         uploadedFiles.clear()
+                        unsentMessages.clear()
                         return
                     }
                 }

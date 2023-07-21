@@ -38,6 +38,7 @@ import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.addFiles
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHideUserInformation
+import com.clover.studio.spikamessenger.utils.helpers.Resource
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
@@ -124,7 +125,6 @@ class ChatAdapter(
 
                     Const.JsonFields.IMAGE_TYPE -> {
                         setViewsVisibility(holder.binding.clImageChat, holder)
-                        Timber.d("Message status: ${it.message.messageStatus}")
                         bindLoadingImage(
                             it,
                             holder.binding.flProgressScreen,
@@ -164,59 +164,86 @@ class ChatAdapter(
                             holder.binding.fileLayout.ivFileType,
                             it.message.body?.file?.fileName?.substringAfterLast(".")!!
                         )
+
                         /** Uploading file: */
-                        if (it.message.body.file?.id == Const.JsonFields.TEMPORARY_FILE_ID) {
-                            holder.binding.fileLayout.ivDownloadFile.visibility = View.GONE
-                            holder.binding.fileLayout.ivCancelFile.visibility = View.VISIBLE
-                            holder.binding.fileLayout.pbFile.visibility = View.VISIBLE
-                            holder.binding.fileLayout.tvFileTitle.text =
-                                it!!.message.body?.file?.fileName
-                            holder.binding.fileLayout.tvFileSize.text =
-                                Tools.calculateFileSize(it.message.body.file?.size!!)
-                            holder.binding.fileLayout.pbFile.secondaryProgress =
-                                it.message.uploadProgress
-                            holder.binding.fileLayout.ivCancelFile.setOnClickListener { _ ->
-                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
+                        holder.binding.fileLayout.apply {
+                            val fileBody = it.message.body.file
+                            tvFileTitle.text = fileBody?.fileName
+                            tvFileSize.text = Tools.calculateFileSize(fileBody?.size ?: 0)
+
+                            if (it.message.id < 0) {
+                                if (it.message.messageStatus == Resource.Status.LOADING.toString()) {
+                                    ivDownloadFile.visibility = View.GONE
+                                    ivCancelFile.visibility = View.VISIBLE
+                                    pbFile.visibility = View.VISIBLE
+                                    pbFile.secondaryProgress = it.message.uploadProgress
+
+                                    ivCancelFile.setOnClickListener {_ ->
+                                        onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
+                                    }
+                                } else {
+                                    pbFile.secondaryProgress = 0
+                                    pbFile.visibility = View.GONE
+                                    ivCancelFile.visibility = View.GONE
+                                    ivDownloadFile.visibility = View.GONE
+                                    ivUploadFailed.visibility = View.VISIBLE
+                                    clFileMessage.setOnClickListener {_ ->
+                                        onMessageInteraction(Const.UserActions.RESEND_MESSAGE, it)
+                                    }
+                                }
+                            } else {
+                                ivCancelFile.visibility = View.GONE
+                                pbFile.visibility = View.GONE
+                                clFileMessage.setBackgroundResource(R.drawable.bg_message_send)
+
+                                bindFile(
+                                    it,
+                                    tvFileTitle,
+                                    tvFileSize,
+                                    ivDownloadFile
+                                )
                             }
-                        } else {
-                            holder.binding.fileLayout.ivCancelFile.visibility = View.GONE
-                            holder.binding.fileLayout.pbFile.visibility = View.GONE
-                            holder.binding.fileLayout.clFileMessage.setBackgroundResource(R.drawable.bg_message_send)
-                            bindFile(
-                                it,
-                                holder.binding.fileLayout.tvFileTitle,
-                                holder.binding.fileLayout.tvFileSize,
-                                holder.binding.fileLayout.ivDownloadFile
-                            )
                         }
+
                     }
 
                     Const.JsonFields.AUDIO_TYPE -> {
                         setViewsVisibility(holder.binding.cvAudio, holder)
 
                         /** Uploading audio: */
-                        if (it.message.body?.file?.id == Const.JsonFields.TEMPORARY_FILE_ID) {
-                            holder.binding.audioLayout.pbAudio.visibility = View.VISIBLE
-                            holder.binding.audioLayout.ivPlayAudio.visibility = View.GONE
-                            holder.binding.audioLayout.ivCancelAudio.visibility = View.VISIBLE
-                            holder.binding.audioLayout.ivCancelAudio.setOnClickListener { _ ->
-                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
+                        holder.binding.audioLayout.apply {
+                            if (it.message.id < 0) {
+                                if (it.message.messageStatus == Resource.Status.LOADING.toString()) {
+                                    pbAudio.visibility = View.VISIBLE
+                                    ivPlayAudio.visibility = View.GONE
+                                    ivCancelAudio.visibility = View.VISIBLE
+                                    pbAudio.secondaryProgress = it.message.uploadProgress
+                                    ivCancelAudio.setOnClickListener {_ ->
+                                        onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
+                                    }
+                                } else {
+                                    ivCancelAudio.visibility = View.GONE
+                                    pbAudio.visibility = View.GONE
+                                    pbAudio.secondaryProgress = 0
+                                    ivPlayAudio.visibility = View.GONE
+                                    ivUploadFailed.visibility = View.VISIBLE
+                                    clAudioLayout.setOnClickListener { _ ->
+                                        onMessageInteraction(Const.UserActions.RESEND_MESSAGE, it)
+                                    }
+                                }
+                            } else {
+                                pbAudio.visibility = View.GONE
+                                ivCancelAudio.visibility = View.GONE
+                                bindAudio(
+                                    holder,
+                                    it,
+                                    ivPlayAudio,
+                                    sbAudio,
+                                    tvAudioDuration
+                                )
                             }
-                            holder.binding.audioLayout.pbAudio.secondaryProgress =
-                                it.message.uploadProgress
-                        } else {
-                            holder.binding.audioLayout.pbAudio.visibility = View.GONE
-                            holder.binding.audioLayout.ivCancelAudio.visibility = View.GONE
-                            bindAudio(
-                                holder,
-                                it,
-                                holder.binding.audioLayout.ivPlayAudio,
-                                holder.binding.audioLayout.sbAudio,
-                                holder.binding.audioLayout.tvAudioDuration
-                            )
                         }
                     }
-
                     else -> {
                         setViewsVisibility(holder.binding.tvMessage, holder)
                     }
@@ -508,6 +535,7 @@ class ChatAdapter(
             mediaPath,
             ivChatImage,
         )
+        Timber.d("Media path: $mediaPath")
         when (chatMessage.message.messageStatus) {
             "LOADING" -> {
                 Timber.d("Here loading")
@@ -567,22 +595,22 @@ class ChatAdapter(
 
     @SuppressLint("ClickableViewAccessibility")
     private fun bindFile(
-        it: MessageAndRecords?,
+        chatMessage: MessageAndRecords?,
         tvFileTitle: TextView,
         tvFileSize: TextView,
         ivDownloadFile: ImageView
     ) {
         ivDownloadFile.visibility = View.VISIBLE
-        tvFileTitle.text = it!!.message.body?.file?.fileName
+        tvFileTitle.text = chatMessage!!.message.body?.file?.fileName
         val sizeText =
-            Tools.calculateFileSize(it.message.body?.file?.size!!)
+            Tools.calculateFileSize(chatMessage.message.body?.file?.size!!)
         tvFileSize.text = sizeText
 
         ivDownloadFile.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 onMessageInteraction.invoke(
                     Const.UserActions.DOWNLOAD_FILE,
-                    it
+                    chatMessage
                 )
             }
             true

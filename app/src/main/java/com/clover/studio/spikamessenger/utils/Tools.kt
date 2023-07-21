@@ -570,16 +570,16 @@ object Tools {
     }
 
     fun getMediaFile(context: Context, message: Message): String {
-        val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
-        val file = File(mediaPath)
-        if (!file.exists()) {
-            mediaPath = message.body?.thumb?.id?.let { imagePath ->
+//        val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+//        var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
+//        val file = File(mediaPath)
+//        if (!file.exists()) {
+           val mediaPath = message.body?.thumb?.id?.let { imagePath ->
                 getFilePathUrl(
                     imagePath
                 )
             }.toString()
-        }
+//        }
         return mediaPath
     }
 
