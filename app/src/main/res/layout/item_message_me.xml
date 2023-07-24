@@ -94,7 +94,7 @@
                     android:fontFamily="@font/montserrat"
                     android:paddingEnd="@dimen/four_dp_margin"
                     android:text="@string/username"
-                    android:textFontWeight="600"
+                    android:textStyle="bold"
                     android:textSize="@dimen/eleven_sp_text"
                     android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -213,12 +213,12 @@
                     tools:srcCompat="@tools:sample/avatars" />
 
                 <FrameLayout
-                    android:id="@+id/fl_progress_screen"
+                    android:id="@+id/fl_loading_screen"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:background="@color/dark_background_transp"
                     android:elevation="@dimen/five_dp_margin"
-                    android:visibility="invisible"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="@+id/iv_chat_image"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -235,6 +235,7 @@
                         android:indeterminate="false"
                         android:progressDrawable="@drawable/custom_circular_progress"
                         android:progressTint="@color/primary_color"
+                        android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -244,10 +245,17 @@
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_gravity="center"
+                        android:visibility="gone"
                         app:srcCompat="@drawable/img_cancel_image" />
+                    <ImageView
+                        android:id="@+id/iv_image_failed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:src="@drawable/img_upload_failed"
+                        android:visibility="gone" />
                 </FrameLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
-
 
             <FrameLayout
                 android:id="@+id/fl_videos"

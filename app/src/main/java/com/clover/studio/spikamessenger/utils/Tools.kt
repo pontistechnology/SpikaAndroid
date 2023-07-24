@@ -386,7 +386,8 @@ object Tools {
             null,
             null,
             generateRandomId(),
-            Resource.Status.LOADING.toString()
+            Resource.Status.LOADING.toString(),
+            null
         )
     }
 
@@ -570,16 +571,16 @@ object Tools {
     }
 
     fun getMediaFile(context: Context, message: Message): String {
-//        val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-//        var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
-//        val file = File(mediaPath)
-//        if (!file.exists()) {
-           val mediaPath = message.body?.thumb?.id?.let { imagePath ->
+        val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
+        val file = File(mediaPath)
+        if (!file.exists()) {
+            mediaPath = message.body?.thumb?.id?.let { imagePath ->
                 getFilePathUrl(
                     imagePath
                 )
             }.toString()
-//        }
+        }
         return mediaPath
     }
 
@@ -649,7 +650,7 @@ object Tools {
         activity.startActivity(intent)
     }
 
-    suspend fun clearUserData(activity: Activity) {
+    fun clearUserData(activity: Activity) {
         val sharedPrefs = SharedPreferencesRepositoryImpl(MainApplication.appContext)
         sharedPrefs.clearSharedPrefs()
         AppDatabase.nukeDb()

@@ -235,6 +235,12 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun updateLocalUri(localId: String, uri: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.updateLocalUri(localId, uri)
+        }
+    }
+
     fun editMessage(messageId: Int, jsonObject: JsonObject) =
         CoroutineScope(Dispatchers.IO).launch {
             repository.editMessage(messageId, jsonObject)

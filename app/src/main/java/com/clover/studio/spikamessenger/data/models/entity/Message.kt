@@ -75,6 +75,9 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo("message_status")
     var messageStatus: String?,
 
+    @ColumnInfo("uri")
+    var originalUri: String?,
+
     @Ignore
     val unreadCount: Int = 0,
 

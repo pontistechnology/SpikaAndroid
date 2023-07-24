@@ -113,7 +113,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var tempFilesToCreate: MutableList<TempUri> = ArrayList()
     private var uploadFiles: ArrayList<FileData> = ArrayList()
     private var selectedFiles: MutableList<Uri> = ArrayList()
-    private var resendMessages: MutableList<Message> = ArrayList()
+    private var uriPairList: MutableList<Pair<Uri, Uri>> = mutableListOf()
 
     private lateinit var fileUploadService: UploadService
 
@@ -1395,16 +1395,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 viewModel.deleteLocalMessage(message)
             }
 
-            Const.JsonFields.IMAGE_TYPE -> {
-                Timber.d("Resend message: $message")
-//                val resendImage = resendMessages.find { it.localId == message.localId }
-//                if (resendImage != null) {
-//                    val uri = resendImage.body?.file?.uri?.toUri()
-//                    uri?.let { selectedFiles.add(it) }
-//                    handleUserSelectedFile(selectedFiles)
-//                    resendMessages.remove(resendImage)
-//                    viewModel.deleteLocalMessage(message)
-//                }
+            Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
+                if (message.originalUri != null) {
+                    selectedFiles.add(message.originalUri!!.toUri())
+                    handleUserSelectedFile(selectedFiles)
+                    viewModel.deleteLocalMessage(message)
+                } else {
+                    Toast.makeText(context, "Something went wrong", Toast.LENGTH_LONG)
+                }
             }
         }
     }
@@ -1516,6 +1514,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
             thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
             tempFilesToCreate.add(TempUri(thumbnailUri, Const.JsonFields.VIDEO_TYPE))
+            uriPairList.add(Pair(uri, thumbnailUri))
         } else {
             val bitmap =
                 Tools.handleSamplingAndRotationBitmap(activity!!, uri, false)
@@ -1527,6 +1526,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             tempFilesToCreate.add(TempUri(thumbnailUri, Const.JsonFields.IMAGE_TYPE))
         }
 
+        uriPairList.add(Pair(uri, thumbnailUri))
         thumbnailUris.add(thumbnailUri)
         currentMediaLocation.add(fileUri)
     }
@@ -1639,18 +1639,26 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                     if (uploadedFiles.isNotEmpty()) {
                         uploadedFiles.forEach { item ->
-                            if (!item.isThumbnail) {
-                                viewModel.updateMessages(
-                                    item.messageStatus.toString(),
-                                    item.localId.toString()
-                                )
-                                if (item.messageStatus == Resource.Status.ERROR) {
-                                    unsentMessages.find { it.localId == item.localId }
-                                        ?.let { resendMessages.add(it) }
-
+                            Timber.d("Uri:: ${item.fileUri}")
+                            if (item.messageStatus == Resource.Status.ERROR) {
+                                if (!item.isThumbnail) {
+                                    viewModel.updateMessages(
+                                        item.messageStatus.toString(),
+                                        item.localId.toString()
+                                    )
+                                } else {
+                                    val resendUri = uriPairList.find { it.second == item.fileUri }
+                                    Timber.d("Resend uri image $resendUri")
+                                    viewModel.updateLocalUri(
+                                        item.localId.toString(),
+                                        resendUri?.first.toString(),
+                                    )
                                 }
+                            } else {
+                                uriPairList.removeIf { it.second == item.fileUri }
                             }
                         }
+                        uriPairList.clear()
                         uploadedFiles.clear()
                         unsentMessages.clear()
                         return

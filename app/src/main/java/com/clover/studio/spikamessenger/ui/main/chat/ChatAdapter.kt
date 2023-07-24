@@ -127,10 +127,11 @@ class ChatAdapter(
                         setViewsVisibility(holder.binding.clImageChat, holder)
                         bindLoadingImage(
                             it,
-                            holder.binding.flProgressScreen,
+                            holder.binding.flLoadingScreen,
                             holder.binding.pbImages,
                             holder.binding.ivCancelImage,
                             holder.binding.ivChatImage,
+                            holder.binding.ivImageFailed,
                             holder.binding.clContainer,
                         )
                     }
@@ -140,10 +141,11 @@ class ChatAdapter(
                             setViewsVisibility(holder.binding.clImageChat, holder)
                             bindLoadingImage(
                                 it,
-                                holder.binding.flProgressScreen,
+                                holder.binding.flLoadingScreen,
                                 holder.binding.pbImages,
                                 holder.binding.ivCancelImage,
                                 holder.binding.ivChatImage,
+                                holder.binding.ivImageFailed,
                                 holder.binding.clContainer,
                             )
                         } else {
@@ -153,7 +155,7 @@ class ChatAdapter(
                                 holder.binding.ivVideoThumbnail,
                                 holder.binding.ivPlayButton
                             )
-                            holder.binding.flProgressScreen.visibility = View.INVISIBLE
+                            holder.binding.flLoadingScreen.visibility = View.INVISIBLE
                         }
                     }
 
@@ -172,7 +174,7 @@ class ChatAdapter(
                             tvFileSize.text = Tools.calculateFileSize(fileBody?.size ?: 0)
 
                             if (it.message.id < 0) {
-                                if (it.message.messageStatus == Resource.Status.LOADING.toString()) {
+                                if (Resource.Status.LOADING.toString() == it.message.messageStatus) {
                                     ivDownloadFile.visibility = View.GONE
                                     ivCancelFile.visibility = View.VISIBLE
                                     pbFile.visibility = View.VISIBLE
@@ -194,8 +196,8 @@ class ChatAdapter(
                             } else {
                                 ivCancelFile.visibility = View.GONE
                                 pbFile.visibility = View.GONE
+                                ivUploadFailed.visibility = View.GONE
                                 clFileMessage.setBackgroundResource(R.drawable.bg_message_send)
-
                                 bindFile(
                                     it,
                                     tvFileTitle,
@@ -204,7 +206,6 @@ class ChatAdapter(
                                 )
                             }
                         }
-
                     }
 
                     Const.JsonFields.AUDIO_TYPE -> {
@@ -213,7 +214,7 @@ class ChatAdapter(
                         /** Uploading audio: */
                         holder.binding.audioLayout.apply {
                             if (it.message.id < 0) {
-                                if (it.message.messageStatus == Resource.Status.LOADING.toString()) {
+                                if (Resource.Status.LOADING.toString() == it.message.messageStatus ) {
                                     pbAudio.visibility = View.VISIBLE
                                     ivPlayAudio.visibility = View.GONE
                                     ivCancelAudio.visibility = View.VISIBLE
@@ -234,6 +235,7 @@ class ChatAdapter(
                             } else {
                                 pbAudio.visibility = View.GONE
                                 ivCancelAudio.visibility = View.GONE
+                                ivUploadFailed.visibility = View.GONE
                                 bindAudio(
                                     holder,
                                     it,
@@ -472,7 +474,6 @@ class ChatAdapter(
                 AppCompatResources.getDrawable(context, R.drawable.img_deleted_message)
         } else {
             tvMessage.text = chatMessage.message.body?.text
-
             tvMessage.background = AppCompatResources.getDrawable(
                 context,
                 if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
@@ -508,7 +509,7 @@ class ChatAdapter(
             if (chatMessage.message.id > 0) {
                 onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
             }
-            if (chatMessage.message.messageStatus == "ERROR") {
+            if (chatMessage.message.messageStatus == Resource.Status.ERROR.toString()) {
                 onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
             }
         }
@@ -527,6 +528,7 @@ class ChatAdapter(
         pbImages: ProgressBar,
         ivCancelImage: ImageView,
         ivChatImage: ImageView,
+        ivImageFailed: ImageView,
         clContainer: ConstraintLayout
     ) {
         val mediaPath = Tools.getMediaFile(context, chatMessage.message)
@@ -535,12 +537,12 @@ class ChatAdapter(
             mediaPath,
             ivChatImage,
         )
-        Timber.d("Media path: $mediaPath")
         when (chatMessage.message.messageStatus) {
-            "LOADING" -> {
-                Timber.d("Here loading")
+            Resource.Status.LOADING.toString() -> {
+                Timber.d("Loading")
                 flProgressScreen.visibility = View.VISIBLE
                 pbImages.visibility = View.VISIBLE
+                ivImageFailed.visibility = View.GONE
                 pbImages.secondaryProgress = chatMessage.message.uploadProgress
 
                 ivCancelImage.setOnClickListener {
@@ -548,26 +550,26 @@ class ChatAdapter(
                 }
             }
 
-            "ERROR" -> {
-                Timber.d("Here error")
+            Resource.Status.ERROR.toString() -> {
+                Timber.d("Error")
                 flProgressScreen.visibility = View.VISIBLE
                 pbImages.visibility = View.GONE
                 ivCancelImage.visibility = View.GONE
-                clContainer.setOnClickListener {
+                ivImageFailed.visibility = View.VISIBLE
+                ivImageFailed.setOnClickListener {
                     onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
                 }
             }
 
-            "SUCCESS", null -> {
+            Resource.Status.SUCCESS.toString(), null -> {
+                Timber.d("Success")
                 flProgressScreen.visibility = View.INVISIBLE
-                Timber.d("Here success")
                 clContainer.setOnClickListener {
                     onMessageInteraction(
                         Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT,
                         chatMessage
                     )
                 }
-
                 clContainer.setOnLongClickListener {
                     onMessageInteraction(Const.UserActions.MESSAGE_ACTION, chatMessage)
                     true
