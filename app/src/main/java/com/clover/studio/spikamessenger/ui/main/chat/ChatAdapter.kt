@@ -423,6 +423,7 @@ class ChatAdapter(
                                 context,
                                 userPath!!,
                                 holder.binding.ivUserImage,
+                                0
                             )
                         }
                     }
@@ -503,6 +504,7 @@ class ChatAdapter(
             context,
             mediaPath,
             ivChatImage,
+            chatMessage.message.body?.file?.metaData?.height!!
         )
 
         clContainer.setOnClickListener {
@@ -536,10 +538,13 @@ class ChatAdapter(
             context,
             mediaPath,
             ivChatImage,
+            chatMessage.message.body?.file?.metaData?.height ?: 256
         )
         when (chatMessage.message.messageStatus) {
             Resource.Status.LOADING.toString() -> {
                 Timber.d("Loading")
+                Timber.d("METADATA LOADING::: ${chatMessage.message.body?.file?.metaData.toString()}")
+
                 flProgressScreen.visibility = View.VISIBLE
                 pbImages.visibility = View.VISIBLE
                 ivImageFailed.visibility = View.GONE
@@ -552,6 +557,7 @@ class ChatAdapter(
 
             Resource.Status.ERROR.toString() -> {
                 Timber.d("Error")
+
                 flProgressScreen.visibility = View.VISIBLE
                 pbImages.visibility = View.GONE
                 ivCancelImage.visibility = View.GONE
@@ -563,6 +569,8 @@ class ChatAdapter(
 
             Resource.Status.SUCCESS.toString(), null -> {
                 Timber.d("Success")
+                Timber.d("METADATA SUCCESS:::: ${chatMessage.message.body?.file?.metaData.toString()}")
+
                 flProgressScreen.visibility = View.INVISIBLE
                 clContainer.setOnClickListener {
                     onMessageInteraction(
@@ -588,6 +596,7 @@ class ChatAdapter(
             context,
             mediaPath,
             ivVideoThumbnail,
+            chatMessage.message.body?.file?.metaData?.height!!
         )
 
         ivPlayButton.setOnClickListener {

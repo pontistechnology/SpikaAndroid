@@ -325,6 +325,7 @@ class GroupInformationFragment : BaseFragment() {
                     false,
                     null,
                     0,
+                    null,
                     null
                 )
             )

@@ -47,6 +47,7 @@ import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
+import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
@@ -638,6 +639,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         Timber.d("Message get error")
                     }
                 }
+                senderScroll()
             }
 
         viewModel.newMessageReceivedListener.observe(viewLifecycleOwner) { message ->
@@ -1540,17 +1542,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     if (Const.JsonFields.IMAGE_TYPE == unsentMessage.type ||
                         Const.JsonFields.VIDEO_TYPE == unsentMessage.type
                     ) {
+                        Timber.d("METADATA::::::::: ${unsentMessage.body?.file?.metaData}")
                         // Send thumbnail
                         uploadFiles(
                             isThumbnail = true,
                             uri = thumbnailUris.first(),
-                            localId = unsentMessage.localId!!
+                            localId = unsentMessage.localId!!,
+                            metadata = unsentMessage.body?.file?.metaData
                         )
                         // Send original image
                         uploadFiles(
                             isThumbnail = false,
                             uri = currentMediaLocation.first(),
-                            localId = unsentMessage.localId
+                            localId = unsentMessage.localId,
+                            metadata = unsentMessage.body?.file?.metaData
                         )
                         currentMediaLocation.removeFirst()
                         thumbnailUris.removeFirst()
@@ -1559,7 +1564,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         uploadFiles(
                             isThumbnail = false,
                             uri = filesSelected.first(),
-                            localId = unsentMessage.localId!!
+                            localId = unsentMessage.localId!!,
+                            metadata = null
                         )
                         filesSelected.removeFirst()
                     }
@@ -1584,10 +1590,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun uploadFiles(
         isThumbnail: Boolean,
         uri: Uri,
-        localId: String
+        localId: String,
+        metadata: FileMetadata?,
     ) {
         val uploadData: MutableList<FileData> = ArrayList()
-        uploadData.add(FilesHelper.uploadFile(isThumbnail, uri, localId, roomWithUsers.room.roomId))
+        uploadData.add(FilesHelper.uploadFile(isThumbnail, uri, localId, roomWithUsers.room.roomId, metadata))
         uploadFiles.addAll(uploadData)
     }
 

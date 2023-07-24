@@ -576,6 +576,7 @@ class ChatDetailsFragment : BaseFragment() {
                     false,
                     null,
                     roomWithUsers.room.roomId,
+                    null,
                     null
                 )
             )

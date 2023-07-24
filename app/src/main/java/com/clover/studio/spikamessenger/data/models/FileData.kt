@@ -17,5 +17,6 @@ data class FileData(
     val isThumbnail: Boolean = false,
     val localId: String?,
     val roomId: Int,
-    var messageStatus: Resource.Status?
+    var messageStatus: Resource.Status?,
+    var metadata: FileMetadata?
 ) : Parcelable

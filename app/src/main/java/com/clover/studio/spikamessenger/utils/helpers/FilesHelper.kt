@@ -8,12 +8,14 @@ import android.net.Uri
 import android.os.Environment
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.data.models.FileData
+import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.MessageFile
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.getChunkSize
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -21,7 +23,7 @@ import java.io.OutputStream
 
 object FilesHelper {
 
-    fun uploadFile(isThumbnail: Boolean, uri: Uri, localId: String, roomId: Int): FileData {
+    fun uploadFile(isThumbnail: Boolean, uri: Uri, localId: String, roomId: Int, metadata: FileMetadata?): FileData {
 
         val messageBody = MessageBody(null, "", 0, 0, null, null)
         val inputStream =
@@ -51,7 +53,8 @@ object FilesHelper {
             isThumbnail = isThumbnail,
             localId = localId,
             roomId = roomId,
-            messageStatus = null
+            messageStatus = null,
+            metadata = metadata,
         )
     }
 
@@ -82,6 +85,10 @@ object FilesHelper {
             else
                 type
 
+        val fileMetadata: FileMetadata? =
+            Tools.getMetadata(uri, type, true)
+        Timber.d("File metadata: $fileMetadata")
+
         val tempMessage = Tools.createTemporaryMessage(
             id = getUniqueRandomId(unsentMessages),
             localUserId = localUserId,
@@ -92,7 +99,13 @@ object FilesHelper {
                 text = null,
                 fileId = 1,
                 thumbId = 1,
-                file = MessageFile(1, fileName, "", size, null, uri.toString()),
+                file = MessageFile(
+                    id = 1,
+                    fileName = fileName,
+                    mimeType = "",
+                    size = size,
+                    metaData = fileMetadata,
+                    uri = uri.toString()),
                 thumb = null
             )
         )

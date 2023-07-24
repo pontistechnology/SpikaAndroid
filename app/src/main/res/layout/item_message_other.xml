@@ -90,7 +90,7 @@
                     android:fontFamily="@font/montserrat"
                     android:paddingEnd="@dimen/four_dp_margin"
                     android:text="@string/username"
-                    android:textFontWeight="600"
+                    android:textStyle="bold"
                     android:textSize="@dimen/eleven_sp_text"
                     android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -211,10 +211,8 @@
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/iv_chat_image"
                     android:layout_width="@dimen/two_hundred_fifty_six_dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/two_hundred_fifty_six_dp"
                     android:layout_margin="@dimen/two_dp_margin"
-                    android:adjustViewBounds="true"
-                    android:maxHeight="@dimen/image_max_width"
                     android:scaleType="centerCrop"
                     app:layout_constrainedHeight="true"
                     app:layout_constrainedWidth="true"
@@ -223,7 +221,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:shapeAppearanceOverlay="@style/chat_image"
-                    tools:srcCompat="@tools:sample/avatars" />
+                    tools:srcCompat="@tools:sample/avatars"  />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <FrameLayout

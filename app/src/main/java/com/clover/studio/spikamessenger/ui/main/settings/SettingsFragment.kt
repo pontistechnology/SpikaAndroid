@@ -290,6 +290,7 @@ class SettingsFragment : BaseFragment() {
                         false,
                         null,
                         0,
+                        null,
                         null
                     ),
                     object :

@@ -28,8 +28,8 @@ import timber.log.Timber
 const val MAX_REACTIONS = 3
 private const val TEXT_SIZE_BIG = 11
 private const val TEXT_SIZE_SMALL = 5
-const val MAX_WIDTH = 256
-const val MAX_HEIGHT = 300
+//const val MAX_WIDTH = 256
+//const val MAX_HEIGHT = 300
 
 object ChatAdapterHelper {
 
@@ -60,13 +60,28 @@ object ChatAdapterHelper {
      * @param mediaPath - Path of media item
      * @param imageView - ImageView where we want to load the image
      * */
-    fun loadMedia(context: Context, mediaPath: String, imageView: ImageView) {
+    fun loadMedia(context: Context, mediaPath: String, imageView: ImageView, height: Int) {
+        Timber.d("Original height:::: $height")
+
+        // TODO Matko - which max height we will use?
+        val newHeight = convertToDp(context, 300)
+        val params = imageView.layoutParams
+        params.height = if (convertToDp(context, height) > newHeight) newHeight else convertToDp(
+            context,
+            height
+        )
+        imageView.layoutParams = params
+
         Glide.with(context)
             .load(mediaPath)
-            .override(MAX_WIDTH, MAX_HEIGHT)
             .dontTransform()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(imageView)
+    }
+
+    private fun convertToDp(context: Context, dp: Int): Int {
+        val scale = context.resources.displayMetrics.density
+        return (dp * scale + 0.5f).toInt()
     }
 
     /** A method that displays reactions
@@ -230,6 +245,7 @@ object ChatAdapterHelper {
                     context,
                     imagePath!!,
                     ivReplyImage,
+                    0
                 )
             }
             /** Audio type */
@@ -292,21 +308,21 @@ object ChatAdapterHelper {
         val message = chatMessage?.message
         Timber.d("Status: ${message?.localId}, ${message?.messageStatus}")
 
-        when(message?.messageStatus){
+        when (message?.messageStatus) {
             Resource.Status.ERROR.toString() -> {
                 ivMessageStatus.setImageResource(R.drawable.img_alert)
             }
+
             Resource.Status.LOADING.toString() -> {
                 ivMessageStatus.setImageResource(R.drawable.img_clock)
             }
+
             Resource.Status.SUCCESS.toString(), null -> {
-                if (message?.totalUserCount == message?.seenCount){
+                if (message?.totalUserCount == message?.seenCount) {
                     ivMessageStatus.setImageResource(R.drawable.img_seen)
-                }
-                else if (message?.totalUserCount == message?.deliveredCount) {
+                } else if (message?.totalUserCount == message?.deliveredCount) {
                     ivMessageStatus.setImageResource(R.drawable.img_done)
-                }
-                else if (message?.deliveredCount != null && message.deliveredCount >= 0){
+                } else if (message?.deliveredCount != null && message.deliveredCount >= 0) {
                     ivMessageStatus.setImageResource(R.drawable.img_sent)
                 }
             }
