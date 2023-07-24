@@ -628,8 +628,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 bindingSetup.rvChat.scrollToPosition(0)
                                 viewModel.mediaPosition.postValue(Pair(0, 0))
                             }
-                            // This else clause handles the issue where the firs message in the chat failed
-                            // to be sent or uploaded. It would remain in the list otherwise.
                         } else chatAdapter.submitList(messagesRecords.toList())
                     }
 
@@ -1463,7 +1461,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.ivCamera.visibility = View.GONE
 
         for (uri in selectedFilesUris) {
-            Timber.d("Uri: $uri")
             val fileMimeType = getFileMimeType(context, uri)
             // TODO add checks for svg avi types
             if (fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
@@ -1540,20 +1537,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
             if (unsentMessages.isNotEmpty()) {
                 for (unsentMessage in unsentMessages) {
-                    if (unsentMessage.type == Const.JsonFields.IMAGE_TYPE ||
-                        unsentMessage.type == Const.JsonFields.VIDEO_TYPE
+                    if (Const.JsonFields.IMAGE_TYPE == unsentMessage.type ||
+                        Const.JsonFields.VIDEO_TYPE == unsentMessage.type
                     ) {
                         // Send thumbnail
                         uploadFiles(
                             isThumbnail = true,
                             uri = thumbnailUris.first(),
-                            unsentMessage.localId!!
+                            localId = unsentMessage.localId!!
                         )
                         // Send original image
                         uploadFiles(
                             isThumbnail = false,
                             uri = currentMediaLocation.first(),
-                            unsentMessage.localId
+                            localId = unsentMessage.localId
                         )
                         currentMediaLocation.removeFirst()
                         thumbnailUris.removeFirst()
@@ -1562,7 +1559,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         uploadFiles(
                             isThumbnail = false,
                             uri = filesSelected.first(),
-                            unsentMessage.localId!!
+                            localId = unsentMessage.localId!!
                         )
                         filesSelected.removeFirst()
                     }
@@ -1635,23 +1632,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     Tools.deleteTemporaryMedia(context!!)
                     context?.cacheDir?.deleteRecursively()
 
-                    Timber.d("Unsent messages: $unsentMessages")
-
                     if (uploadedFiles.isNotEmpty()) {
                         uploadedFiles.forEach { item ->
-                            Timber.d("Uri:: ${item.fileUri}")
                             if (item.messageStatus == Resource.Status.ERROR) {
                                 if (!item.isThumbnail) {
                                     viewModel.updateMessages(
-                                        item.messageStatus.toString(),
-                                        item.localId.toString()
+                                        messageStatus = item.messageStatus.toString(),
+                                        localId = item.localId.toString()
                                     )
                                 } else {
                                     val resendUri = uriPairList.find { it.second == item.fileUri }
-                                    Timber.d("Resend uri image $resendUri")
                                     viewModel.updateLocalUri(
-                                        item.localId.toString(),
-                                        resendUri?.first.toString(),
+                                        localId = item.localId.toString(),
+                                        uri = resendUri?.first.toString(),
                                     )
                                 }
                             } else {
