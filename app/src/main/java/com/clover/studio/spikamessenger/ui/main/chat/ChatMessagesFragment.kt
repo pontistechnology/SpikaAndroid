@@ -147,7 +147,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
-            if (it != null) {
+            if (!it.isNullOrEmpty()) {
                 for (uri in it) {
                     selectedFiles.add(uri)
                 }
@@ -157,7 +157,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
-            if (it != null) {
+            if (!it.isNullOrEmpty()) {
                 for (uri in it) {
                     selectedFiles.add(uri)
                 }
