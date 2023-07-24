@@ -37,14 +37,14 @@ class MigrationTest {
         testMigration(currentVersion, newVersion, AppDatabase.MIGRATION_3_4)
     }
 
-//    /** Migration 4 to 5 test, when needed */
-//    @Test
-//    @Throws(IOException::class)
-//    fun migrate4To5() {
-//        val currentVersion = 4
-//        val newVersion = 5
-//        testMigration(currentVersion, newVersion, AppDatabase.MIGRATION_4_5)
-//    }
+    /** Migration 4 to 5 test, when needed */
+    @Test
+    @Throws(IOException::class)
+    fun migrate4To5() {
+        val currentVersion = 4
+        val newVersion = 5
+        testMigration(currentVersion, newVersion, AppDatabase.MIGRATION_4_5)
+    }
 
     @Throws(IOException::class)
     private fun testMigration(currentVersion: Int, newVersion: Int, migration: Migration) {
