@@ -108,9 +108,9 @@ class SSERepositoryImpl @Inject constructor(
                     )
                 }
 
-                if (messageRecords.isNotEmpty()) {
+                if (it.data.list.isNotEmpty()) {
                     val maxTimestamp =
-                        messageRecords.maxByOrNull { record -> record.createdAt }?.createdAt
+                        it.data.list.maxByOrNull { record -> record.createdAt }?.createdAt
                     Timber.d("MaxTimestamp message records timestamps: $maxTimestamp")
                     if (maxTimestamp != null && maxTimestamp > messageRecordsTimestamp) {
                         sharedPrefs.writeMessageRecordTimestamp(maxTimestamp)
