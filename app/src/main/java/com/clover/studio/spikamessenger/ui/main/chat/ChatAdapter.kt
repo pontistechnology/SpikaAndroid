@@ -550,6 +550,7 @@ class ChatAdapter(
                 ivImageFailed.visibility = View.GONE
                 pbImages.secondaryProgress = chatMessage.message.uploadProgress
 
+                ivCancelImage.visibility = View.VISIBLE
                 ivCancelImage.setOnClickListener {
                     onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, chatMessage)
                 }
@@ -571,7 +572,7 @@ class ChatAdapter(
                 Timber.d("Success")
                 Timber.d("METADATA SUCCESS:::: ${chatMessage.message.body?.file?.metaData.toString()}")
 
-                flProgressScreen.visibility = View.INVISIBLE
+                flProgressScreen.visibility = View.GONE
                 clContainer.setOnClickListener {
                     onMessageInteraction(
                         Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT,

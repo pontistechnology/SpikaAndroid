@@ -1641,10 +1641,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                     if (uploadedFiles.isNotEmpty()) {
                         uploadedFiles.forEach { item ->
-                            if (item.messageStatus == Resource.Status.ERROR) {
+                            if (item.messageStatus == Resource.Status.ERROR ||
+                                    item.messageStatus == Resource.Status.LOADING) {
                                 if (!item.isThumbnail) {
                                     viewModel.updateMessages(
-                                        messageStatus = item.messageStatus.toString(),
+                                        messageStatus = Resource.Status.ERROR.toString(),
                                         localId = item.localId.toString()
                                     )
                                 } else {
