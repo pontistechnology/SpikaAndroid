@@ -306,7 +306,6 @@ object ChatAdapterHelper {
         ivMessageStatus: ImageView
     ) {
         val message = chatMessage?.message
-        Timber.d("Status: ${message?.localId}, ${message?.messageStatus}")
 
         when (message?.messageStatus) {
             Resource.Status.ERROR.toString() -> {
