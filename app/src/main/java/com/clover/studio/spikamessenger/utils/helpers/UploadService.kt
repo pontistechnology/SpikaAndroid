@@ -10,6 +10,7 @@ import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.utils.CHANNEL_ID
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.FileUploadListener
@@ -19,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -27,7 +29,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class UploadService : Service() {
     @Inject
-    lateinit var uploadDownloadManager: UploadDownloadManager
+    lateinit var mainRepositoryImpl: MainRepositoryImpl
 
     @Inject
     lateinit var chatRepositoryImpl: ChatRepositoryImpl
@@ -39,6 +41,9 @@ class UploadService : Service() {
     private val binder = UploadServiceBinder()
     private var callbackListener: FileUploadCallback? = null
     private var count = 0
+
+    private var uploadCounterThumbnail = 0
+    private var uploadCounterImage = 0
 
     private val jobMap: MutableMap<String?, Job> = mutableMapOf()
 
@@ -93,8 +98,11 @@ class UploadService : Service() {
         uploadedFiles.addAll(items)
         coroutineScope {
             val thumbnailJobs = items.filter { it.isThumbnail }.map { item ->
+                delay(500)
                 launch {
+                    Timber.d("Upload debug uploading item $uploadCounterThumbnail")
                     uploadItem(item)
+                    uploadCounterThumbnail++
                 }.also { jobMap[item.localId] = it }
             }
 
@@ -102,7 +110,8 @@ class UploadService : Service() {
 //            Timber.d("Thumbnails jobs finished: ${thumbnailJobs.all { it.isCompleted }}")
 //            Timber.d("Job map after thumbnails: $jobMap")
 
-            if (thumbnailJobs.all{it.isCompleted}){
+            if (thumbnailJobs.all { it.isCompleted }) {
+                Timber.d("Upload debug clearing thumbnail jobs")
                 jobMap.clear()
                 thumbnailJobs.forEach {
                     it.cancel()
@@ -110,8 +119,11 @@ class UploadService : Service() {
             }
 
             val imageJobs = items.filter { !it.isThumbnail }.map { item ->
+                delay(500)
                 launch {
+                    Timber.d("Upload debug uploading image item $uploadCounterImage")
                     uploadItem(item)
+                    uploadCounterImage++
                 }.also { jobMap[item.localId] = it }
             }
 
@@ -128,14 +140,14 @@ class UploadService : Service() {
     }
 
     private fun resetUpload() {
-        Timber.d("Cleared all")
+        Timber.d("Upload debug cleared all")
         jobMap.clear()
         uploadingFinished(uploadedFiles)
         uploadedFiles.clear()
     }
 
     private suspend fun uploadItem(item: FileData) {
-        uploadDownloadManager.uploadFile(item, object : FileUploadListener {
+        UploadDownloadManager(mainRepositoryImpl).uploadFile(item, object : FileUploadListener {
             override fun filePieceUploaded() {
                 if (!item.isThumbnail) {
                     count += 1
@@ -161,7 +173,7 @@ class UploadService : Service() {
                 fileType: String,
                 messageBody: MessageBody?
             ) {
-                Timber.d("Item: $item")
+                Timber.d("Upload debug verifying item: $item")
                 if (!item.isThumbnail) {
                     var fileThumbId: Long? = null
 
