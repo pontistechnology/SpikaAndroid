@@ -504,7 +504,7 @@ class ChatAdapter(
             context,
             mediaPath,
             ivChatImage,
-            chatMessage.message.body?.file?.metaData?.height!!
+            chatMessage.message.body?.file?.metaData?.height ?: 256
         )
 
         clContainer.setOnClickListener {

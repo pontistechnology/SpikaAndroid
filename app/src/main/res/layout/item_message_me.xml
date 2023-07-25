@@ -280,11 +280,10 @@
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/iv_video_thumbnail"
                     android:layout_width="@dimen/two_hundred_fifty_six_dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/two_hundred_fifty_six_dp"
                     android:layout_gravity="center"
                     android:layout_margin="@dimen/two_dp_margin"
                     android:adjustViewBounds="true"
-                    android:maxHeight="@dimen/image_max_width"
                     android:scaleType="centerCrop"
                     app:cardCornerRadius="@dimen/eight_dp_margin"
                     app:layout_constrainedHeight="true"
