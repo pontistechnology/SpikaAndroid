@@ -240,4 +240,6 @@
     <string name="welcome_to_spika">Welcome to Spika Messenger</string>
     <string name="welcome_description"><![CDATA[Tap Agree & Continue to accept the Terms and Conditions]]></string>
     <string name="agree_and_continue"><![CDATA[Agree & Continue]]></string>
+    <string name="rooms">Rooms</string>
+    <string name="messages">Messages</string>
 </resources>

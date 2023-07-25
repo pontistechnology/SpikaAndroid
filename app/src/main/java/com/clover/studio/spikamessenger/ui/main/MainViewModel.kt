@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
 import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
+import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
@@ -32,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -54,6 +56,7 @@ class MainViewModel @Inject constructor(
     val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
     val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
     val deleteUserListener = MutableLiveData<Event<Resource<DeleteUserResponse?>>>()
+    val searchedMessageListener = MutableLiveData<Event<Resource<List<MessageAndRecords>?>>>()
 
     init {
         sseManager.setupListener(this)
@@ -120,6 +123,10 @@ class MainViewModel @Inject constructor(
                 return@launch
             }
         }
+    }
+
+    fun getSearchedMessages(query: String) = viewModelScope.launch {
+        resolveResponseStatus(searchedMessageListener, repository.getSearchedMessages(query))
     }
 
     fun getUserAndPhoneUser(localId: Int) = repository.getUserAndPhoneUser(localId)
@@ -311,6 +318,15 @@ class MainViewModel @Inject constructor(
         if (sharedPrefsRepo.isTeamMode()) {
             Timber.d("App is in team mode!")
         } else Timber.d("App is in messenger mode!")
+    }
+
+    fun getUsers(): List<User>? {
+        var users: List<User>?
+
+        runBlocking {
+            users = repository.getUsers()
+        }
+        return users
     }
 }
 

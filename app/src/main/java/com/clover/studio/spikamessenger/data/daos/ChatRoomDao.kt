@@ -3,6 +3,7 @@ package com.clover.studio.spikamessenger.data.daos
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
+import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithLatestMessage
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -17,10 +18,12 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getRoomById(roomId: Int): ChatRoom
 
-    @Query("SELECT COUNT(DISTINCT room.room_id)\n" +
-            "FROM room\n" +
-            "JOIN message ON Room.room_id = message.room_id_message\n" +
-            "WHERE room.unread_count > 0 AND message.created_at_message IS NOT NULL")
+    @Query(
+        "SELECT COUNT(DISTINCT room.room_id)\n" +
+                "FROM room\n" +
+                "JOIN message ON Room.room_id = message.room_id_message\n" +
+                "WHERE room.unread_count > 0 AND message.created_at_message IS NOT NULL"
+    )
     fun getRoomsUnreadCountLiveData(): LiveData<Int>
 
     fun getDistinctRoomsUnreadCount(): LiveData<Int> =
@@ -88,4 +91,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
 
     @Query("UPDATE room SET deleted =:deleted WHERE room_id LIKE :roomId")
     suspend fun updateRoomDeleted(roomId: Int, deleted: Boolean)
+
+    @Query("SELECT * FROM message WHERE body LIKE '%' || :text || '%'")
+    suspend fun getSearchMessages(text: String): List<MessageAndRecords>
 }

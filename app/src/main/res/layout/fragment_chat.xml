@@ -39,12 +39,12 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/sixteen_dp_margin"
         android:background="@drawable/bg_message_received"
+        android:backgroundTint="@color/message_other"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_screen_name"
         app:queryBackground="@android:color/transparent"
-        app:queryHint="@string/contact_search"
-        android:backgroundTint="@color/message_other"/>
+        app:queryHint="@string/contact_search" />
 
     <TextView
         android:id="@+id/tv_no_chats"
@@ -60,22 +60,57 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_screen_name" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
+        android:id="@+id/ll_search_rooms_messages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/ten_dp_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sv_rooms_search">
+
+        <Button
+            android:id="@+id/btn_search_rooms"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/rooms"
+            android:textAllCaps="false"
+            android:textColor="@color/primary_color" />
+
+        <Button
+            android:id="@+id/btn_search_messages"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/messages"
+            android:textAllCaps="false"
+            android:textColor="@color/primary_color" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_rooms"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/eight_dp_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sv_rooms_search">
+        app:layout_constraintTop_toBottomOf="@id/ll_search_rooms_messages" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_rooms"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/eight_dp_margin"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_messages"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ll_search_rooms_messages" />
 </androidx.constraintlayout.widget.ConstraintLayout>

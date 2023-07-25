@@ -10,7 +10,7 @@ import com.clover.studio.spikamessenger.utils.helpers.Extensions.getDistinct
 @Dao
 interface UserDao: BaseDao<User> {
     @Query("SELECT * FROM user")
-    fun getUsers(): LiveData<List<User>>
+    suspend fun getUsers(): List<User>
 
     @Query("SELECT * FROM user WHERE id LIKE :userId LIMIT 1")
     fun getUserById(userId: Int): LiveData<User>
