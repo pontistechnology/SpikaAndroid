@@ -1,12 +1,25 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
+import android.Manifest
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -17,6 +30,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.databinding.FragmentMediaBinding
@@ -26,6 +40,7 @@ import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.MediaPlayer
+import java.io.File
 
 const val BAR_ANIMATION = 500L
 
@@ -99,12 +114,7 @@ class MediaFragment : BaseFragment() {
                 null,
                 object : DialogInteraction {
                     override fun onFirstOptionClicked() {
-                        message?.let { msg ->
-                            Tools.downloadFile(
-                                requireContext(),
-                                msg,
-                            )
-                        }
+                        downloadMedia()
                     }
 
                     override fun onSecondOptionClicked() {
@@ -234,6 +244,131 @@ class MediaFragment : BaseFragment() {
     override fun onStop() {
         super.onStop()
         releasePlayer()
+    }
+
+    private fun downloadMedia() {
+        val appName =
+            context?.applicationInfo?.loadLabel(requireContext().packageManager).toString()
+        val tmp = Tools.getFilePathUrl(message?.body!!.fileId!!)
+        val request = DownloadManager.Request(Uri.parse(tmp))
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+        request.setTitle(message?.body?.file?.fileName)
+        request.setDescription(MainApplication.appContext.getString(R.string.file_is_downloading))
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (hasStoragePermission()) {
+                val subdirectory = File(requireContext().getExternalFilesDir(null), appName)
+                if (!subdirectory.exists()) {
+                    subdirectory.mkdirs()
+                }
+                request.setDestinationInExternalPublicDir(
+                    subdirectory.path,
+                    message?.body?.file!!.fileName
+                )
+            } else {
+                Toast.makeText(
+                    context,
+                    "Please add storage permission manually",
+                    Toast.LENGTH_LONG
+                ).show()
+                Tools.navigateToAppSettings()
+            }
+        }
+
+        val manager = context?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val downloadId = manager.enqueue(request)
+
+        val onComplete = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) == downloadId) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        val uri = getDownloadedFileUri(requireContext(), downloadId)
+                        uri?.let {
+                            saveImageAndroidNew(uri)
+                        }
+                    } else {
+                        if (hasStoragePermission()) {
+                            Toast.makeText(
+                                context,
+                                "Saved to gallery",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+                context?.unregisterReceiver(this)
+            }
+        }
+        requireContext().registerReceiver(
+            onComplete,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        )
+    }
+
+
+    private fun getDownloadedFileUri(context: Context, downloadId: Long): Uri? {
+        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val query = DownloadManager.Query().apply {
+            setFilterById(downloadId)
+        }
+        val cursor = downloadManager.query(query)
+        if (cursor != null && cursor.moveToFirst()) {
+            val columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+            val status = cursor.getInt(columnIndex)
+            if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                val uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+                val uriString = cursor.getString(uriIndex)
+                return Uri.parse(uriString)
+            }
+        }
+        cursor?.close()
+        return null
+    }
+
+    private fun saveImageAndroidNew(uri: Uri) {
+        var appName =
+            context?.applicationInfo?.loadLabel(requireContext().packageManager).toString() + " "
+        var relativeLocation: String
+        val mimetype: String
+        val externalContent: Uri
+        if (Const.JsonFields.IMAGE_TYPE == message?.type) {
+            relativeLocation = Environment.DIRECTORY_PICTURES
+            mimetype = "image/jpeg"
+            externalContent = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            appName += "Images"
+        } else {
+            relativeLocation = Environment.DIRECTORY_MOVIES
+            mimetype = "video/mp4"
+            externalContent = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            appName += "Videos"
+        }
+
+        relativeLocation += File.separator + appName
+
+        val resolver = requireContext().contentResolver
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, message?.body?.file?.fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, mimetype)
+            put(MediaStore.MediaColumns.RELATIVE_PATH, relativeLocation)
+        }
+
+        val mediaUri = resolver.insert(externalContent, contentValues)
+        mediaUri?.let {
+            resolver.openOutputStream(it)?.use { outputStream ->
+                requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+        }
+        Toast.makeText(context, "Saved to gallery", Toast.LENGTH_LONG).show()
+    }
+
+    private fun hasStoragePermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
     }
 }
 

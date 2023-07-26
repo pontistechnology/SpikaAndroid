@@ -18,6 +18,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.provider.Settings
 import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.text.TextUtils
@@ -306,6 +307,7 @@ object Tools {
 
         inputStream.close()
 
+        inputStream.close()
         return sha256FileHash
     }
 
@@ -347,34 +349,30 @@ object Tools {
 
     fun downloadFile(context: Context, message: Message) {
         try {
-            val tmp = getFilePathUrl(message.body!!.fileId!!)
+            val tmp = this.getFilePathUrl(message.body!!.fileId!!)
             val request = DownloadManager.Request(Uri.parse(tmp))
             request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-            request.setTitle(message.body.file?.fileName)
-            request.setDescription(MainApplication.appContext.getString(R.string.file_is_downloading))
+            request.setTitle(message.body.file?.fileName ?: "default_spika_name.jpg")
+            request.setDescription(context.getString(R.string.file_is_downloading))
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-
-            val appName = context.applicationInfo.loadLabel(context.packageManager).toString()
-            val subdirectory = File(context.getExternalFilesDir(null), appName)
-            if (!subdirectory.exists()) {
-                subdirectory.mkdirs()
-            }
-
             request.setDestinationInExternalPublicDir(
-                subdirectory.path,
+                Environment.DIRECTORY_DOWNLOADS,
                 message.body.file!!.fileName
             )
-
-            val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val manager =
+                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             manager.enqueue(request)
-            Toast.makeText(
-                context,
-                MainApplication.appContext.getString(R.string.file_is_downloading),
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(context, context.getString(R.string.file_is_downloading), Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             Timber.d("$e")
         }
+    }
+
+    fun navigateToAppSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri = Uri.fromParts("package", MainApplication.appContext.packageName, null)
+        intent.data = uri
+        MainApplication.appContext.startActivity(intent)
     }
 
     fun createTemporaryMessage(
