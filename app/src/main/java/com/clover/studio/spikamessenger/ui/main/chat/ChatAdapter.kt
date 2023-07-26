@@ -197,7 +197,7 @@ class ChatAdapter(
                                     ivCancelFile.visibility = View.GONE
                                     ivDownloadFile.visibility = View.GONE
                                     ivUploadFailed.visibility = View.VISIBLE
-                                    clFileMessage.setOnClickListener { _ ->
+                                    ivUploadFailed.setOnClickListener { _ ->
                                         onMessageInteraction(Const.UserActions.RESEND_MESSAGE, it)
                                     }
                                 }
@@ -236,7 +236,7 @@ class ChatAdapter(
                                     pbAudio.secondaryProgress = 0
                                     ivPlayAudio.visibility = View.GONE
                                     ivUploadFailed.visibility = View.VISIBLE
-                                    clAudioLayout.setOnClickListener { _ ->
+                                    ivUploadFailed.setOnClickListener { _ ->
                                         onMessageInteraction(Const.UserActions.RESEND_MESSAGE, it)
                                     }
                                 }
