@@ -7,7 +7,7 @@ import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class RoomWithLatestMessage(
+data class RoomWithMessage(
     @Embedded val roomWithUsers: RoomWithUsers,
     @Relation(
         entity = Message::class,

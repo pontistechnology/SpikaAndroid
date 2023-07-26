@@ -3,9 +3,9 @@ package com.clover.studio.spikamessenger.data.daos
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
-import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
+import com.clover.studio.spikamessenger.data.models.entity.MessageWithUser
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
-import com.clover.studio.spikamessenger.data.models.entity.RoomWithLatestMessage
+import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.utils.helpers.Extensions.getDistinct
 
@@ -58,7 +58,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
                 "AS latestMessageTime ON room.room_id = latestMessageTime.room_id_message LEFT JOIN message\n" +
                 "ON message.room_id_message = room.room_id AND message.created_at_message = latestMessageTime.max_created_at\n"
     )
-    fun getAllRoomsWithLatestMessageAndRecord(): LiveData<List<RoomWithLatestMessage>>
+    fun getAllRoomsWithLatestMessageAndRecord(): LiveData<List<RoomWithMessage>>
 
     @Transaction
     @Query("SELECT * FROM room")
@@ -92,6 +92,10 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("UPDATE room SET deleted =:deleted WHERE room_id LIKE :roomId")
     suspend fun updateRoomDeleted(roomId: Int, deleted: Boolean)
 
-    @Query("SELECT * FROM message WHERE body LIKE '%' || :text || '%'")
-    suspend fun getSearchMessages(text: String): List<MessageAndRecords>
+    @Query(
+        "SELECT * FROM message " +
+                "INNER JOIN user ON from_user_id = user.id " +
+                "WHERE message.body LIKE '%' || :text || '%'"
+    )
+    suspend fun getSearchMessages(text: String): List<MessageWithUser>
 }

@@ -7,9 +7,9 @@ import com.clover.studio.spikamessenger.data.daos.ChatRoomDao
 import com.clover.studio.spikamessenger.data.daos.RoomUserDao
 import com.clover.studio.spikamessenger.data.daos.UserDao
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
-import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
+import com.clover.studio.spikamessenger.data.models.entity.MessageWithUser
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
-import com.clover.studio.spikamessenger.data.models.entity.RoomWithLatestMessage
+import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomUser
@@ -106,8 +106,6 @@ class MainRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getUsers(): List<User> = userDao.getUsers()
-
     override suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
         return roomUserDao.doesPrivateRoomExistForUser(userId)
     }
@@ -136,7 +134,7 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getRoomAndUsersLiveData(roomId) }
         )
 
-    override fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithLatestMessage>>> =
+    override fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithMessage>>> =
         queryDatabase(
             databaseQuery = { chatRoomDao.getAllRoomsWithLatestMessageAndRecord() }
         )
@@ -384,7 +382,6 @@ interface MainRepository : BaseRepository {
     suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
     fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
     suspend fun deleteUser(): Resource<DeleteUserResponse>
-    suspend fun getUsers(): List<User>
 
     // Rooms calls
     suspend fun getUserRooms(): List<ChatRoom>?
@@ -397,7 +394,7 @@ interface MainRepository : BaseRepository {
     suspend fun handleRoomPin(roomId: Int, doPin: Boolean)
     fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
-    fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithLatestMessage>>>
+    fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithMessage>>>
     suspend fun updateRoom(
         jsonObject: JsonObject,
         roomId: Int,
@@ -425,5 +422,5 @@ interface MainRepository : BaseRepository {
     suspend fun cancelUpload(messageId: String)
 
     // Search calls
-    suspend fun getSearchedMessages(query: String): Resource<List<MessageAndRecords>>
+    suspend fun getSearchedMessages(query: String): Resource<List<MessageWithUser>>
 }

@@ -10,8 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.R
-import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
-import com.clover.studio.spikamessenger.data.models.entity.RoomWithLatestMessage
+import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.databinding.FragmentChatBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
@@ -27,11 +26,9 @@ class RoomsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var roomsAdapter: RoomsAdapter
     private lateinit var searchAdapter: SearchAdapter
-    private var roomList: MutableList<RoomWithLatestMessage> = mutableListOf()
-    private var filteredList: MutableList<RoomWithLatestMessage> = ArrayList()
-    private var sortedList: MutableList<RoomWithLatestMessage> = ArrayList()
-    private var sortedMessageList: MutableList<MessageAndRecords> = ArrayList()
-    private var filteredMessageList: MutableList<MessageAndRecords> = ArrayList()
+    private var roomList: MutableList<RoomWithMessage> = mutableListOf()
+    private var filteredList: MutableList<RoomWithMessage> = ArrayList()
+    private var sortedList: MutableList<RoomWithMessage> = ArrayList()
     private var bindingSetup: FragmentChatBinding? = null
 
     private var userSearching = false
@@ -250,7 +247,7 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun setupSearchAdapter() {
-        searchAdapter = SearchAdapter(requireContext(), viewModel.getLocalUserId().toString(), viewModel.getUsers()!!) {
+        searchAdapter = SearchAdapter {
             // TODO navigate to room where the message is
         }
 

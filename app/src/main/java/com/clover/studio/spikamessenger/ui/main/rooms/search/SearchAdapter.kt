@@ -5,15 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
-import com.clover.studio.spikamessenger.data.models.entity.User
+import com.clover.studio.spikamessenger.data.models.entity.MessageWithUser
 import com.clover.studio.spikamessenger.databinding.ItemMessageSearchBinding
 import com.clover.studio.spikamessenger.utils.Tools
 
 class SearchAdapter(
-    private val users: List<User>,
     private val onItemClick: ((roomId: Int) -> Unit)
-) : ListAdapter<MessageAndRecords, SearchAdapter.SearchViewHolder>(SearchDiffCallback()) {
+) : ListAdapter<MessageWithUser, SearchAdapter.SearchViewHolder>(SearchDiffCallback()) {
     inner class SearchViewHolder(val binding: ItemMessageSearchBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -25,22 +23,18 @@ class SearchAdapter(
 
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
         with(holder) {
-            getItem(position).let { messageItem ->
-                for (user in users) {
-                    if (user.id == messageItem.message.fromUserId) {
-                        binding.tvUsername.text = user.displayName
-                    }
-                }
+            getItem(position).let { item ->
+                binding.tvUsername.text = item.user.displayName
 
-                binding.tvMessageDate.text = messageItem.message.createdAt?.let {
+                binding.tvMessageDate.text = item.message.createdAt?.let {
                     Tools.fullDateFormat(
                         it
                     )
                 }
-                binding.tvMessageContent.text = messageItem.message.body?.text
+                binding.tvMessageContent.text = item.message.body?.text
 
                 itemView.setOnClickListener {
-                    messageItem.let {
+                    item.let {
                         it.message.roomId?.let { roomId -> onItemClick.invoke(roomId) }
                     }
                 }
@@ -49,17 +43,17 @@ class SearchAdapter(
     }
 
 
-    private class SearchDiffCallback : DiffUtil.ItemCallback<MessageAndRecords>() {
+    private class SearchDiffCallback : DiffUtil.ItemCallback<MessageWithUser>() {
 
         override fun areItemsTheSame(
-            oldItem: MessageAndRecords,
-            newItem: MessageAndRecords
+            oldItem: MessageWithUser,
+            newItem: MessageWithUser
         ) =
             oldItem.message.id == newItem.message.id
 
         override fun areContentsTheSame(
-            oldItem: MessageAndRecords,
-            newItem: MessageAndRecords
+            oldItem: MessageWithUser,
+            newItem: MessageWithUser
         ) =
             oldItem == newItem
     }
