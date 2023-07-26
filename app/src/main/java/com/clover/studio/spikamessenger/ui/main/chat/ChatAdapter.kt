@@ -25,6 +25,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
@@ -436,12 +438,13 @@ class ChatAdapter(
                             val userPath = roomUser.avatarFileId?.let { fileId ->
                                 Tools.getFilePathUrl(fileId)
                             }
-                            loadMedia(
-                                context,
-                                userPath!!,
-                                holder.binding.ivUserImage,
-                                0
-                            )
+                            Glide.with(context)
+                                .load(userPath)
+                                .dontTransform()
+                                .placeholder(R.drawable.img_account_filled)
+                                .error(R.drawable.img_account_filled)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .into(holder.binding.ivUserImage)
                         }
                     }
                     holder.binding.ivUserImage.visibility = View.VISIBLE
