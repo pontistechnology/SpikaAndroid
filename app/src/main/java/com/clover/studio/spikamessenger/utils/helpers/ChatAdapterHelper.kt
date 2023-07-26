@@ -23,13 +23,11 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.google.android.material.imageview.ShapeableImageView
 import com.vanniktech.emoji.EmojiTextView
-import timber.log.Timber
 
 const val MAX_REACTIONS = 3
 private const val TEXT_SIZE_BIG = 11
 private const val TEXT_SIZE_SMALL = 5
-//const val MAX_WIDTH = 256
-//const val MAX_HEIGHT = 300
+const val MAX_HEIGHT = 300
 
 object ChatAdapterHelper {
 
@@ -61,12 +59,9 @@ object ChatAdapterHelper {
      * @param imageView - ImageView where we want to load the image
      * */
     fun loadMedia(context: Context, mediaPath: String, imageView: ImageView, height: Int) {
-        Timber.d("Original height:::: $height")
-
-        // TODO Matko - which max height we will use?
-        val newHeight = convertToDp(context, 300)
+        val maxHeight = convertToDp(context, MAX_HEIGHT)
         val params = imageView.layoutParams
-        params.height = if (convertToDp(context, height) > newHeight) newHeight else convertToDp(
+        params.height = if (convertToDp(context, height) > maxHeight) maxHeight else convertToDp(
             context,
             height
         )

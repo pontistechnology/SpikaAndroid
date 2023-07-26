@@ -600,7 +600,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             unsentMessages.find { msg -> msg.localId == it.responseData?.data?.message?.localId }
                         unsentMessages.remove(message)
                     }
-                    senderScroll()
                 }
 
                 Resource.Status.ERROR -> {
@@ -744,8 +743,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         if (!((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
-                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
-        ) {
+                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))) {
+
             bindingSetup.cvNewMessages.visibility = View.VISIBLE
 
             if (messagesSize == 1 && bindingSetup.cvNewMessages.visibility == View.INVISIBLE) {
@@ -770,6 +769,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     getString(R.string.new_messages, messagesSize.toString(), "s").trim()
             }
         } else if (messagesSize > 0) {
+            bindingSetup.rvChat.scrollToPosition(0)
             viewModel.clearMessages()
         }
         return
@@ -976,9 +976,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun handleMessageResend(message: MessageAndRecords) {
         ChooserDialog.getInstance(requireContext(),
-            "Resend",
+            getString(R.string.resend),
             null,
-            "Resend message",
+            getString(R.string.resend_message),
             "",
             object : DialogInteraction {
                 override fun onFirstOptionClicked() {
@@ -1094,7 +1094,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun handleDownloadCancelFile(message: Message) {
         DialogError.getInstance(activity!!,
             getString(R.string.warning),
-            "Are you sure to cancel upload?",
+            getString(R.string.cancel_upload),
             getString(R.string.back),
             getString(R.string.ok),
             object : DialogInteraction {
@@ -1103,7 +1103,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
 
                 override fun onSecondOptionClicked() {
-                    Timber.d("Message: $message")
                     viewModel.cancelUploadFile(messageId = message.localId.toString())
                     viewModel.deleteLocalMessage(message = message)
                     viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
@@ -1383,7 +1382,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun resendMessage(message: Message) {
-        // TODO ask for permissions
         when (message.type) {
             Const.JsonFields.TEXT_TYPE -> {
                 try {
@@ -1474,9 +1472,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         for (uri in selectedFilesUris) {
             val fileMimeType = getFileMimeType(context, uri)
-            // TODO add checks for svg avi types
-            if (fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
-                fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true
+            if ((fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
+                fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) &&
+                (!fileMimeType.contains(Const.JsonFields.SVG_TYPE) &&
+                !fileMimeType.contains(Const.JsonFields.AVI_TYPE))
             ) {
                 convertMedia(uri, fileMimeType)
             } else {
@@ -1486,13 +1485,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         sendFile()
-
-        Timber.d("Files:: $uploadFiles, ${uploadFiles.size}")
-
-        // Service:
         startUploadService(uploadFiles)
 
-        // Clear list - reset fields:
         uploadFiles.clear()
         selectedFilesUris.clear()
         tempFilesToCreate.clear()
@@ -1552,7 +1546,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     if (Const.JsonFields.IMAGE_TYPE == unsentMessage.type ||
                         Const.JsonFields.VIDEO_TYPE == unsentMessage.type
                     ) {
-                        Timber.d("METADATA::::::::: ${unsentMessage.body?.file?.metaData}")
                         // Send thumbnail
                         uploadFiles(
                             isThumbnail = true,
@@ -1608,7 +1601,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         uploadFiles.addAll(uploadData)
     }
 
-    // TODO Service
+    /** Upload service */
     private fun startUploadService(files: ArrayList<FileData>) {
         val intent = Intent(MainApplication.appContext, UploadService::class.java)
         intent.putParcelableArrayListExtra(Const.IntentExtras.FILES_EXTRA, files)
@@ -1626,12 +1619,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     maxProgress: Int,
                     localId: String?
                 ) {
-                    Timber.d("Service: $progress $maxProgress $localId")
-
                     val message = messagesRecords.firstOrNull { it.message.localId == localId }
                     message!!.message.uploadProgress = (progress * 100) / maxProgress
-
-                    Timber.d("Upload progress: ${message.message.uploadProgress}")
 
                     if (isVisible || isResumed) {
                         activity!!.runOnUiThread {
@@ -1645,14 +1634,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
 
                 override fun uploadingFinished(uploadedFiles: MutableList<FileData>) {
-                    Timber.d("Finished with following states: $uploadedFiles")
                     Tools.deleteTemporaryMedia(context!!)
                     context?.cacheDir?.deleteRecursively()
 
                     if (uploadedFiles.isNotEmpty()) {
                         uploadedFiles.forEach { item ->
                             if (item.messageStatus == Resource.Status.ERROR ||
-                                    item.messageStatus == Resource.Status.LOADING) {
+                                    item.messageStatus == Resource.Status.LOADING ||
+                                    item.messageStatus == null) {
                                 if (!item.isThumbnail) {
                                     viewModel.updateMessages(
                                         messageStatus = Resource.Status.ERROR.toString(),
@@ -1679,7 +1668,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            Timber.d("Disconnected")
+            Timber.d("Service disconnected")
         }
     }
 

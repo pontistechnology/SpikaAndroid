@@ -23,7 +23,13 @@ import java.io.OutputStream
 
 object FilesHelper {
 
-    fun uploadFile(isThumbnail: Boolean, uri: Uri, localId: String, roomId: Int, metadata: FileMetadata?): FileData {
+    fun uploadFile(
+        isThumbnail: Boolean,
+        uri: Uri,
+        localId: String,
+        roomId: Int,
+        metadata: FileMetadata?
+    ): FileData {
 
         val messageBody = MessageBody(null, "", 0, 0, null, null)
         val inputStream =
@@ -105,7 +111,8 @@ object FilesHelper {
                     mimeType = "",
                     size = size,
                     metaData = fileMetadata,
-                    uri = uri.toString()),
+                    uri = uri.toString()
+                ),
                 thumb = null
             )
         )

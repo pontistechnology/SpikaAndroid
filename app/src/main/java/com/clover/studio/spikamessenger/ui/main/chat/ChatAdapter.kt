@@ -40,7 +40,6 @@ import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.loadMedi
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHideUserInformation
 import com.clover.studio.spikamessenger.utils.helpers.Resource
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -49,6 +48,8 @@ private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 private var oldPosition = -1
 private var firstPlay = true
 private var playerListener: Player.Listener? = null
+
+private const val MAX_HEIGHT = 300
 
 class ChatAdapter(
     private val context: Context,
@@ -187,7 +188,7 @@ class ChatAdapter(
                                     pbFile.visibility = View.VISIBLE
                                     pbFile.secondaryProgress = it.message.uploadProgress
 
-                                    ivCancelFile.setOnClickListener {_ ->
+                                    ivCancelFile.setOnClickListener { _ ->
                                         onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
                                     }
                                 } else {
@@ -196,7 +197,7 @@ class ChatAdapter(
                                     ivCancelFile.visibility = View.GONE
                                     ivDownloadFile.visibility = View.GONE
                                     ivUploadFailed.visibility = View.VISIBLE
-                                    clFileMessage.setOnClickListener {_ ->
+                                    clFileMessage.setOnClickListener { _ ->
                                         onMessageInteraction(Const.UserActions.RESEND_MESSAGE, it)
                                     }
                                 }
@@ -221,12 +222,12 @@ class ChatAdapter(
                         /** Uploading audio: */
                         holder.binding.audioLayout.apply {
                             if (it.message.id < 0) {
-                                if (Resource.Status.LOADING.toString() == it.message.messageStatus ) {
+                                if (Resource.Status.LOADING.toString() == it.message.messageStatus) {
                                     pbAudio.visibility = View.VISIBLE
                                     ivPlayAudio.visibility = View.GONE
                                     ivCancelAudio.visibility = View.VISIBLE
                                     pbAudio.secondaryProgress = it.message.uploadProgress
-                                    ivCancelAudio.setOnClickListener {_ ->
+                                    ivCancelAudio.setOnClickListener { _ ->
                                         onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
                                     }
                                 } else {
@@ -253,6 +254,7 @@ class ChatAdapter(
                             }
                         }
                     }
+
                     else -> {
                         setViewsVisibility(holder.binding.tvMessage, holder)
                     }
@@ -557,13 +559,10 @@ class ChatAdapter(
             context,
             mediaPath,
             ivChatImage,
-            chatMessage.message.body?.file?.metaData?.height ?: 256
+            chatMessage.message.body?.file?.metaData?.height ?: MAX_HEIGHT
         )
         when (chatMessage.message.messageStatus) {
             Resource.Status.LOADING.toString() -> {
-                Timber.d("Loading")
-                Timber.d("METADATA LOADING::: ${chatMessage.message.body?.file?.metaData.toString()}")
-
                 flProgressScreen.visibility = View.VISIBLE
                 pbImages.visibility = View.VISIBLE
                 ivImageFailed.visibility = View.GONE
@@ -576,8 +575,6 @@ class ChatAdapter(
             }
 
             Resource.Status.ERROR.toString() -> {
-                Timber.d("Error")
-
                 flProgressScreen.visibility = View.VISIBLE
                 pbImages.visibility = View.GONE
                 ivCancelImage.visibility = View.GONE
@@ -588,9 +585,6 @@ class ChatAdapter(
             }
 
             Resource.Status.SUCCESS.toString(), null -> {
-                Timber.d("Success")
-                Timber.d("METADATA SUCCESS:::: ${chatMessage.message.body?.file?.metaData.toString()}")
-
                 flProgressScreen.visibility = View.GONE
                 clContainer.setOnClickListener {
                     onMessageInteraction(
@@ -616,7 +610,7 @@ class ChatAdapter(
             context,
             mediaPath,
             ivVideoThumbnail,
-            chatMessage.message.body?.file?.metaData?.height!!
+            chatMessage.message.body?.file?.metaData?.height ?: MAX_HEIGHT
         )
 
         ivPlayButton.setOnClickListener {

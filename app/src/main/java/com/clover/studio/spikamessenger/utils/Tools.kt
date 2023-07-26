@@ -674,6 +674,8 @@ object Tools {
         val mimeType = getFileMimeType(MainApplication.appContext, uri)
 
         return when {
+            mimeType?.contains(Const.JsonFields.SVG_TYPE) == true -> Const.JsonFields.FILE_TYPE
+            mimeType?.contains(Const.JsonFields.AVI_TYPE) == true -> Const.JsonFields.FILE_TYPE
             mimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true -> Const.JsonFields.IMAGE_TYPE
             mimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true -> Const.JsonFields.VIDEO_TYPE
             mimeType?.contains(Const.JsonFields.AUDIO_TYPE) == true -> Const.JsonFields.AUDIO_TYPE
