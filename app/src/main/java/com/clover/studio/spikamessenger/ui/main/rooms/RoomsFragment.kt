@@ -237,7 +237,12 @@ class RoomsFragment : BaseFragment() {
 
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
-            activity?.let { parent -> startChatScreenActivity(parent, it.roomWithUsers) }
+            activity?.let { parent ->
+                startChatScreenActivity(
+                    parent,
+                    it.roomWithUsers.room.roomId
+                )
+            }
         }
 
         binding.rvRooms.itemAnimator = null
@@ -248,7 +253,7 @@ class RoomsFragment : BaseFragment() {
 
     private fun setupSearchAdapter() {
         searchAdapter = SearchAdapter {
-            // TODO navigate to room where the message is
+            activity?.let { parent -> startChatScreenActivity(parent, it.message.roomId!!) }
         }
 
         binding.rvMessages.itemAnimator = null

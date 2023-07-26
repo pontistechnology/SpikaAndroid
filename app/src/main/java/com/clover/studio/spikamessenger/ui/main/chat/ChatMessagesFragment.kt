@@ -96,6 +96,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private val viewModel: ChatViewModel by activityViewModels()
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
+    private var messageSearchId: Int? = 0
+
     private lateinit var roomWithUsers: RoomWithUsers
     private var user: User? = null
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
@@ -227,32 +229,53 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             bottomSheetMessageActions
         )
 
-        roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
         localUserId = viewModel.getLocalUserId()!!
-
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            user = roomWithUsers.users.firstOrNull { it.id.toString() != localUserId.toString() }
-        }
+        messageSearchId = (activity as ChatScreenActivity).searchMessageId
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
-        // Timber.d("Load check: ChatMessagesFragment view created")
-        if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
-            bindingSetup.clRoomExit.visibility = View.VISIBLE
-        } else {
-            bindingSetup.clRoomExit.visibility = View.GONE
-            checkStoragePermission()
-            setUpMessageDetailsAdapter()
-            setUpMessageReactionAdapter()
-            checkIsUserAdmin()
-        }
-        initializeObservers()
-        initViews()
-        initListeners()
-        setUpAdapter()
+        viewModel.getSingleRoomData((activity as ChatScreenActivity).roomId)
 
-        // Clear notifications for this room
-        NotificationManagerCompat.from(requireContext()).cancel(roomWithUsers.room.roomId)
+        checkStoragePermission()
+
+        viewModel.roomDataListener.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    roomWithUsers = it.responseData?.roomWithUsers!!
+
+                    if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                        user =
+                            roomWithUsers.users.firstOrNull { user -> user.id.toString() != localUserId.toString() }
+                    }
+
+                    // Timber.d("Load check: ChatMessagesFragment view created")
+                    if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
+                        bindingSetup.clRoomExit.visibility = View.VISIBLE
+                    } else {
+                        bindingSetup.clRoomExit.visibility = View.GONE
+                        setUpMessageDetailsAdapter()
+                        setUpMessageReactionAdapter()
+                        checkIsUserAdmin()
+                    }
+                    initializeObservers()
+                    initViews()
+                    initListeners()
+                    setUpAdapter()
+
+                    // Clear notifications for this room
+                    NotificationManagerCompat.from(requireContext())
+                        .cancel(roomWithUsers.room.roomId)
+                }
+
+                Resource.Status.ERROR -> Toast.makeText(
+                    activity,
+                    "Failed to load room data",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                else -> Toast.makeText(activity, "Other error", Toast.LENGTH_SHORT).show()
+            }
+        })
 
         return bindingSetup.root
     }

@@ -10,7 +10,7 @@ import com.clover.studio.spikamessenger.databinding.ItemMessageSearchBinding
 import com.clover.studio.spikamessenger.utils.Tools
 
 class SearchAdapter(
-    private val onItemClick: ((roomId: Int) -> Unit)
+    private val onItemClick: ((messageWithUser: MessageWithUser) -> Unit)
 ) : ListAdapter<MessageWithUser, SearchAdapter.SearchViewHolder>(SearchDiffCallback()) {
     inner class SearchViewHolder(val binding: ItemMessageSearchBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -35,7 +35,7 @@ class SearchAdapter(
 
                 itemView.setOnClickListener {
                     item.let {
-                        it.message.roomId?.let { roomId -> onItemClick.invoke(roomId) }
+                      onItemClick.invoke(it)
                     }
                 }
             }

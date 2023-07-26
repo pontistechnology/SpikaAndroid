@@ -31,7 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
+import java.util.Arrays
 import kotlin.streams.toList
 
 class NewRoomFragment : BaseFragment() {
@@ -259,12 +259,13 @@ class NewRoomFragment : BaseFragment() {
                         activity?.let { parent ->
                             startChatScreenActivity(
                                 parent,
-                                it.responseData!!
+                                it.responseData?.room?.roomId!!
                             )
                         }
                         findNavController().popBackStack(R.id.mainFragment, false)
                     }
                 }
+
                 else -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.room_local_fetch_error))
@@ -279,6 +280,7 @@ class NewRoomFragment : BaseFragment() {
                     Timber.d("Room already exists")
                     viewModel.getRoomWithUsers(it.responseData?.data?.room?.roomId!!)
                 }
+
                 Resource.Status.ERROR -> {
                     Timber.d("Room not found, creating new one")
                     val jsonObject = JsonObject()
@@ -293,6 +295,7 @@ class NewRoomFragment : BaseFragment() {
 
                     viewModel.createNewRoom(jsonObject)
                 }
+
                 else -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.error_room_exists))
@@ -306,11 +309,13 @@ class NewRoomFragment : BaseFragment() {
                 Resource.Status.SUCCESS -> {
                     handleRoomData(it.responseData?.data?.room!!)
                 }
+
                 Resource.Status.ERROR -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))
                     Timber.d("Failed to create room")
                 }
+
                 else -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.something_went_wrong))

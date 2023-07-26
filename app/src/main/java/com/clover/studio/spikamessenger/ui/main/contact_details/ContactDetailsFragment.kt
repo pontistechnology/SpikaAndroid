@@ -101,7 +101,9 @@ class ContactDetailsFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     Timber.d("Room with users = ${it.responseData}")
-                    activity?.let { parent -> startChatScreenActivity(parent, it.responseData!!) }
+                    activity?.let { parent -> startChatScreenActivity(parent,
+                        it.responseData?.room?.roomId!!
+                    ) }
                 }
                 else -> Timber.d("Other error")
             }

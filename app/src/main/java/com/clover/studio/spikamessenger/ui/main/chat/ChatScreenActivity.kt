@@ -3,11 +3,9 @@ package com.clover.studio.spikamessenger.ui.main.chat
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.viewModels
 import com.clover.studio.spikamessenger.R
-import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.ActivityChatScreenBinding
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.Const
@@ -22,24 +20,31 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-fun startChatScreenActivity(fromActivity: Activity, roomData: RoomWithUsers) =
+fun startChatScreenActivity(fromActivity: Activity, roomId: Int, searchMessageId: Int? = 0) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
-        intent.putExtra(Const.Navigation.ROOM_DATA, roomData)
+        if (searchMessageId != 0) {
+            intent.putExtra(Const.Navigation.ROOM_DATA, searchMessageId)
+        }
+        intent.putExtra(Const.Navigation.ROOM_ID, roomId)
         startActivity(intent)
     }
 
-fun replaceChatScreenActivity(fromActivity: Activity, roomData: RoomWithUsers) =
+fun replaceChatScreenActivity(fromActivity: Activity, roomId: Int, searchMessageId: Int? = 0) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
-        intent.putExtra(Const.Navigation.ROOM_DATA, roomData)
+        if (searchMessageId != 0) {
+            intent.putExtra(Const.Navigation.ROOM_DATA, searchMessageId)
+        }
+        intent.putExtra(Const.Navigation.ROOM_ID, roomId)
         startActivity(intent)
         finish()
     }
 
 @AndroidEntryPoint
 class ChatScreenActivity : BaseActivity() {
-    var roomWithUsers: RoomWithUsers? = null
+    var searchMessageId: Int? = 0
+    var roomId: Int = 0
 
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private val viewModel: ChatViewModel by viewModels()
@@ -61,11 +66,8 @@ class ChatScreenActivity : BaseActivity() {
         val view = bindingSetup.root
         setContentView(view)
 
-        roomWithUsers = if (Build.VERSION.SDK_INT >= 33) {
-            intent.getParcelableExtra(Const.Navigation.ROOM_DATA, RoomWithUsers::class.java)
-        } else {
-            intent.getParcelableExtra(Const.Navigation.ROOM_DATA)
-        }
+        searchMessageId = intent.getIntExtra(Const.Navigation.ROOM_DATA, 0)
+        roomId = intent.getIntExtra(Const.Navigation.ROOM_ID, 0)
 
         Timber.d("Load check: ChatScreenActivity created")
 
@@ -82,19 +84,19 @@ class ChatScreenActivity : BaseActivity() {
             }
         }
 
-        viewModel.roomDataListener.observe(this, EventObserver {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
-                    Timber.d("Load check: ChatScreenActivity room data fetched")
-                    it.responseData?.roomWithUsers?.let { roomWithUsers ->
-                        replaceChatScreenActivity(this, roomWithUsers)
-                    }
-                }
-
-                Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
-                else -> Timber.d("Other error")
-            }
-        })
+//        viewModel.roomDataListener.observe(this, EventObserver {
+//            when (it.status) {
+//                Resource.Status.SUCCESS -> {
+//                    Timber.d("Load check: ChatScreenActivity room data fetched")
+//                    it.responseData?.roomWithUsers?.let {
+//                        replaceChatScreenActivity(this, roomId)
+//                    }
+//                }
+//
+//                Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
+//                else -> Timber.d("Other error")
+//            }
+//        })
 
         /** Room notification has been disabled until we decide how to implement it correctly **/
 //        viewModel.roomNotificationListener.observe(this, EventObserver {
