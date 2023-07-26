@@ -15,8 +15,6 @@
         android:layout_marginStart="@dimen/sixteen_dp_margin"
         android:layout_marginTop="@dimen/sixteen_dp_margin"
         android:layout_marginBottom="@dimen/sixteen_dp_margin"
-        android:background="@drawable/img_user_placeholder"
-        android:backgroundTint="@color/light_blue"
         android:scaleType="center"
         android:src="@drawable/img_user_placeholder"
         android:visibility="visible"

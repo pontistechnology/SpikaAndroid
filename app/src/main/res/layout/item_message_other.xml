@@ -282,7 +282,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/cl_container"
             app:layout_constraintStart_toStartOf="parent"
             app:shapeAppearanceOverlay="@style/circle"
-            tools:srcCompat="@drawable/img_account_filled" />
+            tools:srcCompat="@drawable/img_user_placeholder" />
 
         <TextView
             android:id="@+id/tv_username"
