@@ -67,24 +67,16 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun setupSearchView() {
-        // SearchView is immediately acting as if selected
-//        binding.svRoomsSearch.setOnSearchClickListener {
-//            binding.llSearchRoomsMessages.visibility = View.VISIBLE
-//            binding.rvSearch.visibility = View.VISIBLE
-//            binding.rvRooms.visibility = View.GONE
-//        }
-//        binding.svRoomsSearch.setOnFocusChangeListener { v, hasFocus ->
-//            if (hasFocus) {
-//                binding.llSearchRoomsMessages.visibility = View.VISIBLE
-//                binding.rvSearch.visibility = View.VISIBLE
-//                binding.rvRooms.visibility = View.GONE
-//            } else {
-//                binding.llSearchRoomsMessages.visibility = View.GONE
-//                binding.rvSearch.visibility = View.GONE
-//                binding.rvRooms.visibility = View.VISIBLE
-//            }
-//        }
         binding.svRoomsSearch.setIconifiedByDefault(false)
+
+        binding.svRoomsSearch.setOnQueryTextFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                binding.llSearchRoomsMessages.visibility = View.VISIBLE
+            } else {
+                binding.llSearchRoomsMessages.visibility = View.GONE
+            }
+        }
+
         binding.svRoomsSearch.setOnQueryTextListener(object :
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -117,9 +109,9 @@ class RoomsFragment : BaseFragment() {
                                 }
                             }
                         } else {
-                            if (query.length > 2) {
+//                            if (query.length > 2) {
                                 viewModel.getSearchedMessages(query)
-                            }
+//                            }
                         }
                     } else {
                         userSearching = false
@@ -163,9 +155,9 @@ class RoomsFragment : BaseFragment() {
                             roomsAdapter.submitList(ArrayList(filteredList))
                             filteredList.clear()
                         } else {
-                            if (query.length > 2) {
+//                            if (query.length > 2) {
                                 viewModel.getSearchedMessages(query)
-                            }
+//                            }
                         }
                     } else {
                         userSearching = false
@@ -253,7 +245,8 @@ class RoomsFragment : BaseFragment() {
 
     private fun setupSearchAdapter() {
         searchAdapter = SearchAdapter {
-            activity?.let { parent -> startChatScreenActivity(parent, it.message.roomId!!) }
+            Timber.d("Message with user: $it")
+            activity?.let { parent -> startChatScreenActivity(parent, it.message.roomId!!, it.message.id) }
         }
 
         binding.rvMessages.itemAnimator = null

@@ -12,23 +12,23 @@ interface UserDao: BaseDao<User> {
     @Query("SELECT * FROM user")
     suspend fun getUsers(): List<User>
 
-    @Query("SELECT * FROM user WHERE id LIKE :userId LIMIT 1")
+    @Query("SELECT * FROM user WHERE user_id LIKE :userId LIMIT 1")
     fun getUserById(userId: Int): LiveData<User>
 
     fun getDistinctUserById(userId: Int): LiveData<User> =
         getUserById(userId).getDistinct()
 
-    @Query("SELECT * FROM user WHERE id IN (:userIds)")
+    @Query("SELECT * FROM user WHERE user_id IN (:userIds)")
     suspend fun getUsersByIds(userIds: List<Int>): List<User>
 
     @Query("DELETE FROM user")
     suspend fun removeUsers()
 
-    @Query("DELETE FROM user WHERE id NOT IN (:ids)")
+    @Query("DELETE FROM user WHERE user_id NOT IN (:ids)")
     suspend fun removeSpecificUsers(ids: List<Int>)
 
     @Transaction
-    @Query("SELECT * FROM user WHERE id NOT LIKE :localId AND deleted NOT LIKE 1")
+    @Query("SELECT * FROM user WHERE user_id NOT LIKE :localId AND deleted NOT LIKE 1")
     fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>>
 
     @Transaction

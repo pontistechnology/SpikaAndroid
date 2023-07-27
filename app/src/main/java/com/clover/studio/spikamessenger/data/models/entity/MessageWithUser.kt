@@ -12,6 +12,6 @@ data class MessageWithUser(
     @Relation(
         entity = User::class,
         parentColumn = "from_user_id",
-        entityColumn = "id"
+        entityColumn = "user_id"
     ) val user: User
 ) : Parcelable

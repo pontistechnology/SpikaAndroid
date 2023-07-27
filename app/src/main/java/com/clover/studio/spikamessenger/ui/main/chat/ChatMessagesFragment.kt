@@ -150,6 +150,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var scrollYDistance = 0
     private var heightDiff = 0
 
+    private var scrollToPosition = 0
+
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
             if (!it.isNullOrEmpty()) {
@@ -644,6 +646,24 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         if (listState != null && shouldScroll) {
                             bindingSetup.rvChat.layoutManager?.onRestoreInstanceState(listState)
                             shouldScroll = false
+                        }
+
+                        Timber.d("Message search id value: $messageSearchId")
+                        if (messageSearchId != 0) {
+                            if (messagesRecords.firstOrNull { messageAndRecords -> messageAndRecords.message.id == messageSearchId } != null) {
+                                Timber.d("Message found message search id: $messageSearchId")
+                                val position =
+                                    messagesRecords.indexOfFirst { messageAndRecords -> messageAndRecords.message.id == messageSearchId }
+                                Timber.d("Message found position: $position")
+                                scrollToPosition = position
+                                if (position != -1) {
+                                    bindingSetup.rvChat.smoothScrollToPosition(position)
+                                }
+                                messageSearchId = 0
+                            } else {
+                                Timber.d("Message not found, fetch next set")
+                                viewModel.fetchNextSet(roomWithUsers.room.roomId)
+                            }
                         }
                     }
 

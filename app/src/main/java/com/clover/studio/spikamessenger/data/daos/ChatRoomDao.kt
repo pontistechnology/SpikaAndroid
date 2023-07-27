@@ -94,7 +94,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
 
     @Query(
         "SELECT * FROM message " +
-                "INNER JOIN user ON from_user_id = user.id " +
+                "INNER JOIN user ON from_user_id = user.user_id " +
                 "WHERE message.body LIKE '%' || :text || '%'"
     )
     suspend fun getSearchMessages(text: String): List<MessageWithUser>
