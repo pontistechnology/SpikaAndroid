@@ -55,14 +55,20 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun initializeViews() = with(binding) {
+        btnSearchRooms.isSelected = true
+
         btnSearchRooms.setOnClickListener {
             rvMessages.visibility = View.GONE
             rvRooms.visibility = View.VISIBLE
+            btnSearchRooms.isSelected = true
+            btnSearchMessages.isSelected = false
         }
 
         btnSearchMessages.setOnClickListener {
             rvMessages.visibility = View.VISIBLE
             rvRooms.visibility = View.GONE
+            btnSearchRooms.isSelected = false
+            btnSearchMessages.isSelected = true
         }
     }
 
@@ -74,6 +80,9 @@ class RoomsFragment : BaseFragment() {
                 binding.llSearchRoomsMessages.visibility = View.VISIBLE
             } else {
                 binding.llSearchRoomsMessages.visibility = View.GONE
+                binding.rvRooms.visibility = View.VISIBLE
+                binding.btnSearchRooms.isSelected = true
+                binding.btnSearchMessages.isSelected = false
             }
         }
 
@@ -109,9 +118,9 @@ class RoomsFragment : BaseFragment() {
                                 }
                             }
                         } else {
-//                            if (query.length > 2) {
+                            if (query.isNotEmpty()) {
                                 viewModel.getSearchedMessages(query)
-//                            }
+                            }
                         }
                     } else {
                         userSearching = false
@@ -155,9 +164,9 @@ class RoomsFragment : BaseFragment() {
                             roomsAdapter.submitList(ArrayList(filteredList))
                             filteredList.clear()
                         } else {
-//                            if (query.length > 2) {
+                            if (query.isNotEmpty()) {
                                 viewModel.getSearchedMessages(query)
-//                            }
+                            }
                         }
                     } else {
                         userSearching = false
@@ -246,7 +255,13 @@ class RoomsFragment : BaseFragment() {
     private fun setupSearchAdapter() {
         searchAdapter = SearchAdapter {
             Timber.d("Message with user: $it")
-            activity?.let { parent -> startChatScreenActivity(parent, it.message.roomId!!, it.message.id) }
+            activity?.let { parent ->
+                startChatScreenActivity(
+                    parent,
+                    it.message.roomId!!,
+                    it.message.id
+                )
+            }
         }
 
         binding.rvMessages.itemAnimator = null
