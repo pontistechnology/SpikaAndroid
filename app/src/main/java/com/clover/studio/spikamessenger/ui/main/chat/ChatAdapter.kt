@@ -317,9 +317,9 @@ class ChatAdapter(
 
                 /** Show edited layout: */
                 if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.tvMessageEdited.visibility = View.VISIBLE
+                    holder.binding.tvEdited.visibility = View.VISIBLE
                 } else {
-                    holder.binding.tvMessageEdited.visibility = View.GONE
+                    holder.binding.tvEdited.visibility = View.GONE
                 }
 
                 /** Show reactions: */
@@ -450,9 +450,9 @@ class ChatAdapter(
 
                 /** Show edited layout: */
                 if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.tvMessageEdited.visibility = View.VISIBLE
+                    holder.binding.tvEdited.visibility = View.VISIBLE
                 } else {
-                    holder.binding.tvMessageEdited.visibility = View.GONE
+                    holder.binding.tvEdited.visibility = View.GONE
                 }
 
                 /** Show user names and avatars in group chat */
@@ -846,24 +846,21 @@ class ChatAdapter(
                 view.visibility = View.VISIBLE
             } else view.visibility = View.GONE
 
-            val time = message.createdAt?.let {
+            view.text = message.createdAt?.let {
                 DateUtils.getRelativeTimeSpanString(
                     it, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS
                 )
             }
 
-            if (time?.equals(context.getString(R.string.zero_minutes_ago)) == true) {
-                view.text = context.getString(R.string.now)
-            } else {
-                view.text = time
-            }
         } else {
             view.visibility = View.VISIBLE
             val time = message.createdAt?.let {
                 getRelativeTimeSpan(it)
             }
 
-            if (time?.equals(context.getString(R.string.zero_minutes_ago)) == true) {
+            if (time == context.getString(R.string.zero_minutes_ago) ||
+                time == context.getString(R.string.in_zero_minutes)
+            ) {
                 view.text = context.getString(R.string.now)
             } else {
                 view.text = time

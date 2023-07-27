@@ -283,23 +283,22 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:id="@+id/tv_message_edited"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sixty_four_dp"
-        android:layout_marginTop="@dimen/two_dp_margin"
-        android:layout_marginEnd="@dimen/eight_dp_margin"
-        android:fontFamily="@font/montserrat"
-        android:text="@string/edited"
-        android:textColor="@color/text_tertiary"
-        android:textSize="@dimen/nine_sp_text"
-        android:visibility="gone"
-        app:drawableStartCompat="@drawable/img_message_edited"
-        app:layout_constraintEnd_toStartOf="@+id/cl_container"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/cl_container" />
+        <TextView
+            android:id="@+id/tv_edited"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat"
+            android:gravity="center"
+            android:text="@string/edited"
+            android:visibility="gone"
+            android:textColor="@color/text_tertiary"
+            android:textSize="@dimen/nine_sp_text"
+            app:drawableStartCompat="@drawable/img_message_edited"
+            app:layout_constraintBottom_toTopOf="@+id/cl_container"
+            app:layout_constraintEnd_toEndOf="@+id/cl_container"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/cl_container" />
+
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_reacted_emoji"
@@ -362,3 +361,4 @@
         app:layout_constraintTop_toTopOf="@+id/cl_container"
         app:srcCompat="@drawable/img_reply_message" />
 </androidx.constraintlayout.widget.ConstraintLayout>
+

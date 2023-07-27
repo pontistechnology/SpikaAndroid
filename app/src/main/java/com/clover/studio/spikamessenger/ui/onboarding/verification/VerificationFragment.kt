@@ -111,6 +111,7 @@ class VerificationFragment : BaseFragment() {
                     binding.clInputUi.visibility = View.GONE
                     binding.ivSpikaVerify.visibility = View.VISIBLE
                 }
+
                 Resource.Status.SUCCESS -> {
                     if (viewModel.isTeamMode()) {
                         binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
@@ -128,11 +129,13 @@ class VerificationFragment : BaseFragment() {
                     viewModel.writeDeviceId(deviceId)
                     goToAccountCreation()
                 }
+
                 Resource.Status.ERROR -> {
                     binding.ivSpikaVerify.visibility = View.GONE
                     binding.clInputUi.visibility = View.VISIBLE
                     binding.tvIncorrectCode.visibility = View.VISIBLE
                 }
+
                 else -> Timber.d("Something went wrong")
             }
         })
@@ -204,7 +207,7 @@ class VerificationFragment : BaseFragment() {
             }
 
             override fun onFinish() {
-                findNavController().navigate(R.id.action_verificationFragment_to_accountCreationFragment)
+                findNavController().navigate(VerificationFragmentDirections.actionVerificationFragmentToAccountCreationFragment())
             }
         }
         timer.start()
