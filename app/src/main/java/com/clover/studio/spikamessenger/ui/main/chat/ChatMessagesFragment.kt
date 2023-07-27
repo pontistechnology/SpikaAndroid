@@ -584,17 +584,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    if (!uploadInProgress) {
-                        if (unsentMessages.isNotEmpty()) {
-                            if (unsentMessages.first().type == Const.JsonFields.IMAGE_TYPE) {
-                                uploadImage()
-                            } else if (unsentMessages.first().type == Const.JsonFields.VIDEO_TYPE) {
-                                uploadVideo()
-                            } else if (filesSelected.isNotEmpty()) {
-                                uploadFile()
-                            }
-                        } else resetUploadFields()
-                    }
                     if (unsentMessages.isNotEmpty()) {
                         val message =
                             unsentMessages.find { msg -> msg.localId == it.responseData?.data?.message?.localId }
