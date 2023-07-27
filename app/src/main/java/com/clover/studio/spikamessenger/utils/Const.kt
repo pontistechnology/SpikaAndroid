@@ -94,6 +94,8 @@ class Const {
 
             // Mime types
             const val IMAGE = "image/*"
+            const val IMAGE_JPEG = "image/jpeg"
+            const val VIDEO_MP4 = "video/mp4"
             const val FILE = "*/*"
 
             // File types

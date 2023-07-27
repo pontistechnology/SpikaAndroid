@@ -269,7 +269,7 @@ class MediaFragment : BaseFragment() {
             } else {
                 Toast.makeText(
                     context,
-                    "Please add storage permission manually",
+                    getString(R.string.storage_permission),
                     Toast.LENGTH_LONG
                 ).show()
                 Tools.navigateToAppSettings()
@@ -285,13 +285,13 @@ class MediaFragment : BaseFragment() {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         val uri = getDownloadedFileUri(requireContext(), downloadId)
                         uri?.let {
-                            saveImageAndroidNew(uri)
+                            saveMedia(uri)
                         }
                     } else {
                         if (hasStoragePermission()) {
                             Toast.makeText(
                                 context,
-                                "Saved to gallery",
+                                getString(R.string.saved_to_gallery),
                                 Toast.LENGTH_LONG
                             ).show()
                         }
@@ -326,7 +326,8 @@ class MediaFragment : BaseFragment() {
         return null
     }
 
-    private fun saveImageAndroidNew(uri: Uri) {
+    /** This method is for saving images and videos for Android versions above 10 **/
+    private fun saveMedia(uri: Uri) {
         var appName =
             context?.applicationInfo?.loadLabel(requireContext().packageManager).toString() + " "
         var relativeLocation: String
@@ -334,14 +335,14 @@ class MediaFragment : BaseFragment() {
         val externalContent: Uri
         if (Const.JsonFields.IMAGE_TYPE == message?.type) {
             relativeLocation = Environment.DIRECTORY_PICTURES
-            mimetype = "image/jpeg"
+            mimetype = Const.JsonFields.IMAGE_JPEG
             externalContent = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            appName += "Images"
+            appName += getString(R.string.images)
         } else {
             relativeLocation = Environment.DIRECTORY_MOVIES
-            mimetype = "video/mp4"
+            mimetype = Const.JsonFields.VIDEO_MP4
             externalContent = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-            appName += "Videos"
+            appName += getString(R.string.videos)
         }
 
         relativeLocation += File.separator + appName
@@ -361,7 +362,7 @@ class MediaFragment : BaseFragment() {
                 }
             }
         }
-        Toast.makeText(context, "Saved to gallery", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, getString(R.string.saved_to_gallery), Toast.LENGTH_LONG).show()
     }
 
     private fun hasStoragePermission(): Boolean {

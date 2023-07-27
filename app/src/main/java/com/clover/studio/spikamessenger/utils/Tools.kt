@@ -352,7 +352,7 @@ object Tools {
             val tmp = this.getFilePathUrl(message.body!!.fileId!!)
             val request = DownloadManager.Request(Uri.parse(tmp))
             request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-            request.setTitle(message.body.file?.fileName ?: "default_spika_name.jpg")
+            request.setTitle(message.body.file?.fileName ?: "${MainApplication.appContext.getString(R.string.spika)}.jpg")
             request.setDescription(context.getString(R.string.file_is_downloading))
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             request.setDestinationInExternalPublicDir(

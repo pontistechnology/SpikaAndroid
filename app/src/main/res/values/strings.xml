@@ -90,6 +90,8 @@
     <string name="media_auto_download">Media auto-download</string>
     <string name="files_mb_text"> MB</string>
     <string name="generic_shared">%s shared</string>
+    <string name="storage_permission">Please add storage permission manually</string>
+    <string name="saved_to_gallery">Saved to gallery</string>
 
     <!--Chat creation-->
     <string name="select_members">Select members</string>
@@ -168,6 +170,8 @@
     <string name="user_sent_on">%s sent on %s</string>
     <string name="more">MORE</string>
     <string name="audio_duration">00:00</string>
+    <string name="videos">Videos</string>
+    <string name="images">Images</string>
 
     <!--Emoji-->
     <string name="thumbs_up_emoji">&#x1F44D;</string>
