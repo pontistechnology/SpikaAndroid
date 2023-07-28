@@ -84,6 +84,8 @@ class RoomsFragment : BaseFragment() {
                 binding.rvRooms.visibility = View.VISIBLE
                 binding.btnSearchRooms.isSelected = true
                 binding.btnSearchMessages.isSelected = false
+                binding.svRoomsSearch.setQuery("", false)
+                searchAdapter.submitList(ArrayList())
             }
         }
 
@@ -119,13 +121,12 @@ class RoomsFragment : BaseFragment() {
                                 }
                             }
                         } else {
-                            if (query.isNotEmpty()) {
                                 viewModel.getSearchedMessages(query)
-                            }
                         }
                     } else {
                         userSearching = false
                         roomsAdapter.submitList(sortedList)
+                        searchAdapter.submitList(ArrayList())
                     }
                     roomsAdapter.submitList(ArrayList(filteredList))
                     filteredList.clear()
@@ -165,13 +166,12 @@ class RoomsFragment : BaseFragment() {
                             roomsAdapter.submitList(ArrayList(filteredList))
                             filteredList.clear()
                         } else {
-                            if (query.isNotEmpty()) {
-                                viewModel.getSearchedMessages(query)
-                            }
+                            viewModel.getSearchedMessages(query)
                         }
                     } else {
                         userSearching = false
                         roomsAdapter.submitList(sortedList)
+                        searchAdapter.submitList(ArrayList())
                     }
                 }
                 binding.rvRooms.scrollToPosition(0)
