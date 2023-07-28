@@ -208,13 +208,13 @@ class UploadService : Service() {
         localId: String,
     ) {
         val jsonMessage = JsonMessage(
-            text,
-            messageFileType,
-            fileId,
-            thumbId,
-            roomId,
-            localId,
-            null
+            msgText = text,
+            mimeType = messageFileType,
+            fileId = fileId,
+            thumbId = thumbId,
+            roomId = roomId,
+            localId = localId,
+            replyId = null
         )
 
         val jsonObject = jsonMessage.messageToJson()
