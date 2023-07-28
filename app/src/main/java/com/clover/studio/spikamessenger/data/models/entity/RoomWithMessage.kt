@@ -15,3 +15,14 @@ data class RoomWithMessage(
         entityColumn = "room_id_message"
     ) val message: Message?,
 ) : Parcelable
+
+@Parcelize
+data class MessageWithRoom(
+    @Embedded
+    val message: Message,
+    @Relation(
+        entity = ChatRoom::class,
+        parentColumn = "room_id_message",
+        entityColumn = "room_id"
+    ) val roomWithUsers: RoomWithUsers?
+) : Parcelable

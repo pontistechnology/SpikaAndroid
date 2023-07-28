@@ -3,7 +3,7 @@ package com.clover.studio.spikamessenger.data.daos
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
-import com.clover.studio.spikamessenger.data.models.entity.MessageWithUser
+import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -97,5 +97,5 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
                 "INNER JOIN user ON from_user_id = user.user_id " +
                 "WHERE message.body LIKE '%' || :text || '%'"
     )
-    suspend fun getSearchMessages(text: String): List<MessageWithUser>
+    suspend fun getSearchMessages(text: String): List<MessageWithRoom>
 }

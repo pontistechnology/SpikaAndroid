@@ -7,7 +7,7 @@ import com.clover.studio.spikamessenger.data.daos.ChatRoomDao
 import com.clover.studio.spikamessenger.data.daos.RoomUserDao
 import com.clover.studio.spikamessenger.data.daos.UserDao
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
-import com.clover.studio.spikamessenger.data.models.entity.MessageWithUser
+import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.data.models.entity.User
@@ -422,5 +422,5 @@ interface MainRepository : BaseRepository {
     suspend fun cancelUpload(messageId: String)
 
     // Search calls
-    suspend fun getSearchedMessages(query: String): Resource<List<MessageWithUser>>
+    suspend fun getSearchedMessages(query: String): Resource<List<MessageWithRoom>>
 }

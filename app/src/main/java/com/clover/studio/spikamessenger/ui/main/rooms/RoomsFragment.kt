@@ -80,6 +80,7 @@ class RoomsFragment : BaseFragment() {
                 binding.llSearchRoomsMessages.visibility = View.VISIBLE
             } else {
                 binding.llSearchRoomsMessages.visibility = View.GONE
+                binding.rvMessages.visibility = View.GONE
                 binding.rvRooms.visibility = View.VISIBLE
                 binding.btnSearchRooms.isSelected = true
                 binding.btnSearchMessages.isSelected = false
