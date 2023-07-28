@@ -234,6 +234,7 @@ class RegisterNumberFragment : BaseFragment() {
     private fun checkMultiplePermissions() {
         val permissions = arrayOf(
             Manifest.permission.READ_CONTACTS,
+            Manifest.permission.POST_NOTIFICATIONS,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
@@ -247,12 +248,17 @@ class RegisterNumberFragment : BaseFragment() {
                         permissionsMap[Manifest.permission.READ_EXTERNAL_STORAGE]
                     val writeStoragePermissionGranted =
                         permissionsMap[Manifest.permission.WRITE_EXTERNAL_STORAGE]
+                    val postNotificationPermissionGranted =
+                        permissionsMap[Manifest.permission.POST_NOTIFICATIONS]
 
-                    if (readContactsPermissionGranted == true && readStoragePermissionGranted == true && writeStoragePermissionGranted == true) {
+                    if (readContactsPermissionGranted == true &&
+                        readStoragePermissionGranted == true &&
+                        writeStoragePermissionGranted == true &&
+                        postNotificationPermissionGranted == true) {
                         Timber.d("Fetching all user contacts")
                         fetchAllUserContacts()
                     } else {
-                        Timber.d("Couldn't fetch contacts or access storage. Permissions not granted.")
+                        Timber.d("Couldn't fetch contacts or access storage or post notifications. Permissions not granted.")
                     }
                 }
             }
@@ -274,6 +280,12 @@ class RegisterNumberFragment : BaseFragment() {
                     it,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                 )
+            } == PackageManager.PERMISSION_GRANTED &&
+            context?.let {
+                ContextCompat.checkSelfPermission(
+                    it,
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
             } == PackageManager.PERMISSION_GRANTED
         ) {
             if (!viewModel.areUsersFetched()) {
@@ -281,7 +293,8 @@ class RegisterNumberFragment : BaseFragment() {
             }
         } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) ||
             shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) ||
-            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
+            shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)
         ) {
             // TODO show why permissions are needed
         } else {

@@ -102,7 +102,7 @@ class NotesDetailsFragment : BaseFragment() {
         markdownNotes()
 
         binding.ivBack.setOnClickListener {
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         binding.tvEdit.setOnClickListener {
@@ -157,7 +157,7 @@ class NotesDetailsFragment : BaseFragment() {
         Linkify.addLinks(binding.tvNotesDetails, Linkify.WEB_URLS)
 
         binding.ivBack.setOnClickListener {
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         binding.llDeleteNote.setOnClickListener {

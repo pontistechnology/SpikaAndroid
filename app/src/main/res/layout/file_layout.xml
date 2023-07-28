@@ -69,8 +69,8 @@
 
     <ImageView
         android:id="@+id/iv_upload_failed"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
+        android:layout_width="@dimen/twenty_eight_dp"
+        android:layout_height="@dimen/twenty_eight_dp"
         android:layout_marginStart="@dimen/eight_dp_margin"
         android:layout_marginEnd="@dimen/eight_dp_margin"
         android:visibility="gone"

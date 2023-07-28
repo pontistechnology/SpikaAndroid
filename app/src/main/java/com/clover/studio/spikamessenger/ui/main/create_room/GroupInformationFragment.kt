@@ -204,7 +204,7 @@ class GroupInformationFragment : BaseFragment() {
         }
 
         binding.ivCancel.setOnClickListener {
-            requireActivity().onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
     }
 

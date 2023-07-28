@@ -242,7 +242,7 @@ class ContactDetailsFragment : BaseFragment() {
         }
 
         ivBack.setOnClickListener {
-            requireActivity().onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         tvBlocked.setOnClickListener {

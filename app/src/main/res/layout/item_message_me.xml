@@ -239,8 +239,8 @@
                         app:layout_constraintTop_toTopOf="parent" />
                     <ImageView
                         android:id="@+id/iv_cancel_image"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="@dimen/thirty_dp_margin"
+                        android:layout_height="@dimen/thirty_dp_margin"
                         android:layout_gravity="center"
                         android:visibility="gone"
                         app:srcCompat="@drawable/img_cancel_image" />

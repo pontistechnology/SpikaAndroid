@@ -67,7 +67,7 @@ class MediaFragment : BaseFragment() {
 
     private fun initializeListeners() = with(binding) {
         ivBackToChat.setOnClickListener {
-            requireActivity().onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         ivFullImage.setOnClickListener {

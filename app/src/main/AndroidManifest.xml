@@ -14,9 +14,6 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
-    <uses-feature
-        android:name="android.hardware.telephony"
-        android:required="false" />
 
     <application
         android:name="com.clover.studio.spikamessenger.MainApplication"

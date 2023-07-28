@@ -36,7 +36,7 @@ open class BaseViewModel : ViewModel() {
             Resource.Status.NEW_USER -> {
                 mutableLiveData?.postValue(Event(resource))
             }
-            else -> Timber.d("TODO")
+            else -> Timber.d("Error in BaseViewModel while resolving response status")
         }
     }
 }

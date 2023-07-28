@@ -286,7 +286,7 @@ class AccountCreationFragment : BaseFragment() {
                             }
 
                             override fun fileCanceledListener(messageId: String?) {
-
+                                // Ignore
                             }
                         })
                 }

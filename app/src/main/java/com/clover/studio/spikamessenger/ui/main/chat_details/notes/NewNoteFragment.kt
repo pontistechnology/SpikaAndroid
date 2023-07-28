@@ -52,7 +52,7 @@ class NewNoteFragment : BaseFragment() {
     private fun initializeObservers() {
         viewModel.noteCreationListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
-                Resource.Status.SUCCESS -> activity?.onBackPressed()
+                Resource.Status.SUCCESS -> activity?.onBackPressedDispatcher?.onBackPressed()
                 Resource.Status.ERROR -> Toast.makeText(
                     context,
                     getString(R.string.note_creation_failed),
@@ -65,7 +65,7 @@ class NewNoteFragment : BaseFragment() {
 
     private fun initializeViews() {
         binding.ivBack.setOnClickListener {
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         binding.tvSave.setOnClickListener {
