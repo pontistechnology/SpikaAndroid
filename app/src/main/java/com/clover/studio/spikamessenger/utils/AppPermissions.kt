@@ -44,10 +44,7 @@ object AppPermissions {
         return permissions
     }
 
-    val contactsPermission: String =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.READ_CONTACTS
-        } else ""
+    val contactsPermission: String = Manifest.permission.READ_CONTACTS
 
     val notificationPermission: String =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
