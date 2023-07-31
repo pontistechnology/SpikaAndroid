@@ -515,31 +515,42 @@ class ChatAdapter(
         chatMessage: MessageAndRecords,
         sender: Boolean,
     ) {
-        val isMessageDeleted = chatMessage.message.deleted == true ||
-                (chatMessage.message.body?.text == context.getString(R.string.deleted_message) &&
-                        (chatMessage.message.modifiedAt != chatMessage.message.createdAt))
-
+        var isDeleted = false
+        if (chatMessage.message.deleted == true || chatMessage.message.body?.text == context.getString(
+                R.string.deleted_message
+            )
+        ) {
+            isDeleted = true
+        }
         tvMessage.apply {
-            if (isMessageDeleted) {
-                text = context.getString(R.string.message_deleted_text)
-                setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
-                background =
-                    AppCompatResources.getDrawable(context, R.drawable.img_deleted_message)
-                cvReactedEmoji.visibility = View.GONE
+            text = if (isDeleted) {
+                context.getString(R.string.message_deleted_text)
             } else {
-                text = chatMessage.message.body?.text
-                background = AppCompatResources.getDrawable(
+                chatMessage.message.body?.text
+            }
+            setTextColor(
+                ContextCompat.getColor(
+                    context,
+                    if (isDeleted) R.color.text_tertiary else R.color.text_primary
+                )
+            )
+
+            background = if (isDeleted) {
+                AppCompatResources.getDrawable(
+                    context,
+                    R.drawable.img_deleted_message
+                )
+            } else {
+                AppCompatResources.getDrawable(
                     context,
                     if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
                 )
-                setTextColor(ContextCompat.getColor(context, R.color.text_primary))
             }
 
             movementMethod = LinkMovementMethod.getInstance()
+
             setOnLongClickListener {
-                if (!(chatMessage.message.body?.text == context.getString(R.string.deleted_message) &&
-                            (chatMessage.message.modifiedAt != chatMessage.message.createdAt))
-                ) {
+                if (!isDeleted) {
                     chatMessage.message.messagePosition = holder.absoluteAdapterPosition
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)
                 }

@@ -185,7 +185,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
 
             findNavController().navigate(
-                ChatDetailsFragmentDirections.actionChatDetailsFragmentToNewRoomFragment2(
+                ChatDetailsFragmentDirections.actionChatDetailsFragmentToNewRoomFragment(
                     roomWithUsers.room.roomId,
                     userIds.stream().mapToInt { i -> i }.toArray()
                 )
@@ -255,7 +255,7 @@ class ChatDetailsFragment : BaseFragment() {
 
         binding.chatHeader.ivArrowBack.setOnClickListener {
             val action =
-                ChatDetailsFragmentDirections.actionChatDetailsFragmentToChatMessagesFragment2()
+                ChatDetailsFragmentDirections.actionChatDetailsFragmentToChatMessagesFragment()
             findNavController().navigate(action)
 
         }

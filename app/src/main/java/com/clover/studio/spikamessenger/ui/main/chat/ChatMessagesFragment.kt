@@ -610,6 +610,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun initializeObservers() {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
+            senderScroll()
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (unsentMessages.isNotEmpty()) {
@@ -625,7 +626,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                 else -> Timber.d("Other error")
             }
-            senderScroll()
         })
 
         viewModel.getMessageAndRecords(roomId = roomWithUsers.room.roomId)
