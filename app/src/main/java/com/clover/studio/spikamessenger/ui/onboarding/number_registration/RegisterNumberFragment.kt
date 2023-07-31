@@ -2,7 +2,6 @@ package com.clover.studio.spikamessenger.ui.onboarding.number_registration
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,13 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.FragmentRegisterNumberBinding
 import com.clover.studio.spikamessenger.ui.onboarding.OnboardingViewModel
+import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
@@ -232,73 +231,25 @@ class RegisterNumberFragment : BaseFragment() {
     }
 
     private fun checkMultiplePermissions() {
-        val permissions = arrayOf(
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.POST_NOTIFICATIONS,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        )
+        val permissionsToRequest = AppPermissions.requestPermissions(requireActivity())
 
         multiplePermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionsMap ->
                 if (permissionsMap.isNotEmpty()) {
-                    val readContactsPermissionGranted =
-                        permissionsMap[Manifest.permission.READ_CONTACTS]
-                    val readStoragePermissionGranted =
-                        permissionsMap[Manifest.permission.READ_EXTERNAL_STORAGE]
-                    val writeStoragePermissionGranted =
-                        permissionsMap[Manifest.permission.WRITE_EXTERNAL_STORAGE]
-                    val postNotificationPermissionGranted =
-                        permissionsMap[Manifest.permission.POST_NOTIFICATIONS]
-
-                    if (readContactsPermissionGranted == true &&
-                        readStoragePermissionGranted == true &&
-                        writeStoragePermissionGranted == true &&
-                        postNotificationPermissionGranted == true) {
-                        Timber.d("Fetching all user contacts")
-                        fetchAllUserContacts()
+                    if (permissionsMap[Manifest.permission.READ_CONTACTS] == true) {
+                        if (!viewModel.areUsersFetched()) {
+                            fetchAllUserContacts()
+                        }
                     } else {
                         Timber.d("Couldn't fetch contacts or access storage or post notifications. Permissions not granted.")
                     }
                 }
             }
 
-        if (context?.let {
-                ContextCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.READ_CONTACTS
-                )
-            } == PackageManager.PERMISSION_GRANTED &&
-            context?.let {
-                ContextCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                )
-            } == PackageManager.PERMISSION_GRANTED &&
-            context?.let {
-                ContextCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-            } == PackageManager.PERMISSION_GRANTED &&
-            context?.let {
-                ContextCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.POST_NOTIFICATIONS
-                )
-            } == PackageManager.PERMISSION_GRANTED
-        ) {
-            if (!viewModel.areUsersFetched()) {
-                fetchAllUserContacts()
-            }
-        } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) ||
-            shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) ||
-            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
-            shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)
-        ) {
-            // TODO show why permissions are needed
+        if (permissionsToRequest.isNotEmpty()) {
+            multiplePermissionLauncher.launch(permissionsToRequest.toTypedArray())
         } else {
-            multiplePermissionLauncher.launch(permissions)
+            fetchAllUserContacts()
         }
     }
 }
