@@ -72,29 +72,29 @@ class RoomsFragment : BaseFragment() {
         }
     }
 
-    private fun setupSearchView() {
-        binding.svRoomsSearch.setIconifiedByDefault(false)
+    private fun setupSearchView() = with(binding) {
+        svRoomsSearch.setIconifiedByDefault(false)
 
-        binding.svRoomsSearch.setOnQueryTextFocusChangeListener { _, hasFocus ->
+        svRoomsSearch.setOnQueryTextFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                binding.llSearchRoomsMessages.visibility = View.VISIBLE
+                llSearchRoomsMessages.visibility = View.VISIBLE
             } else {
-                binding.llSearchRoomsMessages.visibility = View.GONE
-                binding.rvMessages.visibility = View.GONE
-                binding.rvRooms.visibility = View.VISIBLE
-                binding.btnSearchRooms.isSelected = true
-                binding.btnSearchMessages.isSelected = false
-                binding.svRoomsSearch.setQuery("", false)
+                llSearchRoomsMessages.visibility = View.GONE
+                rvMessages.visibility = View.GONE
+                rvRooms.visibility = View.VISIBLE
+                btnSearchRooms.isSelected = true
+                btnSearchMessages.isSelected = false
+                svRoomsSearch.setQuery("", false)
                 searchAdapter.submitList(ArrayList())
             }
         }
 
-        binding.svRoomsSearch.setOnQueryTextListener(object :
+        svRoomsSearch.setOnQueryTextListener(object :
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
                     if (query.isNotEmpty()) {
-                        if (binding.rvRooms.isVisible) {
+                        if (rvRooms.isVisible) {
                             userSearching = true
                             Timber.d("Query: $query")
 
@@ -121,7 +121,7 @@ class RoomsFragment : BaseFragment() {
                                 }
                             }
                         } else {
-                                viewModel.getSearchedMessages(query)
+                            viewModel.getSearchedMessages(query)
                         }
                     } else {
                         userSearching = false
@@ -137,7 +137,7 @@ class RoomsFragment : BaseFragment() {
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
                     if (query.isNotEmpty()) {
-                        if (binding.rvRooms.isVisible) {
+                        if (rvRooms.isVisible) {
                             userSearching = true
                             Timber.d("Query: $query")
 
@@ -174,11 +174,11 @@ class RoomsFragment : BaseFragment() {
                         searchAdapter.submitList(ArrayList())
                     }
                 }
-                binding.rvRooms.scrollToPosition(0)
+                rvRooms.scrollToPosition(0)
                 return true
             }
         })
-        binding.svRoomsSearch.setOnFocusChangeListener { view, hasFocus ->
+        svRoomsSearch.setOnFocusChangeListener { view, hasFocus ->
             run {
                 view.clearFocus()
                 if (!hasFocus) {

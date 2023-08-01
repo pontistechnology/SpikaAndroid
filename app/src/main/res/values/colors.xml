@@ -25,8 +25,7 @@
     <color name="error_background">#FFECEC</color>
     <color name="guideline">#E6E6E6</color>
     <color name="gray_transparent">#66F2F2F2</color>
-    <color name="gray">#F2F2F2</color>
-    <color name="messages_states">#5F6368</color>
+    <color name="messages_states">#5F6C368</color>
 
     <!--Application colors: light - dark themes-->
     <!--Main color: white - black-->

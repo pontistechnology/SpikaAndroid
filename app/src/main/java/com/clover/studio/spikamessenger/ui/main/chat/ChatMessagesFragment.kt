@@ -250,7 +250,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             roomWithUsers.users.firstOrNull { user -> user.id.toString() != localUserId.toString() }
                     }
 
-                    // Timber.d("Load check: ChatMessagesFragment view created")
                     if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
                         bindingSetup.clRoomExit.visibility = View.VISIBLE
                     } else {
@@ -271,11 +270,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                 Resource.Status.ERROR -> Toast.makeText(
                     activity,
-                    "Failed to load room data",
+                    getString(R.string.failed_to_load_room_data),
                     Toast.LENGTH_SHORT
                 ).show()
 
-                else -> Toast.makeText(activity, "Other error", Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(activity, getString(R.string.other_error), Toast.LENGTH_SHORT).show()
             }
         })
 
@@ -648,20 +647,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             shouldScroll = false
                         }
 
-                        Timber.d("Message search id value: $messageSearchId")
                         if (messageSearchId != 0) {
                             if (messagesRecords.firstOrNull { messageAndRecords -> messageAndRecords.message.id == messageSearchId } != null) {
-                                Timber.d("Message found message search id: $messageSearchId")
                                 val position =
                                     messagesRecords.indexOfFirst { messageAndRecords -> messageAndRecords.message.id == messageSearchId }
-                                Timber.d("Message found position: $position")
                                 scrollToPosition = position
                                 if (position != -1) {
                                     bindingSetup.rvChat.smoothScrollToPosition(position)
                                 }
                                 messageSearchId = 0
                             } else {
-                                Timber.d("Message not found, fetch next set")
                                 viewModel.fetchNextSet(roomWithUsers.room.roomId)
                             }
                         }

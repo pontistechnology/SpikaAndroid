@@ -68,7 +68,7 @@
         android:background="@drawable/bg_message_received"
         android:backgroundTint="@color/message_other"
         android:orientation="horizontal"
-        android:padding="@dimen/five_dp_margin"
+        android:padding="@dimen/eight_dp_margin"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,7 +77,7 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_search_rooms"
             android:layout_width="0dp"
-            android:layout_height="@dimen/thirty_dp_margin"
+            android:layout_height="@dimen/thirty_two_dp_margin"
             android:layout_weight="1"
             android:background="@drawable/bg_button_bar_custom"
             android:fontFamily="@font/montserrat"
@@ -88,7 +88,7 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_search_messages"
             android:layout_width="0dp"
-            android:layout_height="@dimen/thirty_dp_margin"
+            android:layout_height="@dimen/thirty_two_dp_margin"
             android:layout_weight="1"
             android:background="@drawable/bg_button_bar_custom"
             android:fontFamily="@font/montserrat"

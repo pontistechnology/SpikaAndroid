@@ -100,11 +100,16 @@ class ContactDetailsFragment : BaseFragment() {
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    Timber.d("Room with users = ${it.responseData}")
-                    activity?.let { parent -> startChatScreenActivity(parent,
-                        it.responseData?.room?.roomId!!
-                    ) }
+                    activity?.let { parent ->
+                        it.responseData?.room?.roomId?.let { roomId ->
+                            startChatScreenActivity(
+                                parent,
+                                roomId
+                            )
+                        }
+                    }
                 }
+
                 else -> Timber.d("Other error")
             }
         })
@@ -119,6 +124,7 @@ class ContactDetailsFragment : BaseFragment() {
                         )
                     }
                 }
+
                 Resource.Status.ERROR -> {
                     Timber.d("Room not found, creating new one")
                     val jsonObject = JsonObject()
@@ -141,6 +147,7 @@ class ContactDetailsFragment : BaseFragment() {
 
                     viewModel.createNewRoom(jsonObject)
                 }
+
                 else -> Timber.d("Other error")
             }
         })
@@ -180,6 +187,7 @@ class ContactDetailsFragment : BaseFragment() {
                         } else binding.tvBlocked.text = getString(R.string.block)
                     }
                 }
+
                 Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
                 else -> Timber.d("Other error")
             }
@@ -335,6 +343,7 @@ class ContactDetailsFragment : BaseFragment() {
                         }
                     }
                 }
+
                 binding.swMute.id -> {
                     if (buttonView.isPressed) {
                         if (isChecked) {

@@ -84,20 +84,6 @@ class ChatScreenActivity : BaseActivity() {
             }
         }
 
-//        viewModel.roomDataListener.observe(this, EventObserver {
-//            when (it.status) {
-//                Resource.Status.SUCCESS -> {
-//                    Timber.d("Load check: ChatScreenActivity room data fetched")
-//                    it.responseData?.roomWithUsers?.let {
-//                        replaceChatScreenActivity(this, roomId)
-//                    }
-//                }
-//
-//                Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
-//                else -> Timber.d("Other error")
-//            }
-//        })
-
         /** Room notification has been disabled until we decide how to implement it correctly **/
 //        viewModel.roomNotificationListener.observe(this, EventObserver {
 //            when (it.response.status) {

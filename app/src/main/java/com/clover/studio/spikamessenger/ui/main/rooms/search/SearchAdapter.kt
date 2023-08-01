@@ -38,7 +38,6 @@ class SearchAdapter(
                     )
                 }
                 binding.tvMessageContent.text = item.message.body?.text
-
                 binding.tvHeader.text = item.roomWithUsers.room.name
 
                 // if not first item, check if item above has the same header
