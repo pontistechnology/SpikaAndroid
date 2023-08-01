@@ -2,6 +2,7 @@ package com.clover.studio.spikamessenger.utils.helpers
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -13,6 +14,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -25,17 +27,17 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
+import com.clover.studio.spikamessenger.databinding.ReplyLayoutBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatAdapter
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
-import com.google.android.material.imageview.ShapeableImageView
-import com.vanniktech.emoji.EmojiTextView
 import timber.log.Timber
 
 const val MAX_REACTIONS = 3
 private const val TEXT_SIZE_BIG = 11
 private const val TEXT_SIZE_SMALL = 5
 const val MAX_HEIGHT = 300
+const val MIN_HEIGHT = 256
 
 object ChatAdapterHelper {
 
@@ -47,9 +49,9 @@ object ChatAdapterHelper {
             holder.itemView.findViewById<TextView>(R.id.tv_message),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cl_image_chat),
             holder.itemView.findViewById<ConstraintLayout>(R.id.file_layout),
-            holder.itemView.findViewById<FrameLayout>(R.id.fl_videos),
+            holder.itemView.findViewById<FrameLayout>(R.id.video_layout),
             holder.itemView.findViewById<CardView>(R.id.cv_audio),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.cl_reply_message)
+            holder.itemView.findViewById<ConstraintLayout>(R.id.reply_layout)
         )
 
         for (view in viewsToHide) {
@@ -75,12 +77,19 @@ object ChatAdapterHelper {
         playButton: ImageView?
     ) {
         val maxHeight = convertToDp(context, MAX_HEIGHT)
-        // TODO set MIN height for svg
+        Timber.d("HEIGHT:::::::::: $height")
+        val newHeight : Int = if (height <= 100){
+            convertToDp(context, MIN_HEIGHT)
+        } else {
+            if (convertToDp(context, height) > maxHeight){
+                maxHeight
+            } else {
+                height
+            }
+        }
+
         val params = mediaImage.layoutParams
-        params.height = if (convertToDp(context, height) > maxHeight) maxHeight else convertToDp(
-            context,
-            height
-        )
+        params.height = newHeight
         mediaImage.layoutParams = params
 
         var rotationAnimator: ObjectAnimator? = null
@@ -218,135 +227,136 @@ object ChatAdapterHelper {
     fun bindReply(
         context: Context,
         users: List<User>,
-        chatMessage: MessageAndRecords,
-        ivReplyImage: ShapeableImageView,
-        tvReplyMedia: TextView,
-        tvMessageReply: EmojiTextView,
-        clReplyMessage: ConstraintLayout,
-        clContainer: ConstraintLayout,
-        tvUsername: TextView,
+        chatMessage: MessageAndRecords?,
+        replyLayoutBinding: ReplyLayoutBinding,
         sender: Boolean,
     ) {
-        ivReplyImage.visibility = View.GONE
-        tvReplyMedia.visibility = View.GONE
-        tvMessageReply.visibility = View.GONE
+        with(replyLayoutBinding) {
+            ivReplyImage.visibility = View.GONE
+            tvReplyMedia.visibility = View.GONE
+            tvMessageReply.visibility = View.GONE
 
-        val params =
-            clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
-        params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-        var original = chatMessage.message.body?.text?.length
-        clReplyMessage.visibility = View.VISIBLE
-        val firstLineStart = chatMessage.message.body?.text?.lines()?.get(0)
-        if (firstLineStart?.length!! < TEXT_SIZE_SMALL) {
-            original = firstLineStart.length
-        }
-        val username = tvUsername.text.length
+            val params =
+                clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
+            params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+            var original = chatMessage?.message?.body?.text?.length
+            clReplyMessage.visibility = View.VISIBLE
+            val firstLineStart = chatMessage?.message?.body?.text?.lines()?.get(0)
+            if (firstLineStart?.length!! < TEXT_SIZE_SMALL) {
+                original = firstLineStart.length
+            }
+            val username = tvUsernameOther.text.length
 
-        if (sender) {
-            clContainer.setBackgroundResource(R.drawable.bg_message_send)
-        } else {
-            clContainer.setBackgroundResource(R.drawable.bg_message_received)
-        }
+            if (sender) {
+                clReplyMessage.setBackgroundResource(R.drawable.bg_message_send)
+                clReplyMessage.backgroundTintList =
+                    ColorStateList.valueOf(ContextCompat.getColor(context, R.color.message_other))
+            } else {
+                clReplyMessage.setBackgroundResource(R.drawable.bg_message_received)
+                clReplyMessage.backgroundTintList =
+                    ColorStateList.valueOf(ContextCompat.getColor(context, R.color.message_me))
+            }
 
-        tvUsername.text =
-            users.firstOrNull { it.id == chatMessage.message.body.referenceMessage?.fromUserId }?.formattedDisplayName
+            tvUsernameOther.text =
+                users.firstOrNull { it.id == chatMessage.message.body.referenceMessage?.fromUserId }?.formattedDisplayName
 
-        when (chatMessage.message.body.referenceMessage?.type) {
-            /**Image or video type*/
-            Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                if (original!! >= TEXT_SIZE_BIG) {
-                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                }
+            when (chatMessage.message.body.referenceMessage?.type) {
+                /**Image or video type*/
+                Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
+                    if (original!! >= TEXT_SIZE_BIG) {
+                        params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                    }
 
-                if (chatMessage.message.body.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
-                    tvReplyMedia.text = context.getString(
-                        R.string.media,
-                        context.getString(R.string.photo)
-                    )
-                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera_reply,
-                        0,
-                        0,
-                        0
-                    )
-                } else {
-                    tvReplyMedia.text = context.getString(
-                        R.string.media,
-                        context.getString(R.string.video)
-                    )
-                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_video_reply,
-                        0,
-                        0,
-                        0
-                    )
-                }
-
-                tvMessageReply.visibility = View.GONE
-                ivReplyImage.visibility = View.VISIBLE
-                tvReplyMedia.visibility = View.VISIBLE
-
-                val imagePath =
-                    chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
-                        Tools.getFilePathUrl(
-                            imagePath
+                    if (chatMessage.message.body.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
+                        tvReplyMedia.text = context.getString(
+                            R.string.media,
+                            context.getString(R.string.photo)
+                        )
+                        tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                            R.drawable.img_camera_reply,
+                            0,
+                            0,
+                            0
+                        )
+                    } else {
+                        tvReplyMedia.text = context.getString(
+                            R.string.media,
+                            context.getString(R.string.video)
+                        )
+                        tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                            R.drawable.img_video_reply,
+                            0,
+                            0,
+                            0
                         )
                     }
-                loadMedia(
-                    context,
-                    imagePath!!,
-                    ivReplyImage,
-                    null,
-                    0,
-                    null
-                )
-            }
-            /** Audio type */
-            Const.JsonFields.AUDIO_TYPE -> {
-                if (original!! >= TEXT_SIZE_SMALL) {
-                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                }
-                tvMessageReply.visibility = View.GONE
-                ivReplyImage.visibility = View.GONE
-                tvReplyMedia.visibility = View.VISIBLE
-                tvReplyMedia.text =
-                    context.getString(R.string.media, context.getString(R.string.audio))
-                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_audio_reply,
-                    0,
-                    0,
-                    0
-                )
-            }
-            /** File type */
-            Const.JsonFields.FILE_TYPE -> {
-                if (original!! >= TEXT_SIZE_SMALL) {
-                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                }
-                tvMessageReply.visibility = View.GONE
-                tvReplyMedia.visibility = View.VISIBLE
-                tvReplyMedia.text =
-                    context.getString(R.string.media, context.getString(R.string.file))
-                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_file_reply,
-                    0,
-                    0,
-                    0
-                )
-            }
-            /** Text type */
-            else -> {
-                tvMessageReply.visibility = View.VISIBLE
-                ivReplyImage.visibility = View.GONE
-                tvReplyMedia.visibility = View.GONE
 
-                val replyText = chatMessage.message.body.referenceMessage?.body?.text
-                tvMessageReply.text = replyText
-                val reply = replyText?.length
+                    tvMessageReply.visibility = View.GONE
+                    ivReplyImage.visibility = View.VISIBLE
+                    tvReplyMedia.visibility = View.VISIBLE
 
-                if (original != null && reply != null) {
-                    if (original >= reply && original >= TEXT_SIZE_SMALL && username < original) {
+                    val imagePath =
+                        chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
+                            Tools.getFilePathUrl(
+                                imagePath
+                            )
+                        }
+                    loadMedia(
+                        context = context,
+                        mediaPath = imagePath!!,
+                        mediaImage = ivReplyImage,
+                        loadingImage = null,
+                        height = 0,
+                        playButton = null
+                    )
+                }
+                /** Audio type */
+                Const.JsonFields.AUDIO_TYPE -> {
+                    if (original!! >= TEXT_SIZE_SMALL) {
                         params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                    }
+                    tvMessageReply.visibility = View.GONE
+                    ivReplyImage.visibility = View.GONE
+                    tvReplyMedia.visibility = View.VISIBLE
+                    tvReplyMedia.text =
+                        context.getString(R.string.media, context.getString(R.string.audio))
+                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_audio_reply,
+                        0,
+                        0,
+                        0
+                    )
+                }
+                /** File type */
+                Const.JsonFields.FILE_TYPE -> {
+                    if (original!! >= TEXT_SIZE_SMALL) {
+                        params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                    }
+                    tvMessageReply.visibility = View.GONE
+                    tvReplyMedia.visibility = View.VISIBLE
+                    tvReplyMedia.text =
+                        context.getString(R.string.media, context.getString(R.string.file))
+                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_file_reply,
+                        0,
+                        0,
+                        0
+                    )
+                }
+                /** Text type */
+                else -> {
+                    tvMessageReply.visibility = View.VISIBLE
+                    ivReplyImage.visibility = View.GONE
+                    tvReplyMedia.visibility = View.GONE
+
+                    val replyText = chatMessage.message.body.referenceMessage?.body?.text
+                    tvMessageReply.text = replyText
+                    val reply = replyText?.length
+
+                    if (original != null && reply != null) {
+                        if (original >= reply && original >= TEXT_SIZE_SMALL && username < original) {
+                            params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                        }
                     }
                 }
             }
