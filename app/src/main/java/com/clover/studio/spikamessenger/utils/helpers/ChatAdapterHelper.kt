@@ -296,19 +296,15 @@ object ChatAdapterHelper {
                     tvReplyMedia.visibility = View.VISIBLE
 
                     val imagePath =
-                        chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
+                        chatMessage.message.body.referenceMessage?.body?.thumbId?.let {
                             Tools.getFilePathUrl(
-                                imagePath
+                                it
                             )
                         }
-                    loadMedia(
-                        context = context,
-                        mediaPath = imagePath!!,
-                        mediaImage = ivReplyImage,
-                        loadingImage = null,
-                        height = 0,
-                        playButton = null
-                    )
+
+                    Glide.with(context)
+                        .load(imagePath)
+                        .into(ivReplyImage)
                 }
                 /** Audio type */
                 Const.JsonFields.AUDIO_TYPE -> {
@@ -356,7 +352,11 @@ object ChatAdapterHelper {
                     if (original != null && reply != null) {
                         if (original >= reply && original >= TEXT_SIZE_SMALL && username < original) {
                             params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+                        } else {
+                            params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
                         }
+                    } else {
+                        Timber.d("TODO")
                     }
                 }
             }
