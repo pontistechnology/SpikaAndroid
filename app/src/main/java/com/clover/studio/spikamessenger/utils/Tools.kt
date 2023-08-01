@@ -339,7 +339,6 @@ object Tools {
 
         )
         return String.format("%02d:%02d", minutes, seconds)
-
     }
 
     fun generateRandomInt(): Int {

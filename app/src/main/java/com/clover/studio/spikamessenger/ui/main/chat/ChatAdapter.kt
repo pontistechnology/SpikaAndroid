@@ -142,6 +142,7 @@ class ChatAdapter(
                             holder.binding.ivCancelImage,
                             holder.binding.ivChatImage,
                             holder.binding.ivImageFailed,
+                            holder.binding.ivMediaLoading,
                             holder.binding.clContainer,
                         )
                     }
@@ -156,6 +157,7 @@ class ChatAdapter(
                                 holder.binding.ivCancelImage,
                                 holder.binding.ivChatImage,
                                 holder.binding.ivImageFailed,
+                                holder.binding.ivMediaLoading,
                                 holder.binding.clContainer,
                             )
                         } else {
@@ -163,9 +165,11 @@ class ChatAdapter(
                             bindVideo(
                                 it,
                                 holder.binding.ivVideoThumbnail,
-                                holder.binding.ivPlayButton
+                                holder.binding.ivPlayButton,
+                                holder.binding.ivVideoLoading,
+                                holder.binding.tvVideoDuration
                             )
-                            holder.binding.flLoadingScreen.visibility = View.INVISIBLE
+                            holder.binding.flLoadingScreen.visibility = View.GONE
                         }
                     }
 
@@ -352,6 +356,7 @@ class ChatAdapter(
                         bindImage(
                             it,
                             holder.binding.ivChatImage,
+                            holder.binding.ivMediaLoading,
                             holder.binding.clImageChat
                         )
                     }
@@ -361,7 +366,9 @@ class ChatAdapter(
                         bindVideo(
                             it,
                             holder.binding.ivVideoThumbnail,
-                            holder.binding.ivPlayButton
+                            holder.binding.ivPlayButton,
+                            holder.binding.ivMediaLoading,
+                            holder.binding.tvVideoDuration
                         )
                     }
 
@@ -521,6 +528,7 @@ class ChatAdapter(
     private fun bindImage(
         chatMessage: MessageAndRecords,
         ivChatImage: ImageView,
+        ivLoadingImage: ImageView,
         clContainer: ConstraintLayout
     ) {
         val mediaPath = Tools.getMediaFile(context, chatMessage.message)
@@ -528,7 +536,9 @@ class ChatAdapter(
             context,
             mediaPath,
             ivChatImage,
-            chatMessage.message.body?.file?.metaData?.height ?: 256
+            ivLoadingImage,
+            chatMessage.message.body?.file?.metaData?.height ?: 256,
+            null
         )
 
         clContainer.setOnClickListener {
@@ -555,14 +565,17 @@ class ChatAdapter(
         ivCancelImage: ImageView,
         ivChatImage: ImageView,
         ivImageFailed: ImageView,
+        ivLoadingImage: ImageView,
         clContainer: ConstraintLayout
     ) {
         val mediaPath = Tools.getMediaFile(context, chatMessage.message)
         loadMedia(
-            context,
-            mediaPath,
-            ivChatImage,
-            chatMessage.message.body?.file?.metaData?.height ?: MAX_HEIGHT
+            context = context,
+            mediaPath = mediaPath,
+            mediaImage = ivChatImage,
+            loadingImage = ivLoadingImage,
+            height = chatMessage.message.body?.file?.metaData?.height ?: MAX_HEIGHT,
+            playButton = null
         )
         when (chatMessage.message.messageStatus) {
             Resource.Status.LOADING.toString() -> {
@@ -606,16 +619,26 @@ class ChatAdapter(
     private fun bindVideo(
         chatMessage: MessageAndRecords,
         ivVideoThumbnail: ImageView,
-        ivPlayButton: ImageView
+        ivPlayButton: ImageView,
+        ivLoadingImage: ImageView,
+        tvDuration: TextView
     ) {
+        if (chatMessage.message.body?.file?.metaData?.duration?.toLong() != null) {
+            tvDuration.text =
+                Tools.convertDurationMillis(chatMessage.message.body.file?.metaData?.duration!!.toLong() * 1000)
+        } else {
+            tvDuration.text = context.getString(R.string.audio_duration)
+        }
+
         val mediaPath = Tools.getMediaFile(context, chatMessage.message)
         loadMedia(
-            context,
-            mediaPath,
-            ivVideoThumbnail,
-            chatMessage.message.body?.file?.metaData?.height ?: MAX_HEIGHT
+            context = context,
+            mediaPath = mediaPath,
+            mediaImage = ivVideoThumbnail,
+            loadingImage = ivLoadingImage,
+            height = chatMessage.message.body?.file?.metaData?.height ?: MAX_HEIGHT,
+            playButton = ivPlayButton
         )
-
         ivPlayButton.setOnClickListener {
             onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
         }
