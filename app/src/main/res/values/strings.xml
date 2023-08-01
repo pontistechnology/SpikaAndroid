@@ -133,6 +133,13 @@
     <string name="new_messages">You have %s new message%s</string>
     <string name="no_messages_yet">No messages yet.</string>
     <string name="some_message">Some message</string>
+    <string name="resend_message">Resend message</string>
+
+    <!--Files - upload, cancel, resend-->
+    <string name="uploading_files">Uploading files</string>
+    <string name="upload_in_progress_notification">Upload in progress...</string>
+    <string name="resend">Resend</string>
+    <string name="cancel_upload">Are you sure you want to cancel the upload?</string>
 
     <!--Alert dialog text-->
     <string name="warning">Warning</string>

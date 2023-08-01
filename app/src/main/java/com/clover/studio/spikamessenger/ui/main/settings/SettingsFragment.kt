@@ -17,6 +17,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.databinding.FragmentSettingsBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
@@ -268,7 +269,6 @@ class SettingsFragment : BaseFragment() {
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
 
             val fileStream = Tools.copyStreamToFile(
-                requireActivity(),
                 inputStream!!,
                 activity?.contentResolver?.getType(currentPhotoLocation)!!
             )
@@ -281,13 +281,18 @@ class SettingsFragment : BaseFragment() {
             Timber.d("File upload start")
             CoroutineScope(Dispatchers.IO).launch {
                 uploadDownloadManager.uploadFile(
-                    requireActivity(),
-                    currentPhotoLocation,
-                    Const.JsonFields.AVATAR_TYPE,
-                    uploadPieces,
-                    fileStream,
-                    null,
-                    false,
+                    FileData(
+                        currentPhotoLocation,
+                        Const.JsonFields.AVATAR_TYPE,
+                        uploadPieces,
+                        fileStream,
+                        null,
+                        false,
+                        null,
+                        0,
+                        null,
+                        null
+                    ),
                     object :
                         FileUploadListener {
                         override fun filePieceUploaded() {
@@ -323,6 +328,10 @@ class SettingsFragment : BaseFragment() {
 //                                Const.UserData.AVATAR_FILE_ID to fileId
 //                            )
                             viewModel.updateUserData(jsonObject)
+                        }
+
+                        override fun fileCanceledListener(messageId: String?) {
+                            // Ignore
                         }
 
                     })

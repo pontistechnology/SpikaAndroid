@@ -34,7 +34,7 @@ class AppearanceSettings : BaseFragment() {
 
     private fun initializeViews() {
         binding.ivBack.setOnClickListener {
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         when (viewModel.getUserTheme()) {

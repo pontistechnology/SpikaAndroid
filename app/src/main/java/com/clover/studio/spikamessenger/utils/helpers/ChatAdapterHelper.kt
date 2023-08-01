@@ -1,12 +1,11 @@
 package com.clover.studio.spikamessenger.utils.helpers
 
-import android.content.ContentResolver
 import android.content.Context
-import android.net.Uri
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
@@ -28,7 +27,6 @@ import com.vanniktech.emoji.EmojiTextView
 const val MAX_REACTIONS = 3
 private const val TEXT_SIZE_BIG = 11
 private const val TEXT_SIZE_SMALL = 5
-const val MAX_WIDTH = 256
 const val MAX_HEIGHT = 300
 
 object ChatAdapterHelper {
@@ -39,9 +37,9 @@ object ChatAdapterHelper {
     fun setViewsVisibility(viewToShow: View, holder: RecyclerView.ViewHolder) {
         val viewsToHide = listOf<View>(
             holder.itemView.findViewById<TextView>(R.id.tv_message),
-            holder.itemView.findViewById<CardView>(R.id.cl_image_chat),
+            holder.itemView.findViewById<ConstraintLayout>(R.id.cl_image_chat),
             holder.itemView.findViewById<ConstraintLayout>(R.id.file_layout),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.cl_videos),
+            holder.itemView.findViewById<FrameLayout>(R.id.fl_videos),
             holder.itemView.findViewById<CardView>(R.id.cv_audio),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cl_reply_message)
         )
@@ -60,13 +58,25 @@ object ChatAdapterHelper {
      * @param mediaPath - Path of media item
      * @param imageView - ImageView where we want to load the image
      * */
-    fun loadMedia(context: Context, mediaPath: String, imageView: ImageView) {
+    fun loadMedia(context: Context, mediaPath: String, imageView: ImageView, height: Int) {
+        val maxHeight = convertToDp(context, MAX_HEIGHT)
+        val params = imageView.layoutParams
+        params.height = if (convertToDp(context, height) > maxHeight) maxHeight else convertToDp(
+            context,
+            height
+        )
+        imageView.layoutParams = params
+
         Glide.with(context)
             .load(mediaPath)
-            .override(MAX_WIDTH, MAX_HEIGHT)
             .dontTransform()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(imageView)
+    }
+
+    private fun convertToDp(context: Context, dp: Int): Int {
+        val scale = context.resources.displayMetrics.density
+        return (dp * scale + 0.5f).toInt()
     }
 
     /** A method that displays reactions
@@ -230,6 +240,7 @@ object ChatAdapterHelper {
                     context,
                     imagePath!!,
                     ivReplyImage,
+                    0
                 )
             }
             /** Audio type */
@@ -289,27 +300,25 @@ object ChatAdapterHelper {
         chatMessage: MessageAndRecords?,
         ivMessageStatus: ImageView
     ) {
-
         val message = chatMessage?.message
-        when {
-            message?.totalUserCount == 0 -> {
+
+        when (message?.messageStatus) {
+            Resource.Status.ERROR.toString() -> {
+                ivMessageStatus.setImageResource(R.drawable.img_alert)
+            }
+
+            Resource.Status.LOADING.toString() -> {
                 ivMessageStatus.setImageResource(R.drawable.img_clock)
             }
 
-            message?.totalUserCount == message?.seenCount -> {
-                ivMessageStatus.setImageResource(R.drawable.img_seen)
-            }
-
-            message?.totalUserCount == message?.deliveredCount -> {
-                ivMessageStatus.setImageResource(R.drawable.img_done)
-            }
-
-            message?.deliveredCount != null && message.deliveredCount >= 0 -> {
-                ivMessageStatus.setImageResource(R.drawable.img_sent)
-            }
-
-            message?.deliveredCount == -1 -> {
-                ivMessageStatus.setImageResource(R.drawable.img_alert)
+            Resource.Status.SUCCESS.toString(), null -> {
+                if (message?.totalUserCount == message?.seenCount) {
+                    ivMessageStatus.setImageResource(R.drawable.img_seen)
+                } else if (message?.totalUserCount == message?.deliveredCount) {
+                    ivMessageStatus.setImageResource(R.drawable.img_done)
+                } else if (message?.deliveredCount != null && message.deliveredCount >= 0) {
+                    ivMessageStatus.setImageResource(R.drawable.img_sent)
+                }
             }
         }
     }
@@ -370,10 +379,5 @@ object ChatAdapterHelper {
             holder.binding.tvUsername.visibility = View.VISIBLE
             holder.binding.ivUserImage.visibility = View.VISIBLE
         }
-    }
-
-    fun getFileMimeType(context: Context?, uri: Uri): String? {
-        val cR: ContentResolver = context!!.contentResolver
-        return cR.getType(uri)
     }
 }

@@ -9,11 +9,14 @@ import android.os.Looper
 import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
 import android.view.*
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
@@ -22,6 +25,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
@@ -36,6 +41,7 @@ import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.addFiles
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHideUserInformation
+import com.clover.studio.spikamessenger.utils.helpers.Resource
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -44,6 +50,8 @@ private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
 private var oldPosition = -1
 private var firstPlay = true
 private var playerListener: Player.Listener? = null
+
+private const val MAX_HEIGHT = 300
 
 class ChatAdapter(
     private val context: Context,
@@ -110,7 +118,13 @@ class ChatAdapter(
                 when (it.message.type) {
                     Const.JsonFields.TEXT_TYPE -> {
                         setViewsVisibility(holder.binding.tvMessage, holder)
-                        bindText(holder, holder.binding.tvMessage, it, true)
+                        bindText(
+                            holder,
+                            holder.binding.tvMessage,
+                            holder.binding.cvReactedEmoji,
+                            it,
+                            true
+                        )
                         showMessageTime(
                             it,
                             holder.binding.tvTime,
@@ -121,25 +135,38 @@ class ChatAdapter(
 
                     Const.JsonFields.IMAGE_TYPE -> {
                         setViewsVisibility(holder.binding.clImageChat, holder)
-                        bindImage(it, holder.binding.ivChatImage, holder.binding.clImageChat)
-
-                        /** Uploading image: */
-                        if (it.message.body?.file?.uri != null) {
-                            holder.binding.clProgressScreen.visibility = View.VISIBLE
-                            holder.binding.progressBar.secondaryProgress = it.message.uploadProgress
-                        } else {
-                            holder.binding.clProgressScreen.visibility = View.GONE
-                        }
+                        bindLoadingImage(
+                            it,
+                            holder.binding.flLoadingScreen,
+                            holder.binding.pbImages,
+                            holder.binding.ivCancelImage,
+                            holder.binding.ivChatImage,
+                            holder.binding.ivImageFailed,
+                            holder.binding.clContainer,
+                        )
                     }
 
                     Const.JsonFields.VIDEO_TYPE -> {
-                        setViewsVisibility(holder.binding.clVideos, holder)
-                        bindVideo(
-                            it,
-                            holder.binding.ivVideoThumbnail,
-                            holder.binding.clVideos,
-                            holder.binding.ivPlayButton
-                        )
+                        if (it.message.id < 0) {
+                            setViewsVisibility(holder.binding.clImageChat, holder)
+                            bindLoadingImage(
+                                it,
+                                holder.binding.flLoadingScreen,
+                                holder.binding.pbImages,
+                                holder.binding.ivCancelImage,
+                                holder.binding.ivChatImage,
+                                holder.binding.ivImageFailed,
+                                holder.binding.clContainer,
+                            )
+                        } else {
+                            setViewsVisibility(holder.binding.flVideos, holder)
+                            bindVideo(
+                                it,
+                                holder.binding.ivVideoThumbnail,
+                                holder.binding.ivPlayButton
+                            )
+                            holder.binding.flLoadingScreen.visibility = View.INVISIBLE
+                        }
                     }
 
                     Const.JsonFields.FILE_TYPE -> {
@@ -149,30 +176,45 @@ class ChatAdapter(
                             holder.binding.fileLayout.ivFileType,
                             it.message.body?.file?.fileName?.substringAfterLast(".")!!
                         )
+
                         /** Uploading file: */
-                        if (it.message.body.file?.id == Const.JsonFields.TEMPORARY_FILE_ID) {
-                            holder.binding.fileLayout.ivDownloadFile.visibility = View.GONE
-                            holder.binding.fileLayout.ivCancelFile.visibility = View.VISIBLE
-                            holder.binding.fileLayout.pbFile.visibility = View.VISIBLE
-                            holder.binding.fileLayout.tvFileTitle.text =
-                                it!!.message.body?.file?.fileName
-                            holder.binding.fileLayout.tvFileSize.text =
-                                Tools.calculateFileSize(it.message.body.file?.size!!)
-                            holder.binding.fileLayout.pbFile.secondaryProgress =
-                                it.message.uploadProgress
-                            holder.binding.fileLayout.ivCancelFile.setOnClickListener { _ ->
-                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
+                        holder.binding.fileLayout.apply {
+                            val fileBody = it.message.body.file
+                            tvFileTitle.text = fileBody?.fileName
+                            tvFileSize.text = Tools.calculateFileSize(fileBody?.size ?: 0)
+
+                            if (it.message.id < 0) {
+                                if (Resource.Status.LOADING.toString() == it.message.messageStatus) {
+                                    ivDownloadFile.visibility = View.GONE
+                                    ivCancelFile.visibility = View.VISIBLE
+                                    pbFile.visibility = View.VISIBLE
+                                    pbFile.secondaryProgress = it.message.uploadProgress
+
+                                    ivCancelFile.setOnClickListener { _ ->
+                                        onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
+                                    }
+                                } else {
+                                    pbFile.secondaryProgress = 0
+                                    pbFile.visibility = View.GONE
+                                    ivCancelFile.visibility = View.GONE
+                                    ivDownloadFile.visibility = View.GONE
+                                    ivUploadFailed.visibility = View.VISIBLE
+                                    ivUploadFailed.setOnClickListener { _ ->
+                                        onMessageInteraction(Const.UserActions.RESEND_MESSAGE, it)
+                                    }
+                                }
+                            } else {
+                                ivCancelFile.visibility = View.GONE
+                                pbFile.visibility = View.GONE
+                                ivUploadFailed.visibility = View.GONE
+                                clFileMessage.setBackgroundResource(R.drawable.bg_message_send)
+                                bindFile(
+                                    it,
+                                    tvFileTitle,
+                                    tvFileSize,
+                                    ivDownloadFile
+                                )
                             }
-                        } else {
-                            holder.binding.fileLayout.ivCancelFile.visibility = View.GONE
-                            holder.binding.fileLayout.pbFile.visibility = View.GONE
-                            holder.binding.fileLayout.clFileMessage.setBackgroundResource(R.drawable.bg_message_send)
-                            bindFile(
-                                it,
-                                holder.binding.fileLayout.tvFileTitle,
-                                holder.binding.fileLayout.tvFileSize,
-                                holder.binding.fileLayout.ivDownloadFile
-                            )
                         }
                     }
 
@@ -180,25 +222,38 @@ class ChatAdapter(
                         setViewsVisibility(holder.binding.cvAudio, holder)
 
                         /** Uploading audio: */
-                        if (it.message.body?.file?.id == Const.JsonFields.TEMPORARY_FILE_ID) {
-                            holder.binding.audioLayout.pbAudio.visibility = View.VISIBLE
-                            holder.binding.audioLayout.ivPlayAudio.visibility = View.GONE
-                            holder.binding.audioLayout.ivCancelAudio.visibility = View.VISIBLE
-                            holder.binding.audioLayout.ivCancelAudio.setOnClickListener { _ ->
-                                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
+                        holder.binding.audioLayout.apply {
+                            if (it.message.id < 0) {
+                                if (Resource.Status.LOADING.toString() == it.message.messageStatus) {
+                                    pbAudio.visibility = View.VISIBLE
+                                    ivPlayAudio.visibility = View.GONE
+                                    ivCancelAudio.visibility = View.VISIBLE
+                                    pbAudio.secondaryProgress = it.message.uploadProgress
+                                    ivCancelAudio.setOnClickListener { _ ->
+                                        onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
+                                    }
+                                } else {
+                                    ivCancelAudio.visibility = View.GONE
+                                    pbAudio.visibility = View.GONE
+                                    pbAudio.secondaryProgress = 0
+                                    ivPlayAudio.visibility = View.GONE
+                                    ivUploadFailed.visibility = View.VISIBLE
+                                    ivUploadFailed.setOnClickListener { _ ->
+                                        onMessageInteraction(Const.UserActions.RESEND_MESSAGE, it)
+                                    }
+                                }
+                            } else {
+                                pbAudio.visibility = View.GONE
+                                ivCancelAudio.visibility = View.GONE
+                                ivUploadFailed.visibility = View.GONE
+                                bindAudio(
+                                    holder,
+                                    it,
+                                    ivPlayAudio,
+                                    sbAudio,
+                                    tvAudioDuration
+                                )
                             }
-                            holder.binding.audioLayout.pbAudio.secondaryProgress =
-                                it.message.uploadProgress
-                        } else {
-                            holder.binding.audioLayout.pbAudio.visibility = View.GONE
-                            holder.binding.audioLayout.ivCancelAudio.visibility = View.GONE
-                            bindAudio(
-                                holder,
-                                it,
-                                holder.binding.audioLayout.ivPlayAudio,
-                                holder.binding.audioLayout.sbAudio,
-                                holder.binding.audioLayout.tvAudioDuration
-                            )
                         }
                     }
 
@@ -232,17 +287,19 @@ class ChatAdapter(
 
                 /** Show edited layout: */
                 if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.clMessageEdited.visibility = View.VISIBLE
+                    holder.binding.tvMessageEdited.visibility = View.VISIBLE
                 } else {
-                    holder.binding.clMessageEdited.visibility = View.GONE
+                    holder.binding.tvMessageEdited.visibility = View.GONE
                 }
 
                 /** Show reactions: */
-                ChatAdapterHelper.bindReactions(
-                    it,
-                    holder.binding.tvReactedEmoji,
-                    holder.binding.cvReactedEmoji
-                )
+                if (it.message.deleted != null && !it.message.deleted) {
+                    ChatAdapterHelper.bindReactions(
+                        it,
+                        holder.binding.tvReactedEmoji,
+                        holder.binding.cvReactedEmoji
+                    )
+                }
 
                 holder.binding.cvReactedEmoji.setOnClickListener { _ ->
                     onMessageInteraction.invoke(Const.UserActions.SHOW_MESSAGE_REACTIONS, it)
@@ -274,7 +331,13 @@ class ChatAdapter(
                 when (it.message.type) {
                     Const.JsonFields.TEXT_TYPE -> {
                         setViewsVisibility(holder.binding.tvMessage, holder)
-                        bindText(holder, holder.binding.tvMessage, it, false)
+                        bindText(
+                            holder,
+                            holder.binding.tvMessage,
+                            holder.binding.cvReactedEmoji,
+                            it,
+                            false
+                        )
                         holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                         showMessageTime(
                             it,
@@ -294,14 +357,12 @@ class ChatAdapter(
                     }
 
                     Const.JsonFields.VIDEO_TYPE -> {
-                        setViewsVisibility(holder.binding.clVideos, holder)
+                        setViewsVisibility(holder.binding.flVideos, holder)
                         bindVideo(
                             it,
                             holder.binding.ivVideoThumbnail,
-                            holder.binding.clVideos,
                             holder.binding.ivPlayButton
                         )
-
                     }
 
                     Const.JsonFields.FILE_TYPE -> {
@@ -361,9 +422,9 @@ class ChatAdapter(
 
                 /** Show edited layout: */
                 if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.clMessageEdited.visibility = View.VISIBLE
+                    holder.binding.tvMessageEdited.visibility = View.VISIBLE
                 } else {
-                    holder.binding.clMessageEdited.visibility = View.GONE
+                    holder.binding.tvMessageEdited.visibility = View.GONE
                 }
 
                 /** Show user names and avatars in group chat */
@@ -377,11 +438,13 @@ class ChatAdapter(
                             val userPath = roomUser.avatarFileId?.let { fileId ->
                                 Tools.getFilePathUrl(fileId)
                             }
-                            loadMedia(
-                                context,
-                                userPath!!,
-                                holder.binding.ivUserImage,
-                            )
+                            Glide.with(context)
+                                .load(userPath)
+                                .dontTransform()
+                                .placeholder(R.drawable.img_user_placeholder)
+                                .error(R.drawable.img_user_placeholder)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .into(holder.binding.ivUserImage)
                         }
                     }
                     holder.binding.ivUserImage.visibility = View.VISIBLE
@@ -389,11 +452,13 @@ class ChatAdapter(
                 }
 
                 /** Show reactions: */
-                ChatAdapterHelper.bindReactions(
-                    it,
-                    holder.binding.tvReactedEmoji,
-                    holder.binding.cvReactedEmoji
-                )
+                if (it.message.deleted != null && !it.message.deleted) {
+                    ChatAdapterHelper.bindReactions(
+                        it,
+                        holder.binding.tvReactedEmoji,
+                        holder.binding.cvReactedEmoji
+                    )
+                }
 
                 /** Send new reaction: */
                 sendReaction(it, holder.binding.clContainer, holder.absoluteAdapterPosition)
@@ -418,6 +483,7 @@ class ChatAdapter(
     private fun bindText(
         holder: ViewHolder,
         tvMessage: TextView,
+        cvReactedEmoji: CardView,
         chatMessage: MessageAndRecords,
         sender: Boolean,
     ) {
@@ -427,14 +493,12 @@ class ChatAdapter(
                     && (chatMessage.message.modifiedAt != chatMessage.message.createdAt))
         ) {
             tvMessage.text = context.getString(R.string.message_deleted_text)
-//            tvMessage.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
             tvMessage.setTextColor(ContextCompat.getColor(context, R.color.text_tertiary))
             tvMessage.background =
                 AppCompatResources.getDrawable(context, R.drawable.img_deleted_message)
+            cvReactedEmoji.visibility = View.GONE
         } else {
             tvMessage.text = chatMessage.message.body?.text
-
-
             tvMessage.background = AppCompatResources.getDrawable(
                 context,
                 if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
@@ -464,10 +528,16 @@ class ChatAdapter(
             context,
             mediaPath,
             ivChatImage,
+            chatMessage.message.body?.file?.metaData?.height ?: 256
         )
 
         clContainer.setOnClickListener {
-            onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
+            if (chatMessage.message.id > 0) {
+                onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
+            }
+            if (chatMessage.message.messageStatus == Resource.Status.ERROR.toString()) {
+                onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
+            }
         }
 
         clContainer.setOnLongClickListener {
@@ -478,10 +548,64 @@ class ChatAdapter(
         return
     }
 
+    private fun bindLoadingImage(
+        chatMessage: MessageAndRecords,
+        flProgressScreen: FrameLayout,
+        pbImages: ProgressBar,
+        ivCancelImage: ImageView,
+        ivChatImage: ImageView,
+        ivImageFailed: ImageView,
+        clContainer: ConstraintLayout
+    ) {
+        val mediaPath = Tools.getMediaFile(context, chatMessage.message)
+        loadMedia(
+            context,
+            mediaPath,
+            ivChatImage,
+            chatMessage.message.body?.file?.metaData?.height ?: MAX_HEIGHT
+        )
+        when (chatMessage.message.messageStatus) {
+            Resource.Status.LOADING.toString() -> {
+                flProgressScreen.visibility = View.VISIBLE
+                pbImages.visibility = View.VISIBLE
+                ivImageFailed.visibility = View.GONE
+                pbImages.secondaryProgress = chatMessage.message.uploadProgress
+
+                ivCancelImage.visibility = View.VISIBLE
+                ivCancelImage.setOnClickListener {
+                    onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, chatMessage)
+                }
+            }
+
+            Resource.Status.ERROR.toString() -> {
+                flProgressScreen.visibility = View.VISIBLE
+                pbImages.visibility = View.GONE
+                ivCancelImage.visibility = View.GONE
+                ivImageFailed.visibility = View.VISIBLE
+                ivImageFailed.setOnClickListener {
+                    onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
+                }
+            }
+
+            Resource.Status.SUCCESS.toString(), null -> {
+                flProgressScreen.visibility = View.GONE
+                clContainer.setOnClickListener {
+                    onMessageInteraction(
+                        Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT,
+                        chatMessage
+                    )
+                }
+                clContainer.setOnLongClickListener {
+                    onMessageInteraction(Const.UserActions.MESSAGE_ACTION, chatMessage)
+                    true
+                }
+            }
+        }
+    }
+
     private fun bindVideo(
         chatMessage: MessageAndRecords,
         ivVideoThumbnail: ImageView,
-        clVideos: ConstraintLayout,
         ivPlayButton: ImageView
     ) {
         val mediaPath = Tools.getMediaFile(context, chatMessage.message)
@@ -489,10 +613,8 @@ class ChatAdapter(
             context,
             mediaPath,
             ivVideoThumbnail,
+            chatMessage.message.body?.file?.metaData?.height ?: MAX_HEIGHT
         )
-
-        clVideos.visibility = View.VISIBLE
-        ivPlayButton.setImageResource(R.drawable.img_play)
 
         ivPlayButton.setOnClickListener {
             onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
@@ -501,22 +623,22 @@ class ChatAdapter(
 
     @SuppressLint("ClickableViewAccessibility")
     private fun bindFile(
-        it: MessageAndRecords?,
+        chatMessage: MessageAndRecords?,
         tvFileTitle: TextView,
         tvFileSize: TextView,
         ivDownloadFile: ImageView
     ) {
         ivDownloadFile.visibility = View.VISIBLE
-        tvFileTitle.text = it!!.message.body?.file?.fileName
+        tvFileTitle.text = chatMessage!!.message.body?.file?.fileName
         val sizeText =
-            Tools.calculateFileSize(it.message.body?.file?.size!!)
+            Tools.calculateFileSize(chatMessage.message.body?.file?.size!!)
         tvFileSize.text = sizeText
 
         ivDownloadFile.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 onMessageInteraction.invoke(
                     Const.UserActions.DOWNLOAD_FILE,
-                    it
+                    chatMessage
                 )
             }
             true

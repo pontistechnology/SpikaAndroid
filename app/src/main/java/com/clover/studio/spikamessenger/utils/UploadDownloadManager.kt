@@ -2,11 +2,9 @@
 
 package com.clover.studio.spikamessenger.utils
 
-import android.app.Activity
-import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
-import android.net.Uri
 import android.util.Base64
+import com.clover.studio.spikamessenger.MainApplication
+import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.UploadFile
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
@@ -14,7 +12,6 @@ import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import timber.log.Timber
 import java.io.BufferedInputStream
-import java.io.File
 import java.io.FileInputStream
 import java.util.*
 
@@ -37,103 +34,63 @@ class UploadDownloadManager constructor(
 
     /**
      * Method will handle file upload process. The caller will have to supply the required parameters
-     *
-     * @param activity The calling activity
-     * @param fileUri The Uri path value of the file being uploaded
-     * @param fileType The type of the file being uploaded, in the context of the app. (avatar, message, group avatar...)
-     * @param filePieces The number of the pieces the file has been divided to based on the maximum
      *  chunk size
-     * @param file The file that is being uploaded to the backend
+     *  @param fileData
      * @param fileUploadListener The interface listener which will notify caller about update status.
      */
     suspend fun uploadFile(
-        activity: Activity,
-        fileUri: Uri,
-        fileType: String,
-        filePieces: Int,
-        file: File,
-        messageBody: MessageBody?,
-        isThumbnail: Boolean = false,
-        fileUploadListener: FileUploadListener
+        fileData: FileData,
+        fileUploadListener: FileUploadListener,
     ) {
-        var fileMetadata: FileMetadata? = null
-        val time: Int
-        val width: Int
-        val height: Int
-        var mimeType = activity.contentResolver.getType(fileUri)!!
+        var mimeType = MainApplication.appContext.contentResolver.getType(fileData.fileUri)!!
         cancelUpload = false
 
         if (mimeType.contains(Const.JsonFields.AVI_TYPE)) {
             mimeType = Const.JsonFields.FILE_TYPE
         }
 
-        // Check mime type of file being sent. If it is a media file get metadata for image or video
-        // respectively
-        if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || isThumbnail) {
-            val options = BitmapFactory.Options()
-            options.inJustDecodeBounds = true
-            BitmapFactory.decodeFile(file.absolutePath, options)
-            height = options.outHeight
-            width = options.outWidth
-
-            fileMetadata = FileMetadata(width, height, null)
-            Timber.d("File metadata: $fileMetadata")
-        } else if (mimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
-            val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(activity, fileUri)
-            time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
-                .toInt()
-            width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
-                .toInt()
-            height =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!
-                    .toInt()
-            retriever.release()
-
-            fileMetadata = FileMetadata(width, height, time)
-            Timber.d("File metadata: $fileMetadata")
-        }
+        val fileMetadata: FileMetadata? =
+            Tools.getMetadata(fileData.fileUri, mimeType, fileData.isThumbnail)
 
         chunkCount = 0
-        BufferedInputStream(FileInputStream(file)).use { bis ->
+        cancelUpload = false
+        BufferedInputStream(FileInputStream(fileData.file)).use { bis ->
             var len: Int
             var piece = 0L
-            val temp = ByteArray(getChunkSize(file.length()))
+            val temp = ByteArray(getChunkSize(fileData.file.length()))
             val randomId = UUID.randomUUID().toString().substring(0, 7)
 
             while ((bis.read(temp).also { len = it } > 0) && !cancelUpload) {
                 val uploadFile = UploadFile(
-                    Base64.encodeToString(
+                    chunk = Base64.encodeToString(
                         temp,
                         0,
                         len,
                         0
                     ),
-                    piece,
-                    filePieces,
-                    file.length(),
-                    mimeType,
-                    file.name.toString(),
-                    randomId,
-                    Tools.sha256HashFromUri(
-                        activity,
-                        fileUri,
+                    offset = piece,
+                    total = fileData.filePieces,
+                    size = fileData.file.length(),
+                    mimeType = mimeType,
+                    fileName = fileData.file.name.toString(),
+                    clientId = randomId,
+                    fileHash = Tools.sha256HashFromUri(
+                        fileData.fileUri,
                         mimeType
                     ),
-                    fileType,
-                    fileMetadata
+                    type = fileData.fileType,
+                    metaData = fileMetadata
                 )
 
                 Timber.d("Chunk count $chunkCount")
                 startUploadAPI(
                     uploadFile,
                     mimeType,
-                    filePieces,
-                    isThumbnail,
-                    messageBody,
-                    fileUploadListener
+                    fileData.filePieces,
+                    fileData.isThumbnail,
+                    fileData.messageBody,
+                    fileUploadListener,
                 )
-
                 piece++
             }
         }
@@ -145,13 +102,13 @@ class UploadDownloadManager constructor(
         chunks: Int,
         isThumbnail: Boolean = false,
         messageBody: MessageBody?,
-        fileUploadListener: FileUploadListener
+        fileUploadListener: FileUploadListener,
     ) {
         try {
             val response = repository.uploadFiles(uploadFile.chunkToJson())
-            if (Resource.Status.ERROR == response.status) {
+            if (Resource.Status.CANCEL == response.status) {
+                fileUploadListener.fileCanceledListener(response.message)
                 cancelUpload = true
-                fileUploadListener.fileUploadError("File upload canceled")
                 return
             }
             fileUploadListener.filePieceUploaded()
@@ -222,5 +179,8 @@ interface FileUploadListener {
         fileId: Long = 0,
         fileType: String,
         messageBody: MessageBody?
+    )
+    fun fileCanceledListener(
+        messageId: String?,
     )
 }

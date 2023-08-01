@@ -17,17 +17,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentGroupInformationBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
-import com.clover.studio.spikamessenger.utils.*
+import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.EventObserver
+import com.clover.studio.spikamessenger.utils.Tools
+import com.clover.studio.spikamessenger.utils.UploadDownloadManager
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
+import com.clover.studio.spikamessenger.utils.getChunkSize
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -199,7 +204,7 @@ class GroupInformationFragment : BaseFragment() {
         }
 
         binding.ivCancel.setOnClickListener {
-            requireActivity().onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
     }
 
@@ -218,11 +223,13 @@ class GroupInformationFragment : BaseFragment() {
                     activity?.let { parent -> startChatScreenActivity(parent, roomWithUsers) }
                     findNavController().popBackStack(R.id.mainFragment, false)
                 }
+
                 Resource.Status.ERROR -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.failed_room_creation))
                     Timber.d("Failed to create room")
                 }
+
                 else -> {
                     hideProgress()
                     showRoomCreationError(getString(R.string.something_went_wrong))
@@ -231,7 +238,7 @@ class GroupInformationFragment : BaseFragment() {
             }
         })
 
-        viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
+        viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.LOADING -> {
                     if (progress <= uploadPieces) {
@@ -239,6 +246,7 @@ class GroupInformationFragment : BaseFragment() {
                         progress++
                     } else progress = 0
                 }
+
                 Resource.Status.SUCCESS -> {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
@@ -246,12 +254,14 @@ class GroupInformationFragment : BaseFragment() {
                     }
                     avatarFileId = it.responseData?.fileId
                 }
+
                 Resource.Status.ERROR -> {
                     Timber.d("Upload Error")
                     requireActivity().runOnUiThread {
                         showUploadError(it.message!!)
                     }
                 }
+
                 else -> Toast.makeText(
                     requireContext(),
                     getString(R.string.something_went_wrong),
@@ -295,7 +305,6 @@ class GroupInformationFragment : BaseFragment() {
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
 
             val fileStream = Tools.copyStreamToFile(
-                requireActivity(),
                 inputStream!!,
                 activity?.contentResolver?.getType(currentPhotoLocation)!!
             )
@@ -307,13 +316,18 @@ class GroupInformationFragment : BaseFragment() {
             binding.progressBar.max = uploadPieces
             Timber.d("File upload start")
             viewModel.uploadMedia(
-                requireActivity(),
-                currentPhotoLocation,
-                Const.JsonFields.AVATAR_TYPE,
-                uploadPieces,
-                fileStream,
-                null,
-                false
+                FileData(
+                    currentPhotoLocation,
+                    Const.JsonFields.AVATAR_TYPE,
+                    uploadPieces,
+                    fileStream,
+                    null,
+                    false,
+                    null,
+                    0,
+                    null,
+                    null
+                )
             )
             binding.clProgressScreen.visibility = View.VISIBLE
         }

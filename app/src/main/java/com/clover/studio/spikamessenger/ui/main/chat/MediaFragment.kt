@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -66,37 +65,35 @@ class MediaFragment : BaseFragment() {
         binding.tvMediaInfo.text = mediaInfo
     }
 
-    private fun initializeListeners() {
-        binding.ivBackToChat.setOnClickListener {
-            val action = MediaFragmentDirections.actionVideoFragmentToChatMessagesFragment()
-            findNavController().navigate(action)
+    private fun initializeListeners() = with(binding) {
+        ivBackToChat.setOnClickListener {
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        // This is listener for zoom on image and for showing/removing top layout
-        binding.ivFullImage.setOnClickListener {
+        ivFullImage.setOnClickListener {
             showBar()
         }
 
-        binding.clMedia.setOnClickListener {
+        clMedia.setOnClickListener {
             showBar()
         }
 
-        binding.vvVideo.setOnClickListener {
+        vvVideo.setOnClickListener {
             showBar()
         }
     }
 
-    private fun showBar() {
+    private fun showBar() = with(binding) {
         val showBars =
-            binding.clTopBar.visibility == View.GONE && binding.flBottomBar.visibility == View.GONE
-        binding.clTopBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION)
+            clTopBar.visibility == View.GONE && flBottomBar.visibility == View.GONE
+        clTopBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION)
             .withEndAction {
-                binding.clTopBar.visibility = if (showBars) View.VISIBLE else View.GONE
+                clTopBar.visibility = if (showBars) View.VISIBLE else View.GONE
             }.start()
 
-        binding.flBottomBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION)
+        flBottomBar.animate().alpha(if (showBars) 1f else 0f).setDuration(BAR_ANIMATION)
             .withEndAction {
-                binding.flBottomBar.visibility = if (showBars) View.VISIBLE else View.GONE
+                flBottomBar.visibility = if (showBars) View.VISIBLE else View.GONE
             }.start()
     }
 

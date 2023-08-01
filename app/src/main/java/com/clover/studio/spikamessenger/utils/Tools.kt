@@ -17,6 +17,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.text.TextUtils
@@ -32,11 +33,13 @@ import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.data.AppDatabase
+import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
+import com.clover.studio.spikamessenger.utils.helpers.Resource
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -125,7 +128,6 @@ object Tools {
     }
 
     fun copyStreamToFile(
-        activity: Activity,
         inputStream: InputStream,
         extension: String,
         fileName: String = ""
@@ -135,7 +137,7 @@ object Tools {
             tempFileName =
                 "tempFile${System.currentTimeMillis()}.${extension.substringAfterLast("/")}"
         }
-        val outputFile = File(activity.cacheDir, tempFileName)
+        val outputFile = File(MainApplication.appContext.cacheDir, tempFileName)
         inputStream.use { input ->
             val outputStream = FileOutputStream(outputFile)
             outputStream.use { output ->
@@ -292,15 +294,16 @@ object Tools {
     }
 
     fun sha256HashFromUri(
-        activity: Activity,
         currentPhotoLocation: Uri,
         extension: String
     ): String {
         val sha256FileHash: String?
         val inputStream =
-            activity.contentResolver.openInputStream(currentPhotoLocation)
+            MainApplication.appContext.contentResolver.openInputStream(currentPhotoLocation)
         sha256FileHash =
-            calculateSHA256FileHash(copyStreamToFile(activity, inputStream!!, extension))
+            calculateSHA256FileHash(copyStreamToFile(inputStream!!, extension))
+
+        inputStream.close()
 
         return sha256FileHash
     }
@@ -382,7 +385,9 @@ object Tools {
             null,
             null,
             null,
-            generateRandomId()
+            generateRandomId(),
+            Resource.Status.LOADING.toString(),
+            null
         )
     }
 
@@ -565,41 +570,6 @@ object Tools {
 
     }
 
-    fun saveMediaToStorage(
-        context: Context,
-        contentResolver: ContentResolver,
-        mediaUri: Uri,
-        id: String?
-    ): String? {
-        val inputStream = contentResolver.openInputStream(mediaUri)
-        var outputStream: OutputStream? = null
-        var imagePath: String? = null
-
-        try {
-            val tempFile = File(
-                context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                "$id.${Const.FileExtensions.JPG}"
-            )
-            outputStream = FileOutputStream(tempFile)
-
-            // Simple compression
-            val bitmap = BitmapFactory.decodeStream(inputStream)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-
-            //inputStream?.copyTo(outputStream)
-            imagePath = tempFile.absolutePath
-
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
-            inputStream?.close()
-            outputStream?.close()
-        }
-
-        return imagePath
-    }
-
     fun getMediaFile(context: Context, message: Message): String {
         val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
@@ -626,6 +596,52 @@ object Tools {
         }
     }
 
+    fun getMetadata(
+        mediaUri: Uri,
+        mimeType: String,
+        isThumbnail: Boolean
+    ): FileMetadata? {
+        var fileMetadata: FileMetadata? = null
+
+        val height: Int
+        val width: Int
+        val time: Int
+
+        val inputStream = MainApplication.appContext.contentResolver.openInputStream(mediaUri)
+
+        val fileStream = copyStreamToFile(
+            inputStream = inputStream!!,
+            getFileMimeType(MainApplication.appContext, mediaUri)!!
+        )
+
+        if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || isThumbnail) {
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            BitmapFactory.decodeFile(fileStream.absolutePath, options)
+            height = options.outHeight
+            width = options.outWidth
+
+            fileMetadata = FileMetadata(width, height, 0)
+            Timber.d("File metadata: $fileMetadata")
+        } else if (mimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(MainApplication.appContext, mediaUri)
+            time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
+                .toInt()
+            width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
+                .toInt()
+            height =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!
+                    .toInt()
+            retriever.release()
+
+            fileMetadata = FileMetadata(width, height, time)
+            Timber.d("File metadata: $fileMetadata")
+        }
+        inputStream.close()
+        return fileMetadata
+    }
+
     fun openTermsAndConditions(activity: Activity) {
         val uri =
             Uri.parse(Const.Urls.TERMS_AND_CONDITIONS)
@@ -634,13 +650,41 @@ object Tools {
         activity.startActivity(intent)
     }
 
-    suspend fun clearUserData(activity: Activity) {
+    fun clearUserData(activity: Activity) {
         val sharedPrefs = SharedPreferencesRepositoryImpl(MainApplication.appContext)
         sharedPrefs.clearSharedPrefs()
         AppDatabase.nukeDb()
         deleteTemporaryMedia(MainApplication.appContext)
         startOnboardingActivity(activity, false)
     }
+
+    fun getFileNameFromUri(uri: Uri): String {
+        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
+        val cursor =
+            MainApplication.appContext.contentResolver.query(uri, projection, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                return it.getString(0)
+            }
+        }
+        return ""
+    }
+
+    fun getFileType(uri: Uri): String {
+        val mimeType = getFileMimeType(MainApplication.appContext, uri)
+
+        return when {
+            mimeType?.contains(Const.JsonFields.SVG_TYPE) == true -> Const.JsonFields.FILE_TYPE
+            mimeType?.contains(Const.JsonFields.AVI_TYPE) == true -> Const.JsonFields.FILE_TYPE
+            mimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true -> Const.JsonFields.IMAGE_TYPE
+            mimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true -> Const.JsonFields.VIDEO_TYPE
+            mimeType?.contains(Const.JsonFields.AUDIO_TYPE) == true -> Const.JsonFields.AUDIO_TYPE
+            else -> Const.JsonFields.FILE_TYPE
+        }
+    }
+
+    fun getFileMimeType(context: Context?, uri: Uri): String? {
+        val cR: ContentResolver = context!!.contentResolver
+        return cR.getType(uri)
+    }
 }
-
-

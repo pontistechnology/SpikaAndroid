@@ -7,7 +7,8 @@
     android:clickable="true"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    tools:context=".ui.main.rooms.RoomsFragment">
+    tools:context=".ui.main.rooms.RoomsFragment"
+    tools:ignore="contentDescription">
 
     <TextView
         android:id="@+id/tv_screen_name"
@@ -17,7 +18,7 @@
         android:layout_marginTop="@dimen/eight_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/chat"
-        android:textFontWeight="@string/six_hundred"
+        android:textStyle="bold"
         android:textSize="@dimen/twenty_eight_sp_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/eight_dp_margin"
-        android:src="@drawable/img_create_chat"
+        android:src="@drawable/img_add"
         app:layout_constraintBottom_toBottomOf="@id/tv_screen_name"
         app:layout_constraintEnd_toEndOf="@+id/sv_rooms_search"
         app:layout_constraintTop_toTopOf="@id/tv_screen_name" />
@@ -50,7 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/montserrat"
-        android:textFontWeight="@string/six_hundred"
+        android:textStyle="bold"
         android:text="@string/no_chats_yet"
         android:textColor="@color/text_tertiary"
         android:textSize="@dimen/sixteen_sp_text"
