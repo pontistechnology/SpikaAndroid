@@ -107,9 +107,6 @@ class ChatAdapter(
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 holder as SentMessageHolder
 
-                // The line below sets each adapter item to be unique (uses more memory)
-                // holder.setIsRecyclable(false)
-
                 if (playerListener != null) {
                     playerListener = null
                 }
@@ -122,31 +119,31 @@ class ChatAdapter(
                     Const.JsonFields.TEXT_TYPE -> {
                         setViewsVisibility(holder.binding.tvMessage, holder)
                         bindText(
-                            holder,
-                            holder.binding.tvMessage,
-                            holder.binding.cvReactedEmoji,
-                            it,
-                            true
+                            holder = holder,
+                            tvMessage = holder.binding.tvMessage,
+                            cvReactedEmoji = holder.binding.cvReactedEmoji,
+                            chatMessage = it,
+                            sender = true
                         )
                         showMessageTime(
-                            it,
-                            holder.binding.tvTime,
-                            holder.binding.tvMessage,
-                            calendar
+                            message = it,
+                            tvTime = holder.binding.tvTime,
+                            tvMessage = holder.binding.tvMessage,
+                            calendar = calendar
                         )
                     }
 
                     Const.JsonFields.IMAGE_TYPE -> {
                         setViewsVisibility(holder.binding.clImageChat, holder)
                         bindLoadingImage(
-                            it,
-                            holder.binding.flLoadingScreen,
-                            holder.binding.pbImages,
-                            holder.binding.ivCancelImage,
-                            holder.binding.ivChatImage,
-                            holder.binding.ivImageFailed,
-                            holder.binding.ivMediaLoading,
-                            holder.binding.clContainer,
+                            chatMessage = it,
+                            flProgressScreen = holder.binding.flLoadingScreen,
+                            pbImages = holder.binding.pbImages,
+                            ivCancelImage = holder.binding.ivCancelImage,
+                            ivChatImage = holder.binding.ivChatImage,
+                            ivImageFailed = holder.binding.ivImageFailed,
+                            ivLoadingImage = holder.binding.ivMediaLoading,
+                            clContainer = holder.binding.clContainer,
                         )
                     }
 
@@ -154,14 +151,14 @@ class ChatAdapter(
                         if (it.message.id < 0) {
                             setViewsVisibility(holder.binding.clImageChat, holder)
                             bindLoadingImage(
-                                it,
-                                holder.binding.flLoadingScreen,
-                                holder.binding.pbImages,
-                                holder.binding.ivCancelImage,
-                                holder.binding.ivChatImage,
-                                holder.binding.ivImageFailed,
-                                holder.binding.ivMediaLoading,
-                                holder.binding.clContainer,
+                                chatMessage = it,
+                                flProgressScreen = holder.binding.flLoadingScreen,
+                                pbImages = holder.binding.pbImages,
+                                ivCancelImage = holder.binding.ivCancelImage,
+                                ivChatImage = holder.binding.ivChatImage,
+                                ivImageFailed = holder.binding.ivImageFailed,
+                                ivLoadingImage = holder.binding.ivMediaLoading,
+                                clContainer = holder.binding.clContainer,
                             )
                         } else {
                             with(holder.binding.videoLayout) {
@@ -447,24 +444,25 @@ class ChatAdapter(
                 if (Const.JsonFields.PRIVATE == roomType) {
                     holder.binding.ivUserImage.visibility = View.GONE
                     holder.binding.tvUsername.visibility = View.GONE
-                } else {
-                    for (roomUser in users) {
-                        if (it.message.fromUserId == roomUser.id) {
-                            holder.binding.tvUsername.text = roomUser.formattedDisplayName
-                            val userPath = roomUser.avatarFileId?.let { fileId ->
-                                Tools.getFilePathUrl(fileId)
-                            }
-                            Glide.with(context)
-                                .load(userPath)
-                                .dontTransform()
-                                .placeholder(R.drawable.img_user_placeholder)
-                                .error(R.drawable.img_user_placeholder)
-                                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                .into(holder.binding.ivUserImage)
+                }
+                else{
+                    val roomUser = users.find { user -> user.id == it.message.fromUserId }
+                    if (roomUser != null) {
+                        holder.binding.tvUsername.text = roomUser.formattedDisplayName
+                        val userPath = roomUser.avatarFileId?.let { fileId ->
+                            Tools.getFilePathUrl(fileId)
                         }
+                        Glide.with(context)
+                            .load(userPath)
+                            .dontTransform()
+                            .placeholder(R.drawable.img_user_placeholder)
+                            .error(R.drawable.img_user_placeholder)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .into(holder.binding.ivUserImage)
+
+                        holder.binding.ivUserImage.visibility = View.VISIBLE
+                        holder.binding.tvUsername.visibility = View.VISIBLE
                     }
-                    holder.binding.ivUserImage.visibility = View.VISIBLE
-                    holder.binding.tvUsername.visibility = View.VISIBLE
                 }
 
                 /** Show reactions: */
