@@ -2,7 +2,6 @@ package com.clover.studio.spikamessenger.ui.onboarding.number_registration
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,13 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.FragmentRegisterNumberBinding
 import com.clover.studio.spikamessenger.ui.onboarding.OnboardingViewModel
+import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
@@ -26,7 +25,6 @@ import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.Resource
-import com.clover.studio.spikamessenger.utils.permissions
 import com.google.gson.JsonObject
 import timber.log.Timber
 
@@ -233,35 +231,25 @@ class RegisterNumberFragment : BaseFragment() {
     }
 
     private fun checkMultiplePermissions() {
+        val permissionsToRequest = AppPermissions.requestPermissions(requireActivity())
+
         multiplePermissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-                if (it.isNotEmpty()) {
-                    for (permission in it) {
-                        if (permission.key == Manifest.permission.READ_CONTACTS) {
-                            if (permission.value) {
-                                Timber.d("Fetching all user contacts")
-                                fetchAllUserContacts()
-                                break
-                            } else Timber.d("Couldn't send contacts. No permission granted.")
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionsMap ->
+                if (permissionsMap.isNotEmpty()) {
+                    if (permissionsMap[Manifest.permission.READ_CONTACTS] == true) {
+                        if (!viewModel.areUsersFetched()) {
+                            fetchAllUserContacts()
                         }
+                    } else {
+                        Timber.d("Couldn't fetch contacts or access storage or post notifications. Permissions not granted.")
                     }
                 }
             }
 
-        if (context?.let {
-                ContextCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.READ_CONTACTS
-                )
-            } == PackageManager.PERMISSION_GRANTED) {
-            if (!viewModel.areUsersFetched()) {
-                fetchAllUserContacts()
-            }
-        } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) || shouldShowRequestPermissionRationale(
-                Manifest.permission.POST_NOTIFICATIONS
-            )
-        ) {
-            // TODO show why permission is needed
-        } else multiplePermissionLauncher.launch(permissions.toTypedArray())
+        if (permissionsToRequest.isNotEmpty()) {
+            multiplePermissionLauncher.launch(permissionsToRequest.toTypedArray())
+        } else {
+            fetchAllUserContacts()
+        }
     }
 }

@@ -1,12 +1,11 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
-import android.app.Activity
-import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
+import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
@@ -33,7 +32,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,21 +39,20 @@ class ChatViewModel @Inject constructor(
     private val repository: ChatRepositoryImpl,
     private val mainRepository: MainRepositoryImpl,
     private val sharedPrefs: SharedPreferencesRepository,
-    private val sseManager: SSEManager,
+    sseManager: SSEManager,
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel(), SSEListener {
     val messageSendListener = MutableLiveData<Event<Resource<MessageResponse?>>>()
     val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
-    val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val noteDeletionListener = MutableLiveData<Event<NoteDeletion>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val newMessageReceivedListener = MutableLiveData<Message?>()
     val roomInfoUpdated = MutableLiveData<Event<Resource<RoomResponse?>>>()
     private val liveDataLimit = MutableLiveData(20)
-    val mediaPosition = MutableLiveData<Pair<Int, Int>>()
+    val messagesReceived = MutableLiveData<List<Message>>()
 
     init {
         sseManager.setupListener(this)
@@ -76,13 +73,35 @@ class ChatViewModel @Inject constructor(
 
     override fun newMessageReceived(message: Message) {
         viewModelScope.launch {
-            newMessageReceivedListener.postValue(message)
             updateCounterLimit()
+            val currentMessages = messagesReceived.value?.toMutableList() ?: mutableListOf()
+            val isMessageNew = currentMessages.none { it.id == message.id }
+
+            if (isMessageNew) {
+                currentMessages.add(message)
+                messagesReceived.value = currentMessages
+            }
+            Timber.d("Messages received: $messagesReceived")
         }
     }
 
-    fun sendMessage(jsonObject: JsonObject) = viewModelScope.launch {
-        resolveResponseStatus(messageSendListener, repository.sendMessage(jsonObject))
+    fun clearMessages() {
+        viewModelScope.launch {
+            messagesReceived.value = emptyList()
+            Timber.d("Messages received cleared: ${messagesReceived.value}")
+        }
+    }
+
+    fun sendMessage(jsonObject: JsonObject, localId: String) = viewModelScope.launch {
+        val response = repository.sendMessage(jsonObject)
+        if (response.status == Resource.Status.SUCCESS) {
+            resolveResponseStatus(messageSendListener, response)
+        } else {
+            updateMessages(
+                Resource.Status.ERROR.toString(),
+                localId
+            )
+        }
     }
 
     fun getLocalUserId(): Int? {
@@ -224,6 +243,18 @@ class ChatViewModel @Inject constructor(
         repository.deleteMessage(messageId, target)
     }
 
+    fun updateMessages(messageStatus: String, localId: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.updateMessageStatus(messageStatus, localId)
+        }
+    }
+
+    fun updateLocalUri(localId: String, uri: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.updateLocalUri(localId, uri)
+        }
+    }
+
     fun editMessage(messageId: Int, jsonObject: JsonObject) =
         CoroutineScope(Dispatchers.IO).launch {
             repository.editMessage(messageId, jsonObject)
@@ -288,32 +319,18 @@ class ChatViewModel @Inject constructor(
         mainRepository.updateUnreadCount(roomId)
     }
 
-    fun startUploadFile() = viewModelScope.launch {
-        mainRepository.startUpload()
-    }
 
-    fun cancelUploadFile() = viewModelScope.launch {
-        mainRepository.cancelUpload()
+    fun cancelUploadFile(messageId: String) = viewModelScope.launch {
+        mainRepository.cancelUpload(messageId)
     }
 
     fun uploadFile(
-        activity: Activity,
-        uri: Uri,
-        uploadPieces: Int,
-        fileStream: File,
-        type: String,
-        messageBody: MessageBody?
+        fileData: FileData
     ) =
         viewModelScope.launch {
             try {
                 uploadDownloadManager.uploadFile(
-                    activity,
-                    uri,
-                    type,
-                    uploadPieces,
-                    fileStream,
-                    messageBody,
-                    false,
+                    fileData,
                     object : FileUploadListener {
                         override fun filePieceUploaded() {
                             resolveResponseStatus(
@@ -344,12 +361,17 @@ class ChatViewModel @Inject constructor(
                                     thumbId,
                                     fileId,
                                     fileType,
-                                    messageBody
+                                    messageBody,
+                                    false
                                 )
                             resolveResponseStatus(
                                 fileUploadListener,
                                 Resource(Resource.Status.SUCCESS, response, "")
                             )
+                        }
+
+                        override fun fileCanceledListener(messageId: String?) {
+                            // Ignore
                         }
                     })
             } catch (ex: Exception) {
@@ -359,84 +381,11 @@ class ChatViewModel @Inject constructor(
                 )
             }
         }
-
-    fun uploadMedia(
-        activity: Activity,
-        uri: Uri,
-        fileType: String,
-        uploadPieces: Int,
-        fileStream: File,
-        messageBody: MessageBody?,
-        isThumbnail: Boolean
-    ) = viewModelScope.launch {
-        try {
-            uploadDownloadManager.uploadFile(
-                activity,
-                uri,
-                fileType,
-                uploadPieces,
-                fileStream,
-                messageBody,
-                isThumbnail,
-                object : FileUploadListener {
-                    override fun filePieceUploaded() {
-                        resolveResponseStatus(
-                            mediaUploadListener,
-                            Resource(Resource.Status.LOADING, null, isThumbnail.toString())
-                        )
-                    }
-
-                    override fun fileUploadError(description: String) {
-                        resolveResponseStatus(
-                            mediaUploadListener,
-                            Resource(Resource.Status.ERROR, null, description)
-                        )
-                    }
-
-                    override fun fileUploadVerified(
-                        path: String,
-                        mimeType: String,
-                        thumbId: Long,
-                        fileId: Long,
-                        fileType: String,
-                        messageBody: MessageBody?
-                    ) {
-                        val response = MediaUploadVerified(
-                            path,
-                            mimeType,
-                            thumbId,
-                            fileId,
-                            fileType,
-                            messageBody,
-                            isThumbnail
-                        )
-                        resolveResponseStatus(
-                            mediaUploadListener,
-                            Resource(Resource.Status.SUCCESS, response, "")
-                        )
-                    }
-                })
-        } catch (ex: Exception) {
-            resolveResponseStatus(
-                mediaUploadListener,
-                Resource(Resource.Status.ERROR, null, ex.message.toString())
-            )
-        }
-    }
 }
 
 class RoomNotificationData(val response: Resource<RoomWithUsers>, val message: Message)
 class NoteDeletion(val response: Resource<NotesResponse>)
 class FileUploadVerified(
-    val path: String,
-    val mimeType: String,
-    val thumbId: Long,
-    val fileId: Long,
-    val fileType: String,
-    val messageBody: MessageBody?
-)
-
-class MediaUploadVerified(
     val path: String,
     val mimeType: String,
     val thumbId: Long,

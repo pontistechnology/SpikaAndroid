@@ -76,7 +76,7 @@ class PrivacySettingsFragment : BaseFragment() {
 
     private fun initializeViews() {
         binding.ivBack.setOnClickListener {
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         binding.clBlockedUsers.setOnClickListener {

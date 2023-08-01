@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
@@ -406,7 +407,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        viewModel.mediaUploadListener.observe(viewLifecycleOwner, EventObserver {
+        viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.LOADING -> {
                     if (progress <= uploadPieces) {
@@ -554,7 +555,6 @@ class ChatDetailsFragment : BaseFragment() {
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
 
             val fileStream = Tools.copyStreamToFile(
-                requireActivity(),
                 inputStream!!,
                 activity?.contentResolver?.getType(currentPhotoLocation)!!
             )
@@ -566,14 +566,19 @@ class ChatDetailsFragment : BaseFragment() {
             binding.progressBar.max = uploadPieces
             Timber.d("File upload start")
             isUploading = true
-            viewModel.uploadMedia(
-                requireActivity(),
-                currentPhotoLocation,
-                Const.JsonFields.AVATAR_TYPE,
-                uploadPieces,
-                fileStream,
-                null,
-                false
+            viewModel.uploadFile(
+                FileData(
+                    currentPhotoLocation,
+                    Const.JsonFields.AVATAR_TYPE,
+                    uploadPieces,
+                    fileStream,
+                    null,
+                    false,
+                    null,
+                    roomWithUsers.room.roomId,
+                    null,
+                    null
+                )
             )
             binding.flProgressScreen.visibility = View.VISIBLE
         }

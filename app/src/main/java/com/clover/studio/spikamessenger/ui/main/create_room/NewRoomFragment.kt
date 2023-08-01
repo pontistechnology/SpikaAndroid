@@ -93,7 +93,7 @@ class NewRoomFragment : BaseFragment() {
         }
 
         binding.ivCancel.setOnClickListener {
-            requireActivity().onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         binding.tvNewGroupChat.setOnClickListener {

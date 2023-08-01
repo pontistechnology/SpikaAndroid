@@ -1,11 +1,10 @@
 package com.clover.studio.spikamessenger.ui.main
 
-import android.app.Activity
-import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
+import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
@@ -18,7 +17,7 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.RoomRes
 import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SSERepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
-import com.clover.studio.spikamessenger.ui.main.chat.MediaUploadVerified
+import com.clover.studio.spikamessenger.ui.main.chat.FileUploadVerified
 import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.SSEListener
@@ -34,7 +33,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -52,7 +50,7 @@ class MainViewModel @Inject constructor(
     val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
-    val mediaUploadListener = MutableLiveData<Event<Resource<MediaUploadVerified?>>>()
+    val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
     val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
     val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
     val deleteUserListener = MutableLiveData<Event<Resource<DeleteUserResponse?>>>()
@@ -227,34 +225,22 @@ class MainViewModel @Inject constructor(
     }
 
     fun uploadMedia(
-        activity: Activity,
-        uri: Uri,
-        fileType: String,
-        uploadPieces: Int,
-        fileStream: File,
-        messageBody: MessageBody?,
-        isThumbnail: Boolean
+        fileData: FileData
     ) = viewModelScope.launch {
         try {
             uploadDownloadManager.uploadFile(
-                activity,
-                uri,
-                fileType,
-                uploadPieces,
-                fileStream,
-                messageBody,
-                isThumbnail,
+                fileData,
                 object : FileUploadListener {
                     override fun filePieceUploaded() {
                         resolveResponseStatus(
-                            mediaUploadListener,
-                            Resource(Resource.Status.LOADING, null, "")
+                            fileUploadListener,
+                            Resource(Resource.Status.LOADING, null, fileData.isThumbnail.toString())
                         )
                     }
 
                     override fun fileUploadError(description: String) {
                         resolveResponseStatus(
-                            mediaUploadListener,
+                            fileUploadListener,
                             Resource(Resource.Status.ERROR, null, description)
                         )
                     }
@@ -267,24 +253,27 @@ class MainViewModel @Inject constructor(
                         fileType: String,
                         messageBody: MessageBody?
                     ) {
-                        val response = MediaUploadVerified(
+                        val response = FileUploadVerified(
                             path,
                             mimeType,
                             thumbId,
                             fileId,
                             fileType,
                             messageBody,
-                            isThumbnail
+                            fileData.isThumbnail
                         )
                         resolveResponseStatus(
-                            mediaUploadListener,
+                            fileUploadListener,
                             Resource(Resource.Status.SUCCESS, response, "")
                         )
+                    }
+                    override fun fileCanceledListener(messageId: String?) {
+
                     }
                 })
         } catch (ex: Exception) {
             resolveResponseStatus(
-                mediaUploadListener,
+                fileUploadListener,
                 Resource(Resource.Status.ERROR, null, ex.message.toString())
             )
         }
