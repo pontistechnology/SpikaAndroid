@@ -45,7 +45,7 @@ class NotesFragment : BaseFragment() {
 
     private fun initializeViews() {
         binding.ivBack.setOnClickListener {
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         binding.ivNewNote.setOnClickListener {

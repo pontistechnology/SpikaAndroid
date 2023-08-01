@@ -8,6 +8,7 @@ data class Resource<out T>(val status: Status, val responseData: T?, val message
         LOADING,
         TOKEN_EXPIRED,
         NEW_USER,
+        CANCEL,
     }
 
     companion object {

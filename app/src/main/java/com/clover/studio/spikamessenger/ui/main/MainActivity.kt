@@ -18,6 +18,7 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.ActivityMainBinding
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
+import com.clover.studio.spikamessenger.utils.AppPermissions.notificationPermission
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
@@ -26,7 +27,6 @@ import com.clover.studio.spikamessenger.utils.extendables.BaseActivity
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.PhonebookService
 import com.clover.studio.spikamessenger.utils.helpers.Resource
-import com.clover.studio.spikamessenger.utils.notificationPermission
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.JsonObject

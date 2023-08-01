@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.navigation.fragment.NavHostFragment
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.ActivityChatScreenBinding
@@ -218,21 +217,6 @@ class ChatScreenActivity : BaseActivity() {
                     })
             }
         })
-    }
-
-    override fun onBackPressed() {
-        val fragment =
-            this.supportFragmentManager.findFragmentById(R.id.main_chat_container) as? NavHostFragment
-        val currentFragment =
-            fragment?.childFragmentManager?.fragments?.get(0) as? ChatOnBackPressed
-
-        // Check why this returns null if upload is not in progress
-        currentFragment?.onBackPressed()?.takeIf { !it }.let {
-            Timber.d("Boolean: $it")
-            if (it == null) {
-                super.onBackPressed()
-            }
-        }
     }
 
     override fun onStart() {

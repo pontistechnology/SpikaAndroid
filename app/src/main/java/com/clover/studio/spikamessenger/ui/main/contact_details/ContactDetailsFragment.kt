@@ -238,11 +238,11 @@ class ContactDetailsFragment : BaseFragment() {
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(ivPickAvatar)
-            clProgressScreen.visibility = View.GONE
+            flProgressScreen.visibility = View.GONE
         }
 
         ivBack.setOnClickListener {
-            requireActivity().onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         tvBlocked.setOnClickListener {

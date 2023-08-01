@@ -8,6 +8,7 @@ import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import timber.log.Timber
 
 open class BaseViewModel : ViewModel() {
 
@@ -47,6 +48,7 @@ open class BaseViewModel : ViewModel() {
             Resource.Status.NEW_USER -> {
                 mutableLiveData?.postValue(Event(resource))
             }
+            else -> Timber.d("Error in BaseViewModel while resolving response status")
         }
     }
 }

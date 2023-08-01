@@ -18,6 +18,12 @@ class Const {
         }
     }
 
+    class Service {
+        companion object {
+            const val UPLOAD_SERVICE_ID = 1111
+        }
+    }
+
     class Time {
         companion object {
             const val DAY = 24 * 60 * 60
@@ -45,6 +51,7 @@ class Const {
     class IntentExtras {
         companion object {
             const val ROOM_ID_EXTRA = "room_id_extra"
+            const val FILES_EXTRA = "files"
         }
     }
 

@@ -72,6 +72,12 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "local_id")
     val localId: String?,
 
+    @ColumnInfo("message_status")
+    var messageStatus: String?,
+
+    @ColumnInfo("uri")
+    var originalUri: String?,
+
     @Ignore
     val unreadCount: Int = 0,
 
@@ -140,6 +146,6 @@ data class MessageFile(
     val fileName: String,
     val mimeType: String,
     val size: Long,
-    val metadata: FileMetadata?,
+    val metaData: FileMetadata?,
     val uri: String?
 ) : Parcelable
