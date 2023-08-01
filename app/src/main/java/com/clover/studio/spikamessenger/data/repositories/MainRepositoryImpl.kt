@@ -235,7 +235,6 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getSearchMessages(query) }
         )
 
-
     override suspend fun verifyFile(jsonObject: JsonObject) =
         performRestOperation(
             networkCall = { mainRemoteDataSource.verifyFile(jsonObject) },

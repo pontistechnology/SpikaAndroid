@@ -36,7 +36,7 @@
         <activity
             android:name="com.clover.studio.spikamessenger.ui.splash.SplashActivity"
             android:exported="true"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
