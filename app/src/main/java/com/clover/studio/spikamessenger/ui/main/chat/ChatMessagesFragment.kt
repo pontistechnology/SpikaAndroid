@@ -1278,12 +1278,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.etMessage.addTextChangedListener {
             if (isEditing) {
                 if (!originalText.equals(it)) {
-                    // Show save button
                     bindingSetup.tvSave.visibility = View.VISIBLE
                     bindingSetup.ivCamera.visibility = View.INVISIBLE
                     bindingSetup.ivMicrophone.visibility = View.INVISIBLE
                 } else {
-                    // Hide save button
                     bindingSetup.tvSave.visibility = View.GONE
                     bindingSetup.ivCamera.visibility = View.VISIBLE
                     bindingSetup.ivMicrophone.visibility = View.VISIBLE
