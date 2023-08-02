@@ -118,13 +118,6 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        val MIGRATION_4_5: Migration = object : Migration(4, 5) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN message_status TEXT")
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN uri TEXT")
-            }
-        }
-
         /* Database migration from version 2 to 3.
             This part is commented out until we decide to migrate the database. Until then, we'll be
             adding new changes to the database in the comments
