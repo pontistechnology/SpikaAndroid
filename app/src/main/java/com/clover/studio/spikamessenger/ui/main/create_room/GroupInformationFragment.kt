@@ -20,7 +20,6 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
-import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentGroupInformationBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
@@ -218,9 +217,12 @@ class GroupInformationFragment : BaseFragment() {
                         roomUser.user?.let { user -> users.add(user) }
                     }
 
-                    val roomWithUsers = RoomWithUsers(it.responseData.data.room, users)
-                    Timber.d("Room with users: $roomWithUsers")
-                    activity?.let { parent -> startChatScreenActivity(parent, roomWithUsers) }
+                    activity?.let { parent ->
+                        startChatScreenActivity(
+                            parent,
+                            it.responseData.data.room.roomId
+                        )
+                    }
                     findNavController().popBackStack(R.id.mainFragment, false)
                 }
 

@@ -4,26 +4,31 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.R
-import com.clover.studio.spikamessenger.data.models.entity.RoomWithLatestMessage
+import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.databinding.FragmentChatBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
+import com.clover.studio.spikamessenger.ui.main.rooms.search.SearchAdapter
 import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
+import com.clover.studio.spikamessenger.utils.helpers.Resource
 import timber.log.Timber
 
 class RoomsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var roomsAdapter: RoomsAdapter
-    private var roomList: MutableList<RoomWithLatestMessage> = mutableListOf()
-    private var filteredList: MutableList<RoomWithLatestMessage> = ArrayList()
-    private var sortedList: MutableList<RoomWithLatestMessage> = ArrayList()
+    private lateinit var searchAdapter: SearchAdapter
+    private var roomList: MutableList<RoomWithMessage> = mutableListOf()
+    private var filteredList: MutableList<RoomWithMessage> = ArrayList()
+    private var sortedList: MutableList<RoomWithMessage> = ArrayList()
     private var bindingSetup: FragmentChatBinding? = null
 
     private var userSearching = false
@@ -37,7 +42,9 @@ class RoomsFragment : BaseFragment() {
         bindingSetup = FragmentChatBinding.inflate(inflater, container, false)
 
         initializeObservers()
+        initializeViews()
         setupAdapter()
+        setupSearchAdapter()
         setupSearchView()
 
         binding.ivCreateRoom.setOnClickListener {
@@ -47,42 +54,79 @@ class RoomsFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun setupSearchView() {
-        // SearchView is immediately acting as if selected
-        binding.svRoomsSearch.setIconifiedByDefault(false)
-        binding.svRoomsSearch.setOnQueryTextListener(object :
+    private fun initializeViews() = with(binding) {
+        btnSearchRooms.isSelected = true
+
+        btnSearchRooms.setOnClickListener {
+            rvMessages.visibility = View.GONE
+            rvRooms.visibility = View.VISIBLE
+            btnSearchRooms.isSelected = true
+            btnSearchMessages.isSelected = false
+        }
+
+        btnSearchMessages.setOnClickListener {
+            rvMessages.visibility = View.VISIBLE
+            rvRooms.visibility = View.GONE
+            btnSearchRooms.isSelected = false
+            btnSearchMessages.isSelected = true
+        }
+    }
+
+    private fun setupSearchView() = with(binding) {
+        svRoomsSearch.setIconifiedByDefault(false)
+
+        svRoomsSearch.setOnQueryTextFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                llSearchRoomsMessages.visibility = View.VISIBLE
+            } else {
+                llSearchRoomsMessages.visibility = View.GONE
+                rvMessages.visibility = View.GONE
+                rvRooms.visibility = View.VISIBLE
+                btnSearchRooms.isSelected = true
+                btnSearchMessages.isSelected = false
+                svRoomsSearch.setQuery("", false)
+                searchAdapter.submitList(ArrayList())
+            }
+        }
+
+        svRoomsSearch.setOnQueryTextListener(object :
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
                     if (query.isNotEmpty()) {
-                        userSearching = true
-                        Timber.d("Query: $query")
+                        if (rvRooms.isVisible) {
+                            userSearching = true
+                            Timber.d("Query: $query")
 
-                        // If room list is not empty, code will go through each element of the list
-                        // and check if its name corresponds to the users query. Logic also handles
-                        // private rooms with special logic, going through list of users in that
-                        // room and selecting the one who's id is not the local user id.
-                        if (sortedList.isNotEmpty()) {
-                            val myUserId = viewModel.getLocalUserId().toString()
-                            for (room in sortedList) {
-                                val shouldAddRoom =
-                                    if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
-                                        room.roomWithUsers.users.any {
-                                            myUserId != it.id.toString() && it.formattedDisplayName.lowercase()
-                                                .contains(query, ignoreCase = true)
+                            // If room list is not empty, code will go through each element of the list
+                            // and check if its name corresponds to the users query. Logic also handles
+                            // private rooms with special logic, going through list of users in that
+                            // room and selecting the one who's id is not the local user id.
+                            if (sortedList.isNotEmpty()) {
+                                val myUserId = viewModel.getLocalUserId().toString()
+                                for (room in sortedList) {
+                                    val shouldAddRoom =
+                                        if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
+                                            room.roomWithUsers.users.any {
+                                                myUserId != it.id.toString() && it.formattedDisplayName.lowercase()
+                                                    .contains(query, ignoreCase = true)
+                                            }
+                                        } else {
+                                            room.roomWithUsers.room.name?.lowercase()
+                                                ?.contains(query, ignoreCase = true) == true
                                         }
-                                    } else {
-                                        room.roomWithUsers.room.name?.lowercase()
-                                            ?.contains(query, ignoreCase = true) == true
+                                    if (shouldAddRoom) {
+                                        filteredList.add(room)
                                     }
-                                if (shouldAddRoom) {
-                                    filteredList.add(room)
                                 }
                             }
+                        } else {
+                            viewModel.getSearchedMessages(query)
                         }
                     } else {
                         userSearching = false
                         roomsAdapter.submitList(sortedList)
+                        searchAdapter.submitList(ArrayList())
                     }
                     roomsAdapter.submitList(ArrayList(filteredList))
                     filteredList.clear()
@@ -93,43 +137,48 @@ class RoomsFragment : BaseFragment() {
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
                     if (query.isNotEmpty()) {
-                        userSearching = true
-                        Timber.d("Query: $query")
+                        if (rvRooms.isVisible) {
+                            userSearching = true
+                            Timber.d("Query: $query")
 
-                        // If room list is not empty, code will go through each element of the list
-                        // and check if its name corresponds to the users query. Logic also handles
-                        // private rooms with special logic, going through list of users in that
-                        // room and selecting the one who's id is not the local user id.
-                        if (sortedList.isNotEmpty()) {
-                            val myUserId = viewModel.getLocalUserId().toString()
-                            for (room in sortedList) {
-                                val shouldAddRoom =
-                                    if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
-                                        room.roomWithUsers.users.any {
-                                            myUserId != it.id.toString() && it.formattedDisplayName.lowercase()
-                                                .contains(query, ignoreCase = true)
+                            // If room list is not empty, code will go through each element of the list
+                            // and check if its name corresponds to the users query. Logic also handles
+                            // private rooms with special logic, going through list of users in that
+                            // room and selecting the one who's id is not the local user id.
+                            if (sortedList.isNotEmpty()) {
+                                val myUserId = viewModel.getLocalUserId().toString()
+                                for (room in sortedList) {
+                                    val shouldAddRoom =
+                                        if (Const.JsonFields.PRIVATE == room.roomWithUsers.room.type) {
+                                            room.roomWithUsers.users.any {
+                                                myUserId != it.id.toString() && it.formattedDisplayName.lowercase()
+                                                    .contains(query, ignoreCase = true)
+                                            }
+                                        } else {
+                                            room.roomWithUsers.room.name?.lowercase()
+                                                ?.contains(query, ignoreCase = true) == true
                                         }
-                                    } else {
-                                        room.roomWithUsers.room.name?.lowercase()
-                                            ?.contains(query, ignoreCase = true) == true
+                                    if (shouldAddRoom) {
+                                        filteredList.add(room)
                                     }
-                                if (shouldAddRoom) {
-                                    filteredList.add(room)
                                 }
                             }
+                            roomsAdapter.submitList(ArrayList(filteredList))
+                            filteredList.clear()
+                        } else {
+                            viewModel.getSearchedMessages(query)
                         }
-                        roomsAdapter.submitList(ArrayList(filteredList))
-                        filteredList.clear()
                     } else {
                         userSearching = false
                         roomsAdapter.submitList(sortedList)
+                        searchAdapter.submitList(ArrayList())
                     }
                 }
-                binding.rvRooms.scrollToPosition(0)
+                rvRooms.scrollToPosition(0)
                 return true
             }
         })
-        binding.svRoomsSearch.setOnFocusChangeListener { view, hasFocus ->
+        svRoomsSearch.setOnFocusChangeListener { view, hasFocus ->
             run {
                 view.clearFocus()
                 if (!hasFocus) {
@@ -176,17 +225,50 @@ class RoomsFragment : BaseFragment() {
                 }
             }
         }
+
+        viewModel.searchedMessageListener.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    searchAdapter.submitList(it.responseData)
+                }
+
+                else -> Timber.d("Search error")
+            }
+        })
     }
 
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
-            activity?.let { parent -> startChatScreenActivity(parent, it.roomWithUsers) }
+            activity?.let { parent ->
+                startChatScreenActivity(
+                    parent,
+                    it.roomWithUsers.room.roomId
+                )
+            }
         }
 
         binding.rvRooms.itemAnimator = null
         binding.rvRooms.adapter = roomsAdapter
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         binding.rvRooms.layoutManager = layoutManager
+    }
+
+    private fun setupSearchAdapter() {
+        searchAdapter = SearchAdapter {
+            Timber.d("Message with user: $it")
+            activity?.let { parent ->
+                startChatScreenActivity(
+                    parent,
+                    it.message.roomId!!,
+                    it.message.id
+                )
+            }
+        }
+
+        binding.rvMessages.itemAnimator = null
+        binding.rvMessages.adapter = searchAdapter
+        val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+        binding.rvMessages.layoutManager = layoutManager
     }
 
     override fun onResume() {

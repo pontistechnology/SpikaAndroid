@@ -113,6 +113,8 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN message_status TEXT")
                 database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN uri TEXT")
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " RENAME COLUMN id TO user_id")
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_ROOM_USER + " RENAME COLUMN id TO user_id")
             }
         }
 
