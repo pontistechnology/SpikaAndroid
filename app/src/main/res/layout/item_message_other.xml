@@ -29,27 +29,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_section_header">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_message_edited"
+        <TextView
+            android:id="@+id/tv_message_edited"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/five_dp_margin"
+            android:paddingStart="@dimen/ten_dp_margin"
+            android:paddingTop="@dimen/five_dp_margin"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/cl_container"
-            app:layout_constraintStart_toEndOf="@id/cl_container">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/montserrat"
-                android:gravity="center"
-                android:text="@string/edited"
-                android:textColor="@color/text_tertiary"
-                android:textSize="@dimen/nine_sp_text"
-                app:drawableStartCompat="@drawable/img_message_edited"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintStart_toEndOf="@+id/cl_container"
+            app:layout_constraintTop_toTopOf="@+id/cl_container"
+            android:gravity="center"
+            android:text="@string/edited"
+            android:textColor="@color/text_tertiary"
+            android:textSize="@dimen/nine_sp_text"
+            app:drawableStartCompat="@drawable/img_message_edited">
+        </TextView>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_container"
@@ -74,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/eight_dp_margin"
                 android:layout_marginTop="@dimen/eight_dp_margin"
-                android:layout_marginEnd="@dimen/four_dp_margin"
+                android:layout_marginEnd="@dimen/eight_dp_margin"
                 android:layout_marginBottom="@dimen/two_dp_margin"
                 android:background="@drawable/bg_message_send"
                 android:backgroundTint="@color/message_me"
@@ -91,10 +86,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/eight_dp_margin"
                     android:layout_marginTop="@dimen/eight_dp_margin"
+                    android:layout_marginEnd="@dimen/eight_dp_margin"
                     android:fontFamily="@font/montserrat"
                     android:paddingEnd="@dimen/four_dp_margin"
                     android:text="@string/username"
-                    android:textFontWeight="600"
+                    android:textStyle="bold"
                     android:textSize="@dimen/eleven_sp_text"
                     android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -214,12 +210,10 @@
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/iv_chat_image"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/two_hundred_fifty_six_dp"
+                    android:layout_height="@dimen/two_hundred_fifty_six_dp"
                     android:layout_margin="@dimen/two_dp_margin"
-                    android:adjustViewBounds="true"
-                    android:maxWidth="@dimen/image_max_width"
-                    android:scaleType="fitCenter"
+                    android:scaleType="centerCrop"
                     app:layout_constrainedHeight="true"
                     app:layout_constrainedWidth="true"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -227,11 +221,11 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:shapeAppearanceOverlay="@style/chat_image"
-                    tools:srcCompat="@tools:sample/avatars" />
+                    tools:srcCompat="@tools:sample/avatars"  />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_videos"
+            <FrameLayout
+                android:id="@+id/fl_videos"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
@@ -244,31 +238,28 @@
                     android:id="@+id/iv_play_button"
                     android:layout_width="@dimen/seventy_eight_dp"
                     android:layout_height="@dimen/seventy_eight_dp"
+                    android:layout_gravity="center"
                     android:layout_marginStart="@dimen/eight_dp_margin"
+                    android:layout_marginTop="@dimen/eight_dp_margin"
                     android:layout_marginEnd="@dimen/eight_dp_margin"
+                    android:layout_marginBottom="@dimen/eight_dp_margin"
                     android:adjustViewBounds="true"
                     android:elevation="@dimen/four_dp_margin"
-                    app:layout_constraintBottom_toBottomOf="@+id/iv_video_thumbnail"
-                    app:layout_constraintEnd_toEndOf="@+id/iv_video_thumbnail"
-                    app:layout_constraintStart_toStartOf="@+id/iv_video_thumbnail"
-                    app:layout_constraintTop_toTopOf="@+id/iv_video_thumbnail"
-                    app:srcCompat="@drawable/img_camera_black" />
+                    app:srcCompat="@drawable/img_play" />
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/iv_video_thumbnail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/two_hundred_fifty_six_dp"
+                    android:layout_height="@dimen/two_hundred_fifty_six_dp"
+                    android:layout_gravity="center"
                     android:layout_margin="@dimen/two_dp_margin"
                     android:adjustViewBounds="true"
-                    android:maxWidth="@dimen/image_max_width"
+                    android:scaleType="centerCrop"
                     app:cardCornerRadius="@dimen/eight_dp_margin"
                     app:layout_constrainedHeight="true"
                     app:layout_constrainedWidth="true"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    app:shapeAppearanceOverlay="@style/chat_image" />
+            </FrameLayout>
 
             <include
                 android:id="@+id/file_layout"
@@ -291,7 +282,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/cl_container"
             app:layout_constraintStart_toStartOf="parent"
             app:shapeAppearanceOverlay="@style/circle"
-            tools:srcCompat="@drawable/img_account_filled" />
+            tools:srcCompat="@drawable/img_user_placeholder" />
 
         <TextView
             android:id="@+id/tv_username"
@@ -318,8 +309,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/cl_container"
             app:layout_constraintStart_toStartOf="@+id/cl_container"
             app:layout_constraintTop_toBottomOf="@+id/cl_container"
-            app:strokeColor="@color/white"
-            app:strokeWidth="@dimen/one_dp_margin">
+            app:strokeColor="@color/main"
+            app:strokeWidth="@dimen/zero_eight_dp">
 
             <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/tv_reacted_emoji"
@@ -338,11 +329,10 @@
             android:fontFamily="@font/montserrat"
             android:text="@string/audio_duration"
             android:textColor="@color/border"
-            android:textSize="@dimen/fourteen_sp_text"
+            android:textSize="@dimen/twelve_sp_text"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/cl_container"
-            app:layout_constraintStart_toEndOf="@+id/cl_container"
-            app:layout_constraintTop_toTopOf="@+id/cl_container" />
+            app:layout_constraintBottom_toBottomOf="@id/cl_container"
+            app:layout_constraintStart_toEndOf="@id/cl_container" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

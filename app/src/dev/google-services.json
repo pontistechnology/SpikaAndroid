@@ -29,6 +29,49 @@
             {
               "client_id": "453492897722-5h53pgp2g113gh8teji7tgq1ah4bnd9r.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "453492897722-hp1dsoq9bqnie5a3bj7e2qfv9990cvnk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "studio.clover.SpikaDev"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:453492897722:android:10540ab49e72c4e23a4f83",
+        "android_client_info": {
+          "package_name": "com.clover.studio.spikamessenger.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "453492897722-5h53pgp2g113gh8teji7tgq1ah4bnd9r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8sJwUYpEGwaX6DlVKbpTSvagYgLx0t_Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "453492897722-5h53pgp2g113gh8teji7tgq1ah4bnd9r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "453492897722-hp1dsoq9bqnie5a3bj7e2qfv9990cvnk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "studio.clover.SpikaDev"
+              }
             }
           ]
         }
