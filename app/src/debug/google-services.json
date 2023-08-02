@@ -1,40 +1,76 @@
 {
   "project_info": {
-    "project_number": "545730644006",
-    "project_id": "spika-ultimate",
-    "storage_bucket": "spika-ultimate.appspot.com"
+    "project_number": "453492897722",
+    "project_id": "spika-3-dev",
+    "storage_bucket": "spika-3-dev.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:545730644006:android:bb162b653804f1000d3ee7",
+        "mobilesdk_app_id": "1:453492897722:android:5b33a377dccfe6123a4f83",
         "android_client_info": {
-          "package_name": "com.clover.studio.exampleapp.debug"
+          "package_name": "com.clover.studio.exampleapp.dev"
         }
       },
       "oauth_client": [
         {
-          "client_id": "545730644006-imgrj0ohiaassgukuep4vh1cj5uefuss.apps.googleusercontent.com",
+          "client_id": "453492897722-5h53pgp2g113gh8teji7tgq1ah4bnd9r.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDhRRUUn-PaCHf8LSamVewAi7oX85VOTfA"
+          "current_key": "AIzaSyB8sJwUYpEGwaX6DlVKbpTSvagYgLx0t_Y"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "545730644006-imgrj0ohiaassgukuep4vh1cj5uefuss.apps.googleusercontent.com",
+              "client_id": "453492897722-5h53pgp2g113gh8teji7tgq1ah4bnd9r.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "545730644006-cpr9og9jj9vta36tqtboij6jj1r4qj10.apps.googleusercontent.com",
+              "client_id": "453492897722-hp1dsoq9bqnie5a3bj7e2qfv9990cvnk.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "studio.clover.Spika"
+                "bundle_id": "studio.clover.SpikaDev"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:453492897722:android:10540ab49e72c4e23a4f83",
+        "android_client_info": {
+          "package_name": "com.clover.studio.spikamessenger.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "453492897722-5h53pgp2g113gh8teji7tgq1ah4bnd9r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8sJwUYpEGwaX6DlVKbpTSvagYgLx0t_Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "453492897722-5h53pgp2g113gh8teji7tgq1ah4bnd9r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "453492897722-hp1dsoq9bqnie5a3bj7e2qfv9990cvnk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "studio.clover.SpikaDev"
               }
             }
           ]

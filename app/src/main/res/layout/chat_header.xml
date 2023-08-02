@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="contentDescription">
+
+    <ImageView
+        android:id="@+id/iv_arrow_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:layout_marginTop="@dimen/sixteen_dp_margin"
+        android:layout_marginBottom="@dimen/eight_dp_margin"
+        android:padding="@dimen/ten_dp_margin"
+        android:rotation="180"
+        android:src="@drawable/img_arrow_forward"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cl_header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/primary_color" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_header"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/eight_dp_margin"
+        android:layout_marginTop="@dimen/sixteen_dp_margin"
+        app:layout_constraintEnd_toStartOf="@+id/iv_video_call"
+        app:layout_constraintStart_toEndOf="@+id/iv_arrow_back"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_user_image"
+            android:layout_width="@dimen/forty_two_dp"
+            android:layout_height="@dimen/forty_two_dp"
+            android:background="@drawable/img_selector_background"
+            android:backgroundTint="@color/light_blue"
+            android:scaleType="fitXY"
+            android:src="@drawable/img_user_placeholder"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/circle" />
+
+        <TextView
+            android:id="@+id/tv_chat_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/eight_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:textSize="@dimen/fourteen_sp_text"
+            app:layout_constraintBottom_toTopOf="@+id/tv_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_user_image"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/eight_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:textSize="@dimen/fourteen_sp_text"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_user_image"
+            app:layout_constraintTop_toBottomOf="@id/tv_chat_name" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/iv_call_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/sixteen_dp_margin"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:padding="@dimen/ten_dp_margin"
+        android:src="@drawable/img_phone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_video_call"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/sixteen_dp_margin"
+        android:padding="@dimen/ten_dp_margin"
+        android:src="@drawable/img_video"
+        app:layout_constraintEnd_toStartOf="@id/iv_call_user"
+        app:layout_constraintStart_toEndOf="@+id/cl_header"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,13 +6,11 @@
     <string name="no_calls_yet">No calls yet.</string>
     <string name="call_history">Call history</string>
     <string name="call_history_search_hint"><font size="14">Search for contact, message, file…</font></string>
-    <string name="contact_search"><font size="14"> Search for contact</font></string>
     <string name="outgoing">Outgoing</string>
     <string name="chat">Chat</string>
     <string name="no_chats_yet">No chats yet.</string>
     <string name="pin_chat">Pin Chat</string>
     <string name="chat_search">Chat Search</string>
-    <string name="contacts">Contacts</string>
     <string name="privacy_explanation">See and share when messages have been read. This applies to all chats.</string>
     <string name="no_username">No Username</string>
     <string name="username">Username</string>
@@ -22,6 +20,14 @@
     <string name="show_notifications">Show Notifications</string>
     <string name="favourite_messages">Favourite Messages</string>
     <string name="type_here">Type here…</string>
+
+    <!--Contacts-->
+    <string name="contacts">Contacts</string>
+    <string name="save_contact">Save contact</string>
+    <string name="contact">Contact</string>
+    <string name="number_copied">Telephone number copied</string>
+    <string name="contact_search"><font size="14"> Search for contact</font></string>
+    <string name="contact_message_search"><font size="14"> Search for room or message</font></string>
 
     <!--Settings-->
     <string name="settings">Settings</string>
@@ -58,6 +64,7 @@
     <string name="image_failed_upload">Image could not be uploaded. Try again or continue without image. %s</string>
     <string name="picture_upload_failed">Picture upload failed.</string>
     <string name="failed_file_upload">Failed to upload file</string>
+    <string name="canceled_file_upload">File upload canceled</string>
 
     <!--Chat media actions-->
     <string name="sound">Sound</string>
@@ -72,7 +79,6 @@
     <string name="file">File</string>
     <string name="library">Library</string>
     <string name="location">Location</string>
-    <string name="contact">Contact</string>
     <string name="more_actions">More actions</string>
     <string name="take_photo">Take Photo</string>
     <string name="action">Action</string>
@@ -128,6 +134,13 @@
     <string name="new_messages">You have %s new message%s</string>
     <string name="no_messages_yet">No messages yet.</string>
     <string name="some_message">Some message</string>
+    <string name="resend_message">Resend message</string>
+
+    <!--Files - upload, cancel, resend-->
+    <string name="uploading_files">Uploading files</string>
+    <string name="upload_in_progress_notification">Upload in progress...</string>
+    <string name="resend">Resend</string>
+    <string name="cancel_upload">Are you sure you want to cancel the upload?</string>
 
     <!--Alert dialog text-->
     <string name="warning">Warning</string>
@@ -158,7 +171,7 @@
     <string name="thumbs_up_emoji">&#x1F44D;</string>
     <string name="praying_hands_emoji">&#x1F64F;</string>
     <string name="crying_face_emoji">&#x1F602;</string>
-    <string name="heart_emoji">&#x2764;</string>
+    <string name="heart_emoji">&#x2764;&#xFE0F;</string>
     <string name="astonished_emoji">&#x1F632;</string>
     <string name="disappointed_relieved_emoji">&#x1F625;</string>
 
@@ -219,4 +232,17 @@
     <string name="six_hundred">600</string>
     <string name="seven_hundred">700</string>
     <string name="failed_to_delete_block_for_user">Failed to delete block for user</string>
+    <string name="failed_delete_note">Failed to delete note, please try again.</string>
+    <string name="unknown_user">Unknown user</string>
+    <string name="data_deletion_warning">Your user and all his data will be deleted</string>
+    <string name="terms_description">To proceed into the app, please accept our terms and conditions.</string>
+    <string name="help">Help</string>
+    <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="welcome_to_spika">Welcome to Spika Messenger</string>
+    <string name="welcome_description"><![CDATA[Tap Agree & Continue to accept the Terms and Conditions]]></string>
+    <string name="agree_and_continue"><![CDATA[Agree & Continue]]></string>
+    <string name="rooms">Rooms</string>
+    <string name="messages">Messages</string>
+    <string name="failed_to_load_room_data">Failed to load room data</string>
+    <string name="other_error">Other error</string>
 </resources>

@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
+    android:focusable="true"
     android:focusableInTouchMode="true"
     tools:context=".ui.main.rooms.RoomsFragment"
-    tools:ignore="contentDescription"
-    android:focusable="true">
+    tools:ignore="contentDescription">
 
     <TextView
         android:id="@+id/tv_screen_name"
@@ -76,8 +76,8 @@
             android:layout_height="@dimen/seventy_dp"
             android:indeterminate="false"
             android:progress="0"
-            android:progressTint="@color/primary_color"
             android:progressDrawable="@drawable/custom_circular_progress"
+            android:progressTint="@color/primary_color"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -232,6 +232,50 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <FrameLayout
+        android:id="@+id/fl_help"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/ten_dp_margin"
+        android:padding="@dimen/twenty_dp_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cl_privacy">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/help" />
+
+        <ImageView
+            android:id="@+id/iv_arrow_help"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:src="@drawable/img_arrow_forward" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/cl_delete_user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/ten_dp_margin"
+        android:padding="@dimen/twenty_dp_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fl_help">
+
+        <TextView
+            android:id="@+id/tv_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/delete"
+            android:textColor="@color/style_red" />
+
+    </FrameLayout>
 
     <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
     <!--        android:id="@+id/cl_chat"-->

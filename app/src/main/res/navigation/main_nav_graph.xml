@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/chatSettingsFragment2"
-        android:name="com.clover.studio.exampleapp.ui.main.settings.screens.ChatSettingsFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.ChatSettingsFragment"
         android:label="ChatSettingsFragment" />
     <fragment
         android:id="@+id/downloadSettingsFragment2"
-        android:name="com.clover.studio.exampleapp.ui.main.settings.screens.DownloadSettingsFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.DownloadSettingsFragment"
         android:label="DownloadSettingsFragment" />
     <fragment
         android:id="@+id/notificationSettingsFragment2"
-        android:name="com.clover.studio.exampleapp.ui.main.settings.screens.NotificationSettingsFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.NotificationSettingsFragment"
         android:label="NotificationSettingsFragment" />
     <fragment
         android:id="@+id/privacySettingsFragment2"
-        android:name="com.clover.studio.exampleapp.ui.main.settings.screens.privacy.PrivacySettingsFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.privacy.PrivacySettingsFragment"
         android:label="fragment_download_settings"
         tools:layout="@layout/fragment_download_settings">
         <action
@@ -28,7 +28,7 @@
     </fragment>
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.clover.studio.exampleapp.ui.main.MainFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.MainFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main">
         <action
@@ -76,10 +76,17 @@
         <action
             android:id="@+id/action_mainFragment_to_appearanceSettings"
             app:destination="@id/appearanceSettings" />
+        <action
+            android:id="@+id/action_mainFragment_to_helpFragment"
+            app:destination="@id/helpFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/contactDetailsFragment"
-        android:name="com.clover.studio.exampleapp.ui.main.contact_details.ContactDetailsFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.contact_details.ContactDetailsFragment"
         android:label="fragment_contact_details"
         tools:layout="@layout/fragment_contact_details">
         <action
@@ -88,7 +95,7 @@
     </fragment>
     <fragment
         android:id="@+id/newRoomFragment"
-        android:name="com.clover.studio.exampleapp.ui.main.create_room.NewRoomFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.create_room.NewRoomFragment"
         android:label="fragment_new_room"
         tools:layout="@layout/fragment_new_room">
         <action
@@ -101,7 +108,7 @@
     </fragment>
     <fragment
         android:id="@+id/groupInformationFragment"
-        android:name="com.clover.studio.exampleapp.ui.main.create_room.GroupInformationFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.create_room.GroupInformationFragment"
         android:label="fragment_group_information"
         tools:layout="@layout/fragment_group_information">
         <action
@@ -112,7 +119,7 @@
     </fragment>
     <fragment
         android:id="@+id/notesFragment2"
-        android:name="com.clover.studio.exampleapp.ui.main.chat_details.notes.NotesFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NotesFragment"
         android:label="fragment_notes"
         tools:layout="@layout/fragment_notes">
         <action
@@ -128,7 +135,7 @@
     </fragment>
     <fragment
         android:id="@+id/notesDetailsFragment2"
-        android:name="com.clover.studio.exampleapp.ui.main.chat_details.notes.NotesDetailsFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NotesDetailsFragment"
         android:label="NotesDetailsFragment">
         <action
             android:id="@+id/action_notesDetailsFragment2_to_notesFragment2"
@@ -136,7 +143,7 @@
     </fragment>
     <fragment
         android:id="@+id/newNoteFragment2"
-        android:name="com.clover.studio.exampleapp.ui.main.chat_details.notes.NewNoteFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NewNoteFragment"
         android:label="fragment_new_note"
         tools:layout="@layout/fragment_new_note">
         <action
@@ -149,7 +156,12 @@
     </fragment>
     <fragment
         android:id="@+id/appearanceSettings"
-        android:name="com.clover.studio.exampleapp.ui.main.settings.screens.AppearanceSettings"
+        android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.AppearanceSettings"
         android:label="fragment_appearance_settings"
         tools:layout="@layout/fragment_appearance_settings" />
+    <fragment
+        android:id="@+id/helpFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.HelpFragment"
+        android:label="fragment_help"
+        tools:layout="@layout/fragment_help" />
 </navigation>
