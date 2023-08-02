@@ -16,7 +16,7 @@ import kotlinx.parcelize.Parcelize
 data class User(
 
     @PrimaryKey
-    @ColumnInfo(name = AppDatabase.TablesInfo.ID)
+    @ColumnInfo(name = "user_id")
     val id: Int,
 
     @ColumnInfo(name = "display_name")

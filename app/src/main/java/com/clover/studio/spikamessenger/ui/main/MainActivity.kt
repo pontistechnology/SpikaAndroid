@@ -125,7 +125,7 @@ class MainActivity : BaseActivity() {
                     it.responseData?.roomWithUsers?.let { roomWithUsers ->
                         startChatScreenActivity(
                             this,
-                            roomWithUsers
+                            roomWithUsers.room.roomId
                         )
                     }
                     Timber.d("Main Success!")

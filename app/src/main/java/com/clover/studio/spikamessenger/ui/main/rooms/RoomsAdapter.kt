@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
-import com.clover.studio.spikamessenger.data.models.entity.RoomWithLatestMessage
+import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.databinding.ItemChatRoomBinding
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
@@ -20,8 +20,8 @@ import com.clover.studio.spikamessenger.utils.Tools.getRelativeTimeSpan
 class RoomsAdapter(
     private val context: Context,
     private val myUserId: String,
-    private val onItemClick: ((item: RoomWithLatestMessage) -> Unit)
-) : ListAdapter<RoomWithLatestMessage, RoomsAdapter.RoomsViewHolder>(RoomsDiffCallback()) {
+    private val onItemClick: ((item: RoomWithMessage) -> Unit)
+) : ListAdapter<RoomWithMessage, RoomsAdapter.RoomsViewHolder>(RoomsDiffCallback()) {
     inner class RoomsViewHolder(val binding: ItemChatRoomBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -140,17 +140,17 @@ class RoomsAdapter(
     }
 
 
-    private class RoomsDiffCallback : DiffUtil.ItemCallback<RoomWithLatestMessage>() {
+    private class RoomsDiffCallback : DiffUtil.ItemCallback<RoomWithMessage>() {
 
         override fun areItemsTheSame(
-            oldItem: RoomWithLatestMessage,
-            newItem: RoomWithLatestMessage
+            oldItem: RoomWithMessage,
+            newItem: RoomWithMessage
         ) =
             oldItem.roomWithUsers.room.roomId == newItem.roomWithUsers.room.roomId
 
         override fun areContentsTheSame(
-            oldItem: RoomWithLatestMessage,
-            newItem: RoomWithLatestMessage
+            oldItem: RoomWithMessage,
+            newItem: RoomWithMessage
         ) =
             oldItem == newItem
     }

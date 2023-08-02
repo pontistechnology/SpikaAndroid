@@ -12,7 +12,7 @@ import kotlinx.parcelize.Parcelize
 data class UserWithRooms(
     @Embedded val user: User,
     @Relation(
-        parentColumn = "id",
+        parentColumn = "user_id",
         entityColumn = "room_id",
         associateBy = Junction(RoomUser::class)
     )
@@ -24,7 +24,7 @@ data class RoomWithUsers(
     @Embedded val room: ChatRoom,
     @Relation(
         parentColumn = "room_id",
-        entityColumn = "id",
+        entityColumn = "user_id",
         associateBy = Junction(RoomUser::class)
     )
     val users: List<User>

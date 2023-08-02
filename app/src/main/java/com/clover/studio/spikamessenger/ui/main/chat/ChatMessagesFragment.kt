@@ -96,6 +96,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private val viewModel: ChatViewModel by activityViewModels()
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
+    private var messageSearchId: Int? = 0
+
     private lateinit var roomWithUsers: RoomWithUsers
     private var user: User? = null
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
@@ -147,6 +149,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var scrollYDistance = 0
     private var heightDiff = 0
+
+    private var scrollToPosition = 0
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
@@ -227,32 +231,52 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             bottomSheetMessageActions
         )
 
-        roomWithUsers = (activity as ChatScreenActivity?)!!.roomWithUsers!!
         localUserId = viewModel.getLocalUserId()!!
-
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            user = roomWithUsers.users.firstOrNull { it.id.toString() != localUserId.toString() }
-        }
+        messageSearchId = (activity as ChatScreenActivity).searchMessageId
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
-        // Timber.d("Load check: ChatMessagesFragment view created")
-        if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
-            bindingSetup.clRoomExit.visibility = View.VISIBLE
-        } else {
-            bindingSetup.clRoomExit.visibility = View.GONE
-            checkStoragePermission()
-            setUpMessageDetailsAdapter()
-            setUpMessageReactionAdapter()
-            checkIsUserAdmin()
-        }
-        initializeObservers()
-        initViews()
-        initListeners()
-        setUpAdapter()
+        viewModel.getSingleRoomData((activity as ChatScreenActivity).roomId)
 
-        // Clear notifications for this room
-        NotificationManagerCompat.from(requireContext()).cancel(roomWithUsers.room.roomId)
+        checkStoragePermission()
+
+        viewModel.roomDataListener.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    roomWithUsers = it.responseData?.roomWithUsers!!
+
+                    if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                        user =
+                            roomWithUsers.users.firstOrNull { user -> user.id.toString() != localUserId.toString() }
+                    }
+
+                    if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
+                        bindingSetup.clRoomExit.visibility = View.VISIBLE
+                    } else {
+                        bindingSetup.clRoomExit.visibility = View.GONE
+                        setUpMessageDetailsAdapter()
+                        setUpMessageReactionAdapter()
+                        checkIsUserAdmin()
+                    }
+                    initializeObservers()
+                    initViews()
+                    initListeners()
+                    setUpAdapter()
+
+                    // Clear notifications for this room
+                    NotificationManagerCompat.from(requireContext())
+                        .cancel(roomWithUsers.room.roomId)
+                }
+
+                Resource.Status.ERROR -> Toast.makeText(
+                    activity,
+                    getString(R.string.failed_to_load_room_data),
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                else -> Toast.makeText(activity, getString(R.string.other_error), Toast.LENGTH_SHORT).show()
+            }
+        })
 
         return bindingSetup.root
     }
@@ -621,6 +645,20 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         if (listState != null && shouldScroll) {
                             bindingSetup.rvChat.layoutManager?.onRestoreInstanceState(listState)
                             shouldScroll = false
+                        }
+
+                        if (messageSearchId != 0) {
+                            if (messagesRecords.firstOrNull { messageAndRecords -> messageAndRecords.message.id == messageSearchId } != null) {
+                                val position =
+                                    messagesRecords.indexOfFirst { messageAndRecords -> messageAndRecords.message.id == messageSearchId }
+                                scrollToPosition = position
+                                if (position != -1) {
+                                    bindingSetup.rvChat.smoothScrollToPosition(position)
+                                }
+                                messageSearchId = 0
+                            } else {
+                                viewModel.fetchNextSet(roomWithUsers.room.roomId)
+                            }
                         }
                     }
 

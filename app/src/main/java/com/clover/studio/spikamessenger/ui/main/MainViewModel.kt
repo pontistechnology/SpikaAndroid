@@ -7,6 +7,7 @@ import com.clover.studio.spikamessenger.BaseViewModel
 import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
+import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -54,6 +55,7 @@ class MainViewModel @Inject constructor(
     val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
     val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
     val deleteUserListener = MutableLiveData<Event<Resource<DeleteUserResponse?>>>()
+    val searchedMessageListener = MutableLiveData<Event<Resource<List<MessageWithRoom>?>>>()
 
     init {
         sseManager.setupListener(this)
@@ -120,6 +122,10 @@ class MainViewModel @Inject constructor(
                 return@launch
             }
         }
+    }
+
+    fun getSearchedMessages(query: String) = viewModelScope.launch {
+        resolveResponseStatus(searchedMessageListener, repository.getSearchedMessages(query))
     }
 
     fun getUserAndPhoneUser(localId: Int) = repository.getUserAndPhoneUser(localId)
