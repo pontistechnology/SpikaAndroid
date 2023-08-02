@@ -270,6 +270,7 @@ class MainActivity : BaseActivity() {
 
                         override fun onSecondOptionClicked() {
                             viewModel.setTokenExpiredFalse()
+                            viewModel.removeToken()
                             startOnboardingActivity(this@MainActivity, false)
                         }
                     })

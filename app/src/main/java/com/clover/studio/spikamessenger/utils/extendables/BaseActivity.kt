@@ -71,6 +71,7 @@ open class BaseActivity : AppCompatActivity() {
 
                         override fun onSecondOptionClicked() {
                             viewModel.setTokenExpiredFalse()
+                            viewModel.removeToken()
                             startOnboardingActivity(this@BaseActivity, false)
                         }
                     })

@@ -199,6 +199,7 @@ class ChatScreenActivity : BaseActivity() {
 
                         override fun onSecondOptionClicked() {
                             viewModel.setTokenExpiredFalse()
+                            viewModel.removeToken()
                             startOnboardingActivity(this@ChatScreenActivity, false)
                         }
                     })

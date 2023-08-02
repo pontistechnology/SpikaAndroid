@@ -2,11 +2,18 @@ package com.clover.studio.spikamessenger
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 open class BaseViewModel : ViewModel() {
+
+    @Inject
+    lateinit var sharedPrefs: SharedPreferencesRepository
     val tokenExpiredListener = MutableLiveData<Event<Boolean>>()
 
     fun setTokenExpiredTrue() {
@@ -15,6 +22,10 @@ open class BaseViewModel : ViewModel() {
 
     fun setTokenExpiredFalse() {
         tokenExpiredListener.postValue(Event(false))
+    }
+
+    fun removeToken() = viewModelScope.launch {
+        sharedPrefs.writeToken("")
     }
 
     fun <R> resolveResponseStatus(
@@ -36,6 +47,7 @@ open class BaseViewModel : ViewModel() {
             Resource.Status.NEW_USER -> {
                 mutableLiveData?.postValue(Event(resource))
             }
+
             else -> Timber.d("Error in BaseViewModel while resolving response status")
         }
     }
