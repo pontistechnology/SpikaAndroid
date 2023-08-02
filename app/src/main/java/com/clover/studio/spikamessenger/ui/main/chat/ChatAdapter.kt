@@ -297,13 +297,18 @@ class ChatAdapter(
                         context = context,
                         users = users,
                         chatMessage = it,
-                        replyLayoutBinding = holder.binding.replyLayout,
+                        ivReplyImage = holder.binding.ivReplyImage,
+                        tvReplyMedia = holder.binding.tvReplyMedia,
+                        tvMessageReply = holder.binding.tvMessageReply,
+                        clReplyMessage = holder.binding.clReplyMessage,
+                        clContainer = holder.binding.clContainer,
+                        tvUsername = holder.binding.tvUsername,
                         sender = true,
                     )
                 }
 
                 /** Find replied message: */
-                holder.binding.replyLayout.clReplyMessage.setOnClickListener { _ ->
+                holder.binding.clReplyMessage.setOnClickListener { _ ->
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it)
                 }
 
@@ -417,19 +422,23 @@ class ChatAdapter(
 
                 /** Other: */
 
-                /** Show message reply: */
                 if (it.message.replyId != null && it.message.replyId != 0L && it.message.deleted == false) {
                     ChatAdapterHelper.bindReply(
                         context = context,
                         users = users,
                         chatMessage = it,
-                        replyLayoutBinding = holder.binding.replyLayout,
+                        ivReplyImage = holder.binding.ivReplyImage,
+                        tvReplyMedia = holder.binding.tvReplyMedia,
+                        tvMessageReply = holder.binding.tvMessageReply,
+                        clReplyMessage = holder.binding.clReplyMessage,
+                        clContainer = holder.binding.clContainer,
+                        tvUsername = holder.binding.tvUsernameOther,
                         sender = false,
                     )
                 }
 
                 /** Find replied message: */
-                holder.binding.replyLayout.clReplyMessage.setOnClickListener { _ ->
+                holder.binding.clReplyMessage.setOnClickListener { _ ->
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it)
                 }
 
