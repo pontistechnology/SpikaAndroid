@@ -1,0 +1,20 @@
+## This file must *NOT* be checked into Version Control Systems,
+# as it contains information specific to your local configuration.
+#
+# Location of the SDK. This is only used by Gradle.
+# For customization when using a Version Control System, please read the
+# header note.
+#Wed Aug 02 16:14:48 CEST 2023
+sdk.dir={path_to_sdk}
+
+debugKeystorePath={path_to_debug_keystore}
+
+releaseKeystorePath={path_to_release_keystore}
+releaseKeystorePassword={release_keystore_password}
+releaseKeystoreKeyAlias={release_keystore_key_alias}
+releaseKeystoreKeyPassword={release_keystore_key_password}
+
+messengerKeystorePath={path_to_messenger_keystore}
+messengerKeystorePassword={messenger_keystore_password}
+messengerKeystoreKeyAlias={messenger_keystore_key_alias}
+messengerKeystoreKeyPassword={messenger_keystore_key_password}
