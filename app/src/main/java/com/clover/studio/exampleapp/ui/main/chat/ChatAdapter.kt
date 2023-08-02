@@ -123,7 +123,7 @@ class ChatAdapter(
                         Glide.with(context)
                             .load(imagePath)
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
-                            .placeholder(R.drawable.ic_baseline_image_24)
+                            .placeholder(R.drawable.img_image_placeholder)
                             .dontTransform()
                             .dontAnimate()
                             .into(holder.binding.ivChatImage)
@@ -178,12 +178,12 @@ class ChatAdapter(
                             .priority(Priority.HIGH)
                             .dontTransform()
                             .dontAnimate()
-                            .placeholder(R.drawable.ic_baseline_videocam_24)
+                            .placeholder(R.drawable.img_camera_black)
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .into(holder.binding.ivVideoThumbnail)
 
                         holder.binding.clVideos.visibility = View.VISIBLE
-                        holder.binding.ivPlayButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
+                        holder.binding.ivPlayButton.setImageResource(R.drawable.img_play)
 
                         holder.binding.ivPlayButton.setOnClickListener { view ->
                             val action =
@@ -324,7 +324,7 @@ class ChatAdapter(
                         Glide.with(context)
                             .load(imagePath)
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
-                            .placeholder(R.drawable.ic_baseline_image_24)
+                            .placeholder(R.drawable.img_image_placeholder)
                             .dontTransform()
                             .dontAnimate()
                             .into(holder.binding.ivChatImage)
@@ -356,12 +356,12 @@ class ChatAdapter(
                             .priority(Priority.HIGH)
                             .dontTransform()
                             .dontAnimate()
-                            .placeholder(R.drawable.ic_baseline_videocam_24)
+                            .placeholder(R.drawable.img_camera_black)
                             .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
                             .into(holder.binding.ivVideoThumbnail)
 
                         holder.binding.clVideos.visibility = View.VISIBLE
-                        holder.binding.ivPlayButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
+                        holder.binding.ivPlayButton.setImageResource(R.drawable.img_play)
 
                         holder.binding.ivPlayButton.setOnClickListener { view ->
                             val action =
@@ -750,28 +750,28 @@ class ChatAdapter(
             Const.FileExtensions.PDF -> ivFileType.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     context.resources,
-                    R.drawable.ic_baseline_picture_as_pdf_24,
+                    R.drawable.img_pdf_black,
                     null
                 )
             )
             Const.FileExtensions.ZIP, Const.FileExtensions.RAR -> ivFileType.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     context.resources,
-                    R.drawable.ic_baseline_folder_zip_24,
+                    R.drawable.img_folder_zip,
                     null
                 )
             )
             Const.FileExtensions.MP3, Const.FileExtensions.WAW -> ivFileType.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     context.resources,
-                    R.drawable.ic_baseline_audio_file_24,
+                    R.drawable.img_audio_file,
                     null
                 )
             )
             else -> ivFileType.setImageDrawable(
                 ResourcesCompat.getDrawable(
                     context.resources,
-                    R.drawable.ic_baseline_insert_drive_file_24,
+                    R.drawable.img_file_black,
                     null
                 )
             )
