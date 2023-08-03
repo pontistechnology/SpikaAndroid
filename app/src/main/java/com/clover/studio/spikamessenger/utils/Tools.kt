@@ -307,7 +307,6 @@ object Tools {
 
         inputStream.close()
 
-        inputStream.close()
         return sha256FileHash
     }
 
