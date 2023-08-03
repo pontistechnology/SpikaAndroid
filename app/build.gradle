@@ -14,21 +14,24 @@ android {
         }
     }
 
+    def localProperties = new Properties()
+    localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+
     signingConfigs {
         debug {
-            storeFile file('/Library/Android/debug.keystore')
+            storeFile file(localProperties['debugKeystorePath'])
         }
         release {
-            storeFile file('/Library/Android/release-keystore')
-            storePassword 'spika1234'
-            keyAlias 'release'
-            keyPassword 'spika1234'
+            storeFile file(localProperties['releaseKeystorePath'])
+            storePassword localProperties['releaseKeystorePassword']
+            keyAlias localProperties['releaseKeystoreKeyAlias']
+            keyPassword localProperties['releaseKeystoreKeyPassword']
         }
         messenger {
-            storeFile file('/Library/Android/messenger-keystore')
-            storePassword 'spikaMessenger1234'
-            keyAlias 'messenger'
-            keyPassword 'spikaMessenger1234'
+            storeFile file(localProperties['messengerKeystorePath'])
+            storePassword localProperties['messengerKeystorePassword']
+            keyAlias localProperties['messengerKeystoreKeyAlias']
+            keyPassword localProperties['messengerKeystoreKeyPassword']
         }
     }
     compileSdk 33
