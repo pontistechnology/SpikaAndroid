@@ -45,16 +45,30 @@ object AppPermissions {
         return permissions
     }
 
-    val contactsPermission: String = Manifest.permission.READ_CONTACTS
+    val notificationPermission =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.POST_NOTIFICATIONS else ""
 
-    val notificationPermission: String =
+    fun hasPostNotificationPermission(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.POST_NOTIFICATIONS
-        } else ""
+            return ContextCompat.checkSelfPermission(
+                MainApplication.appContext,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+        return false
+    }
 
     val hasStoragePermission: Boolean =
         ContextCompat.checkSelfPermission(
             MainApplication.appContext,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
+
+    const val contactsPermission: String = Manifest.permission.READ_CONTACTS
+    fun hasContactsPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            MainApplication.appContext,
+            Manifest.permission.READ_CONTACTS
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 }

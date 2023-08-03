@@ -18,6 +18,7 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.ActivityMainBinding
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
+import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.AppPermissions.notificationPermission
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
@@ -301,7 +302,7 @@ class MainActivity : BaseActivity() {
         ) {
             // TODO show why permission is needed
         } else {
-            if (notificationPermission.isNotEmpty()) {
+            if (AppPermissions.hasPostNotificationPermission()) {
                 notificationPermissionLauncher.launch(notificationPermission)
             }
         }
