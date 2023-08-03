@@ -27,20 +27,32 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_container"
-        android:layout_width="wrap_content"
+        android:id="@+id/cl_message"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sixty_four_dp"
-        android:layout_marginEnd="@dimen/twenty_four_dp_margin"
-        android:visibility="visible"
-        app:layout_constrainedWidth="true"
+        android:layout_marginTop="@dimen/two_dp_margin"
+        android:layout_marginBottom="@dimen/two_dp_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_section_header"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toBottomOf="@id/tv_section_header"
+        app:layout_constraintVertical_bias="0.25">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sixty_four_dp"
+            android:layout_marginTop="@dimen/two_dp_margin"
+            android:layout_marginEnd="@dimen/twenty_four_dp_margin"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_edited"
+            app:layout_constraintVertical_bias="0.0">
 
         <com.vanniktech.emoji.EmojiTextView
             android:id="@+id/tv_message"
@@ -290,14 +302,12 @@
             android:fontFamily="@font/montserrat"
             android:gravity="center"
             android:text="@string/edited"
-            android:visibility="gone"
             android:textColor="@color/text_tertiary"
             android:textSize="@dimen/nine_sp_text"
+            android:visibility="gone"
             app:drawableStartCompat="@drawable/img_message_edited"
-            app:layout_constraintBottom_toTopOf="@+id/cl_container"
-            app:layout_constraintEnd_toEndOf="@+id/cl_container"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/cl_container" />
+            app:layout_constraintEnd_toStartOf="@+id/cl_container"
+            app:layout_constraintTop_toTopOf="@+id/cl_container" />
 
 
     <com.google.android.material.card.MaterialCardView
@@ -361,4 +371,5 @@
         app:layout_constraintTop_toTopOf="@+id/cl_container"
         app:srcCompat="@drawable/img_reply_message" />
 </androidx.constraintlayout.widget.ConstraintLayout>
+
 

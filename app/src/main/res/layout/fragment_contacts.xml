@@ -25,7 +25,7 @@
         android:background="@drawable/bg_search_field"
         android:backgroundTint="@color/message_other"
         app:queryBackground="@android:color/transparent"
-        app:queryHint="@string/call_history_search_hint" />
+        app:queryHint="@string/contact_search" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/srl_refresh_contacts"

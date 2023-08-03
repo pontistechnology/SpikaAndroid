@@ -47,10 +47,8 @@
             android:textSize="@dimen/nine_sp_text"
             android:visibility="gone"
             app:drawableStartCompat="@drawable/img_message_edited"
-            app:layout_constraintBottom_toTopOf="@+id/cl_container"
-            app:layout_constraintEnd_toEndOf="@+id/cl_container"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/cl_container" />
+            app:layout_constraintStart_toEndOf="@+id/tv_message"
+            app:layout_constraintTop_toTopOf="@+id/tv_message" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_container"
@@ -66,22 +64,21 @@
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@+id/iv_user_image">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_reply_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/eight_dp_margin"
-            android:layout_marginTop="@dimen/eight_dp_margin"
-            android:layout_marginEnd="@dimen/eight_dp_margin"
-            android:layout_marginBottom="@dimen/two_dp_margin"
-            android:background="@drawable/bg_message_send"
-            android:backgroundTint="@color/message_me"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/tv_message"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_reply_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginTop="@dimen/eight_dp_margin"
+                android:layout_marginEnd="@dimen/eight_dp_margin"
+                android:layout_marginBottom="@dimen/two_dp_margin"
+                android:background="@drawable/bg_message_send"
+                android:backgroundTint="@color/message_me"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:id="@+id/tv_username_other"
@@ -325,3 +322,4 @@
         app:layout_constraintStart_toEndOf="@id/cl_container"
         app:layout_constraintTop_toTopOf="@+id/cl_container" />
 </androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -535,7 +535,7 @@ class ChatAdapter(
                 )
             )
 
-            cvReactedEmoji.visibility = if (isDeleted) View.GONE else View.VISIBLE
+            if (isDeleted) cvReactedEmoji.visibility = View.GONE
 
             background = if (isDeleted) {
                 AppCompatResources.getDrawable(
