@@ -255,7 +255,7 @@ class MediaFragment : BaseFragment() {
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            if (AppPermissions.externalStorage.isNotEmpty()) {
+            if (AppPermissions.hasStoragePermission) {
                 val subdirectory = File(requireContext().getExternalFilesDir(null), appName)
                 if (!subdirectory.exists()) {
                     subdirectory.mkdirs()
@@ -292,7 +292,7 @@ class MediaFragment : BaseFragment() {
                             saveMedia(uri)
                         }
                     } else {
-                        if (AppPermissions.externalStorage.isNotEmpty()) {
+                        if (AppPermissions.hasStoragePermission) {
                             Toast.makeText(
                                 context,
                                 getString(R.string.saved_to_gallery),
