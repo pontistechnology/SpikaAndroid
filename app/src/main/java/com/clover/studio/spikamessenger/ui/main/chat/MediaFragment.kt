@@ -1,6 +1,5 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
-import android.Manifest
 import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.ContentValues
@@ -8,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
@@ -19,7 +17,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -34,6 +31,7 @@ import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.databinding.FragmentMediaBinding
+import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
@@ -110,7 +108,7 @@ class MediaFragment : BaseFragment() {
                 requireContext(),
                 null,
                 null,
-                getString(R.string.download_media),
+                getString(R.string.save),
                 null,
                 object : DialogInteraction {
                     override fun onFirstOptionClicked() {
@@ -257,7 +255,7 @@ class MediaFragment : BaseFragment() {
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            if (hasStoragePermission()) {
+            if (AppPermissions.externalStorage.isNotEmpty()) {
                 val subdirectory = File(requireContext().getExternalFilesDir(null), appName)
                 if (!subdirectory.exists()) {
                     subdirectory.mkdirs()
@@ -274,6 +272,12 @@ class MediaFragment : BaseFragment() {
                 ).show()
                 Tools.navigateToAppSettings()
             }
+        } else {
+            Toast.makeText(
+                context,
+                getString(R.string.download_media),
+                Toast.LENGTH_LONG
+            ).show()
         }
 
         val manager = context?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
@@ -288,7 +292,7 @@ class MediaFragment : BaseFragment() {
                             saveMedia(uri)
                         }
                     } else {
-                        if (hasStoragePermission()) {
+                        if (AppPermissions.externalStorage.isNotEmpty()) {
                             Toast.makeText(
                                 context,
                                 getString(R.string.saved_to_gallery),
@@ -363,13 +367,6 @@ class MediaFragment : BaseFragment() {
             }
         }
         Toast.makeText(context, getString(R.string.saved_to_gallery), Toast.LENGTH_LONG).show()
-    }
-
-    private fun hasStoragePermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
     }
 }
 

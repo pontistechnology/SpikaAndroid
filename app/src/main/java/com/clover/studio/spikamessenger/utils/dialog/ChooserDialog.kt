@@ -2,6 +2,7 @@ package com.clover.studio.spikamessenger.utils.dialog
 
 import android.content.Context
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.clover.studio.spikamessenger.R
@@ -13,7 +14,7 @@ class ChooserDialog(
     context: Context?,
     private val title: String?,
     private val description: String?,
-    private val firstOption: String,
+    private val firstOption: String?,
     private val secondOption: String?,
     private val listener: DialogInteraction,
 ) : BaseDialog(context) {
@@ -30,7 +31,7 @@ class ChooserDialog(
             context: Context,
             title: String?,
             description: String?,
-            firstOption: String,
+            firstOption: String?,
             secondOption: String?,
             listener: DialogInteraction
         ): ChooserDialog = INSTANCE
@@ -43,6 +44,7 @@ class ChooserDialog(
                 listener
             ).also { INSTANCE = it }.also {
                 it.window?.setBackgroundDrawableResource(android.R.color.transparent)
+                it.window?.setGravity(Gravity.BOTTOM)
                 it.show()
             }
     }
@@ -59,7 +61,6 @@ class ChooserDialog(
     private fun initViews() = with(binding) {
         if (!title.isNullOrEmpty()) {
             if (context.getString(R.string.delete) == title) {
-                // Change colors for delete options
                 btnFirstOption.setTextColor(
                     ContextCompat.getColor(
                         context,
@@ -90,20 +91,22 @@ class ChooserDialog(
         else
             tvTextDescription.visibility = View.GONE
 
-        if (!secondOption.isNullOrEmpty())
+        if (!secondOption.isNullOrEmpty()) {
             btnSecondOption.text = secondOption
-        else
+            vBorder.visibility = View.VISIBLE
+        } else {
             btnSecondOption.visibility = View.GONE
+            vBorder.visibility = View.GONE
+        }
 
         btnFirstOption.text = firstOption
-
-        btnSecondOption.setOnClickListener {
-            listener.onSecondOptionClicked()
+        btnFirstOption.setOnClickListener {
+            listener.onFirstOptionClicked()
             dismiss()
         }
 
-        btnFirstOption.setOnClickListener {
-            listener.onFirstOptionClicked()
+        btnSecondOption.setOnClickListener {
+            listener.onSecondOptionClicked()
             dismiss()
         }
 

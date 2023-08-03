@@ -78,6 +78,7 @@
     <string name="files">Files</string>
     <string name="file">File</string>
     <string name="file_is_downloading">File is downloading</string>
+    <string name="media_is_downloading">Media is downloading</string>
     <string name="download_media">Download</string>
     <string name="library">Library</string>
     <string name="location">Location</string>
