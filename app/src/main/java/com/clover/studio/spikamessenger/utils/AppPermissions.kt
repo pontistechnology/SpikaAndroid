@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
+import com.clover.studio.spikamessenger.MainApplication
 
 object AppPermissions {
     fun requestPermissions(activity: Activity): List<String> {
@@ -51,8 +52,9 @@ object AppPermissions {
             Manifest.permission.POST_NOTIFICATIONS
         } else ""
 
-    val externalStorage: String =
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.WRITE_EXTERNAL_STORAGE + Manifest.permission.READ_EXTERNAL_STORAGE
-        } else ""
+    val hasStoragePermission: Boolean =
+        ContextCompat.checkSelfPermission(
+            MainApplication.appContext,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
 }

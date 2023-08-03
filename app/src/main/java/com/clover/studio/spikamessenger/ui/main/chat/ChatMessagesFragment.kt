@@ -1103,7 +1103,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
                     )
                 } == PackageManager.PERMISSION_GRANTED -> {
-                    Tools.downloadFile(context!!, message.message)
+                    Tools.downloadFile(requireContext(), message.message)
                 }
 
                 shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
@@ -1115,7 +1115,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 }
             }
-        } else Tools.downloadFile(context!!, message.message)
+        } else Tools.downloadFile(requireContext(), message.message)
     }
 
     private fun handleDownloadCancelFile(message: Message) {
@@ -1139,14 +1139,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun handleMediaNavigation(chatMessage: MessageAndRecords) {
         val mediaInfo: String = if (chatMessage.message.fromUserId == localUserId) {
-            context!!.getString(
+            requireContext().getString(
                 R.string.you_sent_on,
                 Tools.fullDateFormat(chatMessage.message.createdAt!!)
             )
         } else {
             val userName =
                 roomWithUsers.users.firstOrNull { it.id == chatMessage.message.fromUserId }!!.formattedDisplayName
-            context!!.getString(
+            requireContext().getString(
                 R.string.user_sent_on,
                 userName,
                 Tools.fullDateFormat(chatMessage.message.createdAt!!)
