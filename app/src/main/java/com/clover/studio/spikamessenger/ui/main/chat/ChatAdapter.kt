@@ -450,9 +450,9 @@ class ChatAdapter(
 
                 /** Show edited layout: */
                 if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.tvEdited.visibility = View.VISIBLE
+                    holder.binding.tvMessageEdited.visibility = View.VISIBLE
                 } else {
-                    holder.binding.tvEdited.visibility = View.GONE
+                    holder.binding.tvMessageEdited.visibility = View.GONE
                 }
 
                 /** Show user names and avatars in group chat */
