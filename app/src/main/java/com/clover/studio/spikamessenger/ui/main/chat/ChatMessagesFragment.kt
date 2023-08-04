@@ -337,7 +337,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         Const.Navigation.ROOM_ID to roomWithUsers.room.roomId,
                     )
                 findNavController().navigate(
-                    R.id.action_chatMessagesFragment_to_contactDetailsFragment2,
+                    R.id.action_chatMessagesFragment_to_contactDetailsFragment,
                     bundle
                 )
             } else {
@@ -426,7 +426,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         ivButtonSend.setOnClickListener {
             vHideTyping.visibility = View.GONE
             vTransparent.visibility = View.GONE
-            if (etMessage.text?.isNotEmpty() == true) {
+            if (bindingSetup.etMessage.text?.trim().toString().isNotEmpty()) {
                 createTempTextMessage()
                 sendMessage()
             }
@@ -610,6 +610,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun initializeObservers() {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
+            senderScroll()
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (unsentMessages.isNotEmpty()) {
@@ -625,7 +626,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                 else -> Timber.d("Other error")
             }
-            senderScroll()
         })
 
         viewModel.getMessageAndRecords(roomId = roomWithUsers.room.roomId)
@@ -1162,7 +1162,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         val action =
-            ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
+            ChatMessagesFragmentDirections.actionChatMessagesFragmentToVideoFragment(
                 mediaInfo = mediaInfo,
                 message = chatMessage.message
             )
@@ -1278,12 +1278,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.etMessage.addTextChangedListener {
             if (isEditing) {
                 if (!originalText.equals(it)) {
-                    // Show save button
                     bindingSetup.tvSave.visibility = View.VISIBLE
                     bindingSetup.ivCamera.visibility = View.INVISIBLE
                     bindingSetup.ivMicrophone.visibility = View.INVISIBLE
                 } else {
-                    // Hide save button
                     bindingSetup.tvSave.visibility = View.GONE
                     bindingSetup.ivCamera.visibility = View.VISIBLE
                     bindingSetup.ivMicrophone.visibility = View.VISIBLE
@@ -1409,7 +1407,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             val jsonObject = JsonObject()
             jsonObject.addProperty(
                 Const.JsonFields.TEXT_TYPE,
-                bindingSetup.etMessage.text.toString()
+                bindingSetup.etMessage.text.toString().trim()
             )
 
             viewModel.editMessage(editedMessageId, jsonObject)
@@ -1453,7 +1451,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun sendMessage() {
         try {
             sendMessage(
-                text = bindingSetup.etMessage.text.toString(),
+                text = bindingSetup.etMessage.text.toString().trim(),
                 localId = unsentMessages.first().localId!!,
             )
         } catch (e: Exception) {
@@ -1486,7 +1484,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun createTempTextMessage() {
         val messageBody =
-            MessageBody(null, bindingSetup.etMessage.text.toString(), 1, 1, null, null)
+            MessageBody(null, bindingSetup.etMessage.text.toString().trim(), 1, 1, null, null)
 
         val tempMessage = Tools.createTemporaryMessage(
             getUniqueRandomId(unsentMessages),

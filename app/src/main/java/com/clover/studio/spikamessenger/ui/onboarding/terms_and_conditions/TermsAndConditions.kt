@@ -33,7 +33,7 @@ class TermsAndConditions : Fragment() {
 
     private fun initializeViews() {
         binding.tvAgree.setOnClickListener {
-            findNavController().navigate(R.id.action_splashFragment_to_registerNumberFragment)
+            findNavController().navigate(TermsAndConditionsDirections.actionSplashFragmentToRegisterNumberFragment())
         }
 
         val textToSpan = binding.tvWelcomeDescription.text

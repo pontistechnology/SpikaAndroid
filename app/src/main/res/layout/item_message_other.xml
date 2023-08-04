@@ -23,15 +23,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <TextView
         android:id="@+id/tv_message_edited"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/eight_dp_margin"
+        android:layout_marginTop="@dimen/two_dp_margin"
         android:layout_marginEnd="@dimen/sixty_four_dp"
         android:fontFamily="@font/montserrat"
         android:text="@string/edited"
-        android:layout_marginStart="@dimen/eight_dp_margin"
-        android:layout_marginTop="@dimen/two_dp_margin"
         android:textColor="@color/text_tertiary"
         android:textSize="@dimen/nine_sp_text"
         android:visibility="gone"
@@ -41,38 +42,37 @@
         app:layout_constraintStart_toEndOf="@+id/cl_container"
         app:layout_constraintTop_toTopOf="@+id/cl_container" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/eight_dp_margin"
-        android:layout_marginTop="@dimen/two_dp_margin"
-        android:layout_marginEnd="@dimen/sixty_four_dp"
-        android:layout_marginBottom="@dimen/two_dp_margin"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toEndOf="@+id/iv_user_image"
-        app:layout_constraintTop_toBottomOf="@+id/tv_username">
-
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_reply_message"
+            android:id="@+id/cl_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
-            android:layout_marginTop="@dimen/eight_dp_margin"
-            android:layout_marginEnd="@dimen/eight_dp_margin"
+            android:layout_marginTop="@dimen/two_dp_margin"
+            android:layout_marginEnd="@dimen/sixty_four_dp"
             android:layout_marginBottom="@dimen/two_dp_margin"
-            android:background="@drawable/bg_message_send"
-            android:backgroundTint="@color/message_me"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/tv_message"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@+id/iv_user_image"
+            app:layout_constraintTop_toBottomOf="@+id/tv_username">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_reply_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginTop="@dimen/eight_dp_margin"
+                android:layout_marginEnd="@dimen/eight_dp_margin"
+                android:layout_marginBottom="@dimen/two_dp_margin"
+                android:background="@drawable/bg_message_send"
+                android:backgroundTint="@color/message_me"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:id="@+id/tv_username_other"
@@ -309,7 +309,7 @@
         android:layout_marginStart="@dimen/eight_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/audio_duration"
-        android:textColor="@color/border"
+        android:textColor="@color/text_tertiary"
         android:textSize="@dimen/twelve_sp_text"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/cl_container"

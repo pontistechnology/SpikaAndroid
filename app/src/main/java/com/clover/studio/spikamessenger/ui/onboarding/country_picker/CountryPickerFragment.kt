@@ -38,7 +38,7 @@ class CountryPickerFragment : BaseFragment() {
 
         binding.tvCancel.setOnClickListener {
             findNavController().navigate(
-                R.id.action_countryPickerFragment_to_registerNumberFragment
+                CountryPickerFragmentDirections.actionCountryPickerFragmentToRegisterNumberFragment()
             )
         }
 

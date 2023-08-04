@@ -63,7 +63,7 @@ class PrivacySettingsFragment : BaseFragment() {
         blockedUserAdapter = BlockedUserAdapter(requireContext()) {
             val bundle = bundleOf(Const.Navigation.USER_PROFILE to it)
             findNavController().navigate(
-                R.id.action_privacySettingsFragment2_to_contactDetailsFragment,
+                R.id.action_privacySettingsFragment_to_contactDetailsFragment,
                 bundle
             )
         }

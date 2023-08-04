@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.navigation.findNavController
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.ActivityOnboardingBinding
+import com.clover.studio.spikamessenger.ui.onboarding.terms_and_conditions.TermsAndConditionsDirections
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.extendables.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,7 +37,7 @@ class OnboardingActivity : BaseActivity() {
         goToAccountCreation = intent.getBooleanExtra(Const.Navigation.GO_ACCOUNT_CREATION, false)
 
         if (goToAccountCreation) {
-            findNavController(R.id.container).navigate(R.id.action_splashFragment_to_accountCreationFragment2)
+            findNavController(R.id.container).navigate(TermsAndConditionsDirections.actionSplashFragmentToAccountCreationFragment())
         }
 
         // TODO check if terms accepted and navigate to registration

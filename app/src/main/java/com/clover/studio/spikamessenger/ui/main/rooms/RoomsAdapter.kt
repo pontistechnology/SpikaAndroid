@@ -34,19 +34,17 @@ class RoomsAdapter(
     override fun onBindViewHolder(holder: RoomsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { roomItem ->
-                var userName = ""
-                var avatarFileId = 0L
+                val userName: String
+                val avatarFileId: Long
                 //Timber.d("Room data = $roomItem, ${roomItem.roomWithUsers.room.name}")
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
-                    for (roomUser in roomItem.roomWithUsers.users) {
-                        if (myUserId != roomUser.id.toString()) {
-                            userName = roomUser.formattedDisplayName
-                            avatarFileId = roomUser.avatarFileId!!
-                            break
-                        } else {
-                            userName = roomUser.formattedDisplayName
-                            avatarFileId = roomUser.avatarFileId!!
-                        }
+                    val roomUser = roomItem.roomWithUsers.users.find { it.id.toString() != myUserId }
+                    if (roomUser != null) {
+                        userName = roomUser.formattedDisplayName
+                        avatarFileId = roomUser.avatarFileId!!
+                    } else {
+                        userName = roomItem.roomWithUsers.users.first().formattedDisplayName
+                        avatarFileId = roomItem.roomWithUsers.users.first().avatarFileId!!
                     }
                 } else {
                     userName = roomItem.roomWithUsers.room.name.toString()

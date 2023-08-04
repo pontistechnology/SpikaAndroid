@@ -20,6 +20,7 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.databinding.FragmentSettingsBinding
+import com.clover.studio.spikamessenger.ui.main.MainFragmentDirections
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.FileUploadListener
@@ -409,27 +410,27 @@ class SettingsFragment : BaseFragment() {
     // Below navigation methods are unused until we implement all other functionality of settings
     // screens
     private fun goToPrivacySettings() {
-        findNavController().navigate(R.id.action_mainFragment_to_privacySettingsFragment22)
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToPrivacySettingsFragment())
     }
 
     private fun goToAppearanceSettings() {
-        findNavController().navigate(R.id.action_mainFragment_to_appearanceSettings)
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToAppearanceSettings())
     }
 
     private fun goToHelp() {
-        findNavController().navigate(R.id.action_mainFragment_to_helpFragment)
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToHelpFragment())
     }
 
     private fun goToChatSettings() {
-        findNavController().navigate(R.id.action_mainFragment_to_chatSettingsFragment22)
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToChatSettingsFragment())
     }
 
     private fun goToNotificationSettings() {
-        findNavController().navigate(R.id.action_mainFragment_to_notificationSettingsFragment22)
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToNotificationSettingsFragment())
     }
 
     private fun goToDownloadSettings() {
-        findNavController().navigate(R.id.action_mainFragment_to_downloadSettingsFragment2)
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToDownloadSettingsFragment())
     }
 
     override fun onPause() {
