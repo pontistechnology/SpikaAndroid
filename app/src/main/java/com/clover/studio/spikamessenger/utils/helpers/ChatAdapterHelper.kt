@@ -112,8 +112,6 @@ object ChatAdapterHelper {
                     isFirstResource: Boolean
                 ): Boolean {
                     Timber.d("Load Failed")
-                    // TODO ask Matko if we need to handle this case
-                    // Add some placeholder?
                     return false
                 }
 
@@ -190,15 +188,19 @@ object ChatAdapterHelper {
     private fun getDatabaseReaction(
         reactionList: List<MessageRecords>?
     ): String {
+        // This list contains only reaction types.
+        // Before we filter the list to get unique reaction values, we need the total number of reactions for if conditions.
         val tmp: MutableList<MessageRecords> =
             reactionList!!.filter { it.type == Const.JsonFields.REACTION }.toMutableList()
         val total = tmp.count()
+        // We remove duplicate reactions from the first list.
         var filteredList = tmp.distinctBy { it.reaction }.toMutableList()
 
         var reactionText = ""
         val totalText: String
 
         if (filteredList.isNotEmpty()) {
+            // If the list is longer than three reactions, show only the first three reactions.
             if (filteredList.size > MAX_REACTIONS) {
                 filteredList = filteredList.subList(0, MAX_REACTIONS)
                 totalText = total.toString()

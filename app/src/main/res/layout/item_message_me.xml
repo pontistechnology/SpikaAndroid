@@ -19,7 +19,7 @@
         android:id="@+id/tv_section_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/eight_dp_margin"
         android:fontFamily="@font/montserrat"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,14 +33,14 @@
         android:layout_marginStart="@dimen/sixty_four_dp"
         android:layout_marginEnd="@dimen/twenty_four_dp_margin"
         android:visibility="visible"
+        app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_section_header"
-        app:layout_constraintVertical_bias="0.0"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintHorizontal_chainStyle="packed">
+        app:layout_constraintVertical_bias="0.0">
 
         <com.vanniktech.emoji.EmojiTextView
             android:id="@+id/tv_message"
@@ -288,8 +288,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/sixty_four_dp"
-        android:layout_marginEnd="@dimen/eight_dp_margin"
         android:layout_marginTop="@dimen/two_dp_margin"
+        android:layout_marginEnd="@dimen/eight_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/edited"
         android:textColor="@color/text_tertiary"

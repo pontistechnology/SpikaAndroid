@@ -111,6 +111,9 @@ class ChatAdapter(
                     playerListener = null
                 }
 
+                // The line below sets each adapter item to be unique (uses more memory)
+                // holder.setIsRecyclable(false)
+
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_send)
                 holder.binding.tvTime.visibility = View.GONE
 
@@ -348,6 +351,9 @@ class ChatAdapter(
                     playerListener = null
                 }
 
+                // The line below sets each adapter item to be unique (uses more memory)
+                // holder.setIsRecyclable(false)
+
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                 holder.binding.tvTime.visibility = View.GONE
 
@@ -453,8 +459,7 @@ class ChatAdapter(
                 if (Const.JsonFields.PRIVATE == roomType) {
                     holder.binding.ivUserImage.visibility = View.GONE
                     holder.binding.tvUsername.visibility = View.GONE
-                }
-                else{
+                } else {
                     val roomUser = users.find { user -> user.id == it.message.fromUserId }
                     if (roomUser != null) {
                         holder.binding.tvUsername.text = roomUser.formattedDisplayName

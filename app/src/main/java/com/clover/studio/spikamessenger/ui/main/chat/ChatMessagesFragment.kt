@@ -152,8 +152,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var scrollToPosition = 0
 
-//    private var files2: ArrayList<FileData> = ArrayList()
-
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
             if (!it.isNullOrEmpty()) {
