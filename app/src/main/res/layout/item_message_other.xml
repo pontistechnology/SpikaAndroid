@@ -322,4 +322,3 @@
         app:layout_constraintStart_toEndOf="@id/cl_container"
         app:layout_constraintTop_toTopOf="@+id/cl_container" />
 </androidx.constraintlayout.widget.ConstraintLayout>
-
