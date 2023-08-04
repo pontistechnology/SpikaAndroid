@@ -274,7 +274,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     Toast.LENGTH_SHORT
                 ).show()
 
-                else -> Toast.makeText(activity, getString(R.string.other_error), Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(
+                    activity,
+                    getString(R.string.other_error),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
 
@@ -673,9 +677,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
 
         viewModel.messagesReceived.observe(viewLifecycleOwner) { messages ->
-            val receivedMessages = messages.filter { it.roomId == roomWithUsers.room.roomId
-                    && it.fromUserId != localUserId }
-            if (receivedMessages.isNotEmpty()){
+            val receivedMessages = messages.filter {
+                it.roomId == roomWithUsers.room.roomId
+                        && it.fromUserId != localUserId
+            }
+            if (receivedMessages.isNotEmpty()) {
                 showNewMessage(receivedMessages.size)
             }
         }
@@ -770,7 +776,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         if (!((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
-                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))) {
+                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
+        ) {
 
             bindingSetup.cvNewMessages.visibility = View.VISIBLE
 
@@ -846,6 +853,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(
                                 message
                             )
+
                             Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
                                 message
                             )
@@ -1500,9 +1508,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         for (uri in selectedFilesUris) {
             val fileMimeType = getFileMimeType(context, uri)
             if ((fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
-                fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) &&
+                        fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) &&
                 (!fileMimeType.contains(Const.JsonFields.SVG_TYPE) &&
-                !fileMimeType.contains(Const.JsonFields.AVI_TYPE))
+                        !fileMimeType.contains(Const.JsonFields.AVI_TYPE))
             ) {
                 convertMedia(uri, fileMimeType)
             } else {
@@ -1624,7 +1632,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         metadata: FileMetadata?,
     ) {
         val uploadData: MutableList<FileData> = ArrayList()
-        uploadData.add(FilesHelper.uploadFile(isThumbnail, uri, localId, roomWithUsers.room.roomId, metadata))
+        uploadData.add(
+            FilesHelper.uploadFile(
+                isThumbnail,
+                uri,
+                localId,
+                roomWithUsers.room.roomId,
+                metadata
+            )
+        )
         uploadFiles.addAll(uploadData)
     }
 
@@ -1667,8 +1683,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     if (uploadedFiles.isNotEmpty()) {
                         uploadedFiles.forEach { item ->
                             if (item.messageStatus == Resource.Status.ERROR ||
-                                    item.messageStatus == Resource.Status.LOADING ||
-                                    item.messageStatus == null) {
+                                item.messageStatus == Resource.Status.LOADING ||
+                                item.messageStatus == null
+                            ) {
                                 if (!item.isThumbnail) {
                                     viewModel.updateMessages(
                                         messageStatus = Resource.Status.ERROR.toString(),
