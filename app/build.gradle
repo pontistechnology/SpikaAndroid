@@ -123,7 +123,7 @@ android {
             minifyEnabled false
 
             resValue "string", "APP_NAME", "Spika Messenger Dev"
-            buildConfigField("String", "SERVER_URL", "\"https://messenger.spika.chat/messenger/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://messenger.spika.chat/\"")
 
             signingConfig signingConfigs.debug
         }
@@ -137,7 +137,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             resValue "string", "APP_NAME", "Spika Messenger"
-            buildConfigField("String", "SERVER_URL", "\"https://messenger.spika.chat/messenger/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://messenger.spika.chat/\"")
 
             signingConfig signingConfigs.messenger
         }
