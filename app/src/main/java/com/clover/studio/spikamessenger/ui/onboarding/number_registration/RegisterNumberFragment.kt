@@ -108,7 +108,8 @@ class RegisterNumberFragment : BaseFragment() {
                     viewModel.registerFlag(true)
                     viewModel.writeFirstAppStart()
                     findNavController().navigate(
-                        R.id.action_registerNumberFragment_to_verificationFragment, bundle
+                        R.id.action_registerNumberFragment_to_verificationFragment,
+                        bundle
                     )
                 }
 
@@ -149,7 +150,7 @@ class RegisterNumberFragment : BaseFragment() {
                     viewModel.userPhoneNumberListener.value = binding.etPhoneNumber.text.toString()
                 }
                 findNavController().navigate(
-                    R.id.action_registerNumberFragment_to_countryPickerFragment
+                    RegisterNumberFragmentDirections.actionRegisterNumberFragmentToCountryPickerFragment()
                 )
             }
         }

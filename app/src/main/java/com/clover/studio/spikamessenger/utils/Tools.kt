@@ -339,7 +339,6 @@ object Tools {
 
         )
         return String.format("%02d:%02d", minutes, seconds)
-
     }
 
     fun generateRandomInt(): Int {
@@ -667,18 +666,6 @@ object Tools {
         startOnboardingActivity(activity, false)
     }
 
-    fun getFileNameFromUri(uri: Uri): String {
-        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
-        val cursor =
-            MainApplication.appContext.contentResolver.query(uri, projection, null, null, null)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                return it.getString(0)
-            }
-        }
-        return ""
-    }
-
     fun getFileType(uri: Uri): String {
         val mimeType = getFileMimeType(MainApplication.appContext, uri)
 
@@ -695,5 +682,17 @@ object Tools {
     fun getFileMimeType(context: Context?, uri: Uri): String? {
         val cR: ContentResolver = context!!.contentResolver
         return cR.getType(uri)
+    }
+
+    fun getFileNameFromUri(uri: Uri): String {
+        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
+        val cursor =
+            MainApplication.appContext.contentResolver.query(uri, projection, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                return it.getString(0)
+            }
+        }
+        return ""
     }
 }
