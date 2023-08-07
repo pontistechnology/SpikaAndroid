@@ -51,7 +51,7 @@ class NotesFragment : BaseFragment() {
         binding.ivNewNote.setOnClickListener {
             if (activity is MainActivity) {
                 findNavController().navigate(
-                    R.id.newNoteFragment2,
+                    R.id.newNoteFragment,
                     bundleOf(Const.Navigation.ROOM_ID to roomId)
                 )
             } else findNavController().navigate(
@@ -86,7 +86,7 @@ class NotesFragment : BaseFragment() {
         adapter = NotesAdapter(requireActivity()) {
             if (activity is MainActivity) {
                 findNavController().navigate(
-                    R.id.notesDetailsFragment2,
+                    R.id.notesDetailsFragment,
                     bundleOf(
                         Const.Navigation.NOTE_ID to it.id,
                         Const.Navigation.NOTES_DETAILS to it.content,

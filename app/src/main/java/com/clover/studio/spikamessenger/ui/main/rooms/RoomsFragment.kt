@@ -9,9 +9,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.databinding.FragmentChatBinding
+import com.clover.studio.spikamessenger.ui.main.MainFragmentDirections
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.ui.main.rooms.search.SearchAdapter
@@ -48,7 +48,7 @@ class RoomsFragment : BaseFragment() {
         setupSearchView()
 
         binding.ivCreateRoom.setOnClickListener {
-            findNavController().navigate(R.id.action_mainFragment_to_newRoomFragment)
+            findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
         }
 
         return binding.root

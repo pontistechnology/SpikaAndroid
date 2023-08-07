@@ -1,10 +1,13 @@
 package com.clover.studio.spikamessenger.utils.helpers
 
+import android.animation.ObjectAnimator
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
 import android.view.View
+import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
@@ -13,7 +16,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
@@ -23,11 +30,13 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.google.android.material.imageview.ShapeableImageView
 import com.vanniktech.emoji.EmojiTextView
+import timber.log.Timber
 
 const val MAX_REACTIONS = 3
 private const val TEXT_SIZE_BIG = 11
 private const val TEXT_SIZE_SMALL = 5
 const val MAX_HEIGHT = 300
+const val MIN_HEIGHT = 256
 
 object ChatAdapterHelper {
 
@@ -39,7 +48,7 @@ object ChatAdapterHelper {
             holder.itemView.findViewById<TextView>(R.id.tv_message),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cl_image_chat),
             holder.itemView.findViewById<ConstraintLayout>(R.id.file_layout),
-            holder.itemView.findViewById<FrameLayout>(R.id.fl_videos),
+            holder.itemView.findViewById<FrameLayout>(R.id.video_layout),
             holder.itemView.findViewById<CardView>(R.id.cv_audio),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cl_reply_message)
         )
@@ -56,22 +65,74 @@ object ChatAdapterHelper {
     /** A method that loads a media item into Glide
      * @param context - Context
      * @param mediaPath - Path of media item
-     * @param imageView - ImageView where we want to load the image
+     * @param mediaImage - ImageView where we want to load the image
      * */
-    fun loadMedia(context: Context, mediaPath: String, imageView: ImageView, height: Int) {
+    fun loadMedia(
+        context: Context,
+        mediaPath: String,
+        mediaImage: ImageView,
+        loadingImage: ImageView?,
+        height: Int,
+        playButton: ImageView?
+    ) {
         val maxHeight = convertToDp(context, MAX_HEIGHT)
-        val params = imageView.layoutParams
-        params.height = if (convertToDp(context, height) > maxHeight) maxHeight else convertToDp(
-            context,
-            height
-        )
-        imageView.layoutParams = params
+        val newHeight: Int = if (height <= 100) {
+            convertToDp(context, MIN_HEIGHT)
+        } else {
+            if (convertToDp(context, height) > maxHeight) {
+                maxHeight
+            } else {
+                height
+            }
+        }
+
+        val params = mediaImage.layoutParams
+        params.height = newHeight
+        mediaImage.layoutParams = params
+
+        var rotationAnimator: ObjectAnimator? = null
+        if (loadingImage != null && loadingImage.visibility == View.VISIBLE) {
+            rotationAnimator = ObjectAnimator.ofFloat(loadingImage, "rotation", 0f, 360f)
+            rotationAnimator.apply {
+                repeatCount = ObjectAnimator.INFINITE
+                duration = 2000
+                interpolator = LinearInterpolator()
+                start()
+            }
+        }
 
         Glide.with(context)
             .load(mediaPath)
             .dontTransform()
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    Timber.d("Load Failed")
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    loadingImage?.visibility = View.GONE
+                    mediaImage.visibility = View.VISIBLE
+                    if (playButton != null) {
+                        playButton.visibility = View.VISIBLE
+                    }
+                    rotationAnimator?.end()
+                    return false
+                }
+            })
             .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .into(imageView)
+            .into(mediaImage)
     }
 
     private fun convertToDp(context: Context, dp: Int): Int {
@@ -236,12 +297,9 @@ object ChatAdapterHelper {
                             imagePath
                         )
                     }
-                loadMedia(
-                    context,
-                    imagePath!!,
-                    ivReplyImage,
-                    0
-                )
+                Glide.with(context)
+                    .load(imagePath)
+                    .into(ivReplyImage)
             }
             /** Audio type */
             Const.JsonFields.AUDIO_TYPE -> {
@@ -301,7 +359,6 @@ object ChatAdapterHelper {
         ivMessageStatus: ImageView
     ) {
         val message = chatMessage?.message
-
         when (message?.messageStatus) {
             Resource.Status.ERROR.toString() -> {
                 ivMessageStatus.setImageResource(R.drawable.img_alert)
@@ -356,7 +413,6 @@ object ChatAdapterHelper {
             try {
                 val nextItem = currentList[position + 1].message.fromUserId
                 val previousItem = currentList[position - 1].message.fromUserId
-
                 val currentItem = currentList[position].message.fromUserId
 
                 if (previousItem == currentItem) {

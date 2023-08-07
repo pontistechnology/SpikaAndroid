@@ -202,6 +202,7 @@
     <string name="enter_title">Enter title</string>
     <string name="enter_description">Enter description</string>
     <string name="zero_minutes_ago">0 minutes ago</string>
+    <string name="in_zero_minutes">In 0 minutes</string>
     <string name="registration_error">Registration error</string>
     <string name="registration_error_description">There was an error while registering to the app.</string>
     <string name="wrong_file_type">Wrong file type selected</string>

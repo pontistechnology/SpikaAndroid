@@ -6,12 +6,12 @@
     app:startDestination="@id/chatMessagesFragment">
 
     <fragment
-        android:id="@+id/newRoomFragment2"
+        android:id="@+id/newRoomFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.create_room.NewRoomFragment"
         android:label="fragment_new_room"
         tools:layout="@layout/fragment_new_room">
         <action
-            android:id="@+id/action_newRoomFragment2_to_chatDetailsFragment"
+            android:id="@+id/action_newRoomFragment_to_chatDetailsFragment"
             app:destination="@id/chatDetailsFragment" />
         <argument
             android:name="userIds"
@@ -20,6 +20,7 @@
             app:nullable="true" />
         <argument
             android:name="roomId"
+            android:defaultValue="0"
             app:argType="integer" />
     </fragment>
     <fragment
@@ -28,8 +29,8 @@
         android:label="ChatDetailsFragment"
         tools:layout="@layout/fragment_chat_details">
         <action
-            android:id="@+id/action_chatDetailsFragment_to_newRoomFragment2"
-            app:destination="@id/newRoomFragment2" />
+            android:id="@+id/action_chatDetailsFragment_to_newRoomFragment"
+            app:destination="@id/newRoomFragment" />
         <argument
             android:name="roomWithUsers"
             app:argType="com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers" />
@@ -38,7 +39,7 @@
             android:defaultValue="false"
             app:argType="boolean" />
         <action
-            android:id="@+id/action_chatDetailsFragment_to_chatMessagesFragment2"
+            android:id="@+id/action_chatDetailsFragment_to_chatMessagesFragment"
             app:destination="@id/chatMessagesFragment" />
         <action
             android:id="@+id/action_chatDetailsFragment_to_notesFragment"
@@ -50,14 +51,14 @@
         android:label="fragment_chat_messages"
         tools:layout="@layout/fragment_chat_messages">
         <action
-            android:id="@+id/action_chatMessagesFragment2_to_videoFragment2"
+            android:id="@+id/action_chatMessagesFragment_to_videoFragment"
             app:destination="@id/mediaFragment" />
         <action
             android:id="@+id/action_chatMessagesFragment_to_chatDetailsFragment"
             app:destination="@id/chatDetailsFragment" />
         <action
-            android:id="@+id/action_chatMessagesFragment_to_contactDetailsFragment2"
-            app:destination="@id/contactDetailsFragment2" />
+            android:id="@+id/action_chatMessagesFragment_to_contactDetailsFragment"
+            app:destination="@id/contactDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/mediaFragment"
@@ -95,8 +96,8 @@
             android:id="@+id/action_notesFragment_to_newNoteFragment"
             app:destination="@id/newNoteFragment" />
         <action
-            android:id="@+id/action_notesFragment_to_contactDetailsFragment2"
-            app:destination="@id/contactDetailsFragment2" />
+            android:id="@+id/action_notesFragment_to_contactDetailsFragment"
+            app:destination="@id/contactDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/notesDetailsFragment"
@@ -134,15 +135,15 @@
             app:argType="integer" />
     </fragment>
     <fragment
-        android:id="@+id/contactDetailsFragment2"
+        android:id="@+id/contactDetailsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.contact_details.ContactDetailsFragment"
         android:label="fragment_contact_details"
         tools:layout="@layout/fragment_contact_details">
         <action
-            android:id="@+id/action_contactDetailsFragment2_to_chatMessagesFragment"
+            android:id="@+id/action_contactDetailsFragment_to_chatMessagesFragment"
             app:destination="@id/chatMessagesFragment" />
         <action
-            android:id="@+id/action_contactDetailsFragment2_to_notesFragment"
+            android:id="@+id/action_contactDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />
     </fragment>
 </navigation>
