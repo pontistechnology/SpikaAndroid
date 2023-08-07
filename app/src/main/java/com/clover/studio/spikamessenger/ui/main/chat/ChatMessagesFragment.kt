@@ -274,7 +274,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     Toast.LENGTH_SHORT
                 ).show()
 
-                else -> Toast.makeText(activity, getString(R.string.other_error), Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(
+                    activity,
+                    getString(R.string.other_error),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
 
@@ -333,7 +337,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         Const.Navigation.ROOM_ID to roomWithUsers.room.roomId,
                     )
                 findNavController().navigate(
-                    R.id.action_chatMessagesFragment_to_contactDetailsFragment2,
+                    R.id.action_chatMessagesFragment_to_contactDetailsFragment,
                     bundle
                 )
             } else {
@@ -422,7 +426,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         ivButtonSend.setOnClickListener {
             vHideTyping.visibility = View.GONE
             vTransparent.visibility = View.GONE
-            if (etMessage.text?.isNotEmpty() == true) {
+            if (bindingSetup.etMessage.text?.trim().toString().isNotEmpty()) {
                 createTempTextMessage()
                 sendMessage()
             }
@@ -606,6 +610,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun initializeObservers() {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
+            senderScroll()
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (unsentMessages.isNotEmpty()) {
@@ -621,7 +626,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                 else -> Timber.d("Other error")
             }
-            senderScroll()
         })
 
         viewModel.getMessageAndRecords(roomId = roomWithUsers.room.roomId)
@@ -673,9 +677,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
 
         viewModel.messagesReceived.observe(viewLifecycleOwner) { messages ->
-            val receivedMessages = messages.filter { it.roomId == roomWithUsers.room.roomId
-                    && it.fromUserId != localUserId }
-            if (receivedMessages.isNotEmpty()){
+            val receivedMessages = messages.filter {
+                it.roomId == roomWithUsers.room.roomId
+                        && it.fromUserId != localUserId
+            }
+            if (receivedMessages.isNotEmpty()) {
                 showNewMessage(receivedMessages.size)
             }
         }
@@ -770,7 +776,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         if (!((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
-                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))) {
+                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
+        ) {
 
             bindingSetup.cvNewMessages.visibility = View.VISIBLE
 
@@ -846,6 +853,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(
                                 message
                             )
+
                             Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
                                 message
                             )
@@ -1154,7 +1162,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         val action =
-            ChatMessagesFragmentDirections.actionChatMessagesFragment2ToVideoFragment2(
+            ChatMessagesFragmentDirections.actionChatMessagesFragmentToVideoFragment(
                 mediaInfo = mediaInfo,
                 message = chatMessage.message
             )
@@ -1270,12 +1278,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.etMessage.addTextChangedListener {
             if (isEditing) {
                 if (!originalText.equals(it)) {
-                    // Show save button
                     bindingSetup.tvSave.visibility = View.VISIBLE
                     bindingSetup.ivCamera.visibility = View.INVISIBLE
                     bindingSetup.ivMicrophone.visibility = View.INVISIBLE
                 } else {
-                    // Hide save button
                     bindingSetup.tvSave.visibility = View.GONE
                     bindingSetup.ivCamera.visibility = View.VISIBLE
                     bindingSetup.ivMicrophone.visibility = View.VISIBLE
@@ -1401,7 +1407,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             val jsonObject = JsonObject()
             jsonObject.addProperty(
                 Const.JsonFields.TEXT_TYPE,
-                bindingSetup.etMessage.text.toString()
+                bindingSetup.etMessage.text.toString().trim()
             )
 
             viewModel.editMessage(editedMessageId, jsonObject)
@@ -1445,7 +1451,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun sendMessage() {
         try {
             sendMessage(
-                text = bindingSetup.etMessage.text.toString(),
+                text = bindingSetup.etMessage.text.toString().trim(),
                 localId = unsentMessages.first().localId!!,
             )
         } catch (e: Exception) {
@@ -1478,7 +1484,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun createTempTextMessage() {
         val messageBody =
-            MessageBody(null, bindingSetup.etMessage.text.toString(), 1, 1, null, null)
+            MessageBody(null, bindingSetup.etMessage.text.toString().trim(), 1, 1, null, null)
 
         val tempMessage = Tools.createTemporaryMessage(
             getUniqueRandomId(unsentMessages),
@@ -1500,9 +1506,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         for (uri in selectedFilesUris) {
             val fileMimeType = getFileMimeType(context, uri)
             if ((fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
-                fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) &&
+                        fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) &&
                 (!fileMimeType.contains(Const.JsonFields.SVG_TYPE) &&
-                !fileMimeType.contains(Const.JsonFields.AVI_TYPE))
+                        !fileMimeType.contains(Const.JsonFields.AVI_TYPE))
             ) {
                 convertMedia(uri, fileMimeType)
             } else {
@@ -1624,7 +1630,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         metadata: FileMetadata?,
     ) {
         val uploadData: MutableList<FileData> = ArrayList()
-        uploadData.add(FilesHelper.uploadFile(isThumbnail, uri, localId, roomWithUsers.room.roomId, metadata))
+        uploadData.add(
+            FilesHelper.uploadFile(
+                isThumbnail,
+                uri,
+                localId,
+                roomWithUsers.room.roomId,
+                metadata
+            )
+        )
         uploadFiles.addAll(uploadData)
     }
 
@@ -1667,8 +1681,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     if (uploadedFiles.isNotEmpty()) {
                         uploadedFiles.forEach { item ->
                             if (item.messageStatus == Resource.Status.ERROR ||
-                                    item.messageStatus == Resource.Status.LOADING ||
-                                    item.messageStatus == null) {
+                                item.messageStatus == Resource.Status.LOADING ||
+                                item.messageStatus == null
+                            ) {
                                 if (!item.isThumbnail) {
                                     viewModel.updateMessages(
                                         messageStatus = Resource.Status.ERROR.toString(),

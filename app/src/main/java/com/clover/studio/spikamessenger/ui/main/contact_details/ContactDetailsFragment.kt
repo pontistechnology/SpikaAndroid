@@ -291,7 +291,7 @@ class ContactDetailsFragment : BaseFragment() {
         flNotes.setOnClickListener {
             if (activity is MainActivity) {
                 findNavController().navigate(
-                    R.id.notesFragment2,
+                    R.id.notesFragment,
                     bundleOf(Const.Navigation.ROOM_ID to roomId)
                 )
             } else {
