@@ -101,10 +101,10 @@ class ContactDetailsFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     activity?.let { parent ->
-                        it.responseData?.room?.roomId?.let { roomId ->
+                        it.responseData?.let { roomWithUsers ->
                             startChatScreenActivity(
                                 parent,
-                                roomId
+                                roomWithUsers
                             )
                         }
                     }

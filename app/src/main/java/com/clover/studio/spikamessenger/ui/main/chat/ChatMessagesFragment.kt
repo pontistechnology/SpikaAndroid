@@ -233,54 +233,33 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         localUserId = viewModel.getLocalUserId()!!
         messageSearchId = (activity as ChatScreenActivity).searchMessageId
+        roomWithUsers = (activity as ChatScreenActivity).roomWithUsers!!
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
-        viewModel.getSingleRoomData((activity as ChatScreenActivity).roomId)
-
         checkStoragePermission()
 
-        viewModel.roomDataListener.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
-                    roomWithUsers = it.responseData?.roomWithUsers!!
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            user =
+                roomWithUsers.users.firstOrNull { user -> user.id.toString() != localUserId.toString() }
+        }
 
-                    if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-                        user =
-                            roomWithUsers.users.firstOrNull { user -> user.id.toString() != localUserId.toString() }
-                    }
+        if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
+            bindingSetup.clRoomExit.visibility = View.VISIBLE
+        } else {
+            bindingSetup.clRoomExit.visibility = View.GONE
+            setUpMessageDetailsAdapter()
+            setUpMessageReactionAdapter()
+            checkIsUserAdmin()
+        }
+        initializeObservers()
+        initViews()
+        initListeners()
+        setUpAdapter()
 
-                    if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
-                        bindingSetup.clRoomExit.visibility = View.VISIBLE
-                    } else {
-                        bindingSetup.clRoomExit.visibility = View.GONE
-                        setUpMessageDetailsAdapter()
-                        setUpMessageReactionAdapter()
-                        checkIsUserAdmin()
-                    }
-                    initializeObservers()
-                    initViews()
-                    initListeners()
-                    setUpAdapter()
-
-                    // Clear notifications for this room
-                    NotificationManagerCompat.from(requireContext())
-                        .cancel(roomWithUsers.room.roomId)
-                }
-
-                Resource.Status.ERROR -> Toast.makeText(
-                    activity,
-                    getString(R.string.failed_to_load_room_data),
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                else -> Toast.makeText(
-                    activity,
-                    getString(R.string.other_error),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        })
+        // Clear notifications for this room
+        NotificationManagerCompat.from(requireContext())
+            .cancel(roomWithUsers.room.roomId)
 
         return bindingSetup.root
     }
@@ -652,15 +631,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
 
                         if (messageSearchId != 0) {
+                            Timber.d("Message search id = $messageSearchId")
                             if (messagesRecords.firstOrNull { messageAndRecords -> messageAndRecords.message.id == messageSearchId } != null) {
                                 val position =
                                     messagesRecords.indexOfFirst { messageAndRecords -> messageAndRecords.message.id == messageSearchId }
                                 scrollToPosition = position
                                 if (position != -1) {
+                                    Timber.d("Message search scrolling to position $position")
                                     bindingSetup.rvChat.smoothScrollToPosition(position)
                                 }
                                 messageSearchId = 0
                             } else {
+                                Timber.d("Message search fetching next set")
                                 viewModel.fetchNextSet(roomWithUsers.room.roomId)
                             }
                         }
@@ -673,7 +655,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         Timber.d("Message get error")
                     }
                 }
-                senderScroll()
+                // TODO how to handle this when we scroll to a message the user searched?
+//               senderScroll()
             }
 
         viewModel.messagesReceived.observe(viewLifecycleOwner) { messages ->

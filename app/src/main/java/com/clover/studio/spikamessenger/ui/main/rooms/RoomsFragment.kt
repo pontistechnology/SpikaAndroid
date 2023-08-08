@@ -27,9 +27,10 @@ class RoomsFragment : BaseFragment() {
     private lateinit var roomsAdapter: RoomsAdapter
     private lateinit var searchAdapter: SearchAdapter
     private var roomList: MutableList<RoomWithMessage> = mutableListOf()
-    private var filteredList: MutableList<RoomWithMessage> = ArrayList()
-    private var sortedList: MutableList<RoomWithMessage> = ArrayList()
+    private var filteredList: MutableList<RoomWithMessage> = mutableListOf()
+    private var sortedList: MutableList<RoomWithMessage> = mutableListOf()
     private var bindingSetup: FragmentChatBinding? = null
+    private var searchMessageId = 0
 
     private var userSearching = false
 
@@ -226,6 +227,32 @@ class RoomsFragment : BaseFragment() {
             }
         }
 
+        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    if (searchMessageId != 0) {
+                        it.responseData?.let { roomWithUsers ->
+                            startChatScreenActivity(
+                                requireActivity(),
+                                roomWithUsers,
+                                searchMessageId
+                            )
+                        }
+                        searchMessageId = 0
+                    } else {
+                        it.responseData?.let { roomWithUsers ->
+                            startChatScreenActivity(
+                                requireActivity(),
+                                roomWithUsers
+                            )
+                        }
+                    }
+                }
+
+                else -> Timber.d("Room fetching error")
+            }
+        })
+
         viewModel.searchedMessageListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
@@ -239,12 +266,8 @@ class RoomsFragment : BaseFragment() {
 
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
-            activity?.let { parent ->
-                startChatScreenActivity(
-                    parent,
-                    it.roomWithUsers.room.roomId
-                )
-            }
+            // TODO fetch room data for selected room and then navigate to it
+            viewModel.getRoomWithUsers(it.roomWithUsers.room.roomId)
         }
 
         binding.rvRooms.itemAnimator = null
@@ -255,13 +278,13 @@ class RoomsFragment : BaseFragment() {
 
     private fun setupSearchAdapter() {
         searchAdapter = SearchAdapter {
-            Timber.d("Message with user: $it")
-            activity?.let { parent ->
-                startChatScreenActivity(
-                    parent,
-                    it.message.roomId!!,
-                    it.message.id
-                )
+            searchMessageId = it.message.id
+            if (searchMessageId != 0) {
+                it.roomWithUsers?.room?.roomId?.let { roomId ->
+                    viewModel.getRoomWithUsers(
+                        roomId
+                    )
+                }
             }
         }
 
@@ -269,14 +292,5 @@ class RoomsFragment : BaseFragment() {
         binding.rvMessages.adapter = searchAdapter
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         binding.rvMessages.layoutManager = layoutManager
-    }
-
-    override fun onResume() {
-        super.onResume()
-//        viewModel.getRooms()
-
-        // This updates the elapsed time displayed when user return to the screen.
-        // TODO: it needs to be removed at one point
-        roomsAdapter.notifyDataSetChanged()
     }
 }

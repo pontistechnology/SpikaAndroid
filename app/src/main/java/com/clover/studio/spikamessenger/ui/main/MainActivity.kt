@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.asLiveData
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.ActivityMainBinding
-import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.AppPermissions.notificationPermission
@@ -78,7 +77,6 @@ class MainActivity : BaseActivity() {
         val view = bindingSetup.root
         setContentView(view)
 
-        checkIntentExtras()
         checkNotificationPermission()
         initializeObservers()
         sendPushTokenToServer()
@@ -97,19 +95,6 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun checkIntentExtras() {
-        val extras = intent?.extras
-        if (extras != null) {
-            Timber.d("Extras: ${extras.getInt(Const.IntentExtras.ROOM_ID_EXTRA)}")
-            try {
-                viewModel.getSingleRoomData(extras.getInt(Const.IntentExtras.ROOM_ID_EXTRA))
-            } catch (ex: Exception) {
-                // Ignore
-            }
-            intent.removeExtra(Const.IntentExtras.ROOM_ID_EXTRA)
-        }
-    }
-
     private fun initializeObservers() {
         viewModel.newMessageReceivedListener.observe(this, EventObserver { message ->
             message.responseData?.roomId?.let {
@@ -117,23 +102,6 @@ class MainActivity : BaseActivity() {
                     it,
                     message.responseData
                 )
-            }
-        })
-
-        viewModel.roomDataListener.observe(this, EventObserver {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
-                    it.responseData?.roomWithUsers?.let { roomWithUsers ->
-                        startChatScreenActivity(
-                            this,
-                            roomWithUsers.room.roomId
-                        )
-                    }
-                    Timber.d("Main Success!")
-                }
-
-                Resource.Status.ERROR -> Timber.d("Failed to fetch room data")
-                else -> Timber.d("Other error")
             }
         })
 
@@ -323,11 +291,6 @@ class MainActivity : BaseActivity() {
             viewModel.updatePushToken(jsonObject)
             Timber.d("Token: $token")
         })
-    }
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        checkIntentExtras()
     }
 
     override fun onStart() {

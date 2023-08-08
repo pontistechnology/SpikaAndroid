@@ -257,10 +257,12 @@ class NewRoomFragment : BaseFragment() {
                         isRoomUpdate = false
                     } else {
                         activity?.let { parent ->
-                            startChatScreenActivity(
-                                parent,
-                                it.responseData?.room?.roomId!!
-                            )
+                            it.responseData?.let { roomWithUsers ->
+                                startChatScreenActivity(
+                                    parent,
+                                    roomWithUsers
+                                )
+                            }
                         }
                         findNavController().popBackStack(R.id.mainFragment, false)
                     }

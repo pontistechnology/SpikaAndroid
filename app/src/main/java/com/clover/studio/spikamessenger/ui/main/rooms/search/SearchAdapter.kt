@@ -42,16 +42,21 @@ class SearchAdapter(
 
                 // if not first item, check if item above has the same header
                 if (position > 0) {
-                    val previousItem =
-                        getItem(position - 1).roomWithUsers?.room?.name?.lowercase()
-                            ?.substring(0, 1)
+                    if (getItem(position - 1).roomWithUsers?.room?.name?.lowercase()
+                            ?.isNotEmpty() == true
+                        && item.roomWithUsers.room.name?.lowercase()?.isNotEmpty() == true
+                    ) {
+                        val previousItem =
+                            getItem(position - 1).roomWithUsers?.room?.name?.lowercase()
+                                ?.substring(0, 1)
 
-                    val currentItem = item.roomWithUsers.room.name?.lowercase()?.substring(0, 1)
+                        val currentItem = item.roomWithUsers.room.name?.lowercase()?.substring(0, 1)
 
-                    if (previousItem == currentItem) {
-                        binding.tvHeader.visibility = View.GONE
-                    } else {
-                        binding.tvHeader.visibility = View.VISIBLE
+                        if (previousItem == currentItem) {
+                            binding.tvHeader.visibility = View.GONE
+                        } else {
+                            binding.tvHeader.visibility = View.VISIBLE
+                        }
                     }
                 } else {
                     binding.tvHeader.visibility = View.VISIBLE
