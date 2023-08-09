@@ -1742,16 +1742,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     override fun onResume() {
         super.onResume()
-        for (bottomSheet in bottomSheets) {
-            bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
-
-        bindingSetup.clBottomMessageActions.visibility = View.GONE
-        bindingSetup.clBottomSheet.visibility = View.GONE
-        bindingSetup.clDetailsAction.visibility = View.GONE
-        bindingSetup.clBottomReplyAction.visibility = View.GONE
-        bindingSetup.clReactionsDetails.visibility = View.GONE
-
         viewModel.getBlockedUsersList()
     }
 
