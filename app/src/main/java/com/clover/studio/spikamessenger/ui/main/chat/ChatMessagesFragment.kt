@@ -1,6 +1,7 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
 import android.Manifest
+import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -11,17 +12,22 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -78,6 +84,7 @@ import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.io.File
+
 
 private const val SCROLL_DISTANCE_NEGATIVE = -300
 private const val SCROLL_DISTANCE_POSITIVE = 300
@@ -232,8 +239,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
 
         localUserId = viewModel.getLocalUserId()!!
-        messageSearchId = (activity as ChatScreenActivity).searchMessageId
-        roomWithUsers = (activity as ChatScreenActivity).roomWithUsers!!
+        messageSearchId = viewModel.searchMessageId.value
+        roomWithUsers = viewModel.roomWithUsers.value!!
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
@@ -418,7 +425,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         tvUnblock.setOnClickListener {
             DialogError.getInstance(requireContext(),
                 getString(R.string.unblock_user),
-                getString(R.string.unblock_description, bindingSetup.chatHeader.tvChatName.text),
+                getString(
+                    R.string.unblock_description,
+                    bindingSetup.chatHeader.tvChatName.text
+                ),
                 getString(R.string.no),
                 getString(R.string.unblock),
                 object : DialogInteraction {
@@ -574,11 +584,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
 
-        bottomSheetMessageActions.addBottomSheetCallback(bottomSheetBehaviorCallbackMessageAction)
+        bottomSheetMessageActions.addBottomSheetCallback(
+            bottomSheetBehaviorCallbackMessageAction
+        )
         bottomSheetDetailsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
         bottomSheetBehaviour.addBottomSheetCallback(bottomSheetBehaviorCallback)
         bottomSheetReplyAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
-        bottomSheetReactionsAction.addBottomSheetCallback(bottomSheetBehaviorCallbackReactionDetails)
+        bottomSheetReactionsAction.addBottomSheetCallback(
+            bottomSheetBehaviorCallbackReactionDetails
+        )
     }
 
     private fun closeMessageSheet() {
@@ -630,6 +644,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             shouldScroll = false
                         }
 
+                        // If messageSearchId is not 0, it means the user navigated via message
+                        // search. For now, we will just fetch next sets of data until we find
+                        // the correct message id in the adapter to navigate to.
                         if (messageSearchId != 0) {
                             Timber.d("Message search id = $messageSearchId")
                             if (messagesRecords.firstOrNull { messageAndRecords -> messageAndRecords.message.id == messageSearchId } != null) {
@@ -640,23 +657,26 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                     Timber.d("Message search scrolling to position $position")
                                     bindingSetup.rvChat.smoothScrollToPosition(position)
                                 }
+
                                 messageSearchId = 0
+                                viewModel.searchMessageId.value = 0
                             } else {
                                 Timber.d("Message search fetching next set")
                                 viewModel.fetchNextSet(roomWithUsers.room.roomId)
                             }
+                        } else {
+                            senderScroll()
                         }
                     }
 
                     Resource.Status.LOADING -> {
+                        // ignore
                     }
 
                     else -> {
                         Timber.d("Message get error")
                     }
                 }
-                // TODO how to handle this when we scroll to a message the user searched?
-//               senderScroll()
             }
 
         viewModel.messagesReceived.observe(viewLifecycleOwner) { messages ->
@@ -769,7 +789,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     getString(R.string.new_messages, messagesSize.toString(), "").trim()
 
                 val startWidth = bindingSetup.ivBottomArrow.width
-                val endWidth = (bindingSetup.tvNewMessage.width + bindingSetup.ivBottomArrow.width)
+                val endWidth =
+                    (bindingSetup.tvNewMessage.width + bindingSetup.ivBottomArrow.width)
 
                 valueAnimator = ValueAnimator.ofInt(startWidth, endWidth).apply {
                     addUpdateListener { valueAnimator ->
@@ -829,7 +850,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     run {
                         when (event) {
                             Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message.message)
+                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(
+                                message.message
+                            )
+
                             Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                             Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                             Const.UserActions.RESEND_MESSAGE -> handleMessageResend(message)
@@ -1518,7 +1542,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             val bitmap = mmr.frameAtTime
 
             val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
-            val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
+            val file =
+                File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
 
             file.createNewFile()
 
@@ -1673,7 +1698,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                         localId = item.localId.toString()
                                     )
                                 } else {
-                                    val resendUri = uriPairList.find { it.second == item.fileUri }
+                                    val resendUri =
+                                        uriPairList.find { it.second == item.fileUri }
                                     viewModel.updateLocalUri(
                                         localId = item.localId.toString(),
                                         uri = resendUri?.first.toString(),
