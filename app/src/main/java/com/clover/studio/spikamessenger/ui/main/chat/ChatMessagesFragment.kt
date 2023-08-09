@@ -1,7 +1,6 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
 import android.Manifest
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -12,22 +11,17 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AlphaAnimation
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -648,20 +642,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         // search. For now, we will just fetch next sets of data until we find
                         // the correct message id in the adapter to navigate to.
                         if (messageSearchId != 0) {
-                            Timber.d("Message search id = $messageSearchId")
                             if (messagesRecords.firstOrNull { messageAndRecords -> messageAndRecords.message.id == messageSearchId } != null) {
                                 val position =
                                     messagesRecords.indexOfFirst { messageAndRecords -> messageAndRecords.message.id == messageSearchId }
                                 scrollToPosition = position
                                 if (position != -1) {
-                                    Timber.d("Message search scrolling to position $position")
                                     bindingSetup.rvChat.smoothScrollToPosition(position)
                                 }
 
                                 messageSearchId = 0
                                 viewModel.searchMessageId.value = 0
                             } else {
-                                Timber.d("Message search fetching next set")
                                 viewModel.fetchNextSet(roomWithUsers.room.roomId)
                             }
                         } else {
