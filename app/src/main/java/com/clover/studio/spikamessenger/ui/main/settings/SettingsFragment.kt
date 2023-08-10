@@ -197,10 +197,6 @@ class SettingsFragment : BaseFragment() {
             goToPrivacySettings()
         }
 
-//        binding.flHelp.setOnClickListener {
-//            goToHelp()
-//        }
-//
 //        binding.clChat.setOnClickListener {
 //            goToChatSettings()
 //        }
@@ -417,10 +413,6 @@ class SettingsFragment : BaseFragment() {
         findNavController().navigate(MainFragmentDirections.actionMainFragmentToAppearanceSettings())
     }
 
-    private fun goToHelp() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToHelpFragment())
-    }
-
     private fun goToChatSettings() {
         findNavController().navigate(MainFragmentDirections.actionMainFragmentToChatSettingsFragment())
     }
@@ -434,7 +426,7 @@ class SettingsFragment : BaseFragment() {
     }
 
     override fun onPause() {
-        super.onPause()
         showUserDetails()
+        super.onPause()
     }
 }
