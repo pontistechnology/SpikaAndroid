@@ -253,15 +253,24 @@ class RoomsFragment : BaseFragment() {
             }
         })
 
-        viewModel.searchedMessageListener.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
-                    searchAdapter.submitList(it.responseData)
-                }
+        viewModel.searchedMessageListener.observe(
+            viewLifecycleOwner,
+            EventObserver { messagesWithRooms ->
+                when (messagesWithRooms.status) {
+                    Resource.Status.SUCCESS -> {
+                        // Sort searched messages by roomId and then by createdAt
+                        val sortedList = messagesWithRooms.responseData?.sortedWith(
+                            compareBy(
+                                { it.roomWithUsers?.room?.roomId },
+                                { it.message.createdAt }
+                            )
+                        )
+                        searchAdapter.submitList(sortedList)
+                    }
 
-                else -> Timber.d("Search error")
-            }
-        })
+                    else -> Timber.d("Search error")
+                }
+            })
     }
 
     private fun setupAdapter() {
@@ -277,7 +286,7 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun setupSearchAdapter() {
-        searchAdapter = SearchAdapter {
+        searchAdapter = SearchAdapter(viewModel.getLocalUserId().toString()) {
             searchMessageId = it.message.id
             if (searchMessageId != 0) {
                 it.roomWithUsers?.room?.roomId?.let { roomId ->
