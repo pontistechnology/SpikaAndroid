@@ -169,7 +169,6 @@ class ContactsFragment : BaseFragment() {
 
     private fun setupSearchView() {
         // SearchView is immediately acting as if selected
-        binding.svContactsSearch.setQuery("", false)
         binding.svContactsSearch.setIconifiedByDefault(false)
         binding.svContactsSearch.setOnQueryTextListener(object :
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
@@ -223,10 +222,5 @@ class ContactsFragment : BaseFragment() {
                 }
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setupSearchView()
     }
 }
