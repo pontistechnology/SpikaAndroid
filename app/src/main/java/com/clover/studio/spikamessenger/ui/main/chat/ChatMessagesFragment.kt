@@ -307,6 +307,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // If room is group, show number of members under group name
         if (Const.JsonFields.GROUP == roomWithUsers.room.type) {
             bindingSetup.chatHeader.tvTitle.text = roomWithUsers.users.size.toString() + getString(R.string.members)
+        } else {
+            // Room is private, show phone number
+            for (user in roomWithUsers.users) {
+                if (viewModel.getLocalUserId() != user.id) {
+                    bindingSetup.chatHeader.tvTitle.text = user.telephoneNumber
+                    break
+                }
+            }
         }
     }
 
