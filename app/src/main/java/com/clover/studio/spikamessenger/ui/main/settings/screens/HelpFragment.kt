@@ -26,10 +26,6 @@ class HelpFragment : Fragment() {
             findNavController().popBackStack()
         }
 
-        binding.tvTerms.setOnClickListener {
-            Tools.openTermsAndConditions(requireActivity())
-        }
-
         return binding.root
     }
 }

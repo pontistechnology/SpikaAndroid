@@ -197,9 +197,9 @@ class SettingsFragment : BaseFragment() {
             goToPrivacySettings()
         }
 
-        binding.flHelp.setOnClickListener {
-            goToHelp()
-        }
+//        binding.flHelp.setOnClickListener {
+//            goToHelp()
+//        }
 //
 //        binding.clChat.setOnClickListener {
 //            goToChatSettings()
