@@ -160,7 +160,7 @@ class GroupInformationFragment : BaseFragment() {
 
         binding.etEnterUsername.addTextChangedListener {
             if (binding.etEnterUsername.text.isNotEmpty()) {
-                binding.tvCreate.isClickable = true
+                binding.tvCreate.isEnabled = true
                 binding.tvCreate.setTextColor(
                     ContextCompat.getColor(
                         requireContext(),
@@ -168,7 +168,7 @@ class GroupInformationFragment : BaseFragment() {
                     )
                 )
             } else {
-                binding.tvCreate.isClickable = false
+                binding.tvCreate.isEnabled = false
                 binding.tvCreate.setTextColor(
                     ContextCompat.getColor(
                         requireContext(),

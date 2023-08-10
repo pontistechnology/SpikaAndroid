@@ -34,7 +34,7 @@
         android:id="@+id/tv_create"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="false"
+        android:enabled="false"
         android:fontFamily="@font/montserrat_bold"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/create"
@@ -152,3 +152,4 @@
         app:layout_constraintTop_toBottomOf="@id/tv_people_selected" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
