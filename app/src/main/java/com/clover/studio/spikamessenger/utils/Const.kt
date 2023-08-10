@@ -15,6 +15,7 @@ class Const {
             const val NOTE_ID = "noteId"
             const val NOTES_DETAILS = "notesDetails"
             const val NOTES_NAME = "notesName"
+            const val SEARCH_MESSAGE_ID = "searchMessageId"
         }
     }
 

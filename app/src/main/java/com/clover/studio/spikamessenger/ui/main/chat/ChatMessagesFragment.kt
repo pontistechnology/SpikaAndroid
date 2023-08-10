@@ -79,6 +79,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.io.File
 
+
 private const val SCROLL_DISTANCE_NEGATIVE = -300
 private const val SCROLL_DISTANCE_POSITIVE = 300
 private const val MIN_HEIGHT_DIFF = 150
@@ -232,55 +233,34 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
 
         localUserId = viewModel.getLocalUserId()!!
-        messageSearchId = (activity as ChatScreenActivity).searchMessageId
+        messageSearchId = viewModel.searchMessageId.value
+        roomWithUsers = viewModel.roomWithUsers.value!!
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
-        viewModel.getSingleRoomData((activity as ChatScreenActivity).roomId)
-
         checkStoragePermission()
 
-        viewModel.roomDataListener.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
-                    roomWithUsers = it.responseData?.roomWithUsers!!
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            user =
+                roomWithUsers.users.firstOrNull { user -> user.id.toString() != localUserId.toString() }
+        }
 
-                    if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-                        user =
-                            roomWithUsers.users.firstOrNull { user -> user.id.toString() != localUserId.toString() }
-                    }
+        if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
+            bindingSetup.clRoomExit.visibility = View.VISIBLE
+        } else {
+            bindingSetup.clRoomExit.visibility = View.GONE
+            setUpMessageDetailsAdapter()
+            setUpMessageReactionAdapter()
+            checkIsUserAdmin()
+        }
+        initializeObservers()
+        initViews()
+        initListeners()
+        setUpAdapter()
 
-                    if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
-                        bindingSetup.clRoomExit.visibility = View.VISIBLE
-                    } else {
-                        bindingSetup.clRoomExit.visibility = View.GONE
-                        setUpMessageDetailsAdapter()
-                        setUpMessageReactionAdapter()
-                        checkIsUserAdmin()
-                    }
-                    initializeObservers()
-                    initViews()
-                    initListeners()
-                    setUpAdapter()
-
-                    // Clear notifications for this room
-                    NotificationManagerCompat.from(requireContext())
-                        .cancel(roomWithUsers.room.roomId)
-                }
-
-                Resource.Status.ERROR -> Toast.makeText(
-                    activity,
-                    getString(R.string.failed_to_load_room_data),
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                else -> Toast.makeText(
-                    activity,
-                    getString(R.string.other_error),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        })
+        // Clear notifications for this room
+        NotificationManagerCompat.from(requireContext())
+            .cancel(roomWithUsers.room.roomId)
 
         return bindingSetup.root
     }
@@ -439,7 +419,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         tvUnblock.setOnClickListener {
             DialogError.getInstance(requireContext(),
                 getString(R.string.unblock_user),
-                getString(R.string.unblock_description, bindingSetup.chatHeader.tvChatName.text),
+                getString(
+                    R.string.unblock_description,
+                    bindingSetup.chatHeader.tvChatName.text
+                ),
                 getString(R.string.no),
                 getString(R.string.unblock),
                 object : DialogInteraction {
@@ -595,11 +578,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
 
-        bottomSheetMessageActions.addBottomSheetCallback(bottomSheetBehaviorCallbackMessageAction)
+        bottomSheetMessageActions.addBottomSheetCallback(
+            bottomSheetBehaviorCallbackMessageAction
+        )
         bottomSheetDetailsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
         bottomSheetBehaviour.addBottomSheetCallback(bottomSheetBehaviorCallback)
         bottomSheetReplyAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
-        bottomSheetReactionsAction.addBottomSheetCallback(bottomSheetBehaviorCallbackReactionDetails)
+        bottomSheetReactionsAction.addBottomSheetCallback(
+            bottomSheetBehaviorCallbackReactionDetails
+        )
     }
 
     private fun closeMessageSheet() {
@@ -651,6 +638,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             shouldScroll = false
                         }
 
+                        // If messageSearchId is not 0, it means the user navigated via message
+                        // search. For now, we will just fetch next sets of data until we find
+                        // the correct message id in the adapter to navigate to.
                         if (messageSearchId != 0) {
                             if (messagesRecords.firstOrNull { messageAndRecords -> messageAndRecords.message.id == messageSearchId } != null) {
                                 val position =
@@ -659,21 +649,25 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 if (position != -1) {
                                     bindingSetup.rvChat.smoothScrollToPosition(position)
                                 }
+
                                 messageSearchId = 0
+                                viewModel.searchMessageId.value = 0
                             } else {
                                 viewModel.fetchNextSet(roomWithUsers.room.roomId)
                             }
+                        } else {
+                            senderScroll()
                         }
                     }
 
                     Resource.Status.LOADING -> {
+                        // ignore
                     }
 
                     else -> {
                         Timber.d("Message get error")
                     }
                 }
-                senderScroll()
             }
 
         viewModel.messagesReceived.observe(viewLifecycleOwner) { messages ->
@@ -786,7 +780,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     getString(R.string.new_messages, messagesSize.toString(), "").trim()
 
                 val startWidth = bindingSetup.ivBottomArrow.width
-                val endWidth = (bindingSetup.tvNewMessage.width + bindingSetup.ivBottomArrow.width)
+                val endWidth =
+                    (bindingSetup.tvNewMessage.width + bindingSetup.ivBottomArrow.width)
 
                 valueAnimator = ValueAnimator.ofInt(startWidth, endWidth).apply {
                     addUpdateListener { valueAnimator ->
@@ -846,7 +841,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     run {
                         when (event) {
                             Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message.message)
+                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(
+                                message.message
+                            )
+
                             Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                             Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                             Const.UserActions.RESEND_MESSAGE -> handleMessageResend(message)
@@ -1535,7 +1533,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             val bitmap = mmr.frameAtTime
 
             val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
-            val file = File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
+            val file =
+                File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
 
             file.createNewFile()
 
@@ -1690,7 +1689,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                         localId = item.localId.toString()
                                     )
                                 } else {
-                                    val resendUri = uriPairList.find { it.second == item.fileUri }
+                                    val resendUri =
+                                        uriPairList.find { it.second == item.fileUri }
                                     viewModel.updateLocalUri(
                                         localId = item.localId.toString(),
                                         uri = resendUri?.first.toString(),

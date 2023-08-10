@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.ActivityChatScreenBinding
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.Const
@@ -19,23 +20,31 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-fun startChatScreenActivity(fromActivity: Activity, roomId: Int, searchMessageId: Int? = 0) =
+fun startChatScreenActivity(
+    fromActivity: Activity,
+    roomWithUsers: RoomWithUsers,
+    searchMessageId: Int? = 0
+) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
         if (searchMessageId != 0) {
-            intent.putExtra(Const.Navigation.ROOM_DATA, searchMessageId)
+            intent.putExtra(Const.Navigation.SEARCH_MESSAGE_ID, searchMessageId)
         }
-        intent.putExtra(Const.Navigation.ROOM_ID, roomId)
+        intent.putExtra(Const.Navigation.ROOM_DATA, roomWithUsers)
         startActivity(intent)
     }
 
-fun replaceChatScreenActivity(fromActivity: Activity, roomId: Int, searchMessageId: Int? = 0) =
+fun replaceChatScreenActivity(
+    fromActivity: Activity,
+    roomWithUsers: RoomWithUsers,
+    searchMessageId: Int? = 0
+) =
     fromActivity.apply {
         val intent = Intent(fromActivity as Context, ChatScreenActivity::class.java)
         if (searchMessageId != 0) {
-            intent.putExtra(Const.Navigation.ROOM_DATA, searchMessageId)
+            intent.putExtra(Const.Navigation.SEARCH_MESSAGE_ID, searchMessageId)
         }
-        intent.putExtra(Const.Navigation.ROOM_ID, roomId)
+        intent.putExtra(Const.Navigation.ROOM_DATA, roomWithUsers)
         startActivity(intent)
         finish()
     }
@@ -43,7 +52,7 @@ fun replaceChatScreenActivity(fromActivity: Activity, roomId: Int, searchMessage
 @AndroidEntryPoint
 class ChatScreenActivity : BaseActivity() {
     var searchMessageId: Int? = 0
-    var roomId: Int = 0
+    var roomWithUsers: RoomWithUsers? = null
 
     private lateinit var bindingSetup: ActivityChatScreenBinding
     private val viewModel: ChatViewModel by viewModels()
@@ -65,8 +74,9 @@ class ChatScreenActivity : BaseActivity() {
         val view = bindingSetup.root
         setContentView(view)
 
-        searchMessageId = intent.getIntExtra(Const.Navigation.ROOM_DATA, 0)
-        roomId = intent.getIntExtra(Const.Navigation.ROOM_ID, 0)
+        viewModel.searchMessageId.value = intent.getIntExtra(Const.Navigation.SEARCH_MESSAGE_ID, 0)
+        viewModel.roomWithUsers.value =
+            intent.getParcelableExtra(Const.Navigation.ROOM_DATA, RoomWithUsers::class.java)
 
         Timber.d("Load check: ChatScreenActivity created")
 
@@ -74,15 +84,6 @@ class ChatScreenActivity : BaseActivity() {
     }
 
     private fun initializeObservers() {
-        viewModel.newMessageReceivedListener.observe(this) { message ->
-            message?.roomId?.let {
-                viewModel.getRoomWithUsers(
-                    it,
-                    message
-                )
-            }
-        }
-
         /** Room notification has been disabled until we decide how to implement it correctly **/
 //        viewModel.roomNotificationListener.observe(this, EventObserver {
 //            when (it.response.status) {

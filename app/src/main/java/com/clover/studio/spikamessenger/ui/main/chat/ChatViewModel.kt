@@ -42,15 +42,16 @@ class ChatViewModel @Inject constructor(
 ) : BaseViewModel(), SSEListener {
     val messageSendListener = MutableLiveData<Event<Resource<MessageResponse?>>>()
     val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
-    val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
+    val roomWithUsersListener = MutableLiveData<Event<Resource<RoomWithUsers?>>>()
     val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val noteDeletionListener = MutableLiveData<Event<NoteDeletion>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
-    val newMessageReceivedListener = MutableLiveData<Message?>()
     val roomInfoUpdated = MutableLiveData<Event<Resource<RoomResponse?>>>()
     private val liveDataLimit = MutableLiveData(20)
     val messagesReceived = MutableLiveData<List<Message>>()
+    val searchMessageId = MutableLiveData(0)
+    val roomWithUsers = MutableLiveData<RoomWithUsers>()
 
     init {
         sseManager.setupListener(this)
@@ -189,16 +190,8 @@ class ChatViewModel @Inject constructor(
         resolveResponseStatus(roomDataListener, repository.getSingleRoomData(roomId))
     }
 
-    fun getRoomWithUsers(roomId: Int, message: Message) = viewModelScope.launch {
-        roomNotificationListener.postValue(
-            Event(
-                RoomNotificationData(
-                    repository.getRoomWithUsers(
-                        roomId
-                    ), message
-                )
-            )
-        )
+    fun getRoomWithUsers(roomId: Int) = viewModelScope.launch {
+        resolveResponseStatus(roomWithUsersListener, repository.getRoomWithUsers(roomId))
     }
 
     /**
