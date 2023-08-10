@@ -23,7 +23,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/montserrat"
-        android:padding="@dimen/twenty_dp_margin"
+        android:padding="@dimen/ten_dp_margin"
+        android:layout_marginStart="@dimen/ten_dp_margin"
         android:src="@drawable/img_arrow_back_chat"
         app:layout_constraintBottom_toBottomOf="@+id/tv_title"
         app:layout_constraintStart_toStartOf="parent"
@@ -74,8 +75,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:layout_marginBottom="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/rv_contacts"
         app:layout_constraintTop_toBottomOf="@id/tv_new_group_chat">
 
         <TextView
@@ -83,9 +86,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/twenty_dp_margin"
-            android:layout_marginTop="@dimen/ten_dp_margin"
+            android:layout_marginTop="@dimen/twenty_dp_margin"
             android:layout_marginBottom="@dimen/ten_dp_margin"
             android:fontFamily="@font/montserrat"
+            android:textFontWeight="500"
             android:text="@string/users_selected"
             android:textSize="@dimen/eleven_sp_text"
             app:layout_constraintBottom_toTopOf="@id/rv_selected"

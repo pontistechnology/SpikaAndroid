@@ -127,8 +127,7 @@
         app:layout_constraintBottom_toTopOf="@id/tv_people_selected"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_pick_photo"
-        android:backgroundTint="@color/inputs"/>
+        app:layout_constraintTop_toBottomOf="@id/iv_pick_photo" />
 
     <TextView
         android:id="@+id/tv_people_selected"
