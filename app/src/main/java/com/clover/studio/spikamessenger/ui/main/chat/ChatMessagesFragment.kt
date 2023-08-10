@@ -286,7 +286,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         // If room is group, show number of members under group name
         if (Const.JsonFields.GROUP == roomWithUsers.room.type) {
-            bindingSetup.chatHeader.tvTitle.text = roomWithUsers.users.size.toString() + getString(R.string.members)
+            bindingSetup.chatHeader.tvTitle.text =
+                roomWithUsers.users.size.toString() + getString(R.string.members)
         } else {
             // Room is private, show phone number
             for (user in roomWithUsers.users) {
@@ -688,6 +689,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
             if (receivedMessages.isNotEmpty()) {
                 showNewMessage(receivedMessages.size)
+                // Notify backend of messages seen
+                viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
             }
         }
 
@@ -735,7 +738,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             })
         }
 
-        viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver {
+        viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver
+        {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (it.responseData?.data?.room?.roomId == roomWithUsers.room.roomId) {
