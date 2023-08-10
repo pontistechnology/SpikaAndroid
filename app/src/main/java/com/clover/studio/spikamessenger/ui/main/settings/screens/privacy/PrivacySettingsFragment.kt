@@ -14,6 +14,7 @@ import com.clover.studio.spikamessenger.databinding.FragmentPrivacySettingsBindi
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import timber.log.Timber
@@ -53,6 +54,7 @@ class PrivacySettingsFragment : BaseFragment() {
                         blockedUserAdapter.submitList(it.responseData)
                     }
                 }
+
                 Resource.Status.ERROR -> Timber.d("Failed to fetch blocked users")
                 else -> Timber.d("Other error")
             }
@@ -74,15 +76,20 @@ class PrivacySettingsFragment : BaseFragment() {
         binding.rvBlockedUsers.layoutManager = layoutManager
     }
 
-    private fun initializeViews() {
-        binding.ivBack.setOnClickListener {
+    private fun initializeViews() = with(binding) {
+        ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        binding.clBlockedUsers.setOnClickListener {
-            binding.clBlockedUsers.visibility = View.GONE
-            binding.tvPageName.text = getString(R.string.blocked_users)
-            binding.rvBlockedUsers.visibility = View.VISIBLE
+        clBlockedUsers.setOnClickListener {
+            clBlockedUsers.visibility = View.GONE
+            flTerms.visibility = View.GONE
+            tvPageName.text = getString(R.string.blocked_users)
+            rvBlockedUsers.visibility = View.VISIBLE
+        }
+
+        flTerms.setOnClickListener {
+            Tools.openTermsAndConditions(requireActivity())
         }
     }
 
