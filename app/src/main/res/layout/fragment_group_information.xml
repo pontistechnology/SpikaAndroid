@@ -35,10 +35,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="false"
-        android:fontFamily="@font/montserrat"
+        android:fontFamily="@font/montserrat_bold"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/create"
-        android:textFontWeight="@string/six_hundred"
         android:textColor="@color/text_tertiary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
