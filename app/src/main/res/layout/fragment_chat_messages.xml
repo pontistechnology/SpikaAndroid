@@ -192,7 +192,7 @@
                 android:layout_marginTop="@dimen/twenty_dp_margin"
                 android:layout_marginBottom="@dimen/twenty_dp_margin"
                 android:background="@drawable/bg_message_received"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/montserrat_bold"
                 android:paddingStart="@dimen/thirty_dp_margin"
                 android:paddingTop="@dimen/five_dp_margin"
                 android:paddingEnd="@dimen/thirty_dp_margin"

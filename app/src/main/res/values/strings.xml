@@ -253,4 +253,5 @@
     <string name="messages">Messages</string>
     <string name="failed_to_load_room_data">Failed to load room data</string>
     <string name="other_error">Other error</string>
+    <string name="members">" members"</string>
 </resources>
