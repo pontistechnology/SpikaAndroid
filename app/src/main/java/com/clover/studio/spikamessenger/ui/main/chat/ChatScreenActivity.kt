@@ -51,7 +51,6 @@ fun replaceChatScreenActivity(
 
 @AndroidEntryPoint
 class ChatScreenActivity : BaseActivity() {
-    var searchMessageId: Int? = 0
     var roomWithUsers: RoomWithUsers? = null
 
     private lateinit var bindingSetup: ActivityChatScreenBinding
