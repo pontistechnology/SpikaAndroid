@@ -270,7 +270,7 @@
         android:id="@+id/tv_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/two_dp_margin"
+        android:layout_marginTop="@dimen/eight_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/username"
         android:textColor="@color/text_tertiary"
