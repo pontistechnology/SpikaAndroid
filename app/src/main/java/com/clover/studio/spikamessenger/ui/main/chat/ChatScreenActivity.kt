@@ -51,7 +51,6 @@ fun replaceChatScreenActivity(
 
 @AndroidEntryPoint
 class ChatScreenActivity : BaseActivity() {
-    var searchMessageId: Int? = 0
     var roomWithUsers: RoomWithUsers? = null
 
     private lateinit var bindingSetup: ActivityChatScreenBinding
@@ -76,7 +75,7 @@ class ChatScreenActivity : BaseActivity() {
 
         viewModel.searchMessageId.value = intent.getIntExtra(Const.Navigation.SEARCH_MESSAGE_ID, 0)
         viewModel.roomWithUsers.value =
-            intent.getParcelableExtra(Const.Navigation.ROOM_DATA, RoomWithUsers::class.java)
+            intent.getParcelableExtra(Const.Navigation.ROOM_DATA)
 
         Timber.d("Load check: ChatScreenActivity created")
 
