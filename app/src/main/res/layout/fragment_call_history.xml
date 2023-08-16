@@ -16,6 +16,7 @@
         android:layout_marginTop="@dimen/eight_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/call_history"
+        android:textStyle="bold"
         android:textSize="@dimen/twenty_eight_sp_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

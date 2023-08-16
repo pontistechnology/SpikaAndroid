@@ -14,6 +14,7 @@
         android:layout_marginStart="@dimen/twenty_dp_margin"
         android:layout_marginTop="@dimen/eight_dp_margin"
         android:fontFamily="@font/montserrat"
+        android:textStyle="bold"
         android:text="@string/contacts"
         android:textSize="@dimen/twenty_eight_sp_text" />
 
