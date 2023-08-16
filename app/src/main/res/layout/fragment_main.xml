@@ -37,7 +37,7 @@
         android:id="@+id/divider_main"
         android:layout_width="match_parent"
         android:layout_height="0.8dp"
-        android:background="@color/border"
+        android:background="@color/guideline"
         android:padding="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
