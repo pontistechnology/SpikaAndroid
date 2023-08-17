@@ -19,6 +19,8 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.IBinder
 import android.os.Parcelable
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -366,7 +368,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.ivBtnEmoji.setOnClickListener {
             emojiPopup.toggle()
             emojiPopup.dismiss()
-            emojiPopup.isShowing
             ivAdd.rotation = ROTATION_OFF
         }
 
@@ -416,7 +417,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         ivButtonSend.setOnClickListener {
-            vHideTyping.visibility = View.GONE
             vTransparent.visibility = View.GONE
             if (bindingSetup.etMessage.text?.trim().toString().isNotEmpty()) {
                 createTempTextMessage()
@@ -483,10 +483,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheet.btnFiles.setOnClickListener {
             chooseFile()
             rotationAnimation()
-        }
-
-        messageActions.ivRemove.setOnClickListener {
-            closeMessageSheet()
         }
 
         reactionsDetails.ivRemove.setOnClickListener {
@@ -1072,6 +1068,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     closeMessageSheet()
                 }
             }
+
+            override fun addCustomReaction() {
+                bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+                openCustomEmojiKeyboard(msg.message)
+            }
         })
 
         messageActions.tvDelete.setOnClickListener {
@@ -1113,6 +1114,46 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             )
                 .show()
         }
+    }
+
+    private fun openCustomEmojiKeyboard(message: Message) {
+        setSendingAreaVisibility(View.GONE)
+        emojiPopup.toggle()
+
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                message.reaction = s.toString()
+                addReaction(message)
+
+                bindingSetup.etMessage.removeTextChangedListener(this)
+                bindingSetup.etMessage.setText(" ")
+                bindingSetup.etMessage.removeTextChangedListener(this)
+
+                setSendingAreaVisibility(View.VISIBLE)
+                hideKeyboard(bindingSetup.etMessage)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        }
+
+        bindingSetup.etMessage.addTextChangedListener(textWatcher)
+    }
+
+    private fun setSendingAreaVisibility(visibility: Int) = with(bindingSetup) {
+        ivAdd.visibility = visibility
+        clTyping.visibility = visibility
+        ivMicrophone.visibility = visibility
+        ivCamera.visibility = visibility
+        ivButtonSend.visibility = visibility
+        divider.visibility = visibility
     }
 
     private fun handleDownloadFile(message: MessageAndRecords) {
