@@ -62,8 +62,7 @@
                 android:text="@string/gallery"
                 android:textAllCaps="false"
                 android:textColor="@color/primary_color"
-                android:textSize="@dimen/fifteen_sp_text"
-                android:textStyle="bold" />
+                android:textSize="@dimen/fifteen_sp_text" />
 
             <View
                 android:id="@+id/v_border"
@@ -85,8 +84,7 @@
                 android:text="@string/photo"
                 android:textAllCaps="false"
                 android:textColor="@color/primary_color"
-                android:textSize="@dimen/fifteen_sp_text"
-                android:textStyle="bold" />
+                android:textSize="@dimen/fifteen_sp_text" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -122,7 +120,6 @@
             android:text="@string/cancel"
             android:textAllCaps="false"
             android:textColor="@color/style_red"
-            android:textSize="@dimen/fifteen_sp_text"
-            android:textStyle="bold" />
+            android:textSize="@dimen/fifteen_sp_text" />
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
