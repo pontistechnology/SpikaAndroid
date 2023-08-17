@@ -135,7 +135,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat"
+            android:fontFamily="@font/montserrat_bold"
             android:text="@string/group_name"
             android:textColor="@color/primary_color"
             android:textSize="@dimen/sixteen_sp_text"

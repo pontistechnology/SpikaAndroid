@@ -55,7 +55,6 @@
             android:fontFamily="@font/montserrat_bold"
             android:maxLines="1"
             android:textSize="@dimen/fourteen_sp_text"
-            android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/tv_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/iv_user_image"
