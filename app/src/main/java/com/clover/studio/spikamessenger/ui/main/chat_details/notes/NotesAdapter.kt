@@ -6,8 +6,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Note
 import com.clover.studio.spikamessenger.databinding.ItemNoteBinding
+import com.clover.studio.spikamessenger.utils.Tools
 
 class NotesAdapter(
     private val context: Context,
@@ -28,6 +30,17 @@ class NotesAdapter(
         with(holder) {
             getItem(position).let { noteItem ->
                 binding.tvNoteTitle.text = noteItem.title
+                binding.tvNoteTime.text = if (noteItem.modifiedAt != noteItem.createdAt) {
+                    context.getString(
+                        R.string.note_modified_at,
+                        Tools.fullDateFormat(noteItem.modifiedAt).toString()
+                    )
+                } else {
+                    context.getString(
+                        R.string.note_created_at,
+                        Tools.fullDateFormat(noteItem.createdAt).toString()
+                    )
+                }
 
                 itemView.setOnClickListener {
                     noteItem.let {

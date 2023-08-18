@@ -13,9 +13,7 @@ import com.clover.studio.spikamessenger.data.models.networking.NewNote
 import com.clover.studio.spikamessenger.databinding.FragmentNotesDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.utils.EventObserver
-import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
-import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import io.noties.markwon.Markwon
 import timber.log.Timber
@@ -158,19 +156,6 @@ class NotesDetailsFragment : BaseFragment() {
 
         binding.ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
-        }
-
-        binding.llDeleteNote.setOnClickListener {
-            DialogError.getInstance(requireContext(),
-                getString(R.string.delete_note),
-                getString(R.string.delete_note_description),
-                getString(R.string.no),
-                getString(R.string.yes),
-                object : DialogInteraction {
-                    override fun onSecondOptionClicked() {
-                        viewModel.deleteNote(noteId)
-                    }
-                })
         }
     }
 }

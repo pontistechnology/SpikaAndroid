@@ -3,28 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:selectableItemBackground">
+    android:background="?android:selectableItemBackground"
+    android:padding="@dimen/sixteen_dp_margin">
 
     <TextView
         android:id="@+id/tv_note_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
+        android:ellipsize="end"
         android:fontFamily="@font/montserrat"
+        android:maxLines="1"
         android:text="@string/placeholder_title"
+        android:textColor="@color/text_primary"
         android:textSize="@dimen/fourteen_sp_text"
-        app:layout_constraintEnd_toStartOf="@id/iv_forward"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/tv_note_time"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/iv_forward"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/tv_note_time"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:src="@drawable/img_forward_arrow"
+        android:fontFamily="@font/montserrat"
+        android:textColor="@color/text_tertiary"
+        android:textSize="@dimen/nine_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="@+id/tv_note_title"
+        app:layout_constraintStart_toStartOf="@id/tv_note_title"
+        app:layout_constraintTop_toBottomOf="@id/tv_note_title" />
 </androidx.constraintlayout.widget.ConstraintLayout>

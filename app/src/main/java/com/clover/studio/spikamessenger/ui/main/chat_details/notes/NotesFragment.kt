@@ -8,6 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.R
@@ -15,7 +16,10 @@ import com.clover.studio.spikamessenger.databinding.FragmentNotesBinding
 import com.clover.studio.spikamessenger.ui.main.MainActivity
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.NotesSwipeHelper
+import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
+import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 
 class NotesFragment : BaseFragment() {
@@ -25,6 +29,7 @@ class NotesFragment : BaseFragment() {
     private lateinit var adapter: NotesAdapter
     private val args: NotesFragmentArgs by navArgs()
     private var roomId: Int = 0
+    var itemTouchHelper: ItemTouchHelper? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +64,27 @@ class NotesFragment : BaseFragment() {
                 bundleOf(Const.Navigation.ROOM_ID to roomId)
             )
         }
+
+        itemTouchHelper?.attachToRecyclerView(null)
+        val notesSwipeController =
+            NotesSwipeHelper(
+                context!!,
+                onSwipeAction = { position ->
+                    DialogError.getInstance(requireContext(),
+                        getString(R.string.delete_note),
+                        getString(R.string.delete_note_description),
+                        getString(R.string.no),
+                        getString(R.string.yes),
+                        object : DialogInteraction {
+                            override fun onSecondOptionClicked() {
+                                val note = adapter.currentList[position]
+                                viewModel.deleteNote(note.id)
+                            }
+                        })
+                })
+
+        itemTouchHelper = ItemTouchHelper(notesSwipeController)
+        itemTouchHelper!!.attachToRecyclerView(bindingSetup?.rvNotes)
     }
 
     private fun initializeObservers() {
@@ -70,9 +96,11 @@ class NotesFragment : BaseFragment() {
                         binding.tvNoNotes.visibility = View.GONE
                     } else binding.tvNoNotes.visibility = View.VISIBLE
                 }
+
                 Resource.Status.LOADING -> {
                     // Loading
                 }
+
                 else -> {
                     // Error
                 }
