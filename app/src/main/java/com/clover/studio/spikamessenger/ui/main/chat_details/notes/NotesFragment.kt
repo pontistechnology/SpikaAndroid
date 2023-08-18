@@ -29,11 +29,13 @@ class NotesFragment : BaseFragment() {
     private lateinit var adapter: NotesAdapter
     private val args: NotesFragmentArgs by navArgs()
     private var roomId: Int = 0
-    var itemTouchHelper: ItemTouchHelper? = null
+    private var itemTouchHelper: ItemTouchHelper? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         roomId = args.roomId
+
+
     }
 
     override fun onCreateView(
@@ -65,26 +67,27 @@ class NotesFragment : BaseFragment() {
             )
         }
 
-        itemTouchHelper?.attachToRecyclerView(null)
-        val notesSwipeController =
-            NotesSwipeHelper(
-                context!!,
-                onSwipeAction = { position ->
-                    DialogError.getInstance(requireContext(),
-                        getString(R.string.delete_note),
-                        getString(R.string.delete_note_description),
-                        getString(R.string.no),
-                        getString(R.string.yes),
-                        object : DialogInteraction {
-                            override fun onSecondOptionClicked() {
-                                val note = adapter.currentList[position]
-                                viewModel.deleteNote(note.id)
-                            }
-                        })
-                })
+        if (itemTouchHelper == null) {
+            val notesSwipeController =
+                NotesSwipeHelper(
+                    context!!,
+                    onSwipeAction = { position ->
+                        DialogError.getInstance(requireContext(),
+                            getString(R.string.delete_note),
+                            getString(R.string.delete_note_description),
+                            getString(R.string.no),
+                            getString(R.string.yes),
+                            object : DialogInteraction {
+                                override fun onSecondOptionClicked() {
+                                    val note = adapter.currentList[position]
+                                    viewModel.deleteNote(note.id)
+                                }
+                            })
+                    })
 
-        itemTouchHelper = ItemTouchHelper(notesSwipeController)
-        itemTouchHelper!!.attachToRecyclerView(bindingSetup?.rvNotes)
+            itemTouchHelper = ItemTouchHelper(notesSwipeController)
+        }
+        itemTouchHelper?.attachToRecyclerView(bindingSetup?.rvNotes)
     }
 
     private fun initializeObservers() {

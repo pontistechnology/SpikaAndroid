@@ -43,10 +43,8 @@
         android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_back"
-        app:layout_constraintVertical_bias="0.0"
         tools:context=".ui.main.chat_details.notes.NotesDetailsFragment">
 
         <LinearLayout
