@@ -15,26 +15,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/ll_delete_noteø"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@id/tv_edit"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/iv_delete"
-            android:layout_width="@dimen/twenty_dp_margin"
-            android:layout_height="@dimen/twenty_dp_margin"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:src="@drawable/img_delete" />
-    </LinearLayout>
-
     <TextView
         android:id="@+id/tv_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat"
+        android:fontFamily="@font/montserrat_bold"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/edit"
         android:textColor="@color/primary_color"
@@ -49,13 +34,13 @@
         android:padding="@dimen/ten_dp_margin"
         android:src="@drawable/img_attach_file"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/ll_delete_noteø"
-        app:layout_constraintEnd_toStartOf="@id/ll_delete_noteø"
-        app:layout_constraintTop_toTopOf="@id/ll_delete_noteø" />
+        app:layout_constraintEnd_toStartOf="@+id/tv_edit"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -66,28 +51,22 @@
             android:id="@+id/ll_note_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/ten_dp_margin"
-            android:layout_marginEnd="@dimen/ten_dp_margin"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/montserrat"
-                android:padding="@dimen/ten_dp_margin"
+                android:fontFamily="@font/montserrat_bold"
                 android:text="@string/notes"
-                android:textSize="@dimen/eighteen_sp_text"
-                app:layout_constraintBottom_toBottomOf="@id/iv_back"
-                app:layout_constraintStart_toEndOf="@id/iv_back"
-                app:layout_constraintTop_toTopOf="@id/iv_back" />
+                android:textSize="@dimen/eighteen_sp_text" />
 
             <TextView
                 android:id="@+id/tv_notes_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/eight_dp_margin"
                 android:fontFamily="@font/montserrat"
-                android:padding="@dimen/ten_dp_margin"
                 android:text="@string/placeholder_description"
                 android:textColor="@color/text_tertiary"
                 android:textColorLink="@color/link_primary_color"
@@ -98,23 +77,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/montserrat_bold"
                 android:maxLength="135"
-                android:padding="@dimen/ten_dp_margin"
                 android:text="@string/notes"
                 android:textSize="@dimen/eighteen_sp_text"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/iv_back"
-                app:layout_constraintStart_toEndOf="@id/iv_back"
-                app:layout_constraintTop_toTopOf="@id/iv_back" />
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/et_description"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/eight_dp_margin"
                 android:background="@android:color/transparent"
                 android:fontFamily="@font/montserrat"
-                android:padding="@dimen/ten_dp_margin"
                 android:text="@string/placeholder_description"
                 android:textColor="@color/text_tertiary"
                 android:textSize="@dimen/fourteen_sp_text"
