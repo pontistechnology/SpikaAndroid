@@ -80,18 +80,23 @@ class NotesSwipeHelper(
 
     private fun drawIcon(canvas: Canvas, itemView: View) {
         var scale = 0f
+        var alpha = 0
         val showing: Boolean
         val translationX = mView.translationX
 
         showing = translationX <= -convertToDp(SHOW_LIMIT)
         if (showing) {
             scale = MAX_SCALE
+            alpha = MAX_ALPHA
         } else if (translationX <= 0.0f) {
             startTracking = false
             isVibrate = false
         } else {
             scale = MIN_SCALE
+            alpha = MIN_ALPHA
         }
+
+        deleteImage?.alpha = alpha
 
         if (startTracking) {
             if (!isVibrate && (mView.translationX >= convertToDp(HALF_SCREEN)
