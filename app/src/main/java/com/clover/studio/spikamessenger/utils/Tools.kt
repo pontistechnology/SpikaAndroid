@@ -341,6 +341,18 @@ object Tools {
         return String.format("%02d:%02d", minutes, seconds)
     }
 
+    fun convertDurationInSeconds(time: Long): String {
+        val hours = time / 3600
+        val minutes = (time % 3600) / 60
+        val seconds = time % 60
+
+        return when {
+            hours > 0 -> String.format("%2d h %2d min", hours, minutes)
+            minutes > 0 -> String.format("%2d min", minutes)
+            else -> String.format("%2d sec", seconds)
+        }
+    }
+
     fun generateRandomInt(): Int {
         return Random.nextInt(Int.MIN_VALUE, 0)
     }
@@ -350,7 +362,13 @@ object Tools {
             val tmp = this.getFilePathUrl(message.body!!.fileId!!)
             val request = DownloadManager.Request(Uri.parse(tmp))
             request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-            request.setTitle(message.body.file?.fileName ?: "${MainApplication.appContext.getString(R.string.spika)}.jpg")
+            request.setTitle(
+                message.body.file?.fileName ?: "${
+                    MainApplication.appContext.getString(
+                        R.string.spika
+                    )
+                }.jpg"
+            )
             request.setDescription(context.getString(R.string.file_is_downloading))
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             request.setDestinationInExternalPublicDir(
@@ -360,7 +378,11 @@ object Tools {
             val manager =
                 context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             manager.enqueue(request)
-            Toast.makeText(context, context.getString(R.string.file_is_downloading), Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                context.getString(R.string.file_is_downloading),
+                Toast.LENGTH_LONG
+            ).show()
         } catch (e: Exception) {
             Timber.d("$e")
         }
@@ -635,7 +657,7 @@ object Tools {
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(MainApplication.appContext, mediaUri)
             time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
-                .toInt()
+                .toInt() / 1000
             width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
                 .toInt()
             height =
