@@ -163,6 +163,7 @@
             android:textColor="@color/text_primary"
             android:textColorLink="@color/link_primary_color"
             android:textSize="@dimen/fourteen_sp_text"
+            android:textIsSelectable="true"
             android:visibility="visible"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toBottomOf="parent"

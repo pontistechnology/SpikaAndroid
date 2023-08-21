@@ -58,6 +58,7 @@
             android:textColorLink="@color/link_primary_color"
             android:textSize="@dimen/fourteen_sp_text"
             android:visibility="visible"
+            android:textIsSelectable="true"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
