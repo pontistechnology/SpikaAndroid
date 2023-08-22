@@ -58,6 +58,10 @@ import kotlin.random.Random
 
 const val TO_MEGABYTE = 1000000
 const val TO_KILOBYTE = 1000
+const val TO_BYTES = 8
+const val TO_HOURS = 3600
+const val TO_MINUTES = 60
+const val VIDEO_SIZE_LIMIT = 128
 const val TOKEN_EXPIRED_CODE = 401
 //const val BITMAP_WIDTH = 512
 //const val BITMAP_HEIGHT = 512
@@ -342,15 +346,20 @@ object Tools {
     }
 
     fun convertDurationInSeconds(time: Long): String {
-        val hours = time / 3600
-        val minutes = (time % 3600) / 60
-        val seconds = time % 60
+        val hours = time / TO_HOURS
+        val minutes = (time % TO_HOURS) / TO_MINUTES
+        val seconds = time % TO_MINUTES
 
         return when {
-            hours > 0 -> String.format("%2d h %2d min", hours, minutes)
-            minutes > 0 -> String.format("%2d min", minutes)
-            else -> String.format("%2d sec", seconds)
+            hours > 0 -> String.format("%2dh %2dmin", hours, minutes)
+            minutes > 0 -> String.format("%2dmin", minutes)
+            else -> String.format("%2dsec", seconds)
         }
+    }
+
+    fun getVideoSize(duration: Long, bitRate: Long) : Boolean {
+        val videoSIze = ( duration / TO_KILOBYTE) * bitRate / TO_BYTES
+        return videoSIze / TO_MEGABYTE > VIDEO_SIZE_LIMIT
     }
 
     fun generateRandomInt(): Int {

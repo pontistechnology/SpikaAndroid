@@ -1574,6 +1574,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
             val mmr = MediaMetadataRetriever()
             mmr.setDataSource(context, uri)
+
+            val duration =  mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong()  ?: 0
+            val bitRate = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toLong() ?: 0
+
+            if (Tools.getVideoSize(duration, bitRate)){
+                Toast.makeText(context, getString(R.string.video_error), Toast.LENGTH_LONG).show()
+                return
+            }
+
             val bitmap = mmr.frameAtTime
 
             val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
@@ -1594,6 +1603,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
             tempFilesToCreate.add(TempUri(thumbnailUri, Const.JsonFields.VIDEO_TYPE))
             uriPairList.add(Pair(uri, thumbnailUri))
+
+            mmr.release()
         } else {
             val bitmap =
                 Tools.handleSamplingAndRotationBitmap(activity!!, uri, false)
