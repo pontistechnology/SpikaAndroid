@@ -71,6 +71,8 @@ class RoomsFragment : BaseFragment() {
             btnSearchRooms.isSelected = false
             btnSearchMessages.isSelected = true
         }
+
+        viewModel.roomUsers.clear()
     }
 
     private fun setupSearchView() = with(binding) {

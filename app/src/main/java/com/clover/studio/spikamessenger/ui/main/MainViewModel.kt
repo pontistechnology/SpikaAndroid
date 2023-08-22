@@ -10,6 +10,7 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
+import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.responses.AuthResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
@@ -56,6 +57,7 @@ class MainViewModel @Inject constructor(
     val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
     val deleteUserListener = MutableLiveData<Event<Resource<DeleteUserResponse?>>>()
     val searchedMessageListener = MutableLiveData<Event<Resource<List<MessageWithRoom>?>>>()
+    val roomUsers: MutableList<UserAndPhoneUser> = ArrayList()
 
     init {
         sseManager.setupListener(this)
@@ -85,6 +87,10 @@ class MainViewModel @Inject constructor(
             newMessageReceivedListener,
             Resource(Resource.Status.SUCCESS, message, "")
         )
+    }
+
+    fun saveSelectedUsers(users: MutableList<UserAndPhoneUser>) {
+        roomUsers.addAll(users.toMutableSet())
     }
 
     fun getLocalUserId(): Int? {
@@ -273,6 +279,7 @@ class MainViewModel @Inject constructor(
                             Resource(Resource.Status.SUCCESS, response, "")
                         )
                     }
+
                     override fun fileCanceledListener(messageId: String?) {
 
                     }
