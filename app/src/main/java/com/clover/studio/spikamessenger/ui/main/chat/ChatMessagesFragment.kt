@@ -19,8 +19,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.IBinder
 import android.os.Parcelable
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -372,9 +370,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         etMessage.setOnClickListener {
-            if (emojiPopup.isShowing) {
-                emojiPopup.dismiss()
-            }
+            if (emojiPopup.isShowing) emojiPopup.dismiss()
         }
 
         // This listener is for keyboard opening
@@ -1041,6 +1037,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             return
         }
 
+        hideKeyboard(root)
+
         val reactionsContainer = ReactionsContainer(requireContext(), null)
         messageActions.reactionsContainer.addView(reactionsContainer)
         bottomSheetMessageActions.state = BottomSheetBehavior.STATE_EXPANDED
@@ -1118,41 +1116,31 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun openCustomEmojiKeyboard(message: Message) {
         setSendingAreaVisibility(View.GONE)
-        emojiPopup.toggle()
 
-        val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(
-                s: CharSequence?,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                message.reaction = s.toString()
+        lateinit var updatedEmojiPopup: EmojiPopup
+        updatedEmojiPopup = EmojiPopup(
+            rootView = bindingSetup.root,
+            editText = bindingSetup.etMessage,
+            onEmojiClickListener = { emoji ->
+                message.reaction = emoji.unicode
                 addReaction(message)
-
-                bindingSetup.etMessage.removeTextChangedListener(this)
-                bindingSetup.etMessage.setText(" ")
-                bindingSetup.etMessage.removeTextChangedListener(this)
-
                 setSendingAreaVisibility(View.VISIBLE)
-                hideKeyboard(bindingSetup.etMessage)
-            }
+                updatedEmojiPopup.dismiss()
+                hideKeyboard(bindingSetup.root)
+            },
+            onEmojiPopupDismissListener = { setSendingAreaVisibility(View.VISIBLE) },
+        )
 
-            override fun afterTextChanged(s: Editable?) {}
-        }
-
-        bindingSetup.etMessage.addTextChangedListener(textWatcher)
+        updatedEmojiPopup.toggle()
     }
 
     private fun setSendingAreaVisibility(visibility: Int) = with(bindingSetup) {
+        if (View.VISIBLE == visibility) hideSendButton()
+        etMessage.text?.clear()
         ivAdd.visibility = visibility
         clTyping.visibility = visibility
         ivMicrophone.visibility = visibility
         ivCamera.visibility = visibility
-        ivButtonSend.visibility = visibility
         divider.visibility = visibility
     }
 
@@ -1785,6 +1773,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
         activity!!.finish()
     }
+
 
     override fun onBackPressed(): Boolean {
         for (bottomSheet in bottomSheets) {
