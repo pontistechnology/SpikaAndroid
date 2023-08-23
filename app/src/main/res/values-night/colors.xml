@@ -10,6 +10,7 @@
     <color name="inputs">#3D3D3D</color>
     <color name="files">#3D3D3D</color>
     <color name="border">#00000000</color>
+    <color name="selected_text">#FEFEFE</color>
 
     <!--Text colors-->
     <color name="text_primary">#FFFFFF</color>

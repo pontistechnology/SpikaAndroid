@@ -162,6 +162,7 @@
             android:textAlignment="viewStart"
             android:textColor="@color/text_primary"
             android:textColorLink="@color/link_primary_color"
+            android:textIsSelectable="true"
             android:textSize="@dimen/fourteen_sp_text"
             android:visibility="visible"
             app:layout_constrainedWidth="true"

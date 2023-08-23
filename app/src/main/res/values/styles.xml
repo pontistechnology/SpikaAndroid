@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="DialogAnimation">
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
@@ -35,5 +36,10 @@
     <style name="CustomCheckBox" parent="Base.Theme.AppCompat">
         <item name="colorAccent">@color/primary_color</item> <!-- for uncheck state -->
         <item name="android:textColorSecondary">@color/text_tertiary</item> <!-- for check state -->
+    </style>
+
+    <style name="CustomSelectText" parent="Base.Theme.AppCompat">
+        <item name="colorAccent">@color/selected_text</item>
+        <item name="colorControlActivated">@color/selected_text</item>
     </style>
 </resources>
