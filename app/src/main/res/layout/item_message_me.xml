@@ -57,6 +57,7 @@
             android:textColor="@color/text_primary"
             android:textColorLink="@color/link_primary_color"
             android:textSize="@dimen/fourteen_sp_text"
+            android:theme="@style/CustomSelectText"
             android:visibility="visible"
             android:textIsSelectable="true"
             app:layout_constrainedWidth="true"

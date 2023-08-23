@@ -40,6 +40,8 @@
     <color name="inputs">#FFFFFF</color>
     <!--Files color: light blue - gray-->
     <color name="files">#C8EBFE</color>
+    <!--Selected text color: blue - light white-->
+    <color name="selected_text">#4696F0</color>
 
     <!-- Text Colors -->
     <color name="text_primary">#141414</color>
