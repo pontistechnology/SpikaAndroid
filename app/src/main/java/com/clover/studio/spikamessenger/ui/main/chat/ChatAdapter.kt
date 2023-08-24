@@ -666,7 +666,7 @@ class ChatAdapter(
         with(videoLayoutBinding) {
             if (chatMessage.message.body?.file?.metaData?.duration?.toLong() != null) {
                 tvVideoDuration.text =
-                    Tools.convertDurationMillis(chatMessage.message.body.file?.metaData?.duration!!.toLong() * 1000)
+                    Tools.convertDurationInSeconds(chatMessage.message.body.file?.metaData?.duration!!.toLong())
             } else {
                 tvVideoDuration.text = context.getString(R.string.audio_duration)
             }
