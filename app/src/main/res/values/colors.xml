@@ -26,9 +26,9 @@
     <color name="gray_transparent">#66F2F2F2</color>
     <color name="messages_states">#5F6368</color>
 
-
-    <!--Application colors:-->
+    <!--Application colors: assets-->
     <color name="primary_color">#4696F0</color>
+    <color name="gray_icon_color">#9AA0A6</color>
 
     <!--Dark - light theme colors-->
     <!--Main color: white - black-->
