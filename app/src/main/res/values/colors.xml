@@ -29,6 +29,7 @@
     <!--Application colors: assets-->
     <color name="primary_color">#4696F0</color>
     <color name="gray_icon_color">#9AA0A6</color>
+    <color name="alert_icon_color">#FF4133</color>
 
     <!--Dark - light theme colors-->
     <!--Main color: white - black-->
