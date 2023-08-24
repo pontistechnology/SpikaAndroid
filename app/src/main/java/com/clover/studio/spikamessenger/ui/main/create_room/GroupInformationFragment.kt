@@ -153,6 +153,7 @@ class GroupInformationFragment : BaseFragment() {
 
             showProgress(false)
             viewModel.createNewRoom(jsonObject)
+            viewModel.roomUsers.clear()
         }
 
         binding.tvPeopleSelected.text = getString(R.string.s_people_selected, selectedUsers.size)
@@ -222,7 +223,7 @@ class GroupInformationFragment : BaseFragment() {
                     activity?.let { parent ->
                         startChatScreenActivity(
                             parent,
-                           roomWithUsers
+                            roomWithUsers
                         )
                     }
                     findNavController().popBackStack(R.id.mainFragment, false)

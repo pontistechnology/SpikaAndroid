@@ -47,7 +47,6 @@ class NewRoomFragment : BaseFragment() {
     private var newGroupFlag = false
 
     private var bindingSetup: FragmentNewRoomBinding? = null
-
     private val binding get() = bindingSetup!!
 
     private var localId: Int = 0
@@ -64,24 +63,36 @@ class NewRoomFragment : BaseFragment() {
         else null
 
         localId = viewModel.getLocalUserId()!!
+
+        if (viewModel.roomUsers.isNotEmpty()) {
+            selectedUsers = viewModel.roomUsers
+            selectedContactsAdapter.submitList(selectedUsers)
+            handleGroupChat()
+            handleNextTextView()
+        } else {
+            setupAdapter(false)
+        }
+
         initializeObservers()
-        setupAdapter(false)
         initializeViews()
         setupSearchView()
 
         return binding.root
     }
 
-    private fun initializeViews() {
+    private fun initializeViews() = with(binding) {
         // SearchView is immediately acting as if selected
 
         // Behave like group chat if adding user from ChatDetails.
         if (args?.userIds?.isNotEmpty() == true) handleGroupChat()
 
-        binding.svContactsSearch.setIconifiedByDefault(false)
+        svContactsSearch.setIconifiedByDefault(false)
 
-        binding.tvNext.setOnClickListener {
+        tvNext.setOnClickListener {
             val bundle = bundleOf(Const.Navigation.SELECTED_USERS to selectedUsers)
+            if (selectedUsers != viewModel.roomUsers) {
+                viewModel.saveSelectedUsers(selectedUsers)
+            }
 
             if (args?.roomId != null && args?.roomId != 0) {
                 updateRoom()
@@ -92,11 +103,11 @@ class NewRoomFragment : BaseFragment() {
             )
         }
 
-        binding.ivCancel.setOnClickListener {
+        ivCancel.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        binding.tvNewGroupChat.setOnClickListener {
+        tvNewGroupChat.setOnClickListener {
             handleGroupChat()
         }
     }
@@ -122,14 +133,12 @@ class NewRoomFragment : BaseFragment() {
         args?.roomId?.let { viewModel.updateRoom(jsonObject, it, 0) }
     }
 
-    private fun handleGroupChat() {
-        // Clear data if old data is still present
-        selectedUsers.clear()
-        binding.clSelectedContacts.visibility = View.VISIBLE
-        binding.tvSelectedNumber.text = getString(R.string.users_selected, selectedUsers.size)
-        binding.tvNewGroupChat.visibility = View.GONE
-        binding.tvNext.visibility = View.VISIBLE
-        binding.tvTitle.text = getString(R.string.select_members)
+    private fun handleGroupChat() = with(binding) {
+        clSelectedContacts.visibility = View.VISIBLE
+        tvSelectedNumber.text = getString(R.string.users_selected, selectedUsers.size)
+        tvNewGroupChat.visibility = View.GONE
+        tvNext.visibility = View.VISIBLE
+        tvTitle.text = getString(R.string.select_members)
 
         newGroupFlag = true
 
@@ -197,6 +206,7 @@ class NewRoomFragment : BaseFragment() {
             handleSelectedUserList(it)
         }
 
+        selectedContactsAdapter.submitList(selectedUsers)
         binding.rvSelected.adapter = selectedContactsAdapter
         binding.rvSelected.layoutManager =
             LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
@@ -338,7 +348,7 @@ class NewRoomFragment : BaseFragment() {
         binding.svContactsSearch.setOnQueryTextListener(object :
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null) {
+                if (!query.isNullOrEmpty()) {
                     Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
@@ -363,7 +373,7 @@ class NewRoomFragment : BaseFragment() {
             }
 
             override fun onQueryTextChange(query: String?): Boolean {
-                if (query != null) {
+                if (!query.isNullOrEmpty()) {
                     Timber.d("Query: $query")
                     if (::userList.isInitialized) {
                         for (user in userList) {
