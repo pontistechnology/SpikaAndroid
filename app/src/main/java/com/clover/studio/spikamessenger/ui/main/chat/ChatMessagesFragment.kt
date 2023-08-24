@@ -366,14 +366,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bindingSetup.ivBtnEmoji.setOnClickListener {
             emojiPopup.toggle()
             emojiPopup.dismiss()
-            emojiPopup.isShowing
             ivAdd.rotation = ROTATION_OFF
         }
 
         etMessage.setOnClickListener {
-            if (emojiPopup.isShowing) {
-                emojiPopup.dismiss()
-            }
+            if (emojiPopup.isShowing) emojiPopup.dismiss()
         }
 
         // This listener is for keyboard opening
@@ -416,7 +413,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         ivButtonSend.setOnClickListener {
-            vHideTyping.visibility = View.GONE
             vTransparent.visibility = View.GONE
             if (bindingSetup.etMessage.text?.trim().toString().isNotEmpty()) {
                 createTempTextMessage()
@@ -483,10 +479,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         bottomSheet.btnFiles.setOnClickListener {
             chooseFile()
             rotationAnimation()
-        }
-
-        messageActions.ivRemove.setOnClickListener {
-            closeMessageSheet()
         }
 
         reactionsDetails.ivRemove.setOnClickListener {
@@ -1045,6 +1037,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             return
         }
 
+        hideKeyboard(root)
+
         val reactionsContainer = ReactionsContainer(requireContext(), null)
         messageActions.reactionsContainer.addView(reactionsContainer)
         bottomSheetMessageActions.state = BottomSheetBehavior.STATE_EXPANDED
@@ -1071,6 +1065,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     chatAdapter.notifyItemChanged(msg.message.messagePosition)
                     closeMessageSheet()
                 }
+            }
+
+            override fun addCustomReaction() {
+                bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+                openCustomEmojiKeyboard(msg.message)
             }
         })
 
@@ -1113,6 +1112,36 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             )
                 .show()
         }
+    }
+
+    private fun openCustomEmojiKeyboard(message: Message) {
+        setSendingAreaVisibility(View.GONE)
+
+        lateinit var updatedEmojiPopup: EmojiPopup
+        updatedEmojiPopup = EmojiPopup(
+            rootView = bindingSetup.root,
+            editText = bindingSetup.etMessage,
+            onEmojiClickListener = { emoji ->
+                message.reaction = emoji.unicode
+                addReaction(message)
+                setSendingAreaVisibility(View.VISIBLE)
+                updatedEmojiPopup.dismiss()
+                hideKeyboard(bindingSetup.root)
+            },
+            onEmojiPopupDismissListener = { setSendingAreaVisibility(View.VISIBLE) },
+        )
+
+        updatedEmojiPopup.toggle()
+    }
+
+    private fun setSendingAreaVisibility(visibility: Int) = with(bindingSetup) {
+        if (View.VISIBLE == visibility) hideSendButton()
+        etMessage.text?.clear()
+        ivAdd.visibility = visibility
+        clTyping.visibility = visibility
+        ivMicrophone.visibility = visibility
+        ivCamera.visibility = visibility
+        divider.visibility = visibility
     }
 
     private fun handleDownloadFile(message: MessageAndRecords) {
@@ -1744,6 +1773,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
         activity!!.finish()
     }
+
 
     override fun onBackPressed(): Boolean {
         for (bottomSheet in bottomSheets) {

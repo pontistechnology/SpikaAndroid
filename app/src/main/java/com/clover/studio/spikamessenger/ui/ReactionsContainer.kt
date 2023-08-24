@@ -22,6 +22,7 @@ class ReactionsContainer(context: Context, attrs: AttributeSet?) :
 
     interface AddReaction {
         fun addReaction(reaction: String)
+        fun addCustomReaction()
     }
 
     fun setButtonListener(listener: AddReaction?) {
@@ -35,20 +36,29 @@ class ReactionsContainer(context: Context, attrs: AttributeSet?) :
                     binding.tvThumbsUpEmoji -> {
                         listener!!.addReaction(context.getString(R.string.thumbs_up_emoji))
                     }
+
                     binding.tvHeartEmoji -> {
                         listener!!.addReaction(context.getString(R.string.heart_emoji))
                     }
+
                     binding.tvCryingEmoji -> {
                         listener!!.addReaction(context.getString(R.string.crying_face_emoji))
                     }
+
                     binding.tvAstonishedEmoji -> {
                         listener!!.addReaction(context.getString(R.string.astonished_emoji))
                     }
+
                     binding.tvDisappointedRelievedEmoji -> {
                         listener!!.addReaction(context.getString(R.string.disappointed_relieved_emoji))
                     }
+
                     binding.tvPrayingHandsEmoji -> {
                         listener!!.addReaction(context.getString(R.string.praying_hands_emoji))
+                    }
+
+                    binding.ivAddReaction -> {
+                        listener!!.addCustomReaction()
                     }
                 }
             }
