@@ -13,7 +13,6 @@
     <color name="color3">#2B3053</color>
     <color name="style_red">#FF4133</color>
     <color name="green">#23B528</color>
-    <color name="primary_color">#4696F0</color>
     <color name="secondary_color">#F3B74C</color>
     <color name="navigation">#9BB4CF</color>
     <color name="light_blue">#E6F4FF</color>
@@ -27,7 +26,13 @@
     <color name="gray_transparent">#66F2F2F2</color>
     <color name="messages_states">#5F6368</color>
 
-    <!--Application colors: light - dark themes-->
+    <!--Application colors: assets-->
+    <color name="primary_color">#4696F0</color>
+    <color name="gray_icon_color">#9AA0A6</color>
+    <color name="light_blue_icon_color">#9BB4CF</color>
+    <color name="alert_icon_color">#FF4133</color>
+
+    <!--Dark - light theme colors-->
     <!--Main color: white - black-->
     <color name="main">#FFFFFF</color>
     <!--Message me color: light blue - primary blue-->
