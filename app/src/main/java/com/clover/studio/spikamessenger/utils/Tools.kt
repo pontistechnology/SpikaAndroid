@@ -351,9 +351,9 @@ object Tools {
         val seconds = time % TO_MINUTES
 
         return when {
-            hours > 0 -> String.format("%2dh %2dmin", hours, minutes)
-            minutes > 0 -> String.format("%2dmin", minutes)
-            else -> String.format("%2dsec", seconds)
+            hours > 0 -> String.format("%2d h %2d min", hours, minutes)
+            minutes > 0 -> String.format("%2d min", minutes)
+            else -> String.format("%2d s", seconds)
         }
     }
 
