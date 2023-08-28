@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -47,7 +48,7 @@ class ContactsFragment : BaseFragment() {
         localId = viewModel.getLocalUserId()!!
         setupAdapter()
         setupSwipeToRefresh()
-        setupSearchView()
+        initializeViews()
         initializeObservers()
 
         return binding.root
@@ -58,6 +59,27 @@ class ContactsFragment : BaseFragment() {
             viewModel.syncContacts()
         }
         binding.srlRefreshContacts.isEnabled = true
+    }
+
+    private fun initializeViews() {
+        val createRoomIcon = binding.topAppBar.menu.findItem(R.id.create_room_menu_icon)
+        createRoomIcon?.isVisible = false
+        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.search_menu_icon -> {
+                    val searchView = menuItem.actionView as SearchView
+                    searchView.queryHint = getString(R.string.contact_search)
+                    searchView.setIconifiedByDefault(false)
+                    setupSearchView(searchView)
+
+                    menuItem.expandActionView()
+
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 
     private fun initializeObservers() {
@@ -159,7 +181,6 @@ class ContactsFragment : BaseFragment() {
                     }
                 }
             }
-
         }
 
         binding.rvContacts.adapter = contactsAdapter
@@ -167,11 +188,10 @@ class ContactsFragment : BaseFragment() {
         binding.rvContacts.layoutManager = layoutManager
     }
 
-    private fun setupSearchView() {
+    private fun setupSearchView(searchView: SearchView) {
         // SearchView is immediately acting as if selected
-        binding.svContactsSearch.setIconifiedByDefault(false)
-        binding.svContactsSearch.setOnQueryTextListener(object :
-            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+        searchView.setOnQueryTextListener(object :
+            SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
                     if (::userList.isInitialized) {
@@ -215,7 +235,7 @@ class ContactsFragment : BaseFragment() {
             }
         })
 
-        binding.svContactsSearch.setOnFocusChangeListener { view, hasFocus ->
+        searchView.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
                     hideKeyboard(view)
