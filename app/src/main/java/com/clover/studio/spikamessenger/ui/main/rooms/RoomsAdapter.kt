@@ -11,11 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.databinding.ItemChatRoomBinding
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getRelativeTimeSpan
+import com.vanniktech.emoji.EmojiTextView
 
 class RoomsAdapter(
     private val context: Context,
@@ -38,7 +40,8 @@ class RoomsAdapter(
                 val avatarFileId: Long
                 //Timber.d("Room data = $roomItem, ${roomItem.roomWithUsers.room.name}")
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
-                    val roomUser = roomItem.roomWithUsers.users.find { it.id.toString() != myUserId }
+                    val roomUser =
+                        roomItem.roomWithUsers.users.find { it.id.toString() != myUserId }
                     if (roomUser != null) {
                         userName = roomUser.formattedDisplayName
                         avatarFileId = roomUser.avatarFileId!!
@@ -79,29 +82,30 @@ class RoomsAdapter(
                 if (roomItem.message != null) {
                     val sortedList = roomItem.message
                     val lastMessage = sortedList.body
-                    var textUserName = ""
 
-                    if (Const.JsonFields.GROUP == roomItem.roomWithUsers.room.type) {
-                        for (user in roomItem.roomWithUsers.users) {
-                            if (sortedList.fromUserId == user.id) {
-                                textUserName = user.formattedDisplayName + ": "
-                                break
-                            }
-                        }
+                    val user = roomItem.roomWithUsers.users.first { it.id == sortedList.fromUserId }
+                    binding.tvUsername.text = if (user.id.toString() == myUserId) {
+                        context.getString(
+                            R.string.username_message,
+                            context.getString(R.string.you).trim()
+                        )
+                    } else {
+                        context.getString(
+                            R.string.username_message,
+                            user.formattedDisplayName.trim()
+                        )
                     }
+
                     if (lastMessage?.text.isNullOrEmpty()) {
-                        binding.tvLastMessage.text = buildString {
-                            append(textUserName)
-                            append(
-                                context.getString(
-                                    R.string.generic_shared,
-                                    sortedList.type.toString()
-                                        .replaceFirstChar { it.uppercase() })
-                            )
-                        }
-                    } else binding.tvLastMessage.text = buildString {
-                        append(textUserName)
-                        append(lastMessage?.text.toString())
+                        setMediaItemText(sortedList, binding.tvLastMessage)
+                    } else {
+                        binding.tvLastMessage.text = lastMessage?.text.toString()
+                        binding.tvLastMessage.setCompoundDrawablesWithIntrinsicBounds(
+                            0,
+                            0,
+                            0,
+                            0
+                        )
                     }
 
                     val time = roomItem.message.createdAt?.let {
@@ -116,8 +120,15 @@ class RoomsAdapter(
                         binding.tvMessageTime.text = time
                     }
                 } else {
-                    binding.tvLastMessage.text = ""
+                    binding.tvUsername.text = ""
                     binding.tvMessageTime.text = ""
+                    binding.tvLastMessage.text = ""
+                    binding.tvLastMessage.setCompoundDrawablesWithIntrinsicBounds(
+                        0,
+                        0,
+                        0,
+                        0
+                    )
                     binding.tvNewMessages.visibility = View.GONE
                 }
 
@@ -137,6 +148,48 @@ class RoomsAdapter(
         }
     }
 
+    private fun setMediaItemText(sortedList: Message?, tvLastMessage: EmojiTextView) {
+        tvLastMessage.apply {
+            when (sortedList?.type) {
+                Const.JsonFields.IMAGE_TYPE -> {
+                    setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_camera_reply,
+                        0,
+                        0,
+                        0
+                    )
+                }
+
+                Const.JsonFields.VIDEO_TYPE -> {
+                    setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_video_reply,
+                        0,
+                        0,
+                        0
+                    )
+                }
+
+                Const.JsonFields.AUDIO_TYPE -> {
+                    setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_audio_reply,
+                        0,
+                        0,
+                        0
+                    )
+                }
+
+                Const.JsonFields.FILE_TYPE -> {
+                    setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_document,
+                        0,
+                        0,
+                        0
+                    )
+                }
+            }
+            text = sortedList?.type.toString().replaceFirstChar { it.uppercase() }
+        }
+    }
 
     private class RoomsDiffCallback : DiffUtil.ItemCallback<RoomWithMessage>() {
 

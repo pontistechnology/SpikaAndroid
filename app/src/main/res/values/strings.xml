@@ -90,7 +90,9 @@
     <string name="save_to_camera_roll">Save to Camera Roll</string>
     <string name="media_auto_download">Media auto-download</string>
     <string name="files_mb_text"> MB</string>
-    <string name="generic_shared">%s shared</string>
+    <string name="generic_shared">%s</string>
+    <string name="username_message">%s:</string>
+    <string name="you">You</string>
     <string name="storage_permission">Please add storage permission manually</string>
     <string name="saved_to_gallery">Saved to gallery</string>
 
