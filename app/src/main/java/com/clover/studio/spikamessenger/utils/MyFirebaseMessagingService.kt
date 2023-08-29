@@ -13,7 +13,7 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.Firebas
 import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
-import com.clover.studio.spikamessenger.ui.main.MainActivity
+import com.clover.studio.spikamessenger.ui.main.chat.ChatScreenActivity
 import com.clover.studio.spikamessenger.utils.helpers.GsonProvider
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -111,10 +111,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         }
 
                         Timber.d("Extras: ${response.message.roomId}")
-                        val intent = Intent(baseContext, MainActivity::class.java).apply {
+                        val intent = Intent(baseContext, ChatScreenActivity::class.java).apply {
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
                         }
+
                         val resultPendingIntent: PendingIntent? =
                             TaskStackBuilder.create(baseContext).run {
                                 addNextIntentWithParentStack(intent)
@@ -125,6 +126,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                                     )
                                 }
                             }
+
                         val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                             .setSmallIcon(R.drawable.img_spika_push_black)
                             .setContentTitle(title)

@@ -52,6 +52,7 @@ class ChatViewModel @Inject constructor(
     val messagesReceived = MutableLiveData<List<Message>>()
     val searchMessageId = MutableLiveData(0)
     val roomWithUsers = MutableLiveData<RoomWithUsers>()
+    val roomId = MutableLiveData(0)
 
     init {
         sseManager.setupListener(this)
@@ -148,6 +149,8 @@ class ChatViewModel @Inject constructor(
     }
 
     fun getRoomAndUsers(roomId: Int) = repository.getRoomWithUsersLiveData(roomId)
+
+    fun tmp(roomId: Int) =  repository.tmp(roomId)
 
 //    fun getPushNotificationStream(listener: SSEListener): Flow<Message> = flow {
 //        viewModelScope.launch {

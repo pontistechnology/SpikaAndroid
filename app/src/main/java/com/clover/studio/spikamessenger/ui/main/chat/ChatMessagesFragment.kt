@@ -76,6 +76,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 
@@ -234,7 +237,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         localUserId = viewModel.getLocalUserId()!!
         messageSearchId = viewModel.searchMessageId.value
-        roomWithUsers = viewModel.roomWithUsers.value!!
+
+        if (viewModel.roomWithUsers.value != null){
+            roomWithUsers = viewModel.roomWithUsers.value!!
+        } else {
+            CoroutineScope(Dispatchers.IO).launch {
+                roomWithUsers = viewModel.tmp(viewModel.roomId.value!!)
+            }
+        }
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 

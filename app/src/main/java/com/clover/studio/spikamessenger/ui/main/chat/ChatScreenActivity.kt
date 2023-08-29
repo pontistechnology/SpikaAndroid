@@ -75,7 +75,12 @@ class ChatScreenActivity : BaseActivity() {
 
         viewModel.searchMessageId.value = intent.getIntExtra(Const.Navigation.SEARCH_MESSAGE_ID, 0)
         viewModel.roomWithUsers.value =
-            intent.getParcelableExtra(Const.Navigation.ROOM_DATA)
+            intent.getParcelableExtra(Const.Navigation.ROOM_DATA, RoomWithUsers::class.java)
+
+        if (viewModel.roomWithUsers.value == null) {
+            val extras = intent.getIntExtra(Const.IntentExtras.ROOM_ID_EXTRA, 0)
+            viewModel.roomId.value = extras
+        }
 
         Timber.d("Load check: ChatScreenActivity created")
 
