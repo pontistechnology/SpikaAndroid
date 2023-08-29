@@ -6,7 +6,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -87,7 +86,7 @@ class NewRoomFragment : BaseFragment() {
         // Behave like group chat if adding user from ChatDetails.
         if (args?.userIds?.isNotEmpty() == true) handleGroupChat()
 
-        tvNext.setOnClickListener {
+        fabNext.setOnClickListener {
             val bundle = bundleOf(Const.Navigation.SELECTED_USERS to selectedUsers)
             if (selectedUsers != viewModel.roomUsers) {
                 viewModel.saveSelectedUsers(selectedUsers)
@@ -118,7 +117,7 @@ class NewRoomFragment : BaseFragment() {
                 R.id.search_menu_icon -> {
                     ivCancel.visibility = View.GONE
                     val searchView = menuItem.actionView as SearchView
-                    searchView.queryHint = getString(R.string.contact_message_search)
+                    searchView.queryHint = getString(R.string.contact_search)
                     searchView.setIconifiedByDefault(false)
                     setupSearchView(searchView)
 
@@ -175,7 +174,7 @@ class NewRoomFragment : BaseFragment() {
         clSelectedContacts.visibility = View.VISIBLE
         tvSelectedNumber.text = getString(R.string.users_selected, selectedUsers.size)
         tvNewGroupChat.visibility = View.GONE
-        tvNext.visibility = View.VISIBLE
+        fabNext.visibility = View.GONE
         topAppBar.title = getString(R.string.select_members)
 
         newGroupFlag = true
@@ -262,22 +261,10 @@ class NewRoomFragment : BaseFragment() {
     }
 
     private fun handleNextTextView() {
-        if (selectedUsers.size > 0) {
-            binding.tvNext.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.primary_color
-                )
-            )
-            binding.tvNext.isClickable = true
+        binding.fabNext.visibility = if (selectedUsers.size > 0) {
+            View.VISIBLE
         } else {
-            binding.tvNext.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.text_tertiary
-                )
-            )
-            binding.tvNext.isClickable = false
+            View.GONE
         }
     }
 
@@ -386,7 +373,7 @@ class NewRoomFragment : BaseFragment() {
         searchView.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (!query.isNullOrEmpty()) {
+                if (query != null) {
                     if (::userList.isInitialized) {
                         for (user in userList) {
                             if (user.phoneUser?.name?.lowercase()?.contains(
@@ -409,7 +396,7 @@ class NewRoomFragment : BaseFragment() {
             }
 
             override fun onQueryTextChange(query: String?): Boolean {
-                if (!query.isNullOrEmpty()) {
+                if (query != null) {
                     if (::userList.isInitialized) {
                         for (user in userList) {
                             if (user.phoneUser?.name?.lowercase()?.contains(

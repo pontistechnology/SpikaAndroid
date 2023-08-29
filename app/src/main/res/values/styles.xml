@@ -48,7 +48,7 @@
         <item name="android:fontFamily">@font/montserrat_bold</item>
     </style>
 
-    <style name="CustomToolbar" parent="Base.Theme.AppCompat">
+    <style name="CustomToolbar" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="searchViewStyle">@style/CustomSearchView</item>
     </style>
 

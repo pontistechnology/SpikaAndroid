@@ -4,10 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentCallHistoryBinding
+import com.clover.studio.spikamessenger.ui.main.MainFragmentDirections
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import timber.log.Timber
 
@@ -27,10 +31,9 @@ class CallHistoryFragment : BaseFragment() {
         bindingSetup = FragmentCallHistoryBinding.inflate(inflater, container, false)
 
         setupAdapter()
-        setupSearchView()
+        initializeViews()
 
         if (!this::userList.isInitialized || userList.isEmpty()) {
-            binding.svHistorySearch.visibility = View.GONE
             binding.rvCallHistory.visibility = View.GONE
         } else {
             binding.tvNoCalls.visibility = View.GONE
@@ -55,20 +58,45 @@ class CallHistoryFragment : BaseFragment() {
         }
     }
 
-    private fun setupSearchView() {
+    private fun initializeViews() = with(binding){
+        topAppBar.menu.findItem(R.id.create_room_menu_icon).isVisible = false
+        topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.search_menu_icon -> {
+                    val searchView = menuItem.actionView as SearchView
+                    searchView.queryHint = getString(R.string.call_history_search_hint)
+                    searchView.setIconifiedByDefault(false)
+                    setupSearchView(searchView)
+
+                    menuItem.expandActionView()
+
+                    true
+                }
+
+                R.id.create_room_menu_icon -> {
+                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+
+    private fun setupSearchView(searchView: SearchView) {
         // SearchView is immediately acting as if selected
         if (this::userList.isInitialized) {
-            binding.svHistorySearch.setIconifiedByDefault(false)
-            binding.svHistorySearch.setOnQueryTextListener(object :
+            searchView.setIconifiedByDefault(false)
+            searchView.setOnQueryTextListener(object :
                 androidx.appcompat.widget.SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     if (query != null) {
                         Timber.d("Query: $query")
                         for (user in userList) {
-                            if (user.formattedDisplayName?.contains(
+                            if (user.formattedDisplayName.contains(
                                     query,
                                     ignoreCase = true
-                                ) == true
+                                )
                             ) {
                                 filteredList.add(user)
                             }
@@ -84,10 +112,10 @@ class CallHistoryFragment : BaseFragment() {
                     if (query != null) {
                         Timber.d("Query: $query")
                         for (user in userList) {
-                            if (user.formattedDisplayName?.contains(
+                            if (user.formattedDisplayName.contains(
                                     query,
                                     ignoreCase = true
-                                ) == true
+                                )
                             ) {
                                 filteredList.add(user)
                             }
@@ -100,7 +128,7 @@ class CallHistoryFragment : BaseFragment() {
                 }
             })
         }
-        binding.svHistorySearch.setOnFocusChangeListener { view, hasFocus ->
+        searchView.setOnFocusChangeListener { view, hasFocus ->
             run {
                 view.clearFocus()
                 if (!hasFocus) {

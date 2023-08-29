@@ -2,6 +2,7 @@ package com.clover.studio.spikamessenger.ui.main.create_room
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -38,7 +39,8 @@ class GroupInformationAdapter(
                     .centerCrop()
                     .into(binding.ivUserImage)
 
-                itemView.setOnClickListener {
+                binding.ivRemoveUser.visibility = View.VISIBLE
+                binding.ivRemoveUser.setOnClickListener {
                     userItem.let {
                         onItemClick.invoke(it)
                     }

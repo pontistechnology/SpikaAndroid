@@ -26,9 +26,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:backgroundTint="@color/main"
-            android:theme="@style/CustomToolbar"
             app:elevation="0dp"
             app:menu="@menu/menu"
+            android:theme="@style/CustomToolbar"
             app:title="@string/chat"
             app:titleTextAppearance="@style/CustomTitle"
             app:titleTextColor="@color/text_primary" />

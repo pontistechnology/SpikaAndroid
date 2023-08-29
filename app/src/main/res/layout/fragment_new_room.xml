@@ -37,7 +37,7 @@
         android:layout_marginStart="@dimen/ten_dp_margin"
         android:fontFamily="@font/montserrat"
         android:padding="@dimen/ten_dp_margin"
-        android:src="@drawable/img_arrow_back"
+        android:src="@drawable/img_arrow_back_chat"
         app:layout_constraintBottom_toBottomOf="@+id/appBarLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/appBarLayout" />
@@ -58,6 +58,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/twenty_four_dp_margin"
+        android:layout_marginBottom="@dimen/twenty_four_dp_margin"
+        android:backgroundTint="@color/primary_color"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/img_arrow_next"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_selected_contacts"
         android:layout_width="match_parent"
@@ -68,20 +82,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_new_group_chat">
-
-        <TextView
-            android:id="@+id/tv_next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:fontFamily="@font/montserrat_bold"
-            android:padding="@dimen/twenty_dp_margin"
-            android:text="@string/next"
-            android:textColor="@color/text_tertiary"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_selected_number"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tv_selected_number" />
 
         <TextView
             android:id="@+id/tv_selected_number"

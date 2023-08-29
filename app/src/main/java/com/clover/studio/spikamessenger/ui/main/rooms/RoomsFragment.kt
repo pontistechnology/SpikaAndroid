@@ -75,8 +75,7 @@ class RoomsFragment : BaseFragment() {
         topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
-                    val createRoomIcon = binding.topAppBar.menu.findItem(R.id.create_room_menu_icon)
-                    createRoomIcon?.isVisible = false
+                    binding.topAppBar.menu.findItem(R.id.create_room_menu_icon).isVisible = false
 
                     val searchView = menuItem.actionView as SearchView
                     searchView.queryHint = getString(R.string.contact_message_search)
