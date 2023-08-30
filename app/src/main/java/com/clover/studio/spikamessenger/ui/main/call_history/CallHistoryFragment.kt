@@ -58,7 +58,7 @@ class CallHistoryFragment : BaseFragment() {
         }
     }
 
-    private fun initializeViews() = with(binding){
+    private fun initializeViews() = with(binding) {
         topAppBar.menu.findItem(R.id.create_room_menu_icon).isVisible = false
         topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
@@ -88,7 +88,7 @@ class CallHistoryFragment : BaseFragment() {
         if (this::userList.isInitialized) {
             searchView.setIconifiedByDefault(false)
             searchView.setOnQueryTextListener(object :
-                androidx.appcompat.widget.SearchView.OnQueryTextListener {
+                SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     if (query != null) {
                         Timber.d("Query: $query")
@@ -136,5 +136,10 @@ class CallHistoryFragment : BaseFragment() {
                 }
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.topAppBar.menu.findItem(R.id.search_menu_icon).collapseActionView()
     }
 }

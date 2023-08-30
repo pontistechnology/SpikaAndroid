@@ -35,6 +35,8 @@ class RoomsFragment : BaseFragment() {
     private var searchMessageId = 0
 
     private var userSearching = false
+    private var searchView : SearchView? = null
+    private var searchQuery : String = ""
 
     private val binding get() = bindingSetup!!
 
@@ -49,82 +51,6 @@ class RoomsFragment : BaseFragment() {
         setupAdapter()
 
         return binding.root
-    }
-
-    private fun initializeViews() = with(binding) {
-        btnSearchRooms.isSelected = true
-
-        btnSearchRooms.setOnClickListener {
-            rvMessages.visibility = View.GONE
-            rvRooms.visibility = View.VISIBLE
-            btnSearchRooms.isSelected = true
-            btnSearchMessages.isSelected = false
-            btnSearchRooms.setBackgroundDrawable(requireContext().getDrawable(R.drawable.btn_selected_search))
-            btnSearchMessages.background = null
-        }
-
-        btnSearchMessages.setOnClickListener {
-            rvMessages.visibility = View.VISIBLE
-            rvRooms.visibility = View.GONE
-            btnSearchRooms.isSelected = false
-            btnSearchMessages.isSelected = true
-            btnSearchMessages.setBackgroundDrawable(requireContext().getDrawable(R.drawable.btn_selected_search))
-            btnSearchRooms.background = null
-        }
-
-        topAppBar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.search_menu_icon -> {
-                    binding.topAppBar.menu.findItem(R.id.create_room_menu_icon).isVisible = false
-
-                    val searchView = menuItem.actionView as SearchView
-                    searchView.queryHint = getString(R.string.contact_message_search)
-                    searchView.setIconifiedByDefault(false)
-                    setupSearchAdapter()
-                    setupSearchView(searchView)
-                    setSearch(searchView)
-
-                    menuItem.expandActionView()
-                    btnSearchRooms.setBackgroundDrawable(requireContext().getDrawable(R.drawable.btn_selected_search))
-                    btnSearchMessages.background = null
-
-                    true
-                }
-
-                R.id.create_room_menu_icon -> {
-                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
-                    true
-                }
-
-                else -> false
-            }
-        }
-
-        viewModel.roomUsers.clear()
-    }
-
-    private fun setupSearchView(searchView: SearchView) = with(binding) {
-        searchView.setIconifiedByDefault(false)
-        searchView.setOnQueryTextFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                llSearchRoomsMessages.visibility = View.VISIBLE
-            } else {
-                llSearchRoomsMessages.visibility = View.GONE
-                rvMessages.visibility = View.GONE
-                rvRooms.visibility = View.VISIBLE
-                btnSearchRooms.isSelected = true
-                btnSearchMessages.isSelected = false
-                searchView.setQuery("", false)
-                searchAdapter.submitList(ArrayList())
-
-                val searchMenuItem = binding.topAppBar.menu.findItem(R.id.search_menu_icon)
-                searchMenuItem?.collapseActionView()
-                searchMenuItem.isVisible = true
-
-                val createRoomIcon = binding.topAppBar.menu.findItem(R.id.create_room_menu_icon)
-                createRoomIcon?.isVisible = true
-            }
-        }
     }
 
     private fun initializeObservers() {
@@ -211,6 +137,68 @@ class RoomsFragment : BaseFragment() {
             })
     }
 
+    private fun initializeViews() = with(binding) {
+        btnSearchRooms.isSelected = true
+
+        btnSearchRooms.setOnClickListener {
+            rvMessages.visibility = View.GONE
+            rvRooms.visibility = View.VISIBLE
+            btnSearchRooms.isSelected = true
+            btnSearchMessages.isSelected = false
+            btnSearchRooms.setBackgroundDrawable(requireContext().getDrawable(R.drawable.btn_selected_search))
+            btnSearchMessages.background = null
+
+            if (searchView != null){
+                searchView?.setQuery(searchQuery, true)
+                setSearch(searchView)
+            }
+        }
+
+        btnSearchMessages.setOnClickListener {
+            rvMessages.visibility = View.VISIBLE
+            rvRooms.visibility = View.GONE
+            btnSearchRooms.isSelected = false
+            btnSearchMessages.isSelected = true
+            btnSearchMessages.setBackgroundDrawable(requireContext().getDrawable(R.drawable.btn_selected_search))
+            btnSearchRooms.background = null
+
+            if (searchView != null){
+                searchView?.setQuery( searchQuery, true)
+                setSearch(searchView)
+            }
+        }
+
+        topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.search_menu_icon -> {
+                    binding.topAppBar.menu.findItem(R.id.create_room_menu_icon).isVisible = false
+
+                    searchView = menuItem.actionView as SearchView
+                    searchView?.queryHint = getString(R.string.contact_message_search)
+                    searchView?.setIconifiedByDefault(false)
+                    setupSearchAdapter()
+                    setupSearchView(searchView)
+                    setSearch(searchView)
+
+                    menuItem.expandActionView()
+                    btnSearchRooms.setBackgroundDrawable(requireContext().getDrawable(R.drawable.btn_selected_search))
+                    btnSearchMessages.background = null
+
+                    true
+                }
+
+                R.id.create_room_menu_icon -> {
+                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
+                    true
+                }
+
+                else -> false
+            }
+        }
+
+        viewModel.roomUsers.clear()
+    }
+
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
             // TODO fetch room data for selected room and then navigate to it
@@ -221,6 +209,29 @@ class RoomsFragment : BaseFragment() {
         binding.rvRooms.adapter = roomsAdapter
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         binding.rvRooms.layoutManager = layoutManager
+    }
+
+    private fun setupSearchView(searchView: SearchView?) = with(binding) {
+        searchView?.setOnQueryTextFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                llSearchRoomsMessages.visibility = View.VISIBLE
+            } else {
+                llSearchRoomsMessages.visibility = View.GONE
+                rvMessages.visibility = View.GONE
+                rvRooms.visibility = View.VISIBLE
+                btnSearchRooms.isSelected = true
+                btnSearchMessages.isSelected = false
+
+                searchAdapter.submitList(ArrayList())
+
+                binding.topAppBar.menu.findItem(R.id.search_menu_icon).apply {
+                    collapseActionView()
+                    isVisible = true
+                }
+
+                binding.topAppBar.menu.findItem(R.id.create_room_menu_icon)?.isVisible = true
+            }
+        }
     }
 
     private fun setupSearchAdapter() {
@@ -241,11 +252,12 @@ class RoomsFragment : BaseFragment() {
         binding.rvMessages.layoutManager = layoutManager
     }
 
-    private fun setSearch(svRoomsSearch: SearchView) {
-        svRoomsSearch.setOnQueryTextListener(object :
+    private fun setSearch(svRoomsSearch: SearchView?) {
+        svRoomsSearch?.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
+                    searchQuery = query
                     if (query.isNotEmpty()) {
                         if (binding.rvRooms.isVisible) {
                             userSearching = true
@@ -289,6 +301,7 @@ class RoomsFragment : BaseFragment() {
 
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
+                    searchQuery = query
                     if (query.isNotEmpty()) {
                         if (binding.rvRooms.isVisible) {
                             userSearching = true
@@ -331,7 +344,7 @@ class RoomsFragment : BaseFragment() {
                 return true
             }
         })
-        svRoomsSearch.setOnFocusChangeListener { view, hasFocus ->
+        svRoomsSearch?.setOnFocusChangeListener { view, hasFocus ->
             run {
                 view.clearFocus()
                 if (!hasFocus) {
@@ -339,5 +352,11 @@ class RoomsFragment : BaseFragment() {
                 }
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.topAppBar.menu.findItem(R.id.search_menu_icon).collapseActionView()
+        searchQuery = ""
     }
 }

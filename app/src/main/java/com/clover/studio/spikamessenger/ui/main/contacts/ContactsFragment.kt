@@ -243,4 +243,9 @@ class ContactsFragment : BaseFragment() {
             }
         }
     }
+
+    override fun onPause() {
+        super.onPause()
+        binding.topAppBar.menu.findItem(R.id.search_menu_icon).collapseActionView()
+    }
 }
