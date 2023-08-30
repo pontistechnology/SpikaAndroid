@@ -75,7 +75,7 @@ class ChatScreenActivity : BaseActivity() {
 
         viewModel.searchMessageId.value = intent.getIntExtra(Const.Navigation.SEARCH_MESSAGE_ID, 0)
         viewModel.roomWithUsers.value =
-            intent.getParcelableExtra(Const.Navigation.ROOM_DATA, RoomWithUsers::class.java)
+            intent.getParcelableExtra(Const.Navigation.ROOM_DATA)
 
         if (viewModel.roomWithUsers.value == null) {
             val extras = intent.getIntExtra(Const.IntentExtras.ROOM_ID_EXTRA, 0)
