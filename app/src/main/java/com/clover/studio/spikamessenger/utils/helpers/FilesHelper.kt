@@ -28,7 +28,8 @@ object FilesHelper {
         uri: Uri,
         localId: String,
         roomId: Int,
-        metadata: FileMetadata?
+        metadata: FileMetadata?,
+        isProfilePicture : Boolean
     ): FileData {
 
         val messageBody = MessageBody(null, "", 0, 0, null, null)
@@ -46,7 +47,11 @@ object FilesHelper {
                 (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
             else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-        val fileType = Tools.getFileType(uri)
+        val fileType = if (isProfilePicture){
+            Const.JsonFields.AVATAR_TYPE
+        } else {
+            Tools.getFileType(uri)
+        }
 
         inputStream.close()
 

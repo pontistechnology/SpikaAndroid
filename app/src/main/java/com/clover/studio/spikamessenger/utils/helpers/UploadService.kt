@@ -96,38 +96,43 @@ class UploadService : Service() {
 
     private suspend fun uploadItems(items: List<FileData>) {
         uploadedFiles.addAll(items)
-        coroutineScope {
-            val thumbnailJobs = items.filter { it.isThumbnail }.map { item ->
-                delay(500)
-                launch {
-                    uploadItem(item)
-                    uploadCounterThumbnail++
-                }.also { jobMap[item.localId] = it }
-            }
+        if (items.first().fileType == Const.JsonFields.AVATAR_TYPE){
+            uploadItem(items.first())
+            resetUpload()
+        } else {
+            coroutineScope {
+                val thumbnailJobs = items.filter { it.isThumbnail }.map { item ->
+                    delay(500)
+                    launch {
+                        uploadItem(item)
+                        uploadCounterThumbnail++
+                    }.also { jobMap[item.localId] = it }
+                }
 
-            thumbnailJobs.joinAll()
+                thumbnailJobs.joinAll()
 
-            if (thumbnailJobs.all { it.isCompleted }) {
-                jobMap.clear()
-                thumbnailJobs.forEach {
+                if (thumbnailJobs.all { it.isCompleted }) {
+                    jobMap.clear()
+                    thumbnailJobs.forEach {
+                        it.cancel()
+                    }
+                }
+
+                val imageJobs = items.filter { !it.isThumbnail }.map { item ->
+                    delay(500)
+                    launch {
+                        uploadItem(item)
+                        uploadCounterImage++
+                    }.also { jobMap[item.localId] = it }
+                }
+
+                imageJobs.joinAll()
+                imageJobs.forEach {
                     it.cancel()
                 }
-            }
-
-            val imageJobs = items.filter { !it.isThumbnail }.map { item ->
-                delay(500)
-                launch {
-                    uploadItem(item)
-                    uploadCounterImage++
-                }.also { jobMap[item.localId] = it }
-            }
-
-            imageJobs.joinAll()
-            imageJobs.forEach {
-                it.cancel()
-            }
-            if (imageJobs.all { it.isCompleted }) {
-                resetUpload()
+                if (imageJobs.all { it.isCompleted }) {
+                    resetUpload()
+                }
             }
         }
     }
@@ -163,30 +168,35 @@ class UploadService : Service() {
                 fileType: String,
                 messageBody: MessageBody?
             ) {
-                if (!item.isThumbnail) {
-                    var fileThumbId: Long? = null
+                if (fileType == Const.JsonFields.AVATAR_TYPE){
+                     item.messageBody?.fileId = fileId
+                }
+                else {
+                    if (!item.isThumbnail) {
+                        var fileThumbId: Long? = null
 
-                    if (fileId > 0) messageBody?.fileId =
-                        fileId
+                        if (fileId > 0) messageBody?.fileId =
+                            fileId
 
-                    if (localIdMap[item.localId] != 0L) {
-                        fileThumbId = localIdMap[item.localId]
+                        if (localIdMap[item.localId] != 0L) {
+                            fileThumbId = localIdMap[item.localId]
+                        }
+
+                        sendMessage(
+                            messageFileType = fileType,
+                            text = messageBody?.text!!,
+                            fileId = messageBody.fileId!!,
+                            thumbId = fileThumbId ?: messageBody.thumbId!!,
+                            roomId = item.roomId,
+                            localId = item.localId!!,
+                        )
+                        uploadedFiles.find { it.localId == item.localId && !it.isThumbnail }?.messageStatus =
+                            Resource.Status.SUCCESS
+                    } else {
+                        item.localId?.let { localIdMap.put(it, thumbId) }
+                        uploadedFiles.find { it.localId == item.localId && it.isThumbnail }?.messageStatus =
+                            Resource.Status.SUCCESS
                     }
-
-                    sendMessage(
-                        messageFileType = fileType,
-                        text = messageBody?.text!!,
-                        fileId = messageBody.fileId!!,
-                        thumbId = fileThumbId ?: messageBody.thumbId!!,
-                        roomId = item.roomId,
-                        localId = item.localId!!,
-                    )
-                    uploadedFiles.find { it.localId == item.localId && !it.isThumbnail }?.messageStatus =
-                        Resource.Status.SUCCESS
-                } else {
-                    item.localId?.let { localIdMap.put(it, thumbId) }
-                    uploadedFiles.find { it.localId == item.localId && it.isThumbnail }?.messageStatus =
-                        Resource.Status.SUCCESS
                 }
             }
 

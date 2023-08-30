@@ -5,7 +5,6 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
-import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.User
@@ -17,7 +16,6 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.RoomRes
 import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.utils.Event
-import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.SSEListener
 import com.clover.studio.spikamessenger.utils.SSEManager
 import com.clover.studio.spikamessenger.utils.Tools
@@ -276,66 +274,9 @@ class ChatViewModel @Inject constructor(
         mainRepository.updateUnreadCount(roomId)
     }
 
-
     fun cancelUploadFile(messageId: String) = viewModelScope.launch {
         mainRepository.cancelUpload(messageId)
     }
-
-    fun uploadFile(
-        fileData: FileData
-    ) =
-        viewModelScope.launch {
-            try {
-                uploadDownloadManager.uploadFile(
-                    fileData,
-                    object : FileUploadListener {
-                        override fun filePieceUploaded() {
-                            resolveResponseStatus(
-                                fileUploadListener,
-                                Resource(Resource.Status.LOADING, null, "")
-                            )
-                        }
-
-                        override fun fileUploadError(description: String) {
-                            resolveResponseStatus(
-                                fileUploadListener,
-                                Resource(Resource.Status.ERROR, null, description)
-                            )
-                        }
-
-                        override fun fileUploadVerified(
-                            path: String,
-                            mimeType: String,
-                            thumbId: Long,
-                            fileId: Long,
-                            fileType: String,
-                            messageBody: MessageBody?
-                        ) {
-                            val response =
-                                FileUploadVerified(
-                                    path,
-                                    mimeType,
-                                    thumbId,
-                                    fileId,
-                                    messageBody,
-                                )
-                            resolveResponseStatus(
-                                fileUploadListener,
-                                Resource(Resource.Status.SUCCESS, response, "")
-                            )
-                        }
-
-                        override fun fileCanceledListener(messageId: String?) {
-                            // Ignore
-                        }
-                    })
-            } catch (ex: Exception) {
-                resolveResponseStatus(
-                    fileUploadListener,
-                    Resource(Resource.Status.ERROR, null, ex.message.toString())
-                )
-            }
-        }
 }
 
 class NoteDeletion(val response: Resource<NotesResponse>)

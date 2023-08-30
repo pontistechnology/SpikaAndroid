@@ -1,13 +1,17 @@
 package com.clover.studio.spikamessenger.ui.main.chat_details
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
+import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton.OnCheckedChangeListener
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -19,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.BuildConfig
+import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.User
@@ -27,15 +32,15 @@ import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepos
 import com.clover.studio.spikamessenger.databinding.FragmentChatDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.utils.Const
-import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.UploadDownloadManager
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
-import com.clover.studio.spikamessenger.utils.getChunkSize
+import com.clover.studio.spikamessenger.utils.helpers.FilesHelper
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -58,8 +63,6 @@ class ChatDetailsFragment : BaseFragment() {
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var roomUsers: MutableList<User> = ArrayList()
     private lateinit var roomWithUsers: RoomWithUsers
-    private var progress: Long = 1L
-    private var uploadPieces: Int = 0
     private var roomId: Int? = null
     private var isAdmin = false
     private var localUserId: Int? = 0
@@ -67,13 +70,14 @@ class ChatDetailsFragment : BaseFragment() {
     private var userName = ""
     private var avatarFileId = 0L
     private var newAvatarFileId = 0L
-    private var isUploading = false
 
     private var bindingSetup: FragmentChatDetailsBinding? = null
     private val binding get() = bindingSetup!!
 
     private var allUsers = false
     private var modifiedList: List<User> = mutableListOf()
+
+    private lateinit var fileUploadService: UploadService
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -82,7 +86,12 @@ class ChatDetailsFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickAvatar)
+                Glide.with(this)
+                    .load(bitmapUri)
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                    .into(binding.ivPickAvatar)
+
                 binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
@@ -136,6 +145,10 @@ class ChatDetailsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initializeViews(roomWithUsers)
+        if (savedInstanceState == null){
+            setAvatarAndUsername(roomWithUsers.room.avatarFileId!!)
+        }
+
         initializeObservers()
         handleUserStatusViews(isAdmin)
     }
@@ -171,17 +184,6 @@ class ChatDetailsFragment : BaseFragment() {
         }
 
         binding.chatHeader.tvTitle.text = roomWithUsers.room.type
-
-        // This will stop image file changes while file is uploading via LiveData
-        if (!isUploading && ivDone.visibility == View.GONE) {
-            setAvatarAndUsername(avatarFileId, userName)
-        }
-
-        swPinChat.isChecked = roomWithUsers.room.pinned
-        swMute.isChecked = roomWithUsers.room.muted
-
-        swMute.setOnCheckedChangeListener(multiListener)
-        swPinChat.setOnCheckedChangeListener(multiListener)
 
         initializeListeners(roomWithUsers)
     }
@@ -225,6 +227,10 @@ class ChatDetailsFragment : BaseFragment() {
             ivDone.visibility = View.GONE
             etEnterGroupName.visibility = View.INVISIBLE
             tvGroupName.visibility = View.VISIBLE
+
+            if (newAvatarFileId != 0L){
+                setAvatarAndUsername(newAvatarFileId)
+            }
         }
 
         flNotes.setOnClickListener {
@@ -361,21 +367,19 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-    private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
-        if (avatarFileId != 0L) {
-            Glide.with(this)
-                .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .into(binding.ivPickAvatar)
-            Glide.with(this)
-                .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .into(binding.chatHeader.ivUserImage)
-        }
-        binding.tvGroupName.text = username
-        binding.chatHeader.tvChatName.text = username
+    private fun setAvatarAndUsername(avatarFileId: Long) {
+        val imageUrl = avatarFileId.let { Tools.getFilePathUrl(it) }
+
+        val glideRequest = Glide.with(this)
+            .load(imageUrl)
+            .centerCrop()
+            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+
+        glideRequest.into(binding.ivPickAvatar)
+        glideRequest.into(binding.chatHeader.ivUserImage)
+
+        binding.tvGroupName.text = roomWithUsers.room.name
+        binding.chatHeader.tvChatName.text = roomWithUsers.room.name
     }
 
     private fun initializeObservers() {
@@ -402,43 +406,6 @@ class ChatDetailsFragment : BaseFragment() {
                 }
             }
         }
-
-        viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.LOADING -> {
-                    if (progress <= uploadPieces) {
-                        binding.progressBar.secondaryProgress = progress.toInt()
-                        progress++
-                    } else progress = 0
-                }
-
-                Resource.Status.SUCCESS -> {
-                    Timber.d("Upload verified")
-                    requireActivity().runOnUiThread {
-                        binding.flProgressScreen.visibility = View.GONE
-                        binding.ivDone.visibility = View.VISIBLE
-                    }
-                    newAvatarFileId = it.responseData!!.fileId
-                    isUploading = false
-                }
-
-                Resource.Status.ERROR -> {
-                    Timber.d("Upload Error")
-                    requireActivity().runOnUiThread {
-                        showUploadError(it.message!!)
-                    }
-                }
-
-                else -> {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.something_went_wrong),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    isUploading = false
-                }
-            }
-        })
     }
 
     private fun setupAdapter(isAdmin: Boolean, roomType: String) {
@@ -544,35 +511,19 @@ class ChatDetailsFragment : BaseFragment() {
 
     private fun updateGroupImage() {
         if (currentPhotoLocation != Uri.EMPTY) {
-            val inputStream =
-                requireActivity().contentResolver.openInputStream(currentPhotoLocation)
-
-            val fileStream = Tools.copyStreamToFile(
-                inputStream!!,
-                activity?.contentResolver?.getType(currentPhotoLocation)!!
-            )
-            uploadPieces =
-                if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
-                    (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
-                else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
-
-            binding.progressBar.max = uploadPieces
-            Timber.d("File upload start")
-            isUploading = true
-            viewModel.uploadFile(
-                FileData(
-                    currentPhotoLocation,
-                    Const.JsonFields.AVATAR_TYPE,
-                    uploadPieces,
-                    fileStream,
-                    null,
-                    false,
-                    null,
-                    roomWithUsers.room.roomId,
-                    null,
-                    null
+            val profilePicture =
+                FilesHelper.uploadFile(
+                    isThumbnail = false,
+                    uri = currentPhotoLocation,
+                    localId = "0",
+                    roomId = roomWithUsers.room.roomId,
+                    metadata = null,
+                    isProfilePicture = true
                 )
-            )
+            val uploadData: ArrayList<FileData> = ArrayList()
+            uploadData.add(profilePicture)
+            startUploadService(uploadData)
+
             binding.flProgressScreen.visibility = View.VISIBLE
         }
     }
@@ -632,4 +583,50 @@ class ChatDetailsFragment : BaseFragment() {
 
         roomId?.let { viewModel.updateRoom(jsonObject, it, idToRemove) }
     }
+
+    /** Upload service */
+    private fun startUploadService(files: ArrayList<FileData>) {
+        val intent = Intent(MainApplication.appContext, UploadService::class.java)
+        intent.putParcelableArrayListExtra(Const.IntentExtras.FILES_EXTRA, files)
+        MainApplication.appContext.startService(intent)
+        activity?.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as UploadService.UploadServiceBinder
+            fileUploadService = binder.getService()
+            fileUploadService.setCallbackListener(object : UploadService.FileUploadCallback {
+                override fun updateUploadProgressBar(
+                    progress: Int,
+                    maxProgress: Int,
+                    localId: String?
+                ) {
+                    binding.progressBar.secondaryProgress = (progress * 100) / maxProgress
+                }
+
+                override fun uploadingFinished(uploadedFiles: MutableList<FileData>) {
+                    Tools.deleteTemporaryMedia(context!!)
+                    context?.cacheDir?.deleteRecursively()
+
+                    requireActivity().runOnUiThread {
+                        binding.flProgressScreen.visibility = View.GONE
+                        binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
+                        binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
+                        binding.tvDone.visibility = View.VISIBLE
+                    }
+
+                    newAvatarFileId = uploadedFiles.first().messageBody?.fileId!!
+
+                    uploadedFiles.clear()
+
+                }
+            })
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            Timber.d("Service disconnected")
+        }
+    }
 }
+
