@@ -16,7 +16,7 @@ import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.databinding.ItemChatRoomBinding
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
-import com.clover.studio.spikamessenger.utils.Tools.getRelativeTimeSpan
+import com.clover.studio.spikamessenger.utils.Tools.getRoomTime
 import com.vanniktech.emoji.EmojiTextView
 
 class RoomsAdapter(
@@ -109,7 +109,7 @@ class RoomsAdapter(
                     }
 
                     val time = roomItem.message.createdAt?.let {
-                        getRelativeTimeSpan(it)
+                        getRoomTime(it)
                     }
 
                     // Check for the first digit in the relative time span, if it is a '0' we will

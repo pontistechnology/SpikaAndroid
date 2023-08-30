@@ -10,7 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
-import com.clover.studio.spikamessenger.databinding.FragmentChatBinding
+import com.clover.studio.spikamessenger.databinding.FragmentRoomsBinding
 import com.clover.studio.spikamessenger.ui.main.MainFragmentDirections
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
@@ -29,7 +29,7 @@ class RoomsFragment : BaseFragment() {
     private var roomList: MutableList<RoomWithMessage> = mutableListOf()
     private var filteredList: MutableList<RoomWithMessage> = mutableListOf()
     private var sortedList: MutableList<RoomWithMessage> = mutableListOf()
-    private var bindingSetup: FragmentChatBinding? = null
+    private var bindingSetup: FragmentRoomsBinding? = null
     private var searchMessageId = 0
 
     private var userSearching = false
@@ -40,7 +40,7 @@ class RoomsFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        bindingSetup = FragmentChatBinding.inflate(inflater, container, false)
+        bindingSetup = FragmentRoomsBinding.inflate(inflater, container, false)
 
         initializeObservers()
         initializeViews()

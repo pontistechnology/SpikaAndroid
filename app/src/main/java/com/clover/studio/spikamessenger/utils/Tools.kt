@@ -324,6 +324,33 @@ object Tools {
         )
     }
 
+    fun getRoomTime(startDate: Long) : CharSequence? {
+        val currentTimeMillis = System.currentTimeMillis()
+        val timeDifference = currentTimeMillis - startDate
+
+        return when {
+            timeDifference >= DateUtils.WEEK_IN_MILLIS -> {
+                SimpleDateFormat("dd.MM.", Locale.getDefault()).format(startDate)
+            }
+
+            timeDifference >= DateUtils.DAY_IN_MILLIS -> {
+                DateUtils.formatDateTime(
+                    MainApplication.appContext,
+                    startDate,
+                    DateUtils.FORMAT_SHOW_WEEKDAY
+                )
+            }
+
+            else -> {
+                DateUtils.getRelativeTimeSpanString(
+                    startDate,
+                    currentTimeMillis,
+                    DateUtils.MINUTE_IN_MILLIS
+                )
+            }
+        }
+    }
+
     fun generateRandomId(): String {
         return UUID.randomUUID().toString().substring(0, 13)
     }
