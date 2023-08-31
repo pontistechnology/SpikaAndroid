@@ -13,6 +13,7 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.Firebas
 import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
+import com.clover.studio.spikamessenger.ui.main.MainActivity
 import com.clover.studio.spikamessenger.ui.main.chat.ChatScreenActivity
 import com.clover.studio.spikamessenger.utils.helpers.GsonProvider
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -111,30 +112,31 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         }
 
                         Timber.d("Extras: ${response.message.roomId}")
-                        val intent = Intent(baseContext, ChatScreenActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
+                        val intent = Intent(baseContext, MainActivity::class.java)
+                        val stackBuilder = TaskStackBuilder.create(baseContext).apply {
+                            addParentStack(MainActivity::class.java)
+                            addNextIntent(intent)
                         }
 
-                        val resultPendingIntent: PendingIntent? =
-                            TaskStackBuilder.create(baseContext).run {
-                                addNextIntentWithParentStack(intent)
-                                response.message.roomId?.let {
-                                    getPendingIntent(
-                                        it,
-                                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-                                    )
-                                }
-                            }
+                        val chatActivityIntent = Intent(baseContext, ChatScreenActivity::class.java)
+                        chatActivityIntent.putExtra(
+                            Const.IntentExtras.ROOM_ID_EXTRA,
+                            response.message.roomId
+                        )
+
+                        stackBuilder.addNextIntent(chatActivityIntent)
+
+                        val pendingIntent =
+                            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
 
                         val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                             .setSmallIcon(R.drawable.img_spika_push_black)
                             .setContentTitle(title)
                             .setContentText(content)
-                            .setPriority(NotificationCompat.PRIORITY_MAX)
-                            .setContentIntent(resultPendingIntent)
-                            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                             .setAutoCancel(true)
+                            .setPriority(NotificationCompat.PRIORITY_MAX)
+                            .setContentIntent(pendingIntent)
+                            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
 
                         // Check if there's an existing notification for this conversation.
                         if (notificationMap.containsKey(response.message.roomId)) {

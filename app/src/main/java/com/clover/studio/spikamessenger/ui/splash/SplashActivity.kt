@@ -27,6 +27,8 @@ class SplashActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         bindingSetup = ActivitySplashBinding.inflate(layoutInflater)
 
+        Timber.d("Here! : Splash")
+
         if (viewModel.getUserTheme() == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
             val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
             when (uiModeManager.nightMode) {

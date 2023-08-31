@@ -60,6 +60,8 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        Timber.d("Here! : Main")
+
         if (viewModel.getUserTheme() == MODE_NIGHT_UNSPECIFIED) {
             val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
             when (uiModeManager.nightMode) {
