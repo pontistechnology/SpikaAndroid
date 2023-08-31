@@ -2,9 +2,10 @@ package com.clover.studio.spikamessenger.ui.main.create_room
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -15,6 +16,7 @@ import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.databinding.FragmentNewRoomBinding
+import com.clover.studio.spikamessenger.ui.main.MainFragmentDirections
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.ui.main.contacts.ContactsAdapter
@@ -75,24 +77,22 @@ class NewRoomFragment : BaseFragment() {
 
         initializeObservers()
         initializeViews()
-        setupSearchView()
 
         return binding.root
     }
 
     private fun initializeViews() = with(binding) {
         // SearchView is immediately acting as if selected
-
         // Behave like group chat if adding user from ChatDetails.
         if (args?.userIds?.isNotEmpty() == true) handleGroupChat()
 
-        svContactsSearch.setIconifiedByDefault(false)
-
-        tvNext.setOnClickListener {
+        fabNext.setOnClickListener {
             val bundle = bundleOf(Const.Navigation.SELECTED_USERS to selectedUsers)
             if (selectedUsers != viewModel.roomUsers) {
                 viewModel.saveSelectedUsers(selectedUsers)
             }
+
+            binding.topAppBar.menu.findItem(R.id.search_menu_icon).collapseActionView()
 
             if (args?.roomId != null && args?.roomId != 0) {
                 updateRoom()
@@ -109,6 +109,43 @@ class NewRoomFragment : BaseFragment() {
 
         tvNewGroupChat.setOnClickListener {
             handleGroupChat()
+        }
+
+        topAppBar.menu.findItem(R.id.create_room_menu_icon).isVisible = false
+        topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.search_menu_icon -> {
+                    ivCancel.visibility = View.GONE
+                    val searchView = menuItem.actionView as SearchView
+                    searchView.queryHint = getString(R.string.contact_search)
+                    searchView.setIconifiedByDefault(false)
+                    setupSearchView(searchView)
+
+                    menuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+                        override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                            return true
+                        }
+
+                        override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                            ivCancel.visibility = View.VISIBLE
+                            rvContacts.visibility = View.VISIBLE
+                            return true
+                        }
+
+                    })
+
+                    menuItem.expandActionView()
+
+                    true
+                }
+
+                R.id.create_room_menu_icon -> {
+                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
+                    true
+                }
+
+                else -> false
+            }
         }
     }
 
@@ -137,8 +174,8 @@ class NewRoomFragment : BaseFragment() {
         clSelectedContacts.visibility = View.VISIBLE
         tvSelectedNumber.text = getString(R.string.users_selected, selectedUsers.size)
         tvNewGroupChat.visibility = View.GONE
-        tvNext.visibility = View.VISIBLE
-        tvTitle.text = getString(R.string.select_members)
+        fabNext.visibility = View.GONE
+        topAppBar.title = getString(R.string.select_members)
 
         newGroupFlag = true
 
@@ -224,22 +261,10 @@ class NewRoomFragment : BaseFragment() {
     }
 
     private fun handleNextTextView() {
-        if (selectedUsers.size > 0) {
-            binding.tvNext.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.primary_color
-                )
-            )
-            binding.tvNext.isClickable = true
+        binding.fabNext.visibility = if (selectedUsers.size > 0) {
+            View.VISIBLE
         } else {
-            binding.tvNext.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.text_tertiary
-                )
-            )
-            binding.tvNext.isClickable = false
+            View.GONE
         }
     }
 
@@ -342,14 +367,13 @@ class NewRoomFragment : BaseFragment() {
         viewModel.getRoomWithUsers(chatRoom.roomId)
     }
 
-    private fun setupSearchView() {
+    private fun setupSearchView(searchView: SearchView) {
         // SearchView is immediately acting as if selected
-        binding.svContactsSearch.setIconifiedByDefault(false)
-        binding.svContactsSearch.setOnQueryTextListener(object :
-            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+        searchView.setIconifiedByDefault(false)
+        searchView.setOnQueryTextListener(object :
+            SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (!query.isNullOrEmpty()) {
-                    Timber.d("Query: $query")
+                if (query != null) {
                     if (::userList.isInitialized) {
                         for (user in userList) {
                             if (user.phoneUser?.name?.lowercase()?.contains(
@@ -361,7 +385,6 @@ class NewRoomFragment : BaseFragment() {
                                 filteredList.add(user)
                             }
                         }
-                        Timber.d("Filtered List: $filteredList")
                         val users = filteredList.sortUsersByLocale(requireContext())
                         contactsAdapter.submitList(ArrayList(users)) {
                             binding.rvContacts.scrollToPosition(0)
@@ -373,8 +396,7 @@ class NewRoomFragment : BaseFragment() {
             }
 
             override fun onQueryTextChange(query: String?): Boolean {
-                if (!query.isNullOrEmpty()) {
-                    Timber.d("Query: $query")
+                if (query != null) {
                     if (::userList.isInitialized) {
                         for (user in userList) {
                             if (user.phoneUser?.name?.lowercase()?.contains(
@@ -386,7 +408,6 @@ class NewRoomFragment : BaseFragment() {
                                 filteredList.add(user)
                             }
                         }
-                        Timber.d("Filtered List: $filteredList")
                         val users = filteredList.sortUsersByLocale(requireContext())
                         contactsAdapter.submitList(ArrayList(users)) {
                             binding.rvContacts.scrollToPosition(0)
@@ -398,10 +419,11 @@ class NewRoomFragment : BaseFragment() {
             }
         })
 
-        binding.svContactsSearch.setOnFocusChangeListener { view, hasFocus ->
+        searchView.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
                     hideKeyboard(view)
+                    binding.ivCancel.visibility = View.VISIBLE
                 }
             }
         }

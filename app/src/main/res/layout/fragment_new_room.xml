@@ -4,22 +4,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.create_room.NewRoomFragment">
+    tools:context=".ui.main.create_room.NewRoomFragment"
+    tools:ignore="contentDescription">
 
-    <TextView
-        android:id="@+id/tv_title"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat"
-        android:paddingStart="@dimen/ten_dp_margin"
-        android:paddingTop="@dimen/twenty_dp_margin"
-        android:paddingEnd="@dimen/twenty_dp_margin"
-        android:paddingBottom="@dimen/twenty_dp_margin"
-        android:text="@string/new_chat"
-        android:textSize="@dimen/fourteen_sp_text"
-        app:layout_constraintEnd_toStartOf="@id/tv_next"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:backgroundTint="@color/main"
+        app:elevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/iv_cancel"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:backgroundTint="@color/main"
+            android:theme="@style/CustomToolbar"
+            app:elevation="0dp"
+            app:menu="@menu/menu"
+            app:title="@string/new_chat"
+            app:titleTextColor="@color/text_primary" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <ImageView
         android:id="@+id/iv_cancel"
@@ -29,34 +38,9 @@
         android:fontFamily="@font/montserrat"
         android:padding="@dimen/ten_dp_margin"
         android:src="@drawable/img_arrow_back_chat"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
+        app:layout_constraintBottom_toBottomOf="@+id/appBarLayout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tv_title" />
-
-    <TextView
-        android:id="@+id/tv_next"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="false"
-        android:fontFamily="@font/montserrat_bold"
-        android:padding="@dimen/twenty_dp_margin"
-        android:text="@string/next"
-        android:textColor="@color/text_tertiary"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/sv_contacts_search"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/sixteen_dp_margin"
-        android:background="@drawable/bg_message_received"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_cancel"
-        app:queryBackground="@android:color/transparent"
-        app:queryHint="@string/contact_search" />
+        app:layout_constraintTop_toTopOf="@+id/appBarLayout" />
 
     <TextView
         android:id="@+id/tv_new_group_chat"
@@ -72,7 +56,21 @@
         android:visibility="visible"
         app:drawableStartCompat="@drawable/img_people"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sv_contacts_search" />
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/twenty_four_dp_margin"
+        android:layout_marginBottom="@dimen/twenty_four_dp_margin"
+        android:backgroundTint="@color/primary_color"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/img_arrow_next"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_selected_contacts"

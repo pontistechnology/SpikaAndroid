@@ -10,40 +10,29 @@
     tools:context=".ui.main.rooms.RoomsFragment"
     tools:ignore="contentDescription">
 
-    <TextView
-        android:id="@+id/tv_screen_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/twenty_dp_margin"
-        android:layout_marginTop="@dimen/eight_dp_margin"
-        android:fontFamily="@font/montserrat_bold"
-        android:text="@string/chat"
-        android:textSize="@dimen/twenty_eight_sp_text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/iv_create_room"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/eight_dp_margin"
-        android:src="@drawable/img_add"
-        app:layout_constraintBottom_toBottomOf="@id/tv_screen_name"
-        app:layout_constraintEnd_toEndOf="@+id/sv_rooms_search"
-        app:layout_constraintTop_toTopOf="@id/tv_screen_name" />
-
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/sv_rooms_search"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/sixteen_dp_margin"
-        android:background="@drawable/bg_message_received"
-        android:backgroundTint="@color/message_other"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:backgroundTint="@color/main"
+        app:elevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_screen_name"
-        app:queryBackground="@android:color/transparent"
-        app:queryHint="@string/contact_message_search" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:backgroundTint="@color/main"
+            app:elevation="0dp"
+            app:menu="@menu/menu"
+            android:theme="@style/CustomToolbar"
+            app:title="@string/chat"
+            app:titleTextAppearance="@style/CustomTitle"
+            app:titleTextColor="@color/text_primary" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <TextView
         android:id="@+id/tv_no_chats"
@@ -56,63 +45,59 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_screen_name" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/ll_search_rooms_messages"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/sixteen_dp_margin"
-        android:background="@drawable/bg_message_received"
-        android:backgroundTint="@color/message_other"
         android:orientation="horizontal"
-        android:padding="@dimen/eight_dp_margin"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sv_rooms_search">
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_search_rooms"
             android:layout_width="0dp"
-            android:layout_height="@dimen/thirty_two_dp_margin"
+            android:layout_height="@dimen/sixty_four_dp"
             android:layout_weight="1"
-            android:background="@drawable/bg_button_bar_custom"
+            android:background="@null"
             android:fontFamily="@font/montserrat"
             android:text="@string/rooms"
             android:textAllCaps="false"
-            android:textColor="@color/white" />
+            android:textColor="@color/text_primary" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_search_messages"
             android:layout_width="0dp"
-            android:layout_height="@dimen/thirty_two_dp_margin"
+            android:layout_height="@dimen/sixty_four_dp"
             android:layout_weight="1"
-            android:background="@drawable/bg_button_bar_custom"
+            android:background="@null"
             android:fontFamily="@font/montserrat"
             android:text="@string/messages"
             android:textAllCaps="false"
-            android:textColor="@color/white" />
+            android:textColor="@color/text_primary" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_rooms"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:layout_marginTop="@dimen/four_dp_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ll_search_rooms_messages" />
+        app:layout_constraintTop_toBottomOf="@+id/ll_search_rooms_messages" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_messages"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:layout_marginTop="@dimen/four_dp_margin"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ll_search_rooms_messages" />
+        app:layout_constraintTop_toBottomOf="@+id/ll_search_rooms_messages" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -132,7 +132,7 @@ class GroupInformationFragment : BaseFragment() {
     }
 
     private fun initializeViews() {
-        binding.tvCreate.setOnClickListener {
+        binding.fabDone.setOnClickListener {
             val jsonObject = JsonObject()
 
             val userIdsArray = JsonArray()
@@ -160,22 +160,10 @@ class GroupInformationFragment : BaseFragment() {
         adapter.submitList(selectedUsers)
 
         binding.etEnterUsername.addTextChangedListener {
-            if (binding.etEnterUsername.text.isNotEmpty()) {
-                binding.tvCreate.isEnabled = true
-                binding.tvCreate.setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.primary_color
-                    )
-                )
+            binding.fabDone.visibility = if (binding.etEnterUsername.text.isNotEmpty()){
+                View.VISIBLE
             } else {
-                binding.tvCreate.isEnabled = false
-                binding.tvCreate.setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.text_tertiary
-                    )
-                )
+                View.GONE
             }
         }
 
@@ -283,6 +271,7 @@ class GroupInformationFragment : BaseFragment() {
             binding.tvPeopleSelected.text =
                 getString(R.string.s_people_selected, selectedUsers.size)
             adapter.notifyDataSetChanged()
+            viewModel.roomUsers.remove(it)
         }
 
         binding.rvContacts.adapter = adapter

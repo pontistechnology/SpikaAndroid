@@ -42,4 +42,18 @@
         <item name="colorAccent">@color/selected_text</item>
         <item name="colorControlActivated">@color/selected_text</item>
     </style>
+
+    <style name="CustomTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">@dimen/twenty_eight_sp_text</item>
+        <item name="android:fontFamily">@font/montserrat_bold</item>
+    </style>
+
+    <style name="CustomToolbar" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="searchViewStyle">@style/CustomSearchView</item>
+    </style>
+
+    <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
+        <item name="searchIcon">@null</item>
+    </style>
+
 </resources>

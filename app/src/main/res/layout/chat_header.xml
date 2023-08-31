@@ -12,13 +12,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/eight_dp_margin"
         android:padding="@dimen/ten_dp_margin"
-        android:rotation="180"
-        android:src="@drawable/img_arrow_forward"
+        android:src="@drawable/img_arrow_back_chat"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/cl_header"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/primary_color" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_header"
