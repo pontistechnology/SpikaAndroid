@@ -41,7 +41,7 @@ class RoomsAdapter(
                 //Timber.d("Room data = $roomItem, ${roomItem.roomWithUsers.room.name}")
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
                     val roomUser =
-                        roomItem.roomWithUsers.users.find { it.id.toString() != myUserId }
+                        roomItem.roomWithUsers.users.firstOrNull { it.id.toString() != myUserId }
                     if (roomUser != null) {
                         userName = roomUser.formattedDisplayName
                         avatarFileId = roomUser.avatarFileId!!
@@ -83,8 +83,8 @@ class RoomsAdapter(
                     val sortedList = roomItem.message
                     val lastMessage = sortedList.body
 
-                    val user = roomItem.roomWithUsers.users.first { it.id == sortedList.fromUserId }
-                    binding.tvUsername.text = if (user.id.toString() == myUserId) {
+                    val user = roomItem.roomWithUsers.users.firstOrNull { it.id == sortedList.fromUserId }
+                    binding.tvUsername.text = if (user?.id.toString() == myUserId) {
                         context.getString(
                             R.string.username_message,
                             context.getString(R.string.you).trim()
@@ -92,7 +92,7 @@ class RoomsAdapter(
                     } else {
                         context.getString(
                             R.string.username_message,
-                            user.formattedDisplayName.trim()
+                            user?.formattedDisplayName?.trim()
                         )
                     }
 
