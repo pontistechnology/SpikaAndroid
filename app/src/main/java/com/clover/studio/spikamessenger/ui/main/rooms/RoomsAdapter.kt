@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +17,7 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getRoomTime
 import com.vanniktech.emoji.EmojiTextView
+import timber.log.Timber
 
 class RoomsAdapter(
     private val context: Context,
@@ -38,52 +38,44 @@ class RoomsAdapter(
             getItem(position).let { roomItem ->
                 val userName: String
                 val avatarFileId: Long
-                //Timber.d("Room data = $roomItem, ${roomItem.roomWithUsers.room.name}")
+                Timber.d("Room data = $roomItem, ${roomItem.roomWithUsers.room.name}")
+
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
                     val roomUser =
-                        roomItem.roomWithUsers.users.firstOrNull { it.id.toString() != myUserId }
-                    if (roomUser != null) {
-                        userName = roomUser.formattedDisplayName
-                        avatarFileId = roomUser.avatarFileId!!
-                    } else {
-                        userName = roomItem.roomWithUsers.users.first().formattedDisplayName
-                        avatarFileId = roomItem.roomWithUsers.users.first().avatarFileId!!
-                    }
+                        roomItem.roomWithUsers.users.find { it.id.toString() != myUserId }
+                    userName = roomUser?.formattedDisplayName ?: ""
+                    avatarFileId = roomUser?.avatarFileId ?: 0L
                 } else {
                     userName = roomItem.roomWithUsers.room.name.toString()
-                    avatarFileId = roomItem.roomWithUsers.room.avatarFileId!!
+                    avatarFileId = roomItem.roomWithUsers.room.avatarFileId ?: 0L
                 }
+
                 binding.tvRoomName.text = userName
 
                 // Check if room is muted and add mute icon to the room item
-                if (roomItem.roomWithUsers.room.muted) {
-                    binding.ivMuted.visibility = View.VISIBLE
-                } else binding.ivMuted.visibility = View.GONE
+                binding.ivMuted.visibility = if (roomItem.roomWithUsers.room.muted) {
+                    View.VISIBLE
+                } else View.GONE
 
                 // Check if room is pinned and add pin icon to the room item
-                if (roomItem.roomWithUsers.room.pinned) {
-                    binding.ivPinned.visibility = View.VISIBLE
-                } else binding.ivPinned.visibility = View.GONE
+                binding.ivPinned.visibility = if (roomItem.roomWithUsers.room.pinned) {
+                    View.VISIBLE
+                } else View.GONE
 
-                if (avatarFileId != 0L) {
-                    Glide.with(context)
-                        .load(Tools.getFilePathUrl(avatarFileId))
-                        .placeholder(R.drawable.img_user_placeholder)
-                        .centerCrop()
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(binding.ivRoomImage)
-                } else binding.ivRoomImage.setImageDrawable(
-                    AppCompatResources.getDrawable(
-                        context,
-                        R.drawable.img_user_placeholder
-                    )
-                )
+                Glide.with(context)
+                    .load(Tools.getFilePathUrl(avatarFileId))
+                    .placeholder(R.drawable.img_user_placeholder)
+                    .centerCrop()
+                    .error(R.drawable.img_user_placeholder)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(binding.ivRoomImage)
 
                 if (roomItem.message != null) {
                     val sortedList = roomItem.message
                     val lastMessage = sortedList.body
 
-                    val user = roomItem.roomWithUsers.users.firstOrNull { it.id == sortedList.fromUserId }
+                    val user =
+                        roomItem.roomWithUsers.users.firstOrNull { it.id == sortedList.fromUserId }
                     binding.tvUsername.text = if (user?.id.toString() == myUserId) {
                         context.getString(
                             R.string.username_message,
