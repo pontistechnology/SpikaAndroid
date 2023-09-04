@@ -127,16 +127,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         stackBuilder.addNextIntent(chatActivityIntent)
 
                         val pendingIntent =
-                            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+                            stackBuilder.getPendingIntent(
+                                0,
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
 
                         val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                             .setSmallIcon(R.drawable.img_spika_push_black)
                             .setContentTitle(title)
                             .setContentText(content)
-                            .setAutoCancel(true)
                             .setPriority(NotificationCompat.PRIORITY_MAX)
                             .setContentIntent(pendingIntent)
                             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                            .setAutoCancel(true)
 
                         // Check if there's an existing notification for this conversation.
                         if (notificationMap.containsKey(response.message.roomId)) {
