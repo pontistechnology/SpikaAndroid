@@ -4,10 +4,9 @@
     package="com.clover.studio.spikamessenger">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -30,12 +29,13 @@
         <activity
             android:name="com.clover.studio.spikamessenger.ui.main.chat.ChatScreenActivity"
             android:configChanges="orientation|screenSize"
+            android:excludeFromRecents="true"
             android:exported="false"
             android:parentActivityName="com.clover.studio.spikamessenger.ui.main.MainActivity"
-            android:taskAffinity=""
-            android:excludeFromRecents="true"
             android:screenOrientation="portrait"
+            android:taskAffinity=""
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name="com.clover.studio.spikamessenger.ui.splash.SplashActivity"
             android:exported="true"
@@ -46,11 +46,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="com.clover.studio.spikamessenger.ui.onboarding.OnboardingActivity"
             android:exported="false"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+
         <activity
             android:name="com.clover.studio.spikamessenger.ui.main.MainActivity"
             android:exported="false"

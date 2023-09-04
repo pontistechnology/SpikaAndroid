@@ -128,7 +128,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
                         val pendingIntent =
                             stackBuilder.getPendingIntent(
-                                0,
+                                response.message.roomId!!,
                                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
 
                         val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)

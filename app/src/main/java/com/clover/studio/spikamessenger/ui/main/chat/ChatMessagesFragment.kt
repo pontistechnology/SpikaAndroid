@@ -230,7 +230,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             roomWithUsers = viewModel.roomWithUsers.value!!
         } else {
             CoroutineScope(Dispatchers.IO).launch {
-                roomWithUsers = viewModel.tmp(viewModel.roomId.value!!)
+                val extras = activity?.intent!!.getIntExtra(Const.IntentExtras.ROOM_ID_EXTRA, 0)
+                roomWithUsers = viewModel.getRoomUsers(extras)
             }
         }
 

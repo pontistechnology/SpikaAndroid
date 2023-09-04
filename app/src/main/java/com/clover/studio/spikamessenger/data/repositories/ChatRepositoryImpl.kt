@@ -141,7 +141,7 @@ class ChatRepositoryImpl @Inject constructor(
             databaseQuery = { roomDao.getRoomAndUsersLiveData(roomId) }
         )
 
-    override fun tmp(roomId: Int) =  roomDao.tmp(roomId)
+    override fun getRoomUsers(roomId: Int) =  roomDao.getRoomUsers(roomId)
 
     override suspend fun getRoomWithUsers(roomId: Int) =
         queryDatabaseCoreData(
@@ -367,7 +367,7 @@ interface ChatRepository : BaseRepository {
     suspend fun leaveRoom(roomId: Int)
     suspend fun removeAdmin(roomId: Int, userId: Int)
 
-    fun tmp(roomId: Int) : RoomWithUsers
+    fun getRoomUsers(roomId: Int) : RoomWithUsers
 
     // Reaction calls
     suspend fun sendReaction(jsonObject: JsonObject)

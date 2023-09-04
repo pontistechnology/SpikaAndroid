@@ -81,7 +81,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
 
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
-    fun tmp(roomId: Int): RoomWithUsers
+    fun getRoomUsers(roomId: Int): RoomWithUsers
 
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
