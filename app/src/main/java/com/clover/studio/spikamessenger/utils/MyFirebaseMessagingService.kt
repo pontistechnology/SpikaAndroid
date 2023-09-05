@@ -113,10 +113,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
                         Timber.d("Extras: ${response.message.roomId}")
                         val intent = Intent(baseContext, MainActivity::class.java)
-                        val stackBuilder = TaskStackBuilder.create(baseContext).apply {
-                            addParentStack(MainActivity::class.java)
-                            addNextIntent(intent)
-                        }
 
                         val chatActivityIntent = Intent(baseContext, ChatScreenActivity::class.java)
                         chatActivityIntent.putExtra(
@@ -124,7 +120,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             response.message.roomId
                         )
 
-                        stackBuilder.addNextIntent(chatActivityIntent)
+                        val stackBuilder = TaskStackBuilder.create(baseContext).apply {
+                            addParentStack(MainActivity::class.java)
+                            addNextIntent(intent)
+                            addNextIntent(chatActivityIntent)
+                        }
 
                         val pendingIntent =
                             stackBuilder.getPendingIntent(
@@ -190,7 +190,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             }
 
                             // Update the notification in the map.
-                            notificationMap[response.message.roomId!!] = builder.build()
+                            notificationMap[response.message.roomId] = builder.build()
                         } else {
                             // If there's no existing notification for this conversation, create a new one.
                             val inboxStyle = NotificationCompat.InboxStyle()
@@ -198,7 +198,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             inboxStyle.setBigContentTitle(title)
                             builder.setStyle(inboxStyle)
                             builder.setNumber(1)
-                            notificationMap[response.message.roomId!!] = builder.build()
+                            notificationMap[response.message.roomId] = builder.build()
                         }
 
                         with(NotificationManagerCompat.from(baseContext)) {
