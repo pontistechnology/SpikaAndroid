@@ -22,6 +22,7 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -132,12 +133,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var isAdmin = false
     private var listState: Parcelable? = null
 
-    private lateinit var bottomSheetBehaviour: BottomSheetBehavior<ConstraintLayout>
-    private lateinit var bottomSheetMessageActions: BottomSheetBehavior<ConstraintLayout>
+    private lateinit var bottomSheetAction: BottomSheetBehavior<FrameLayout>
     private lateinit var bottomSheetReplyAction: BottomSheetBehavior<ConstraintLayout>
-    private lateinit var bottomSheetDetailsAction: BottomSheetBehavior<ConstraintLayout>
-    private lateinit var bottomSheetReactionsAction: BottomSheetBehavior<ConstraintLayout>
-    private lateinit var bottomSheets: List<BottomSheetBehavior<ConstraintLayout>>
+    private var bottomSheetsLayouts: List<View> = listOf()
 
     private lateinit var storagePermission: ActivityResultLauncher<String>
     private var exoPlayer: ExoPlayer? = null
@@ -235,11 +233,14 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
-
         checkStoragePermission()
 
         if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
+        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
+        bottomSheetReplyAction = BottomSheetBehavior.from(bindingSetup.replyAction.root)
+        bottomSheetAction = BottomSheetBehavior.from(bindingSetup.originalSheet.root)
+
+        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
             user =
                 roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
         }
@@ -467,40 +468,40 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun initBottomSheetsListeners() = with(bindingSetup) {
-        // Initial visibility of bottom sheets
-        clBottomSheet.visibility = View.GONE
-        clBottomMessageActions.visibility = View.GONE
-        clDetailsAction.visibility = View.GONE
-        clBottomReplyAction.visibility = View.GONE
-        clReactionsDetails.visibility = View.GONE
+        bottomSheetsLayouts = listOf<View>(
+            originalSheet.moreActions.root,
+            originalSheet.detailsAction.root,
+            originalSheet.messageActions.root,
+            originalSheet.messageActions.root,
+            originalSheet.reactionsDetails.root,
+        )
 
-        // Bottom sheet listeners
+        setBottomSheetVisibility(null)
+        clBottomReplyAction.visibility = View.GONE
+
         ivAdd.setOnClickListener {
             if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
-                replyId = 0L
                 bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
                 clBottomReplyAction.visibility = View.GONE
+                replyId = 0L
             }
             if (!isEditing) {
-                if (bottomSheetBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
+                if (bottomSheetAction.state != BottomSheetBehavior.STATE_EXPANDED) {
                     ivAdd.rotation = ROTATION_ON
-                    bottomSheetBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
-                    vTransparent.visibility = View.VISIBLE
-                    clBottomSheet.visibility = View.VISIBLE
+                    setBottomSheetVisibility(originalSheet.moreActions.root)
                 }
             } else {
                 resetEditingFields()
             }
         }
 
-        bottomSheet.btnFiles.setOnClickListener {
+        originalSheet.moreActions.btnFiles.setOnClickListener {
             chooseFile()
             rotationAnimation()
         }
 
-        reactionsDetails.ivRemove.setOnClickListener {
-            bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_COLLAPSED
-            bindingSetup.clReactionsDetails.visibility = View.GONE
+        originalSheet.reactionsDetails.ivRemove.setOnClickListener {
+            setBottomSheetVisibility(null)
         }
 
         replyAction.ivRemove.setOnClickListener {
@@ -511,33 +512,27 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
 
-        detailsAction.ivRemove.setOnClickListener {
-            if (bottomSheetDetailsAction.state == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
-                bindingSetup.clDetailsAction.visibility = View.GONE
-                bindingSetup.vTransparent.visibility = View.GONE
-            }
+        originalSheet.detailsAction.ivRemove.setOnClickListener {
+            setBottomSheetVisibility(null)
         }
 
-        bottomSheet.ivRemove.setOnClickListener {
-            bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-            bindingSetup.clBottomSheet.visibility = View.GONE
+        originalSheet.moreActions.ivRemove.setOnClickListener {
+            setBottomSheetVisibility(null)
             rotationAnimation()
         }
 
-        bottomSheet.btnLibrary.setOnClickListener {
+        originalSheet.moreActions.btnLibrary.setOnClickListener {
             chooseImage()
             rotationAnimation()
         }
 
-        bottomSheet.btnLocation.setOnClickListener {
+        originalSheet.moreActions.btnLocation.setOnClickListener {
             rotationAnimation()
         }
 
-        bottomSheet.btnContact.setOnClickListener {
+        originalSheet.moreActions.btnContact.setOnClickListener {
             rotationAnimation()
         }
-
 
         val bottomSheetBehaviorCallback =
             object : BottomSheetBehavior.BottomSheetCallback() {
@@ -548,46 +543,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                         bindingSetup.vTransparent.visibility = View.GONE
-                    }
-                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                        bindingSetup.vTransparent.visibility = View.VISIBLE
-                    }
-
-                }
-            }
-
-        val bottomSheetBehaviorCallbackMessageAction =
-            object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    // Ignore
-                }
-
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (bottomSheetDetailsAction.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                            bindingSetup.vTransparent.visibility = View.GONE
-                        }
-                    }
-                    if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
-                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                            bindingSetup.vTransparent.visibility = View.VISIBLE
-                        }
-                    }
-                }
-            }
-
-        val bottomSheetBehaviorCallbackReactionDetails =
-            object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    // Ignore
-                }
-
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                        bindingSetup.vTransparent.visibility = View.GONE
-                        val childNUmber = bindingSetup.reactionsDetails.llReactions.childCount
+                        val childNUmber =
+                            bindingSetup.originalSheet.reactionsDetails.llReactions.childCount
                         if (childNUmber != 0) {
-                            bindingSetup.reactionsDetails.llReactions.removeViews(
+                            bindingSetup.originalSheet.reactionsDetails.llReactions.removeViews(
                                 1,
                                 childNUmber - 1
                             )
@@ -598,22 +557,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     }
                 }
             }
-
-        bottomSheetMessageActions.addBottomSheetCallback(
-            bottomSheetBehaviorCallbackMessageAction
-        )
-        bottomSheetDetailsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
-        bottomSheetBehaviour.addBottomSheetCallback(bottomSheetBehaviorCallback)
         bottomSheetReplyAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
-        bottomSheetReactionsAction.addBottomSheetCallback(
-            bottomSheetBehaviorCallbackReactionDetails
-        )
+        bottomSheetAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
     }
 
-    private fun closeMessageSheet() {
-        bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
-        bindingSetup.clBottomMessageActions.visibility = View.GONE
-        bindingSetup.vTransparent.visibility = View.GONE
+    private fun setBottomSheetVisibility(view: View?) = with(bindingSetup) {
+        clOriginalBottomSheet.visibility = if (view != null) View.VISIBLE else View.GONE
+        bottomSheetAction.state =
+            if (view != null) BottomSheetBehavior.STATE_EXPANDED else BottomSheetBehavior.STATE_COLLAPSED
+        vTransparent.visibility =
+            if (view != null || BottomSheetBehavior.STATE_EXPANDED == bottomSheetReplyAction.state) View.VISIBLE else View.GONE
+        bottomSheetsLayouts.forEach {
+            it.visibility = if (view == it) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        }
     }
 
     private fun initializeObservers() {
@@ -782,10 +742,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
     }
 
-    private fun showNewMessage(messagesSize: Int) {
+    private fun showNewMessage(messagesSize: Int) = with(bindingSetup){
         valueAnimator?.end()
         valueAnimator?.removeAllUpdateListeners()
-        bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
+        cvBottomArrow.visibility = View.INVISIBLE
 
         // If we received message and keyboard is open:
         if (heightDiff >= MIN_HEIGHT_DIFF && scrollYDistance > SCROLL_DISTANCE_POSITIVE) {
@@ -795,39 +755,38 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (!((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
                     || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
         ) {
+            cvNewMessages.visibility = View.VISIBLE
 
-            bindingSetup.cvNewMessages.visibility = View.VISIBLE
-
-            if (messagesSize == 1 && bindingSetup.cvNewMessages.visibility == View.INVISIBLE) {
-                bindingSetup.tvNewMessage.text =
+            if (messagesSize == 1 && cvNewMessages.visibility == View.INVISIBLE) {
+                tvNewMessage.text =
                     getString(R.string.new_messages, messagesSize.toString(), "").trim()
 
-                val startWidth = bindingSetup.ivBottomArrow.width
+                val startWidth = ivBottomArrow.width
                 val endWidth =
-                    (bindingSetup.tvNewMessage.width + bindingSetup.ivBottomArrow.width)
+                    (tvNewMessage.width + bindingSetup.ivBottomArrow.width)
 
                 valueAnimator = ValueAnimator.ofInt(startWidth, endWidth).apply {
                     addUpdateListener { valueAnimator ->
-                        val layoutParams = bindingSetup.cvNewMessages.layoutParams
+                        val layoutParams = cvNewMessages.layoutParams
                         layoutParams.width = valueAnimator.animatedValue as Int
-                        bindingSetup.cvNewMessages.layoutParams = layoutParams
+                        cvNewMessages.layoutParams = layoutParams
                     }
                     duration = NEW_MESSAGE_ANIMATION_DURATION
                 }
                 valueAnimator?.start()
 
             } else {
-                bindingSetup.tvNewMessage.text =
+                tvNewMessage.text =
                     getString(R.string.new_messages, messagesSize.toString(), "s").trim()
             }
         } else if (messagesSize > 0) {
-            bindingSetup.rvChat.scrollToPosition(0)
+            rvChat.scrollToPosition(0)
             viewModel.clearMessages()
         }
-        return
+        return@with
     }
 
-    private fun showBottomArrow() {
+    private fun showBottomArrow() = with(bindingSetup) {
         if (heightDiff >= MIN_HEIGHT_DIFF && scrollYDistance > SCROLL_DISTANCE_POSITIVE) {
             scrollYDistance -= heightDiff
         }
@@ -835,13 +794,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (!((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
                     || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
         ) {
-            if (bindingSetup.cvNewMessages.visibility == View.VISIBLE) {
-                bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
+            if (cvNewMessages.visibility == View.VISIBLE) {
+                cvBottomArrow.visibility = View.INVISIBLE
             } else {
-                bindingSetup.cvBottomArrow.visibility = View.VISIBLE
+                cvBottomArrow.visibility = View.VISIBLE
             }
         } else {
-            bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
+            cvBottomArrow.visibility = View.INVISIBLE
         }
     }
 
@@ -864,21 +823,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     run {
                         when (event) {
                             Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(
-                                message.message
-                            )
-
+                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message.message)
                             Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                             Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                             Const.UserActions.RESEND_MESSAGE -> handleMessageResend(message)
-                            Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(
-                                message
-                            )
-
-                            Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(
-                                message
-                            )
-
+                            Const.UserActions.SHOW_MESSAGE_REACTIONS -> handleShowReactions(message)
+                            Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT -> handleMediaNavigation(message)
                             else -> Timber.d("No other action currently")
                         }
                     }
@@ -936,8 +886,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         }
 
                         Const.UserActions.ACTION_LEFT -> {
-                            bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
-                            bindingSetup.clDetailsAction.visibility = View.VISIBLE
+                            setBottomSheetVisibility(bindingSetup.originalSheet.detailsAction.root)
                             getDetailsList(messagesRecords[position].message)
                         }
                     }
@@ -947,33 +896,31 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         itemTouchHelper!!.attachToRecyclerView(bindingSetup.rvChat)
     }
 
-    private fun setUpMessageDetailsAdapter() {
+    private fun setUpMessageDetailsAdapter() = with(bindingSetup.originalSheet.detailsAction) {
         detailsMessageAdapter = MessageDetailsAdapter(
             context!!,
             roomWithUsers!!,
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        bindingSetup.detailsAction.rvReactionsDetails.adapter = detailsMessageAdapter
-        bindingSetup.detailsAction.rvReactionsDetails.layoutManager = layoutManager
-        bindingSetup.detailsAction.rvReactionsDetails.itemAnimator = null
+        rvReactionsDetails.adapter = detailsMessageAdapter
+        rvReactionsDetails.layoutManager = layoutManager
+        rvReactionsDetails.itemAnimator = null
     }
 
-    private fun setUpMessageReactionAdapter() {
+    private fun setUpMessageReactionAdapter() = with(bindingSetup.originalSheet.reactionsDetails) {
         messageReactionAdapter = MessageReactionAdapter(
             context!!,
             roomWithUsers!!,
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        bindingSetup.reactionsDetails.rvReactionsDetails.adapter = messageReactionAdapter
-        bindingSetup.reactionsDetails.rvReactionsDetails.layoutManager = layoutManager
-        bindingSetup.reactionsDetails.rvReactionsDetails.itemAnimator = null
+        rvReactionsDetails.adapter = messageReactionAdapter
+        rvReactionsDetails.layoutManager = layoutManager
+        rvReactionsDetails.itemAnimator = null
     }
 
-    private fun handleShowReactions(messageRecords: MessageAndRecords) {
-        bindingSetup.vTransparent.visibility = View.VISIBLE
-        bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_EXPANDED
-        bindingSetup.clReactionsDetails.visibility = View.VISIBLE
-        bindingSetup.reactionsDetails.tvAllReactions.setBackgroundResource(R.drawable.bg_reaction_selected)
+    private fun handleShowReactions(messageRecords: MessageAndRecords) = with(bindingSetup.originalSheet) {
+        setBottomSheetVisibility(reactionsDetails.root)
+        reactionsDetails.tvAllReactions.setBackgroundResource(R.drawable.bg_reaction_selected)
 
         val reactionsList = messageRecords.records!!.filter { it.reaction != null }
             .sortedByDescending { it.createdAt }
@@ -992,14 +939,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     reaction.key.toString(),
                     reaction.value.toString()
                 )
-                bindingSetup.reactionsDetails.llReactions.addView(reactionView)
+                reactionsDetails.llReactions.addView(reactionView)
             }
         }
 
         // Set listeners to reaction views and submit new, filtered list of reactions to adapter
         var currentlySelectedTextView: View? = null
-
-        for (child in bindingSetup.reactionsDetails.llReactions.children) {
+        for (child in reactionsDetails.llReactions.children) {
             child.setOnClickListener { view ->
                 // Remove / add backgrounds for views
                 if (view != currentlySelectedTextView) {
@@ -1008,13 +954,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     currentlySelectedTextView = view
                 }
 
-                val childIndex = bindingSetup.reactionsDetails.llReactions.indexOfChild(view)
+                val childIndex = reactionsDetails.llReactions.indexOfChild(view)
                 if (childIndex == 0) {
                     messageReactionAdapter.submitList(reactionsList)
                 } else {
-                    bindingSetup.reactionsDetails.tvAllReactions.background = null
+                    reactionsDetails.tvAllReactions.background = null
                     val reactionView: ReactionContainer =
-                        bindingSetup.reactionsDetails.llReactions.getChildAt(childIndex) as ReactionContainer
+                        reactionsDetails.llReactions.getChildAt(childIndex) as ReactionContainer
                     val reactionText = reactionView.showReaction()
                     messageReactionAdapter.submitList(reactionsList.filter { it.reaction == reactionText })
                 }
@@ -1048,18 +994,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     }
 
-    private fun handleMessageAction(msg: MessageAndRecords) = with(bindingSetup) {
+    private fun handleMessageAction(msg: MessageAndRecords) = with(bindingSetup.originalSheet) {
         if (msg.message.deleted == null || msg.message.deleted == true) {
-            return
+            return@with
         }
 
         hideKeyboard(root)
 
         val reactionsContainer = ReactionsContainer(requireContext(), null)
         messageActions.reactionsContainer.addView(reactionsContainer)
-        bottomSheetMessageActions.state = BottomSheetBehavior.STATE_EXPANDED
-        clBottomMessageActions.visibility = View.VISIBLE
-        vTransparent.visibility = View.VISIBLE
+        setBottomSheetVisibility(messageActions.root)
 
         val localId = viewModel.getLocalUserId()
         val fromUserId = msg.message.fromUserId
@@ -1079,54 +1023,45 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     msg.message.reaction = reaction
                     addReaction(msg.message)
                     chatAdapter.notifyItemChanged(msg.message.messagePosition)
-                    closeMessageSheet()
+                    setBottomSheetVisibility(null)
                 }
             }
 
             override fun addCustomReaction() {
-                bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+                setBottomSheetVisibility(null)
                 openCustomEmojiKeyboard(msg.message)
             }
         })
 
         messageActions.tvDelete.setOnClickListener {
-            closeMessageSheet()
+            setBottomSheetVisibility(null)
             showDeleteMessageDialog(msg.message)
         }
 
         messageActions.tvEdit.setOnClickListener {
-            closeMessageSheet()
+            setBottomSheetVisibility(null)
             handleMessageEdit(msg.message)
         }
 
         messageActions.tvReply.setOnClickListener {
-            closeMessageSheet()
             bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
-            clBottomReplyAction.visibility = View.VISIBLE
+            bindingSetup.clBottomReplyAction.visibility = View.VISIBLE
+            setBottomSheetVisibility(null)
             handleMessageReply(msg.message)
         }
 
         messageActions.tvDetails.setOnClickListener {
-            bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
-            clBottomMessageActions.visibility = View.GONE
+            setBottomSheetVisibility(detailsAction.root)
             getDetailsList(msg.message)
-            bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_EXPANDED
-            clDetailsAction.visibility = View.VISIBLE
         }
 
         messageActions.tvCopy.setOnClickListener {
+            setBottomSheetVisibility(null)
             val clipboard =
                 requireContext().getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
             val clip: ClipData = ClipData.newPlainText("", msg.message.body?.text.toString())
             clipboard.setPrimaryClip(clip)
-            bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
-            clBottomMessageActions.visibility = View.GONE
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.text_copied),
-                Toast.LENGTH_SHORT
-            )
-                .show()
+            Toast.makeText(requireContext(), getString(R.string.text_copied), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -1228,31 +1163,30 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         findNavController().navigate(action)
     }
 
-    private fun handleMessageReply(message: Message) {
-        bindingSetup.vTransparent.visibility = View.VISIBLE
+    private fun handleMessageReply(message: Message) = with(bindingSetup) {
         replyId = message.id.toLong()
         val backgroundResId = if (message.fromUserId == localUserId) {
             R.drawable.bg_message_send
         } else {
             R.drawable.bg_message_received
         }
-        bindingSetup.replyAction.clReplyContainer.setBackgroundResource(backgroundResId)
+        replyAction.clReplyContainer.setBackgroundResource(backgroundResId)
 
         val user = roomWithUsers!!.users.firstOrNull {
             it.id == message.fromUserId
         }
-        bindingSetup.replyAction.tvUsername.text = user!!.formattedDisplayName
+        replyAction.tvUsername.text = user!!.formattedDisplayName
 
         when (message.type) {
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                bindingSetup.replyAction.tvMessage.visibility = View.GONE
-                bindingSetup.replyAction.ivReplyImage.visibility = View.VISIBLE
+                replyAction.tvMessage.visibility = View.GONE
+                replyAction.ivReplyImage.visibility = View.VISIBLE
                 if (Const.JsonFields.IMAGE_TYPE == message.type) {
-                    bindingSetup.replyAction.tvReplyMedia.text = getString(
+                    replyAction.tvReplyMedia.text = getString(
                         R.string.media,
                         context!!.getString(R.string.photo)
                     )
-                    bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                    replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
                         R.drawable.img_camera_reply,
                         0,
                         0,
@@ -1260,35 +1194,35 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     )
                 }
                 if (Const.JsonFields.VIDEO_TYPE == message.type) {
-                    bindingSetup.replyAction.tvReplyMedia.text = getString(
+                    replyAction.tvReplyMedia.text = getString(
                         R.string.media,
                         context!!.getString(R.string.video)
                     )
-                    bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                    replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
                         R.drawable.img_video_reply,
                         0,
                         0,
                         0
                     )
                 }
-                val mediaPath = Tools.getMediaFile(this.context!!, message)
-                bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
-                Glide.with(this)
+                val mediaPath = Tools.getMediaFile(requireContext(), message)
+                replyAction.tvReplyMedia.visibility = View.VISIBLE
+                Glide.with(this@ChatMessagesFragment)
                     .load(mediaPath)
                     .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                     .placeholder(R.drawable.img_image_placeholder)
                     .dontTransform()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(bindingSetup.replyAction.ivReplyImage)
+                    .into(replyAction.ivReplyImage)
             }
 
             Const.JsonFields.AUDIO_TYPE -> {
-                bindingSetup.replyAction.tvMessage.visibility = View.GONE
-                bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
-                bindingSetup.replyAction.ivReplyImage.visibility = View.GONE
-                bindingSetup.replyAction.tvReplyMedia.text =
+                replyAction.tvMessage.visibility = View.GONE
+                replyAction.tvReplyMedia.visibility = View.VISIBLE
+                replyAction.ivReplyImage.visibility = View.GONE
+                replyAction.tvReplyMedia.text =
                     getString(R.string.media, context!!.getString(R.string.audio))
-                bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
                     R.drawable.img_audio_reply,
                     0,
                     0,
@@ -1297,12 +1231,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
 
             Const.JsonFields.FILE_TYPE -> {
-                bindingSetup.replyAction.tvMessage.visibility = View.GONE
-                bindingSetup.replyAction.ivReplyImage.visibility = View.GONE
-                bindingSetup.replyAction.tvReplyMedia.visibility = View.VISIBLE
-                bindingSetup.replyAction.tvReplyMedia.text =
+                replyAction.tvMessage.visibility = View.GONE
+                replyAction.ivReplyImage.visibility = View.GONE
+                replyAction.tvReplyMedia.visibility = View.VISIBLE
+                replyAction.tvReplyMedia.text =
                     getString(R.string.media, context!!.getString(R.string.file))
-                bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
                     R.drawable.img_file_reply,
                     0,
                     0,
@@ -1311,12 +1245,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
 
             else -> {
-                bindingSetup.replyAction.ivReplyImage.visibility = View.GONE
-                bindingSetup.replyAction.tvReplyMedia.visibility = View.GONE
-                bindingSetup.replyAction.tvMessage.visibility = View.VISIBLE
+                replyAction.ivReplyImage.visibility = View.GONE
+                replyAction.tvReplyMedia.visibility = View.GONE
+                replyAction.tvMessage.visibility = View.VISIBLE
                 val replyText = message.body?.text
-                bindingSetup.replyAction.tvMessage.text = replyText
-                bindingSetup.replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                replyAction.tvMessage.text = replyText
+                replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
                     0,
                     0,
                     0,
@@ -1326,23 +1260,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
     }
 
-    private fun handleMessageEdit(message: Message) {
+    private fun handleMessageEdit(message: Message) = with(bindingSetup) {
         isEditing = true
         originalText = message.body?.text.toString()
         editedMessageId = message.id
-        bindingSetup.etMessage.setText(message.body?.text)
-        bindingSetup.ivAdd.rotation = ROTATION_ON
+        etMessage.setText(message.body?.text)
+        ivAdd.rotation = ROTATION_ON
 
-        bindingSetup.etMessage.addTextChangedListener {
+        etMessage.addTextChangedListener {
             if (isEditing) {
                 if (!originalText.equals(it)) {
-                    bindingSetup.tvSave.visibility = View.VISIBLE
-                    bindingSetup.ivCamera.visibility = View.INVISIBLE
-                    bindingSetup.ivMicrophone.visibility = View.INVISIBLE
+                    tvSave.visibility = View.VISIBLE
+                    ivCamera.visibility = View.INVISIBLE
+                    ivMicrophone.visibility = View.INVISIBLE
                 } else {
-                    bindingSetup.tvSave.visibility = View.GONE
-                    bindingSetup.ivCamera.visibility = View.VISIBLE
-                    bindingSetup.ivMicrophone.visibility = View.VISIBLE
+                    tvSave.visibility = View.GONE
+                    ivCamera.visibility = View.VISIBLE
+                    ivMicrophone.visibility = View.VISIBLE
                 }
             }
         }
@@ -1410,8 +1344,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun rotationAnimation() = with(bindingSetup) {
-        bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-        clBottomSheet.visibility = View.GONE
+        setBottomSheetVisibility(null)
         vTransparent.visibility = View.GONE
         ivAdd.rotation = ROTATION_OFF
     }
@@ -1602,7 +1535,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
 
             val bitmap = mmr.frameAtTime
-
             val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
             val file =
                 File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
@@ -1805,12 +1737,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
 
     override fun onBackPressed(): Boolean {
-        for (bottomSheet in bottomSheets) {
-            if (bottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-                return false
-            }
-        }
+        setBottomSheetVisibility(null)
         return true
     }
 

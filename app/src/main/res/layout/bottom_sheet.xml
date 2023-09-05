@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/more_actions"
+        layout="@layout/bottom_sheet_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:behavior_peekHeight="0dp"
+        app:layout_anchorGravity="bottom"
+        app:layout_behavior="@string/bottom_sheet_behavior" />
+
+    <include
+        android:id="@+id/message_actions"
+        layout="@layout/message_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:behavior_peekHeight="0dp"
+        app:layout_anchorGravity="bottom"
+        app:layout_behavior="@string/bottom_sheet_behavior" />
+
+    <include
+        android:id="@+id/details_action"
+        app:behavior_peekHeight="0dp"
+        app:layout_anchorGravity="bottom"
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        layout="@layout/message_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/reactions_details"
+        layout="@layout/reactions_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:behavior_peekHeight="0dp"
+        app:layout_anchorGravity="bottom"
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        app:layout_constraintHeight_percent="0.5" />
+</FrameLayout>

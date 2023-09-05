@@ -328,7 +328,7 @@
         android:backgroundTint="@color/main"
         android:padding="@dimen/ten_dp_margin"
         android:src="@drawable/img_camera"
-        app:layout_constraintBottom_toBottomOf="@+id/cl_bottom_sheet"
+        app:layout_constraintBottom_toBottomOf="@+id/cl_original_bottom_sheet"
         app:layout_constraintEnd_toStartOf="@id/iv_microphone"
         app:layout_constraintStart_toEndOf="@id/cl_typing"
         app:layout_constraintTop_toTopOf="@id/divider" />
@@ -373,7 +373,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/cl_bottom_sheet"
+        android:id="@+id/cl_original_bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:elevation="@dimen/four_dp_margin"
@@ -383,28 +383,8 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <include
-            android:id="@+id/bottom_sheet"
-            layout="@layout/bottom_sheet_actions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:behavior_peekHeight="0dp"
-            app:layout_anchorGravity="bottom"
-            app:layout_behavior="@string/bottom_sheet_behavior" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/cl_bottom_message_actions"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:elevation="@dimen/four_dp_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <include
-            android:id="@+id/message_actions"
-            layout="@layout/message_actions"
+            android:id="@+id/original_sheet"
+            layout="@layout/bottom_sheet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:behavior_peekHeight="0dp"
@@ -430,50 +410,6 @@
             app:behavior_peekHeight="0dp"
             app:layout_anchorGravity="bottom"
             app:layout_behavior="@string/bottom_sheet_behavior" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/cl_details_action"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:elevation="@dimen/four_dp_margin"
-        android:nestedScrollingEnabled="true"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.5"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <include
-            android:id="@+id/details_action"
-            layout="@layout/message_details"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:behavior_peekHeight="0dp"
-            app:layout_anchorGravity="bottom"
-            app:layout_behavior="@string/bottom_sheet_behavior" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/cl_reactions_details"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:elevation="@dimen/four_dp_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <include
-            android:id="@+id/reactions_details"
-            layout="@layout/reactions_details"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:behavior_peekHeight="0dp"
-            app:layout_anchorGravity="bottom"
-            app:layout_behavior="@string/bottom_sheet_behavior"
-            app:layout_constraintHeight_percent="0.5" />
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <androidx.cardview.widget.CardView
