@@ -541,7 +541,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    if (newState == BottomSheetBehavior.STATE_COLLAPSED && bottomSheetReplyAction.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                        Timber.d("Here")
                         bindingSetup.vTransparent.visibility = View.GONE
                         val childNUmber =
                             bindingSetup.originalSheet.reactionsDetails.llReactions.childCount
@@ -565,8 +566,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         clOriginalBottomSheet.visibility = if (view != null) View.VISIBLE else View.GONE
         bottomSheetAction.state =
             if (view != null) BottomSheetBehavior.STATE_EXPANDED else BottomSheetBehavior.STATE_COLLAPSED
-        vTransparent.visibility =
-            if (view != null || BottomSheetBehavior.STATE_EXPANDED == bottomSheetReplyAction.state) View.VISIBLE else View.GONE
+        vTransparent.visibility = if (view != null || BottomSheetBehavior.STATE_EXPANDED == bottomSheetReplyAction.state) View.VISIBLE else View.GONE
         bottomSheetsLayouts.forEach {
             it.visibility = if (view == it) {
                 View.VISIBLE
@@ -883,6 +883,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
                             bindingSetup.clBottomReplyAction.visibility = View.VISIBLE
                             handleMessageReply(messagesRecords[position].message)
+                            setBottomSheetVisibility(null)
                         }
 
                         Const.UserActions.ACTION_LEFT -> {
