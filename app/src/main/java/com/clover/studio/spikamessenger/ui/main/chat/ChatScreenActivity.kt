@@ -70,8 +70,6 @@ class ChatScreenActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         bindingSetup = ActivityChatScreenBinding.inflate(layoutInflater)
 
-        Timber.d("Here! : Chat")
-
         val view = bindingSetup.root
         setContentView(view)
 

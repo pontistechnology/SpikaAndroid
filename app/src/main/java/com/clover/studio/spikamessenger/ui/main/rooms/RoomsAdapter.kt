@@ -17,7 +17,6 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getRoomTime
 import com.vanniktech.emoji.EmojiTextView
-import timber.log.Timber
 
 class RoomsAdapter(
     private val context: Context,
@@ -38,7 +37,6 @@ class RoomsAdapter(
             getItem(position).let { roomItem ->
                 val userName: String
                 val avatarFileId: Long
-                Timber.d("Room data = $roomItem, ${roomItem.roomWithUsers.room.name}")
 
                 if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
                     val roomUser =
