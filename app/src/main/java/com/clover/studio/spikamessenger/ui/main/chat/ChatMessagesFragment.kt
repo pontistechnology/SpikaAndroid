@@ -76,6 +76,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 
@@ -99,7 +102,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var messageSearchId: Int? = 0
 
-    private lateinit var roomWithUsers: RoomWithUsers
+    private var roomWithUsers: RoomWithUsers? = null
     private var user: User? = null
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
     private var unsentMessages: MutableList<Message> = ArrayList()
@@ -216,9 +219,89 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         if (listState != null) {
             shouldScroll = true
         }
+
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        localUserId = viewModel.getLocalUserId()!!
+        messageSearchId = viewModel.searchMessageId.value
+
+        if (viewModel.roomWithUsers.value != null) {
+            roomWithUsers = viewModel.roomWithUsers.value!!
+        } else {
+            CoroutineScope(Dispatchers.IO).launch {
+                val extras = activity?.intent!!.getIntExtra(Const.IntentExtras.ROOM_ID_EXTRA, 0)
+                roomWithUsers = viewModel.getRoomUsers(extras)
+            }
+        }
+
+        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
+
+        checkStoragePermission()
+
+        if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
+            user =
+                roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
+        }
+
+        if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
+            bindingSetup.clRoomExit.visibility = View.VISIBLE
+        } else {
+            bindingSetup.clRoomExit.visibility = View.GONE
+            setUpMessageDetailsAdapter()
+            setUpMessageReactionAdapter()
+            checkIsUserAdmin()
+        }
+        initializeObservers()
+        initViews()
+        initBottomSheets()
+        initListeners()
+        setUpAdapter()
+
+        // Clear notifications for this room
+        roomWithUsers?.room?.roomId?.let {
+            NotificationManagerCompat.from(requireContext())
+                .cancel(it)
+        }
+
+        return bindingSetup.root
+    }
+
+    private fun initViews() = with(bindingSetup) {
+        directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
+            avatarFileId = user?.avatarFileId ?: 0
+            userName = user?.formattedDisplayName.toString()
+        } else {
+            avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
+            userName = roomWithUsers?.room?.name.toString()
+        }
+
+        setAvatarAndName(avatarFileId, userName)
+
+        if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
+            chatHeader.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
+            chatHeader.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
+            chatHeader.ivVideoCall.isEnabled = false
+            chatHeader.ivCallUser.isEnabled = false
+        }
+
+        // If room is group, show number of members under group name
+        if (Const.JsonFields.GROUP == roomWithUsers?.room?.type) {
+            chatHeader.tvTitle.text =
+                roomWithUsers?.users?.size.toString() + getString(R.string.members)
+        } else {
+            // Room is private, show phone number
+            for (user in roomWithUsers?.users!!) {
+                if (viewModel.getLocalUserId() != user.id) {
+                    chatHeader.tvTitle.text = user.telephoneNumber
+                    break
+                }
+            }
+        }
+    }
+
+    private fun initBottomSheets() {
         bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
         bottomSheetMessageActions = BottomSheetBehavior.from(bindingSetup.messageActions.root)
         bottomSheetReplyAction = BottomSheetBehavior.from(bindingSetup.replyAction.root)
@@ -231,72 +314,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             bottomSheetDetailsAction,
             bottomSheetMessageActions
         )
-
-        localUserId = viewModel.getLocalUserId()!!
-        messageSearchId = viewModel.searchMessageId.value
-        roomWithUsers = viewModel.roomWithUsers.value!!
-
-        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
-
-        checkStoragePermission()
-
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            user =
-                roomWithUsers.users.firstOrNull { user -> user.id.toString() != localUserId.toString() }
-        }
-
-        if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
-            bindingSetup.clRoomExit.visibility = View.VISIBLE
-        } else {
-            bindingSetup.clRoomExit.visibility = View.GONE
-            setUpMessageDetailsAdapter()
-            setUpMessageReactionAdapter()
-            checkIsUserAdmin()
-        }
-        initializeObservers()
-        initViews()
-        initListeners()
-        setUpAdapter()
-
-        // Clear notifications for this room
-        NotificationManagerCompat.from(requireContext())
-            .cancel(roomWithUsers.room.roomId)
-
-        return bindingSetup.root
-    }
-
-    private fun initViews() {
-        directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
-            avatarFileId = user?.avatarFileId ?: 0
-            userName = user?.formattedDisplayName.toString()
-        } else {
-            avatarFileId = roomWithUsers.room.avatarFileId ?: 0
-            userName = roomWithUsers.room.name.toString()
-        }
-
-        setAvatarAndName(avatarFileId, userName)
-
-        if (roomWithUsers.room.roomExit || roomWithUsers.room.deleted) {
-            bindingSetup.chatHeader.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
-            bindingSetup.chatHeader.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
-            bindingSetup.chatHeader.ivVideoCall.isEnabled = false
-            bindingSetup.chatHeader.ivCallUser.isEnabled = false
-        }
-
-        // If room is group, show number of members under group name
-        if (Const.JsonFields.GROUP == roomWithUsers.room.type) {
-            bindingSetup.chatHeader.tvTitle.text =
-                roomWithUsers.users.size.toString() + getString(R.string.members)
-        } else {
-            // Room is private, show phone number
-            for (user in roomWithUsers.users) {
-                if (viewModel.getLocalUserId() != user.id) {
-                    bindingSetup.chatHeader.tvTitle.text = user.telephoneNumber
-                    break
-                }
-            }
-        }
     }
 
     private fun setAvatarAndName(avatarFileId: Long, userName: String) {
@@ -315,18 +332,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun checkIsUserAdmin() {
-        isAdmin = roomWithUsers.users.any { user ->
-            user.id == localUserId && viewModel.isUserAdmin(roomWithUsers.room.roomId, user.id)
+        isAdmin = roomWithUsers?.users!!.any { user ->
+            user.id == localUserId && viewModel.isUserAdmin(roomWithUsers?.room!!.roomId, user.id)
         }
     }
 
     private fun initListeners() = with(bindingSetup) {
         chatHeader.clHeader.setOnClickListener {
-            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+            if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
                 val bundle =
                     bundleOf(
-                        Const.Navigation.USER_PROFILE to roomWithUsers.users.firstOrNull { user -> user.id != localUserId },
-                        Const.Navigation.ROOM_ID to roomWithUsers.room.roomId,
+                        Const.Navigation.USER_PROFILE to roomWithUsers?.users!!.firstOrNull { user -> user.id != localUserId },
+                        Const.Navigation.ROOM_ID to roomWithUsers?.room!!.roomId,
                     )
                 findNavController().navigate(
                     R.id.action_chatMessagesFragment_to_contactDetailsFragment,
@@ -335,7 +352,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             } else {
                 val action =
                     ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
-                        roomWithUsers,
+                        roomWithUsers!!,
                         isAdmin
                     )
                 findNavController().navigate(action)
@@ -435,7 +452,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 getString(R.string.unblock),
                 object : DialogInteraction {
                     override fun onSecondOptionClicked() {
-                        roomWithUsers.users.firstOrNull { user -> user.id != localUserId }
+                        roomWithUsers?.users!!.firstOrNull { user -> user.id != localUserId }
                             ?.let { user -> viewModel.deleteBlockForSpecificUser(user.id) }
                     }
                 })
@@ -619,7 +636,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
-        viewModel.getMessageAndRecords(roomId = roomWithUsers.room.roomId)
+        viewModel.getMessageAndRecords(roomId = roomWithUsers?.room!!.roomId)
             .observe(viewLifecycleOwner) {
                 when (it.status) {
                     Resource.Status.SUCCESS -> {
@@ -657,7 +674,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 messageSearchId = 0
                                 viewModel.searchMessageId.value = 0
                             } else {
-                                viewModel.fetchNextSet(roomWithUsers.room.roomId)
+                                viewModel.fetchNextSet(roomWithUsers?.room!!.roomId)
                             }
                         } else {
                             senderScroll()
@@ -676,17 +693,17 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         viewModel.messagesReceived.observe(viewLifecycleOwner) { messages ->
             val receivedMessages = messages.filter {
-                it.roomId == roomWithUsers.room.roomId
+                it.roomId == roomWithUsers?.room!!.roomId
                         && it.fromUserId != localUserId
             }
             if (receivedMessages.isNotEmpty()) {
                 showNewMessage(receivedMessages.size)
                 // Notify backend of messages seen
-                viewModel.sendMessagesSeen(roomWithUsers.room.roomId)
+                viewModel.sendMessagesSeen(roomWithUsers?.room!!.roomId)
             }
         }
 
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+        if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
             viewModel.blockedUserListListener().observe(viewLifecycleOwner) {
                 if (it?.isNotEmpty() == true) {
                     viewModel.fetchBlockedUsersLocally(it)
@@ -699,8 +716,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         Timber.d("Blocked users fetched successfully")
                         if (it.responseData != null) {
                             val containsElement =
-                                roomWithUsers.users.any { user -> it.responseData.find { blockedUser -> blockedUser.id == user.id } != null }
-                            if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+                                roomWithUsers!!.users.any { user -> it.responseData.find { blockedUser -> blockedUser.id == user.id } != null }
+                            if (Const.JsonFields.PRIVATE == roomWithUsers!!.room.type) {
                                 if (containsElement) {
                                     bindingSetup.clContactBlocked.visibility = View.VISIBLE
                                 } else bindingSetup.clContactBlocked.visibility = View.GONE
@@ -734,10 +751,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    if (it.responseData?.data?.room?.roomId == roomWithUsers.room.roomId) {
+                    if (it.responseData?.data?.room?.roomId == roomWithUsers!!.room.roomId) {
                         val avatarFile = it.responseData.data.room.avatarFileId ?: 0L
                         val roomName = it.responseData.data.room.name ?: ""
-                        roomWithUsers.room.apply {
+                        roomWithUsers!!.room.apply {
                             avatarFileId = avatarFile
                             name = roomName
                         }
@@ -750,9 +767,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
-        viewModel.sendMessagesSeen(roomId = roomWithUsers.room.roomId)
-
-        viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
+        viewModel.sendMessagesSeen(roomId = roomWithUsers!!.room.roomId)
+        viewModel.updateUnreadCount(roomId = roomWithUsers!!.room.roomId)
     }
 
     private fun senderScroll() {
@@ -840,11 +856,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         chatAdapter = ChatAdapter(
             context!!,
             localUserId,
-            roomWithUsers.users,
+            roomWithUsers!!.users,
             exoPlayer!!,
-            roomWithUsers.room.type,
+            roomWithUsers!!.room.type,
             onMessageInteraction = { event, message ->
-                if (!roomWithUsers.room.deleted && !roomWithUsers.room.roomExit) {
+                if (!roomWithUsers!!.room.deleted && !roomWithUsers!!.room.roomExit) {
                     run {
                         when (event) {
                             Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
@@ -884,7 +900,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 val totalItemCount = layoutManager.itemCount
                 if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
                     Timber.d("Fetching next batch of data")
-                    viewModel.fetchNextSet(roomWithUsers.room.roomId)
+                    viewModel.fetchNextSet(roomWithUsers!!.room.roomId)
                     isFetching = true
                 } else if (lastVisiblePosition != totalItemCount - 1) {
                     isFetching = false // Reset the flag when user scrolls away from the bottom
@@ -934,7 +950,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun setUpMessageDetailsAdapter() {
         detailsMessageAdapter = MessageDetailsAdapter(
             context!!,
-            roomWithUsers,
+            roomWithUsers!!,
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         bindingSetup.detailsAction.rvReactionsDetails.adapter = detailsMessageAdapter
@@ -945,7 +961,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun setUpMessageReactionAdapter() {
         messageReactionAdapter = MessageReactionAdapter(
             context!!,
-            roomWithUsers,
+            roomWithUsers!!,
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         bindingSetup.reactionsDetails.rvReactionsDetails.adapter = messageReactionAdapter
@@ -1182,7 +1198,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 override fun onSecondOptionClicked() {
                     viewModel.cancelUploadFile(messageId = message.localId.toString())
                     viewModel.deleteLocalMessage(message = message)
-                    viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
+                    viewModel.updateUnreadCount(roomId = roomWithUsers!!.room.roomId)
                 }
             })
     }
@@ -1195,7 +1211,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             )
         } else {
             val userName =
-                roomWithUsers.users.firstOrNull { it.id == chatMessage.message.fromUserId }!!.formattedDisplayName
+                roomWithUsers!!.users.firstOrNull { it.id == chatMessage.message.fromUserId }!!.formattedDisplayName
             requireContext().getString(
                 R.string.user_sent_on,
                 userName,
@@ -1222,7 +1238,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
         bindingSetup.replyAction.clReplyContainer.setBackgroundResource(backgroundResId)
 
-        val user = roomWithUsers.users.firstOrNull {
+        val user = roomWithUsers!!.users.firstOrNull {
             it.id == message.fromUserId
         }
         bindingSetup.replyAction.tvUsername.text = user!!.formattedDisplayName
@@ -1364,7 +1380,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         messageDetails.add(0, senderMessageRecord)
 
         /* If the room type is a group and the current user is not the sender, remove it from the list.*/
-        if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && (senderId != localUserId)) {
+        if ((Const.JsonFields.GROUP == roomWithUsers!!.room.type) && (senderId != localUserId)) {
             val filteredMessageDetails =
                 messageDetails.filter { it.userId != localUserId }.toMutableList()
             detailsMessageAdapter.submitList(ArrayList(filteredMessageDetails))
@@ -1510,7 +1526,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             Const.JsonFields.TEXT_TYPE,
             0,
             0,
-            roomWithUsers.room.roomId,
+            roomWithUsers!!.room.roomId,
             localId,
             replyId
         )
@@ -1531,7 +1547,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         val tempMessage = Tools.createTemporaryMessage(
             getUniqueRandomId(unsentMessages),
             localUserId,
-            roomWithUsers.room.roomId,
+            roomWithUsers!!.room.roomId,
             Const.JsonFields.TEXT_TYPE,
             messageBody
         )
@@ -1575,10 +1591,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             val mmr = MediaMetadataRetriever()
             mmr.setDataSource(context, uri)
 
-            val duration =  mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong()  ?: 0
-            val bitRate = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toLong() ?: 0
+            val duration =
+                mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
+            val bitRate =
+                mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toLong() ?: 0
 
-            if (Tools.getVideoSize(duration, bitRate)){
+            if (Tools.getVideoSize(duration, bitRate)) {
                 Toast.makeText(context, getString(R.string.video_error), Toast.LENGTH_LONG).show()
                 return
             }
@@ -1669,7 +1687,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             uri = uri,
             type = type,
             localUserId = localUserId,
-            roomId = roomWithUsers.room.roomId,
+            roomId = roomWithUsers!!.room.roomId,
             unsentMessages = unsentMessages
         )
 
@@ -1689,7 +1707,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 isThumbnail,
                 uri,
                 localId,
-                roomWithUsers.room.roomId,
+                roomWithUsers!!.room.roomId,
                 metadata
             )
         )
@@ -1781,8 +1799,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun onBackArrowPressed() {
-        viewModel.updateUnreadCount(roomId = roomWithUsers.room.roomId)
-        activity!!.finish()
+        viewModel.updateUnreadCount(roomId = roomWithUsers!!.room.roomId)
+        activity?.onBackPressedDispatcher?.onBackPressed()
     }
 
 

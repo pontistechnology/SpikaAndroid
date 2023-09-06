@@ -14,6 +14,7 @@ import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.main.MainActivity
+import com.clover.studio.spikamessenger.ui.main.chat.ChatScreenActivity
 import com.clover.studio.spikamessenger.utils.helpers.GsonProvider
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -111,26 +112,31 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         }
 
                         Timber.d("Extras: ${response.message.roomId}")
-                        val intent = Intent(baseContext, MainActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
+                        val intent = Intent(baseContext, MainActivity::class.java)
+
+                        val chatActivityIntent = Intent(baseContext, ChatScreenActivity::class.java)
+                        chatActivityIntent.putExtra(
+                            Const.IntentExtras.ROOM_ID_EXTRA,
+                            response.message.roomId
+                        )
+
+                        val stackBuilder = TaskStackBuilder.create(baseContext).apply {
+                            addParentStack(MainActivity::class.java)
+                            addNextIntent(intent)
+                            addNextIntent(chatActivityIntent)
                         }
-                        val resultPendingIntent: PendingIntent? =
-                            TaskStackBuilder.create(baseContext).run {
-                                addNextIntentWithParentStack(intent)
-                                response.message.roomId?.let {
-                                    getPendingIntent(
-                                        it,
-                                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-                                    )
-                                }
-                            }
+
+                        val pendingIntent =
+                            stackBuilder.getPendingIntent(
+                                response.message.roomId!!,
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+
                         val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                             .setSmallIcon(R.drawable.img_spika_push_black)
                             .setContentTitle(title)
                             .setContentText(content)
                             .setPriority(NotificationCompat.PRIORITY_MAX)
-                            .setContentIntent(resultPendingIntent)
+                            .setContentIntent(pendingIntent)
                             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                             .setAutoCancel(true)
 
@@ -184,7 +190,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             }
 
                             // Update the notification in the map.
-                            notificationMap[response.message.roomId!!] = builder.build()
+                            notificationMap[response.message.roomId] = builder.build()
                         } else {
                             // If there's no existing notification for this conversation, create a new one.
                             val inboxStyle = NotificationCompat.InboxStyle()
@@ -192,7 +198,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             inboxStyle.setBigContentTitle(title)
                             builder.setStyle(inboxStyle)
                             builder.setNumber(1)
-                            notificationMap[response.message.roomId!!] = builder.build()
+                            notificationMap[response.message.roomId] = builder.build()
                         }
 
                         with(NotificationManagerCompat.from(baseContext)) {
