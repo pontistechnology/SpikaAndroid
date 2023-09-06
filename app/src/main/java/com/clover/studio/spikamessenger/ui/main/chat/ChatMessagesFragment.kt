@@ -134,7 +134,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private var listState: Parcelable? = null
 
     private lateinit var bottomSheetAction: BottomSheetBehavior<FrameLayout>
-    private lateinit var bottomSheetReplyAction: BottomSheetBehavior<ConstraintLayout>
     private var bottomSheetsLayouts: List<View> = listOf()
 
     private lateinit var storagePermission: ActivityResultLauncher<String>
@@ -237,7 +236,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
-        bottomSheetReplyAction = BottomSheetBehavior.from(bindingSetup.replyAction.root)
         bottomSheetAction = BottomSheetBehavior.from(bindingSetup.originalSheet.root)
 
         if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
@@ -381,7 +379,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 })
         }
 
-        bindingSetup.ivBtnEmoji.setOnClickListener {
+        ivBtnEmoji.setOnClickListener {
             emojiPopup.toggle()
             emojiPopup.dismiss()
             ivAdd.rotation = ROTATION_OFF
@@ -397,13 +395,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
                     || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
                 ) {
-                    bindingSetup.rvChat.smoothScrollToPosition(0)
+                    rvChat.smoothScrollToPosition(0)
                 }
             }
         }
 
         root.viewTreeObserver.addOnGlobalLayoutListener {
-            heightDiff = bindingSetup.root.rootView.height - bindingSetup.root.height
+            heightDiff = root.rootView.height - root.height
         }
 
         cvNewMessages.setOnClickListener {
@@ -423,7 +421,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             if (!isEditing) {
                 if (it?.isNotEmpty() == true) {
                     showSendButton()
-                    bindingSetup.ivAdd.rotation = ROTATION_OFF
+                    ivAdd.rotation = ROTATION_OFF
                 } else {
                     hideSendButton()
                 }
@@ -432,14 +430,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         ivButtonSend.setOnClickListener {
             vTransparent.visibility = View.GONE
-            if (bindingSetup.etMessage.text?.trim().toString().isNotEmpty()) {
+            if (etMessage.text?.trim().toString().isNotEmpty()) {
                 createTempTextMessage()
                 sendMessage()
             }
             etMessage.setText("")
             hideSendButton()
-            bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
-            bindingSetup.clBottomReplyAction.visibility = View.GONE
+            replyAction.root.visibility = View.GONE
         }
 
         tvUnblock.setOnClickListener {
@@ -447,7 +444,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 getString(R.string.unblock_user),
                 getString(
                     R.string.unblock_description,
-                    bindingSetup.chatHeader.tvChatName.text
+                    chatHeader.tvChatName.text
                 ),
                 getString(R.string.no),
                 getString(R.string.unblock),
@@ -464,6 +461,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             resetEditingFields()
         }
 
+        replyAction.ivRemove.setOnClickListener {
+            replyAction.root.visibility = View.GONE
+            replyId = 0L
+        }
+
         initBottomSheetsListeners()
     }
 
@@ -477,19 +479,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         )
 
         setBottomSheetVisibility(null)
-        clBottomReplyAction.visibility = View.GONE
+        replyAction.root.visibility = View.GONE
 
         ivAdd.setOnClickListener {
-            if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
-                clBottomReplyAction.visibility = View.GONE
-                replyId = 0L
-            }
             if (!isEditing) {
-                if (bottomSheetAction.state != BottomSheetBehavior.STATE_EXPANDED) {
-                    ivAdd.rotation = ROTATION_ON
-                    setBottomSheetVisibility(originalSheet.moreActions.root)
-                }
+                setBottomSheetVisibility(originalSheet.moreActions.root)
             } else {
                 resetEditingFields()
             }
@@ -502,14 +496,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         originalSheet.reactionsDetails.ivRemove.setOnClickListener {
             setBottomSheetVisibility(null)
-        }
-
-        replyAction.ivRemove.setOnClickListener {
-            if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
-                bindingSetup.clBottomReplyAction.visibility = View.GONE
-                replyId = 0L
-            }
         }
 
         originalSheet.detailsAction.ivRemove.setOnClickListener {
@@ -541,24 +527,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (newState == BottomSheetBehavior.STATE_COLLAPSED && bottomSheetReplyAction.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                        Timber.d("Here")
-                        bindingSetup.vTransparent.visibility = View.GONE
+                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                        vTransparent.visibility = View.GONE
                         val childNUmber =
-                            bindingSetup.originalSheet.reactionsDetails.llReactions.childCount
+                            originalSheet.reactionsDetails.llReactions.childCount
                         if (childNUmber != 0) {
-                            bindingSetup.originalSheet.reactionsDetails.llReactions.removeViews(
+                            originalSheet.reactionsDetails.llReactions.removeViews(
                                 1,
                                 childNUmber - 1
                             )
                         }
                     }
                     if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                        bindingSetup.vTransparent.visibility = View.VISIBLE
+                        vTransparent.visibility = View.VISIBLE
                     }
                 }
             }
-        bottomSheetReplyAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
         bottomSheetAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
     }
 
@@ -566,7 +550,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         clOriginalBottomSheet.visibility = if (view != null) View.VISIBLE else View.GONE
         bottomSheetAction.state =
             if (view != null) BottomSheetBehavior.STATE_EXPANDED else BottomSheetBehavior.STATE_COLLAPSED
-        vTransparent.visibility = if (view != null || BottomSheetBehavior.STATE_EXPANDED == bottomSheetReplyAction.state) View.VISIBLE else View.GONE
+//        vTransparent.visibility = if (view != null) View.VISIBLE else View.GONE
         bottomSheetsLayouts.forEach {
             it.visibility = if (view == it) {
                 View.VISIBLE
@@ -679,10 +663,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 roomWithUsers!!.users.any { user -> it.responseData.find { blockedUser -> blockedUser.id == user.id } != null }
                             if (Const.JsonFields.PRIVATE == roomWithUsers!!.room.type) {
                                 if (containsElement) {
-                                    bindingSetup.clContactBlocked.visibility = View.VISIBLE
-                                } else bindingSetup.clContactBlocked.visibility = View.GONE
+                                    bindingSetup.llContactBlocked.visibility = View.VISIBLE
+                                } else bindingSetup.llContactBlocked.visibility = View.GONE
                             }
-                        } else bindingSetup.clContactBlocked.visibility = View.GONE
+                        } else bindingSetup.llContactBlocked.visibility = View.GONE
                     }
 
                     Resource.Status.ERROR -> {
@@ -880,8 +864,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 onSwipeAction = { action, position ->
                     when (action) {
                         Const.UserActions.ACTION_RIGHT -> {
-                            bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
-                            bindingSetup.clBottomReplyAction.visibility = View.VISIBLE
+                            bindingSetup.replyAction.root.visibility = View.VISIBLE
                             handleMessageReply(messagesRecords[position].message)
                             setBottomSheetVisibility(null)
                         }
@@ -1045,8 +1028,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         messageActions.tvReply.setOnClickListener {
-            bottomSheetReplyAction.state = BottomSheetBehavior.STATE_EXPANDED
-            bindingSetup.clBottomReplyAction.visibility = View.VISIBLE
+            bindingSetup.replyAction.root.visibility = View.VISIBLE
             setBottomSheetVisibility(null)
             handleMessageReply(msg.message)
         }
@@ -1093,7 +1075,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         clTyping.visibility = visibility
         ivMicrophone.visibility = visibility
         ivCamera.visibility = visibility
-        divider.visibility = visibility
     }
 
     private fun handleDownloadFile(message: MessageAndRecords) {
