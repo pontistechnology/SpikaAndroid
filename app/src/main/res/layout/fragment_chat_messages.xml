@@ -270,26 +270,6 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/cl_original_bottom_sheet"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:elevation="@dimen/four_dp_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <include
-            android:id="@+id/original_sheet"
-            layout="@layout/bottom_sheet"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:behavior_peekHeight="0dp"
-            app:layout_anchorGravity="bottom"
-            app:layout_behavior="@string/bottom_sheet_behavior" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_bottom_arrow"
         android:layout_width="wrap_content"

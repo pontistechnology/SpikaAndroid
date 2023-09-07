@@ -18,7 +18,7 @@ import com.clover.studio.spikamessenger.utils.Tools
 
 class MessageDetailsAdapter(
     private val context: Context,
-    private val roomWithUsers: RoomWithUsers,
+    private val roomWithUsers: RoomWithUsers?,
 ) :
     ListAdapter<MessageRecords, MessageDetailsAdapter.MessageDetailsViewHolder>(ContactsDiffCallback()) {
 
@@ -73,7 +73,7 @@ class MessageDetailsAdapter(
                     )
                 }
 
-                for (user in roomWithUsers.users) {
+                for (user in roomWithUsers!!.users) {
                     if (messageRecord.userId == user.id) {
                         binding.tvSeenUsername.text = user.formattedDisplayName
                         binding.tvPlaceholder.text = user.telephoneNumber
