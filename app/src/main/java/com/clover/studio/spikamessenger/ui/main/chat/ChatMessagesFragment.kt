@@ -227,10 +227,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         checkStoragePermission()
 
-        if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
 
-        if (Const.JsonFields.PRIVATE == roomWithUsers.room.type) {
+        if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
             user =
                 roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
         }
@@ -243,7 +242,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
         initializeObservers()
         initViews()
-        initBottomSheets()
         initListeners()
         setUpAdapter()
 
@@ -288,21 +286,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
         }
-    }
-
-    private fun initBottomSheets() {
-        bottomSheetBehaviour = BottomSheetBehavior.from(bindingSetup.bottomSheet.root)
-        bottomSheetMessageActions = BottomSheetBehavior.from(bindingSetup.messageActions.root)
-        bottomSheetReplyAction = BottomSheetBehavior.from(bindingSetup.replyAction.root)
-        bottomSheetDetailsAction = BottomSheetBehavior.from(bindingSetup.detailsAction.root)
-        bottomSheetReactionsAction = BottomSheetBehavior.from(bindingSetup.reactionsDetails.root)
-
-        bottomSheets = listOf(
-            bottomSheetReactionsAction,
-            bottomSheetBehaviour,
-            bottomSheetDetailsAction,
-            bottomSheetMessageActions
-        )
     }
 
     private fun setAvatarAndName(avatarFileId: Long, userName: String) {
@@ -790,7 +773,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             val detailsSheet = DetailsBottomSheet(
                                 context = requireContext(),
                                 message = messagesRecords[position].message,
-                                roomWithUsers = roomWithUsers,
+                                roomWithUsers = roomWithUsers!!,
                                 messagesRecords = messagesRecords,
                                 localUserId = localUserId
                             )
@@ -804,78 +787,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         itemTouchHelper = ItemTouchHelper(messageSwipeController)
         itemTouchHelper!!.attachToRecyclerView(bindingSetup.rvChat)
-    }
-
-    private fun setUpMessageDetailsAdapter() = with(bindingSetup.originalSheet.detailsAction) {
-        detailsMessageAdapter = MessageDetailsAdapter(
-            context!!,
-            roomWithUsers!!,
-        )
-        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        rvReactionsDetails.adapter = detailsMessageAdapter
-        rvReactionsDetails.layoutManager = layoutManager
-        rvReactionsDetails.itemAnimator = null
-    }
-
-    private fun setUpMessageReactionAdapter() = with(bindingSetup.originalSheet.reactionsDetails) {
-        messageReactionAdapter = MessageReactionAdapter(
-            context!!,
-            roomWithUsers!!,
-        )
-        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        rvReactionsDetails.adapter = messageReactionAdapter
-        rvReactionsDetails.layoutManager = layoutManager
-        rvReactionsDetails.itemAnimator = null
-    }
-
-    private fun handleShowReactions(messageRecords: MessageAndRecords) = with(bindingSetup.originalSheet) {
-        setBottomSheetVisibility(reactionsDetails.root)
-        reactionsDetails.tvAllReactions.setBackgroundResource(R.drawable.bg_reaction_selected)
-
-        val reactionsList = messageRecords.records!!.filter { it.reaction != null }
-            .sortedByDescending { it.createdAt }
-        // Default view - all reactions:
-        messageReactionAdapter.submitList(reactionsList)
-
-        // Group same reactions
-        val reactionList = reactionsList.groupBy { it.reaction }.mapValues { it.value.size }
-
-        // Add reaction views:
-        if (reactionList.isNotEmpty()) {
-            for (reaction in reactionList) {
-                val reactionView = ReactionContainer(
-                    requireActivity(),
-                    null,
-                    reaction.key.toString(),
-                    reaction.value.toString()
-                )
-                reactionsDetails.llReactions.addView(reactionView)
-            }
-        }
-
-        // Set listeners to reaction views and submit new, filtered list of reactions to adapter
-        var currentlySelectedTextView: View? = null
-        for (child in reactionsDetails.llReactions.children) {
-            child.setOnClickListener { view ->
-                // Remove / add backgrounds for views
-                if (view != currentlySelectedTextView) {
-                    currentlySelectedTextView?.background = null
-                    view.setBackgroundResource(R.drawable.bg_reaction_selected)
-                    currentlySelectedTextView = view
-                }
-
-                val childIndex = reactionsDetails.llReactions.indexOfChild(view)
-                if (childIndex == 0) {
-                    messageReactionAdapter.submitList(reactionsList)
-                } else {
-                    reactionsDetails.tvAllReactions.background = null
-                    val reactionView: ReactionContainer =
-                        reactionsDetails.llReactions.getChildAt(childIndex) as ReactionContainer
-                    val reactionText = reactionView.showReaction()
-                    messageReactionAdapter.submitList(reactionsList.filter { it.reaction == reactionText })
-                }
-            }
-        }
     }
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
@@ -904,7 +815,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     }
 
     private fun handleShowReactions(msg: MessageAndRecords) {
-        val reactionsBottomSheet = ReactionsBottomSheet(requireContext(), msg, roomWithUsers)
+        val reactionsBottomSheet = ReactionsBottomSheet(requireContext(), msg, roomWithUsers!!)
         reactionsBottomSheet.show(
             requireActivity().supportFragmentManager,
             ReactionsBottomSheet.TAG
@@ -945,7 +856,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 val detailsSheet = DetailsBottomSheet(
                     context = requireContext(),
                     message = msg.message,
-                    roomWithUsers = roomWithUsers,
+                    roomWithUsers = roomWithUsers!!,
                     messagesRecords = messagesRecords,
                     localUserId = localUserId
                 )
@@ -1198,48 +1109,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         }
     }
-
-    private fun getDetailsList(detailsMessage: Message) {
-        val senderId = detailsMessage.fromUserId
-
-        /* Adding a message record for the sender so that it can be sent to the adapter */
-        val senderMessageRecord = MessageRecords(
-            id = 0,
-            messageId = detailsMessage.id,
-            userId = detailsMessage.fromUserId!!,
-            type = Const.JsonFields.SENT,
-            reaction = null,
-            modifiedAt = detailsMessage.modifiedAt,
-            createdAt = detailsMessage.createdAt!!,
-            null
-        )
-
-        /* In the messageDetails list, we save message records for a specific message,
-         remove reactions from those records(because we only need the seen and delivered types),
-         remove the sender from the seen/delivered list and sort the list so that first we see
-         seen and then delivered. */
-        val messageDetails =
-            messagesRecords.filter { it.message.id == detailsMessage.id }
-                .flatMap { it.records!! }
-                .filter { Const.JsonFields.REACTION != it.type }
-                .filter { it.userId != detailsMessage.fromUserId }
-                .sortedByDescending { it.type }
-                .toMutableList()
-
-        /* Then we add the sender of the message to the first position of the messageDetails list
-        * so that we can display it in the RecyclerView */
-        messageDetails.add(0, senderMessageRecord)
-
-        /* If the room type is a group and the current user is not the sender, remove it from the list.*/
-        if ((Const.JsonFields.GROUP == roomWithUsers!!.room.type) && (senderId != localUserId)) {
-            val filteredMessageDetails =
-                messageDetails.filter { it.userId != localUserId }.toMutableList()
-            detailsMessageAdapter.submitList(ArrayList(filteredMessageDetails))
-        } else {
-            detailsMessageAdapter.submitList(ArrayList(messageDetails))
-        }
-    }
-
+    
     private fun addReaction(message: Message) {
         val jsonObject = JsonObject()
         jsonObject.addProperty(Const.Networking.MESSAGE_ID, message.id)
