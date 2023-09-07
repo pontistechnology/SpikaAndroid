@@ -52,7 +52,7 @@ class ChatViewModel @Inject constructor(
     private val liveDataLimit = MutableLiveData(20)
     val messagesReceived = MutableLiveData<List<Message>>()
     val searchMessageId = MutableLiveData(0)
-    var roomWithUsers = MutableLiveData<RoomWithUsers>()
+    val roomWithUsers = MutableLiveData<RoomWithUsers>()
 
     init {
         sseManager.setupListener(this)

@@ -72,7 +72,6 @@ import com.clover.studio.spikamessenger.utils.helpers.FilesHelper
 import com.clover.studio.spikamessenger.utils.helpers.FilesHelper.getUniqueRandomId
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.UploadService
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
@@ -129,8 +128,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var isAdmin = false
     private var listState: Parcelable? = null
-
-    private lateinit var bottomSheet: ChatBottomSheet
 
     private lateinit var storagePermission: ActivityResultLauncher<String>
     private var exoPlayer: ExoPlayer? = null
@@ -227,8 +224,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 roomWithUsers = viewModel.getRoomUsers(extras)
             }
         }
-
-        bottomSheet = ChatBottomSheet()
 
         checkStoragePermission()
 
@@ -509,8 +504,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             it.responseData.forEach { msg ->
                                 messagesRecords.add(msg)
                             }
-
-                            viewModel.messagesRecords = messagesRecords
 
                             chatAdapter.submitList(messagesRecords.toList())
                             updateSwipeController()
@@ -795,14 +788,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
                         Const.UserActions.ACTION_LEFT -> {
                             val detailsSheet = DetailsBottomSheet(
-                                requireContext(),
-                                messagesRecords[position].message
+                                context = requireContext(),
+                                message = messagesRecords[position].message,
+                                roomWithUsers = roomWithUsers,
+                                messagesRecords = messagesRecords,
+                                localUserId = localUserId
                             )
                             detailsSheet.show(
                                 requireActivity().supportFragmentManager,
                                 DetailsBottomSheet.TAG
                             )
-
                         }
                     }
                 })
@@ -922,9 +917,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         hideKeyboard(root)
-        viewModel.bottomSheetMessage.value = msg.message
 
-        bottomSheet.show(requireActivity().supportFragmentManager, ChatBottomSheet.TAG)
+        val bottomSheet = ChatBottomSheet(msg.message, localUserId)
         bottomSheet.setActionListener(object : ChatBottomSheet.BottomSheetAction {
             override fun actionCopy() {
                 handleMessageCopy(msg.message)
@@ -943,12 +937,19 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
 
             override fun actionReply() {
+                bindingSetup.replyAction.root.visibility = View.VISIBLE
                 handleMessageReply(msg.message)
             }
 
             override fun actionDetails() {
-                val detailsBottomSheet = DetailsBottomSheet(requireContext(), msg.message)
-                detailsBottomSheet.show(
+                val detailsSheet = DetailsBottomSheet(
+                    context = requireContext(),
+                    message = msg.message,
+                    roomWithUsers = roomWithUsers,
+                    messagesRecords = messagesRecords,
+                    localUserId = localUserId
+                )
+                detailsSheet.show(
                     requireActivity().supportFragmentManager,
                     DetailsBottomSheet.TAG
                 )
@@ -963,12 +964,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
 
             override fun addCustomReaction() {
-                openCustomEmojiKeyboard(msg.message)
+                bindingSetup.root.postDelayed({
+                    openCustomEmojiKeyboard(msg.message)
+                }, 200)
             }
         })
+        bottomSheet.show(requireActivity().supportFragmentManager, ChatBottomSheet.TAG)
     }
 
-    private fun handleMessageCopy(message: Message){
+    private fun handleMessageCopy(message: Message) {
         val clipboard =
             requireContext().getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip: ClipData = ClipData.newPlainText("", message.body?.text.toString())
@@ -978,7 +982,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             getString(R.string.text_copied),
             Toast.LENGTH_SHORT
         ).show()
-        BottomSheetBehavior.STATE_COLLAPSED
     }
 
     private fun openCustomEmojiKeyboard(message: Message) {
@@ -997,8 +1000,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             },
             onEmojiPopupDismissListener = { setSendingAreaVisibility(View.VISIBLE) },
         )
-
-        Timber.d("Updated emoji: $updatedEmojiPopup")
         updatedEmojiPopup.toggle()
     }
 

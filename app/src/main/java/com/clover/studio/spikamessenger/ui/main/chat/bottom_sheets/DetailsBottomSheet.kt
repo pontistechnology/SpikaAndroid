@@ -5,13 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.data.models.entity.Message
+import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
+import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.MessageDetailsBinding
-import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.MessageDetailsAdapter
 import com.clover.studio.spikamessenger.utils.Const
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -19,10 +19,12 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 class DetailsBottomSheet(
     private val context: Context,
     private val message: Message,
+    private val roomWithUsers: RoomWithUsers,
+    private val messagesRecords: MutableList<MessageAndRecords>,
+    private var localUserId: Int,
 ) : BottomSheetDialogFragment() {
 
     private lateinit var binding: MessageDetailsBinding
-    private val viewModel: ChatViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,7 +48,7 @@ class DetailsBottomSheet(
     private fun setDetails(context: Context, message: Message) {
         val detailsMessageAdapter = MessageDetailsAdapter(
             context,
-            viewModel.roomWithUsers.value,
+            roomWithUsers,
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 
@@ -73,7 +75,7 @@ class DetailsBottomSheet(
          remove the sender from the seen/delivered list and sort the list so that first we see
          seen and then delivered. */
         val messageDetails =
-            viewModel.messagesRecords.filter { it.message.id == message.id }
+            messagesRecords.filter { it.message.id == message.id }
                 .flatMap { it.records!! }
                 .filter { Const.JsonFields.REACTION != it.type }
                 .filter { it.userId != message.fromUserId }
@@ -85,9 +87,9 @@ class DetailsBottomSheet(
         messageDetails.add(0, senderMessageRecord)
 
         /* If the room type is a group and the current user is not the sender, remove it from the list.*/
-        if ((Const.JsonFields.GROUP == viewModel.roomWithUsers.value?.room?.type) && (senderId != viewModel.getLocalUserId())) {
+        if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && (senderId != localUserId)) {
             val filteredMessageDetails =
-                messageDetails.filter { it.userId != viewModel.getLocalUserId() }.toMutableList()
+                messageDetails.filter { it.userId != localUserId }.toMutableList()
             detailsMessageAdapter.submitList(ArrayList(filteredMessageDetails))
         } else {
             detailsMessageAdapter.submitList(ArrayList(messageDetails))

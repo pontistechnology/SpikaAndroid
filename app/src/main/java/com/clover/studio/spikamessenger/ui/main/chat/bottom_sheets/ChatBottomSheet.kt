@@ -4,18 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
+import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.databinding.BottomSheetMessageActionsBinding
 import com.clover.studio.spikamessenger.ui.ReactionsContainer
-import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.utils.Const
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class ChatBottomSheet : BottomSheetDialogFragment() {
+class ChatBottomSheet(
+    private val message: Message,
+    private var localId: Int,
+) : BottomSheetDialogFragment() {
 
     private lateinit var binding: BottomSheetMessageActionsBinding
-    private val viewModel: ChatViewModel by activityViewModels()
-
     private var listener: BottomSheetAction? = null
 
     override fun onCreateView(
@@ -55,13 +55,13 @@ class ChatBottomSheet : BottomSheetDialogFragment() {
 
     private fun setFunctionsVisibility() {
         binding.tvDelete.visibility =
-            if (viewModel.bottomSheetMessage.value?.fromUserId == viewModel.getLocalUserId()) View.VISIBLE else View.GONE
+            if (message.fromUserId == localId) View.VISIBLE else View.GONE
 
         binding.tvEdit.visibility =
-            if (viewModel.bottomSheetMessage.value?.fromUserId == viewModel.getLocalUserId() && Const.JsonFields.TEXT_TYPE == viewModel.bottomSheetMessage.value?.type) View.VISIBLE else View.GONE
+            if (message.fromUserId == localId && Const.JsonFields.TEXT_TYPE == message.type) View.VISIBLE else View.GONE
 
         binding.tvCopy.visibility =
-            if (Const.JsonFields.TEXT_TYPE == viewModel.bottomSheetMessage.value?.type) View.VISIBLE else View.GONE
+            if (Const.JsonFields.TEXT_TYPE == message.type) View.VISIBLE else View.GONE
     }
 
     private fun handleBottomSheetAction() {
