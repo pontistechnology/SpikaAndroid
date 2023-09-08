@@ -32,7 +32,7 @@ class NotesAdapter(
                 binding.tvNoteTitle.text = noteItem.title
                 binding.tvNoteTime.text = if (noteItem.modifiedAt != noteItem.createdAt) {
                     context.getString(
-                        R.string.note_modified_at,
+                        R.string.note_edited_at,
                         Tools.fullDateFormat(noteItem.modifiedAt).toString()
                     )
                 } else {
