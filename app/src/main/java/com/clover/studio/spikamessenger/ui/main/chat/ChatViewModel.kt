@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
 import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
+import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
@@ -51,7 +52,7 @@ class ChatViewModel @Inject constructor(
     private val liveDataLimit = MutableLiveData(20)
     val messagesReceived = MutableLiveData<List<Message>>()
     val searchMessageId = MutableLiveData(0)
-    var roomWithUsers = MutableLiveData<RoomWithUsers>()
+    val roomWithUsers = MutableLiveData<RoomWithUsers>()
 
     init {
         sseManager.setupListener(this)

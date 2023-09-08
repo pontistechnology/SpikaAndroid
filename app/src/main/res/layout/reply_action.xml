@@ -12,8 +12,7 @@
         android:id="@+id/cl_reply_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/eight_dp_margin"
-        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
         android:background="@drawable/bg_message_received"
         app:layout_constraintEnd_toStartOf="@+id/iv_remove"
         app:layout_constraintHorizontal_bias="0.0"
@@ -97,7 +96,7 @@
         android:id="@+id/iv_remove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/twenty_five_dp_margin"
+        android:padding="@dimen/twenty_dp_margin"
         android:src="@drawable/img_close"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

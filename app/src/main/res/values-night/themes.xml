@@ -14,5 +14,6 @@
         <item name="android:statusBarColor" >@color/main</item>
         <!-- Customize your theme here. -->
         <item name="colorAccent">@color/primary_color</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
     </style>
 </resources>
