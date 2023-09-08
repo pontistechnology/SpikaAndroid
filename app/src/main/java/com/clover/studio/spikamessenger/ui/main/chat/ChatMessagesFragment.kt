@@ -266,12 +266,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         setAvatarAndName(avatarFileId, userName)
 
-        if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
-            chatHeader.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
-            chatHeader.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
-            chatHeader.ivVideoCall.isEnabled = false
-            chatHeader.ivCallUser.isEnabled = false
-        }
+        // TODO this will be implemented later
+//        if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
+//            chatHeader.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
+//            chatHeader.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
+//            chatHeader.ivVideoCall.isEnabled = false
+//            chatHeader.ivCallUser.isEnabled = false
+//        }
 
         // If room is group, show number of members under group name
         if (Const.JsonFields.GROUP == roomWithUsers?.room?.type) {
@@ -456,6 +457,129 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 resetEditingFields()
             }
         }
+
+        bottomSheet.btnFiles.setOnClickListener {
+            chooseFile()
+            rotationAnimation()
+        }
+
+        reactionsDetails.ivRemove.setOnClickListener {
+            bottomSheetReactionsAction.state = BottomSheetBehavior.STATE_COLLAPSED
+            bindingSetup.clReactionsDetails.visibility = View.GONE
+        }
+
+        replyAction.ivRemove.setOnClickListener {
+            if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetReplyAction.state = BottomSheetBehavior.STATE_COLLAPSED
+                bindingSetup.clBottomReplyAction.visibility = View.GONE
+                replyId = 0L
+            }
+        }
+
+        detailsAction.ivRemove.setOnClickListener {
+            if (bottomSheetDetailsAction.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetDetailsAction.state = BottomSheetBehavior.STATE_COLLAPSED
+                bindingSetup.clDetailsAction.visibility = View.GONE
+                bindingSetup.vTransparent.visibility = View.GONE
+            }
+        }
+
+        bottomSheet.ivRemove.setOnClickListener {
+            bottomSheetBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+            bindingSetup.clBottomSheet.visibility = View.GONE
+            rotationAnimation()
+        }
+
+        bottomSheet.btnLibrary.setOnClickListener {
+            chooseImage()
+            rotationAnimation()
+        }
+
+//        TODO this will be implemented later
+//        bottomSheet.btnLocation.setOnClickListener {
+//            rotationAnimation()
+//        }
+//
+//        bottomSheet.btnContact.setOnClickListener {
+//            rotationAnimation()
+//        }
+
+
+        val bottomSheetBehaviorCallback =
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    // Ignore
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                        bindingSetup.vTransparent.visibility = View.GONE
+                    }
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                        bindingSetup.vTransparent.visibility = View.VISIBLE
+                    }
+
+                }
+            }
+
+        val bottomSheetBehaviorCallbackMessageAction =
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    // Ignore
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (bottomSheetDetailsAction.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                            bindingSetup.vTransparent.visibility = View.GONE
+                        }
+                    }
+                    if (bottomSheetReplyAction.state == BottomSheetBehavior.STATE_EXPANDED) {
+                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                            bindingSetup.vTransparent.visibility = View.VISIBLE
+                        }
+                    }
+                }
+            }
+
+        val bottomSheetBehaviorCallbackReactionDetails =
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    // Ignore
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                        bindingSetup.vTransparent.visibility = View.GONE
+                        val childNUmber = bindingSetup.reactionsDetails.llReactions.childCount
+                        if (childNUmber != 0) {
+                            bindingSetup.reactionsDetails.llReactions.removeViews(
+                                1,
+                                childNUmber - 1
+                            )
+                        }
+                    }
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                        bindingSetup.vTransparent.visibility = View.VISIBLE
+                    }
+                }
+            }
+
+        bottomSheetMessageActions.addBottomSheetCallback(
+            bottomSheetBehaviorCallbackMessageAction
+        )
+        bottomSheetDetailsAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
+        bottomSheetBehaviour.addBottomSheetCallback(bottomSheetBehaviorCallback)
+        bottomSheetReplyAction.addBottomSheetCallback(bottomSheetBehaviorCallback)
+        bottomSheetReactionsAction.addBottomSheetCallback(
+            bottomSheetBehaviorCallbackReactionDetails
+        )
+    }
+
+    private fun closeMessageSheet() {
+        bottomSheetMessageActions.state = BottomSheetBehavior.STATE_COLLAPSED
+        bindingSetup.clBottomMessageActions.visibility = View.GONE
+        bindingSetup.vTransparent.visibility = View.GONE
     }
 
     private fun initializeObservers() {
@@ -919,7 +1043,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         etMessage.text?.clear()
         ivAdd.visibility = visibility
         clTyping.visibility = visibility
-        ivMicrophone.visibility = visibility
+//        ivMicrophone.visibility = visibility
         ivCamera.visibility = visibility
     }
 
@@ -1098,18 +1222,59 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         etMessage.addTextChangedListener {
             if (isEditing) {
                 if (!originalText.equals(it)) {
-                    tvSave.visibility = View.VISIBLE
-                    ivCamera.visibility = View.INVISIBLE
-                    ivMicrophone.visibility = View.INVISIBLE
+                    bindingSetup.tvSave.visibility = View.VISIBLE
+                    bindingSetup.ivCamera.visibility = View.INVISIBLE
+//                    bindingSetup.ivMicrophone.visibility = View.INVISIBLE
                 } else {
-                    tvSave.visibility = View.GONE
-                    ivCamera.visibility = View.VISIBLE
-                    ivMicrophone.visibility = View.VISIBLE
+                    bindingSetup.tvSave.visibility = View.GONE
+                    bindingSetup.ivCamera.visibility = View.VISIBLE
+//                    bindingSetup.ivMicrophone.visibility = View.VISIBLE
                 }
             }
         }
     }
-    
+
+    private fun getDetailsList(detailsMessage: Message) {
+        val senderId = detailsMessage.fromUserId
+
+        /* Adding a message record for the sender so that it can be sent to the adapter */
+        val senderMessageRecord = MessageRecords(
+            id = 0,
+            messageId = detailsMessage.id,
+            userId = detailsMessage.fromUserId!!,
+            type = Const.JsonFields.SENT,
+            reaction = null,
+            modifiedAt = detailsMessage.modifiedAt,
+            createdAt = detailsMessage.createdAt!!,
+            null
+        )
+
+        /* In the messageDetails list, we save message records for a specific message,
+         remove reactions from those records(because we only need the seen and delivered types),
+         remove the sender from the seen/delivered list and sort the list so that first we see
+         seen and then delivered. */
+        val messageDetails =
+            messagesRecords.filter { it.message.id == detailsMessage.id }
+                .flatMap { it.records!! }
+                .filter { Const.JsonFields.REACTION != it.type }
+                .filter { it.userId != detailsMessage.fromUserId }
+                .sortedByDescending { it.type }
+                .toMutableList()
+
+        /* Then we add the sender of the message to the first position of the messageDetails list
+        * so that we can display it in the RecyclerView */
+        messageDetails.add(0, senderMessageRecord)
+
+        /* If the room type is a group and the current user is not the sender, remove it from the list.*/
+        if ((Const.JsonFields.GROUP == roomWithUsers!!.room.type) && (senderId != localUserId)) {
+            val filteredMessageDetails =
+                messageDetails.filter { it.userId != localUserId }.toMutableList()
+            detailsMessageAdapter.submitList(ArrayList(filteredMessageDetails))
+        } else {
+            detailsMessageAdapter.submitList(ArrayList(messageDetails))
+        }
+    }
+
     private fun addReaction(message: Message) {
         val jsonObject = JsonObject()
         jsonObject.addProperty(Const.Networking.MESSAGE_ID, message.id)
@@ -1125,7 +1290,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         ivAdd.rotation = ROTATION_OFF
         tvSave.visibility = View.GONE
         ivCamera.visibility = View.VISIBLE
-        ivMicrophone.visibility = View.VISIBLE
+//        ivMicrophone.visibility = View.VISIBLE
         etMessage.text!!.clear()
         etMessage.setText("")
     }
@@ -1137,7 +1302,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun showSendButton() = with(bindingSetup) {
         ivCamera.visibility = View.INVISIBLE
-        ivMicrophone.visibility = View.INVISIBLE
+//        ivMicrophone.visibility = View.INVISIBLE
         ivButtonSend.visibility = View.VISIBLE
         clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
             endToStart = bindingSetup.ivButtonSend.id
@@ -1147,7 +1312,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun hideSendButton() = with(bindingSetup) {
         ivCamera.visibility = View.VISIBLE
-        ivMicrophone.visibility = View.VISIBLE
+//        ivMicrophone.visibility = View.VISIBLE
         ivButtonSend.visibility = View.GONE
         clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
             endToStart = bindingSetup.ivCamera.id

@@ -70,34 +70,34 @@
             android:textColor="@color/primary_color"
             android:textSize="@dimen/twelve_sp_text" />
 
-        <Button
-            android:id="@+id/btn_location"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:drawableTop="@drawable/img_location"
-            android:ellipsize="end"
-            android:fontFamily="@font/montserrat"
-            android:maxLines="1"
-            android:text="@string/location"
-            android:textAllCaps="false"
-            android:textColor="@color/primary_color"
-            android:textSize="@dimen/twelve_sp_text" />
+<!--  This will be implemented later   -->
+<!--        <Button-->
+<!--            android:id="@+id/btn_location"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@android:color/transparent"-->
+<!--            android:drawableTop="@drawable/img_location"-->
+<!--            android:ellipsize="end"-->
+<!--            android:fontFamily="@font/montserrat"-->
+<!--            android:maxLines="1"-->
+<!--            android:text="@string/location"-->
+<!--            android:textAllCaps="false"-->
+<!--            android:textColor="@color/primary_color"-->
+<!--            android:textSize="@dimen/twelve_sp_text" />-->
 
-        <Button
-            android:id="@+id/btn_contact"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:drawableTop="@drawable/img_contact"
-            android:ellipsize="end"
-            android:fontFamily="@font/montserrat"
-            android:maxLines="1"
-            android:text="@string/contact"
-            android:textAllCaps="false"
-            android:textColor="@color/primary_color"
-            android:textSize="@dimen/twelve_sp_text" />
+<!--        <Button-->
+<!--            android:id="@+id/btn_contact"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@android:color/transparent"-->
+<!--            android:drawableTop="@drawable/img_contact"-->
+<!--            android:ellipsize="end"-->
+<!--            android:fontFamily="@font/montserrat"-->
+<!--            android:maxLines="1"-->
+<!--            android:text="@string/contact"-->
+<!--            android:textAllCaps="false"-->
+<!--            android:textColor="@color/primary_color"-->
+<!--            android:textSize="@dimen/twelve_sp_text" />-->
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
