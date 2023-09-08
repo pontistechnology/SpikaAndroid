@@ -266,12 +266,13 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
         setAvatarAndName(avatarFileId, userName)
 
-        if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
-            chatHeader.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
-            chatHeader.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
-            chatHeader.ivVideoCall.isEnabled = false
-            chatHeader.ivCallUser.isEnabled = false
-        }
+        // TODO this will be implemented later
+//        if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
+//            chatHeader.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
+//            chatHeader.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
+//            chatHeader.ivVideoCall.isEnabled = false
+//            chatHeader.ivCallUser.isEnabled = false
+//        }
 
         // If room is group, show number of members under group name
         if (Const.JsonFields.GROUP == roomWithUsers?.room?.type) {
@@ -456,6 +457,15 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 resetEditingFields()
             }
         }
+
+//        TODO this will be implemented later
+//        bottomSheet.btnLocation.setOnClickListener {
+//            rotationAnimation()
+//        }
+//
+//        bottomSheet.btnContact.setOnClickListener {
+//            rotationAnimation()
+//        }
     }
 
     private fun initializeObservers() {
@@ -919,7 +929,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         etMessage.text?.clear()
         ivAdd.visibility = visibility
         clTyping.visibility = visibility
-        ivMicrophone.visibility = visibility
+//        ivMicrophone.visibility = visibility
         ivCamera.visibility = visibility
     }
 
@@ -1098,18 +1108,18 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         etMessage.addTextChangedListener {
             if (isEditing) {
                 if (!originalText.equals(it)) {
-                    tvSave.visibility = View.VISIBLE
-                    ivCamera.visibility = View.INVISIBLE
-                    ivMicrophone.visibility = View.INVISIBLE
+                    bindingSetup.tvSave.visibility = View.VISIBLE
+                    bindingSetup.ivCamera.visibility = View.INVISIBLE
+//                    bindingSetup.ivMicrophone.visibility = View.INVISIBLE
                 } else {
-                    tvSave.visibility = View.GONE
-                    ivCamera.visibility = View.VISIBLE
-                    ivMicrophone.visibility = View.VISIBLE
+                    bindingSetup.tvSave.visibility = View.GONE
+                    bindingSetup.ivCamera.visibility = View.VISIBLE
+//                    bindingSetup.ivMicrophone.visibility = View.VISIBLE
                 }
             }
         }
     }
-    
+
     private fun addReaction(message: Message) {
         val jsonObject = JsonObject()
         jsonObject.addProperty(Const.Networking.MESSAGE_ID, message.id)
@@ -1125,7 +1135,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         ivAdd.rotation = ROTATION_OFF
         tvSave.visibility = View.GONE
         ivCamera.visibility = View.VISIBLE
-        ivMicrophone.visibility = View.VISIBLE
+//        ivMicrophone.visibility = View.VISIBLE
         etMessage.text!!.clear()
         etMessage.setText("")
     }
@@ -1137,7 +1147,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun showSendButton() = with(bindingSetup) {
         ivCamera.visibility = View.INVISIBLE
-        ivMicrophone.visibility = View.INVISIBLE
+//        ivMicrophone.visibility = View.INVISIBLE
         ivButtonSend.visibility = View.VISIBLE
         clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
             endToStart = bindingSetup.ivButtonSend.id
@@ -1147,7 +1157,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun hideSendButton() = with(bindingSetup) {
         ivCamera.visibility = View.VISIBLE
-        ivMicrophone.visibility = View.VISIBLE
+//        ivMicrophone.visibility = View.VISIBLE
         ivButtonSend.visibility = View.GONE
         clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
             endToStart = bindingSetup.ivCamera.id

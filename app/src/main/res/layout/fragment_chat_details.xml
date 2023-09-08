@@ -231,7 +231,6 @@
             android:id="@+id/fl_notes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/ten_dp_margin"
             android:background="?android:selectableItemBackground"
             android:padding="@dimen/twenty_dp_margin"
             app:layout_constraintEnd_toEndOf="parent"
@@ -242,6 +241,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/montserrat"
+                android:layout_marginStart="@dimen/ten_dp_margin"
                 android:text="@string/notes" />
 
             <ImageView

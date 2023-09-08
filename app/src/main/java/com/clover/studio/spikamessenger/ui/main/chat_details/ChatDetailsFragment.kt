@@ -197,8 +197,8 @@ class ChatDetailsFragment : BaseFragment() {
                 binding.etEnterGroupName.visibility = View.VISIBLE
                 binding.tvDone.visibility = View.VISIBLE
                 binding.tvGroupName.visibility = View.INVISIBLE
-                binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
-                binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
+//                binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
+//                binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
             }
         }
 
@@ -217,8 +217,8 @@ class ChatDetailsFragment : BaseFragment() {
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
 
             binding.tvDone.visibility = View.GONE
-            binding.chatHeader.ivCallUser.visibility = View.VISIBLE
-            binding.chatHeader.ivVideoCall.visibility = View.VISIBLE
+//            binding.chatHeader.ivCallUser.visibility = View.VISIBLE
+//            binding.chatHeader.ivVideoCall.visibility = View.VISIBLE
             binding.etEnterGroupName.visibility = View.INVISIBLE
             binding.tvGroupName.visibility = View.VISIBLE
         }
@@ -420,8 +420,8 @@ class ChatDetailsFragment : BaseFragment() {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
                         binding.flProgressScreen.visibility = View.GONE
-                        binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
-                        binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
+//                        binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
+//                        binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
                         binding.tvDone.visibility = View.VISIBLE
                     }
                     newAvatarFileId = it.responseData!!.fileId

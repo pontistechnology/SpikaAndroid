@@ -8,7 +8,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.FragmentMainBinding
-import com.clover.studio.spikamessenger.ui.main.call_history.CallHistoryFragment
 import com.clover.studio.spikamessenger.ui.main.contacts.ContactsFragment
 import com.clover.studio.spikamessenger.ui.main.rooms.RoomsFragment
 import com.clover.studio.spikamessenger.ui.main.settings.SettingsFragment
@@ -51,10 +50,11 @@ class MainFragment : BaseFragment() {
         }
     }
 
+    // TODO - CallHistoryFragment be implemented later
     private fun initializePager() {
         val fragmentList = arrayListOf(
             RoomsFragment(),
-            CallHistoryFragment(),
+//            CallHistoryFragment(),
             ContactsFragment(),
             SettingsFragment()
         )

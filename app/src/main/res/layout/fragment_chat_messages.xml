@@ -180,6 +180,18 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+<!--  This will be implemented later   -->
+<!--    <ImageView-->
+<!--        android:id="@+id/iv_microphone"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:background="@color/white"-->
+<!--        android:backgroundTint="@color/main"-->
+<!--        android:padding="@dimen/ten_dp_margin"-->
+<!--        android:src="@drawable/img_microphone"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="@+id/divider" />-->
     <ImageView
         android:id="@+id/iv_add"
         android:layout_width="wrap_content"
@@ -195,18 +207,6 @@
         app:layout_constraintTop_toTopOf="@+id/cl_typing" />
 
     <ImageView
-        android:id="@+id/iv_microphone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:backgroundTint="@color/main"
-        android:padding="@dimen/ten_dp_margin"
-        android:src="@drawable/img_microphone"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_camera"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/iv_camera" />
-
-    <ImageView
         android:id="@+id/iv_camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -216,7 +216,7 @@
         android:padding="@dimen/ten_dp_margin"
         android:src="@drawable/img_camera"
         app:layout_constraintBottom_toBottomOf="@+id/cl_typing"
-        app:layout_constraintEnd_toStartOf="@id/iv_microphone"
+        app:layout_constraintEnd_toEndOf="@+id/divider"
         app:layout_constraintStart_toEndOf="@id/cl_typing"
         app:layout_constraintTop_toTopOf="@+id/cl_typing" />
 
