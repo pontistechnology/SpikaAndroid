@@ -56,12 +56,13 @@ class MediaBottomSheet(
             dismiss()
         }
 
-        binding.btnContact.setOnClickListener {
-            dismiss()
-        }
-
-        binding.btnLocation.setOnClickListener {
-            dismiss()
-        }
+//        TODO this will be implemented later
+//        binding.btnContact.setOnClickListener {
+//            dismiss()
+//        }
+//
+//        binding.btnLocation.setOnClickListener {
+//            dismiss()
+//        }
     }
 }
