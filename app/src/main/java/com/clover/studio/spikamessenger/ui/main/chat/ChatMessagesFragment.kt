@@ -1529,6 +1529,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun onBackArrowPressed() {
         viewModel.updateUnreadCount(roomId = roomWithUsers!!.room.roomId)
         activity?.onBackPressedDispatcher?.onBackPressed()
+        activity?.finish()
     }
 
 
