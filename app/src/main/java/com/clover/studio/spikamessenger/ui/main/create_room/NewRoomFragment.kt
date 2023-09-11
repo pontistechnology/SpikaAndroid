@@ -82,7 +82,6 @@ class NewRoomFragment : BaseFragment() {
     }
 
     private fun initializeViews() = with(binding) {
-        // SearchView is immediately acting as if selected
         // Behave like group chat if adding user from ChatDetails.
         if (args?.userIds?.isNotEmpty() == true) handleGroupChat()
 
@@ -179,29 +178,27 @@ class NewRoomFragment : BaseFragment() {
 
         newGroupFlag = true
 
-        setupAdapter(true)
         initializeObservers()
+        setupAdapter(true)
     }
 
-    private fun setupAdapter(isGroupCreation: Boolean) {
-        // Contacts Adapter
-
+    private fun setupAdapter(isGroupCreation: Boolean) = with(binding) {
         // Check if there are some userIds already in Room if we are adding Room users
         // This is only for adding users to Room
         val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
 
         contactsAdapter = ContactsAdapter(requireContext(), isGroupCreation, userIdsInRoom) {
-            if (binding.tvNewGroupChat.visibility == View.GONE) {
+            if (tvNewGroupChat.visibility == View.GONE) {
                 if (selectedUsers.contains(it)) {
                     selectedUsers.remove(it)
-                    binding.tvSelectedNumber.text =
+                    tvSelectedNumber.text =
                         getString(R.string.users_selected, selectedUsers.size)
                 } else {
                     selectedUsers.add(it)
-                    binding.tvSelectedNumber.text =
+                    tvSelectedNumber.text =
                         getString(R.string.users_selected, selectedUsers.size)
                 }
-                selectedContactsAdapter.submitList(selectedUsers)
+
                 selectedContactsAdapter.notifyDataSetChanged()
 
                 handleNextTextView()
@@ -251,8 +248,9 @@ class NewRoomFragment : BaseFragment() {
 
     private fun handleSelectedUserList(userItem: UserAndPhoneUser) {
         for (user in userList) {
-            if (user == userItem) {
+            if (user.user.id == userItem.user.id) {
                 user.user.selected = !user.user.selected
+                break
             }
         }
 
@@ -278,8 +276,15 @@ class NewRoomFragment : BaseFragment() {
                 }
 
                 val users = userList.sortUsersByLocale(requireContext())
+                users.forEach { user ->
+                    val isSelected = selectedUsers.any { selectedUser ->
+                        user.user.id == selectedUser.user.id
+                    }
+                    user.user.selected = isSelected
+                }
+
                 userList = users.toMutableList()
-                contactsAdapter.submitList(users)
+                contactsAdapter.submitList(userList)
             }
         }
 
