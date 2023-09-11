@@ -30,7 +30,10 @@ class SelectedContactsAdapter(
     override fun onBindViewHolder(holder: ContactsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { userItem ->
-                binding.tvUserName.text = userItem.phoneUser?.name ?: userItem.user.formattedDisplayName
+
+                val displayName = userItem.phoneUser?.name ?: userItem.user.formattedDisplayName
+                binding.tvUserName.text = if (displayName.length > 10) "${displayName.take(10)}..." else displayName
+
                 Glide.with(context)
                     .load(userItem.user.avatarFileId?.let { Tools.getFilePathUrl(it) })
                     .placeholder(R.drawable.img_user_placeholder)

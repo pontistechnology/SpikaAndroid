@@ -7,13 +7,12 @@
     android:layout_marginEnd="@dimen/sixteen_dp_margin"
     tools:ignore="contentDescription">
 
+
     <TextView
         android:id="@+id/tv_user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
         android:fontFamily="@font/montserrat"
-        android:maxLength="10"
         android:maxLines="1"
         android:text="@string/username"
         android:textColor="@color/text_tertiary"
