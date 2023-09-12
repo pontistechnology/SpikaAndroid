@@ -29,7 +29,7 @@
             app:menu="@menu/menu"
             android:theme="@style/CustomToolbar"
             app:title="@string/call_history"
-            app:titleTextAppearance="@style/CustomTitle"
+            app:titleTextAppearance="@style/CustomTitleBold"
             app:titleTextColor="@color/text_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
