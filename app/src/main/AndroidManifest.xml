@@ -58,6 +58,7 @@
             android:exported="false"
             android:finishOnTaskLaunch="true"
             android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait" />
 
         <provider
