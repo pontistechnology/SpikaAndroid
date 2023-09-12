@@ -129,6 +129,7 @@
         android:padding="@dimen/ten_dp_margin"
         android:textSize="@dimen/fourteen_sp_text"
         android:visibility="gone"
+        android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_pick_photo" />
@@ -174,8 +175,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_privacy"
+    <FrameLayout
+        android:id="@+id/fl_privacy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/ten_dp_margin"
@@ -188,20 +189,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat"
-            android:text="@string/privacy"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:text="@string/privacy" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/img_arrow_next"
             app:tint="@color/gray_icon_color"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_gravity="end"/>
+    </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_appearance"
@@ -254,7 +250,7 @@
         android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cl_privacy">
+        app:layout_constraintTop_toBottomOf="@id/fl_privacy">
 
         <TextView
             android:id="@+id/tv_delete"
@@ -263,7 +259,6 @@
             android:fontFamily="@font/montserrat"
             android:text="@string/delete"
             android:textColor="@color/style_red" />
-
     </FrameLayout>
 
     <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
