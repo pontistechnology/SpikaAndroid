@@ -32,6 +32,8 @@ fun startChatScreenActivity(
         }
         intent.putExtra(Const.Navigation.ROOM_DATA, roomWithUsers)
         startActivity(intent)
+
+        overridePendingTransition(R.anim.nav_slide_in_right, R.anim.nav_slide_out_left)
     }
 
 fun replaceChatScreenActivity(
@@ -210,8 +212,4 @@ class ChatScreenActivity : BaseActivity() {
         super.onStart()
         viewModel.getUnreadCount()
     }
-}
-
-interface ChatOnBackPressed {
-    fun onBackPressed(): Boolean
 }

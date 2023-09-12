@@ -96,7 +96,7 @@ data class TempUri(
 )
 
 @AndroidEntryPoint
-class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
+class ChatMessagesFragment : BaseFragment() {
     private val viewModel: ChatViewModel by activityViewModels()
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
@@ -1006,7 +1006,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         val action =
-            ChatMessagesFragmentDirections.actionChatMessagesFragmentToVideoFragment(
+            ChatMessagesFragmentDirections.actionChatMessagesFragmentToMediaFragment(
                 mediaInfo = mediaInfo,
                 message = chatMessage.message
             )
@@ -1543,11 +1543,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.updateUnreadCount(roomId = roomWithUsers!!.room.roomId)
         activity?.onBackPressedDispatcher?.onBackPressed()
         activity?.finish()
-    }
-
-
-    override fun onBackPressed(): Boolean {
-        return true
     }
 
     override fun onResume() {

@@ -40,11 +40,7 @@
             app:argType="boolean" />
         <action
             android:id="@+id/action_chatDetailsFragment_to_chatMessagesFragment"
-            app:destination="@id/chatMessagesFragment"
-            app:enterAnim="@anim/slide_in"
-            app:exitAnim="@anim/fade_out"
-            app:popEnterAnim="@anim/fade_in"
-            app:popExitAnim="@anim/slide_out"/>
+            app:destination="@id/chatMessagesFragment" />
         <action
             android:id="@+id/action_chatDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />
@@ -55,26 +51,26 @@
         android:label="fragment_chat_messages"
         tools:layout="@layout/fragment_chat_messages">
         <action
-            android:id="@+id/action_chatMessagesFragment_to_videoFragment"
+            android:id="@+id/action_chatMessagesFragment_to_mediaFragment"
             app:destination="@id/mediaFragment"
-            app:enterAnim="@anim/slide_in"
-            app:exitAnim="@anim/fade_out"
-            app:popEnterAnim="@anim/fade_in"
-            app:popExitAnim="@anim/slide_out" />
+            app:enterAnim="@anim/nav_slide_in_right"
+            app:exitAnim="@anim/nav_slide_out_left"
+            app:popEnterAnim="@anim/nav_slide_in_left"
+            app:popExitAnim="@anim/nav_slide_out_right" />
         <action
             android:id="@+id/action_chatMessagesFragment_to_chatDetailsFragment"
             app:destination="@id/chatDetailsFragment"
-            app:enterAnim="@anim/slide_in"
-            app:exitAnim="@anim/fade_out"
-            app:popEnterAnim="@anim/fade_in"
-            app:popExitAnim="@anim/slide_out" />
+            app:enterAnim="@anim/nav_slide_in_right"
+            app:exitAnim="@anim/nav_slide_out_left"
+            app:popEnterAnim="@anim/nav_slide_in_left"
+            app:popExitAnim="@anim/nav_slide_out_right" />
         <action
             android:id="@+id/action_chatMessagesFragment_to_contactDetailsFragment"
             app:destination="@id/contactDetailsFragment"
-            app:enterAnim="@anim/slide_in"
-            app:exitAnim="@anim/fade_out"
-            app:popEnterAnim="@anim/fade_in"
-            app:popExitAnim="@anim/slide_out" />
+            app:enterAnim="@anim/nav_slide_in_right"
+            app:exitAnim="@anim/nav_slide_out_left"
+            app:popEnterAnim="@anim/nav_slide_in_left"
+            app:popExitAnim="@anim/nav_slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/mediaFragment"
@@ -84,11 +80,7 @@
         <action
             android:id="@+id/action_videoFragment_to_chatMessagesFragment"
             app:destination="@id/chatMessagesFragment"
-            app:popUpTo="@id/chatMessagesFragment"
-            app:enterAnim="@anim/slide_in"
-            app:exitAnim="@anim/fade_out"
-            app:popEnterAnim="@anim/fade_in"
-            app:popExitAnim="@anim/slide_out" />
+            app:popUpTo="@id/chatMessagesFragment" />
 
         <argument
             android:name="mediaInfo"
