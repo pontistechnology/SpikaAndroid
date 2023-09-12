@@ -702,10 +702,11 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         return
     }
 
-    private fun setUpAdapter() {
-        exoPlayer = ExoPlayer.Builder(this.context!!).build()
+    private fun setUpAdapter() = with(bindingSetup){
+        exoPlayer = ExoPlayer.Builder(requireContext()).build()
+
         chatAdapter = ChatAdapter(
-            context!!,
+            requireContext(),
             localUserId,
             roomWithUsers!!.users,
             exoPlayer!!,
@@ -731,12 +732,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
-        bindingSetup.rvChat.itemAnimator = null
-        bindingSetup.rvChat.adapter = chatAdapter
+        rvChat.itemAnimator = null
+        rvChat.adapter = chatAdapter
         layoutManager.stackFromEnd = true
-        bindingSetup.rvChat.layoutManager = layoutManager
+        rvChat.layoutManager = layoutManager
 
-        bindingSetup.rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 scrollYDistance += dy
@@ -757,13 +758,23 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 super.onScrollStateChanged(recyclerView, newState)
                 // This condition checks if the RecyclerView is at the bottom
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    bindingSetup.cvNewMessages.visibility = View.INVISIBLE
-                    bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
+                    cvNewMessages.visibility = View.INVISIBLE
+                    cvBottomArrow.visibility = View.INVISIBLE
                     scrollYDistance = 0
                     viewModel.clearMessages()
                 }
             }
         })
+
+        val adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+//                if (bindingSetup.cvNewMessages.visibility == View.INVISIBLE){
+//                    senderScroll()
+//                }
+                bindingSetup.rvChat.smoothScrollToPosition(positionStart + itemCount - 1)
+            }
+        }
+        chatAdapter.registerAdapterDataObserver(adapterDataObserver)
     }
 
     private fun updateSwipeController() {
