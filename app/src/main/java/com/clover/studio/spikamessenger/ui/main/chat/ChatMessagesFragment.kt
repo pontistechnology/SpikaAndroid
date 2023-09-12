@@ -366,9 +366,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         // This listener is for keyboard opening
         rvChat.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
             if (bottom < oldBottom) {
-                if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
-                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
-                ) {
+                if (sendingScrollVisibility()) {
                     rvChat.smoothScrollToPosition(0)
                 }
             }
@@ -470,7 +468,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private fun initializeObservers() {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
-            senderScroll()
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (unsentMessages.isNotEmpty()) {
@@ -528,8 +525,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                             } else {
                                 viewModel.fetchNextSet(roomWithUsers?.room!!.roomId)
                             }
-                        } else {
-                            senderScroll()
                         }
                     }
 
@@ -623,16 +618,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.updateUnreadCount(roomId = roomWithUsers!!.room.roomId)
     }
 
-    private fun senderScroll() {
-        if ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
-            || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE)
-        ) {
-            scrollToPosition()
-            bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
-        } else {
-            bindingSetup.cvBottomArrow.visibility = View.VISIBLE
-        }
-    }
 
     private fun showNewMessage(messagesSize: Int) = with(bindingSetup) {
         valueAnimator?.end()
@@ -644,9 +629,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             scrollYDistance -= heightDiff
         }
 
-        if (!((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
-                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
-        ) {
+        if (!(sendingScrollVisibility())) {
             cvNewMessages.visibility = View.VISIBLE
 
             if (messagesSize == 1 && cvNewMessages.visibility == View.INVISIBLE) {
@@ -678,14 +661,16 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         return@with
     }
 
+    private fun sendingScrollVisibility(): Boolean {
+        return ((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE) || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
+    }
+
     private fun showBottomArrow() = with(bindingSetup) {
         if (heightDiff >= MIN_HEIGHT_DIFF && scrollYDistance > SCROLL_DISTANCE_POSITIVE) {
             scrollYDistance -= heightDiff
         }
         // If we are somewhere up
-        if (!((scrollYDistance <= 0) && (scrollYDistance > SCROLL_DISTANCE_NEGATIVE)
-                    || (scrollYDistance >= 0) && (scrollYDistance < SCROLL_DISTANCE_POSITIVE))
-        ) {
+        if (!(sendingScrollVisibility())) {
             if (cvNewMessages.visibility == View.VISIBLE) {
                 cvBottomArrow.visibility = View.INVISIBLE
             } else {
@@ -696,13 +681,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
     }
 
-    private fun scrollToPosition() {
-        bindingSetup.rvChat.scrollToPosition(0)
-        scrollYDistance = 0
-        return
-    }
-
-    private fun setUpAdapter() = with(bindingSetup){
+    private fun setUpAdapter() = with(bindingSetup) {
         exoPlayer = ExoPlayer.Builder(requireContext()).build()
 
         chatAdapter = ChatAdapter(
@@ -766,12 +745,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             }
         })
 
+        setUpAdapterDataObserver()
+    }
+
+    private fun setUpAdapterDataObserver() {
         val adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-//                if (bindingSetup.cvNewMessages.visibility == View.INVISIBLE){
-//                    senderScroll()
-//                }
-                bindingSetup.rvChat.smoothScrollToPosition(positionStart + itemCount - 1)
+
+                if (chatAdapter.currentList[positionStart + itemCount - 1].message.fromUserId == localUserId) {
+                    if (sendingScrollVisibility()) {
+                        bindingSetup.rvChat.scrollToPosition(0)
+                        scrollYDistance = 0
+                        bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
+                    } else {
+                        bindingSetup.cvBottomArrow.visibility = View.VISIBLE
+                    }
+                }
             }
         }
         chatAdapter.registerAdapterDataObserver(adapterDataObserver)
