@@ -152,7 +152,7 @@ class ChatDetailsFragment : BaseFragment() {
     private fun handleUserStatusViews(isAdmin: Boolean) = with(binding) {
         if (!isAdmin) {
             tvGroupName.isClickable = false
-            tvDone.isFocusable = false
+            ivDone.isFocusable = false
             ivPickAvatar.isClickable = false
             ivPickAvatar.isFocusable = false
             ivAddMember.visibility = View.GONE
@@ -182,7 +182,7 @@ class ChatDetailsFragment : BaseFragment() {
         binding.chatHeader.tvTitle.text = roomWithUsers.room.type
 
         // This will stop image file changes while file is uploading via LiveData
-        if (!isUploading && tvDone.visibility == View.GONE) {
+        if (!isUploading && ivDone.visibility == View.GONE) {
             setAvatarAndUsername(avatarFileId, userName)
         }
 
@@ -207,14 +207,14 @@ class ChatDetailsFragment : BaseFragment() {
         tvGroupName.setOnClickListener {
             if (roomWithUsers.room.type.toString() == Const.JsonFields.GROUP && isAdmin) {
                 etEnterGroupName.visibility = View.VISIBLE
-                tvDone.visibility = View.VISIBLE
+                ivDone.visibility = View.VISIBLE
                 tvGroupName.visibility = View.INVISIBLE
 //                 chatHeader.ivCallUser.visibility = View.INVISIBLE
 //                 chatHeader.ivVideoCall.visibility = View.INVISIBLE
             }
         }
 
-        tvDone.setOnClickListener {
+        ivDone.setOnClickListener {
             val roomName = etEnterGroupName.text.toString()
 //          val adminIds: MutableList<Int> = ArrayList()
             val jsonObject = JsonObject()
@@ -228,7 +228,7 @@ class ChatDetailsFragment : BaseFragment() {
 
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
 
-            tvDone.visibility = View.GONE
+            ivDone.visibility = View.GONE
 //             chatHeader.ivCallUser.visibility = View.VISIBLE
 //             chatHeader.ivVideoCall.visibility = View.VISIBLE
             etEnterGroupName.visibility = View.INVISIBLE
@@ -430,7 +430,7 @@ class ChatDetailsFragment : BaseFragment() {
                         binding.flProgressScreen.visibility = View.GONE
 //                        binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
 //                        binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
-                        binding.tvDone.visibility = View.VISIBLE
+                        binding.ivDone.visibility = View.VISIBLE
                     }
                     newAvatarFileId = it.responseData!!.fileId
                     isUploading = false

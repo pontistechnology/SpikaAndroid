@@ -124,13 +124,13 @@ class SettingsFragment : BaseFragment() {
 
             override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if (!text.isNullOrEmpty()) {
-                    binding.tvDone.isEnabled = true
+                    binding.ivDone.isEnabled = true
                 }
             }
 
             override fun afterTextChanged(text: Editable?) {
                 if (!text.isNullOrEmpty()) {
-                    binding.tvDone.isEnabled = true
+                    binding.ivDone.isEnabled = true
                 }
             }
         })
@@ -175,7 +175,7 @@ class SettingsFragment : BaseFragment() {
         binding.tvUsername.visibility = View.VISIBLE
         binding.tvPhoneNumber.visibility = View.VISIBLE
         binding.etEnterUsername.visibility = View.INVISIBLE
-        binding.tvDone.visibility = View.GONE
+        binding.ivDone.visibility = View.GONE
     }
 
     private fun initializeViews() {
@@ -222,7 +222,7 @@ class SettingsFragment : BaseFragment() {
             showUsernameUpdate()
         }
 
-        tvDone.setOnClickListener {
+        ivDone.setOnClickListener {
             updateUsername()
         }
 
@@ -351,13 +351,14 @@ class SettingsFragment : BaseFragment() {
         }
         etEnterUsername.visibility = View.GONE
         tvUsername.visibility = View.VISIBLE
+        ivDone.visibility = View.GONE
     }
 
     private fun showUsernameUpdate() = with(binding) {
         tvUsername.visibility = View.INVISIBLE
         tvPhoneNumber.visibility = View.INVISIBLE
         etEnterUsername.visibility = View.VISIBLE
-        tvDone.visibility = View.VISIBLE
+        ivDone.visibility = View.VISIBLE
     }
 
     private fun chooseImage() {
