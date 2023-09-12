@@ -40,7 +40,11 @@
             app:argType="boolean" />
         <action
             android:id="@+id/action_chatDetailsFragment_to_chatMessagesFragment"
-            app:destination="@id/chatMessagesFragment" />
+            app:destination="@id/chatMessagesFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out"/>
         <action
             android:id="@+id/action_chatDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />
@@ -52,13 +56,25 @@
         tools:layout="@layout/fragment_chat_messages">
         <action
             android:id="@+id/action_chatMessagesFragment_to_videoFragment"
-            app:destination="@id/mediaFragment" />
+            app:destination="@id/mediaFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
         <action
             android:id="@+id/action_chatMessagesFragment_to_chatDetailsFragment"
-            app:destination="@id/chatDetailsFragment" />
+            app:destination="@id/chatDetailsFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
         <action
             android:id="@+id/action_chatMessagesFragment_to_contactDetailsFragment"
-            app:destination="@id/contactDetailsFragment" />
+            app:destination="@id/contactDetailsFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
     </fragment>
     <fragment
         android:id="@+id/mediaFragment"
@@ -68,7 +84,12 @@
         <action
             android:id="@+id/action_videoFragment_to_chatMessagesFragment"
             app:destination="@id/chatMessagesFragment"
-            app:popUpTo="@id/chatMessagesFragment" />
+            app:popUpTo="@id/chatMessagesFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out" />
+
         <argument
             android:name="mediaInfo"
             app:argType="string"
