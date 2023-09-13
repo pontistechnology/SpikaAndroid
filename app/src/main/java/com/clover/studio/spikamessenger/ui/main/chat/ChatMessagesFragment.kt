@@ -751,8 +751,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
     private fun setUpAdapterDataObserver() {
         val adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-
-                if (chatAdapter.currentList[positionStart + itemCount - 1].message.fromUserId == localUserId) {
+                val scrollingIndex = positionStart + itemCount - 1
+                if (scrollingIndex >= 0 && chatAdapter.currentList.getOrNull(scrollingIndex)?.message?.fromUserId == localUserId) {
                     if (sendingScrollVisibility()) {
                         bindingSetup.rvChat.scrollToPosition(0)
                         scrollYDistance = 0
