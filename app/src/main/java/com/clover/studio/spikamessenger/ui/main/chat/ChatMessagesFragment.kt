@@ -8,6 +8,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
+import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -151,6 +152,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             if (!it.isNullOrEmpty()) {
                 for (uri in it) {
                     selectedFiles.add(uri)
+                    activity?.contentResolver?.takePersistableUriPermission(
+                        uri,
+                        FLAG_GRANT_READ_URI_PERMISSION
+                    )
                 }
                 handleUserSelectedFile(selectedFiles)
             }
@@ -161,6 +166,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             if (!it.isNullOrEmpty()) {
                 for (uri in it) {
                     selectedFiles.add(uri)
+                    activity?.contentResolver?.takePersistableUriPermission(
+                        uri,
+                        FLAG_GRANT_READ_URI_PERMISSION
+                    )
                 }
                 handleUserSelectedFile(selectedFiles)
             } else {
@@ -173,6 +182,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             if (it) {
                 if (photoImageUri != null) {
                     selectedFiles.add(photoImageUri!!)
+                    activity?.contentResolver?.takePersistableUriPermission(
+                        photoImageUri!!,
+                        FLAG_GRANT_READ_URI_PERMISSION
+                    )
                     handleUserSelectedFile(selectedFiles)
                 } else {
                     Timber.d("Photo error")
