@@ -278,7 +278,7 @@
         android:animateLayoutChanges="true"
         android:backgroundTint="@color/message_other"
         android:elevation="@dimen/eight_dp_margin"
-        android:visibility="gone"
+        android:visibility="invisible"
         app:cardCornerRadius="@dimen/ten_dp_margin"
         app:layout_constraintBottom_toTopOf="@+id/reply_action"
         app:layout_constraintEnd_toEndOf="parent"
