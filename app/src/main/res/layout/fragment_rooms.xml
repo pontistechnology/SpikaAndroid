@@ -28,7 +28,7 @@
             app:elevation="0dp"
             app:menu="@menu/menu"
             app:title="@string/chat"
-            app:titleTextAppearance="@style/CustomTitle"
+            app:titleTextAppearance="@style/CustomTitleBold"
             app:titleTextColor="@color/text_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 

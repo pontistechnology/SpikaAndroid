@@ -124,13 +124,13 @@ class SettingsFragment : BaseFragment() {
 
             override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if (!text.isNullOrEmpty()) {
-                    binding.tvDone.isEnabled = true
+                    binding.ivDone.isEnabled = true
                 }
             }
 
             override fun afterTextChanged(text: Editable?) {
                 if (!text.isNullOrEmpty()) {
-                    binding.tvDone.isEnabled = true
+                    binding.ivDone.isEnabled = true
                 }
             }
         })
@@ -175,7 +175,7 @@ class SettingsFragment : BaseFragment() {
         binding.tvUsername.visibility = View.VISIBLE
         binding.tvPhoneNumber.visibility = View.VISIBLE
         binding.etEnterUsername.visibility = View.INVISIBLE
-        binding.tvDone.visibility = View.GONE
+        binding.ivDone.visibility = View.GONE
     }
 
     private fun initializeViews() {
@@ -190,26 +190,14 @@ class SettingsFragment : BaseFragment() {
         }
     }
 
-    private fun setupClickListeners() {
+    private fun setupClickListeners() = with(binding) {
 
         // Removed and waiting for each respective screen to be implemented
-        binding.clPrivacy.setOnClickListener {
+        flPrivacy.setOnClickListener {
             goToPrivacySettings()
         }
 
-//        binding.clChat.setOnClickListener {
-//            goToChatSettings()
-//        }
-//
-//        binding.clNotifications.setOnClickListener {
-//            goToNotificationSettings()
-//        }
-//
-//        binding.clMediaDownload.setOnClickListener {
-//            goToDownloadSettings()
-//        }
-
-        binding.ivPickPhoto.setOnClickListener {
+        ivPickPhoto.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
@@ -226,23 +214,23 @@ class SettingsFragment : BaseFragment() {
                 })
         }
 
-        binding.tvUsername.setOnClickListener {
+        tvUsername.setOnClickListener {
             showUsernameUpdate()
         }
 
-        binding.tvPhoneNumber.setOnClickListener {
+        tvPhoneNumber.setOnClickListener {
             showUsernameUpdate()
         }
 
-        binding.tvDone.setOnClickListener {
+        ivDone.setOnClickListener {
             updateUsername()
         }
 
-        binding.clAppearance.setOnClickListener {
+        clAppearance.setOnClickListener {
             goToAppearanceSettings()
         }
 
-        binding.clDeleteUser.setOnClickListener {
+        clDeleteUser.setOnClickListener {
             DialogError.getInstance(requireContext(),
                 getString(R.string.warning),
                 getString(R.string.data_deletion_warning),
@@ -258,6 +246,17 @@ class SettingsFragment : BaseFragment() {
                     }
                 })
         }
+//        binding.clChat.setOnClickListener {
+//            goToChatSettings()
+//        }
+//
+//        binding.clNotifications.setOnClickListener {
+//            goToNotificationSettings()
+//        }
+//
+//        binding.clMediaDownload.setOnClickListener {
+//            goToDownloadSettings()
+//        }
     }
 
     private fun updateUserImage() {
@@ -337,12 +336,12 @@ class SettingsFragment : BaseFragment() {
         }
     }
 
-    private fun updateUsername() {
-        if (binding.etEnterUsername.text.toString().isNotEmpty()) {
+    private fun updateUsername() = with(binding) {
+        if (etEnterUsername.text.toString().isNotEmpty()) {
             val jsonObject = JsonObject()
             jsonObject.addProperty(
                 Const.UserData.DISPLAY_NAME,
-                binding.etEnterUsername.text.toString()
+                etEnterUsername.text.toString()
             )
             jsonObject.addProperty(
                 Const.JsonFields.AVATAR_FILE_ID,
@@ -350,15 +349,16 @@ class SettingsFragment : BaseFragment() {
             )
             viewModel.updateUserData(jsonObject)
         }
-        binding.etEnterUsername.visibility = View.GONE
-        binding.tvUsername.visibility = View.VISIBLE
+        etEnterUsername.visibility = View.GONE
+        tvUsername.visibility = View.VISIBLE
+        ivDone.visibility = View.GONE
     }
 
-    private fun showUsernameUpdate() {
-        binding.tvUsername.visibility = View.INVISIBLE
-        binding.tvPhoneNumber.visibility = View.INVISIBLE
-        binding.etEnterUsername.visibility = View.VISIBLE
-        binding.tvDone.visibility = View.VISIBLE
+    private fun showUsernameUpdate() = with(binding) {
+        tvUsername.visibility = View.INVISIBLE
+        tvPhoneNumber.visibility = View.INVISIBLE
+        etEnterUsername.visibility = View.VISIBLE
+        ivDone.visibility = View.VISIBLE
     }
 
     private fun chooseImage() {
@@ -375,7 +375,7 @@ class SettingsFragment : BaseFragment() {
         takePhotoContract.launch(currentPhotoLocation)
     }
 
-    private fun showUploadError(description: String) {
+    private fun showUploadError(description: String) = with(binding) {
         DialogError.getInstance(requireActivity(),
             getString(R.string.error),
             getString(R.string.image_failed_upload, description),
@@ -390,17 +390,17 @@ class SettingsFragment : BaseFragment() {
                     // ignore
                 }
             })
-        binding.clProgressScreen.visibility = View.GONE
-        binding.progressBar.secondaryProgress = 0
+        clProgressScreen.visibility = View.GONE
+        progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this).clear(binding.ivPickPhoto)
-        binding.ivPickPhoto.setImageDrawable(
+        Glide.with(this@SettingsFragment).clear(ivPickPhoto)
+        ivPickPhoto.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
                 R.drawable.img_camera
             )
         )
-        binding.clSmallCameraPicker.visibility = View.GONE
+        clSmallCameraPicker.visibility = View.GONE
     }
 
     // Below navigation methods are unused until we implement all other functionality of settings
@@ -413,17 +413,17 @@ class SettingsFragment : BaseFragment() {
         findNavController().navigate(MainFragmentDirections.actionMainFragmentToAppearanceSettings())
     }
 
-    private fun goToChatSettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToChatSettingsFragment())
-    }
-
-    private fun goToNotificationSettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToNotificationSettingsFragment())
-    }
-
-    private fun goToDownloadSettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToDownloadSettingsFragment())
-    }
+//    private fun goToChatSettings() {
+//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToChatSettingsFragment())
+//    }
+//
+//    private fun goToNotificationSettings() {
+//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToNotificationSettingsFragment())
+//    }
+//
+//    private fun goToDownloadSettings() {
+//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToDownloadSettingsFragment())
+//    }
 
     override fun onPause() {
         showUserDetails()

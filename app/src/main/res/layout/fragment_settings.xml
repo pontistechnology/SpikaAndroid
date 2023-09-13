@@ -26,26 +26,25 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:backgroundTint="@color/main"
-            app:elevation="0dp"
             android:theme="@style/CustomToolbar"
+            app:elevation="0dp"
             app:title="@string/settings"
-            app:titleTextAppearance="@style/CustomTitle"
+            app:titleTextAppearance="@style/CustomTitleBold"
             app:titleTextColor="@color/text_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <TextView
-        android:id="@+id/tv_done"
+    <ImageView
+        android:id="@+id/iv_done"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/twenty_dp_margin"
-        android:fontFamily="@font/montserrat"
-        android:padding="@dimen/twenty_dp_margin"
-        android:text="@string/done"
-        android:textColor="@color/primary_color"
+        android:padding="@dimen/eight_dp_margin"
+        android:src="@drawable/img_done_button"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/appBarLayout"
+        app:layout_constraintBottom_toBottomOf="@+id/et_enter_username"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/appBarLayout" />
+        app:layout_constraintStart_toEndOf="@+id/et_enter_username"
+        app:layout_constraintTop_toTopOf="@+id/et_enter_username" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv_pick_photo"
@@ -119,18 +118,17 @@
         android:id="@+id/et_enter_username"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/thirty_dp_margin"
+        android:layout_marginStart="@dimen/ten_dp_margin"
         android:layout_marginTop="@dimen/twenty_dp_margin"
-        android:layout_marginEnd="@dimen/thirty_dp_margin"
-        android:layout_marginBottom="@dimen/twenty_dp_margin"
         android:background="@drawable/bg_text_field"
         android:fontFamily="@font/montserrat"
         android:hint="@string/enter_username"
-        android:padding="@dimen/ten_dp_margin"
+        android:inputType="text"
+        android:padding="@dimen/sixteen_dp_margin"
         android:textSize="@dimen/fourteen_sp_text"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/iv_done"
+        app:layout_constraintStart_toStartOf="@+id/cl_appearance"
         app:layout_constraintTop_toBottomOf="@id/iv_pick_photo" />
     <!--        app:layout_constraintBottom_toTopOf="@id/cl_privacy"-->
 
@@ -174,8 +172,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_privacy"
+    <FrameLayout
+        android:id="@+id/fl_privacy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/ten_dp_margin"
@@ -188,20 +186,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat"
-            android:text="@string/privacy"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:text="@string/privacy" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:src="@drawable/img_arrow_next"
-            app:tint="@color/gray_icon_color"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            app:tint="@color/gray_icon_color" />
+    </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_appearance"
@@ -240,10 +233,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/img_arrow_next"
-            app:tint="@color/gray_icon_color"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/gray_icon_color" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
@@ -254,7 +247,7 @@
         android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cl_privacy">
+        app:layout_constraintTop_toBottomOf="@id/fl_privacy">
 
         <TextView
             android:id="@+id/tv_delete"
@@ -263,7 +256,6 @@
             android:fontFamily="@font/montserrat"
             android:text="@string/delete"
             android:textColor="@color/style_red" />
-
     </FrameLayout>
 
     <!--    <androidx.constraintlayout.widget.ConstraintLayout-->

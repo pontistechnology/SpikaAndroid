@@ -27,7 +27,7 @@
             app:menu="@menu/menu"
             app:title="@string/contacts"
             android:theme="@style/CustomToolbar"
-            app:titleTextAppearance="@style/CustomTitle"
+            app:titleTextAppearance="@style/CustomTitleBold"
             app:titleTextColor="@color/text_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 

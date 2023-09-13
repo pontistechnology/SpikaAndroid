@@ -125,60 +125,72 @@ class ChatDetailsFragment : BaseFragment() {
         bindingSetup = FragmentChatDetailsBinding.inflate(inflater, container, false)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) = with(binding) {
+        super.onViewCreated(view, savedInstanceState)
+
         initializeViews(roomWithUsers)
         initializeObservers()
         handleUserStatusViews(isAdmin)
 
-        return binding.root
+        setSwitches()
     }
 
-    private fun handleUserStatusViews(isAdmin: Boolean) {
+    private fun setSwitches() = with(binding) {
+        swMute.setOnCheckedChangeListener(null)
+        swPinChat.setOnCheckedChangeListener(null)
+
+        swMute.isChecked = roomWithUsers.room.muted
+        swPinChat.isChecked = roomWithUsers.room.pinned
+
+        swMute.setOnCheckedChangeListener(multiListener)
+        swPinChat.setOnCheckedChangeListener(multiListener)
+    }
+
+    private fun handleUserStatusViews(isAdmin: Boolean) = with(binding) {
         if (!isAdmin) {
-            binding.tvGroupName.isClickable = false
-            binding.tvDone.isFocusable = false
-            binding.ivPickAvatar.isClickable = false
-            binding.ivPickAvatar.isFocusable = false
-            binding.ivAddMember.visibility = View.GONE
+            tvGroupName.isClickable = false
+            ivDone.isFocusable = false
+            ivPickAvatar.isClickable = false
+            ivPickAvatar.isFocusable = false
+            ivAddMember.visibility = View.GONE
         }
     }
 
-    private fun initializeViews(roomWithUsers: RoomWithUsers) {
+    private fun initializeViews(roomWithUsers: RoomWithUsers) = with(binding) {
         setupAdapter(isAdmin, roomWithUsers.room.type.toString())
-        binding.clMemberList.visibility = View.VISIBLE
+        clMemberList.visibility = View.VISIBLE
         userName = roomWithUsers.room.name.toString()
         avatarFileId = roomWithUsers.room.avatarFileId!!
 
-        binding.tvMembersNumber.text =
+        tvMembersNumber.text =
             getString(R.string.number_of_members, roomWithUsers.users.size)
 
         if (isAdmin) {
-            binding.tvDelete.visibility = View.VISIBLE
-            binding.ivAddMember.visibility = View.VISIBLE
+            tvDelete.visibility = View.VISIBLE
+            ivAddMember.visibility = View.VISIBLE
         }
 
         if (!roomWithUsers.room.roomExit) {
-            binding.tvExitGroup.visibility = View.VISIBLE
+            tvExitGroup.visibility = View.VISIBLE
         } else {
-            binding.tvExitGroup.visibility = View.GONE
+            tvExitGroup.visibility = View.GONE
         }
 
         binding.chatHeader.tvTitle.text = roomWithUsers.room.type
 
-        // Set room muted or not muted on switch
-        binding.swMute.isChecked = roomWithUsers.room.muted
-
-        // Set room pinned or not pinned on switch
-        binding.swPinChat.isChecked = roomWithUsers.room.pinned
-
         // This will stop image file changes while file is uploading via LiveData
-        if (!isUploading && binding.tvDone.visibility == View.GONE) {
+        if (!isUploading && ivDone.visibility == View.GONE) {
             setAvatarAndUsername(avatarFileId, userName)
         }
+
         initializeListeners(roomWithUsers)
     }
 
-    private fun initializeListeners(roomWithUsers: RoomWithUsers) {
-        binding.ivAddMember.setOnClickListener {
+    private fun initializeListeners(roomWithUsers: RoomWithUsers) = with(binding) {
+        ivAddMember.setOnClickListener {
             val userIds = ArrayList<Int>()
             for (user in roomWithUsers.users) {
                 userIds.add(user.id)
@@ -192,18 +204,18 @@ class ChatDetailsFragment : BaseFragment() {
             )
         }
 
-        binding.tvGroupName.setOnClickListener {
+        tvGroupName.setOnClickListener {
             if (roomWithUsers.room.type.toString() == Const.JsonFields.GROUP && isAdmin) {
-                binding.etEnterGroupName.visibility = View.VISIBLE
-                binding.tvDone.visibility = View.VISIBLE
-                binding.tvGroupName.visibility = View.INVISIBLE
-//                binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
-//                binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
+                etEnterGroupName.visibility = View.VISIBLE
+                ivDone.visibility = View.VISIBLE
+                tvGroupName.visibility = View.INVISIBLE
+//                 chatHeader.ivCallUser.visibility = View.INVISIBLE
+//                 chatHeader.ivVideoCall.visibility = View.INVISIBLE
             }
         }
 
-        binding.tvDone.setOnClickListener {
-            val roomName = binding.etEnterGroupName.text.toString()
+        ivDone.setOnClickListener {
+            val roomName = etEnterGroupName.text.toString()
 //          val adminIds: MutableList<Int> = ArrayList()
             val jsonObject = JsonObject()
             if (roomName.isNotEmpty()) {
@@ -216,14 +228,14 @@ class ChatDetailsFragment : BaseFragment() {
 
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
 
-            binding.tvDone.visibility = View.GONE
-//            binding.chatHeader.ivCallUser.visibility = View.VISIBLE
-//            binding.chatHeader.ivVideoCall.visibility = View.VISIBLE
-            binding.etEnterGroupName.visibility = View.INVISIBLE
-            binding.tvGroupName.visibility = View.VISIBLE
+            ivDone.visibility = View.GONE
+//             chatHeader.ivCallUser.visibility = View.VISIBLE
+//             chatHeader.ivVideoCall.visibility = View.VISIBLE
+            etEnterGroupName.visibility = View.INVISIBLE
+            tvGroupName.visibility = View.VISIBLE
         }
 
-        binding.flNotes.setOnClickListener {
+        flNotes.setOnClickListener {
             val action = roomId?.let { id ->
                 ChatDetailsFragmentDirections.actionChatDetailsFragmentToNotesFragment(
                     id
@@ -234,7 +246,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        binding.ivPickAvatar.setOnClickListener {
+        ivPickAvatar.setOnClickListener {
             if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && isAdmin) {
                 ChooserDialog.getInstance(requireContext(),
                     getString(R.string.placeholder_title),
@@ -253,19 +265,15 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        binding.chatHeader.ivArrowBack.setOnClickListener {
+        chatHeader.ivArrowBack.setOnClickListener {
             val action =
                 ChatDetailsFragmentDirections.actionChatDetailsFragmentToChatMessagesFragment()
             findNavController().navigate(action)
 
         }
 
-        binding.swMute.setOnCheckedChangeListener(multiListener)
-
-        binding.swPinChat.setOnCheckedChangeListener(multiListener)
-
         // Rooms can only be deleted by room admins.
-        binding.tvDelete.setOnClickListener {
+        tvDelete.setOnClickListener {
             if (isAdmin) {
                 DialogError.getInstance(requireActivity(),
                     getString(R.string.delete_chat),
@@ -283,7 +291,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        binding.tvExitGroup.setOnClickListener {
+        tvExitGroup.setOnClickListener {
             val adminIds = ArrayList<Int>()
             for (user in roomUsers) {
                 if (user.isAdmin)
@@ -326,14 +334,14 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        binding.tvSeeMoreLess.setOnClickListener {
+        tvSeeMoreLess.setOnClickListener {
             if (allUsers) {
                 adapter.submitList(modifiedList.toList())
-                binding.tvSeeMoreLess.text = context!!.getString(R.string.see_less)
+                tvSeeMoreLess.text = context!!.getString(R.string.see_less)
                 allUsers = false
             } else {
                 adapter.submitList(modifiedList.subList(0, 3).toList())
-                binding.tvSeeMoreLess.text = context!!.getString(R.string.see_more)
+                tvSeeMoreLess.text = context!!.getString(R.string.see_more)
                 allUsers = true
             }
         }
@@ -422,7 +430,7 @@ class ChatDetailsFragment : BaseFragment() {
                         binding.flProgressScreen.visibility = View.GONE
 //                        binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
 //                        binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
-                        binding.tvDone.visibility = View.VISIBLE
+                        binding.ivDone.visibility = View.VISIBLE
                     }
                     newAvatarFileId = it.responseData!!.fileId
                     isUploading = false

@@ -43,9 +43,14 @@
         <item name="colorControlActivated">@color/selected_text</item>
     </style>
 
-    <style name="CustomTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+    <style name="CustomTitleBold" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">@dimen/twenty_eight_sp_text</item>
         <item name="android:fontFamily">@font/montserrat_bold</item>
+    </style>
+
+    <style name="CustomTitleNormal" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">@dimen/fourteen_sp_text</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="CustomToolbar" parent="Theme.AppCompat.DayNight.NoActionBar">

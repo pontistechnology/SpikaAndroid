@@ -312,20 +312,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fl_pin_chat" />
 
-        <TextView
-            android:id="@+id/tv_report"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:layout_marginBottom="@dimen/eight_dp_margin"
-            android:fontFamily="@font/montserrat"
-            android:paddingStart="@dimen/ten_dp_margin"
-            android:text="@string/report"
-            android:textColor="@color/style_red"
-            android:textSize="@dimen/sixteen_sp_text"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_blocked" />
+<!--        <TextView-->
+<!--            android:id="@+id/tv_report"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="@dimen/twenty_dp_margin"-->
+<!--            android:layout_marginBottom="@dimen/eight_dp_margin"-->
+<!--            android:fontFamily="@font/montserrat"-->
+<!--            android:paddingStart="@dimen/ten_dp_margin"-->
+<!--            android:text="@string/report"-->
+<!--            android:textColor="@color/style_red"-->
+<!--            android:textSize="@dimen/sixteen_sp_text"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/tv_blocked" />-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
