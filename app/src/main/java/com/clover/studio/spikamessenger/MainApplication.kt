@@ -74,15 +74,22 @@ class MainApplication : Application(), LifecycleEventObserver {
         when (event) {
             Lifecycle.Event.ON_START -> {
                 CoroutineScope(Dispatchers.IO).launch {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        if (sharedPrefs.readToken()?.isNotEmpty() == true) {
+                            sseManager.checkJobAndContinue()
+                        }
+                    }
+                    isInForeground = true
+                }
+            }
+
+            Lifecycle.Event.ON_CREATE -> {
+                CoroutineScope(Dispatchers.IO).launch {
                     if (sharedPrefs.readToken()?.isNotEmpty() == true) {
                         sseManager.startSSEStream()
                     }
                 }
                 isInForeground = true
-            }
-
-            Lifecycle.Event.ON_CREATE -> {
-                // ignore
             }
 
             Lifecycle.Event.ON_RESUME -> {
