@@ -15,6 +15,7 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <!--  Different corner styles  -->
     <style name="circle">
         <item name="cornerSize">50%</item>
     </style>
@@ -27,22 +28,27 @@
         <item name="cornerSize">10dp</item>
     </style>
 
+    <!--  Switch style  -->
     <style name="CustomSwitch" parent="Theme.AppCompat.Light">
         <item name="colorControlActivated">@color/primary_color</item>
         <item name="colorSwitchThumbNormal">@color/text_tertiary</item>
         <item name="android:colorForeground">@color/text_tertiary</item>
     </style>
 
+    <!--  ChechBox style  -->
     <style name="CustomCheckBox" parent="Base.Theme.AppCompat">
         <item name="colorAccent">@color/primary_color</item> <!-- for uncheck state -->
         <item name="android:textColorSecondary">@color/text_tertiary</item> <!-- for check state -->
     </style>
 
+    <!--  Selected text style  -->
     <style name="CustomSelectText" parent="Base.Theme.AppCompat">
         <item name="colorAccent">@color/selected_text</item>
         <item name="colorControlActivated">@color/selected_text</item>
     </style>
 
+    <!--  Toolbar tiles style  -->
+    <style name="CustomTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
     <style name="CustomTitleBold" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">@dimen/twenty_eight_sp_text</item>
         <item name="android:fontFamily">@font/montserrat_bold</item>
@@ -53,6 +59,7 @@
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
+    <!-- Toolbar style - SearchView  -->
     <style name="CustomToolbar" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="searchViewStyle">@style/CustomSearchView</item>
     </style>
@@ -61,6 +68,7 @@
         <item name="searchIcon">@null</item>
     </style>
 
+    <!--  Bottom sheet style  -->
     <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/ModalBottomSheetDialog</item>
     </style>
@@ -74,4 +82,11 @@
         <item name="cornerSize">24dp</item>
     </style>
 
+    <!--  Navigation animations  -->
+    <style name="MyCustomActivityAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/nav_slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/nav_slide_out_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/nav_slide_in_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/nav_slide_out_right</item>
+    </style>
 </resources>

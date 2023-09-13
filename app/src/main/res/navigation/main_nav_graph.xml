@@ -9,14 +9,17 @@
         android:id="@+id/chatSettingsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.ChatSettingsFragment"
         android:label="ChatSettingsFragment" />
+
     <fragment
         android:id="@+id/downloadSettingsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.DownloadSettingsFragment"
         android:label="DownloadSettingsFragment" />
+
     <fragment
         android:id="@+id/notificationSettingsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.NotificationSettingsFragment"
         android:label="NotificationSettingsFragment" />
+
     <fragment
         android:id="@+id/privacySettingsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.privacy.PrivacySettingsFragment"
@@ -24,12 +27,9 @@
         tools:layout="@layout/fragment_download_settings">
         <action
             android:id="@+id/action_privacySettingsFragment_to_contactDetailsFragment"
-            app:destination="@id/contactDetailsFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/contactDetailsFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.MainFragment"
@@ -37,54 +37,27 @@
         tools:layout="@layout/fragment_main">
         <action
             android:id="@+id/action_mainFragment_to_privacySettingsFragment"
-            app:destination="@id/privacySettingsFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/privacySettingsFragment" />
         <action
             android:id="@+id/action_mainFragment_to_chatSettingsFragment"
-            app:destination="@id/chatSettingsFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/chatSettingsFragment" />
         <action
             android:id="@+id/action_mainFragment_to_notificationSettingsFragment"
-            app:destination="@id/notificationSettingsFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/notificationSettingsFragment" />
         <action
             android:id="@+id/action_mainFragment_to_downloadSettingsFragment"
-            app:destination="@id/downloadSettingsFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/downloadSettingsFragment" />
         <action
             android:id="@+id/action_mainFragment_to_contactDetailsFragment"
-            app:destination="@id/contactDetailsFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/contactDetailsFragment" />
         <action
             android:id="@+id/action_mainFragment_to_newRoomFragment"
-            app:destination="@id/newRoomFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/newRoomFragment" />
         <action
             android:id="@+id/action_mainFragment_to_appearanceSettings"
-            app:destination="@id/appearanceSettings"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/appearanceSettings" />
     </fragment>
+
     <fragment
         android:id="@+id/contactDetailsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.contact_details.ContactDetailsFragment"
@@ -94,6 +67,7 @@
             android:id="@+id/action_contactDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/newRoomFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.create_room.NewRoomFragment"
@@ -101,12 +75,9 @@
         tools:layout="@layout/fragment_new_room">
         <action
             android:id="@+id/action_newRoomFragment_to_groupInformationFragment"
-            app:destination="@id/groupInformationFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/groupInformationFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/groupInformationFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.create_room.GroupInformationFragment"
@@ -118,6 +89,7 @@
             app:popUpTo="@id/mainFragment"
             app:popUpToInclusive="true" />
     </fragment>
+
     <fragment
         android:id="@+id/notesFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NotesFragment"
@@ -134,6 +106,7 @@
             android:defaultValue="0"
             app:argType="integer" />
     </fragment>
+
     <fragment
         android:id="@+id/notesDetailsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NotesDetailsFragment"
@@ -142,6 +115,7 @@
             android:id="@+id/action_notesDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/newNoteFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NewNoteFragment"
@@ -155,6 +129,7 @@
             android:defaultValue="0"
             app:argType="integer" />
     </fragment>
+
     <fragment
         android:id="@+id/appearanceSettings"
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.AppearanceSettings"

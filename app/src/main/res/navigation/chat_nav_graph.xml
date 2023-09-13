@@ -23,6 +23,7 @@
             android:defaultValue="0"
             app:argType="integer" />
     </fragment>
+
     <fragment
         android:id="@+id/chatDetailsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.ChatDetailsFragment"
@@ -43,12 +44,9 @@
             app:destination="@id/chatMessagesFragment" />
         <action
             android:id="@+id/action_chatDetailsFragment_to_notesFragment"
-            app:destination="@id/notesFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/notesFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/chatMessagesFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat.ChatMessagesFragment"
@@ -56,26 +54,15 @@
         tools:layout="@layout/fragment_chat_messages">
         <action
             android:id="@+id/action_chatMessagesFragment_to_mediaFragment"
-            app:destination="@id/mediaFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/mediaFragment" />
         <action
             android:id="@+id/action_chatMessagesFragment_to_chatDetailsFragment"
-            app:destination="@id/chatDetailsFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/chatDetailsFragment" />
         <action
             android:id="@+id/action_chatMessagesFragment_to_contactDetailsFragment"
-            app:destination="@id/contactDetailsFragment"
-            app:enterAnim="@anim/nav_slide_in_right"
-            app:exitAnim="@anim/nav_slide_out_left"
-            app:popEnterAnim="@anim/nav_slide_in_left"
-            app:popExitAnim="@anim/nav_slide_out_right" />
+            app:destination="@id/contactDetailsFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/mediaFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat.MediaFragment"
@@ -94,6 +81,7 @@
             android:name="message"
             app:argType="com.clover.studio.spikamessenger.data.models.entity.Message" />
     </fragment>
+
     <fragment
         android:id="@+id/notesFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NotesFragment"
@@ -116,6 +104,7 @@
             android:id="@+id/action_notesFragment_to_contactDetailsFragment"
             app:destination="@id/contactDetailsFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/notesDetailsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NotesDetailsFragment"

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -30,12 +31,11 @@ class NotesFragment : BaseFragment() {
     private val args: NotesFragmentArgs by navArgs()
     private var roomId: Int = 0
     private var itemTouchHelper: ItemTouchHelper? = null
+    private var navOptionsBuilder: NavOptions? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         roomId = args.roomId
-
-
     }
 
     override fun onCreateView(
@@ -43,6 +43,12 @@ class NotesFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         bindingSetup = FragmentNotesBinding.inflate(inflater, container, false)
+        navOptionsBuilder = NavOptions.Builder()
+            .setEnterAnim(R.anim.nav_slide_in_right)
+            .setExitAnim(R.anim.nav_slide_out_left)
+            .setPopEnterAnim(R.anim.nav_slide_in_left)
+            .setPopExitAnim(R.anim.nav_slide_out_right)
+            .build()
         setupAdapter()
         initializeViews()
         initializeObservers()
@@ -59,11 +65,13 @@ class NotesFragment : BaseFragment() {
             if (activity is MainActivity) {
                 findNavController().navigate(
                     R.id.newNoteFragment,
-                    bundleOf(Const.Navigation.ROOM_ID to roomId)
+                    bundleOf(Const.Navigation.ROOM_ID to roomId),
+                    navOptionsBuilder
                 )
             } else findNavController().navigate(
                 R.id.newNoteFragment,
-                bundleOf(Const.Navigation.ROOM_ID to roomId)
+                bundleOf(Const.Navigation.ROOM_ID to roomId),
+                navOptionsBuilder
             )
         }
 
@@ -122,7 +130,8 @@ class NotesFragment : BaseFragment() {
                         Const.Navigation.NOTE_ID to it.id,
                         Const.Navigation.NOTES_DETAILS to it.content,
                         Const.Navigation.NOTES_NAME to it.title
-                    )
+                    ),
+                    navOptionsBuilder
                 )
             } else findNavController().navigate(
                 R.id.notesDetailsFragment,
@@ -130,7 +139,8 @@ class NotesFragment : BaseFragment() {
                     Const.Navigation.NOTE_ID to it.id,
                     Const.Navigation.NOTES_DETAILS to it.content,
                     Const.Navigation.NOTES_NAME to it.title
-                )
+                ),
+                navOptionsBuilder
             )
         }
 
