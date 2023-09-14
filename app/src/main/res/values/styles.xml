@@ -35,7 +35,7 @@
         <item name="android:colorForeground">@color/text_tertiary</item>
     </style>
 
-    <!--  ChechBox style  -->
+    <!--  CheckBox style  -->
     <style name="CustomCheckBox" parent="Base.Theme.AppCompat">
         <item name="colorAccent">@color/primary_color</item> <!-- for uncheck state -->
         <item name="android:textColorSecondary">@color/text_tertiary</item> <!-- for check state -->
@@ -48,7 +48,6 @@
     </style>
 
     <!--  Toolbar tiles style  -->
-    <style name="CustomTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
     <style name="CustomTitleBold" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">@dimen/twenty_eight_sp_text</item>
         <item name="android:fontFamily">@font/montserrat_bold</item>
