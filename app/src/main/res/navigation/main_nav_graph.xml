@@ -82,13 +82,7 @@
         android:id="@+id/groupInformationFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.create_room.GroupInformationFragment"
         android:label="fragment_group_information"
-        tools:layout="@layout/fragment_group_information">
-        <action
-            android:id="@+id/action_groupInformationFragment_to_mainFragment"
-            app:destination="@id/mainFragment"
-            app:popUpTo="@id/mainFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_group_information"/>
 
     <fragment
         android:id="@+id/notesFragment"
@@ -110,20 +104,13 @@
     <fragment
         android:id="@+id/notesDetailsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NotesDetailsFragment"
-        android:label="NotesDetailsFragment">
-        <action
-            android:id="@+id/action_notesDetailsFragment_to_notesFragment"
-            app:destination="@id/notesFragment" />
-    </fragment>
+        android:label="NotesDetailsFragment"/>
 
     <fragment
         android:id="@+id/newNoteFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NewNoteFragment"
         android:label="fragment_new_note"
         tools:layout="@layout/fragment_new_note">
-        <action
-            android:id="@+id/action_newNoteFragment_to_notesFragment"
-            app:destination="@id/notesFragment" />
         <argument
             android:name="roomId"
             android:defaultValue="0"

@@ -10,9 +10,6 @@
         android:name="com.clover.studio.spikamessenger.ui.main.create_room.NewRoomFragment"
         android:label="fragment_new_room"
         tools:layout="@layout/fragment_new_room">
-        <action
-            android:id="@+id/action_newRoomFragment_to_chatDetailsFragment"
-            app:destination="@id/chatDetailsFragment" />
         <argument
             android:name="userIds"
             android:defaultValue="@null"
@@ -40,9 +37,6 @@
             android:defaultValue="false"
             app:argType="boolean" />
         <action
-            android:id="@+id/action_chatDetailsFragment_to_chatMessagesFragment"
-            app:destination="@id/chatMessagesFragment" />
-        <action
             android:id="@+id/action_chatDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />
     </fragment>
@@ -68,11 +62,6 @@
         android:name="com.clover.studio.spikamessenger.ui.main.chat.MediaFragment"
         android:label="fragment_media"
         tools:layout="@layout/fragment_media">
-        <action
-            android:id="@+id/action_videoFragment_to_chatMessagesFragment"
-            app:destination="@id/chatMessagesFragment"
-            app:popUpTo="@id/chatMessagesFragment" />
-
         <argument
             android:name="mediaInfo"
             app:argType="string"
@@ -88,21 +77,15 @@
         android:label="fragment_notes"
         tools:layout="@layout/fragment_notes">
         <action
-            android:id="@+id/action_notesFragment_to_chatDetailsFragment"
-            app:destination="@id/chatDetailsFragment" />
-        <argument
-            android:name="roomId"
-            android:defaultValue="0"
-            app:argType="integer" />
-        <action
             android:id="@+id/action_notesFragment_to_notesDetailsFragment"
             app:destination="@id/notesDetailsFragment" />
         <action
             android:id="@+id/action_notesFragment_to_newNoteFragment"
             app:destination="@id/newNoteFragment" />
-        <action
-            android:id="@+id/action_notesFragment_to_contactDetailsFragment"
-            app:destination="@id/contactDetailsFragment" />
+        <argument
+            android:name="roomId"
+            android:defaultValue="0"
+            app:argType="integer" />
     </fragment>
 
     <fragment
@@ -110,9 +93,6 @@
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NotesDetailsFragment"
         android:label="fragment_notes_details"
         tools:layout="@layout/fragment_notes_details">
-        <action
-            android:id="@+id/action_notesDetailsFragment_to_notesFragment"
-            app:destination="@id/notesFragment" />
         <argument
             android:name="noteId"
             android:defaultValue="0"
@@ -132,9 +112,6 @@
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NewNoteFragment"
         android:label="fragment_new_note"
         tools:layout="@layout/fragment_new_note">
-        <action
-            android:id="@+id/action_newNoteFragment_to_notesFragment"
-            app:destination="@id/notesFragment" />
         <argument
             android:name="roomId"
             android:defaultValue="0"
@@ -145,9 +122,6 @@
         android:name="com.clover.studio.spikamessenger.ui.main.contact_details.ContactDetailsFragment"
         android:label="fragment_contact_details"
         tools:layout="@layout/fragment_contact_details">
-        <action
-            android:id="@+id/action_contactDetailsFragment_to_chatMessagesFragment"
-            app:destination="@id/chatMessagesFragment" />
         <action
             android:id="@+id/action_contactDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />

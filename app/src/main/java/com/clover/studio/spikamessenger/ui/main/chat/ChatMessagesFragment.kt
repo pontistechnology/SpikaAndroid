@@ -144,7 +144,6 @@ class ChatMessagesFragment : BaseFragment() {
 
     private var scrollYDistance = 0
     private var heightDiff = 0
-
     private var scrollToPosition = 0
 
     private val chooseFileContract =
@@ -218,12 +217,17 @@ class ChatMessagesFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         super.onCreate(savedInstanceState)
+        bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
+        return bindingSetup.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         if (listState != null) {
             shouldScroll = true
         }
 
-        bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         localUserId = viewModel.getLocalUserId()!!
@@ -253,6 +257,7 @@ class ChatMessagesFragment : BaseFragment() {
             bindingSetup.clRoomExit.visibility = View.GONE
             checkIsUserAdmin()
         }
+
         initializeObservers()
         initViews()
         initListeners()
@@ -263,8 +268,6 @@ class ChatMessagesFragment : BaseFragment() {
             NotificationManagerCompat.from(requireContext())
                 .cancel(it)
         }
-
-        return bindingSetup.root
     }
 
     private fun initViews() = with(bindingSetup) {
