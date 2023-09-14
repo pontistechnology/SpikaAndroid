@@ -30,16 +30,27 @@ class SSEManager @Inject constructor(
 ) {
     private var job: Job? = null
     private var listener: SSEListener? = null
+    private lateinit var url: String
 
     fun setupListener(listener: SSEListener) {
         this.listener = listener
     }
 
     suspend fun startSSEStream() {
-        val url =
+        url =
             BuildConfig.SERVER_URL + Const.Networking.API_SSE_STREAM + "?accesstoken=" + sharedPrefs.readToken()
 
         openConnectionAndFetchEvents(url)
+    }
+
+    // Called only in the application class. It will check if the job is completed or cancelled
+    // after some downtime and restart the connection if needed.
+    suspend fun checkJobAndContinue() {
+        Timber.d("SSE Job status: ${job?.isActive}, ${job?.isCompleted}, ${job?.isCancelled}")
+        if (job?.isCompleted == true || job?.isCancelled == true) {
+            Timber.d("Launching connection")
+            openConnectionAndFetchEvents(url)
+        }
     }
 
     private suspend fun openConnectionAndFetchEvents(url: String) {
