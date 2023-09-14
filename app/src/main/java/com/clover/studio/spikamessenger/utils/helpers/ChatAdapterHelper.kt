@@ -33,8 +33,6 @@ import com.vanniktech.emoji.EmojiTextView
 import timber.log.Timber
 
 const val MAX_REACTIONS = 3
-private const val TEXT_SIZE_BIG = 11
-private const val TEXT_SIZE_SMALL = 5
 const val MAX_HEIGHT = 300
 const val MIN_HEIGHT = 256
 
@@ -235,17 +233,7 @@ object ChatAdapterHelper {
         ivReplyImage.visibility = View.GONE
         tvReplyMedia.visibility = View.GONE
         tvMessageReply.visibility = View.GONE
-
-        val params =
-            clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
-        params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-        var original = chatMessage.message.body?.text?.length
         clReplyMessage.visibility = View.VISIBLE
-        val firstLineStart = chatMessage.message.body?.text?.lines()?.get(0)
-        if (firstLineStart?.length!! < TEXT_SIZE_SMALL) {
-            original = firstLineStart.length
-        }
-        val username = tvUsername.text.length
 
         if (sender) {
             clContainer.setBackgroundResource(R.drawable.bg_message_send)
@@ -254,15 +242,11 @@ object ChatAdapterHelper {
         }
 
         tvUsername.text =
-            users.firstOrNull { it.id == chatMessage.message.body.referenceMessage?.fromUserId }?.formattedDisplayName
+            users.firstOrNull { it.id == chatMessage.message.body?.referenceMessage?.fromUserId }?.formattedDisplayName
 
-        when (chatMessage.message.body.referenceMessage?.type) {
+        when (chatMessage.message.body?.referenceMessage?.type) {
             /**Image or video type*/
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                if (original!! >= TEXT_SIZE_BIG) {
-                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                }
-
                 if (chatMessage.message.body.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
                     tvReplyMedia.text = context.getString(
                         R.string.media,
@@ -303,9 +287,6 @@ object ChatAdapterHelper {
             }
             /** Audio type */
             Const.JsonFields.AUDIO_TYPE -> {
-                if (original!! >= TEXT_SIZE_SMALL) {
-                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                }
                 tvMessageReply.visibility = View.GONE
                 ivReplyImage.visibility = View.GONE
                 tvReplyMedia.visibility = View.VISIBLE
@@ -320,9 +301,6 @@ object ChatAdapterHelper {
             }
             /** File type */
             Const.JsonFields.FILE_TYPE -> {
-                if (original!! >= TEXT_SIZE_SMALL) {
-                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                }
                 tvMessageReply.visibility = View.GONE
                 tvReplyMedia.visibility = View.VISIBLE
                 tvReplyMedia.text =
@@ -340,15 +318,7 @@ object ChatAdapterHelper {
                 ivReplyImage.visibility = View.GONE
                 tvReplyMedia.visibility = View.GONE
 
-                val replyText = chatMessage.message.body.referenceMessage?.body?.text
-                tvMessageReply.text = replyText
-                val reply = replyText?.length
-
-                if (original != null && reply != null) {
-                    if (original >= reply && original >= TEXT_SIZE_SMALL && username < original) {
-                        params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                    }
-                }
+                tvMessageReply.text = chatMessage.message.body?.referenceMessage?.body?.text
             }
         }
     }
