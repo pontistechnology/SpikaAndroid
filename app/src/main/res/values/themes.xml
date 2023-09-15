@@ -19,9 +19,9 @@
 
         <!-- Navigation animations -->
         <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
-        <item name="enterAnim">@anim/nav_slide_in_right</item>
-        <item name="exitAnim">@anim/nav_slide_out_left</item>
-        <item name="popEnterAnim">@anim/nav_slide_in_left</item>
-        <item name="popExitAnim">@anim/nav_slide_out_right</item>
+<!--        <item name="enterAnim">@anim/nav_slide_in_right</item>-->
+<!--        <item name="exitAnim">@anim/nav_slide_out_left</item>-->
+<!--        <item name="popEnterAnim">@anim/nav_slide_in_left</item>-->
+<!--        <item name="popExitAnim">@anim/nav_slide_out_right</item>-->
     </style>
 </resources>

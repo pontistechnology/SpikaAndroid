@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -46,8 +47,9 @@ class ContactDetailsFragment : BaseFragment() {
     private var roomId = 0
 
     private var bindingSetup: FragmentContactDetailsBinding? = null
-
     private val binding get() = bindingSetup!!
+
+    private var navOptionsBuilder: NavOptions? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +74,13 @@ class ContactDetailsFragment : BaseFragment() {
             user = requireArguments().getParcelable(Const.Navigation.USER_PROFILE)
             roomId = requireArguments().getInt(Const.Navigation.ROOM_ID)
         }
+
+        navOptionsBuilder = NavOptions.Builder()
+            .setEnterAnim(R.anim.nav_slide_in_right)
+            .setExitAnim(R.anim.nav_slide_out_left)
+            .setPopEnterAnim(R.anim.nav_slide_in_left)
+            .setPopExitAnim(R.anim.nav_slide_out_right)
+            .build()
     }
 
     override fun onCreateView(
@@ -292,12 +301,14 @@ class ContactDetailsFragment : BaseFragment() {
             if (activity is MainActivity) {
                 findNavController().navigate(
                     R.id.notesFragment,
-                    bundleOf(Const.Navigation.ROOM_ID to roomId)
+                    bundleOf(Const.Navigation.ROOM_ID to roomId),
+                    navOptionsBuilder
                 )
             } else {
                 findNavController().navigate(
                     R.id.notesFragment,
-                    bundleOf(Const.Navigation.ROOM_ID to roomId)
+                    bundleOf(Const.Navigation.ROOM_ID to roomId),
+                    navOptionsBuilder
                 )
             }
         }

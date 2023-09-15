@@ -38,6 +38,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -147,6 +148,8 @@ class ChatMessagesFragment : BaseFragment() {
     private var heightDiff = 0
     private var scrollToPosition = 0
 
+    private var navOptionsBuilder: NavOptions? = null
+
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
             if (!it.isNullOrEmpty()) {
@@ -219,6 +222,14 @@ class ChatMessagesFragment : BaseFragment() {
     ): View {
         super.onCreate(savedInstanceState)
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
+
+        navOptionsBuilder = NavOptions.Builder()
+            .setEnterAnim(R.anim.nav_slide_in_right)
+            .setExitAnim(R.anim.nav_slide_out_left)
+            .setPopEnterAnim(R.anim.nav_slide_in_left)
+            .setPopExitAnim(R.anim.nav_slide_out_right)
+            .build()
+
         return bindingSetup.root
     }
 
@@ -338,7 +349,8 @@ class ChatMessagesFragment : BaseFragment() {
                     )
                 findNavController().navigate(
                     R.id.action_chatMessagesFragment_to_contactDetailsFragment,
-                    bundle
+                    bundle,
+                    navOptionsBuilder
                 )
             } else {
                 val action =
