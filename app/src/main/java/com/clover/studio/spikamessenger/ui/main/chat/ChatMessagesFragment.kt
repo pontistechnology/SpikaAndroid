@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
@@ -224,11 +225,12 @@ class ChatMessagesFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        postponeEnterTransition()
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
         if (listState != null) {
             shouldScroll = true
         }
-
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         localUserId = viewModel.getLocalUserId()!!
         messageSearchId = viewModel.searchMessageId.value
@@ -519,6 +521,10 @@ class ChatMessagesFragment : BaseFragment() {
                             }
                         } else chatAdapter.submitList(messagesRecords.toList())
 
+                        (view?.parent as? ViewGroup)?.doOnPreDraw {
+                            startPostponedEnterTransition()
+                        }
+
                         if (listState != null && shouldScroll) {
                             bindingSetup.rvChat.layoutManager?.onRestoreInstanceState(listState)
                             shouldScroll = false
@@ -726,19 +732,21 @@ class ChatMessagesFragment : BaseFragment() {
                 }
             }
         )
-        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
-        rvChat.itemAnimator = null
-        rvChat.adapter = chatAdapter
-        layoutManager.stackFromEnd = true
-        rvChat.layoutManager = layoutManager
+        val linearLayoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
+        rvChat.apply {
+            rvChat.adapter = chatAdapter
+            itemAnimator = null
+            linearLayoutManager.stackFromEnd = true
+            layoutManager = linearLayoutManager
+        }
 
         rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 scrollYDistance += dy
 
-                val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
-                val totalItemCount = layoutManager.itemCount
+                val lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition()
+                val totalItemCount = linearLayoutManager.itemCount
                 if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
                     Timber.d("Fetching next batch of data")
                     viewModel.fetchNextSet(roomWithUsers!!.room.roomId)
