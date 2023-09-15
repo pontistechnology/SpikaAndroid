@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +19,7 @@ import com.clover.studio.spikamessenger.databinding.FragmentContactsBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortUsersByLocale
 import com.clover.studio.spikamessenger.utils.helpers.Resource
@@ -34,8 +36,9 @@ class ContactsFragment : BaseFragment() {
     private var selectedUser: User? = null
 
     private var bindingSetup: FragmentContactsBinding? = null
-
     private val binding get() = bindingSetup!!
+
+    private var navOptionsBuilder: NavOptions? = null
 
     private var localId: Int = 0
 
@@ -44,14 +47,19 @@ class ContactsFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         bindingSetup = FragmentContactsBinding.inflate(inflater, container, false)
+        navOptionsBuilder = Tools.createCustomNavOptions()
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         localId = viewModel.getLocalUserId()!!
         setupAdapter()
         setupSwipeToRefresh()
         initializeViews()
         initializeObservers()
-
-        return binding.root
     }
 
     private fun setupSwipeToRefresh() {
@@ -115,7 +123,8 @@ class ContactsFragment : BaseFragment() {
                         )
                         findNavController().navigate(
                             R.id.action_mainFragment_to_contactDetailsFragment,
-                            bundle
+                            bundle,
+                            navOptionsBuilder
                         )
                     }
                 }
@@ -125,7 +134,8 @@ class ContactsFragment : BaseFragment() {
                         val bundle = bundleOf(Const.Navigation.USER_PROFILE to selectedUser)
                         findNavController().navigate(
                             R.id.action_mainFragment_to_contactDetailsFragment,
-                            bundle
+                            bundle,
+                            navOptionsBuilder
                         )
                     }
                 }
@@ -172,7 +182,8 @@ class ContactsFragment : BaseFragment() {
                             activity?.runOnUiThread {
                                 findNavController().navigate(
                                     R.id.action_mainFragment_to_contactDetailsFragment,
-                                    bundle
+                                    bundle,
+                                    navOptionsBuilder
                                 )
                             }
                         }

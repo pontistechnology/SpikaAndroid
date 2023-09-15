@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,11 +28,15 @@ class PrivacySettingsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var blockedUserAdapter: BlockedUserAdapter
 
+    private var navOptionsBuilder: NavOptions? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         bindingSetup = FragmentPrivacySettingsBinding.inflate(inflater, container, false)
+
+        navOptionsBuilder = Tools.createCustomNavOptions()
 
         initializeViews()
         setupAdapter()
@@ -66,7 +71,8 @@ class PrivacySettingsFragment : BaseFragment() {
             val bundle = bundleOf(Const.Navigation.USER_PROFILE to it)
             findNavController().navigate(
                 R.id.action_privacySettingsFragment_to_contactDetailsFragment,
-                bundle
+                bundle,
+                navOptionsBuilder
             )
         }
 

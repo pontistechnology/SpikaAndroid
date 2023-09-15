@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -40,17 +41,24 @@ class RoomsFragment : BaseFragment() {
 
     private val binding get() = bindingSetup!!
 
+    private var navOptionsBuilder: NavOptions? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         bindingSetup = FragmentRoomsBinding.inflate(inflater, container, false)
+        navOptionsBuilder = Tools.createCustomNavOptions()
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         initializeObservers()
         initializeViews()
         setupAdapter()
-
-        return binding.root
     }
 
     private fun initializeObservers() {
@@ -188,7 +196,7 @@ class RoomsFragment : BaseFragment() {
                 }
 
                 R.id.create_room_menu_icon -> {
-                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
+                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment(), navOptionsBuilder)
                     true
                 }
 

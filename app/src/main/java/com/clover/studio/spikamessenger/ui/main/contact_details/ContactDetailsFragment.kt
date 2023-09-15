@@ -26,6 +26,7 @@ import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
@@ -75,12 +76,7 @@ class ContactDetailsFragment : BaseFragment() {
             roomId = requireArguments().getInt(Const.Navigation.ROOM_ID)
         }
 
-        navOptionsBuilder = NavOptions.Builder()
-            .setEnterAnim(R.anim.nav_slide_in_right)
-            .setExitAnim(R.anim.nav_slide_out_left)
-            .setPopEnterAnim(R.anim.nav_slide_in_left)
-            .setPopExitAnim(R.anim.nav_slide_out_right)
-            .build()
+        navOptionsBuilder = Tools.createCustomNavOptions()
     }
 
     override fun onCreateView(

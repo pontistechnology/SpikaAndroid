@@ -223,12 +223,7 @@ class ChatMessagesFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
 
-        navOptionsBuilder = NavOptions.Builder()
-            .setEnterAnim(R.anim.nav_slide_in_right)
-            .setExitAnim(R.anim.nav_slide_out_left)
-            .setPopEnterAnim(R.anim.nav_slide_in_left)
-            .setPopExitAnim(R.anim.nav_slide_out_right)
-            .build()
+        navOptionsBuilder = Tools.createCustomNavOptions()
 
         return bindingSetup.root
     }
@@ -358,7 +353,7 @@ class ChatMessagesFragment : BaseFragment() {
                         roomWithUsers!!,
                         isAdmin
                     )
-                findNavController().navigate(action)
+                findNavController().navigate(action, navOptionsBuilder)
             }
         }
 
@@ -1034,7 +1029,7 @@ class ChatMessagesFragment : BaseFragment() {
                 message = chatMessage.message
             )
 
-        findNavController().navigate(action)
+        findNavController().navigate(action, navOptionsBuilder)
     }
 
     private fun handleMessageReply(message: Message) = with(bindingSetup) {
