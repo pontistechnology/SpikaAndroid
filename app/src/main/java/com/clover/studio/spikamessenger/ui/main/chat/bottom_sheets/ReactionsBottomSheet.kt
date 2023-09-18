@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
+import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.BottomSheetReactionsDetailsBinding
 import com.clover.studio.spikamessenger.ui.ReactionContainer
@@ -19,11 +20,13 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 class ReactionsBottomSheet(
     private val context: Context,
     private val message: MessageAndRecords,
-    private val roomWithUsers: RoomWithUsers
+    private val roomWithUsers: RoomWithUsers,
+    private val localUserId: Int,
 ) :
     BottomSheetDialogFragment() {
 
     private lateinit var binding: BottomSheetReactionsDetailsBinding
+    private var listener: ReactionsAction? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,19 +47,31 @@ class ReactionsBottomSheet(
         const val TAG = "reactionsSheet"
     }
 
-    private fun setReactions(messageRecords: MessageAndRecords) {
+    interface ReactionsAction {
+        fun deleteReaction(reaction: MessageRecords?)
+    }
+
+    fun setReactionListener(listener: ReactionsAction?) {
+        this.listener = listener
+    }
+
+    private fun setReactions(messageRecords: MessageAndRecords) = with(binding) {
         val messageReactionAdapter = MessageReactionAdapter(
-            context,
-            roomWithUsers,
+            context = context,
+            roomWithUsers = roomWithUsers,
+            localUserId = localUserId,
+            deleteReaction = { reactionToDelete ->
+                listener?.deleteReaction(reactionToDelete)
+                dismiss()
+            }
         )
 
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        binding.rvReactionsDetails.adapter = messageReactionAdapter
-        binding.rvReactionsDetails.layoutManager = layoutManager
-        binding.rvReactionsDetails.itemAnimator = null
+        rvReactionsDetails.adapter = messageReactionAdapter
+        rvReactionsDetails.layoutManager = layoutManager
+        rvReactionsDetails.itemAnimator = null
 
-
-        binding.tvAllReactions.setBackgroundResource(R.drawable.bg_reaction_selected)
+        tvAllReactions.setBackgroundResource(R.drawable.bg_reaction_selected)
 
         val reactionsList = messageRecords.records!!.filter { it.reaction != null }
             .sortedByDescending { it.createdAt }
@@ -75,13 +90,13 @@ class ReactionsBottomSheet(
                     reaction.key.toString(),
                     reaction.value.toString()
                 )
-                binding.llReactions.addView(reactionView)
+                llReactions.addView(reactionView)
             }
         }
 
         // Set listeners to reaction views and submit new, filtered list of reactions to adapter
         var currentlySelectedTextView: View? = null
-        for (child in binding.llReactions.children) {
+        for (child in llReactions.children) {
             child.setOnClickListener { view ->
                 // Remove / add backgrounds for views
                 if (view != currentlySelectedTextView) {
@@ -90,13 +105,13 @@ class ReactionsBottomSheet(
                     currentlySelectedTextView = view
                 }
 
-                val childIndex = binding.llReactions.indexOfChild(view)
+                val childIndex = llReactions.indexOfChild(view)
                 if (childIndex == 0) {
                     messageReactionAdapter.submitList(reactionsList)
                 } else {
-                    binding.tvAllReactions.background = null
+                    tvAllReactions.background = null
                     val reactionView: ReactionContainer =
-                        binding.llReactions.getChildAt(childIndex) as ReactionContainer
+                        llReactions.getChildAt(childIndex) as ReactionContainer
                     val reactionText = reactionView.showReaction()
                     messageReactionAdapter.submitList(reactionsList.filter { it.reaction == reactionText })
                 }

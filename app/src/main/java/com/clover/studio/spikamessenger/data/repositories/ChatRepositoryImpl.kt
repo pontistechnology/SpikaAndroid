@@ -257,6 +257,11 @@ class ChatRepositoryImpl @Inject constructor(
             networkCall = { chatRemoteDataSource.postReaction(jsonObject) })
     }
 
+    override suspend fun deleteReaction(messageRecordId: Long) {
+        performRestOperation(
+            networkCall = { chatRemoteDataSource.deleteReaction(messageRecordId) })
+    }
+
     override suspend fun getNotes(roomId: Int) {
         performRestOperation(
             networkCall = { chatRemoteDataSource.getRoomNotes(roomId) },
@@ -371,6 +376,7 @@ interface ChatRepository : BaseRepository {
 
     // Reaction calls
     suspend fun sendReaction(jsonObject: JsonObject)
+    suspend fun deleteReaction(messageRecordId: Long)
 
     // Notes calls
     suspend fun getNotes(roomId: Int)

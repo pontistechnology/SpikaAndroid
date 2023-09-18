@@ -201,6 +201,7 @@
     <string name="save">Save</string>
     <string name="edited">edited</string>
     <string name="text_copied">Text copied</string>
+    <string name="tap_to_remove">Tap to remove</string>
 
     <string name="enter_title">Enter title</string>
     <string name="enter_body">Enter body</string>

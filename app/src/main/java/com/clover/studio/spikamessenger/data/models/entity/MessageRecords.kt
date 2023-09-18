@@ -38,6 +38,9 @@ data class MessageRecords @JvmOverloads constructor(
     @TypeConverters(TypeConverter::class)
     val recordMessage: RecordMessage?,
 
+//    @ColumnInfo(name = "isDeleted")
+//    val isDeleted : Boolean
+
     @Ignore
     var roomId: Int = 0
 ) : Parcelable

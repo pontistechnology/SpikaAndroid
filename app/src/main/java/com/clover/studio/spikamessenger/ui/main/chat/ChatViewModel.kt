@@ -114,10 +114,6 @@ class ChatViewModel @Inject constructor(
         return userId
     }
 
-    fun deleteLocalMessages(messages: List<Message>) = viewModelScope.launch {
-        repository.deleteLocalMessages(messages)
-    }
-
     fun deleteLocalMessage(message: Message) = viewModelScope.launch {
         repository.deleteLocalMessage(message)
     }
@@ -186,6 +182,10 @@ class ChatViewModel @Inject constructor(
         return messageCount
     }
 
+    fun deleteLocalMessages(messages: List<Message>) = viewModelScope.launch {
+        repository.deleteLocalMessages(messages)
+    }
+
     fun getChatRoomAndMessageAndRecordsById(roomId: Int) =
         repository.getChatRoomAndMessageAndRecordsById(roomId)
 
@@ -219,6 +219,10 @@ class ChatViewModel @Inject constructor(
 
     fun sendReaction(jsonObject: JsonObject) = viewModelScope.launch {
         repository.sendReaction(jsonObject)
+    }
+
+    fun deleteReaction(messageRecordId: Long) = viewModelScope.launch {
+        repository.deleteReaction(messageRecordId)
     }
 
     fun deleteRoom(roomId: Int) = viewModelScope.launch {

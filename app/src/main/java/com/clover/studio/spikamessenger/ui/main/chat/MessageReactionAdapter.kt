@@ -2,6 +2,7 @@ package com.clover.studio.spikamessenger.ui.main.chat
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -16,6 +17,8 @@ import com.clover.studio.spikamessenger.utils.Tools
 class MessageReactionAdapter(
     private val context: Context,
     private val roomWithUsers: RoomWithUsers,
+    private val localUserId: Int,
+    private val deleteReaction: ((reactionToDelete: MessageRecords?) -> Unit),
 ) :
     ListAdapter<MessageRecords, MessageReactionAdapter.MessageReactionViewHolder>(
         ContactsDiffCallback()
@@ -33,9 +36,10 @@ class MessageReactionAdapter(
     override fun onBindViewHolder(holder: MessageReactionViewHolder, position: Int) {
         getItem(position).let {
             holder.binding.tvUserReaction.text = it.reaction
-            for (user in roomWithUsers.users) {
+            roomWithUsers.users.forEach { user ->
                 if (it.userId == user.id) {
                     holder.binding.tvUsernameReaction.text = user.formattedDisplayName
+
                     Glide.with(context)
                         .load(user.avatarFileId?.let { fileId -> Tools.getFilePathUrl(fileId) })
                         .placeholder(R.drawable.img_user_placeholder)
@@ -43,11 +47,19 @@ class MessageReactionAdapter(
                         .dontAnimate()
                         .centerCrop()
                         .into(holder.binding.ivUserReactionAvatar)
+
+                    if (user.id == localUserId) {
+                        holder.binding.tvTapToRemove.visibility = View.VISIBLE
+                        holder.binding.clReactedContainer.setOnClickListener { _ ->
+                            deleteReaction(it)
+                        }
+                    } else {
+                        holder.binding.tvTapToRemove.visibility = View.GONE
+                    }
                 }
             }
         }
     }
-
 
     private class ContactsDiffCallback : DiffUtil.ItemCallback<MessageRecords>() {
         override fun areItemsTheSame(oldItem: MessageRecords, newItem: MessageRecords) =
