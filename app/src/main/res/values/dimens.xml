@@ -55,4 +55,7 @@
     <dimen name="image_max_width">300dp</dimen>
     <dimen name="thirty_five_dp">35dp</dimen>
 
+    <!-- Reply layout  -->
+    <dimen name="reply_layout_dimen">104dp</dimen>
+
 </resources>
