@@ -159,6 +159,7 @@ class Const {
 
             // Reactions
             const val API_POST_REACTION = "api/messenger/message-records"
+            const val API_DELETE_REACTION = "api/messenger/message-records/{id}"
 
             // User settings
             const val API_AUTH = "api/messenger/auth"

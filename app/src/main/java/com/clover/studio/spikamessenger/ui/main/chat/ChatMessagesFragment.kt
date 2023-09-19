@@ -55,6 +55,7 @@ import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
+import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentChatMessagesBinding
@@ -856,11 +857,13 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun handleShowReactions(msg: MessageAndRecords) {
-        val reactionsBottomSheet = ReactionsBottomSheet(requireContext(), msg, roomWithUsers!!)
-        reactionsBottomSheet.show(
-            requireActivity().supportFragmentManager,
-            ReactionsBottomSheet.TAG
-        )
+        val reactionsBottomSheet = ReactionsBottomSheet(requireContext(), msg, roomWithUsers!!, localUserId)
+        reactionsBottomSheet.setReactionListener(object: ReactionsBottomSheet.ReactionsAction{
+            override fun deleteReaction(reaction: MessageRecords?) {
+                reaction?.id?.let { viewModel.deleteReaction(it) }
+            }
+        })
+        reactionsBottomSheet.show(requireActivity().supportFragmentManager, ReactionsBottomSheet.TAG)
     }
 
     private fun handleMessageAction(msg: MessageAndRecords) = with(bindingSetup) {

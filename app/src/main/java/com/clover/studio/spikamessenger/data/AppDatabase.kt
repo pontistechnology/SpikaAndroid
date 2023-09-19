@@ -31,7 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     class TablesInfo {
         companion object {
-            // list of tables
+            // List of tables
             const val TABLE_USER = "user"
             const val TABLE_REACTION = "reaction"
             const val TABLE_MESSAGE = "message"
@@ -41,16 +41,16 @@ abstract class AppDatabase : RoomDatabase() {
             const val TABLE_ROOM_USER = "room_user"
             const val TABLE_NOTES = "notes"
 
-            // tables for removing columns or modifications SQLite cannot handle without dropping
+            // Tables for removing columns or modifications SQLite cannot handle without dropping
             const val TABLE_CHAT_ROOM_NEW = "room_new"
 
-            // general field names
+            // General field names
             const val ID = "id"
         }
     }
 
     companion object {
-        const val DATABASE_VERSION = 5
+        const val DATABASE_VERSION = 6
 
         @Volatile
         private var instance: AppDatabase? = null
@@ -68,7 +68,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_1_2,
                     MIGRATION_2_3,
                     MIGRATION_3_4,
-                    MIGRATION_4_5
+                    MIGRATION_4_5,
+                    MIGRATION_5_6
                 )
                 .fallbackToDestructiveMigration()
                 .build()
@@ -118,14 +119,10 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        /* Database migration from version 2 to 3.
-            This part is commented out until we decide to migrate the database. Until then, we'll be
-            adding new changes to the database in the comments
-
-        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+        val MIGRATION_5_6: Migration = object : Migration(5, 6) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0")
+                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE_RECORDS + " ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0")
             }
-        } */
+        }
     }
 }

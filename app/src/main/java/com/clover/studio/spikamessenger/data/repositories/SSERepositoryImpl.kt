@@ -54,6 +54,7 @@ class SSERepositoryImpl @Inject constructor(
             saveCallResult = {
                 val messageRecords: MutableList<MessageRecords> = ArrayList()
                 val messageRecordsUpdates: MutableList<MessageRecords> = ArrayList()
+                val deleteMessageRecords: MutableList<MessageRecords> = ArrayList()
 
                 if (it.data.list.isNotEmpty()) {
                     for (record in it.data.list) {
@@ -72,21 +73,31 @@ class SSERepositoryImpl @Inject constructor(
                             if (Const.JsonFields.SEEN == record.type) {
                                 messageRecordsUpdates.add(record)
                             } else if (Const.JsonFields.REACTION == record.type) {
-                                val databaseReaction = queryDatabaseCoreData(
-                                    databaseQuery = {
-                                        messageRecordsDao.getMessageReactionId(
-                                            record.messageId,
-                                            record.userId
-                                        )
-                                    }
-                                ).responseData
-                                if (databaseReaction == null) {
-                                    messageRecords.add(record)
+                                if (record.isDeleted){
+                                    deleteMessageRecords.add(record)
                                 } else {
-                                    messageRecordsUpdates.add(record)
+                                    val databaseReaction = queryDatabaseCoreData(
+                                        databaseQuery = {
+                                            messageRecordsDao.getMessageReactionId(
+                                                record.messageId,
+                                                record.userId
+                                            )
+                                        }
+                                    ).responseData
+                                    if (databaseReaction == null) {
+                                        messageRecords.add(record)
+                                    } else {
+                                        messageRecordsUpdates.add(record)
+                                    }
                                 }
                             }
                     }
+                }
+
+                deleteMessageRecords.forEach {
+                    queryDatabaseCoreData (
+                        databaseQuery = { messageRecordsDao.delete(it)}
+                    )
                 }
 
                 queryDatabaseCoreData(

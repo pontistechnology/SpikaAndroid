@@ -163,12 +163,13 @@ class SSEManager @Inject constructor(
                                                     reaction = it.messageRecord.reaction,
                                                     modifiedAt = it.messageRecord.modifiedAt,
                                                     createdAt = it.messageRecord.createdAt,
+                                                    isDeleted = it.messageRecord.isDeleted,
                                                     recordMessage = RecordMessage(
                                                         id = it.messageRecord.messageId.toLong(),
                                                         totalUserCount = it.totalUserCount ?: 0,
                                                         deliveredCount = it.deliveredCount ?: 0,
                                                         seenCount = it.seenCount ?: 0,
-                                                        roomId = it.messageRecord.roomId
+                                                        roomId = it.messageRecord.roomId,
                                                     )
                                                 )
                                                 repo.writeMessageRecord(record)

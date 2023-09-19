@@ -43,11 +43,11 @@ interface ChatService {
         @Body jsonObject: JsonObject
     ) : Response<MessageResponse>
 
-    /* @DELETE(Const.Networking.API_DELETE_REACTION)
+    @DELETE(Const.Networking.API_DELETE_REACTION)
     suspend fun deleteReaction(
         @HeaderMap headers: Map<String, String?>,
-        @Path(Const.Networking.ID) id: Int
-    ) */
+        @Path(Const.Networking.ID) id: Long
+    ) : Response<MessageResponse>
     // End Reaction section
 
     // Room section
