@@ -167,21 +167,6 @@ class ChatViewModel @Inject constructor(
         return messageCount
     }
 
-    fun deleteLocalMessages(messages: List<Message>) = viewModelScope.launch {
-        repository.deleteLocalMessages(messages)
-    }
-
-    fun getChatRoomAndMessageAndRecordsById(roomId: Int) =
-        repository.getChatRoomAndMessageAndRecordsById(roomId)
-
-    fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
-        resolveResponseStatus(roomDataListener, repository.getSingleRoomData(roomId))
-    }
-
-    fun getRoomWithUsers(roomId: Int) = viewModelScope.launch {
-        resolveResponseStatus(roomWithUsersListener, repository.getRoomWithUsers(roomId))
-    }
-
     /**
      * This method handles mute/unmute of room depending on the data sent to it.
      *
