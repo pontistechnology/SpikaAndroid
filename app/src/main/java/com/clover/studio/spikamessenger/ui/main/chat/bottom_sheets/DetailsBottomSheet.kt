@@ -67,6 +67,7 @@ class DetailsBottomSheet(
             reaction = null,
             modifiedAt = message.modifiedAt,
             createdAt = message.createdAt!!,
+            isDeleted = false,
             null
         )
 
