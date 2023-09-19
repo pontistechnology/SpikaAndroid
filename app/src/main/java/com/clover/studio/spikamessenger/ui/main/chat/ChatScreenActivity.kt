@@ -211,7 +211,3 @@ class ChatScreenActivity : BaseActivity() {
         viewModel.getUnreadCount()
     }
 }
-
-interface ChatOnBackPressed {
-    fun onBackPressed(): Boolean
-}

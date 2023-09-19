@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.clover.studio.spikamessenger.BuildConfig
@@ -52,6 +53,8 @@ class SettingsFragment : BaseFragment() {
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var progress: Long = 1L
     private var avatarId: Long? = 0L
+
+    private var navOptionsBuilder: NavOptions? = null
 
     private val binding get() = bindingSetup!!
 
@@ -96,6 +99,8 @@ class SettingsFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         bindingSetup = FragmentSettingsBinding.inflate(inflater, container, false)
+
+        navOptionsBuilder = Tools.createCustomNavOptions()
 
         setupClickListeners()
         initializeObservers()
@@ -406,23 +411,23 @@ class SettingsFragment : BaseFragment() {
     // Below navigation methods are unused until we implement all other functionality of settings
     // screens
     private fun goToPrivacySettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToPrivacySettingsFragment())
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToPrivacySettingsFragment(), navOptionsBuilder)
     }
 
     private fun goToAppearanceSettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToAppearanceSettings())
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToAppearanceSettings(), navOptionsBuilder)
     }
 
 //    private fun goToChatSettings() {
-//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToChatSettingsFragment())
+//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToChatSettingsFragment(), navOptionsBuilder)
 //    }
 //
 //    private fun goToNotificationSettings() {
-//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToNotificationSettingsFragment())
+//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToNotificationSettingsFragment(), navOptionsBuilder)
 //    }
 //
 //    private fun goToDownloadSettings() {
-//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToDownloadSettingsFragment())
+//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToDownloadSettingsFragment(), navOptionsBuilder)
 //    }
 
     override fun onPause() {

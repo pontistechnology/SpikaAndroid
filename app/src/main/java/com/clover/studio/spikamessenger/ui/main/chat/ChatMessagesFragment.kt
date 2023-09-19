@@ -33,10 +33,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -96,7 +98,7 @@ data class TempUri(
 )
 
 @AndroidEntryPoint
-class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
+class ChatMessagesFragment : BaseFragment() {
     private val viewModel: ChatViewModel by activityViewModels()
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
@@ -144,8 +146,9 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
 
     private var scrollYDistance = 0
     private var heightDiff = 0
-
     private var scrollToPosition = 0
+
+    private var navOptionsBuilder: NavOptions? = null
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
@@ -218,13 +221,22 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         savedInstanceState: Bundle?
     ): View {
         super.onCreate(savedInstanceState)
+        bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
+
+        navOptionsBuilder = Tools.createCustomNavOptions()
+
+        return bindingSetup.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        postponeEnterTransition()
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         if (listState != null) {
             shouldScroll = true
         }
-
-        bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         localUserId = viewModel.getLocalUserId()!!
         messageSearchId = viewModel.searchMessageId.value
@@ -253,6 +265,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             bindingSetup.clRoomExit.visibility = View.GONE
             checkIsUserAdmin()
         }
+
         initializeObservers()
         initViews()
         initListeners()
@@ -263,8 +276,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
             NotificationManagerCompat.from(requireContext())
                 .cancel(it)
         }
-
-        return bindingSetup.root
     }
 
     private fun initViews() = with(bindingSetup) {
@@ -333,7 +344,8 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                     )
                 findNavController().navigate(
                     R.id.action_chatMessagesFragment_to_contactDetailsFragment,
-                    bundle
+                    bundle,
+                    navOptionsBuilder
                 )
             } else {
                 val action =
@@ -341,7 +353,7 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                         roomWithUsers!!,
                         isAdmin
                     )
-                findNavController().navigate(action)
+                findNavController().navigate(action, navOptionsBuilder)
             }
         }
 
@@ -515,6 +527,10 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                                 bindingSetup.rvChat.scrollToPosition(0)
                             }
                         } else chatAdapter.submitList(messagesRecords.toList())
+
+                        (view?.parent as? ViewGroup)?.doOnPreDraw {
+                            startPostponedEnterTransition()
+                        }
 
                         if (listState != null && shouldScroll) {
                             bindingSetup.rvChat.layoutManager?.onRestoreInstanceState(listState)
@@ -723,19 +739,21 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
                 }
             }
         )
-        val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
-        rvChat.itemAnimator = null
-        rvChat.adapter = chatAdapter
-        layoutManager.stackFromEnd = true
-        rvChat.layoutManager = layoutManager
+        val linearLayoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
+        rvChat.apply {
+            rvChat.adapter = chatAdapter
+            itemAnimator = null
+            linearLayoutManager.stackFromEnd = true
+            layoutManager = linearLayoutManager
+        }
 
         rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 scrollYDistance += dy
 
-                val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
-                val totalItemCount = layoutManager.itemCount
+                val lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition()
+                val totalItemCount = linearLayoutManager.itemCount
                 if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
                     Timber.d("Fetching next batch of data")
                     viewModel.fetchNextSet(roomWithUsers!!.room.roomId)
@@ -1006,12 +1024,12 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         }
 
         val action =
-            ChatMessagesFragmentDirections.actionChatMessagesFragmentToVideoFragment(
+            ChatMessagesFragmentDirections.actionChatMessagesFragmentToMediaFragment(
                 mediaInfo = mediaInfo,
                 message = chatMessage.message
             )
 
-        findNavController().navigate(action)
+        findNavController().navigate(action, navOptionsBuilder)
     }
 
     private fun handleMessageReply(message: Message) = with(bindingSetup) {
@@ -1543,11 +1561,6 @@ class ChatMessagesFragment : BaseFragment(), ChatOnBackPressed {
         viewModel.updateUnreadCount(roomId = roomWithUsers!!.room.roomId)
         activity?.onBackPressedDispatcher?.onBackPressed()
         activity?.finish()
-    }
-
-
-    override fun onBackPressed(): Boolean {
-        return true
     }
 
     override fun onResume() {

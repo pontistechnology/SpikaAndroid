@@ -15,5 +15,8 @@
         <!-- Customize your theme here. -->
         <item name="colorAccent">@color/primary_color</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
+
+        <!-- Navigation animations -->
+        <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
     </style>
 </resources>

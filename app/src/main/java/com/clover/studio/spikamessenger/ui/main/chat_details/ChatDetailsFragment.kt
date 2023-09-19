@@ -265,11 +265,8 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        chatHeader.ivArrowBack.setOnClickListener {
-            val action =
-                ChatDetailsFragmentDirections.actionChatDetailsFragmentToChatMessagesFragment()
-            findNavController().navigate(action)
-
+        binding.chatHeader.ivArrowBack.setOnClickListener {
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         // Rooms can only be deleted by room admins.

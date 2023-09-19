@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -25,6 +26,7 @@ import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
@@ -46,8 +48,9 @@ class ContactDetailsFragment : BaseFragment() {
     private var roomId = 0
 
     private var bindingSetup: FragmentContactDetailsBinding? = null
-
     private val binding get() = bindingSetup!!
+
+    private var navOptionsBuilder: NavOptions? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +75,8 @@ class ContactDetailsFragment : BaseFragment() {
             user = requireArguments().getParcelable(Const.Navigation.USER_PROFILE)
             roomId = requireArguments().getInt(Const.Navigation.ROOM_ID)
         }
+
+        navOptionsBuilder = Tools.createCustomNavOptions()
     }
 
     override fun onCreateView(
@@ -292,12 +297,14 @@ class ContactDetailsFragment : BaseFragment() {
             if (activity is MainActivity) {
                 findNavController().navigate(
                     R.id.notesFragment,
-                    bundleOf(Const.Navigation.ROOM_ID to roomId)
+                    bundleOf(Const.Navigation.ROOM_ID to roomId),
+                    navOptionsBuilder
                 )
             } else {
                 findNavController().navigate(
                     R.id.notesFragment,
-                    bundleOf(Const.Navigation.ROOM_ID to roomId)
+                    bundleOf(Const.Navigation.ROOM_ID to roomId),
+                    navOptionsBuilder
                 )
             }
         }

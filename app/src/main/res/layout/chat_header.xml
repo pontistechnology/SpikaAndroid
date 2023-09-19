@@ -11,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/eight_dp_margin"
+        android:background="?android:attr/selectableItemBackground"
         android:padding="@dimen/ten_dp_margin"
         android:src="@drawable/img_arrow_back_chat"
         app:layout_constraintBottom_toBottomOf="parent"
