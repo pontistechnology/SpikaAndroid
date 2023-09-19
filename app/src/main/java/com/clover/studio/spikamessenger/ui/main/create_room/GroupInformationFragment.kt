@@ -104,11 +104,11 @@ class GroupInformationFragment : BaseFragment() {
                 getString(R.string.ok),
                 object : DialogInteraction {
                     override fun onFirstOptionClicked() {
-                        // ignore
+                        // Ignore
                     }
 
                     override fun onSecondOptionClicked() {
-                        // ignore
+                        // Ignore
                     }
                 })
             Timber.d("Failed to fetch user data")
@@ -335,11 +335,11 @@ class GroupInformationFragment : BaseFragment() {
             getString(R.string.ok),
             object : DialogInteraction {
                 override fun onFirstOptionClicked() {
-                    // ignore
+                    // Ignore
                 }
 
                 override fun onSecondOptionClicked() {
-                    // ignore
+                    // Ignore
                 }
             })
         binding.clProgressScreen.visibility = View.GONE
@@ -363,7 +363,7 @@ class GroupInformationFragment : BaseFragment() {
             null,
             getString(R.string.ok),
             object : DialogInteraction {
-                // ignore
+                // Ignore
             })
     }
 }

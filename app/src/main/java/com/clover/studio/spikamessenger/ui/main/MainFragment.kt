@@ -20,7 +20,6 @@ class MainFragment : BaseFragment() {
     private var count: Int = 0
     val icons = arrayOf(
         R.drawable.nav_chat_states,
-//        R.drawable.nav_call_history_states,
         R.drawable.nav_contact_states,
         R.drawable.nav_settings_states
     )
@@ -54,7 +53,6 @@ class MainFragment : BaseFragment() {
     private fun initializePager() {
         val fragmentList = arrayListOf(
             RoomsFragment(),
-//            CallHistoryFragment(),
             ContactsFragment(),
             SettingsFragment()
         )

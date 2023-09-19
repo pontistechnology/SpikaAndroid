@@ -12,7 +12,7 @@ object Extensions {
         val locale = context.resources.configuration.locales.get(0)
         val collator = Collator.getInstance(locale)
         return this.toList().sortedWith(compareBy(collator) {
-            it.phoneUser?.name?.lowercase() ?: it.user.formattedDisplayName?.lowercase()
+            it.phoneUser?.name?.lowercase() ?: it.user.formattedDisplayName.lowercase()
         })
     }
 

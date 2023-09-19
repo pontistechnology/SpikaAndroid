@@ -8,7 +8,8 @@
     android:clickable="true"
     android:focusableInTouchMode="true"
     tools:context=".ui.onboarding.account_creation.AccountCreationFragment"
-    tools:ignore="contentDescription">
+    tools:ignore="contentDescription"
+    android:focusable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_username_error"

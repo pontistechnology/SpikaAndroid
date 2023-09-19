@@ -50,13 +50,6 @@ class MainActivity : BaseActivity() {
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
     private var phonebookService: Intent? = null
 
-    /** These two fields are used for the room notification, which has been removed temporarily **/
-//    private var handler = Handler(Looper.getMainLooper())
-//    private var runnable: Runnable = Runnable {
-//        Timber.d("Ending handler")
-//        bindingSetup.cvNotification.cvRoot.visibility = View.GONE
-//    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -117,113 +110,6 @@ class MainActivity : BaseActivity() {
                 else -> Timber.d("Other error")
             }
         })
-
-        /** Room notification has been disabled until we decide how to implement it correctly **/
-//        viewModel.roomNotificationListener.observe(this, EventObserver {
-//            when (it.response.status) {
-//                Resource.Status.SUCCESS -> {
-//                    val myUserId = viewModel.getLocalUserId()
-//
-//                    if (myUserId == it.message.fromUserId || it.response.responseData?.room?.muted == true) return@EventObserver
-//                    runOnUiThread {
-//                        val animator =
-//                            ValueAnimator.ofInt(bindingSetup.cvNotification.pbTimeout.max, 0)
-//                        animator.duration = 5000
-//                        animator.addUpdateListener { animation ->
-//                            bindingSetup.cvNotification.pbTimeout.progress =
-//                                animation.animatedValue as Int
-//                        }
-//                        animator.start()
-//
-//                        if (it.response.responseData!!.room.type.equals(Const.JsonFields.GROUP)) {
-//                            Timber.d("Showing room image")
-//                            Glide.with(this@MainActivity)
-//                                .load(it.response.responseData.room.avatarFileId?.let { fileId ->
-//                                    Tools.getFilePathUrl(
-//                                        fileId
-//                                    )
-//                                })
-//                                .placeholder(R.drawable.img_user_placeholder)
-//                                .centerCrop()
-//                                .into(bindingSetup.cvNotification.ivUserImage)
-//                            bindingSetup.cvNotification.tvTitle.text =
-//                                it.response.responseData.room.name
-//                            for (user in it.response.responseData.users) {
-//                                if (user.id != myUserId && user.id == it.message.fromUserId) {
-//                                    val content =
-//                                        if (it.message.type != Const.JsonFields.TEXT_TYPE) {
-//                                            user.formattedDisplayName + ": " + getString(
-//                                                R.string.generic_shared,
-//                                                it.message.type.toString()
-//                                                    .replaceFirstChar { type -> type.uppercase() })
-//                                        } else {
-//                                            user.formattedDisplayName + ": " + it.message.body?.text.toString()
-//                                        }
-//
-//                                    bindingSetup.cvNotification.tvMessage.text =
-//                                        content
-//                                    break
-//                                }
-//                            }
-//                        } else {
-//                            for (user in it.response.responseData.users) {
-//                                if (user.id != myUserId && user.id == it.message.fromUserId) {
-//                                    Glide.with(this@MainActivity)
-//                                        .load(user.avatarFileId?.let { fileId ->
-//                                            Tools.getFilePathUrl(
-//                                                fileId
-//                                            )
-//                                        })
-//                                        .centerCrop()
-//                                        .placeholder(R.drawable.img_user_placeholder)
-//                                        .into(bindingSetup.cvNotification.ivUserImage)
-//                                    val content =
-//                                        if (it.message.type != Const.JsonFields.TEXT_TYPE) {
-//                                            getString(
-//                                                R.string.generic_shared,
-//                                                it.message.type.toString()
-//                                                    .replaceFirstChar { type -> type.uppercase() })
-//                                        } else {
-//                                            it.message.body?.text.toString()
-//                                        }
-//
-//                                    bindingSetup.cvNotification.tvTitle.text =
-//                                        user.formattedDisplayName
-//                                    bindingSetup.cvNotification.tvMessage.text =
-//                                        content
-//                                    break
-//                                }
-//                            }
-//                        }
-//
-//
-//                        bindingSetup.cvNotification.cvRoot.visibility = View.VISIBLE
-//
-//                        val roomId = it.message.roomId
-//                        bindingSetup.cvNotification.cvRoot.setOnClickListener {
-//                            roomId?.let { roomId ->
-//                                run {
-//                                    viewModel.getSingleRoomData(roomId)
-//                                    bindingSetup.cvNotification.cvRoot.visibility = View.GONE
-//                                }
-//                            }
-//                        }
-//
-//                        // Remove old instance of runnable if any is active. Prevents older
-//                        // notifications from removing newer ones.
-//                        Timber.d("Starting handler 1")
-//                        handler.removeCallbacks(runnable)
-//
-//                        handler = Handler(Looper.getMainLooper())
-//                        Timber.d("Starting handler 2")
-//                        handler.postDelayed(runnable, 5000)
-//                    }
-//                }
-//
-//                Resource.Status.ERROR -> Timber.d("Failed to fetch room with users")
-//                else -> Timber.d("Other error")
-//            }
-//        })
 
         viewModel.tokenExpiredListener.observe(this, EventObserver { tokenExpired ->
             if (tokenExpired) {

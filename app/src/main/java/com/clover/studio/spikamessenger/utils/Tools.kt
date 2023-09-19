@@ -64,9 +64,6 @@ const val TO_HOURS = 3600
 const val TO_MINUTES = 60
 const val VIDEO_SIZE_LIMIT = 128
 const val TOKEN_EXPIRED_CODE = 401
-//const val BITMAP_WIDTH = 512
-//const val BITMAP_HEIGHT = 512
-//const val TOKEN_INVALID_CODE = 403
 
 object Tools {
 
@@ -358,7 +355,6 @@ object Tools {
 
     fun convertDurationMillis(time: Long): String {
         val millis: Long = time
-        //val hour = TimeUnit.MILLISECONDS.toHours(millis)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(
             TimeUnit.MILLISECONDS.toHours(
                 time

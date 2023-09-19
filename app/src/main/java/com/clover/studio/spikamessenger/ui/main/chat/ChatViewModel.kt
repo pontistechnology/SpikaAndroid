@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
 import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
-import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
-import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.NewNote
@@ -42,8 +40,6 @@ class ChatViewModel @Inject constructor(
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel(), SSEListener {
     val messageSendListener = MutableLiveData<Event<Resource<MessageResponse?>>>()
-    val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
-    val roomWithUsersListener = MutableLiveData<Event<Resource<RoomWithUsers?>>>()
     val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val noteDeletionListener = MutableLiveData<Event<NoteDeletion>>()
@@ -146,18 +142,7 @@ class ChatViewModel @Inject constructor(
 
     fun getRoomAndUsers(roomId: Int) = repository.getRoomWithUsersLiveData(roomId)
 
-    fun getRoomUsers(roomId: Int) =  repository.getRoomUsers(roomId)
-
-//    fun getPushNotificationStream(listener: SSEListener): Flow<Message> = flow {
-//        viewModelScope.launch {
-//            try {
-//                sseManager.startSSEStream(listener)
-//            } catch (ex: Exception) {
-//                Tools.checkError(ex)
-//                return@launch
-//            }
-//        }
-//    }
+    fun getRoomUsers(roomId: Int) = repository.getRoomUsers(roomId)
 
     fun getMessageAndRecords(roomId: Int) = Transformations.switchMap(liveDataLimit) {
         Timber.d("Limit check ${liveDataLimit.value}")
@@ -293,15 +278,6 @@ class ChatViewModel @Inject constructor(
         mainRepository.getBlockedList()
     }
 
-// Block methods
-//    fun blockUser(blockedId: Int) = viewModelScope.launch {
-//        mainRepository.blockUser(blockedId)
-//    }
-//
-//    fun deleteBlock(userId: Int) = viewModelScope.launch {
-//        mainRepository.deleteBlock(userId)
-//    }
-
     fun deleteBlockForSpecificUser(userId: Int) = viewModelScope.launch {
         resolveResponseStatus(
             blockedListListener,
@@ -381,7 +357,6 @@ class ChatViewModel @Inject constructor(
         }
 }
 
-class RoomNotificationData(val response: Resource<RoomWithUsers>, val message: Message)
 class NoteDeletion(val response: Resource<NotesResponse>)
 class FileUploadVerified(
     val path: String,

@@ -109,29 +109,6 @@
             app:layout_constraintStart_toStartOf="@+id/tv_number"
             app:layout_constraintTop_toBottomOf="@+id/tv_number" />
 
-        <!--  This will be implemented later   -->
-        <!--        <ImageView-->
-        <!--            android:id="@+id/iv_call"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/ten_dp_margin"-->
-        <!--            android:src="@drawable/img_call_history_selected"-->
-        <!--            app:layout_constraintBottom_toBottomOf="@+id/iv_chat"-->
-        <!--            app:layout_constraintEnd_toStartOf="@id/iv_video"-->
-        <!--            app:layout_constraintStart_toEndOf="@id/iv_chat"-->
-        <!--            app:layout_constraintTop_toTopOf="@+id/iv_chat" />-->
-
-        <!--        <ImageView-->
-        <!--            android:id="@+id/iv_video"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/ten_dp_margin"-->
-        <!--            android:src="@drawable/img_video"-->
-        <!--            app:layout_constraintBottom_toBottomOf="@+id/iv_call"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toEndOf="@id/iv_call"-->
-        <!--            app:layout_constraintTop_toTopOf="@+id/iv_call" />-->
-
         <FrameLayout
             android:id="@+id/fl_notes"
             android:layout_width="match_parent"
@@ -155,99 +132,6 @@
                 android:layout_gravity="end"
                 android:src="@drawable/img_arrow_forward" />
         </FrameLayout>
-
-        <!--  This will be implemented later   -->
-        <!--        <FrameLayout-->
-        <!--            android:id="@+id/fl_favorite_message"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/ten_dp_margin"-->
-        <!--            android:padding="@dimen/twenty_dp_margin"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/fl_notes">-->
-
-        <!--            <TextView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:fontFamily="@font/montserrat"-->
-        <!--                android:text="@string/favourite_messages" />-->
-
-        <!--            <ImageView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:src="@drawable/img_arrow_forward"-->
-        <!--                android:layout_gravity="end" />-->
-        <!--        </FrameLayout>-->
-
-        <!--        <FrameLayout-->
-        <!--            android:id="@+id/fl_shared_media"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/ten_dp_margin"-->
-        <!--            android:padding="@dimen/twenty_dp_margin"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/iv_chat">-->
-
-        <!--            <TextView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:fontFamily="@font/montserrat"-->
-        <!--                android:text="@string/shared_media_links_and_docs" />-->
-
-        <!--            <ImageView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:src="@drawable/img_arrow_forward"-->
-        <!--                android:layout_gravity="end" />-->
-        <!--        </FrameLayout>-->
-
-        <!--        <FrameLayout-->
-        <!--            android:id="@+id/fl_chat_search"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/ten_dp_margin"-->
-        <!--            android:padding="@dimen/twenty_dp_margin"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/fl_shared_media">-->
-
-        <!--            <TextView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:fontFamily="@font/montserrat"-->
-        <!--                android:text="@string/chat_search" />-->
-
-        <!--            <ImageView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:src="@drawable/img_arrow_forward"-->
-        <!--                android:layout_gravity="end" />-->
-        <!--        </FrameLayout>-->
-
-        <!--        <FrameLayout-->
-        <!--            android:id="@+id/fl_call_history"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_margin="@dimen/ten_dp_margin"-->
-        <!--            android:padding="@dimen/twenty_dp_margin"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/fl_chat_search">-->
-
-        <!--            <TextView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:fontFamily="@font/montserrat"-->
-        <!--                android:text="@string/call_history" />-->
-
-        <!--            <ImageView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:src="@drawable/img_arrow_forward"-->
-        <!--                android:layout_gravity="end" />-->
-        <!--        </FrameLayout>-->
 
         <FrameLayout
             android:id="@+id/fl_pin_chat"
@@ -312,21 +196,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fl_pin_chat" />
-
-<!--        <TextView-->
-<!--            android:id="@+id/tv_report"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="@dimen/twenty_dp_margin"-->
-<!--            android:layout_marginBottom="@dimen/eight_dp_margin"-->
-<!--            android:fontFamily="@font/montserrat"-->
-<!--            android:paddingStart="@dimen/ten_dp_margin"-->
-<!--            android:text="@string/report"-->
-<!--            android:textColor="@color/style_red"-->
-<!--            android:textSize="@dimen/sixteen_sp_text"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/tv_blocked" />-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

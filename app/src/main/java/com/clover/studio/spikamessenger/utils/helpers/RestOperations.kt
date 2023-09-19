@@ -5,6 +5,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 object RestOperations {
 
@@ -101,6 +102,7 @@ object RestOperations {
             Resource.Status.SUCCESS -> {
                 saveCallResult.invoke(responseStatus.responseData!!)
             }
+            else -> Timber.d("Error status")
         }
     }
 }

@@ -447,7 +447,7 @@ class NewRoomFragment : BaseFragment() {
             null,
             getString(R.string.ok),
             object : DialogInteraction {
-                // ignore
+                // Ignore
             })
     }
 }

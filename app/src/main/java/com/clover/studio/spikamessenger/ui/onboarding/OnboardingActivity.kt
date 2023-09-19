@@ -17,7 +17,6 @@ fun startOnboardingActivity(fromActivity: Activity, goAccountCreation: Boolean) 
         val intent = Intent(fromActivity as Context, OnboardingActivity::class.java)
         intent.putExtra(Const.Navigation.GO_ACCOUNT_CREATION, goAccountCreation)
         startActivity(intent)
-        // finishAffinity() will remove all activities before this one
         finishAffinity()
     }
 
