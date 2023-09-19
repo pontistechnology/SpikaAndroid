@@ -45,7 +45,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 110006
-        versionName "1.1.1"
+        versionName "1.2.0"
 
         kapt {
             arguments {
