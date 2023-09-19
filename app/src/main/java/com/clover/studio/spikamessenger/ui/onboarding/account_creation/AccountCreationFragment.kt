@@ -159,7 +159,7 @@ class AccountCreationFragment : BaseFragment() {
     private fun addTextListeners() {
         binding.etEnterUsername.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                // ignore
+                // Ignore
             }
 
             override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {

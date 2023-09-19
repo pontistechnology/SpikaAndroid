@@ -209,14 +209,11 @@ class ChatDetailsFragment : BaseFragment() {
                 etEnterGroupName.visibility = View.VISIBLE
                 ivDone.visibility = View.VISIBLE
                 tvGroupName.visibility = View.INVISIBLE
-//                 chatHeader.ivCallUser.visibility = View.INVISIBLE
-//                 chatHeader.ivVideoCall.visibility = View.INVISIBLE
             }
         }
 
         ivDone.setOnClickListener {
             val roomName = etEnterGroupName.text.toString()
-//          val adminIds: MutableList<Int> = ArrayList()
             val jsonObject = JsonObject()
             if (roomName.isNotEmpty()) {
                 jsonObject.addProperty(Const.JsonFields.NAME, roomName)
@@ -229,8 +226,6 @@ class ChatDetailsFragment : BaseFragment() {
             viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
 
             ivDone.visibility = View.GONE
-//             chatHeader.ivCallUser.visibility = View.VISIBLE
-//             chatHeader.ivVideoCall.visibility = View.VISIBLE
             etEnterGroupName.visibility = View.INVISIBLE
             tvGroupName.visibility = View.VISIBLE
         }
@@ -425,8 +420,6 @@ class ChatDetailsFragment : BaseFragment() {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
                         binding.flProgressScreen.visibility = View.GONE
-//                        binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
-//                        binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
                         binding.ivDone.visibility = View.VISIBLE
                     }
                     newAvatarFileId = it.responseData!!.fileId
@@ -466,7 +459,6 @@ class ChatDetailsFragment : BaseFragment() {
             }
         )
 
-        // binding.rvGroupMembers.itemAnimator = null
         binding.rvGroupMembers.adapter = adapter
         binding.rvGroupMembers.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
@@ -597,11 +589,11 @@ class ChatDetailsFragment : BaseFragment() {
             getString(R.string.ok),
             object : DialogInteraction {
                 override fun onFirstOptionClicked() {
-                    // ignore
+                    // Ignore
                 }
 
                 override fun onSecondOptionClicked() {
-                    // ignore
+                    // Ignore
                 }
             })
         binding.flProgressScreen.visibility = View.GONE

@@ -8,7 +8,6 @@ import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
-import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -49,7 +48,6 @@ class MainViewModel @Inject constructor(
     val checkRoomExistsListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
     val createRoomListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
     val roomWithUsersListener = MutableLiveData<Event<Resource<RoomWithUsers?>>>()
-    val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
@@ -110,7 +108,6 @@ class MainViewModel @Inject constructor(
 
     fun checkIfRoomExists(userId: Int) = viewModelScope.launch {
         resolveResponseStatus(checkRoomExistsListener, repository.getRoomById(userId))
-//        checkRoomExistsListener.postValue(Event(repository.getRoomById(userId)))
     }
 
     fun createNewRoom(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
@@ -136,18 +133,11 @@ class MainViewModel @Inject constructor(
 
     fun getUserAndPhoneUser(localId: Int) = repository.getUserAndPhoneUser(localId)
 
-    fun getChatRoomAndMessageAndRecords() = repository.getChatRoomAndMessageAndRecords()
-
     fun getChatRoomsWithLatestMessage() = repository.getChatRoomsWithLatestMessage()
 
     fun getRoomsLiveData() = repository.getRoomsUnreadCount()
 
     fun getRoomByIdLiveData(roomId: Int) = repository.getRoomByIdLiveData(roomId)
-
-    fun getSingleRoomData(roomId: Int) =
-        viewModelScope.launch {
-            resolveResponseStatus(roomDataListener, repository.getSingleRoomData(roomId))
-        }
 
     fun getRoomWithUsers(roomId: Int) =
         viewModelScope.launch {

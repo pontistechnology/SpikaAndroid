@@ -52,19 +52,14 @@ class RegisterNumberFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
 
         checkUser()
         checkMultiplePermissions()
-//        checkContactsPermission()
-//        checkNotificationPermission()
         setTextListener()
         setClickListeners()
         setObservers()
-//
-//        // Log check if token is present in shared prefs
-//        viewModel.registerFlag(false)
+
         viewModel.readToken()
 
         return binding.root

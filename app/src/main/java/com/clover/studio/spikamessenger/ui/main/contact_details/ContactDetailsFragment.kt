@@ -133,21 +133,12 @@ class ContactDetailsFragment : BaseFragment() {
                 Resource.Status.ERROR -> {
                     Timber.d("Room not found, creating new one")
                     val jsonObject = JsonObject()
-
-//                    val avatarUrlArray = JsonArray()
-//                    avatarUrlArray.add("fakeUrl")
-//
                     val userIdsArray = JsonArray()
                     userIdsArray.add(user?.id)
-//                    userIdsArray.add(5)
-//
-//                    val adminUserIds = JsonArray()
-//                    adminUserIds.add(3)
 
                     jsonObject.addProperty(Const.JsonFields.NAME, user?.formattedDisplayName)
                     jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, user?.avatarFileId)
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
-//                    jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
                     jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
 
                     viewModel.createNewRoom(jsonObject)

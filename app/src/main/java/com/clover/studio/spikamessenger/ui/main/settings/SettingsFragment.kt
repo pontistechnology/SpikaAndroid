@@ -124,7 +124,7 @@ class SettingsFragment : BaseFragment() {
     private fun addTextListeners() {
         binding.etEnterUsername.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                // ignore
+                // Ignore
             }
 
             override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -251,17 +251,6 @@ class SettingsFragment : BaseFragment() {
                     }
                 })
         }
-//        binding.clChat.setOnClickListener {
-//            goToChatSettings()
-//        }
-//
-//        binding.clNotifications.setOnClickListener {
-//            goToNotificationSettings()
-//        }
-//
-//        binding.clMediaDownload.setOnClickListener {
-//            goToDownloadSettings()
-//        }
     }
 
     private fun updateUserImage() {
@@ -325,9 +314,6 @@ class SettingsFragment : BaseFragment() {
 
                             val jsonObject = JsonObject()
                             jsonObject.addProperty(Const.UserData.AVATAR_FILE_ID, fileId)
-//                            val userData = hashMapOf(
-//                                Const.UserData.AVATAR_FILE_ID to fileId
-//                            )
                             viewModel.updateUserData(jsonObject)
                         }
 
@@ -388,11 +374,11 @@ class SettingsFragment : BaseFragment() {
             getString(R.string.ok),
             object : DialogInteraction {
                 override fun onFirstOptionClicked() {
-                    // ignore
+                    // Ignore
                 }
 
                 override fun onSecondOptionClicked() {
-                    // ignore
+                    // Ignore
                 }
             })
         clProgressScreen.visibility = View.GONE
@@ -417,18 +403,6 @@ class SettingsFragment : BaseFragment() {
     private fun goToAppearanceSettings() {
         findNavController().navigate(MainFragmentDirections.actionMainFragmentToAppearanceSettings(), navOptionsBuilder)
     }
-
-//    private fun goToChatSettings() {
-//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToChatSettingsFragment(), navOptionsBuilder)
-//    }
-//
-//    private fun goToNotificationSettings() {
-//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToNotificationSettingsFragment(), navOptionsBuilder)
-//    }
-//
-//    private fun goToDownloadSettings() {
-//        findNavController().navigate(MainFragmentDirections.actionMainFragmentToDownloadSettingsFragment(), navOptionsBuilder)
-//    }
 
     override fun onPause() {
         showUserDetails()

@@ -291,14 +291,6 @@ class ChatMessagesFragment : BaseFragment() {
 
         setAvatarAndName(avatarFileId, userName)
 
-        // TODO this will be implemented later
-//        if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
-//            chatHeader.ivVideoCall.setImageResource(R.drawable.img_video_call_disabled)
-//            chatHeader.ivCallUser.setImageResource(R.drawable.img_call_user_disabled)
-//            chatHeader.ivVideoCall.isEnabled = false
-//            chatHeader.ivCallUser.isEnabled = false
-//        }
-
         // If room is group, show number of members under group name
         if (Const.JsonFields.GROUP == roomWithUsers?.room?.type) {
             chatHeader.tvTitle.text =
@@ -481,15 +473,6 @@ class ChatMessagesFragment : BaseFragment() {
                 resetEditingFields()
             }
         }
-
-//        TODO this will be implemented later
-//        bottomSheet.btnLocation.setOnClickListener {
-//            rotationAnimation()
-//        }
-//
-//        bottomSheet.btnContact.setOnClickListener {
-//            rotationAnimation()
-//        }
     }
 
     private fun initializeObservers() {
@@ -963,7 +946,6 @@ class ChatMessagesFragment : BaseFragment() {
         etMessage.text?.clear()
         ivAdd.visibility = visibility
         clTyping.visibility = visibility
-//        ivMicrophone.visibility = visibility
         ivCamera.visibility = visibility
     }
 
@@ -1144,11 +1126,9 @@ class ChatMessagesFragment : BaseFragment() {
                 if (!originalText.equals(it)) {
                     bindingSetup.tvSave.visibility = View.VISIBLE
                     bindingSetup.ivCamera.visibility = View.INVISIBLE
-//                    bindingSetup.ivMicrophone.visibility = View.INVISIBLE
                 } else {
                     bindingSetup.tvSave.visibility = View.GONE
                     bindingSetup.ivCamera.visibility = View.VISIBLE
-//                    bindingSetup.ivMicrophone.visibility = View.VISIBLE
                 }
             }
         }
@@ -1169,7 +1149,6 @@ class ChatMessagesFragment : BaseFragment() {
         ivAdd.rotation = ROTATION_OFF
         tvSave.visibility = View.GONE
         ivCamera.visibility = View.VISIBLE
-//        ivMicrophone.visibility = View.VISIBLE
         etMessage.text!!.clear()
         etMessage.setText("")
     }
@@ -1181,7 +1160,6 @@ class ChatMessagesFragment : BaseFragment() {
 
     private fun showSendButton() = with(bindingSetup) {
         ivCamera.visibility = View.INVISIBLE
-//        ivMicrophone.visibility = View.INVISIBLE
         ivButtonSend.visibility = View.VISIBLE
         clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
             endToStart = bindingSetup.ivButtonSend.id
@@ -1191,7 +1169,6 @@ class ChatMessagesFragment : BaseFragment() {
 
     private fun hideSendButton() = with(bindingSetup) {
         ivCamera.visibility = View.VISIBLE
-//        ivMicrophone.visibility = View.VISIBLE
         ivButtonSend.visibility = View.GONE
         clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
             endToStart = bindingSetup.ivCamera.id
