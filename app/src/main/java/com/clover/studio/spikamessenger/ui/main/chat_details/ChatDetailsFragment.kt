@@ -145,7 +145,7 @@ class ChatDetailsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initializeViews(roomWithUsers)
-        if (savedInstanceState == null){
+        if (savedInstanceState == null) {
             setAvatarAndUsername(roomWithUsers.room.avatarFileId!!)
         }
 
@@ -228,7 +228,7 @@ class ChatDetailsFragment : BaseFragment() {
             etEnterGroupName.visibility = View.INVISIBLE
             tvGroupName.visibility = View.VISIBLE
 
-            if (newAvatarFileId != 0L){
+            if (newAvatarFileId != 0L) {
                 setAvatarAndUsername(newAvatarFileId)
             }
         }
@@ -338,6 +338,16 @@ class ChatDetailsFragment : BaseFragment() {
                 tvSeeMoreLess.text = context!!.getString(R.string.see_more)
                 allUsers = true
             }
+        }
+    }
+
+    private fun updateImage() {
+        val jsonObject = JsonObject()
+
+        if (newAvatarFileId != 0L) {
+            jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, newAvatarFileId)
+            viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
+            setAvatarAndUsername(newAvatarFileId)
         }
     }
 
@@ -609,17 +619,13 @@ class ChatDetailsFragment : BaseFragment() {
                     Tools.deleteTemporaryMedia(context!!)
                     context?.cacheDir?.deleteRecursively()
 
-                    requireActivity().runOnUiThread {
-                        binding.flProgressScreen.visibility = View.GONE
-                        binding.chatHeader.ivVideoCall.visibility = View.INVISIBLE
-                        binding.chatHeader.ivCallUser.visibility = View.INVISIBLE
-                        binding.tvDone.visibility = View.VISIBLE
+
+                    if (isVisible || isResumed) {
+                        activity!!.runOnUiThread {
+                            binding.flProgressScreen.visibility = View.GONE
+                        }
                     }
-
-                    newAvatarFileId = uploadedFiles.first().messageBody?.fileId!!
-
-                    uploadedFiles.clear()
-
+                    updateImage()
                 }
             })
         }

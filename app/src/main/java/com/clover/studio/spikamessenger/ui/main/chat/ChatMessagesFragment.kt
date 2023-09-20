@@ -1373,7 +1373,8 @@ class ChatMessagesFragment : BaseFragment() {
                 uri,
                 localId,
                 roomWithUsers!!.room.roomId,
-                metadata
+                metadata,
+                false
             )
         )
         uploadFiles.addAll(uploadData)
