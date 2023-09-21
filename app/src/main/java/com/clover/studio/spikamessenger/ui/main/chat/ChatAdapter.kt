@@ -305,7 +305,7 @@ class ChatAdapter(
                         tvMessageReply = holder.binding.tvMessageReply,
                         clReplyMessage = holder.binding.clReplyMessage,
                         clContainer = holder.binding.clContainer,
-                        tvUsername = holder.binding.tvUsername,
+                        tvUsername = holder.binding.tvUsernameOther,
                         sender = true,
                     )
                 }
