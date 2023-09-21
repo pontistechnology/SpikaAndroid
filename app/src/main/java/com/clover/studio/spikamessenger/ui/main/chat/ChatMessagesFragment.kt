@@ -840,13 +840,17 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun handleShowReactions(msg: MessageAndRecords) {
-        val reactionsBottomSheet = ReactionsBottomSheet(requireContext(), msg, roomWithUsers!!, localUserId)
-        reactionsBottomSheet.setReactionListener(object: ReactionsBottomSheet.ReactionsAction{
+        val reactionsBottomSheet =
+            ReactionsBottomSheet(requireContext(), msg, roomWithUsers!!, localUserId)
+        reactionsBottomSheet.setReactionListener(object : ReactionsBottomSheet.ReactionsAction {
             override fun deleteReaction(reaction: MessageRecords?) {
                 reaction?.id?.let { viewModel.deleteReaction(it) }
             }
         })
-        reactionsBottomSheet.show(requireActivity().supportFragmentManager, ReactionsBottomSheet.TAG)
+        reactionsBottomSheet.show(
+            requireActivity().supportFragmentManager,
+            ReactionsBottomSheet.TAG
+        )
     }
 
     private fun handleMessageAction(msg: MessageAndRecords) = with(bindingSetup) {
@@ -1017,99 +1021,74 @@ class ChatMessagesFragment : BaseFragment() {
         findNavController().navigate(action, navOptionsBuilder)
     }
 
-    private fun handleMessageReply(message: Message) = with(bindingSetup) {
+    private fun handleMessageReply(message: Message) = with(bindingSetup.replyAction) {
         replyId = message.id.toLong()
-        val backgroundResId = if (message.fromUserId == localUserId) {
-            R.drawable.bg_message_send
-        } else {
-            R.drawable.bg_message_received
-        }
-        replyAction.clReplyContainer.setBackgroundResource(backgroundResId)
 
         val user = roomWithUsers!!.users.firstOrNull {
             it.id == message.fromUserId
         }
-        replyAction.tvUsername.text = user!!.formattedDisplayName
+        tvUsername.text = user!!.formattedDisplayName
 
         when (message.type) {
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                replyAction.tvMessage.visibility = View.GONE
-                replyAction.ivReplyImage.visibility = View.VISIBLE
+                tvMessage.visibility = View.GONE
+                ivReplyImage.visibility = View.VISIBLE
                 if (Const.JsonFields.IMAGE_TYPE == message.type) {
-                    replyAction.tvReplyMedia.text = getString(
+                    tvReplyMedia.text = getString(
                         R.string.media,
                         context!!.getString(R.string.photo)
                     )
-                    replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera_reply,
-                        0,
-                        0,
-                        0
+                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_camera_reply, 0, 0, 0
                     )
                 }
                 if (Const.JsonFields.VIDEO_TYPE == message.type) {
-                    replyAction.tvReplyMedia.text = getString(
-                        R.string.media,
-                        context!!.getString(R.string.video)
-                    )
-                    replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_video_reply,
-                        0,
-                        0,
-                        0
+                    tvReplyMedia.text =
+                        getString(R.string.media, context!!.getString(R.string.video))
+                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_video_reply, 0, 0, 0
                     )
                 }
                 val mediaPath = Tools.getMediaFile(requireContext(), message)
-                replyAction.tvReplyMedia.visibility = View.VISIBLE
+                tvReplyMedia.visibility = View.VISIBLE
                 Glide.with(this@ChatMessagesFragment)
                     .load(mediaPath)
                     .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                     .placeholder(R.drawable.img_image_placeholder)
                     .dontTransform()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(replyAction.ivReplyImage)
+                    .into(ivReplyImage)
             }
 
             Const.JsonFields.AUDIO_TYPE -> {
-                replyAction.tvMessage.visibility = View.GONE
-                replyAction.tvReplyMedia.visibility = View.VISIBLE
-                replyAction.ivReplyImage.visibility = View.GONE
-                replyAction.tvReplyMedia.text =
+                tvMessage.visibility = View.GONE
+                tvReplyMedia.visibility = View.VISIBLE
+                ivReplyImage.visibility = View.GONE
+                tvReplyMedia.text =
                     getString(R.string.media, context!!.getString(R.string.audio))
-                replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_audio_reply,
-                    0,
-                    0,
-                    0
+                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                    R.drawable.img_audio_reply, 0, 0, 0
                 )
             }
 
             Const.JsonFields.FILE_TYPE -> {
-                replyAction.tvMessage.visibility = View.GONE
-                replyAction.ivReplyImage.visibility = View.GONE
-                replyAction.tvReplyMedia.visibility = View.VISIBLE
-                replyAction.tvReplyMedia.text =
+                tvMessage.visibility = View.GONE
+                ivReplyImage.visibility = View.GONE
+                tvReplyMedia.visibility = View.VISIBLE
+                tvReplyMedia.text =
                     getString(R.string.media, context!!.getString(R.string.file))
-                replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_file_reply,
-                    0,
-                    0,
-                    0
+                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                    R.drawable.img_file_reply, 0, 0, 0
                 )
             }
 
             else -> {
-                replyAction.ivReplyImage.visibility = View.GONE
-                replyAction.tvReplyMedia.visibility = View.GONE
-                replyAction.tvMessage.visibility = View.VISIBLE
+                ivReplyImage.visibility = View.GONE
+                tvReplyMedia.visibility = View.GONE
+                tvMessage.visibility = View.VISIBLE
                 val replyText = message.body?.text
-                replyAction.tvMessage.text = replyText
-                replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    0,
-                    0,
-                    0,
-                    0
-                )
+                tvMessage.text = replyText
+                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
             }
         }
     }
