@@ -108,6 +108,7 @@ class Const {
             const val IMAGE_TYPE = "image"
             const val SVG_TYPE = "svg"
             const val AVI_TYPE = "avi"
+            const val MOV_TYPE = "quicktime"
 
             // File upload
             const val CHUNK = "chunk"
