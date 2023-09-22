@@ -879,7 +879,7 @@ class ChatMessagesFragment : BaseFragment() {
             }
 
             override fun actionReply() {
-                bindingSetup.replyAction.root.visibility = View.VISIBLE
+                replyAction.root.visibility = View.VISIBLE
                 handleMessageReply(msg.message)
             }
 
@@ -906,7 +906,7 @@ class ChatMessagesFragment : BaseFragment() {
             }
 
             override fun addCustomReaction() {
-                bindingSetup.root.postDelayed({
+                root.postDelayed({
                     openCustomEmojiKeyboard(msg.message)
                 }, 200)
             }
@@ -1103,11 +1103,11 @@ class ChatMessagesFragment : BaseFragment() {
         etMessage.addTextChangedListener {
             if (isEditing) {
                 if (!originalText.equals(it)) {
-                    bindingSetup.tvSave.visibility = View.VISIBLE
-                    bindingSetup.ivCamera.visibility = View.INVISIBLE
+                    tvSave.visibility = View.VISIBLE
+                    ivCamera.visibility = View.INVISIBLE
                 } else {
-                    bindingSetup.tvSave.visibility = View.GONE
-                    bindingSetup.ivCamera.visibility = View.VISIBLE
+                    tvSave.visibility = View.GONE
+                    ivCamera.visibility = View.VISIBLE
                 }
             }
         }
@@ -1141,7 +1141,7 @@ class ChatMessagesFragment : BaseFragment() {
         ivCamera.visibility = View.INVISIBLE
         ivButtonSend.visibility = View.VISIBLE
         clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            endToStart = bindingSetup.ivButtonSend.id
+            endToStart = ivButtonSend.id
         }
         ivAdd.rotation = ROTATION_OFF
     }
@@ -1150,7 +1150,7 @@ class ChatMessagesFragment : BaseFragment() {
         ivCamera.visibility = View.VISIBLE
         ivButtonSend.visibility = View.GONE
         clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            endToStart = bindingSetup.ivCamera.id
+            endToStart = ivCamera.id
         }
         ivAdd.rotation = ROTATION_OFF
     }
