@@ -186,10 +186,6 @@ class ChatMessagesFragment : BaseFragment() {
             if (it) {
                 if (photoImageUri != null) {
                     selectedFiles.add(photoImageUri!!)
-                    activity?.contentResolver?.takePersistableUriPermission(
-                        photoImageUri!!,
-                        FLAG_GRANT_READ_URI_PERMISSION
-                    )
                     handleUserSelectedFile(selectedFiles)
                 } else {
                     Timber.d("Photo error")
