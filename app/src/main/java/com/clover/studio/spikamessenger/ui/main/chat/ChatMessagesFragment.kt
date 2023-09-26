@@ -1049,7 +1049,6 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun handleMessageReply(message: Message) = with(bindingSetup.replyAction) {
-        root.visibility = View.VISIBLE
         replyId = message.id.toLong()
 
         val user = roomWithUsers!!.users.firstOrNull {
