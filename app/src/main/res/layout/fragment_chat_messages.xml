@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:ignore="contentDescription"
-    tools:context=".ui.main.chat.ChatMessagesFragment">
+    tools:context=".ui.main.chat.ChatMessagesFragment"
+    tools:ignore="contentDescription">
 
     <View
         android:id="@+id/v_transparent"
@@ -66,6 +65,8 @@
         android:id="@+id/cl_typing"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/eight_dp_margin"
+        android:layout_marginEnd="@dimen/eight_dp_margin"
         android:layout_marginBottom="@dimen/eight_dp_margin"
         android:background="@drawable/bg_text_field"
         android:padding="@dimen/ten_dp_margin"
@@ -110,13 +111,11 @@
         android:id="@+id/iv_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/eight_dp_margin"
         android:background="@color/white"
         android:backgroundTint="@color/main"
         android:padding="@dimen/ten_dp_margin"
         android:src="@drawable/img_add"
         app:layout_constraintBottom_toBottomOf="@+id/cl_typing"
-        app:layout_constraintEnd_toStartOf="@+id/cl_typing"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/cl_typing" />
 
@@ -124,14 +123,12 @@
         android:id="@+id/iv_camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/two_dp_margin"
         android:background="@color/white"
         android:backgroundTint="@color/main"
         android:padding="@dimen/ten_dp_margin"
         android:src="@drawable/img_camera"
         app:layout_constraintBottom_toBottomOf="@+id/cl_typing"
         app:layout_constraintEnd_toEndOf="@+id/divider"
-        app:layout_constraintStart_toEndOf="@id/cl_typing"
         app:layout_constraintTop_toTopOf="@+id/cl_typing" />
 
     <ImageView
@@ -153,10 +150,10 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/montserrat"
         android:gravity="center"
-        android:padding="@dimen/twenty_dp_margin"
+        android:padding="@dimen/ten_dp_margin"
         android:text="@string/save"
         android:textColor="@color/primary_color"
-        android:textSize="@dimen/sixteen_sp_text"
+        android:textSize="@dimen/fourteen_sp_text"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/cl_typing"
         app:layout_constraintEnd_toEndOf="parent"
