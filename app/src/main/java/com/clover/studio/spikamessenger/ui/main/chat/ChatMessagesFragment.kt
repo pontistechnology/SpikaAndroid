@@ -1284,8 +1284,7 @@ class ChatMessagesFragment : BaseFragment() {
             val fileMimeType = getFileMimeType(context, uri)
             if ((fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
                         fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) &&
-                (!fileMimeType.contains(Const.JsonFields.SVG_TYPE) &&
-                        !fileMimeType.contains(Const.JsonFields.AVI_TYPE))
+                !Tools.forbiddenMimeTypes(fileMimeType)
             ) {
                 convertMedia(uri, fileMimeType)
             } else {
