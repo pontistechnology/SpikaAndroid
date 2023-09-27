@@ -793,9 +793,8 @@ class ChatMessagesFragment : BaseFragment() {
                         Const.UserActions.ACTION_LEFT -> {
                             val detailsSheet = DetailsBottomSheet(
                                 context = requireContext(),
-                                message = messagesRecords[position].message,
                                 roomWithUsers = roomWithUsers!!,
-                                messagesRecords = messagesRecords,
+                                messagesRecords = messagesRecords.find { it.message.id == messagesRecords[position].message.id }!!,
                                 localUserId = localUserId
                             )
                             detailsSheet.show(
@@ -882,9 +881,8 @@ class ChatMessagesFragment : BaseFragment() {
             override fun actionDetails() {
                 val detailsSheet = DetailsBottomSheet(
                     context = requireContext(),
-                    message = msg.message,
                     roomWithUsers = roomWithUsers!!,
-                    messagesRecords = messagesRecords,
+                    messagesRecords = messagesRecords.find { it.message.id == msg.message.id }!!,
                     localUserId = localUserId
                 )
                 detailsSheet.show(

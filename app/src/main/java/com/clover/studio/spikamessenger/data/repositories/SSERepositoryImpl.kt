@@ -56,47 +56,65 @@ class SSERepositoryImpl @Inject constructor(
                 val messageRecordsUpdates: MutableList<MessageRecords> = ArrayList()
                 val deleteMessageRecords: MutableList<MessageRecords> = ArrayList()
 
+                // Checking whether each data record in list already
+                // exists (to update) or it needs to be added
                 if (it.data.list.isNotEmpty()) {
                     for (record in it.data.list) {
                         val databaseRecords = queryDatabaseCoreData(
                             databaseQuery = {
                                 messageRecordsDao.getMessageRecordId(
-                                    record.messageId,
-                                    record.userId,
+                                    id = record.messageId,
+                                    userId = record.userId,
                                 )
                             }
                         ).responseData
 
+                        // Record does not exist, adding it to the database
                         if (databaseRecords == null) {
                             messageRecords.add(record)
-                        } else
+                        }
+                        // Record exists, checking type
+                        else {
+                            // Record already of type delivered, needs to
+                            // be updated to type seen
                             if (Const.JsonFields.SEEN == record.type) {
                                 messageRecordsUpdates.add(record)
-                            } else if (Const.JsonFields.REACTION == record.type) {
-                                if (record.isDeleted){
+                            }
+                            // Received record of type reaction
+                            else if (Const.JsonFields.REACTION == record.type) {
+                                // If the record needs to be removed,
+                                // it is added to deleteMessageRecords
+                                if (record.isDeleted)
                                     deleteMessageRecords.add(record)
-                                } else {
-                                    val databaseReaction = queryDatabaseCoreData(
-                                        databaseQuery = {
-                                            messageRecordsDao.getMessageReactionId(
-                                                record.messageId,
-                                                record.userId
-                                            )
-                                        }
-                                    ).responseData
-                                    if (databaseReaction == null) {
-                                        messageRecords.add(record)
-                                    } else {
-                                        messageRecordsUpdates.add(record)
+                            }
+                            // Else we search for the reaction record to update
+                            else {
+                                val databaseReaction = queryDatabaseCoreData(
+                                    databaseQuery = {
+                                        messageRecordsDao.getMessageReactionId(
+                                            id = record.messageId,
+                                            userId = record.userId
+                                        )
                                     }
+                                ).responseData
+                                // The reaction record to update does not
+                                // exist so we add it
+                                if (databaseReaction == null) {
+                                    messageRecords.add(record)
+                                }
+                                // The reaction record to update does
+                                // exist so we update it
+                                else {
+                                    messageRecordsUpdates.add(record)
                                 }
                             }
+                        }
                     }
                 }
 
                 deleteMessageRecords.forEach {
-                    queryDatabaseCoreData (
-                        databaseQuery = { messageRecordsDao.delete(it)}
+                    queryDatabaseCoreData(
+                        databaseQuery = { messageRecordsDao.delete(it) }
                     )
                 }
 
@@ -109,11 +127,11 @@ class SSERepositoryImpl @Inject constructor(
                     queryDatabaseCoreData(
                         databaseQuery = {
                             messageRecordsDao.updateMessageRecords(
-                                it.userId,
-                                it.type,
-                                it.createdAt,
-                                it.modifiedAt,
-                                it.userId
+                                messageId = it.messageId,
+                                type = it.type,
+                                createdAt = it.createdAt,
+                                modifiedAt = it.modifiedAt,
+                                userId = it.userId
                             )
                         }
                     )
@@ -225,23 +243,23 @@ class SSERepositoryImpl @Inject constructor(
                     val users: MutableList<User> = ArrayList()
                     val rooms: MutableList<ChatRoom> = ArrayList()
                     val roomUsers: MutableList<RoomUser> = ArrayList()
+
                     for (room in roomResponse.data.list) {
                         if (!room.deleted) {
-                            Timber.d("Adding room ${room.name}")
-
                             for (user in room.users) {
                                 user.user?.let { users.add(it) }
                                 roomUsers.add(
                                     RoomUser(
-                                        room.roomId,
-                                        user.userId,
-                                        user.isAdmin
+                                        roomId = room.roomId,
+                                        userId = user.userId,
+                                        isAdmin = user.isAdmin
                                     )
                                 )
                             }
                             rooms.add(room)
                         }
                     }
+
                     queryDatabaseCoreData(
                         databaseQuery = { chatRoomDao.upsert(rooms) }
                     )
@@ -318,8 +336,8 @@ class SSERepositoryImpl @Inject constructor(
                     if (messageRecords.recordMessage.seenCount > databaseRecord.seenCount) {
                         queryDatabaseCoreData {
                             messageDao.updateMessageSeenCount(
-                                messageRecords.recordMessage.id,
-                                messageRecords.recordMessage.seenCount,
+                                messageId = messageRecords.recordMessage.id,
+                                seenCount = messageRecords.recordMessage.seenCount,
                             )
                         }
                     }
@@ -328,8 +346,8 @@ class SSERepositoryImpl @Inject constructor(
                     if (messageRecords.recordMessage.deliveredCount > databaseRecord.deliveredCount) {
                         queryDatabaseCoreData {
                             messageDao.updateMessageDeliveredCount(
-                                messageRecords.recordMessage.id,
-                                messageRecords.recordMessage.deliveredCount,
+                                messageId = messageRecords.recordMessage.id,
+                                deliveredCount = messageRecords.recordMessage.deliveredCount,
                             )
                         }
                     }
@@ -342,8 +360,8 @@ class SSERepositoryImpl @Inject constructor(
         val databaseRecords = queryDatabaseCoreData(
             databaseQuery = {
                 messageRecordsDao.getMessageRecordId(
-                    messageRecords.messageId,
-                    messageRecords.userId
+                    id = messageRecords.messageId,
+                    userId = messageRecords.userId
                 )
             }
         ).responseData
@@ -357,11 +375,11 @@ class SSERepositoryImpl @Inject constructor(
                 queryDatabaseCoreData(
                     databaseQuery = {
                         messageRecordsDao.updateMessageRecords(
-                            messageRecords.messageId,
-                            messageRecords.type,
-                            messageRecords.createdAt,
-                            messageRecords.modifiedAt,
-                            messageRecords.userId,
+                            messageId = messageRecords.messageId,
+                            type = messageRecords.type,
+                            createdAt = messageRecords.createdAt,
+                            modifiedAt = messageRecords.modifiedAt,
+                            userId = messageRecords.userId,
                         )
                     }
                 )
@@ -369,8 +387,8 @@ class SSERepositoryImpl @Inject constructor(
                 val databaseReaction = queryDatabaseCoreData(
                     databaseQuery = {
                         messageRecordsDao.getMessageReactionId(
-                            messageRecords.messageId,
-                            messageRecords.userId
+                            id = messageRecords.messageId,
+                            userId = messageRecords.userId
                         )
                     }
                 ).responseData
@@ -382,10 +400,10 @@ class SSERepositoryImpl @Inject constructor(
                     queryDatabaseCoreData(
                         databaseQuery = {
                             messageRecordsDao.updateReaction(
-                                messageRecords.messageId,
-                                messageRecords.reaction!!,
-                                messageRecords.userId,
-                                messageRecords.createdAt,
+                                messageId = messageRecords.messageId,
+                                reaction = messageRecords.reaction!!,
+                                userId = messageRecords.userId,
+                                createdAt = messageRecords.createdAt,
                             )
                         }
                     )
@@ -413,9 +431,9 @@ class SSERepositoryImpl @Inject constructor(
                     for (user in room.users) {
                         user.user?.let { users.add(it) }
                         val roomUser = RoomUser(
-                            room.roomId,
-                            user.userId,
-                            user.isAdmin
+                            roomId = room.roomId,
+                            userId = user.userId,
+                            isAdmin = user.isAdmin
                         )
                         roomUsers.add(roomUser)
                     }
@@ -541,12 +559,12 @@ class SSERepositoryImpl @Inject constructor(
         if (Resource.Status.SUCCESS == response.status) {
             if (response.responseData?.let { shouldSyncMore(it) } == true) {
                 syncNextBatch(
-                    lastUpdate,
-                    networkCall,
-                    saveCallResult,
-                    shouldSyncMore,
-                    extraDataOperations,
-                    page + 1
+                    lastUpdate = lastUpdate,
+                    networkCall = networkCall,
+                    saveCallResult = saveCallResult,
+                    shouldSyncMore = shouldSyncMore,
+                    extraDataOperations = extraDataOperations,
+                    page = page + 1
                 )
             } else return response
         } else return response

@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -18,9 +17,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class DetailsBottomSheet(
     private val context: Context,
-    private val message: Message,
     private val roomWithUsers: RoomWithUsers,
-    private val messagesRecords: MutableList<MessageAndRecords>,
+    private val messagesRecords: MessageAndRecords,
     private var localUserId: Int,
 ) : BottomSheetDialogFragment() {
 
@@ -36,7 +34,7 @@ class DetailsBottomSheet(
             dismiss()
         }
 
-        setDetails(context, message)
+        setDetails(context, messagesRecords)
 
         return binding.root
     }
@@ -45,28 +43,28 @@ class DetailsBottomSheet(
         const val TAG = "detailsSheet"
     }
 
-    private fun setDetails(context: Context, message: Message) {
+    private fun setDetails(context: Context, message: MessageAndRecords) = with(binding) {
         val detailsMessageAdapter = MessageDetailsAdapter(
             context,
             roomWithUsers,
         )
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 
-        binding.rvReactionsDetails.adapter = detailsMessageAdapter
-        binding.rvReactionsDetails.layoutManager = layoutManager
-        binding.rvReactionsDetails.itemAnimator = null
+        rvReactionsDetails.adapter = detailsMessageAdapter
+        rvReactionsDetails.layoutManager = layoutManager
+        rvReactionsDetails.itemAnimator = null
 
-        val senderId = message.fromUserId
+        val senderId = message.message.fromUserId
 
         /* Adding a message record for the sender so that it can be sent to the adapter */
         val senderMessageRecord = MessageRecords(
             id = 0,
-            messageId = message.id,
-            userId = message.fromUserId!!,
+            messageId = message.message.id,
+            userId = message.message.fromUserId!!,
             type = Const.JsonFields.SENT,
             reaction = null,
-            modifiedAt = message.modifiedAt,
-            createdAt = message.createdAt!!,
+            modifiedAt = message.message.modifiedAt,
+            createdAt = message.message.createdAt!!,
             isDeleted = false,
             null
         )
@@ -75,13 +73,12 @@ class DetailsBottomSheet(
          remove reactions from those records(because we only need the seen and delivered types),
          remove the sender from the seen/delivered list and sort the list so that first we see
          seen and then delivered. */
-        val messageDetails =
-            messagesRecords.filter { it.message.id == message.id }
-                .flatMap { it.records!! }
-                .filter { Const.JsonFields.REACTION != it.type }
-                .filter { it.userId != message.fromUserId }
-                .sortedByDescending { it.type }
-                .toMutableList()
+        val messageDetails = message.records!!
+            .filter { Const.JsonFields.REACTION != it.type }
+            .filter { it.userId != senderId }
+            .sortedByDescending { it.type }
+            .distinctBy { it.userId }
+            .toMutableList()
 
         /* Then we add the sender of the message to the first position of the messageDetails list
         * so that we can display it in the RecyclerView */
