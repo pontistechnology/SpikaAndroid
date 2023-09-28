@@ -791,16 +791,18 @@ class ChatMessagesFragment : BaseFragment() {
                         }
 
                         Const.UserActions.ACTION_LEFT -> {
-                            val detailsSheet = DetailsBottomSheet(
-                                context = requireContext(),
-                                roomWithUsers = roomWithUsers!!,
-                                messagesRecords = messagesRecords.find { it.message.id == messagesRecords[position].message.id }!!,
-                                localUserId = localUserId
-                            )
-                            detailsSheet.show(
-                                requireActivity().supportFragmentManager,
-                                DetailsBottomSheet.TAG
-                            )
+                            messagesRecords.find { it.message.id == messagesRecords[position].message.id }
+                                ?.let {
+                                    DetailsBottomSheet(
+                                        context = requireContext(),
+                                        roomWithUsers = roomWithUsers!!,
+                                        messagesRecords = it,
+                                        localUserId = localUserId
+                                    )
+                                }?.show(
+                                    requireActivity().supportFragmentManager,
+                                    DetailsBottomSheet.TAG
+                                )
                         }
                     }
                 })
@@ -879,13 +881,14 @@ class ChatMessagesFragment : BaseFragment() {
             }
 
             override fun actionDetails() {
-                val detailsSheet = DetailsBottomSheet(
-                    context = requireContext(),
-                    roomWithUsers = roomWithUsers!!,
-                    messagesRecords = messagesRecords.find { it.message.id == msg.message.id }!!,
-                    localUserId = localUserId
-                )
-                detailsSheet.show(
+                messagesRecords.find { it.message.id == msg.message.id }?.let {
+                    DetailsBottomSheet(
+                        context = requireContext(),
+                        roomWithUsers = roomWithUsers!!,
+                        messagesRecords = it,
+                        localUserId = localUserId
+                    )
+                }?.show(
                     requireActivity().supportFragmentManager,
                     DetailsBottomSheet.TAG
                 )
