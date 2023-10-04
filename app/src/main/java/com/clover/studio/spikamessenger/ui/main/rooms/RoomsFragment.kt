@@ -36,8 +36,8 @@ class RoomsFragment : BaseFragment() {
     private var searchMessageId = 0
 
     private var userSearching = false
-    private var searchView : SearchView? = null
-    private var searchQuery : String = ""
+    private var searchView: SearchView? = null
+    private var searchQuery: String = ""
 
     private val binding get() = bindingSetup!!
 
@@ -63,38 +63,49 @@ class RoomsFragment : BaseFragment() {
 
     private fun initializeObservers() {
         viewModel.getChatRoomsWithLatestMessage().observe(viewLifecycleOwner) {
-            if (it.responseData != null) {
-                binding.tvNoChats.visibility = View.GONE
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    if (!it.responseData.isNullOrEmpty()) {
+                        binding.tvNoChats.visibility = View.GONE
 
-                roomList = it.responseData.toMutableList()
+                        roomList = it.responseData.toMutableList()
 
-                val nonEmptyRoomList = it.responseData.filter { roomData ->
-                    Const.JsonFields.GROUP == roomData.roomWithUsers.room.type || roomData.message != null
+                        val nonEmptyRoomList = it.responseData.filter { roomData ->
+                            Const.JsonFields.GROUP == roomData.roomWithUsers.room.type || roomData.message != null
+                        }
+
+                        val pinnedRooms =
+                            roomList.filter { roomItem -> roomItem.roomWithUsers.room.pinned }
+                                .sortedBy { pinnedRoom -> pinnedRoom.message?.createdAt }.reversed()
+
+                        try {
+                            sortedList =
+                                nonEmptyRoomList.sortedWith(compareBy(nullsFirst()) { roomItem ->
+                                    if (roomItem.message != null) {
+                                        roomItem.message.createdAt
+                                    } else null
+                                }).reversed().toMutableList()
+                        } catch (ex: Exception) {
+                            Tools.checkError(ex)
+                        }
+
+                        if (sortedList.isEmpty()) {
+                            sortedList = it.responseData.toMutableList()
+                        }
+
+                        // Calling .toSet() here caused a crash in the app, so don't add it.
+                        sortedList = (pinnedRooms + (sortedList - pinnedRooms)).toMutableList()
+
+                        if (!userSearching) {
+                            roomsAdapter.submitList(sortedList)
+                        }
+                    } else {
+                        binding.tvNoChats.visibility = View.VISIBLE
+                    }
                 }
-
-                val pinnedRooms = roomList.filter { roomItem -> roomItem.roomWithUsers.room.pinned }
-                    .sortedBy { pinnedRoom -> pinnedRoom.message?.createdAt }.reversed()
-
-                try {
-                    sortedList =
-                        nonEmptyRoomList.sortedWith(compareBy(nullsFirst()) { roomItem ->
-                            if (roomItem.message != null) {
-                                roomItem.message.createdAt
-                            } else null
-                        }).reversed().toMutableList()
-                } catch (ex: Exception) {
-                    Tools.checkError(ex)
-                }
-
-                if (sortedList.isEmpty()) {
-                    sortedList = it.responseData.toMutableList()
-                }
-
-                // Calling .toSet() here caused a crash in the app, so don't add it.
-                sortedList = (pinnedRooms + (sortedList - pinnedRooms)).toMutableList()
-
-                if (!userSearching) {
-                    roomsAdapter.submitList(sortedList)
+                Resource.Status.LOADING -> Timber.d("Loading!")
+                Resource.Status.ERROR -> {
+                    binding.tvNoChats.visibility = View.VISIBLE
                 }
             }
         }
@@ -156,7 +167,7 @@ class RoomsFragment : BaseFragment() {
             btnSearchRooms.setBackgroundDrawable(requireContext().getDrawable(R.drawable.btn_selected_search))
             btnSearchMessages.background = null
 
-            if (searchView != null){
+            if (searchView != null) {
                 searchView?.setQuery(searchQuery, true)
                 setSearch(searchView)
             }
@@ -170,8 +181,8 @@ class RoomsFragment : BaseFragment() {
             btnSearchMessages.setBackgroundDrawable(requireContext().getDrawable(R.drawable.btn_selected_search))
             btnSearchRooms.background = null
 
-            if (searchView != null){
-                searchView?.setQuery( searchQuery, true)
+            if (searchView != null) {
+                searchView?.setQuery(searchQuery, true)
                 setSearch(searchView)
             }
         }
@@ -196,7 +207,10 @@ class RoomsFragment : BaseFragment() {
                 }
 
                 R.id.create_room_menu_icon -> {
-                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment(), navOptionsBuilder)
+                    findNavController().navigate(
+                        MainFragmentDirections.actionMainFragmentToNewRoomFragment(),
+                        navOptionsBuilder
+                    )
                     true
                 }
 
