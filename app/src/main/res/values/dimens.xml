@@ -56,6 +56,6 @@
     <dimen name="thirty_five_dp">35dp</dimen>
 
     <!-- Reply layout  -->
-    <dimen name="reply_layout_dimen">104dp</dimen>
+    <dimen name="reply_layout_dimen">128dp</dimen>
 
 </resources>
