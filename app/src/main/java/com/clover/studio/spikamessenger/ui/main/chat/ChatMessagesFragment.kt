@@ -79,9 +79,6 @@ import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 
@@ -220,17 +217,16 @@ class ChatMessagesFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
 
-        if (viewModel.roomWithUsers.value != null) {
-            roomWithUsers = viewModel.roomWithUsers.value!!
+        postponeEnterTransition()
+
+        roomWithUsers = if (viewModel.roomWithUsers.value != null) {
+            viewModel.roomWithUsers.value
         } else {
-            CoroutineScope(Dispatchers.IO).launch {
-                val extras = activity?.intent!!.getIntExtra(Const.IntentExtras.ROOM_ID_EXTRA, 0)
-                roomWithUsers = viewModel.getRoomUsers(extras)
-            }
+            activity?.intent!!.getParcelableExtra(Const.IntentExtras.ROOM_ID_EXTRA)
         }
 
-        navOptionsBuilder = Tools.createCustomNavOptions()
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
+        navOptionsBuilder = Tools.createCustomNavOptions()
 
         return bindingSetup.root
     }
@@ -238,7 +234,6 @@ class ChatMessagesFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        postponeEnterTransition()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         if (listState != null) {
