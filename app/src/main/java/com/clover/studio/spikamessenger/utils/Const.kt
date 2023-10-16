@@ -277,4 +277,12 @@ class Const {
             const val TERMS_AND_CONDITIONS = "https://clover.studio/projects/spika/spika-messenger-terms-and-coditions/"
         }
     }
+
+    class Themes {
+        companion object {
+            const val MINT_THEME = "mint"
+            const val NEON_THEME = "neon"
+            const val BASIC_THEME = "basic"
+        }
+    }
 }

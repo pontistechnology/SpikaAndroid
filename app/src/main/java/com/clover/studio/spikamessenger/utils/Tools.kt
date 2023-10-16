@@ -765,4 +765,20 @@ object Tools {
             .setPopExitAnim(R.anim.nav_slide_out_right)
             .build()
     }
+
+    fun setTheme(theme: String) : Int {
+        return when(theme) {
+            "mint" -> {
+                R.style.Theme_App_Mint
+            }
+
+            "neon" -> {
+                R.style.Theme_App_Neon
+            }
+
+            else -> {
+                R.style.Theme_ExampleApp
+            }
+        }
+    }
 }

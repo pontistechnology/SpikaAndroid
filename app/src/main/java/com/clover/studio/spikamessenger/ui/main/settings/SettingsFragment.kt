@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
@@ -183,15 +182,11 @@ class SettingsFragment : BaseFragment() {
         binding.ivDone.visibility = View.GONE
     }
 
-    private fun initializeViews() {
+    private fun initializeViews() = with(binding) {
         when (viewModel.getUserTheme()) {
-            AppCompatDelegate.MODE_NIGHT_NO -> binding.tvActiveTheme.text =
-                getString(R.string.light_theme)
-
-            AppCompatDelegate.MODE_NIGHT_YES -> binding.tvActiveTheme.text =
-                getString(R.string.dark_theme)
-
-            else -> binding.tvActiveTheme.text = getString(R.string.system_theme)
+            Const.Themes.NEON_THEME -> tvActiveTheme.text = "Neon"
+            Const.Themes.MINT_THEME -> tvActiveTheme.text = "Mint"
+            else -> binding.tvActiveTheme.text = "Base"
         }
     }
 
@@ -397,11 +392,17 @@ class SettingsFragment : BaseFragment() {
     // Below navigation methods are unused until we implement all other functionality of settings
     // screens
     private fun goToPrivacySettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToPrivacySettingsFragment(), navOptionsBuilder)
+        findNavController().navigate(
+            MainFragmentDirections.actionMainFragmentToPrivacySettingsFragment(),
+            navOptionsBuilder
+        )
     }
 
     private fun goToAppearanceSettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToAppearanceSettings(), navOptionsBuilder)
+        findNavController().navigate(
+            MainFragmentDirections.actionMainFragmentToAppearanceSettings(),
+            navOptionsBuilder
+        )
     }
 
     override fun onPause() {

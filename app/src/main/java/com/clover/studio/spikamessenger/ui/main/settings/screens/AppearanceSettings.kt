@@ -1,21 +1,23 @@
 package com.clover.studio.spikamessenger.ui.main.settings.screens
 
-import android.app.UiModeManager
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatDelegate
+import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
 import com.clover.studio.spikamessenger.databinding.FragmentAppearanceSettingsBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
+import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
+import timber.log.Timber
 
 class AppearanceSettings : BaseFragment() {
     private var bindingSetup: FragmentAppearanceSettingsBinding? = null
 
     private val binding get() = bindingSetup!!
+
+    private var listOfCheckMarks = listOf<ImageView>()
 
     private val viewModel: MainViewModel by activityViewModels()
 
@@ -25,6 +27,10 @@ class AppearanceSettings : BaseFragment() {
     ): View {
         bindingSetup = FragmentAppearanceSettingsBinding.inflate(inflater, container, false)
 
+        listOfCheckMarks = listOf(
+            binding.ivLilacCheck, binding.ivMintCheck, binding.ivBaseCheck
+        )
+
         initializeViews()
         initializeListeners()
 
@@ -32,61 +38,62 @@ class AppearanceSettings : BaseFragment() {
     }
 
 
-    private fun initializeViews() {
+    private fun initializeViews() = with(binding) {
         binding.ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         when (viewModel.getUserTheme()) {
-            AppCompatDelegate.MODE_NIGHT_NO -> {
-                binding.ivLightCheckmark.visibility = View.VISIBLE
-                binding.ivNightCheckmark.visibility = View.GONE
-                binding.ivSystemCheckmark.visibility = View.GONE
+            Const.Themes.MINT_THEME -> {
+                Timber.d("Mint theme")
+                setThemeChecks(ivMintCheck)
             }
-            AppCompatDelegate.MODE_NIGHT_YES -> {
-                binding.ivLightCheckmark.visibility = View.GONE
-                binding.ivNightCheckmark.visibility = View.VISIBLE
-                binding.ivSystemCheckmark.visibility = View.GONE
+
+            Const.Themes.NEON_THEME -> {
+                Timber.d("Neon theme")
+                setThemeChecks(ivLilacCheck)
             }
+
             else -> {
-                binding.ivLightCheckmark.visibility = View.GONE
-                binding.ivNightCheckmark.visibility = View.GONE
-                binding.ivSystemCheckmark.visibility = View.VISIBLE
+                Timber.d("Base theme")
+                setThemeChecks(ivBaseCheck)
             }
         }
     }
 
-    private fun initializeListeners() {
-        binding.clLightTheme.setOnClickListener {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            binding.ivLightCheckmark.visibility = View.VISIBLE
-            binding.ivNightCheckmark.visibility = View.GONE
-            binding.ivSystemCheckmark.visibility = View.GONE
-            viewModel.writeUserTheme(AppCompatDelegate.MODE_NIGHT_NO)
+    private fun initializeListeners() = with(binding) {
+        // TODO change user theme:
+
+        clBaseTheme.setOnClickListener {
+            Timber.d("Base theme click")
+            viewModel.writeUserTheme(Const.Themes.BASIC_THEME)
+            setThemeChecks(ivBaseCheck)
+            activity?.recreate()
         }
 
-        binding.clNightTheme.setOnClickListener {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            binding.ivLightCheckmark.visibility = View.GONE
-            binding.ivNightCheckmark.visibility = View.VISIBLE
-            binding.ivSystemCheckmark.visibility = View.GONE
-            viewModel.writeUserTheme(AppCompatDelegate.MODE_NIGHT_YES)
+        clMintTheme.setOnClickListener {
+            Timber.d("Mint theme click")
+            viewModel.writeUserTheme(Const.Themes.MINT_THEME)
+            activity?.recreate()
         }
 
-        binding.clSystemTheme.setOnClickListener {
-            val uiModeManager = context?.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
-            when (uiModeManager.nightMode) {
-                UiModeManager.MODE_NIGHT_YES -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                }
-                else -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                }
+        clLilacTheme.setOnClickListener {
+            Timber.d("Neon theme click")
+            viewModel.writeUserTheme(Const.Themes.NEON_THEME)
+            setThemeChecks(ivLilacCheck)
+            activity?.recreate()
+        }
+
+        Timber.d("User theme: ${viewModel.getUserTheme()}")
+    }
+
+    private fun setThemeChecks(checkmark: ImageView) {
+        listOfCheckMarks.forEach {
+            it.visibility = if (checkmark == it) {
+                View.VISIBLE
+            } else {
+                View.GONE
             }
-            viewModel.writeUserTheme(AppCompatDelegate.MODE_NIGHT_UNSPECIFIED)
-            binding.ivLightCheckmark.visibility = View.GONE
-            binding.ivNightCheckmark.visibility = View.GONE
-            binding.ivSystemCheckmark.visibility = View.VISIBLE
         }
     }
 }

@@ -26,13 +26,14 @@
         android:layout_marginStart="@dimen/twenty_dp_margin"
         android:fontFamily="@font/montserrat"
         android:text="@string/appearance"
+        android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintBottom_toBottomOf="@id/iv_back"
         app:layout_constraintStart_toEndOf="@id/iv_back"
         app:layout_constraintTop_toTopOf="@id/iv_back" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_light_theme"
+        android:id="@+id/cl_base_theme"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/ten_dp_margin"
@@ -45,13 +46,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat"
-            android:text="@string/light_theme"
+            android:text="Base theme"
+            android:textColor="?attr/primaryTextColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/iv_light_checkmark"
+            android:id="@+id/iv_base_check"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/img_blue_checkmark"
@@ -62,26 +64,27 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_night_theme"
+        android:id="@+id/cl_mint_theme"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/ten_dp_margin"
         android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cl_light_theme">
+        app:layout_constraintTop_toBottomOf="@id/cl_base_theme">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat"
-            android:text="@string/dark_theme"
+            android:text="Mint"
+            android:textColor="?attr/primaryTextColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/iv_night_checkmark"
+            android:id="@+id/iv_mint_check"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/img_blue_checkmark"
@@ -92,26 +95,27 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_system_theme"
+        android:id="@+id/cl_lilac_theme"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/ten_dp_margin"
         android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cl_night_theme">
+        app:layout_constraintTop_toBottomOf="@id/cl_mint_theme">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat"
-            android:text="@string/system_theme"
+            android:text="Neon"
+            android:textColor="?attr/primaryTextColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/iv_system_checkmark"
+            android:id="@+id/iv_lilac_check"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/img_blue_checkmark"

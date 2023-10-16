@@ -8,13 +8,13 @@
     <item android:state_focused="true">
         <shape android:shape="rectangle">
             <corners android:radius="10dp" />
-            <solid android:color="@color/message_me" />
+            <solid android:color="?attr/colorPrimary" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="10dp" />
-            <solid android:color="@color/message_me" />
+            <solid android:color="?attr/colorPrimary" />
         </shape>
     </item>
 </selector>

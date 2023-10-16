@@ -33,6 +33,7 @@
         android:fontFamily="@font/montserrat_bold"
         android:maxLines="1"
         android:textSize="@dimen/fourteen_sp_text"
+        android:textColor="?attr/colorPrimary"
         app:layout_constraintEnd_toStartOf="@id/tv_message_time"
         app:layout_constraintStart_toEndOf="@id/iv_room_image"
         app:layout_constraintTop_toTopOf="@+id/iv_room_image" />
