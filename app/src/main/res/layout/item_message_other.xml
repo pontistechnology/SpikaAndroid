@@ -87,6 +87,7 @@
                 android:text="@string/username"
                 android:textSize="@dimen/eleven_sp_text"
                 android:visibility="visible"
+                app:layout_constrainedWidth="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"

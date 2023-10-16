@@ -260,9 +260,7 @@ class MainViewModel @Inject constructor(
                             mimeType,
                             thumbId,
                             fileId,
-                            fileType,
                             messageBody,
-                            fileData.isThumbnail
                         )
                         resolveResponseStatus(
                             fileUploadListener,

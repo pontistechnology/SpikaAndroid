@@ -142,8 +142,6 @@ class ChatViewModel @Inject constructor(
 
     fun getRoomAndUsers(roomId: Int) = repository.getRoomWithUsersLiveData(roomId)
 
-    fun getRoomUsers(roomId: Int) = repository.getRoomUsers(roomId)
-
     fun getMessageAndRecords(roomId: Int) = Transformations.switchMap(liveDataLimit) {
         Timber.d("Limit check ${liveDataLimit.value}")
         repository.getMessagesAndRecords(roomId, it, 0)
@@ -319,9 +317,7 @@ class ChatViewModel @Inject constructor(
                                     mimeType,
                                     thumbId,
                                     fileId,
-                                    fileType,
                                     messageBody,
-                                    false
                                 )
                             resolveResponseStatus(
                                 fileUploadListener,
@@ -348,7 +344,5 @@ class FileUploadVerified(
     val mimeType: String,
     val thumbId: Long,
     val fileId: Long,
-    val fileType: String,
     val messageBody: MessageBody?,
-    val isThumbnail: Boolean
 )

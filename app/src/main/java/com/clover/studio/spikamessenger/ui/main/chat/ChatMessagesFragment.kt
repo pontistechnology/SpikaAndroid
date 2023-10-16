@@ -79,9 +79,6 @@ import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 
@@ -130,24 +127,24 @@ class ChatMessagesFragment : BaseFragment() {
     private var isFetching = false
     private var directory: File? = null
 
-    private var isAdmin = false
-    private var listState: Parcelable? = null
-
     private lateinit var storagePermission: ActivityResultLauncher<String>
     private var exoPlayer: ExoPlayer? = null
+
     private var shouldScroll: Boolean = false
+    private var listState: Parcelable? = null
+    private var scrollYDistance = 0
+    private var heightDiff = 0
+    private var scrollToPosition = 0
 
     private var avatarFileId = 0L
     private var userName = ""
+
     private var isEditing = false
     private var originalText = ""
     private var editedMessageId = 0
     private var replyId: Long? = 0L
-    private lateinit var emojiPopup: EmojiPopup
 
-    private var scrollYDistance = 0
-    private var heightDiff = 0
-    private var scrollToPosition = 0
+    private lateinit var emojiPopup: EmojiPopup
 
     private var navOptionsBuilder: NavOptions? = null
 
@@ -220,6 +217,15 @@ class ChatMessagesFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
 
+        postponeEnterTransition()
+
+        roomWithUsers = if (viewModel.roomWithUsers.value != null) {
+            viewModel.roomWithUsers.value
+        } else {
+            activity?.intent!!.getParcelableExtra(Const.IntentExtras.ROOM_ID_EXTRA)
+        }
+
+        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
         navOptionsBuilder = Tools.createCustomNavOptions()
 
         return bindingSetup.root
@@ -228,7 +234,6 @@ class ChatMessagesFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        postponeEnterTransition()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         if (listState != null) {
@@ -238,35 +243,37 @@ class ChatMessagesFragment : BaseFragment() {
         localUserId = viewModel.getLocalUserId()!!
         messageSearchId = viewModel.searchMessageId.value
 
-        if (viewModel.roomWithUsers.value != null) {
-            roomWithUsers = viewModel.roomWithUsers.value!!
-        } else {
-            CoroutineScope(Dispatchers.IO).launch {
-                val extras = activity?.intent!!.getIntExtra(Const.IntentExtras.ROOM_ID_EXTRA, 0)
-                roomWithUsers = viewModel.getRoomUsers(extras)
-            }
-        }
-
+        setUpAdapter()
+        initializeObservers()
+        initViews()
+        initListeners()
         checkStoragePermission()
+    }
 
-        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
+    private fun initViews() = with(bindingSetup) {
+        directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+        clRoomExit.visibility =
+            if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
 
         if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
             user =
                 roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
-        }
-
-        if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
-            bindingSetup.clRoomExit.visibility = View.VISIBLE
+            avatarFileId = user?.avatarFileId ?: 0
+            userName = user?.formattedDisplayName.toString()
+            chatHeader.tvTitle.text = user?.telephoneNumber
         } else {
-            bindingSetup.clRoomExit.visibility = View.GONE
-            checkIsUserAdmin()
+            avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
+            userName = roomWithUsers?.room?.name.toString()
+            chatHeader.tvTitle.text =
+                roomWithUsers?.users?.size.toString() + getString(R.string.members)
         }
 
-        initializeObservers()
-        initViews()
-        initListeners()
-        setUpAdapter()
+        setAvatarAndName(avatarFileId, userName)
 
         // Clear notifications for this room
         roomWithUsers?.room?.roomId?.let {
@@ -275,53 +282,21 @@ class ChatMessagesFragment : BaseFragment() {
         }
     }
 
-    private fun initViews() = with(bindingSetup) {
-        directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
-            avatarFileId = user?.avatarFileId ?: 0
-            userName = user?.formattedDisplayName.toString()
-        } else {
-            avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
-            userName = roomWithUsers?.room?.name.toString()
-        }
-
-        setAvatarAndName(avatarFileId, userName)
-
-        // If room is group, show number of members under group name
-        if (Const.JsonFields.GROUP == roomWithUsers?.room?.type) {
-            chatHeader.tvTitle.text =
-                roomWithUsers?.users?.size.toString() + getString(R.string.members)
-        } else {
-            // Room is private, show phone number
-            for (user in roomWithUsers?.users!!) {
-                if (viewModel.getLocalUserId() != user.id) {
-                    chatHeader.tvTitle.text = user.telephoneNumber
-                    break
-                }
-            }
-        }
-    }
-
-    private fun setAvatarAndName(avatarFileId: Long, userName: String) {
-        bindingSetup.chatHeader.tvChatName.text = userName
-        Glide.with(this)
-            .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-            .placeholder(
-                AppCompatResources.getDrawable(
-                    requireContext(),
-                    R.drawable.img_user_placeholder
+    private fun setAvatarAndName(avatarFileId: Long, userName: String) =
+        with(bindingSetup.chatHeader) {
+            tvChatName.text = userName
+            Glide.with(this@ChatMessagesFragment)
+                .load(avatarFileId.let { Tools.getFilePathUrl(it) })
+                .placeholder(
+                    AppCompatResources.getDrawable(
+                        requireContext(),
+                        R.drawable.img_user_placeholder
+                    )
                 )
-            )
-            .centerCrop()
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .into(bindingSetup.chatHeader.ivUserImage)
-    }
-
-    private fun checkIsUserAdmin() {
-        isAdmin = roomWithUsers?.users!!.any { user ->
-            user.id == localUserId && viewModel.isUserAdmin(roomWithUsers?.room!!.roomId, user.id)
+                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(ivUserImage)
         }
-    }
 
     private fun initListeners() = with(bindingSetup) {
         chatHeader.clHeader.setOnClickListener {
@@ -339,8 +314,7 @@ class ChatMessagesFragment : BaseFragment() {
             } else {
                 val action =
                     ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
-                        roomWithUsers!!,
-                        isAdmin
+                        roomWithUsers = roomWithUsers!!
                     )
                 findNavController().navigate(action, navOptionsBuilder)
             }
@@ -482,15 +456,12 @@ class ChatMessagesFragment : BaseFragment() {
                     }
                 }
 
-                Resource.Status.ERROR -> {
-                    Timber.d("Message send fail: $it")
-                }
-
+                Resource.Status.ERROR -> Timber.d("Message send fail: $it")
                 else -> Timber.d("Other error")
             }
         })
 
-        viewModel.getMessageAndRecords(roomId = roomWithUsers?.room!!.roomId)
+        viewModel.getMessageAndRecords(roomId = roomWithUsers!!.room.roomId)
             .observe(viewLifecycleOwner) {
                 when (it.status) {
                     Resource.Status.SUCCESS -> {
@@ -537,13 +508,8 @@ class ChatMessagesFragment : BaseFragment() {
                         }
                     }
 
-                    Resource.Status.LOADING -> {
-                        // ignore
-                    }
-
-                    else -> {
-                        Timber.d("Message get error")
-                    }
+                    Resource.Status.LOADING -> Timber.d("Message get loading")
+                    else -> Timber.d("Message get error")
                 }
             }
 
@@ -603,8 +569,7 @@ class ChatMessagesFragment : BaseFragment() {
             })
         }
 
-        viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver
-        {
+        viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (it.responseData?.data?.room?.roomId == roomWithUsers!!.room.roomId) {
@@ -719,57 +684,57 @@ class ChatMessagesFragment : BaseFragment() {
                 }
             }
         )
+
         val linearLayoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         rvChat.apply {
-            rvChat.adapter = chatAdapter
+            adapter = chatAdapter
             itemAnimator = null
             linearLayoutManager.stackFromEnd = true
             layoutManager = linearLayoutManager
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    scrollYDistance += dy
+
+                    val lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition()
+                    val totalItemCount = linearLayoutManager.itemCount
+                    if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
+                        Timber.d("Fetching next batch of data")
+                        viewModel.fetchNextSet(roomWithUsers!!.room.roomId)
+                        isFetching = true
+                    } else if (lastVisiblePosition != totalItemCount - 1) {
+                        isFetching = false // Reset the flag when user scrolls away from the bottom
+                    }
+                    showBottomArrow()
+                }
+
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    // This condition checks if the RecyclerView is at the bottom
+                    if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        cvNewMessages.visibility = View.INVISIBLE
+                        cvBottomArrow.visibility = View.INVISIBLE
+                        scrollYDistance = 0
+                        viewModel.clearMessages()
+                    }
+                }
+            })
         }
-
-        rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                scrollYDistance += dy
-
-                val lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition()
-                val totalItemCount = linearLayoutManager.itemCount
-                if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
-                    Timber.d("Fetching next batch of data")
-                    viewModel.fetchNextSet(roomWithUsers!!.room.roomId)
-                    isFetching = true
-                } else if (lastVisiblePosition != totalItemCount - 1) {
-                    isFetching = false // Reset the flag when user scrolls away from the bottom
-                }
-                showBottomArrow()
-            }
-
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                // This condition checks if the RecyclerView is at the bottom
-                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    cvNewMessages.visibility = View.INVISIBLE
-                    cvBottomArrow.visibility = View.INVISIBLE
-                    scrollYDistance = 0
-                    viewModel.clearMessages()
-                }
-            }
-        })
 
         setUpAdapterDataObserver()
     }
 
-    private fun setUpAdapterDataObserver() {
+    private fun setUpAdapterDataObserver() = with(bindingSetup) {
         val adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 val scrollingIndex = positionStart + itemCount - 1
                 if (scrollingIndex >= 0 && chatAdapter.currentList.getOrNull(scrollingIndex)?.message?.fromUserId == localUserId) {
                     if (sendingScrollVisibility()) {
-                        bindingSetup.rvChat.scrollToPosition(0)
+                        rvChat.scrollToPosition(0)
                         scrollYDistance = 0
-                        bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
+                        cvBottomArrow.visibility = View.INVISIBLE
                     } else {
-                        bindingSetup.cvBottomArrow.visibility = View.VISIBLE
+                        cvBottomArrow.visibility = View.VISIBLE
                     }
                 }
             }
@@ -808,7 +773,9 @@ class ChatMessagesFragment : BaseFragment() {
                 })
 
         itemTouchHelper = ItemTouchHelper(messageSwipeController)
-        itemTouchHelper!!.attachToRecyclerView(bindingSetup.rvChat)
+        if (!roomWithUsers!!.room.deleted && !roomWithUsers!!.room.roomExit) itemTouchHelper!!.attachToRecyclerView(
+            bindingSetup.rvChat
+        )
     }
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
@@ -1183,7 +1150,6 @@ class ChatMessagesFragment : BaseFragment() {
                 Const.JsonFields.TEXT_TYPE,
                 bindingSetup.etMessage.text.toString().trim()
             )
-
             viewModel.editMessage(editedMessageId, jsonObject)
         }
     }

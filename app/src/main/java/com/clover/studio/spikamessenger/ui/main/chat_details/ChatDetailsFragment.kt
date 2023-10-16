@@ -62,6 +62,7 @@ class ChatDetailsFragment : BaseFragment() {
     private var uploadPieces: Int = 0
     private var roomId: Int? = null
     private var isAdmin = false
+    private var localUserId: Int? = 0
 
     private var userName = ""
     private var avatarFileId = 0L
@@ -114,7 +115,10 @@ class ChatDetailsFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         // Fetch room data sent from previous fragment
         roomWithUsers = args.roomWithUsers
-        isAdmin = args.isAdmin
+        localUserId = viewModel.getLocalUserId()
+        isAdmin = roomWithUsers.users.any { user ->
+            user.id == localUserId && viewModel.isUserAdmin(roomWithUsers.room.roomId, user.id)
+        }
         roomId = roomWithUsers.room.roomId
     }
 
@@ -303,11 +307,10 @@ class ChatDetailsFragment : BaseFragment() {
                     ),
                     object : DialogInteraction {
                         override fun onSecondOptionClicked() {
-                            val myId = viewModel.getLocalUserId()
                             roomId?.let { id -> viewModel.leaveRoom(id) }
                             // Remove if admin
                             if (isAdmin) {
-                                roomId?.let { id -> viewModel.removeAdmin(id, myId!!) }
+                                roomId?.let { id -> viewModel.removeAdmin(id, localUserId!!) }
                             }
                             activity?.finish()
                         }

@@ -112,12 +112,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         }
 
                         Timber.d("Extras: ${response.message.roomId}")
+
+                        val data = response.message.roomId?.let { chatRepo.getRoomUsers(it) }
                         val intent = Intent(baseContext, MainActivity::class.java)
 
                         val chatActivityIntent = Intent(baseContext, ChatScreenActivity::class.java)
                         chatActivityIntent.putExtra(
                             Const.IntentExtras.ROOM_ID_EXTRA,
-                            response.message.roomId
+                            data
                         )
 
                         val stackBuilder = TaskStackBuilder.create(baseContext).apply {
@@ -129,7 +131,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         val pendingIntent =
                             stackBuilder.getPendingIntent(
                                 response.message.roomId!!,
-                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                            )
 
                         val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
                             .setSmallIcon(R.drawable.img_spika_push_black)
