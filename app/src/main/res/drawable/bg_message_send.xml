@@ -2,19 +2,19 @@
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
             <corners android:radius="10dp" />
-            <solid android:color="@color/message_me" />
+            <solid android:color="?attr/bubbleSenderColor"/>
         </shape>
     </item>
     <item android:state_focused="true">
         <shape android:shape="rectangle">
             <corners android:radius="10dp" />
-            <solid android:color="?attr/colorPrimary" />
+            <solid android:color="?attr/bubbleSenderColor" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="10dp" />
-            <solid android:color="?attr/colorPrimary" />
+            <solid android:color="?attr/bubbleSenderColor" />
         </shape>
     </item>
 </selector>

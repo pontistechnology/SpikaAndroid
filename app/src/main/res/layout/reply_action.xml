@@ -7,7 +7,8 @@
     android:layout_height="wrap_content"
     android:background="@color/main"
     android:paddingBottom="@dimen/ten_dp_margin"
-    tools:ignore="contentDescription">
+    tools:ignore="contentDescription"
+    android:backgroundTint="@android:color/transparent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_reply_container"
@@ -29,6 +30,7 @@
             android:fontFamily="@font/montserrat_bold"
             android:text="@string/username"
             android:textSize="@dimen/twelve_sp_text"
+            android:textColor="?attr/primaryTextColor"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -46,6 +48,7 @@
             android:gravity="center|start"
             android:maxLines="1"
             android:text="@string/some_message"
+            android:textColor="?attr/primaryTextColor"
             android:textColorLink="@color/link_primary_color"
             android:textSize="@dimen/eleven_sp_text"
             android:visibility="gone"

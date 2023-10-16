@@ -16,7 +16,6 @@ import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.databinding.FragmentNewRoomBinding
-import com.clover.studio.spikamessenger.ui.main.MainFragmentDirections
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.ui.main.contacts.ContactsAdapter
@@ -110,7 +109,6 @@ class NewRoomFragment : BaseFragment() {
             handleGroupChat()
         }
 
-        topAppBar.menu.findItem(R.id.create_room_menu_icon).isVisible = false
         topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
@@ -138,10 +136,10 @@ class NewRoomFragment : BaseFragment() {
                     true
                 }
 
-                R.id.create_room_menu_icon -> {
-                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
-                    true
-                }
+//                R.id.create_room_menu_icon -> {
+//                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
+//                    true
+//                }
 
                 else -> false
             }

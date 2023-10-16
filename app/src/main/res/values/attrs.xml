@@ -3,14 +3,14 @@
 
     <attr name="colorPrimary" format="reference|color"/>
     <attr name="primaryTextColor" format="reference|color"/>
-    <attr name="buttonNormalColor" format="reference|color"/>
-    <attr name="buttonHighlightColor" format="reference|color" />
-    <attr name="buttonTextColor" format="reference|color" />
-    <attr name="iconColor" format="reference|color" />
+    <attr name="secondaryTextColor" format="reference|color"/>
+    <attr name="bubbleSenderColor" format="reference|color" />
+    <attr name="bubbleReceiverColor" format="reference|color" />
+    <attr name="textFieldColor" format="reference|color" />
+    <attr name="iconsColorsPrimary" format="reference|color" />
+    <attr name="iconsColorsSecondary" format="reference|color" />
+    <attr name="backgroundPrimary" format="reference" />
 
-    <attr name="textViewStyle" format="reference" />
     <attr name="primaryButtonTheme" format="reference" />
-
-<!-- TODO add all colors   -->
 
 </resources>

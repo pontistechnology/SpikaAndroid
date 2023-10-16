@@ -32,8 +32,8 @@
         android:ellipsize="end"
         android:fontFamily="@font/montserrat_bold"
         android:maxLines="1"
+        android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
-        android:textColor="?attr/colorPrimary"
         app:layout_constraintEnd_toStartOf="@id/tv_message_time"
         app:layout_constraintStart_toEndOf="@id/iv_room_image"
         app:layout_constraintTop_toTopOf="@+id/iv_room_image" />
@@ -49,7 +49,7 @@
         android:ellipsize="end"
         android:fontFamily="@font/montserrat"
         android:maxLines="1"
-        android:textColor="@color/text_tertiary"
+        android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/twelve_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/iv_muted"
@@ -66,20 +66,19 @@
         android:ellipsize="end"
         android:fontFamily="@font/montserrat"
         android:maxLines="1"
-        android:textColor="@color/text_tertiary"
+        android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/twelve_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tv_last_message"
         app:layout_constraintStart_toEndOf="@+id/iv_room_image"
         app:layout_constraintTop_toBottomOf="@+id/tv_room_name" />
 
-
     <TextView
         android:id="@+id/tv_message_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/montserrat_thin"
-        android:textColor="@color/text_tertiary"
+        android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/twelve_sp_text"
         app:layout_constraintBottom_toTopOf="@id/tv_last_message"
         app:layout_constraintEnd_toEndOf="parent"

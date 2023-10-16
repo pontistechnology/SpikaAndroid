@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/eight_dp_margin"
-        android:backgroundTint="@color/main"
+        android:backgroundTint="@android:color/transparent"
         app:elevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/iv_cancel"
@@ -28,7 +28,7 @@
             app:menu="@menu/menu"
             app:title="@string/new_chat"
             app:titleTextAppearance="@style/CustomTitleNormal"
-            app:titleTextColor="@color/text_primary" />
+            app:titleTextColor="?attr/primaryTextColor" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <ImageView

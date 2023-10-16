@@ -577,18 +577,22 @@ class ChatAdapter(
         ) {
             isDeleted = true
         }
+
         tvMessage.apply {
             text = if (isDeleted) {
                 context.getString(R.string.message_deleted_text)
             } else {
                 chatMessage.message.body?.text
             }
-            setTextColor(
-                ContextCompat.getColor(
-                    context,
-                    if (isDeleted) R.color.text_tertiary else R.color.text_primary
+
+            if (isDeleted) {
+                setTextColor(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.text_tertiary
+                    )
                 )
-            )
+            }
 
             if (isDeleted) cvReactedEmoji.visibility = View.GONE
 

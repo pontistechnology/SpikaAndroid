@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.MainFragment">
+    tools:context=".ui.main.MainFragment"
+    android:background="?attr/backgroundPrimary">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
@@ -18,7 +19,8 @@
         app:tabIconTint="@null"
         app:tabIndicator="@null"
         app:tabIndicatorHeight="0dp"
-        app:tabMode="auto" />
+        app:tabMode="auto"
+        android:background="@null"/>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
@@ -37,7 +39,6 @@
         android:id="@+id/divider_main"
         android:layout_width="match_parent"
         android:layout_height="0.8dp"
-        android:background="@color/guideline"
         android:padding="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

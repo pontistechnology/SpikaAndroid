@@ -192,8 +192,6 @@ class RoomsFragment : BaseFragment() {
         topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
-                    binding.topAppBar.menu.findItem(R.id.create_room_menu_icon).isVisible = false
-
                     searchView = menuItem.actionView as SearchView
                     searchView?.queryHint = getString(R.string.contact_message_search)
                     searchView?.setIconifiedByDefault(false)
@@ -208,16 +206,15 @@ class RoomsFragment : BaseFragment() {
                     true
                 }
 
-                R.id.create_room_menu_icon -> {
-                    findNavController().navigate(
-                        MainFragmentDirections.actionMainFragmentToNewRoomFragment(),
-                        navOptionsBuilder
-                    )
-                    true
-                }
-
                 else -> false
             }
+        }
+
+        fabNewRoom.setOnClickListener {
+            findNavController().navigate(
+                MainFragmentDirections.actionMainFragmentToNewRoomFragment(),
+                navOptionsBuilder
+            )
         }
 
         viewModel.roomUsers.clear()
@@ -254,8 +251,6 @@ class RoomsFragment : BaseFragment() {
                     collapseActionView()
                     isVisible = true
                 }
-
-                binding.topAppBar.menu.findItem(R.id.create_room_menu_icon)?.isVisible = true
             }
         }
     }
