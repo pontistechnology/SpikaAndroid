@@ -50,12 +50,12 @@
     <!--  Toolbar tiles style  -->
     <style name="CustomTitleBold" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">@dimen/twenty_eight_sp_text</item>
-        <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:fontFamily">@font/roboto_bold</item>
     </style>
 
     <style name="CustomTitleNormal" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">@dimen/fourteen_sp_text</item>
-        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:fontFamily">@font/roboto</item>
     </style>
 
     <!-- Toolbar style - SearchView  -->

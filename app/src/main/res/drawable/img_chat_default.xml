@@ -1,13 +1,13 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
+    android:width="41dp"
+    android:height="40dp"
+    android:viewportWidth="41"
+    android:viewportHeight="40">
   <path
-      android:pathData="M20,2H4C2.9,2 2,2.9 2,4V22L6,18H20C21.1,18 22,17.1 22,16V4C22,2.9 21.1,2 20,2Z"
-      android:fillColor="?attr/iconsColorsPrimary"/>
-  <path
-      android:pathData="M6,6H18V8H6V6ZM6,12H14V14H6V12ZM6,11H18V9H6V11Z"
-      android:fillColor="@color/main"
-      android:fillType="evenOdd"/>
+      android:pathData="M29.333,19.5C29.337,20.82 29.028,22.122 28.433,23.3C27.728,24.712 26.643,25.899 25.301,26.729C23.958,27.559 22.412,27.999 20.833,28C19.514,28.003 18.211,27.695 17.033,27.1L11.333,29L13.233,23.3C12.638,22.122 12.33,20.82 12.333,19.5C12.334,17.922 12.774,16.375 13.604,15.033C14.434,13.69 15.622,12.606 17.033,11.9C18.211,11.305 19.514,10.997 20.833,11H21.333C23.418,11.115 25.386,11.995 26.862,13.471C28.339,14.947 29.218,16.916 29.333,19V19.5Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="2"
+      android:fillColor="#00000000"
+      android:strokeColor="?attr/iconsColorsPrimary"
+      android:strokeLineCap="round"/>
 </vector>

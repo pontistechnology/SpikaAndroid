@@ -20,10 +20,8 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -135,7 +133,6 @@ class ChatAdapter(
                 // holder.setIsRecyclable(false)
 
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_send)
-                holder.binding.tvTime.visibility = View.GONE
 
                 /** Message types: */
                 when (it.message.type) {
@@ -148,12 +145,11 @@ class ChatAdapter(
                             chatMessage = it,
                             sender = true
                         )
-                        showMessageTime(
-                            message = it,
-                            tvTime = holder.binding.tvTime,
-                            tvMessage = holder.binding.tvMessage,
-                            calendar = calendar
-                        )
+                        holder.binding.tvTime.text =
+                            SimpleDateFormat(
+                                "HH:mm",
+                                Locale.getDefault()
+                            ).format(calendar.timeInMillis).toString()
                     }
 
                     Const.JsonFields.IMAGE_TYPE -> {
@@ -387,7 +383,6 @@ class ChatAdapter(
                 // holder.setIsRecyclable(false)
 
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
-                holder.binding.tvTime.visibility = View.GONE
 
                 /** Message types: */
                 when (it.message.type) {
@@ -401,12 +396,10 @@ class ChatAdapter(
                             sender = false
                         )
                         holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
-                        showMessageTime(
-                            message = it,
-                            tvTime = holder.binding.tvTime,
-                            tvMessage = holder.binding.tvMessage,
-                            calendar = calendar
-                        )
+                        holder.binding.tvTime.text = SimpleDateFormat(
+                            "HH:mm",
+                            Locale.getDefault()
+                        ).format(calendar.timeInMillis).toString()
                     }
 
                     Const.JsonFields.IMAGE_TYPE -> {
@@ -585,28 +578,7 @@ class ChatAdapter(
                 chatMessage.message.body?.text
             }
 
-            if (isDeleted) {
-                setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.text_tertiary
-                    )
-                )
-            }
-
             if (isDeleted) cvReactedEmoji.visibility = View.GONE
-
-            background = if (isDeleted) {
-                AppCompatResources.getDrawable(
-                    context,
-                    R.drawable.img_deleted_message
-                )
-            } else {
-                AppCompatResources.getDrawable(
-                    context,
-                    if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
-                )
-            }
 
             movementMethod = LinkMovementMethod.getInstance()
 
@@ -618,6 +590,7 @@ class ChatAdapter(
                 true
             }
         }
+//        resendMessage(chatMessage)
     }
 
     private fun bindImage(
@@ -880,25 +853,11 @@ class ChatAdapter(
     }
 
     /** A method that shows the time of a message when it is tapped */
-    private fun showMessageTime(
+    private fun resendMessage(
         message: MessageAndRecords,
-        tvTime: TextView,
-        tvMessage: TextView,
-        calendar: Calendar
     ) {
-        tvMessage.setOnClickListener {
-            tvTime.visibility = if (tvTime.visibility == View.GONE) {
-                tvTime.text =
-                    SimpleDateFormat("HH:mm", Locale.getDefault()).format(calendar.timeInMillis)
-                        .toString()
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-
-            if (message.message.deliveredCount == -1) {
-                onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, message)
-            }
+        if (message.message.deliveredCount == -1) {
+            onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, message)
         }
     }
 

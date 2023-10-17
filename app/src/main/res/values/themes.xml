@@ -29,11 +29,13 @@
         <item name="bubbleReceiverColor">@color/message_other</item>
         <item name="iconsColorsSecondary">@color/primary_color</item>
         <item name="backgroundPrimary">@color/main</item>
+        <item name="spikaLogo">@drawable/img_spika_logo</item>
     </style>
 
 <!--  Neon theme  -->
     <style name="Theme.App.Neon" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:statusBarColor">@android:color/transparent</item>
+<!--    Status bar   -->
+        <item name="android:statusBarColor">#FF61187B</item>
         <item name="android:windowLightStatusBar">true</item>
 
         <item name="primaryTextColor">@color/white</item>
@@ -43,23 +45,26 @@
         <item name="textFieldColor">@color/neonTextFieldColor</item>
         <item name="iconsColorsPrimary">@color/neonIconsColorsPrimary</item>
         <item name="iconsColorsSecondary">@color/neonIconsColorsSecondary</item>
-        <item name="backgroundPrimary">@drawable/neon_background</item>
+        <item name="backgroundPrimary">@drawable/bg_neon</item>
+        <item name="spikaLogo">@drawable/spika_neon_logo</item>
     </style>
 
 <!-- Mint theme   -->
     <style name="Theme.App.Mint" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+<!--   Status bar     -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
 
-        <item name="primaryTextColor">@color/mintColorPrimary</item>
-        <item name="secondaryTextColor">@color/mintColorPrimaryDark</item>
-        <item name="bubbleSenderColor">@color/mintColorAccent</item>
-        <item name="bubbleReceiverColor">@color/neonBubbleReceiverColor</item>
-        <item name="textFieldColor">@color/mintColorAccent</item>
-        <item name="iconsColorsPrimary">@color/mintColorPrimaryDark</item>
-        <item name="iconsColorsSecondary">@color/alert_icon_color</item>
-        <item name="backgroundPrimary">@color/light_blue</item>
+        <item name="primaryTextColor">@color/mintColorTextPrimary</item>
+        <item name="secondaryTextColor">@color/mintColorTextSecondary</item>
+        <item name="bubbleSenderColor">@color/mintBubbleSenderColor</item>
+        <item name="bubbleReceiverColor">@color/mintBubbleReceiverColor</item>
+        <item name="textFieldColor">@color/mintTextFieldColor</item>
+        <item name="iconsColorsPrimary">@color/mintIconsColorsPrimary</item>
+        <item name="iconsColorsSecondary">@color/mintIconsColorsSecondary</item>
+        <item name="backgroundPrimary">@drawable/bg_spika</item>
+        <item name="spikaLogo">@drawable/spika_mint_logo</item>
     </style>
 
 </resources>

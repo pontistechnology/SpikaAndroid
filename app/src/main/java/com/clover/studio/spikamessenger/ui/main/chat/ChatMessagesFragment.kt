@@ -275,12 +275,9 @@ class ChatMessagesFragment : BaseFragment() {
                 roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
             avatarFileId = user?.avatarFileId ?: 0
             userName = user?.formattedDisplayName.toString()
-            chatHeader.tvTitle.text = user?.telephoneNumber
         } else {
             avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
             userName = roomWithUsers?.room?.name.toString()
-            chatHeader.tvTitle.text =
-                roomWithUsers?.users?.size.toString() + getString(R.string.members)
         }
 
         setAvatarAndName(avatarFileId, userName)

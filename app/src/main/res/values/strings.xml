@@ -19,7 +19,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="show_notifications">Show Notifications</string>
     <string name="favourite_messages">Favourite Messages</string>
-    <string name="type_here">Type here…</string>
+    <string name="type_here">message…</string>
 
     <!--Contacts-->
     <string name="contacts">Contacts</string>

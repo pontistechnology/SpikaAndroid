@@ -27,6 +27,7 @@ class SplashActivity : BaseActivity() {
         // TODO add custom splash for themes
 
         val view = bindingSetup.root
+
         setContentView(view)
 
         checkLoginInformation()

@@ -10,7 +10,5 @@
     <attr name="iconsColorsPrimary" format="reference|color" />
     <attr name="iconsColorsSecondary" format="reference|color" />
     <attr name="backgroundPrimary" format="reference" />
-
-    <attr name="primaryButtonTheme" format="reference" />
-
+    <attr name="spikaLogo" format="reference" />
 </resources>

@@ -66,16 +66,14 @@
     <color name="neonIconsColorsSecondary">#4CC9F0</color>
     <color name="neonTextFieldColor">#1A3E93</color>
 
-
     <!-- Mint Theme Colors -->
-    <color name="mintColorPrimary">#76be2f</color>
-    <color name="mintColorPrimaryDark">#289b23</color>
-    <color name="mintColorAccent">#f9a825</color>
-    <color name="mintPrimaryText">#424242</color>
-    <color name="mintIcon">#ff554f</color>
-    <color name="mintButtonNormal">#76be2f</color>
-    <color name="mintButtonHighlight">#81c784</color>
-    <color name="mintButtonText">#FFFFFF</color>
+    <color name="mintColorTextPrimary">#001D3D</color>
+    <color name="mintColorTextSecondary">#648FB8</color>
+    <color name="mintBubbleSenderColor">#D5FFF5</color>
+    <color name="mintBubbleReceiverColor">#8CF3DB</color>
+    <color name="mintIconsColorsPrimary">#43DAB6</color>
+    <color name="mintIconsColorsSecondary">#648FB8</color>
+    <color name="mintTextFieldColor">#d2f6f3</color>
 
 
     <color name="selected_message">#4D5A5C5E</color>

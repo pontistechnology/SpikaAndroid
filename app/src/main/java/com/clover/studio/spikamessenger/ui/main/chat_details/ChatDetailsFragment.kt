@@ -170,8 +170,6 @@ class ChatDetailsFragment : BaseFragment() {
             tvExitGroup.visibility = View.GONE
         }
 
-        binding.chatHeader.tvTitle.text = roomWithUsers.room.type
-
         // This will stop image file changes while file is uploading via LiveData
         if (!isUploading && ivDone.visibility == View.GONE) {
             setAvatarAndUsername(avatarFileId, userName)
