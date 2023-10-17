@@ -23,7 +23,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/twenty_dp_margin"
-        android:fontFamily="@font/montserrat"
+        android:fontFamily="@font/roboto"
         android:text="@string/privacy"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintBottom_toBottomOf="@id/iv_back"
@@ -43,7 +43,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat"
+            android:fontFamily="@font/roboto"
             android:text="@string/blocked_users"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -73,7 +73,7 @@
             android:id="@+id/tv_terms"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat"
+            android:fontFamily="@font/roboto"
             android:text="@string/terms_and_conditions" />
 
     </FrameLayout>

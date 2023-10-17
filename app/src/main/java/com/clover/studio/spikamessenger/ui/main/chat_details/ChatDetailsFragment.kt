@@ -255,7 +255,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        binding.chatHeader.ivArrowBack.setOnClickListener {
+        binding.ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
@@ -366,14 +366,8 @@ class ChatDetailsFragment : BaseFragment() {
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .into(binding.ivPickAvatar)
-            Glide.with(this)
-                .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .into(binding.chatHeader.ivUserImage)
         }
         binding.tvGroupName.text = username
-        binding.chatHeader.tvChatName.text = username
     }
 
     private fun initializeObservers() {

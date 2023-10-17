@@ -18,37 +18,20 @@
             android:layout_margin="@dimen/twenty_dp_margin"
             android:background="?android:attr/selectableItemBackground"
             android:padding="@dimen/ten_dp_margin"
+            android:elevation="@dimen/eight_dp_margin"
             android:src="@drawable/img_arrow_back_chat"
-            app:layout_constraintEnd_toStartOf="@id/tv_page_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/tv_page_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat"
-            android:text="@string/username"
-            android:textSize="@dimen/fourteen_sp_text"
-            android:textColor="?attr/primaryTextColor"
-            app:layout_constraintBottom_toBottomOf="@id/iv_back"
-            app:layout_constraintStart_toEndOf="@id/iv_back"
-            app:layout_constraintTop_toTopOf="@id/iv_back" />
-
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_pick_avatar"
-            android:layout_width="@dimen/one_hundred_dp"
-            android:layout_height="@dimen/one_hundred_dp"
-            android:layout_marginTop="@dimen/thirty_two_dp_margin"
-            android:background="@drawable/img_selector_background"
-            android:backgroundTint="@color/light_blue"
-            android:scaleType="fitXY"
-            android:src="@drawable/img_user_placeholder"
+            android:layout_width="match_parent"
+            android:layout_height="393dp"
+            tools:srcCompat="@tools:sample/avatars"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_page_name"
-            app:shapeAppearanceOverlay="@style/circle" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/big_profile_picture" />
 
         <FrameLayout
             android:id="@+id/fl_progress_screen"
@@ -82,8 +65,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat_bold"
-            android:textSize="@dimen/sixteen_sp_text"
+            android:fontFamily="@font/roboto_bold"
+            android:textSize="@dimen/twenty_four_sp_text"
             android:textColor="?attr/primaryTextColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -93,9 +76,9 @@
             android:id="@+id/tv_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat"
+            android:fontFamily="@font/roboto"
             android:padding="@dimen/eight_dp_margin"
-            android:textColor="@color/primary_color"
+            android:textColor="?attr/primaryTextColor"
             app:layout_constraintEnd_toEndOf="@+id/tv_username"
             app:layout_constraintStart_toStartOf="@+id/tv_username"
             app:layout_constraintTop_toBottomOf="@+id/tv_username" />
@@ -125,7 +108,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/roboto"
                 android:text="@string/notes"
                 android:textColor="?attr/primaryTextColor"/>
 
@@ -149,7 +132,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/roboto"
                 android:text="@string/pin_chat"
                 android:textSize="@dimen/fourteen_sp_text"
                 android:textColor="?attr/primaryTextColor"/>
@@ -175,7 +158,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/roboto"
                 android:text="@string/mute"
                 android:textSize="@dimen/fourteen_sp_text"
                 android:textColor="?attr/primaryTextColor"/>

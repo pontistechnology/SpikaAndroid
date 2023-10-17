@@ -20,6 +20,11 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="big_profile_picture">
+        <item name="cornerSizeBottomLeft">75dp</item>
+        <item name="cornerFamilyBottomLeft">rounded</item>
+    </style>
+
     <style name="round">
         <item name="cornerSize">10%</item>
     </style>
@@ -49,7 +54,7 @@
 
     <!--  Toolbar tiles style  -->
     <style name="CustomTitleBold" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-        <item name="android:textSize">@dimen/twenty_eight_sp_text</item>
+        <item name="android:textSize">@dimen/thirty_two_sp_text</item>
         <item name="android:fontFamily">@font/roboto_bold</item>
     </style>
 

@@ -11,44 +11,27 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include
-            android:id="@+id/chat_header"
-            layout="@layout/chat_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:behavior_peekHeight="0dp"
-            app:layout_anchorGravity="bottom"
-            app:layout_behavior="@string/bottom_sheet_behavior"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat"
+            android:fontFamily="@font/roboto"
             android:padding="@dimen/ten_dp_margin"
             android:text="@string/done"
             android:textColor="@color/primary_color"
             android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/chat_header" />
+            app:layout_constraintEnd_toEndOf="@+id/iv_pick_avatar"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_pick_avatar"
-            android:layout_width="@dimen/one_hundred_dp"
-            android:layout_height="@dimen/one_hundred_dp"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:layout_marginTop="@dimen/eight_dp_margin"
-            android:background="@drawable/img_selector_background"
-            android:backgroundTint="@color/light_blue"
-            android:scaleType="center"
-            android:src="@drawable/img_camera"
+            android:layout_width="match_parent"
+            android:layout_height="393dp"
+            tools:srcCompat="@tools:sample/avatars"
             app:layout_constraintBottom_toTopOf="@id/tv_group_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chat_header"
-            app:shapeAppearanceOverlay="@style/circle" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/big_profile_picture" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_small_camera_picker"
@@ -117,7 +100,7 @@
             android:layout_marginStart="@dimen/thirty_dp_margin"
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:background="@drawable/bg_text_field"
-            android:fontFamily="@font/montserrat"
+            android:fontFamily="@font/roboto"
             android:hint="@string/enter_username"
             android:inputType="text"
             android:padding="@dimen/sixteen_dp_margin"
@@ -133,10 +116,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat_bold"
+            android:fontFamily="@font/roboto_bold"
             android:text="@string/group_name"
-            android:textColor="@color/primary_color"
-            android:textSize="@dimen/sixteen_sp_text"
+            android:textColor="?attr/primaryTextColor"
+            android:textSize="@dimen/twenty_four_sp_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iv_pick_avatar" />
@@ -155,7 +138,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/roboto"
+                android:textColor="?attr/primaryTextColor"
                 android:text="@string/notes" />
 
             <ImageView
@@ -178,7 +162,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/roboto"
+                android:textColor="?attr/primaryTextColor"
                 android:text="@string/pin_chat"
                 android:textSize="@dimen/fourteen_sp_text" />
 
@@ -203,7 +188,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/roboto"
+                android:textColor="?attr/primaryTextColor"
                 android:text="@string/mute"
                 android:textSize="@dimen/fourteen_sp_text" />
 
@@ -229,10 +215,10 @@
                 android:id="@+id/tv_members_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/montserrat_bold"
+                android:fontFamily="@font/roboto_bold"
                 android:paddingStart="@dimen/ten_dp_margin"
                 android:text="@string/number_of_members"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/sixteen_sp_text"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -264,7 +250,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat"
+            android:fontFamily="@font/roboto"
             android:paddingStart="@dimen/ten_dp_margin"
             android:text="@string/exit_group"
             android:textColor="@color/style_red"
@@ -282,7 +268,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
             android:layout_marginBottom="@dimen/eight_dp_margin"
-            android:fontFamily="@font/montserrat"
+            android:fontFamily="@font/roboto"
             android:paddingStart="@dimen/ten_dp_margin"
             android:text="@string/delete_chat"
             android:textColor="@color/style_red"
@@ -301,8 +287,22 @@
             android:text="@string/see_more"
             android:visibility="gone"
             android:textSize="@dimen/fourteen_sp_text"
+            android:fontFamily="@font/roboto"
+            android:textColor="?attr/primaryTextColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cl_member_list" />
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:elevation="@dimen/eight_dp_margin"
+            android:padding="@dimen/ten_dp_margin"
+            android:layout_margin="@dimen/sixteen_dp_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:src="@drawable/img_arrow_back_chat"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

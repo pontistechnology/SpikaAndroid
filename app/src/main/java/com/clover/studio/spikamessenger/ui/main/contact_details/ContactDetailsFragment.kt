@@ -193,7 +193,6 @@ class ContactDetailsFragment : BaseFragment() {
     private fun initializeViews() = with(binding) {
         if (user != null) {
             tvUsername.text = user?.formattedDisplayName
-            tvPageName.text = user?.formattedDisplayName
             tvNumber.text = user?.telephoneNumber
 
             tvNumber.setOnClickListener {

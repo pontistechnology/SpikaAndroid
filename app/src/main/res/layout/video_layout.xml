@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:background="@drawable/img_video_shadow"
-        android:fontFamily="@font/montserrat"
+        android:fontFamily="@font/roboto"
         android:gravity="bottom|end"
         android:padding="@dimen/eight_dp_margin"
         android:textColor="@color/white"
