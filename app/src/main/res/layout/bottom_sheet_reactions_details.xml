@@ -65,7 +65,7 @@
             android:paddingStart="@dimen/four_dp_margin"
             android:paddingEnd="@dimen/four_dp_margin"
             android:text="@string/all"
-            android:textColor="@color/primary_color"
+            android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/eighteen_sp_text" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

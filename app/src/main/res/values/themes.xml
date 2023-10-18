@@ -31,7 +31,6 @@
         <item name="iconsColorsSecondary">@color/baseIconsColorsSecondary</item>
         <item name="backgroundPrimary">@drawable/bg_spika</item>
         <item name="spikaLogo">@drawable/spika_mint_logo</item>
-
     </style>
 
 <!--  Neon theme  -->
