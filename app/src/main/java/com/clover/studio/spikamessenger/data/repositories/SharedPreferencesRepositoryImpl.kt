@@ -241,14 +241,14 @@ class SharedPreferencesRepositoryImpl(
     // Theme
     override suspend fun writeUserTheme(userTheme: String) {
         with(getPrefs().edit()) {
-            putString(Const.PrefsData.THEME, userTheme)
+            putString(Const.PrefsData.THEMES, userTheme)
             commit()
         }
     }
 
     // Set default system theme
     override suspend fun readUserTheme(): String? {
-        return getPrefs().getString(Const.PrefsData.THEME, null)
+        return getPrefs().getString(Const.PrefsData.THEMES, "")
     }
 
     override fun clearSharedPrefs() {

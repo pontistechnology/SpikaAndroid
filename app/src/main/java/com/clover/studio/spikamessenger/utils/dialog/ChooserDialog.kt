@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
-import androidx.core.content.ContextCompat
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.DialogChooserBinding
 import com.clover.studio.spikamessenger.utils.extendables.BaseDialog
@@ -61,24 +60,24 @@ class ChooserDialog(
     private fun initViews() = with(binding) {
         if (!title.isNullOrEmpty()) {
             if (context.getString(R.string.delete) == title) {
-                btnFirstOption.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.style_red
-                    )
-                )
-                btnSecondOption.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.style_red
-                    )
-                )
-                btnCancel.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.primary_color
-                    )
-                )
+//                btnFirstOption.setTextColor(
+//                    ContextCompat.getColor(
+//                        context,
+//                        R.color.style_red
+//                    )
+//                )
+//                btnSecondOption.setTextColor(
+//                    ContextCompat.getColor(
+//                        context,
+//                        R.color.style_red
+//                    )
+//                )
+//                btnCancel.setTextColor(
+//                    ContextCompat.getColor(
+//                        context,
+//                        R.color.primary_color
+//                    )
+//                )
                 tvTextTitle.visibility = View.GONE
             }
             tvTextTitle.text = title

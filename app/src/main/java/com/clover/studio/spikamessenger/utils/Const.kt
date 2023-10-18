@@ -262,6 +262,7 @@ class Const {
 
             // Theme
             const val THEME = "theme"
+            const val THEMES = "themes"
         }
     }
 

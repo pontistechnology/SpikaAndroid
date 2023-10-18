@@ -21,15 +21,17 @@
         <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
 
 <!--    TODO    -->
-        <item name="primaryTextColor">@color/text_tertiary</item>
-        <item name="secondaryTextColor">@color/neonColorTextSecondary</item>
-        <item name="textFieldColor">@color/inputs</item>
-        <item name="iconsColorsPrimary">@color/icons</item>
-        <item name="bubbleSenderColor">@color/message_me</item>
-        <item name="bubbleReceiverColor">@color/message_other</item>
-        <item name="iconsColorsSecondary">@color/primary_color</item>
-        <item name="backgroundPrimary">@color/main</item>
-        <item name="spikaLogo">@drawable/img_spika_logo</item>
+        <item name="primaryTextColor">@color/baseColorTextPrimary</item>
+        <item name="secondaryTextColor">@color/baseColorTextSecondary</item>
+        <item name="tertiaryTextColor">@color/baseColorTertiary</item>
+        <item name="bubbleSenderColor">@color/baseBubbleSenderColor</item>
+        <item name="bubbleReceiverColor">@color/baseBubbleReceiverColor</item>
+        <item name="textFieldColor">@color/baseTextFieldColor</item>
+        <item name="iconsColorsPrimary">@color/baseIconsColorsPrimary</item>
+        <item name="iconsColorsSecondary">@color/baseIconsColorsSecondary</item>
+        <item name="backgroundPrimary">@drawable/bg_spika</item>
+        <item name="spikaLogo">@drawable/spika_mint_logo</item>
+
     </style>
 
 <!--  Neon theme  -->
@@ -39,6 +41,7 @@
         <item name="android:windowLightStatusBar">true</item>
 
         <item name="primaryTextColor">@color/white</item>
+        <item name="tertiaryTextColor">@color/neonColorTertiary</item>
         <item name="secondaryTextColor">@color/neonColorTextSecondary</item>
         <item name="bubbleSenderColor">@color/neonBubbleSenderColor</item>
         <item name="bubbleReceiverColor">@color/neonBubbleReceiverColor</item>
@@ -58,6 +61,7 @@
 
         <item name="primaryTextColor">@color/mintColorTextPrimary</item>
         <item name="secondaryTextColor">@color/mintColorTextSecondary</item>
+        <item name="tertiaryTextColor">@color/mintColorTertiary</item>
         <item name="bubbleSenderColor">@color/mintBubbleSenderColor</item>
         <item name="bubbleReceiverColor">@color/mintBubbleReceiverColor</item>
         <item name="textFieldColor">@color/mintTextFieldColor</item>

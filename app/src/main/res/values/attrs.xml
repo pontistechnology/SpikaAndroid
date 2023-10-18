@@ -3,6 +3,8 @@
 
     <attr name="colorPrimary" format="reference|color"/>
     <attr name="primaryTextColor" format="reference|color"/>
+    <attr name="subheadTextColor" format="reference|color"/>
+    <attr name="tertiaryTextColor" format="reference|color"/>
     <attr name="secondaryTextColor" format="reference|color"/>
     <attr name="bubbleSenderColor" format="reference|color" />
     <attr name="bubbleReceiverColor" format="reference|color" />

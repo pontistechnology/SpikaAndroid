@@ -42,7 +42,7 @@
         android:layout_marginStart="@dimen/twenty_dp_margin"
         android:layout_marginBottom="@dimen/eight_dp_margin"
         android:ellipsize="end"
-        android:fontFamily="@font/montserrat_thin"
+        android:fontFamily="@font/roboto_light"
         android:maxLines="1"
         android:textColor="@color/text_tertiary"
         android:textSize="@dimen/fourteen_sp_text"

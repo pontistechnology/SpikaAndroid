@@ -56,10 +56,21 @@
     <!--Link Colors-->
     <color name="link_primary_color">#4696F0</color>
 
+<!--  Base theme colors  -->
+    <color name="baseColorTextPrimary">#001D3D</color>
+    <color name="baseColorTextSecondary">#648FB8</color>
+    <color name="baseColorTertiary">#648FB8</color>
+    <color name="baseBubbleSenderColor">#90E0EF</color>
+    <color name="baseBubbleReceiverColor">#DEF9FF</color>
+    <color name="baseIconsColorsPrimary">#43B6DA</color>
+    <color name="baseIconsColorsSecondary">#648FB8</color>
+    <color name="baseTextFieldColor">#daeaf3</color>
+
 
 <!-- Neon theme colors  -->
     <color name="neonColorTextPrimary">#FFFFFF</color>
     <color name="neonColorTextSecondary">#4CC9F0</color>
+    <color name="neonColorTertiary">#C6C6C6</color>
     <color name="neonBubbleSenderColor">#8F2D85</color>
     <color name="neonBubbleReceiverColor">#15278A</color>
     <color name="neonIconsColorsPrimary">#FF4AA0</color>
@@ -69,6 +80,7 @@
     <!-- Mint Theme Colors -->
     <color name="mintColorTextPrimary">#001D3D</color>
     <color name="mintColorTextSecondary">#648FB8</color>
+    <color name="mintColorTertiary">#648FB8</color>
     <color name="mintBubbleSenderColor">#D5FFF5</color>
     <color name="mintBubbleReceiverColor">#8CF3DB</color>
     <color name="mintIconsColorsPrimary">#43DAB6</color>

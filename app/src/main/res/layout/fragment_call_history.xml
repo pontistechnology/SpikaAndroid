@@ -37,7 +37,7 @@
         android:id="@+id/tv_no_calls"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat"
+        android:fontFamily="@font/roboto"
         android:text="@string/no_calls_yet"
         android:textColor="@color/text_tertiary"
         android:textSize="@dimen/sixteen_sp_text"

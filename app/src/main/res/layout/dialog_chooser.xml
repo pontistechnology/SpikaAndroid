@@ -15,6 +15,7 @@
         android:alpha="0.95"
         app:cardCornerRadius="@dimen/ten_dp_margin"
         app:cardElevation="0dp"
+        android:backgroundTint="?attr/iconsColorsPrimary"
         app:layout_constraintBottom_toTopOf="@+id/view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -34,7 +35,7 @@
                 android:gravity="center"
                 android:padding="@dimen/twenty_dp_margin"
                 android:text="@string/placeholder_title"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text"
                 android:visibility="gone" />
 
@@ -42,11 +43,11 @@
                 android:id="@+id/tv_text_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/roboto"
                 android:gravity="center"
                 android:padding="@dimen/eight_dp_margin"
                 android:text="@string/placeholder_title"
-                android:textColor="@color/text_tertiary"
+                android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/fifteen_sp_text" />
 
             <Button
@@ -55,13 +56,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/white"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/roboto"
                 android:gravity="center"
                 android:minHeight="0dp"
                 android:padding="@dimen/eight_dp_margin"
                 android:text="@string/gallery"
                 android:textAllCaps="false"
-                android:textColor="@color/primary_color"
+                android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/fifteen_sp_text" />
 
             <View
@@ -77,13 +78,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/white"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/roboto"
                 android:gravity="center"
                 android:minHeight="0dp"
                 android:padding="@dimen/eight_dp_margin"
                 android:text="@string/photo"
+                android:textColor="?attr/primaryTextColor"
                 android:textAllCaps="false"
-                android:textColor="@color/primary_color"
                 android:textSize="@dimen/fifteen_sp_text" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -92,6 +93,7 @@
         android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="@dimen/sixteen_dp_margin"
+
         android:background="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@+id/cv_cancel"
         app:layout_constraintEnd_toEndOf="parent"
@@ -99,6 +101,7 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_cancel"
+        android:backgroundTint="?attr/iconsColorsPrimary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/eight_dp_margin"
@@ -115,11 +118,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/white"
-            android:fontFamily="@font/montserrat"
+            android:fontFamily="@font/roboto"
             android:padding="@dimen/eight_dp_margin"
             android:text="@string/cancel"
             android:textAllCaps="false"
-            android:textColor="@color/style_red"
+            android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/fifteen_sp_text" />
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

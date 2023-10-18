@@ -1,6 +1,7 @@
 package com.clover.studio.spikamessenger.ui.main
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -74,8 +75,12 @@ class MainFragment : BaseFragment() {
             if (count != 0) {
                 if (position == 0) {
                     val badge = tab.orCreateBadge
-                    tab.badge?.backgroundColor =
-                        ContextCompat.getColor(requireContext(), R.color.style_red)
+
+                    val typedValue = TypedValue()
+                    val theme = requireContext().theme
+                    theme.resolveAttribute(R.attr.iconsColorsPrimary, typedValue, true)
+                    val badgeColor = typedValue.data
+                    tab.badge?.backgroundColor = badgeColor
                     tab.badge?.badgeTextColor =
                         ContextCompat.getColor(requireContext(), R.color.white)
                     badge.number = count
