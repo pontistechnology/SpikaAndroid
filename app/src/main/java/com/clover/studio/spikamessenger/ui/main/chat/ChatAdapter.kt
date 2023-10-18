@@ -133,6 +133,9 @@ class ChatAdapter(
                 // holder.setIsRecyclable(false)
 
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_send)
+                holder.binding.tvTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+                    calendar.timeInMillis
+                ).toString()
 
                 /** Message types: */
                 when (it.message.type) {
@@ -143,13 +146,7 @@ class ChatAdapter(
                             tvMessage = holder.binding.tvMessage,
                             cvReactedEmoji = holder.binding.cvReactedEmoji,
                             chatMessage = it,
-                            sender = true
                         )
-                        holder.binding.tvTime.text =
-                            SimpleDateFormat(
-                                "HH:mm",
-                                Locale.getDefault()
-                            ).format(calendar.timeInMillis).toString()
                     }
 
                     Const.JsonFields.IMAGE_TYPE -> {
@@ -383,6 +380,9 @@ class ChatAdapter(
                 // holder.setIsRecyclable(false)
 
                 holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
+                holder.binding.tvTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+                    calendar.timeInMillis
+                ).toString()
 
                 /** Message types: */
                 when (it.message.type) {
@@ -393,13 +393,8 @@ class ChatAdapter(
                             tvMessage = holder.binding.tvMessage,
                             cvReactedEmoji = holder.binding.cvReactedEmoji,
                             chatMessage = it,
-                            sender = false
                         )
                         holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
-                        holder.binding.tvTime.text = SimpleDateFormat(
-                            "HH:mm",
-                            Locale.getDefault()
-                        ).format(calendar.timeInMillis).toString()
                     }
 
                     Const.JsonFields.IMAGE_TYPE -> {
@@ -561,7 +556,6 @@ class ChatAdapter(
         tvMessage: TextView,
         cvReactedEmoji: CardView,
         chatMessage: MessageAndRecords,
-        sender: Boolean,
     ) {
         var isDeleted = false
         if (chatMessage.message.deleted == true || chatMessage.message.body?.text == context.getString(
@@ -589,8 +583,13 @@ class ChatAdapter(
                 }
                 true
             }
+
+            setOnClickListener {
+                if (chatMessage.message.deliveredCount == -1) {
+                    onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
+                }
+            }
         }
-//        resendMessage(chatMessage)
     }
 
     private fun bindImage(
@@ -849,15 +848,6 @@ class ChatAdapter(
             chatMessage!!.message.messagePosition = position
             onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)
             true
-        }
-    }
-
-    /** A method that shows the time of a message when it is tapped */
-    private fun resendMessage(
-        message: MessageAndRecords,
-    ) {
-        if (message.message.deliveredCount == -1) {
-            onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, message)
         }
     }
 
