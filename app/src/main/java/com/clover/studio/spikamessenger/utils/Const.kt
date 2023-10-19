@@ -152,6 +152,8 @@ class Const {
 
     class Networking {
         companion object {
+            const val TIMEOUT_SECONDS: Long = 30
+
             // Sync Data
             const val API_SYNC_MESSAGES = "api/messenger/messages/sync/{lastUpdate}"
             const val API_SYNC_MESSAGE_RECORDS = "api/messenger/message-records/sync/{lastUpdate}"

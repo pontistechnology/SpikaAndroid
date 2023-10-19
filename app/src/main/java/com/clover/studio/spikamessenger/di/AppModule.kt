@@ -7,6 +7,7 @@ import com.clover.studio.spikamessenger.data.services.ChatService
 import com.clover.studio.spikamessenger.data.services.OnboardingService
 import com.clover.studio.spikamessenger.data.services.RetrofitService
 import com.clover.studio.spikamessenger.data.services.SSEService
+import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.helpers.GsonProvider
 import com.google.gson.Gson
 import dagger.Module
@@ -41,8 +42,8 @@ object AppModule {
     @Provides
     fun provideRetrofitClient(interceptor: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
-            .readTimeout(30, TimeUnit.SECONDS)
-            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(Const.Networking.TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .connectTimeout(Const.Networking.TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .addInterceptor(interceptor)
             .build()
     }
