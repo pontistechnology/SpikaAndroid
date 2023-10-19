@@ -225,7 +225,7 @@ class ChatDetailsFragment : BaseFragment() {
             tvGroupName.visibility = View.VISIBLE
         }
 
-        flNotes.setOnClickListener {
+        chatOptions.flNotes.setOnClickListener {
             val action = roomId?.let { id ->
                 ChatDetailsFragmentDirections.actionChatDetailsFragmentToNotesFragment(
                     id
@@ -337,7 +337,7 @@ class ChatDetailsFragment : BaseFragment() {
     private val multiListener: OnCheckedChangeListener =
         OnCheckedChangeListener { buttonView, isChecked ->
             when (buttonView.id) {
-                binding.swPinChat.id -> {
+                binding.chatOptions.swPinChat.id -> {
                     if (buttonView.isPressed) {
                         if (isChecked) {
                             roomId?.let { viewModel.handleRoomPin(it, true) }
@@ -347,7 +347,7 @@ class ChatDetailsFragment : BaseFragment() {
                     }
                 }
 
-                binding.swMute.id -> {
+                binding.chatOptions.swMuteChat.id -> {
                     if (buttonView.isPressed) {
                         if (isChecked) {
                             roomId?.let { viewModel.handleRoomMute(it, true) }

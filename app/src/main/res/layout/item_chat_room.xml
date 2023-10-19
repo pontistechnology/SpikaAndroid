@@ -93,7 +93,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:padding="@dimen/five_dp_margin"
-        android:src="@drawable/img_mute"
+        android:src="@drawable/img_muted_chat"
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="@+id/iv_room_image"
         app:layout_constraintTop_toTopOf="parent" />
@@ -104,7 +104,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:padding="@dimen/five_dp_margin"
-        android:src="@drawable/img_pin"
+        android:src="@drawable/img_pin_chat"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/iv_room_image"
         app:layout_constraintStart_toStartOf="parent"

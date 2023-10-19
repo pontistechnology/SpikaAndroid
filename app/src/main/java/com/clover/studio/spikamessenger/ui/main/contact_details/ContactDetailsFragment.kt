@@ -95,10 +95,10 @@ class ContactDetailsFragment : BaseFragment() {
         viewModel.getRoomByIdLiveData(roomId).observe(viewLifecycleOwner) {
             if (it.responseData != null) {
                 // Set room muted or not muted on switch
-                binding.swMute.isChecked = it.responseData.muted
+                binding.chatOptions.swMuteChat.isChecked = it.responseData.muted
 
-                // Set room pinned or not pinned on switch
-                binding.swPinChat.isChecked = it.responseData.pinned
+               // Set room pinned or not pinned on switch
+                binding.chatOptions.swPinChat.isChecked = it.responseData.pinned
             }
         }
 
@@ -278,12 +278,11 @@ class ContactDetailsFragment : BaseFragment() {
 
         // Check if private room with user exists. Hide pin, mute and notes layouts if no room exists
         val isVisible = roomId != 0
-        flMute.visibility = if (isVisible) View.VISIBLE else View.GONE
-        flPinChat.visibility = if (isVisible) View.VISIBLE else View.GONE
-        flNotes.visibility = if (isVisible) View.VISIBLE else View.GONE
+        chatOptions.flMute.visibility = if (isVisible) View.VISIBLE else View.GONE
+        chatOptions.flPinChat.visibility = if (isVisible) View.VISIBLE else View.GONE
+        chatOptions.flNotes.visibility = if (isVisible) View.VISIBLE else View.GONE
 
-
-        flNotes.setOnClickListener {
+        chatOptions.flNotes.setOnClickListener {
             if (activity is MainActivity) {
                 findNavController().navigate(
                     R.id.notesFragment,
@@ -299,8 +298,8 @@ class ContactDetailsFragment : BaseFragment() {
             }
         }
 
-        swMute.setOnCheckedChangeListener(multiListener)
-        swPinChat.setOnCheckedChangeListener(multiListener)
+        chatOptions.swMuteChat.setOnCheckedChangeListener(multiListener)
+        chatOptions.swPinChat.setOnCheckedChangeListener(multiListener)
     }
 
     private fun copyNumber(telephoneNumber: String) {
@@ -331,7 +330,7 @@ class ContactDetailsFragment : BaseFragment() {
     private val multiListener: CompoundButton.OnCheckedChangeListener =
         CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
             when (buttonView.id) {
-                binding.swPinChat.id -> {
+                binding.chatOptions.swPinChat.id -> {
                     if (buttonView.isPressed) {
                         if (isChecked) {
                             viewModel.handleRoomPin(roomId, true)
@@ -341,7 +340,7 @@ class ContactDetailsFragment : BaseFragment() {
                     }
                 }
 
-                binding.swMute.id -> {
+                binding.chatOptions.swMuteChat.id -> {
                     if (buttonView.isPressed) {
                         if (isChecked) {
                             viewModel.handleRoomMute(roomId, true)

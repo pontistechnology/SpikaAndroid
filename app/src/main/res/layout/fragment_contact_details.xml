@@ -9,7 +9,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/iv_back"
@@ -17,8 +17,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="@dimen/ten_dp_margin"
             android:elevation="@dimen/eight_dp_margin"
+            android:padding="@dimen/ten_dp_margin"
             android:src="@drawable/img_arrow_back_chat"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -27,28 +27,24 @@
             android:id="@+id/iv_pick_avatar"
             android:layout_width="match_parent"
             android:layout_height="393dp"
-            tools:srcCompat="@tools:sample/avatars"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearanceOverlay="@style/big_profile_picture" />
+            app:shapeAppearanceOverlay="@style/big_profile_picture"
+            tools:srcCompat="@tools:sample/avatars" />
 
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/fl_progress_screen"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:backgroundTint="@android:color/transparent"
             android:elevation="@dimen/five_dp_margin"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
             app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar"
             app:layout_constraintStart_toStartOf="@id/iv_pick_avatar"
-            app:layout_constraintTop_toTopOf="@id/iv_pick_avatar">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/img_selector_background"
-                android:backgroundTint="@color/dark_background_transp" />
+            app:layout_constraintTop_toTopOf="@id/iv_pick_avatar"
+            app:shapeAppearanceOverlay="@style/big_profile_picture">
 
             <ProgressBar
                 android:id="@+id/progress_bar"
@@ -58,7 +54,7 @@
                 android:indeterminateOnly="true"
                 android:indeterminateTint="@color/primary_color"
                 app:layout_constraintBottom_toBottomOf="parent" />
-        </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/tv_username"
@@ -66,8 +62,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
             android:fontFamily="@font/roboto_bold"
-            android:textSize="@dimen/twenty_four_sp_text"
+            android:text="@string/username"
             android:textColor="?attr/primaryTextColor"
+            android:textSize="@dimen/twenty_four_sp_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iv_pick_avatar" />
@@ -78,6 +75,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto"
             android:padding="@dimen/eight_dp_margin"
+            android:text="@string/number_example"
             android:textColor="?attr/primaryTextColor"
             app:layout_constraintEnd_toEndOf="@+id/tv_username"
             app:layout_constraintStart_toStartOf="@+id/tv_username"
@@ -87,102 +85,55 @@
             android:id="@+id/iv_chat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/eight_dp_margin"
-            android:src="@drawable/img_chat_selected"
-            app:layout_constraintEnd_toEndOf="@+id/tv_number"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/img_chat"
+            app:layout_constraintEnd_toStartOf="@+id/iv_telephone"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="@+id/tv_number"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_number" />
 
-        <FrameLayout
-            android:id="@+id/fl_notes"
+        <ImageView
+            android:id="@+id/iv_telephone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/img_phone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/iv_chat"
+            app:layout_constraintTop_toBottomOf="@+id/tv_number" />
+
+        <include
+            android:id="@+id/chat_options"
+            layout="@layout/chat_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/sixteen_dp_margin"
-            android:padding="@dimen/twenty_dp_margin"
+            android:layout_marginTop="24dp"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
+            app:layout_anchorGravity="bottom"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_chat">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/roboto"
-                android:text="@string/notes"
-                android:textColor="?attr/primaryTextColor"/>
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:src="@drawable/img_arrow_forward" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/fl_pin_chat"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/twenty_dp_margin"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fl_mute">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/roboto"
-                android:text="@string/pin_chat"
-                android:textSize="@dimen/fourteen_sp_text"
-                android:textColor="?attr/primaryTextColor"/>
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/sw_pin_chat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:theme="@style/CustomSwitch" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/fl_mute"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/twenty_dp_margin"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fl_notes">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/roboto"
-                android:text="@string/mute"
-                android:textSize="@dimen/fourteen_sp_text"
-                android:textColor="?attr/primaryTextColor"/>
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/sw_mute"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:theme="@style/CustomSwitch" />
-        </FrameLayout>
+            app:layout_constraintTop_toBottomOf="@+id/iv_chat" />
 
         <TextView
             android:id="@+id/tv_blocked"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/twenty_dp_margin"
+            android:layout_margin="@dimen/sixteen_dp_margin"
+            android:drawableStart="@drawable/img_block"
+            android:drawablePadding="@dimen/eight_dp_margin"
             android:fontFamily="@font/roboto"
             android:paddingStart="@dimen/ten_dp_margin"
             android:text="@string/block"
             android:textColor="@color/style_red"
-            android:textSize="@dimen/sixteen_sp_text"
+            android:textSize="@dimen/twenty_sp_text"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fl_pin_chat" />
+            app:layout_constraintTop_toBottomOf="@+id/chat_options" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -53,22 +53,18 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/fl_progress_screen"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:backgroundTint="@android:color/transparent"
             android:elevation="@dimen/five_dp_margin"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
             app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar"
             app:layout_constraintStart_toStartOf="@id/iv_pick_avatar"
-            app:layout_constraintTop_toTopOf="@id/iv_pick_avatar">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/img_selector_background"
-                android:backgroundTint="@color/dark_background_transp" />
+            app:layout_constraintTop_toTopOf="@id/iv_pick_avatar"
+            app:shapeAppearanceOverlay="@style/big_profile_picture">
 
             <ProgressBar
                 android:id="@+id/progress_bar"
@@ -78,7 +74,7 @@
                 android:indeterminateOnly="true"
                 android:indeterminateTint="@color/primary_color"
                 app:layout_constraintBottom_toBottomOf="parent" />
-        </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <ImageView
             android:id="@+id/iv_done"
@@ -124,82 +120,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iv_pick_avatar" />
 
-        <FrameLayout
-            android:id="@+id/fl_notes"
+        <include
+            android:id="@+id/chat_options"
+            layout="@layout/chat_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?android:selectableItemBackground"
-            android:padding="@dimen/twenty_dp_margin"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
+            app:layout_anchorGravity="bottom"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_enter_group_name">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/roboto"
-                android:textColor="?attr/primaryTextColor"
-                android:text="@string/notes" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:src="@drawable/img_arrow_forward" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/fl_pin_chat"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/twenty_dp_margin"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fl_notes">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/roboto"
-                android:textColor="?attr/primaryTextColor"
-                android:text="@string/pin_chat"
-                android:textSize="@dimen/fourteen_sp_text" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/sw_pin_chat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:theme="@style/CustomSwitch"
-                android:layout_gravity="end" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/fl_mute"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/twenty_dp_margin"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fl_pin_chat">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/roboto"
-                android:textColor="?attr/primaryTextColor"
-                android:text="@string/mute"
-                android:textSize="@dimen/fourteen_sp_text" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/sw_mute"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:theme="@style/CustomSwitch"
-                android:layout_gravity="end"/>
-        </FrameLayout>
+            app:layout_constraintTop_toBottomOf="@+id/et_enter_group_name" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_member_list"
@@ -209,7 +141,7 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fl_mute">
+            app:layout_constraintTop_toBottomOf="@id/chat_options">
 
             <TextView
                 android:id="@+id/tv_members_number"
