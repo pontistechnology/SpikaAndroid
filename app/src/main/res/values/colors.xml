@@ -66,6 +66,15 @@
     <color name="baseIconsColorsSecondary">#648FB8</color>
     <color name="baseTextFieldColor">#daeaf3</color>
 
+    <!--  Dark marine theme colors  -->
+    <color name="darkMarineColorTextPrimary">#FFFFFF</color>
+    <color name="darkMarineColorTextSecondary">#C6C6C6</color>
+    <color name="darkMarineColorTertiary">#C6C6C6</color>
+    <color name="darkMarineBubbleSenderColor">#43B6DA</color>
+    <color name="darkMarineBubbleReceiverColor">#13436E</color>
+    <color name="darkMarineIconsColorsPrimary">#43B6DA</color>
+    <color name="darkMarineIconsColorsSecondary">#C6C6C6</color>
+    <color name="darkMarineTextFieldColor">#0c2744</color>
 
 <!-- Neon theme colors  -->
     <color name="neonColorTextPrimary">#FFFFFF</color>
@@ -77,7 +86,7 @@
     <color name="neonIconsColorsSecondary">#4CC9F0</color>
     <color name="neonTextFieldColor">#1A3E93</color>
 
-    <!-- Mint Theme Colors -->
+    <!-- Light green Theme Colors -->
     <color name="mintColorTextPrimary">#001D3D</color>
     <color name="mintColorTextSecondary">#648FB8</color>
     <color name="mintColorTertiary">#648FB8</color>

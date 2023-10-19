@@ -11,7 +11,7 @@
         android:layout_width="@dimen/one_hundred_seventy_dp"
         android:layout_height="@dimen/one_hundred_seventy_dp"
         android:layout_margin="@dimen/twenty_dp_margin"
-        android:src="@drawable/img_spika_logo"
+        android:src="?attr/spikaLogo"
         app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintBottom_toTopOf="@id/tv_welcome_title"
         app:layout_constraintEnd_toEndOf="parent"

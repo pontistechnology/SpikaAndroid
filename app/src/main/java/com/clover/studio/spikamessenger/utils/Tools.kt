@@ -768,12 +768,16 @@ object Tools {
 
     fun setTheme(theme: String) : Int {
         return when(theme) {
-            "mint" -> {
-                R.style.Theme_App_Mint
+            Const.Themes.MINT_THEME -> {
+                R.style.Theme_App_LightGreen
             }
 
-            "neon" -> {
+            Const.Themes.NEON_THEME -> {
                 R.style.Theme_App_Neon
+            }
+
+            Const.Themes.BASIC_THEME_NIGHT -> {
+                R.style.Theme_App_DarkMarine
             }
 
             else -> {

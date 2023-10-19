@@ -28,7 +28,7 @@ class AppearanceSettings : BaseFragment() {
         bindingSetup = FragmentAppearanceSettingsBinding.inflate(inflater, container, false)
 
         listOfCheckMarks = listOf(
-            binding.ivLilacCheck, binding.ivMintCheck, binding.ivBaseCheck
+            binding.ivLilacCheck, binding.ivMintCheck, binding.ivBaseCheck, binding.ivBaseDarkCheck
         )
 
         initializeViews()
@@ -54,6 +54,10 @@ class AppearanceSettings : BaseFragment() {
                 setThemeChecks(ivLilacCheck)
             }
 
+            Const.Themes.BASIC_THEME_NIGHT -> {
+                setThemeChecks(ivBaseDarkCheck)
+            }
+
             else -> {
                 Timber.d("Base theme")
                 setThemeChecks(ivBaseCheck)
@@ -64,20 +68,28 @@ class AppearanceSettings : BaseFragment() {
     private fun initializeListeners() = with(binding) {
         // TODO change user theme:
 
-        clBaseTheme.setOnClickListener {
+        flBaseTheme.setOnClickListener {
             Timber.d("Base theme click")
             viewModel.writeUserTheme(Const.Themes.BASIC_THEME)
             setThemeChecks(ivBaseCheck)
             activity?.recreate()
         }
 
-        clMintTheme.setOnClickListener {
-            Timber.d("Mint theme click")
-            viewModel.writeUserTheme(Const.Themes.MINT_THEME)
+        flBaseDarkTheme.setOnClickListener {
+            Timber.d("Base dark theme click")
+            viewModel.writeUserTheme(Const.Themes.BASIC_THEME_NIGHT)
+            setThemeChecks(ivBaseCheck)
             activity?.recreate()
         }
 
-        clLilacTheme.setOnClickListener {
+        flMintTheme.setOnClickListener {
+            Timber.d("Mint theme click")
+            viewModel.writeUserTheme(Const.Themes.MINT_THEME)
+            setThemeChecks(ivMintCheck)
+            activity?.recreate()
+        }
+
+        flLilacTheme.setOnClickListener {
             Timber.d("Neon theme click")
             viewModel.writeUserTheme(Const.Themes.NEON_THEME)
             setThemeChecks(ivLilacCheck)
