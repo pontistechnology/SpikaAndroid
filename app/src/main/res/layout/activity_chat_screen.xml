@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.chat.ChatScreenActivity"
     android:background="?attr/backgroundPrimary"
-    android:elevation="@dimen/one_dp_margin">
+    android:elevation="@dimen/one_dp_margin"
+    android:fitsSystemWindows="true">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_chat_container"

@@ -82,7 +82,7 @@
     <color name="neonColorTertiary">#C6C6C6</color>
     <color name="neonBubbleSenderColor">#8F2D85</color>
     <color name="neonBubbleReceiverColor">#15278A</color>
-    <color name="neonIconsColorsPrimary">#8F2D85</color>
+    <color name="neonIconsColorsPrimary">#FF4AA0</color>
     <color name="neonIconsColorsSecondary">#4CC9F0</color>
     <color name="neonTextFieldColor">#1A3E93</color>
 

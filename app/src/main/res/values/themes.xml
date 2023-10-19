@@ -35,7 +35,8 @@
 
     <!--  Dark Marine theme  -->
     <style name="Theme.App.DarkMarine" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:windowLightStatusBar">true</item>
+
+        <item name="android:windowTranslucentStatus">true</item>
 
         <item name="primaryTextColor">@color/darkMarineColorTextPrimary</item>
         <item name="tertiaryTextColor">@color/darkMarineColorTertiary</item>
