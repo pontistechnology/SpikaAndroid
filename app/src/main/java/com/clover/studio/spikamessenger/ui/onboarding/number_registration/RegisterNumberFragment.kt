@@ -115,7 +115,7 @@ class RegisterNumberFragment : BaseFragment() {
                 Resource.Status.ERROR -> {
                     DialogError.getInstance(requireContext(),
                         getString(R.string.registration_error),
-                        getString(R.string.registration_error_description),
+                        "${getString(R.string.registration_error_description)} \n\n ${it.message}",
                         null, getString(R.string.ok), object : DialogInteraction {
                             override fun onFirstOptionClicked() {
                                 // Ignore
