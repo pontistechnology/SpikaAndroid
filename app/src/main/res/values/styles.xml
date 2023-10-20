@@ -66,10 +66,16 @@
     <!-- Toolbar style - SearchView  -->
     <style name="CustomToolbar" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="searchViewStyle">@style/CustomSearchView</item>
+        <item name="android:editTextColor">?attr/primaryTextColor</item>
+        <item name="android:textColorHint">?attr/secondaryTextColor</item>
+        <item name="android:colorControlNormal">?attr/primaryTextColor</item>
+        <item name="android:closeIcon">@drawable/img_search_close</item>
     </style>
 
     <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
         <item name="searchIcon">@null</item>
+        <item name="android:editTextColor">@android:color/white</item>
+        <item name="android:closeIcon">@drawable/img_search_close</item>
     </style>
 
     <!--  Bottom sheet style  -->

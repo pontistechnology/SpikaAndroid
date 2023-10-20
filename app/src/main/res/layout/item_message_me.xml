@@ -86,7 +86,7 @@
             android:layout_marginStart="@dimen/eight_dp_margin"
             android:layout_marginTop="@dimen/eight_dp_margin"
             android:layout_marginEnd="@dimen/eight_dp_margin"
-            android:background="@drawable/bg_message_received"
+            android:background="@drawable/bg_message_send"
             android:backgroundTint="?attr/bubbleReceiverColor"
             android:visibility="gone"
             app:layout_constrainedWidth="true"
@@ -196,7 +196,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/iv_message_status"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -229,14 +230,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <FrameLayout
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/fl_loading_screen"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="@color/dark_background_transp"
+                android:backgroundTint="@color/background_80_transp"
                 android:elevation="@dimen/five_dp_margin"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/iv_chat_image"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_media_loading"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -273,7 +275,7 @@
                     android:layout_gravity="center"
                     android:src="@drawable/img_upload_failed"
                     android:visibility="gone" />
-            </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
