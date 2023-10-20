@@ -5,7 +5,7 @@
     android:id="@+id/fl_videos"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:visibility="gone"
+    android:visibility="visible"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +44,7 @@
         app:cardCornerRadius="@dimen/eight_dp_margin"
         app:layout_constrainedHeight="true"
         app:layout_constrainedWidth="true"
-        app:shapeAppearanceOverlay="@style/chat_image" />
+        app:shapeAppearanceOverlay="@style/SenderBubbleStyle" />
 
     <TextView
         android:id="@+id/tv_video_duration"

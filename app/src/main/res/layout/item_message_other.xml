@@ -125,11 +125,12 @@
                 android:layout_height="0dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:cardCornerRadius="@dimen/four_dp_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearance="@style/reply_image" />
 
             <TextView
                 android:id="@+id/tv_reply_media"
@@ -143,6 +144,7 @@
                 android:text="@string/media"
                 android:textSize="@dimen/nine_sp_text"
                 android:visibility="gone"
+                android:textColor="?attr/primaryTextColor"
                 app:drawableLeftCompat="@drawable/img_camera_reply"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/iv_reply_image"
@@ -195,8 +197,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_image_chat"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -223,17 +225,17 @@
                 android:layout_height="@dimen/two_hundred_fifty_six_dp"
                 android:layout_margin="@dimen/two_dp_margin"
                 android:scaleType="centerCrop"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constrainedHeight="true"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearanceOverlay="@style/chat_image"
-                tools:srcCompat="@tools:sample/avatars" />
+                app:shapeAppearanceOverlay="@style/ReceiverBubbleStyle" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+<!--   TODO change receiver video layout  -->
         <include
             android:id="@+id/video_layout"
             layout="@layout/video_layout"
@@ -283,13 +285,12 @@
         android:id="@+id/cv_reacted_emoji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/two_dp_margin"
+        android:layout_marginTop="-8dp"
         android:backgroundTint="?attr/bubbleReceiverColor"
-        android:visibility="gone"
-        app:cardCornerRadius="@dimen/eight_dp_margin"
-        app:layout_constraintBottom_toBottomOf="@+id/cl_container"
+        android:visibility="visible"
         app:layout_constraintStart_toStartOf="@+id/cl_container"
-        app:layout_constraintTop_toBottomOf="@+id/cl_container">
+        app:layout_constraintTop_toBottomOf="@+id/cl_container"
+        app:shapeAppearanceOverlay="@style/ReceiverReactionStyle">
 
         <com.vanniktech.emoji.EmojiTextView
             android:id="@+id/tv_reacted_emoji"
@@ -297,7 +298,8 @@
             android:layout_height="match_parent"
             android:fontFamily="@font/roboto"
             android:padding="@dimen/two_dp_margin"
-            android:text="@string/heart_emoji" />
+            android:text="@string/heart_emoji"
+            android:textColor="?attr/primaryTextColor" />
     </com.google.android.material.card.MaterialCardView>
 
     <TextView

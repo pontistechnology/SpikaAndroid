@@ -51,10 +51,11 @@
             android:layout_width="@dimen/sixteen_dp_margin"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/four_dp_margin"
-            android:layout_marginBottom="@dimen/four_dp_margin"
             android:src="@drawable/img_clock"
             app:layout_constraintBottom_toBottomOf="@+id/cl_container"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_message"
+            app:layout_constraintVertical_bias="0.95" />
 
         <com.vanniktech.emoji.EmojiTextView
             android:id="@+id/tv_message"
@@ -149,7 +150,8 @@
                 app:cardCornerRadius="@dimen/four_dp_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearance="@style/reply_image" />
 
             <TextView
                 android:id="@+id/tv_reply_media"
@@ -161,6 +163,7 @@
                 android:drawablePadding="@dimen/two_dp_margin"
                 android:fontFamily="@font/roboto"
                 android:text="@string/media"
+                android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/nine_sp_text"
                 android:visibility="gone"
                 app:drawableLeftCompat="@drawable/img_camera_reply"
@@ -171,25 +174,24 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_username_other" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/cv_audio"
-            android:layout_width="@dimen/two_hundred"
-            android:layout_height="@dimen/forty_eight_dp_margin"
-            android:background="@drawable/bg_message_send"
-            android:backgroundTint="@color/message_me"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/bubbleSenderColor"
             android:saveEnabled="false"
             android:visibility="gone"
-            app:cardCornerRadius="@dimen/eight_dp_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/SenderBubbleStyle">
 
             <include
                 android:id="@+id/audio_layout"
                 layout="@layout/audio_layout" />
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_image_chat"
@@ -207,20 +209,19 @@
                 android:layout_height="@dimen/two_hundred_fifty_six_dp"
                 android:layout_margin="@dimen/two_dp_margin"
                 android:scaleType="centerCrop"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constrainedHeight="true"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearanceOverlay="@style/chat_image" />
+                app:shapeAppearanceOverlay="@style/SenderBubbleStyle" />
 
             <ImageView
                 android:id="@+id/iv_media_loading"
                 android:layout_width="@dimen/two_hundred_fifty_six_dp"
                 android:layout_height="@dimen/two_hundred_fifty_six_dp"
-                android:layout_margin="@dimen/two_dp_margin"
                 android:scaleType="centerInside"
                 android:src="@drawable/img_media_loading"
                 app:layout_constrainedHeight="true"
@@ -241,7 +242,8 @@
                 app:layout_constraintBottom_toBottomOf="@+id/iv_media_loading"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/SenderBubbleStyle">
 
                 <!-- This used to work before without tint setup. What changed? -->
                 <androidx.core.widget.ContentLoadingProgressBar
@@ -317,11 +319,12 @@
         android:id="@+id/cv_reacted_emoji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_message_send"
+        android:layout_marginTop="-2dp"
         android:backgroundTint="?attr/bubbleSenderColor"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="@+id/cl_container"
-        app:layout_constraintTop_toBottomOf="@+id/cl_container">
+        app:layout_constraintTop_toBottomOf="@+id/cl_container"
+        app:shapeAppearanceOverlay="@style/SenderReactionStyle">
 
         <com.vanniktech.emoji.EmojiTextView
             android:id="@+id/tv_reacted_emoji"
@@ -329,7 +332,8 @@
             android:layout_height="match_parent"
             android:fontFamily="@font/roboto"
             android:padding="@dimen/two_dp_margin"
-            android:text="@string/heart_emoji" />
+            android:text="@string/heart_emoji"
+            android:textColor="?attr/primaryTextColor" />
     </com.google.android.material.card.MaterialCardView>
 
     <TextView
