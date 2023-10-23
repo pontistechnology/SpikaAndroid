@@ -23,6 +23,8 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -606,7 +608,7 @@ class ChatMessagesFragment : BaseFragment() {
         if (!(sendingScrollVisibility())) {
             cvNewMessages.visibility = View.VISIBLE
 
-            if (messagesSize == 1 && cvNewMessages.visibility == View.INVISIBLE) {
+            if (messagesSize == 1 && (cvBottomArrow.visibility == View.INVISIBLE)) {
                 tvNewMessage.text =
                     getString(R.string.new_messages, messagesSize.toString(), "").trim()
 
@@ -644,14 +646,42 @@ class ChatMessagesFragment : BaseFragment() {
             scrollYDistance -= heightDiff
         }
         // If we are somewhere up
-        if (!(sendingScrollVisibility())) {
+        if (!sendingScrollVisibility()) {
             if (cvNewMessages.visibility == View.VISIBLE) {
-                cvBottomArrow.visibility = View.INVISIBLE
+                fadeOutArrow()
             } else {
-                cvBottomArrow.visibility = View.VISIBLE
+                fadeInArrow()
             }
         } else {
-            cvBottomArrow.visibility = View.INVISIBLE
+            fadeOutArrow()
+        }
+    }
+
+    private fun fadeInArrow() = with(bindingSetup){
+        if (cvBottomArrow.visibility == View.INVISIBLE) {
+            cvBottomArrow.visibility = View.VISIBLE
+            val fadeInAnimation = AlphaAnimation(0f, 1f)
+            fadeInAnimation.duration = NEW_MESSAGE_ANIMATION_DURATION
+            cvBottomArrow.startAnimation(fadeInAnimation)
+        }
+    }
+
+    private fun fadeOutArrow() = with(bindingSetup){
+        if (cvBottomArrow.visibility == View.VISIBLE) {
+            val fadeOutAnimation = AlphaAnimation(1f, 0f)
+            fadeOutAnimation.duration = NEW_MESSAGE_ANIMATION_DURATION
+            fadeOutAnimation.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {
+                }
+
+                override fun onAnimationEnd(animation: Animation?) {
+                    cvBottomArrow.visibility = View.INVISIBLE
+                }
+
+                override fun onAnimationRepeat(animation: Animation?) {
+                }
+            })
+            cvBottomArrow.startAnimation(fadeOutAnimation)
         }
     }
 
