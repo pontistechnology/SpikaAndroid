@@ -65,7 +65,7 @@
 <!--            android:layout_height="wrap_content"-->
 <!--            android:layout_marginTop="@dimen/four_dp_margin"-->
 <!--            android:ellipsize="end"-->
-<!--            android:fontFamily="@font/roboto"-->
+<!--            android:textAppearance="@style/CustomTextBody"-->
 <!--            android:maxLines="1"-->
 <!--            android:textColor="?attr/primaryTextColor"-->
 <!--            android:textSize="@dimen/twelve_sp_text"-->

@@ -49,7 +49,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/ten_dp_margin"
-        android:fontFamily="@font/roboto"
+        android:textAppearance="@style/CustomTextBody"
         android:text="@string/number_example"
         android:textSize="@dimen/twelve_sp_text"
         android:textColor="?attr/primaryTextColor"
