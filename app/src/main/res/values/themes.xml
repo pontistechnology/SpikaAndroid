@@ -47,7 +47,7 @@
         <item name="iconsColorsPrimary">@color/darkMarineIconsColorsPrimary</item>
         <item name="iconsColorsSecondary">@color/darkMarineIconsColorsSecondary</item>
         <item name="backgroundPrimary">@drawable/bg_darkmarine</item>
-        <item name="spikaLogo">@drawable/spika_darkmarine_logo</item>
+<!--        <item name="spikaLogo">@drawable/spika_darkmarine_logo</item>-->
     </style>
 
 

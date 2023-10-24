@@ -38,7 +38,7 @@
         android:id="@+id/tv_message_content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/roboto"
+        android:textAppearance="@style/CustomTextBody"
         android:text="@string/placeholder_description"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
