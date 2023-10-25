@@ -8,7 +8,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 
 android {
-    applicationVariants.all { variant ->
+    applicationVariants.configureEach { variant ->
         variant.outputs.each { output ->
             output.outputFileName = "spika_ultimate_${variant.versionCode}_${variant.buildType.name}.apk"
         }
@@ -44,7 +44,7 @@ android {
         applicationId "com.clover.studio.spikamessenger"
         minSdk 24
         targetSdk 33
-        versionCode 110008
+        versionCode 120001
         versionName "1.2.0"
 
         kapt {
