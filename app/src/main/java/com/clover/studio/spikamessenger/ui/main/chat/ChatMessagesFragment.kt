@@ -152,6 +152,10 @@ class ChatMessagesFragment : BaseFragment() {
     private lateinit var emojiPopup: EmojiPopup
     private var replyContainer: ReplyContainer? = null
 
+    private var scrollYDistance = 0
+    private var heightDiff = 0
+    private var scrollToPosition = 0
+
     private var navOptionsBuilder: NavOptions? = null
 
     private val chooseFileContract =
