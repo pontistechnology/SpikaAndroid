@@ -622,7 +622,7 @@ class ChatMessagesFragment : BaseFragment() {
         if (!(sendingScrollVisibility())) {
             cvNewMessages.visibility = View.VISIBLE
 
-            if (messagesSize == 1 && (cvBottomArrow.visibility == View.INVISIBLE)) {
+            if (messagesSize == 1 && cvBottomArrow.visibility == View.INVISIBLE) {
                 tvNewMessage.text =
                     getString(R.string.new_messages, messagesSize.toString(), "").trim()
 
