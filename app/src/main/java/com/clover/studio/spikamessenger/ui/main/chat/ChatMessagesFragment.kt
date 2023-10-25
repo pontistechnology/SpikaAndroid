@@ -23,6 +23,8 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -142,7 +144,9 @@ class ChatMessagesFragment : BaseFragment() {
     private var isEditing = false
     private var originalText = ""
     private var editedMessageId = 0
-    private var replyId: Long? = 0L
+    private var replyId = 0L
+    private var replyPosition = 0
+    private var replySearchId : Int? = 0
 
     private lateinit var emojiPopup: EmojiPopup
 
@@ -488,6 +492,17 @@ class ChatMessagesFragment : BaseFragment() {
                             shouldScroll = false
                         }
 
+                        // If the reply is reply id != 0, it means that the search for the reply message was started and
+                        // was not found in the first set of 20 messages.
+                        // Other messages should be searched.
+                        if (replyPosition != 0 && messageSearchId != null){
+                            replyPosition =
+                                messagesRecords.indexOfFirst {msg ->
+                                    msg.message.id == messageSearchId }
+                        } else {
+                            viewModel.fetchNextSet(roomWithUsers?.room!!.roomId)
+                        }
+
                         // If messageSearchId is not 0, it means the user navigated via message
                         // search. For now, we will just fetch next sets of data until we find
                         // the correct message id in the adapter to navigate to.
@@ -498,6 +513,7 @@ class ChatMessagesFragment : BaseFragment() {
                                 scrollToPosition = position
                                 if (position != -1) {
                                     bindingSetup.rvChat.smoothScrollToPosition(position)
+                                    chatAdapter.setSelectedPosition(position)
                                 }
 
                                 messageSearchId = 0
@@ -606,7 +622,7 @@ class ChatMessagesFragment : BaseFragment() {
         if (!(sendingScrollVisibility())) {
             cvNewMessages.visibility = View.VISIBLE
 
-            if (messagesSize == 1 && cvNewMessages.visibility == View.INVISIBLE) {
+            if (messagesSize == 1 && cvBottomArrow.visibility == View.INVISIBLE) {
                 tvNewMessage.text =
                     getString(R.string.new_messages, messagesSize.toString(), "").trim()
 
@@ -644,14 +660,42 @@ class ChatMessagesFragment : BaseFragment() {
             scrollYDistance -= heightDiff
         }
         // If we are somewhere up
-        if (!(sendingScrollVisibility())) {
+        if (!sendingScrollVisibility()) {
             if (cvNewMessages.visibility == View.VISIBLE) {
-                cvBottomArrow.visibility = View.INVISIBLE
+                fadeOutArrow()
             } else {
-                cvBottomArrow.visibility = View.VISIBLE
+                fadeInArrow()
             }
         } else {
-            cvBottomArrow.visibility = View.INVISIBLE
+            fadeOutArrow()
+        }
+    }
+
+    private fun fadeInArrow() = with(bindingSetup) {
+        if (cvBottomArrow.visibility == View.INVISIBLE) {
+            cvBottomArrow.visibility = View.VISIBLE
+            val fadeInAnimation = AlphaAnimation(0f, 1f)
+            fadeInAnimation.duration = NEW_MESSAGE_ANIMATION_DURATION
+            cvBottomArrow.startAnimation(fadeInAnimation)
+        }
+    }
+
+    private fun fadeOutArrow() = with(bindingSetup) {
+        if (cvBottomArrow.visibility == View.VISIBLE) {
+            val fadeOutAnimation = AlphaAnimation(1f, 0f)
+            fadeOutAnimation.duration = NEW_MESSAGE_ANIMATION_DURATION
+            fadeOutAnimation.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {
+                }
+
+                override fun onAnimationEnd(animation: Animation?) {
+                    cvBottomArrow.visibility = View.INVISIBLE
+                }
+
+                override fun onAnimationRepeat(animation: Animation?) {
+                }
+            })
+            cvBottomArrow.startAnimation(fadeOutAnimation)
         }
     }
 
@@ -779,10 +823,15 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
-        val position =
-            messagesRecords.indexOfFirst { it.message.createdAt == msg.message.body?.referenceMessage?.createdAt }
-        if (position != -1) {
-            bindingSetup.rvChat.scrollToPosition(position)
+        replySearchId = msg.message.body?.referenceMessage?.id
+        replyPosition =
+            messagesRecords.indexOfFirst { it.message.id == msg.message.body?.referenceMessage?.id }
+
+        if (replyPosition == -1) {
+            viewModel.fetchNextSet(roomWithUsers!!.room.roomId)
+        } else {
+            bindingSetup.rvChat.smoothScrollToPosition(replyPosition)
+            chatAdapter.setSelectedPosition(replyPosition)
         }
     }
 
