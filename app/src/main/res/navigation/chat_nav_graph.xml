@@ -32,10 +32,6 @@
         <argument
             android:name="roomWithUsers"
             app:argType="com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers" />
-        <argument
-            android:name="isAdmin"
-            android:defaultValue="false"
-            app:argType="boolean" />
         <action
             android:id="@+id/action_chatDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />

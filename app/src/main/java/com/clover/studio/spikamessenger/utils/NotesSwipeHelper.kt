@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.clover.studio.spikamessenger.R
 
+const val HALF_SCREEN = 100
+
 class NotesSwipeHelper(
     private val context: Context,
     private val onSwipeAction: ((position: Int) -> Unit)
@@ -104,7 +106,6 @@ class NotesSwipeHelper(
             ) {
                 mView.performHapticFeedback(
                     HapticFeedbackConstants.KEYBOARD_TAP,
-                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
                 )
                 isVibrate = true
             }

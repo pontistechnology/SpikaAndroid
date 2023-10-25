@@ -104,7 +104,7 @@ class RoomsAdapter(
 
                     // Check for the first digit in the relative time span, if it is a '0' we will
                     // write "Now" instead of the returned time value
-                    if (time?.firstOrNull { it.isDigit() }?.equals('0') == true) {
+                    if (time.toString() == context.getString(R.string.zero_minutes_ago)) {
                         binding.tvMessageTime.text = context.getString(R.string.now)
                     } else {
                         binding.tvMessageTime.text = time

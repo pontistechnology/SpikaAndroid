@@ -45,7 +45,7 @@ class UploadDownloadManager constructor(
         var mimeType = MainApplication.appContext.contentResolver.getType(fileData.fileUri)!!
         cancelUpload = false
 
-        if (mimeType.contains(Const.JsonFields.AVI_TYPE)) {
+        if (Tools.forbiddenMimeTypes(mimeType)) {
             mimeType = Const.JsonFields.FILE_TYPE
         }
 

@@ -23,6 +23,8 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -79,9 +81,6 @@ import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 
@@ -130,24 +129,26 @@ class ChatMessagesFragment : BaseFragment() {
     private var isFetching = false
     private var directory: File? = null
 
-    private var isAdmin = false
-    private var listState: Parcelable? = null
-
     private lateinit var storagePermission: ActivityResultLauncher<String>
     private var exoPlayer: ExoPlayer? = null
+
     private var shouldScroll: Boolean = false
-
-    private var avatarFileId = 0L
-    private var userName = ""
-    private var isEditing = false
-    private var originalText = ""
-    private var editedMessageId = 0
-    private var replyId: Long? = 0L
-    private lateinit var emojiPopup: EmojiPopup
-
+    private var listState: Parcelable? = null
     private var scrollYDistance = 0
     private var heightDiff = 0
     private var scrollToPosition = 0
+
+    private var avatarFileId = 0L
+    private var userName = ""
+
+    private var isEditing = false
+    private var originalText = ""
+    private var editedMessageId = 0
+    private var replyId = 0L
+    private var replyPosition = 0
+    private var replySearchId : Int? = 0
+
+    private lateinit var emojiPopup: EmojiPopup
 
     private var navOptionsBuilder: NavOptions? = null
 
@@ -186,10 +187,6 @@ class ChatMessagesFragment : BaseFragment() {
             if (it) {
                 if (photoImageUri != null) {
                     selectedFiles.add(photoImageUri!!)
-                    activity?.contentResolver?.takePersistableUriPermission(
-                        photoImageUri!!,
-                        FLAG_GRANT_READ_URI_PERMISSION
-                    )
                     handleUserSelectedFile(selectedFiles)
                 } else {
                     Timber.d("Photo error")
@@ -224,6 +221,15 @@ class ChatMessagesFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
 
+        postponeEnterTransition()
+
+        roomWithUsers = if (viewModel.roomWithUsers.value != null) {
+            viewModel.roomWithUsers.value
+        } else {
+            activity?.intent!!.getParcelableExtra(Const.IntentExtras.ROOM_ID_EXTRA)
+        }
+
+        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
         navOptionsBuilder = Tools.createCustomNavOptions()
 
         return bindingSetup.root
@@ -232,7 +238,6 @@ class ChatMessagesFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        postponeEnterTransition()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         if (listState != null) {
@@ -242,35 +247,37 @@ class ChatMessagesFragment : BaseFragment() {
         localUserId = viewModel.getLocalUserId()!!
         messageSearchId = viewModel.searchMessageId.value
 
-        if (viewModel.roomWithUsers.value != null) {
-            roomWithUsers = viewModel.roomWithUsers.value!!
-        } else {
-            CoroutineScope(Dispatchers.IO).launch {
-                val extras = activity?.intent!!.getIntExtra(Const.IntentExtras.ROOM_ID_EXTRA, 0)
-                roomWithUsers = viewModel.getRoomUsers(extras)
-            }
-        }
-
+        setUpAdapter()
+        initializeObservers()
+        initViews()
+        initListeners()
         checkStoragePermission()
+    }
 
-        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
+    private fun initViews() = with(bindingSetup) {
+        directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+        clRoomExit.visibility =
+            if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
 
         if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
             user =
                 roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
-        }
-
-        if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
-            bindingSetup.clRoomExit.visibility = View.VISIBLE
+            avatarFileId = user?.avatarFileId ?: 0
+            userName = user?.formattedDisplayName.toString()
+            chatHeader.tvTitle.text = user?.telephoneNumber
         } else {
-            bindingSetup.clRoomExit.visibility = View.GONE
-            checkIsUserAdmin()
+            avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
+            userName = roomWithUsers?.room?.name.toString()
+            chatHeader.tvTitle.text =
+                roomWithUsers?.users?.size.toString() + getString(R.string.members)
         }
 
-        initializeObservers()
-        initViews()
-        initListeners()
-        setUpAdapter()
+        setAvatarAndName(avatarFileId, userName)
 
         // Clear notifications for this room
         roomWithUsers?.room?.roomId?.let {
@@ -279,53 +286,21 @@ class ChatMessagesFragment : BaseFragment() {
         }
     }
 
-    private fun initViews() = with(bindingSetup) {
-        directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
-            avatarFileId = user?.avatarFileId ?: 0
-            userName = user?.formattedDisplayName.toString()
-        } else {
-            avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
-            userName = roomWithUsers?.room?.name.toString()
-        }
-
-        setAvatarAndName(avatarFileId, userName)
-
-        // If room is group, show number of members under group name
-        if (Const.JsonFields.GROUP == roomWithUsers?.room?.type) {
-            chatHeader.tvTitle.text =
-                roomWithUsers?.users?.size.toString() + getString(R.string.members)
-        } else {
-            // Room is private, show phone number
-            for (user in roomWithUsers?.users!!) {
-                if (viewModel.getLocalUserId() != user.id) {
-                    chatHeader.tvTitle.text = user.telephoneNumber
-                    break
-                }
-            }
-        }
-    }
-
-    private fun setAvatarAndName(avatarFileId: Long, userName: String) {
-        bindingSetup.chatHeader.tvChatName.text = userName
-        Glide.with(this)
-            .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-            .placeholder(
-                AppCompatResources.getDrawable(
-                    requireContext(),
-                    R.drawable.img_user_placeholder
+    private fun setAvatarAndName(avatarFileId: Long, userName: String) =
+        with(bindingSetup.chatHeader) {
+            tvChatName.text = userName
+            Glide.with(this@ChatMessagesFragment)
+                .load(avatarFileId.let { Tools.getFilePathUrl(it) })
+                .placeholder(
+                    AppCompatResources.getDrawable(
+                        requireContext(),
+                        R.drawable.img_user_placeholder
+                    )
                 )
-            )
-            .centerCrop()
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .into(bindingSetup.chatHeader.ivUserImage)
-    }
-
-    private fun checkIsUserAdmin() {
-        isAdmin = roomWithUsers?.users!!.any { user ->
-            user.id == localUserId && viewModel.isUserAdmin(roomWithUsers?.room!!.roomId, user.id)
+                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(ivUserImage)
         }
-    }
 
     private fun initListeners() = with(bindingSetup) {
         chatHeader.clHeader.setOnClickListener {
@@ -343,8 +318,7 @@ class ChatMessagesFragment : BaseFragment() {
             } else {
                 val action =
                     ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
-                        roomWithUsers!!,
-                        isAdmin
+                        roomWithUsers = roomWithUsers!!
                     )
                 findNavController().navigate(action, navOptionsBuilder)
             }
@@ -486,15 +460,12 @@ class ChatMessagesFragment : BaseFragment() {
                     }
                 }
 
-                Resource.Status.ERROR -> {
-                    Timber.d("Message send fail: $it")
-                }
-
+                Resource.Status.ERROR -> Timber.d("Message send fail: $it")
                 else -> Timber.d("Other error")
             }
         })
 
-        viewModel.getMessageAndRecords(roomId = roomWithUsers?.room!!.roomId)
+        viewModel.getMessageAndRecords(roomId = roomWithUsers!!.room.roomId)
             .observe(viewLifecycleOwner) {
                 when (it.status) {
                     Resource.Status.SUCCESS -> {
@@ -521,6 +492,17 @@ class ChatMessagesFragment : BaseFragment() {
                             shouldScroll = false
                         }
 
+                        // If the reply is reply id != 0, it means that the search for the reply message was started and
+                        // was not found in the first set of 20 messages.
+                        // Other messages should be searched.
+                        if (replyPosition != 0 && messageSearchId != null){
+                            replyPosition =
+                                messagesRecords.indexOfFirst {msg ->
+                                    msg.message.id == messageSearchId }
+                        } else {
+                            viewModel.fetchNextSet(roomWithUsers?.room!!.roomId)
+                        }
+
                         // If messageSearchId is not 0, it means the user navigated via message
                         // search. For now, we will just fetch next sets of data until we find
                         // the correct message id in the adapter to navigate to.
@@ -531,6 +513,7 @@ class ChatMessagesFragment : BaseFragment() {
                                 scrollToPosition = position
                                 if (position != -1) {
                                     bindingSetup.rvChat.smoothScrollToPosition(position)
+                                    chatAdapter.setSelectedPosition(position)
                                 }
 
                                 messageSearchId = 0
@@ -541,13 +524,8 @@ class ChatMessagesFragment : BaseFragment() {
                         }
                     }
 
-                    Resource.Status.LOADING -> {
-                        // ignore
-                    }
-
-                    else -> {
-                        Timber.d("Message get error")
-                    }
+                    Resource.Status.LOADING -> Timber.d("Message get loading")
+                    else -> Timber.d("Message get error")
                 }
             }
 
@@ -607,8 +585,7 @@ class ChatMessagesFragment : BaseFragment() {
             })
         }
 
-        viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver
-        {
+        viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (it.responseData?.data?.room?.roomId == roomWithUsers!!.room.roomId) {
@@ -645,7 +622,7 @@ class ChatMessagesFragment : BaseFragment() {
         if (!(sendingScrollVisibility())) {
             cvNewMessages.visibility = View.VISIBLE
 
-            if (messagesSize == 1 && cvNewMessages.visibility == View.INVISIBLE) {
+            if (messagesSize == 1 && cvBottomArrow.visibility == View.INVISIBLE) {
                 tvNewMessage.text =
                     getString(R.string.new_messages, messagesSize.toString(), "").trim()
 
@@ -683,14 +660,42 @@ class ChatMessagesFragment : BaseFragment() {
             scrollYDistance -= heightDiff
         }
         // If we are somewhere up
-        if (!(sendingScrollVisibility())) {
+        if (!sendingScrollVisibility()) {
             if (cvNewMessages.visibility == View.VISIBLE) {
-                cvBottomArrow.visibility = View.INVISIBLE
+                fadeOutArrow()
             } else {
-                cvBottomArrow.visibility = View.VISIBLE
+                fadeInArrow()
             }
         } else {
-            cvBottomArrow.visibility = View.INVISIBLE
+            fadeOutArrow()
+        }
+    }
+
+    private fun fadeInArrow() = with(bindingSetup) {
+        if (cvBottomArrow.visibility == View.INVISIBLE) {
+            cvBottomArrow.visibility = View.VISIBLE
+            val fadeInAnimation = AlphaAnimation(0f, 1f)
+            fadeInAnimation.duration = NEW_MESSAGE_ANIMATION_DURATION
+            cvBottomArrow.startAnimation(fadeInAnimation)
+        }
+    }
+
+    private fun fadeOutArrow() = with(bindingSetup) {
+        if (cvBottomArrow.visibility == View.VISIBLE) {
+            val fadeOutAnimation = AlphaAnimation(1f, 0f)
+            fadeOutAnimation.duration = NEW_MESSAGE_ANIMATION_DURATION
+            fadeOutAnimation.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {
+                }
+
+                override fun onAnimationEnd(animation: Animation?) {
+                    cvBottomArrow.visibility = View.INVISIBLE
+                }
+
+                override fun onAnimationRepeat(animation: Animation?) {
+                }
+            })
+            cvBottomArrow.startAnimation(fadeOutAnimation)
         }
     }
 
@@ -723,57 +728,57 @@ class ChatMessagesFragment : BaseFragment() {
                 }
             }
         )
+
         val linearLayoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
         rvChat.apply {
-            rvChat.adapter = chatAdapter
+            adapter = chatAdapter
             itemAnimator = null
             linearLayoutManager.stackFromEnd = true
             layoutManager = linearLayoutManager
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    scrollYDistance += dy
+
+                    val lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition()
+                    val totalItemCount = linearLayoutManager.itemCount
+                    if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
+                        Timber.d("Fetching next batch of data")
+                        viewModel.fetchNextSet(roomWithUsers!!.room.roomId)
+                        isFetching = true
+                    } else if (lastVisiblePosition != totalItemCount - 1) {
+                        isFetching = false // Reset the flag when user scrolls away from the bottom
+                    }
+                    showBottomArrow()
+                }
+
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    // This condition checks if the RecyclerView is at the bottom
+                    if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        cvNewMessages.visibility = View.INVISIBLE
+                        cvBottomArrow.visibility = View.INVISIBLE
+                        scrollYDistance = 0
+                        viewModel.clearMessages()
+                    }
+                }
+            })
         }
-
-        rvChat.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                scrollYDistance += dy
-
-                val lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition()
-                val totalItemCount = linearLayoutManager.itemCount
-                if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
-                    Timber.d("Fetching next batch of data")
-                    viewModel.fetchNextSet(roomWithUsers!!.room.roomId)
-                    isFetching = true
-                } else if (lastVisiblePosition != totalItemCount - 1) {
-                    isFetching = false // Reset the flag when user scrolls away from the bottom
-                }
-                showBottomArrow()
-            }
-
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                // This condition checks if the RecyclerView is at the bottom
-                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    cvNewMessages.visibility = View.INVISIBLE
-                    cvBottomArrow.visibility = View.INVISIBLE
-                    scrollYDistance = 0
-                    viewModel.clearMessages()
-                }
-            }
-        })
 
         setUpAdapterDataObserver()
     }
 
-    private fun setUpAdapterDataObserver() {
+    private fun setUpAdapterDataObserver() = with(bindingSetup) {
         val adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 val scrollingIndex = positionStart + itemCount - 1
                 if (scrollingIndex >= 0 && chatAdapter.currentList.getOrNull(scrollingIndex)?.message?.fromUserId == localUserId) {
                     if (sendingScrollVisibility()) {
-                        bindingSetup.rvChat.scrollToPosition(0)
+                        rvChat.scrollToPosition(0)
                         scrollYDistance = 0
-                        bindingSetup.cvBottomArrow.visibility = View.INVISIBLE
+                        cvBottomArrow.visibility = View.INVISIBLE
                     } else {
-                        bindingSetup.cvBottomArrow.visibility = View.VISIBLE
+                        cvBottomArrow.visibility = View.VISIBLE
                     }
                 }
             }
@@ -795,30 +800,38 @@ class ChatMessagesFragment : BaseFragment() {
                         }
 
                         Const.UserActions.ACTION_LEFT -> {
-                            val detailsSheet = DetailsBottomSheet(
-                                context = requireContext(),
-                                message = messagesRecords[position].message,
-                                roomWithUsers = roomWithUsers!!,
-                                messagesRecords = messagesRecords,
-                                localUserId = localUserId
-                            )
-                            detailsSheet.show(
-                                requireActivity().supportFragmentManager,
-                                DetailsBottomSheet.TAG
-                            )
+                            messagesRecords.find { it.message.id == messagesRecords[position].message.id }
+                                ?.let {
+                                    DetailsBottomSheet(
+                                        context = requireContext(),
+                                        roomWithUsers = roomWithUsers!!,
+                                        messagesRecords = it,
+                                        localUserId = localUserId
+                                    )
+                                }?.show(
+                                    requireActivity().supportFragmentManager,
+                                    DetailsBottomSheet.TAG
+                                )
                         }
                     }
                 })
 
         itemTouchHelper = ItemTouchHelper(messageSwipeController)
-        itemTouchHelper!!.attachToRecyclerView(bindingSetup.rvChat)
+        if (!roomWithUsers!!.room.deleted && !roomWithUsers!!.room.roomExit) itemTouchHelper!!.attachToRecyclerView(
+            bindingSetup.rvChat
+        )
     }
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
-        val position =
-            messagesRecords.indexOfFirst { it.message.createdAt == msg.message.body?.referenceMessage?.createdAt }
-        if (position != -1) {
-            bindingSetup.rvChat.scrollToPosition(position)
+        replySearchId = msg.message.body?.referenceMessage?.id
+        replyPosition =
+            messagesRecords.indexOfFirst { it.message.id == msg.message.body?.referenceMessage?.id }
+
+        if (replyPosition == -1) {
+            viewModel.fetchNextSet(roomWithUsers!!.room.roomId)
+        } else {
+            bindingSetup.rvChat.smoothScrollToPosition(replyPosition)
+            chatAdapter.setSelectedPosition(replyPosition)
         }
     }
 
@@ -840,13 +853,17 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun handleShowReactions(msg: MessageAndRecords) {
-        val reactionsBottomSheet = ReactionsBottomSheet(requireContext(), msg, roomWithUsers!!, localUserId)
-        reactionsBottomSheet.setReactionListener(object: ReactionsBottomSheet.ReactionsAction{
+        val reactionsBottomSheet =
+            ReactionsBottomSheet(requireContext(), msg, roomWithUsers!!, localUserId)
+        reactionsBottomSheet.setReactionListener(object : ReactionsBottomSheet.ReactionsAction {
             override fun deleteReaction(reaction: MessageRecords?) {
                 reaction?.id?.let { viewModel.deleteReaction(it) }
             }
         })
-        reactionsBottomSheet.show(requireActivity().supportFragmentManager, ReactionsBottomSheet.TAG)
+        reactionsBottomSheet.show(
+            requireActivity().supportFragmentManager,
+            ReactionsBottomSheet.TAG
+        )
     }
 
     private fun handleMessageAction(msg: MessageAndRecords) = with(bindingSetup) {
@@ -875,19 +892,19 @@ class ChatMessagesFragment : BaseFragment() {
             }
 
             override fun actionReply() {
-                bindingSetup.replyAction.root.visibility = View.VISIBLE
+                replyAction.root.visibility = View.VISIBLE
                 handleMessageReply(msg.message)
             }
 
             override fun actionDetails() {
-                val detailsSheet = DetailsBottomSheet(
-                    context = requireContext(),
-                    message = msg.message,
-                    roomWithUsers = roomWithUsers!!,
-                    messagesRecords = messagesRecords,
-                    localUserId = localUserId
-                )
-                detailsSheet.show(
+                messagesRecords.find { it.message.id == msg.message.id }?.let {
+                    DetailsBottomSheet(
+                        context = requireContext(),
+                        roomWithUsers = roomWithUsers!!,
+                        messagesRecords = it,
+                        localUserId = localUserId
+                    )
+                }?.show(
                     requireActivity().supportFragmentManager,
                     DetailsBottomSheet.TAG
                 )
@@ -902,7 +919,7 @@ class ChatMessagesFragment : BaseFragment() {
             }
 
             override fun addCustomReaction() {
-                bindingSetup.root.postDelayed({
+                root.postDelayed({
                     openCustomEmojiKeyboard(msg.message)
                 }, 200)
             }
@@ -1017,99 +1034,74 @@ class ChatMessagesFragment : BaseFragment() {
         findNavController().navigate(action, navOptionsBuilder)
     }
 
-    private fun handleMessageReply(message: Message) = with(bindingSetup) {
+    private fun handleMessageReply(message: Message) = with(bindingSetup.replyAction) {
         replyId = message.id.toLong()
-        val backgroundResId = if (message.fromUserId == localUserId) {
-            R.drawable.bg_message_send
-        } else {
-            R.drawable.bg_message_received
-        }
-        replyAction.clReplyContainer.setBackgroundResource(backgroundResId)
 
         val user = roomWithUsers!!.users.firstOrNull {
             it.id == message.fromUserId
         }
-        replyAction.tvUsername.text = user!!.formattedDisplayName
+        tvUsername.text = user!!.formattedDisplayName
 
         when (message.type) {
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                replyAction.tvMessage.visibility = View.GONE
-                replyAction.ivReplyImage.visibility = View.VISIBLE
+                tvMessage.visibility = View.GONE
+                ivReplyImage.visibility = View.VISIBLE
                 if (Const.JsonFields.IMAGE_TYPE == message.type) {
-                    replyAction.tvReplyMedia.text = getString(
+                    tvReplyMedia.text = getString(
                         R.string.media,
                         context!!.getString(R.string.photo)
                     )
-                    replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera_reply,
-                        0,
-                        0,
-                        0
+                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_camera_reply, 0, 0, 0
                     )
                 }
                 if (Const.JsonFields.VIDEO_TYPE == message.type) {
-                    replyAction.tvReplyMedia.text = getString(
-                        R.string.media,
-                        context!!.getString(R.string.video)
-                    )
-                    replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_video_reply,
-                        0,
-                        0,
-                        0
+                    tvReplyMedia.text =
+                        getString(R.string.media, context!!.getString(R.string.video))
+                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_video_reply, 0, 0, 0
                     )
                 }
                 val mediaPath = Tools.getMediaFile(requireContext(), message)
-                replyAction.tvReplyMedia.visibility = View.VISIBLE
+                tvReplyMedia.visibility = View.VISIBLE
                 Glide.with(this@ChatMessagesFragment)
                     .load(mediaPath)
                     .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                     .placeholder(R.drawable.img_image_placeholder)
                     .dontTransform()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(replyAction.ivReplyImage)
+                    .into(ivReplyImage)
             }
 
             Const.JsonFields.AUDIO_TYPE -> {
-                replyAction.tvMessage.visibility = View.GONE
-                replyAction.tvReplyMedia.visibility = View.VISIBLE
-                replyAction.ivReplyImage.visibility = View.GONE
-                replyAction.tvReplyMedia.text =
+                tvMessage.visibility = View.GONE
+                tvReplyMedia.visibility = View.VISIBLE
+                ivReplyImage.visibility = View.GONE
+                tvReplyMedia.text =
                     getString(R.string.media, context!!.getString(R.string.audio))
-                replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_audio_reply,
-                    0,
-                    0,
-                    0
+                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                    R.drawable.img_audio_reply, 0, 0, 0
                 )
             }
 
             Const.JsonFields.FILE_TYPE -> {
-                replyAction.tvMessage.visibility = View.GONE
-                replyAction.ivReplyImage.visibility = View.GONE
-                replyAction.tvReplyMedia.visibility = View.VISIBLE
-                replyAction.tvReplyMedia.text =
+                tvMessage.visibility = View.GONE
+                ivReplyImage.visibility = View.GONE
+                tvReplyMedia.visibility = View.VISIBLE
+                tvReplyMedia.text =
                     getString(R.string.media, context!!.getString(R.string.file))
-                replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_file_reply,
-                    0,
-                    0,
-                    0
+                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                    R.drawable.img_file_reply, 0, 0, 0
                 )
             }
 
             else -> {
-                replyAction.ivReplyImage.visibility = View.GONE
-                replyAction.tvReplyMedia.visibility = View.GONE
-                replyAction.tvMessage.visibility = View.VISIBLE
+                ivReplyImage.visibility = View.GONE
+                tvReplyMedia.visibility = View.GONE
+                tvMessage.visibility = View.VISIBLE
                 val replyText = message.body?.text
-                replyAction.tvMessage.text = replyText
-                replyAction.tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    0,
-                    0,
-                    0,
-                    0
-                )
+                tvMessage.text = replyText
+                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
             }
         }
     }
@@ -1124,11 +1116,11 @@ class ChatMessagesFragment : BaseFragment() {
         etMessage.addTextChangedListener {
             if (isEditing) {
                 if (!originalText.equals(it)) {
-                    bindingSetup.tvSave.visibility = View.VISIBLE
-                    bindingSetup.ivCamera.visibility = View.INVISIBLE
+                    tvSave.visibility = View.VISIBLE
+                    ivCamera.visibility = View.INVISIBLE
                 } else {
-                    bindingSetup.tvSave.visibility = View.GONE
-                    bindingSetup.ivCamera.visibility = View.VISIBLE
+                    tvSave.visibility = View.GONE
+                    ivCamera.visibility = View.VISIBLE
                 }
             }
         }
@@ -1162,7 +1154,7 @@ class ChatMessagesFragment : BaseFragment() {
         ivCamera.visibility = View.INVISIBLE
         ivButtonSend.visibility = View.VISIBLE
         clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            endToStart = bindingSetup.ivButtonSend.id
+            endToStart = ivButtonSend.id
         }
         ivAdd.rotation = ROTATION_OFF
     }
@@ -1171,7 +1163,7 @@ class ChatMessagesFragment : BaseFragment() {
         ivCamera.visibility = View.VISIBLE
         ivButtonSend.visibility = View.GONE
         clTyping.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            endToStart = bindingSetup.ivCamera.id
+            endToStart = ivCamera.id
         }
         ivAdd.rotation = ROTATION_OFF
     }
@@ -1207,7 +1199,6 @@ class ChatMessagesFragment : BaseFragment() {
                 Const.JsonFields.TEXT_TYPE,
                 bindingSetup.etMessage.text.toString().trim()
             )
-
             viewModel.editMessage(editedMessageId, jsonObject)
         }
     }
@@ -1305,8 +1296,7 @@ class ChatMessagesFragment : BaseFragment() {
             val fileMimeType = getFileMimeType(context, uri)
             if ((fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
                         fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) &&
-                (!fileMimeType.contains(Const.JsonFields.SVG_TYPE) &&
-                        !fileMimeType.contains(Const.JsonFields.AVI_TYPE))
+                !Tools.forbiddenMimeTypes(fileMimeType)
             ) {
                 convertMedia(uri, fileMimeType)
             } else {

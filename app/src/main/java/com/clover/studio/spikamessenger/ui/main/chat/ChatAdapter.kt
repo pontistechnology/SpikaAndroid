@@ -1,5 +1,8 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
@@ -24,6 +27,7 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -66,6 +70,8 @@ class ChatAdapter(
 ) :
     ListAdapter<MessageAndRecords, ViewHolder>(MessageAndRecordsDiffCallback()) {
 
+    private var selectedPosition: Int = RecyclerView.NO_POSITION
+
     inner class SentMessageHolder(val binding: ItemMessageMeBinding) :
         ViewHolder(binding.root)
 
@@ -106,6 +112,13 @@ class ChatAdapter(
             /** View holder for messages from sender */
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 holder as SentMessageHolder
+
+                if (selectedPosition != 0 && selectedPosition == position){
+                    animateSelectedMessage(holder.itemView)
+                    selectedPosition = 0
+                } else {
+                    holder.itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent))
+                }
 
                 if (playerListener != null) {
                     playerListener = null
@@ -305,7 +318,7 @@ class ChatAdapter(
                         tvMessageReply = holder.binding.tvMessageReply,
                         clReplyMessage = holder.binding.clReplyMessage,
                         clContainer = holder.binding.clContainer,
-                        tvUsername = holder.binding.tvUsername,
+                        tvUsername = holder.binding.tvUsernameOther,
                         sender = true,
                     )
                 }
@@ -346,6 +359,13 @@ class ChatAdapter(
             } else {
                 /** View holder for messages from other users */
                 holder as ReceivedMessageHolder
+
+                if (selectedPosition != 0 && selectedPosition == position){
+                    animateSelectedMessage(holder.itemView)
+                    selectedPosition = 0
+                } else {
+                    holder.itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent))
+                }
 
                 if (playerListener != null) {
                     playerListener = null
@@ -505,6 +525,32 @@ class ChatAdapter(
             }
         }
 
+    }
+
+    fun setSelectedPosition(position: Int) {
+        selectedPosition = position
+        notifyItemChanged(position)
+    }
+
+    private fun animateSelectedMessage(itemView: View){
+        val startColor = ContextCompat.getColor(context, android.R.color.transparent)
+        val endColor = ContextCompat.getColor(context, R.color.gray_transparent)
+
+        val colorAnimator = ValueAnimator.ofArgb(startColor, endColor)
+        colorAnimator.duration = 2000
+
+        colorAnimator.addUpdateListener { animator ->
+            val color = animator.animatedValue as Int
+            itemView.setBackgroundColor(color)
+        }
+
+        colorAnimator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent))
+            }
+        })
+
+        colorAnimator.start()
     }
 
     /** Methods that bind different types of messages: */
