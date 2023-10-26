@@ -28,14 +28,12 @@
     <style name="CustomTextHeading" parent="Theme.ExampleApp">
         <item name="font">@font/roboto_flex</item>
         <item name="android:textFontWeight">700</item>
-<!--        <item name="android:textStyle">bold</item>-->
     </style>
 
     <style name="CustomTextBody" parent="Theme.ExampleApp">
         <item name="font">@font/roboto_flex</item>
         <item name="android:textSize">@dimen/twelve_sp_text</item>
         <item name="android:textFontWeight">500</item>
-        <!--        <item name="android:textStyle">bold</item>-->
     </style>
 
 
@@ -83,11 +81,11 @@
     </style>
 
     <!--  Switch style  -->
-    <style name="CustomSwitch" parent="Theme.AppCompat.Light">
-        <item name="colorControlActivated">@color/primary_color</item>
-        <item name="colorSwitchThumbNormal">@color/text_tertiary</item>
-        <item name="android:colorForeground">@color/text_tertiary</item>
-    </style>
+<!--    <style name="CustomSwitch" parent="Theme.AppCompat.Light">-->
+<!--        <item name="colorControlActivated">@color/primary_color</item>-->
+<!--        <item name="colorSwitchThumbNormal">@color/text_tertiary</item>-->
+<!--        <item name="android:colorForeground">@color/text_tertiary</item>-->
+<!--    </style>-->
 
     <!--  CheckBox style  -->
     <style name="CustomCheckBox" parent="Base.Theme.AppCompat">
@@ -113,18 +111,22 @@
     </style>
 
     <!-- Toolbar style - SearchView  -->
-    <style name="CustomToolbar" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="CustomToolbar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="searchViewStyle">@style/CustomSearchView</item>
         <item name="android:editTextColor">?attr/primaryTextColor</item>
-        <item name="android:textColorHint">?attr/secondaryTextColor</item>
+        <item name="android:textColorHint">?attr/primaryTextColor</item>
         <item name="android:colorControlNormal">?attr/primaryTextColor</item>
         <item name="android:closeIcon">@drawable/img_search_close</item>
     </style>
 
+    <style name="YourCardView" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@android:color/transparent</item>
+    </style>
+
+
     <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
         <item name="searchIcon">@null</item>
-        <item name="android:editTextColor">@android:color/white</item>
-        <item name="android:closeIcon">@drawable/img_search_close</item>
+        <item name="android:editTextColor">?attr/primaryTextColor</item>
     </style>
 
     <!--  Bottom sheet style  -->
@@ -150,11 +152,16 @@
     </style>
 
 
-    <style name="FirstOptionStyle" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+    <style name="FirstOptionStyle">
         <item name="cornerFamilyTopRight">rounded</item>
         <item name="cornerSizeTopRight">20dp</item>
         <item name="cornerFamilyTopLeft">rounded</item>
         <item name="cornerSizeTopLeft">20dp</item>
+    </style>
+
+    <style name="OptionStyle">
+        <item name="cornerSize">0dp</item>
+        <item name="cornerFamily">rounded</item>
     </style>
 
     <style name="LastOptionStyle" parent="ShapeAppearance.MaterialComponents.MediumComponent">

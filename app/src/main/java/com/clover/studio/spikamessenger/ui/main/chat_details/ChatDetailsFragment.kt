@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton.OnCheckedChangeListener
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -83,7 +82,6 @@ class ChatDetailsFragment : BaseFragment() {
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickAvatar)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
             } else {
@@ -103,7 +101,6 @@ class ChatDetailsFragment : BaseFragment() {
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickAvatar)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
             } else {
@@ -175,11 +172,8 @@ class ChatDetailsFragment : BaseFragment() {
             setAvatarAndUsername(avatarFileId, userName)
         }
 
-        swPinChat.isChecked = roomWithUsers.room.pinned
-        swMute.isChecked = roomWithUsers.room.muted
-
-        swMute.setOnCheckedChangeListener(multiListener)
-        swPinChat.setOnCheckedChangeListener(multiListener)
+        chatOptions.swMuteChat.rotation = if (roomWithUsers.room.muted) 0f else 180f
+        chatOptions.swPinChat.rotation = if (roomWithUsers.room.pinned) 0f else 180f
 
         initializeListeners(roomWithUsers)
     }
@@ -202,6 +196,7 @@ class ChatDetailsFragment : BaseFragment() {
         tvGroupName.setOnClickListener {
             if (roomWithUsers.room.type.toString() == Const.JsonFields.GROUP && isAdmin) {
                 etEnterGroupName.visibility = View.VISIBLE
+                tvGroupPlaceholder.visibility = View.GONE
                 ivDone.visibility = View.VISIBLE
                 tvGroupName.visibility = View.INVISIBLE
             }
@@ -222,6 +217,7 @@ class ChatDetailsFragment : BaseFragment() {
 
             ivDone.visibility = View.GONE
             etEnterGroupName.visibility = View.INVISIBLE
+            tvGroupPlaceholder.visibility = View.VISIBLE
             tvGroupName.visibility = View.VISIBLE
         }
 
@@ -331,33 +327,25 @@ class ChatDetailsFragment : BaseFragment() {
                 allUsers = true
             }
         }
-    }
 
-    // Listener which handles switch events and sends event to specific switch
-    private val multiListener: OnCheckedChangeListener =
-        OnCheckedChangeListener { buttonView, isChecked ->
-            when (buttonView.id) {
-                binding.chatOptions.swPinChat.id -> {
-                    if (buttonView.isPressed) {
-                        if (isChecked) {
-                            roomId?.let { viewModel.handleRoomPin(it, true) }
-                        } else {
-                            roomId?.let { viewModel.handleRoomPin(it, false) }
-                        }
-                    }
-                }
-
-                binding.chatOptions.swMuteChat.id -> {
-                    if (buttonView.isPressed) {
-                        if (isChecked) {
-                            roomId?.let { viewModel.handleRoomMute(it, true) }
-                        } else {
-                            roomId?.let { viewModel.handleRoomMute(it, false) }
-                        }
-                    }
-                }
+        chatOptions.swMuteChat.setOnClickListener { _ ->
+            if (chatOptions.swMuteChat.rotation == 0f) {
+                roomId?.let { viewModel.handleRoomMute(it, false) }
+            } else {
+                roomId?.let { viewModel.handleRoomMute(it, true) }
             }
         }
+
+        chatOptions.swPinChat.setOnClickListener { _ ->
+            if (chatOptions.swPinChat.rotation == 0f) {
+                roomId?.let { viewModel.handleRoomPin(it, false) }
+                chatOptions.swMuteChat.rotation = 180f
+            } else {
+                roomId?.let { viewModel.handleRoomPin(it, true) }
+                chatOptions.swMuteChat.rotation = 0f
+            }
+        }
+    }
 
     private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
         if (avatarFileId != 0L) {
@@ -594,7 +582,6 @@ class ChatDetailsFragment : BaseFragment() {
                 R.drawable.img_camera
             )
         )
-        binding.clSmallCameraPicker.visibility = View.GONE
     }
 
     private fun chooseImage() {

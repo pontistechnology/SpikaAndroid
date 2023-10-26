@@ -27,7 +27,7 @@
         android:textAppearance="@style/CustomTextHeading"
         android:text="@string/appearance"
         android:textColor="?attr/primaryTextColor"
-        android:textSize="@dimen/fourteen_sp_text"
+        android:textSize="@dimen/sixteen_sp_text"
         app:layout_constraintBottom_toBottomOf="@id/iv_back"
         app:layout_constraintStart_toEndOf="@id/iv_back"
         app:layout_constraintTop_toTopOf="@id/iv_back" />
@@ -47,6 +47,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/CustomTextHeading"
             android:text="Light marine"
+            android:textSize="@dimen/sixteen_sp_text"
             android:textColor="?attr/primaryTextColor" />
 
         <ImageView
@@ -73,6 +74,8 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/CustomTextHeading"
             android:text="Dark marine"
+            android:textSize="@dimen/sixteen_sp_text"
+
             android:textColor="?attr/primaryTextColor" />
 
         <ImageView
@@ -99,6 +102,8 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/CustomTextHeading"
             android:text="Light green"
+            android:textSize="@dimen/sixteen_sp_text"
+
             android:textColor="?attr/primaryTextColor" />
 
         <ImageView
@@ -125,6 +130,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/CustomTextHeading"
             android:text="Neon"
+            android:textSize="@dimen/sixteen_sp_text"
             android:textColor="?attr/primaryTextColor" />
 
         <ImageView

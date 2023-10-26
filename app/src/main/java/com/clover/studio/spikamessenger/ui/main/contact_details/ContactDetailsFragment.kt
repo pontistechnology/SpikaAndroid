@@ -9,7 +9,6 @@ import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
@@ -91,14 +90,13 @@ class ContactDetailsFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun initializeObservers() {
+    private fun initializeObservers() = with(binding) {
         viewModel.getRoomByIdLiveData(roomId).observe(viewLifecycleOwner) {
             if (it.responseData != null) {
                 // Set room muted or not muted on switch
-                binding.chatOptions.swMuteChat.isChecked = it.responseData.muted
-
-               // Set room pinned or not pinned on switch
-                binding.chatOptions.swPinChat.isChecked = it.responseData.pinned
+                chatOptions.swMuteChat.rotation = if (it.responseData.muted) 0f else 180f
+                // Set room pinned or not pinned on switch
+                chatOptions.swPinChat.rotation = if (it.responseData.pinned) 0f else 180f
             }
         }
 
@@ -195,7 +193,7 @@ class ContactDetailsFragment : BaseFragment() {
             tvUsername.text = user?.formattedDisplayName
             tvNumber.text = user?.telephoneNumber
 
-            tvNumber.setOnClickListener {
+            ivAddContact.setOnClickListener {
                 ChooserDialog.getInstance(requireContext(),
                     getString(R.string.contacts),
                     null,
@@ -298,8 +296,21 @@ class ContactDetailsFragment : BaseFragment() {
             }
         }
 
-        chatOptions.swMuteChat.setOnCheckedChangeListener(multiListener)
-        chatOptions.swPinChat.setOnCheckedChangeListener(multiListener)
+        chatOptions.swMuteChat.setOnClickListener {
+            if (chatOptions.swMuteChat.rotation == 0f) {
+                viewModel.handleRoomMute(roomId, false)
+            } else {
+                viewModel.handleRoomMute(roomId, true)
+            }
+        }
+
+        chatOptions.swPinChat.setOnClickListener {
+            if (chatOptions.swPinChat.rotation == 0f) {
+                viewModel.handleRoomPin(roomId, false)
+            } else {
+                viewModel.handleRoomPin(roomId, true)
+            }
+        }
     }
 
     private fun copyNumber(telephoneNumber: String) {
@@ -325,32 +336,6 @@ class ContactDetailsFragment : BaseFragment() {
 
         startActivity(intent)
     }
-
-    // Listener which handles switch events and sends event to specific switch
-    private val multiListener: CompoundButton.OnCheckedChangeListener =
-        CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-            when (buttonView.id) {
-                binding.chatOptions.swPinChat.id -> {
-                    if (buttonView.isPressed) {
-                        if (isChecked) {
-                            viewModel.handleRoomPin(roomId, true)
-                        } else {
-                            viewModel.handleRoomPin(roomId, false)
-                        }
-                    }
-                }
-
-                binding.chatOptions.swMuteChat.id -> {
-                    if (buttonView.isPressed) {
-                        if (isChecked) {
-                            viewModel.handleRoomMute(roomId, true)
-                        } else {
-                            viewModel.handleRoomMute(roomId, false)
-                        }
-                    }
-                }
-            }
-        }
 
     override fun onResume() {
         super.onResume()

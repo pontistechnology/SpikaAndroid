@@ -16,6 +16,7 @@
         android:alpha="0.95"
         android:backgroundTint="?attr/bubbleSenderColor"
         app:cardElevation="0dp"
+        app:cardPreventCornerOverlap="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -34,8 +35,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="@dimen/eight_dp_margin"
-                android:textAppearance="@style/CustomTextHeading"
+                android:gravity="center"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:letterSpacing="0.1"
                 android:text="@string/notes"
+                android:textAppearance="@style/CustomTextHeading"
                 android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text"
                 app:drawableStartCompat="@drawable/img_notes" />
@@ -44,6 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
+                android:layout_marginEnd="@dimen/eight_dp_margin"
                 android:src="@drawable/img_arrow_forward" />
         </FrameLayout>
 
@@ -76,20 +81,23 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
                 android:drawablePadding="@dimen/eight_dp_margin"
-                android:textAppearance="@style/CustomTextHeading"
+                android:gravity="center"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:letterSpacing="0.1"
                 android:text="@string/pin_chat"
+                android:textAppearance="@style/CustomTextHeading"
                 android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text"
                 app:drawableStartCompat="@drawable/img_pin" />
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
+            <ImageView
                 android:id="@+id/sw_pin_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:theme="@style/CustomSwitch" />
+                android:layout_marginEnd="@dimen/eight_dp_margin"
+                android:src="@drawable/img_switch" />
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -102,6 +110,7 @@
         android:alpha="0.95"
         android:backgroundTint="?attr/bubbleSenderColor"
         app:cardElevation="0dp"
+        app:cardPreventCornerOverlap="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -120,20 +129,23 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
                 android:drawablePadding="@dimen/eight_dp_margin"
-                android:textAppearance="@style/CustomTextHeading"
+                android:gravity="center"
+                android:letterSpacing="0.1"
                 android:text="@string/mute"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:textAppearance="@style/CustomTextHeading"
                 android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text"
                 app:drawableStartCompat="@drawable/img_mute" />
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
+            <ImageView
                 android:id="@+id/sw_mute_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:theme="@style/CustomSwitch" />
+                android:layout_marginEnd="@dimen/eight_dp_margin"
+                android:src="@drawable/img_switch" />
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
