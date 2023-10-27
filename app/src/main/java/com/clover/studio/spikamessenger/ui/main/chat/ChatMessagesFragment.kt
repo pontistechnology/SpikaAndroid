@@ -1290,8 +1290,6 @@ class ChatMessagesFragment : BaseFragment() {
 
     /** Files uploading */
     private fun handleUserSelectedFile(selectedFilesUris: MutableList<Uri>) {
-        bindingSetup.ivCamera.visibility = View.GONE
-
         for (uri in selectedFilesUris) {
             val fileMimeType = getFileMimeType(context, uri)
             if ((fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
