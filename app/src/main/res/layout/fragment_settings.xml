@@ -258,6 +258,6 @@
             android:textAppearance="@style/CustomTextBody"
             android:text="@string/delete"
             android:textSize="@dimen/sixteen_sp_text"
-            android:textColor="@color/style_red" />
+            android:textColor="@color/warningColor" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

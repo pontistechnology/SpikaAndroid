@@ -21,9 +21,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/chat_nav_graph" />
 
-    <include
-        android:id="@+id/cv_notification"
-        android:visibility="gone"
-        layout="@layout/dialog_notification" />
+<!--    <include-->
+<!--        android:id="@+id/cv_notification"-->
+<!--        android:visibility="gone"-->
+<!--        layout="@layout/dialog_notification" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

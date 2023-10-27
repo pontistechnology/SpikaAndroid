@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,7 +9,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_pick_avatar"
@@ -24,10 +24,11 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/fl_progress_screen"
-            style="@style/YourCardView"
-            android:layout_width="match_parent"
-            android:layout_height="398dp"
-            android:elevation="@dimen/sixteen_dp_margin"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/dark_background_transp"
+            android:backgroundTint="@color/background_80_transp"
+            android:elevation="@dimen/five_dp_margin"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
             app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar"
@@ -157,7 +158,7 @@
             android:letterSpacing="0.1"
             android:text="@string/exit_group"
             android:textAppearance="@style/CustomTextBody"
-            android:textColor="@color/style_red"
+            android:textColor="@color/warningColor"
             android:textSize="@dimen/sixteen_sp_text"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -173,7 +174,7 @@
             android:letterSpacing="0.1"
             android:text="@string/delete_chat"
             android:textAppearance="@style/CustomTextBody"
-            android:textColor="@color/style_red"
+            android:textColor="@color/warningColor"
             android:textSize="@dimen/sixteen_sp_text"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="@+id/tv_exit_group"
@@ -214,10 +215,10 @@
             android:letterSpacing="0.2"
             android:text="@string/group_label"
             android:textAppearance="@style/CustomTextBody"
-            android:textColor="?attr/tertiaryTextColor"
+            android:textColor="?attr/secondaryTextColor"
             android:textSize="@dimen/twelve_sp_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/et_enter_group_name" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+</ScrollView>

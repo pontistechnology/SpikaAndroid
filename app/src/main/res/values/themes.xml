@@ -2,7 +2,6 @@
 <!--     Base application theme. -->
     <style name="Theme.ExampleApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/primary_color</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
@@ -15,22 +14,25 @@
         <item name="android:windowLightStatusBar">true</item>
         <!-- Customize your theme here. -->
         <item name="colorAccent">@color/primary_color</item>
+
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
 
         <!-- Navigation animations -->
         <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
 
-<!--    TODO    -->
-        <item name="primaryTextColor">@color/baseColorTextPrimary</item>
-        <item name="secondaryTextColor">@color/baseColorTextSecondary</item>
-        <item name="tertiaryTextColor">@color/baseColorTertiary</item>
-        <item name="bubbleSenderColor">@color/baseBubbleSenderColor</item>
-        <item name="bubbleReceiverColor">@color/baseBubbleReceiverColor</item>
-        <item name="textFieldColor">@color/baseTextFieldColor</item>
-        <item name="iconsColorsPrimary">@color/baseIconsColorsPrimary</item>
-        <item name="iconsColorsSecondary">@color/baseIconsColorsSecondary</item>
+<!--   Base theme     -->
+        <item name="primaryColor">@color/basePrimaryColor</item>
+        <item name="secondaryColor">@color/baseSecondaryColor</item>
+        <item name="tertiaryColor">@color/baseTertiaryColor</item>
+        <item name="primaryTextColor">@color/basePrimaryTextColor</item>
+        <item name="secondaryTextColor">@color/baseSecondaryTextColor</item>
+        <item name="additionalColor">@color/baseAdditionalColor</item>
+        <item name="secondAdditionalColor">@color/baseSecondAdditionalColor</item>
+        <item name="thirdAdditionalColor">@color/baseThirdAdditionalColor</item>
+
         <item name="backgroundPrimary">@drawable/bg_spika</item>
         <item name="spikaLogo">@drawable/spika_mint_logo</item>
+
     </style>
 
     <!--  Dark Marine theme  -->
@@ -38,16 +40,20 @@
 
         <item name="android:windowTranslucentStatus">true</item>
 
-        <item name="primaryTextColor">@color/darkMarineColorTextPrimary</item>
-        <item name="tertiaryTextColor">@color/darkMarineColorTertiary</item>
-        <item name="secondaryTextColor">@color/darkMarineColorTextSecondary</item>
-        <item name="bubbleSenderColor">@color/darkMarineBubbleSenderColor</item>
-        <item name="bubbleReceiverColor">@color/darkMarineBubbleReceiverColor</item>
-        <item name="textFieldColor">@color/darkMarineTextFieldColor</item>
-        <item name="iconsColorsPrimary">@color/darkMarineIconsColorsPrimary</item>
-        <item name="iconsColorsSecondary">@color/darkMarineIconsColorsSecondary</item>
+        <item name="primaryColor">@color/darkMarinePrimaryColor</item>
+        <item name="secondaryColor">@color/darkMarineSecondaryColor</item>
+        <item name="tertiaryColor">@color/darkMarineTertiaryColor</item>
+        <item name="primaryTextColor">@color/darkMarinePrimaryTextColor</item>
+        <item name="secondaryTextColor">@color/darkMarineSecondaryTextColor</item>
+        <item name="additionalColor">@color/darkMarineAdditionalColor</item>
+        <item name="secondAdditionalColor">@color/darkMarineSecondAdditionalColor</item>
+        <item name="thirdAdditionalColor">@color/darkMarineThirdAdditionalColor</item>
+
         <item name="backgroundPrimary">@drawable/bg_darkmarine</item>
-<!--        <item name="spikaLogo">@drawable/spika_darkmarine_logo</item>-->
+        <item name="spikaLogo">@drawable/spika_darkmarine_logo</item>
+
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
+        <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
     </style>
 
 
@@ -56,16 +62,21 @@
         <item name="android:statusBarColor">#FF61187B</item>
         <item name="android:windowLightStatusBar">true</item>
 
-        <item name="primaryTextColor">@color/neonColorTextPrimary</item>
-        <item name="tertiaryTextColor">@color/neonColorTertiary</item>
-        <item name="secondaryTextColor">@color/neonColorTextSecondary</item>
-        <item name="bubbleSenderColor">@color/neonBubbleSenderColor</item>
-        <item name="bubbleReceiverColor">@color/neonBubbleReceiverColor</item>
-        <item name="textFieldColor">@color/neonTextFieldColor</item>
-        <item name="iconsColorsPrimary">@color/neonIconsColorsPrimary</item>
-        <item name="iconsColorsSecondary">@color/neonIconsColorsSecondary</item>
+        <item name="primaryColor">@color/neonPrimaryColor</item>
+        <item name="secondaryColor">@color/neonSecondaryColor</item>
+        <item name="tertiaryColor">@color/neonTertiaryColor</item>
+        <item name="primaryTextColor">@color/neonPrimaryTextColor</item>
+        <item name="secondaryTextColor">@color/neonSecondaryTextColor</item>
+        <item name="additionalColor">@color/neonAdditionalColor</item>
+        <item name="secondAdditionalColor">@color/neonSecondAdditionalColor</item>
+        <item name="thirdAdditionalColor">@color/neonThirdAdditionalColor</item>
+
         <item name="backgroundPrimary">@drawable/bg_neon</item>
         <item name="spikaLogo">@drawable/spika_neon_logo</item>
+
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
+        <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
+
     </style>
 
 <!-- Mint theme   -->
@@ -74,16 +85,20 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
 
-        <item name="primaryTextColor">@color/mintColorTextPrimary</item>
-        <item name="secondaryTextColor">@color/mintColorTextSecondary</item>
-        <item name="tertiaryTextColor">@color/mintColorTertiary</item>
-        <item name="bubbleSenderColor">@color/mintBubbleSenderColor</item>
-        <item name="bubbleReceiverColor">@color/mintBubbleReceiverColor</item>
-        <item name="textFieldColor">@color/mintTextFieldColor</item>
-        <item name="iconsColorsPrimary">@color/mintIconsColorsPrimary</item>
-        <item name="iconsColorsSecondary">@color/mintIconsColorsSecondary</item>
+        <item name="primaryColor">@color/lightGreenPrimaryColor</item>
+        <item name="secondaryColor">@color/lightGreenSecondaryColor</item>
+        <item name="tertiaryColor">@color/lightGreenTertiaryColor</item>
+        <item name="primaryTextColor">@color/lightGreenPrimaryTextColor</item>
+        <item name="secondaryTextColor">@color/lightGreenSecondaryTextColor</item>
+        <item name="additionalColor">@color/lightGreenAdditionalColor</item>
+        <item name="secondAdditionalColor">@color/lightGreenSecondAdditionalColor</item>
+        <item name="thirdAdditionalColor">@color/lightGreenThirdAdditionalColor</item>
+
         <item name="backgroundPrimary">@drawable/bg_spika</item>
         <item name="spikaLogo">@drawable/spika_mint_logo</item>
+
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
+        <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
     </style>
 
 </resources>

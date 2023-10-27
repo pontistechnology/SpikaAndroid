@@ -45,7 +45,7 @@
             android:layout_margin="@dimen/twenty_dp_margin"
             android:textAppearance="@style/CustomTextBody"
             android:text="@string/incorrect_code"
-            android:textColor="@color/style_red"
+            android:textColor="@color/warningColor"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

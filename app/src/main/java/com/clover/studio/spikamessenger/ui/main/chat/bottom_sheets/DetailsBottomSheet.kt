@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
-import com.clover.studio.spikamessenger.databinding.MessageDetailsBinding
+import com.clover.studio.spikamessenger.databinding.BottomSheetMessageDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.chat.MessageDetailsAdapter
 import com.clover.studio.spikamessenger.utils.Const
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -22,14 +22,14 @@ class DetailsBottomSheet(
     private var localUserId: Int,
 ) : BottomSheetDialogFragment() {
 
-    private lateinit var binding: MessageDetailsBinding
+    private lateinit var binding: BottomSheetMessageDetailsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = MessageDetailsBinding.inflate(layoutInflater)
+        binding = BottomSheetMessageDetailsBinding.inflate(layoutInflater)
         binding.ivRemove.setOnClickListener {
             dismiss()
         }

@@ -28,6 +28,7 @@
         android:layout_marginEnd="16dp"
         android:textAppearance="@style/CustomTextBody"
         android:text="@string/username"
+        android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintEnd_toStartOf="@+id/tv_user_time"
         app:layout_constraintHorizontal_bias="0.0"
@@ -43,6 +44,7 @@
         android:textAppearance="@style/CustomTextHeading"
         android:text="@string/read_by"
         android:textSize="@dimen/twelve_sp_text"
+        android:textColor="?attr/primaryTextColor"
         android:visibility="visible"
         app:layout_constraintStart_toEndOf="@+id/iv_message_state"
         app:layout_constraintTop_toTopOf="parent" />
@@ -66,6 +68,7 @@
         android:layout_marginTop="@dimen/two_dp_margin"
         android:textSize="@dimen/twelve_sp_text"
         android:visibility="visible"
+        android:textColor="?attr/primaryTextColor"
         android:textAppearance="@style/CustomTextHeading"
         app:layout_constraintStart_toEndOf="@+id/iv_user_avatar"
         app:layout_constraintTop_toBottomOf="@+id/tv_seen_username" />
@@ -78,6 +81,7 @@
         android:drawablePadding="@dimen/eight_dp_margin"
         android:textAppearance="@style/CustomTextHeading"
         android:textSize="@dimen/twelve_sp_text"
+        android:textColor="?attr/primaryTextColor"
         app:layout_constraintBottom_toBottomOf="@+id/tv_placeholder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_seen_username" />
@@ -93,6 +97,7 @@
         android:textAppearance="@style/CustomTextHeading"
         android:textSize="@dimen/twelve_sp_text"
         android:visibility="gone"
+        android:textColor="?attr/primaryTextColor"
         app:drawableEndCompat="@drawable/img_edited_gray"
         app:layout_constraintBottom_toBottomOf="@id/tv_placeholder"
         app:layout_constraintEnd_toEndOf="parent"

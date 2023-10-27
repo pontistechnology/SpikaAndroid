@@ -78,7 +78,7 @@ class MainFragment : BaseFragment() {
 
                     val typedValue = TypedValue()
                     val theme = requireContext().theme
-                    theme.resolveAttribute(R.attr.iconsColorsPrimary, typedValue, true)
+                    theme.resolveAttribute(R.attr.primaryColor, typedValue, true)
                     val badgeColor = typedValue.data
                     tab.badge?.backgroundColor = badgeColor
                     tab.badge?.badgeTextColor =

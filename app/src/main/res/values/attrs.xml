@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <attr name="colorPrimary" format="reference|color"/>
+    <attr name="primaryColor" format="reference|color"/>
+    <attr name="secondaryColor" format="reference|color"/>"
+    <attr name="tertiaryColor" format="reference|color"/>"
+
     <attr name="primaryTextColor" format="reference|color"/>
-    <attr name="subheadTextColor" format="reference|color"/>
-    <attr name="tertiaryTextColor" format="reference|color"/>
     <attr name="secondaryTextColor" format="reference|color"/>
-    <attr name="bubbleSenderColor" format="reference|color" />
-    <attr name="bubbleReceiverColor" format="reference|color" />
-    <attr name="textFieldColor" format="reference|color" />
-    <attr name="iconsColorsPrimary" format="reference|color" />
-    <attr name="iconsColorsSecondary" format="reference|color" />
+
+    <attr name="additionalColor" format="reference|color"/>
+    <attr name="secondAdditionalColor" format="reference|color"/>
+    <attr name="thirdAdditionalColor" format="reference|color"/>
+
     <attr name="backgroundPrimary" format="reference" />
     <attr name="spikaLogo" format="reference" />
 </resources>

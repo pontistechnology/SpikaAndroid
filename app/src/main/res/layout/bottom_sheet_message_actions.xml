@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_rounded_corners_top"
-    android:backgroundTint="@color/inputs"
+    android:backgroundTint="?attr/secondaryColor"
     android:paddingBottom="@dimen/ten_dp_margin"
     tools:ignore="contentDescription">
 
@@ -41,8 +41,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:drawablePadding="@dimen/sixteen_dp_margin"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/forward"
+            android:textAppearance="@style/CustomTextBody"
             android:textSize="@dimen/sixteen_sp_text"
             android:visibility="gone"
             app:drawableLeftCompat="@drawable/img_forward" />
@@ -53,8 +53,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:drawablePadding="@dimen/sixteen_dp_margin"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/reply"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/sixteen_sp_text"
             android:visibility="visible"
             app:drawableLeftCompat="@drawable/img_reply" />
@@ -65,8 +66,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:drawablePadding="@dimen/sixteen_dp_margin"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/copy"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/sixteen_sp_text"
             android:visibility="gone"
             app:drawableLeftCompat="@drawable/img_copy" />
@@ -77,8 +79,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:drawablePadding="@dimen/sixteen_dp_margin"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/details"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/sixteen_sp_text"
             android:visibility="visible"
             app:drawableLeftCompat="@drawable/img_info" />
@@ -89,8 +92,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:drawablePadding="@dimen/sixteen_dp_margin"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/favorite"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/sixteen_sp_text"
             android:visibility="gone"
             app:drawableLeftCompat="@drawable/img_favorite" />
@@ -101,9 +105,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:drawablePadding="@dimen/sixteen_dp_margin"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/delete"
-            android:textColor="@color/style_red"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="@color/warningColor"
             android:textSize="@dimen/sixteen_sp_text"
             app:drawableLeftCompat="@drawable/img_edit" />
 
@@ -113,8 +117,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:drawablePadding="@dimen/sixteen_dp_margin"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/edit"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/sixteen_sp_text"
             app:drawableLeftCompat="@drawable/img_delete" />
     </LinearLayout>

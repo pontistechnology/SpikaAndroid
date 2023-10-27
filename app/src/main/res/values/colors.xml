@@ -11,7 +11,6 @@
 
     <color name="color1">#131940</color>
     <color name="color3">#2B3053</color>
-    <color name="style_red">#FFE84E4E</color>
     <color name="green">#23B528</color>
     <color name="secondary_color">#F3B74C</color>
     <color name="navigation">#9BB4CF</color>
@@ -32,20 +31,6 @@
     <color name="light_blue_icon_color">#9BB4CF</color>
     <color name="alert_icon_color">#FF4133</color>
 
-    <!--Dark - light theme colors-->
-    <!--Main color: white - black-->
-    <color name="main">#FFFFFF</color>
-    <!--Message me color: light blue - primary blue-->
-    <color name="message_me">#C8EBFE</color>
-    <!--Message other color: light white - gray-->
-    <color name="message_other">#F2F2F2</color>
-    <!--Icons color: black - white-->
-    <color name="icons">#121212</color>
-    <!--Inputs color: white - gray-->
-    <color name="inputs">#FFFFFF</color>
-    <!--Files color: light blue - gray-->
-    <color name="files">#C8EBFE</color>
-    <!--Selected text color: blue - light white-->
     <color name="selected_text">#4696F0</color>
 
     <!-- Text Colors -->
@@ -56,46 +41,48 @@
     <!--Link Colors-->
     <color name="link_primary_color">#4696F0</color>
 
+<!--  Common colors  -->
+    <color name="warningColor">#E84E4E</color>
+
 <!--  Base theme colors  -->
-    <color name="baseColorTextPrimary">#001D3D</color>
-    <color name="baseColorTextSecondary">#648FB8</color>
-    <color name="baseColorTertiary">#648FB8</color>
-    <color name="baseBubbleSenderColor">#90E0EF</color>
-    <color name="baseBubbleReceiverColor">#DEF9FF</color>
-    <color name="baseIconsColorsPrimary">#43B6DA</color>
-    <color name="baseIconsColorsSecondary">#648FB8</color>
-    <color name="baseTextFieldColor">#daeaf3</color>
+    <color name="basePrimaryColor">#90E0EF</color>
+    <color name="baseSecondaryColor">#DEF9FF</color>
+    <color name="baseTertiaryColor">#648FB8</color>
+    <color name="basePrimaryTextColor">#001D3D</color>
+    <color name="baseSecondaryTextColor">#648FB8</color>
+    <color name="baseAdditionalColor">#E84E4E</color>
+    <color name="baseSecondAdditionalColor">#010F20</color>
+    <color name="baseThirdAdditionalColor">#daeaf4</color>
 
     <!--  Dark marine theme colors  -->
-    <color name="darkMarineColorTextPrimary">#FFFFFF</color>
-    <color name="darkMarineColorTextSecondary">#C6C6C6</color>
-    <color name="darkMarineColorTertiary">#C6C6C6</color>
-    <color name="darkMarineBubbleSenderColor">#43B6DA</color>
-    <color name="darkMarineBubbleReceiverColor">#13436E</color>
-    <color name="darkMarineIconsColorsPrimary">#43B6DA</color>
-    <color name="darkMarineIconsColorsSecondary">#C6C6C6</color>
-    <color name="darkMarineTextFieldColor">#0c2744</color>
+    <color name="darkMarinePrimaryColor">#43B6DA</color>
+    <color name="darkMarineSecondaryColor">#13436E</color>
+    <color name="darkMarineTertiaryColor">#C6C6C6</color>
+    <color name="darkMarinePrimaryTextColor">#FFFFFF</color>
+    <color name="darkMarineSecondaryTextColor">#E9E9E9</color>
+    <color name="darkMarineAdditionalColor">#343434</color>
+    <color name="darkMarineSecondAdditionalColor">#010F20</color>
+    <color name="darkMarineThirdAdditionalColor">#0C2744</color>
 
-<!-- Neon theme colors  -->
-    <color name="neonColorTextPrimary">#FFFFFF</color>
-    <color name="neonColorTextSecondary">#4CC9F0</color>
-    <color name="neonColorTertiary">#C6C6C6</color>
-    <color name="neonBubbleSenderColor">#8F2D85</color>
-    <color name="neonBubbleReceiverColor">#15278A</color>
-    <color name="neonIconsColorsPrimary">#FF4AA0</color>
-    <color name="neonIconsColorsSecondary">#4CC9F0</color>
-    <color name="neonTextFieldColor">#1A3E93</color>
+    <!-- Neon theme colors  -->
+    <color name="neonPrimaryColor">#8F2D85</color>
+    <color name="neonSecondaryColor">#15278A</color>
+    <color name="neonTertiaryColor">#4CC9F0</color>
+    <color name="neonPrimaryTextColor">#FFFFFF</color>
+    <color name="neonSecondaryTextColor">#AFAFAF</color>
+    <color name="neonAdditionalColor">#343434</color>
+    <color name="neonSecondAdditionalColor">#E84E4E</color>
+    <color name="neonThirdAdditionalColor">#1A3E93</color>
 
     <!-- Light green Theme Colors -->
-    <color name="mintColorTextPrimary">#001D3D</color>
-    <color name="mintColorTextSecondary">#648FB8</color>
-    <color name="mintColorTertiary">#648FB8</color>
-    <color name="mintBubbleSenderColor">#D5FFF5</color>
-    <color name="mintBubbleReceiverColor">#8CF3DB</color>
-    <color name="mintIconsColorsPrimary">#43DAB6</color>
-    <color name="mintIconsColorsSecondary">#648FB8</color>
-    <color name="mintTextFieldColor">#d2f6f3</color>
-
+    <color name="lightGreenPrimaryColor">#D5FFF5</color>
+    <color name="lightGreenSecondaryColor">#8CF3DB</color>
+    <color name="lightGreenTertiaryColor">#648FB8</color>
+    <color name="lightGreenPrimaryTextColor">#001D3D</color>
+    <color name="lightGreenSecondaryTextColor">#648FB8</color>
+    <color name="lightGreenAdditionalColor">#E84E4E</color>
+    <color name="lightGreenSecondAdditionalColor">#E84E4E</color>
+    <color name="lightGreenThirdAdditionalColor">#d3f6f3</color>
 
     <color name="selected_message">#4D5A5C5E</color>
 </resources>

@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.settings.screens.privacy.PrivacySettingsFragment">
+    tools:context=".ui.main.settings.screens.privacy.PrivacySettingsFragment"
+    tools:ignore="contentDescription">
 
     <ImageView
         android:id="@+id/iv_back"
@@ -120,7 +121,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/thirty_dp_margin"
         android:text="@string/delete_all_chats"
-        android:textColor="@color/style_red"
+        android:textColor="@color/warningColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_export_chat" />
 

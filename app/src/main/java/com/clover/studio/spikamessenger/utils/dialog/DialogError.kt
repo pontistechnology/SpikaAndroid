@@ -61,12 +61,12 @@ class DialogError(
     private fun initViews() {
         binding.tvTextTitle.text = title
 
-        if (description != null && description.isNotEmpty())
+        if (!description.isNullOrEmpty())
             binding.tvTextDescription.text = description
         else
             binding.tvTextDescription.visibility = View.GONE
 
-        if (firstOption != null && firstOption.isNotEmpty())
+        if (!firstOption.isNullOrEmpty())
             binding.btnFirstOption.text = firstOption
         else
             binding.btnFirstOption.visibility = View.INVISIBLE
@@ -86,7 +86,7 @@ class DialogError(
             binding.btnSecondOption.setTextColor(
                 ContextCompat.getColor(
                     context,
-                    R.color.style_red
+                    R.color.warningColor
                 )
             )
         }
