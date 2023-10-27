@@ -142,6 +142,7 @@ class ChatMessagesFragment : BaseFragment() {
     private var userName = ""
 
     private var isEditing = false
+    private var editingMessage : Message? = null
     private var originalText = ""
     private var editedMessageId = 0
     private var replyId = 0L
@@ -243,6 +244,8 @@ class ChatMessagesFragment : BaseFragment() {
         if (listState != null) {
             shouldScroll = true
         }
+
+        if (isEditing) editingMessage?.let { handleMessageEdit(it) }
 
         localUserId = viewModel.getLocalUserId()!!
         messageSearchId = viewModel.searchMessageId.value
@@ -888,7 +891,8 @@ class ChatMessagesFragment : BaseFragment() {
             }
 
             override fun actionEdit() {
-                handleMessageEdit(msg.message)
+                editingMessage = msg.message
+                handleMessageEdit(editingMessage!!)
             }
 
             override fun actionReply() {
