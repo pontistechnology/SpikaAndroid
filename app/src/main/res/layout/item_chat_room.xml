@@ -52,7 +52,6 @@
         android:maxLines="1"
         android:textColor="?attr/secondaryTextColor"
         android:textSize="@dimen/twelve_sp_text"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tv_new_messages"
         app:layout_constraintStart_toEndOf="@+id/tv_username"

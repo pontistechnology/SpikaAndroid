@@ -173,7 +173,7 @@
         android:layout_width="match_parent"
         android:layout_height="0.7dp"
         android:layout_marginBottom="@dimen/eight_dp_margin"
-        app:layout_constraintBottom_toTopOf="@+id/reply_action"
+        app:layout_constraintBottom_toTopOf="@+id/reply_container"
         android:background="@color/guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

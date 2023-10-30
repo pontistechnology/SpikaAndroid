@@ -4,6 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DownloadManager
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -784,6 +786,18 @@ object Tools {
                 R.style.Theme_ExampleApp
             }
         }
+    }
+
+     fun handleCopyAction(text: String) {
+        val clipboard =
+            MainApplication.appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip: ClipData = ClipData.newPlainText("", text)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(
+            MainApplication.appContext,
+            MainApplication.appContext.getString(R.string.text_copied),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     fun getPlaceholderImage(roomType: String): Int {

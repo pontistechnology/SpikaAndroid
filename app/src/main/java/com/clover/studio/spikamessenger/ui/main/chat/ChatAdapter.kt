@@ -571,7 +571,6 @@ class ChatAdapter(
         tvMessage.apply {
             if (isDeleted) {
                 text = context.getString(R.string.message_deleted_text)
-                setTypeface(null, Typeface.ITALIC)
                 cvReactedEmoji.visibility = View.GONE
                 background =
                     AppCompatResources.getDrawable(
@@ -580,7 +579,7 @@ class ChatAdapter(
                     )
             } else {
                 text = chatMessage.message.body?.text
-                setTypeface(null, Typeface.NORMAL)
+
                 background = AppCompatResources.getDrawable(
                     context,
                     if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received

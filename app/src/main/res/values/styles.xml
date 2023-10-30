@@ -32,6 +32,7 @@
 
     <style name="CustomTextBody" parent="Theme.ExampleApp">
         <item name="font">@font/roboto_flex</item>
+        <item name="lineHeight">20sp</item>
         <item name="android:textSize">@dimen/twelve_sp_text</item>
         <item name="android:textFontWeight">500</item>
     </style>

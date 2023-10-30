@@ -2,11 +2,8 @@ package com.clover.studio.spikamessenger.ui.main.chat
 
 import android.Manifest
 import android.animation.ValueAnimator
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
-import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.content.ServiceConnection
@@ -883,7 +880,7 @@ class ChatMessagesFragment : BaseFragment() {
         val bottomSheet = ChatBottomSheet(msg.message, localUserId)
         bottomSheet.setActionListener(object : ChatBottomSheet.BottomSheetAction {
             override fun actionCopy() {
-                handleMessageCopy(msg.message)
+                Tools.handleCopyAction(msg.message.body?.text.toString())
             }
 
             override fun actionClose() {
@@ -933,18 +930,6 @@ class ChatMessagesFragment : BaseFragment() {
             }
         })
         bottomSheet.show(requireActivity().supportFragmentManager, ChatBottomSheet.TAG)
-    }
-
-    private fun handleMessageCopy(message: Message) {
-        val clipboard =
-            requireContext().getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        val clip: ClipData = ClipData.newPlainText("", message.body?.text.toString())
-        clipboard.setPrimaryClip(clip)
-        Toast.makeText(
-            requireContext(),
-            getString(R.string.text_copied),
-            Toast.LENGTH_SHORT
-        ).show()
     }
 
     private fun openCustomEmojiKeyboard(message: Message) {
