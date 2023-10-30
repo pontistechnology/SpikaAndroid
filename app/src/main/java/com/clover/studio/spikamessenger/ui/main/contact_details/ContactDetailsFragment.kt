@@ -234,13 +234,15 @@ class ContactDetailsFragment : BaseFragment() {
                 .placeholder(
                     ResourcesCompat.getDrawable(
                         requireContext().resources,
-                        R.drawable.img_user_placeholder,
+                        R.drawable.img_user_avatar,
                         null
                     )
                 )
+                .error(R.drawable.img_user_avatar)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(ivPickAvatar)
+
             flProgressScreen.visibility = View.GONE
         }
 

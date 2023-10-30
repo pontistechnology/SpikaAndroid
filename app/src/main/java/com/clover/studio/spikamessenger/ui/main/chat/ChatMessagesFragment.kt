@@ -292,13 +292,16 @@ class ChatMessagesFragment : BaseFragment() {
     private fun setAvatarAndName(avatarFileId: Long, userName: String) =
         with(bindingSetup.chatHeader) {
             tvChatName.text = userName
+
             Glide.with(this@ChatMessagesFragment)
                 .load(avatarFileId.let { Tools.getFilePathUrl(it) })
                 .placeholder(
-                    AppCompatResources.getDrawable(
-                        requireContext(),
-                        R.drawable.img_user_placeholder
-                    )
+                    roomWithUsers?.room?.type?.let { Tools.getPlaceholderImage(it) }?.let {
+                        AppCompatResources.getDrawable(
+                            requireContext(),
+                            it
+                        )
+                    }
                 )
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

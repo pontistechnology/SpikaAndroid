@@ -21,6 +21,7 @@
     <color name="messages_states">#5F6368</color>
 
     <!--Application colors: assets-->
+    <color name="primary_color">#4696F0</color>
     <color name="gray_icon_color">#9AA0A6</color>
     <color name="selected_text">#4696F0</color>
 
@@ -31,6 +32,7 @@
     <color name="strongBlue">#4696F0</color>
     <color name="lightBlue">#FFC8EBFE</color>
     <color name="warningColor">#E84E4E</color>
+    <color name="tabSelectedColor">#33FFFFFF</color>
 
 <!--  Base theme colors  -->
     <color name="basePrimaryColor">#90E0EF</color>
@@ -41,6 +43,7 @@
     <color name="baseAdditionalColor">#E84E4E</color>
     <color name="baseSecondAdditionalColor">#010F20</color>
     <color name="baseThirdAdditionalColor">#daeaf4</color>
+    <color name="baseFourthAdditionalColor">#103251</color>
 
     <!--  Dark marine theme colors  -->
     <color name="darkMarinePrimaryColor">#43B6DA</color>
@@ -51,6 +54,7 @@
     <color name="darkMarineAdditionalColor">#343434</color>
     <color name="darkMarineSecondAdditionalColor">#010F20</color>
     <color name="darkMarineThirdAdditionalColor">#0C2744</color>
+    <color name="darkMarineFourthAdditionalColor">#103251</color>
 
     <!-- Neon theme colors  -->
     <color name="neonPrimaryColor">#8F2D85</color>
@@ -61,9 +65,10 @@
     <color name="neonAdditionalColor">#343434</color>
     <color name="neonSecondAdditionalColor">#E84E4E</color>
     <color name="neonThirdAdditionalColor">#1A3E93</color>
+    <color name="neonFourthAdditionalColor">#244DA0</color>
 
     <!-- Light green Theme Colors -->
-    <color name="lightGreenPrimaryColor">#D5FFF5</color>
+    <color name="lightGreenPrimaryColor">#43DAB6</color>
     <color name="lightGreenSecondaryColor">#8CF3DB</color>
     <color name="lightGreenTertiaryColor">#648FB8</color>
     <color name="lightGreenPrimaryTextColor">#001D3D</color>
@@ -71,6 +76,7 @@
     <color name="lightGreenAdditionalColor">#E84E4E</color>
     <color name="lightGreenSecondAdditionalColor">#E84E4E</color>
     <color name="lightGreenThirdAdditionalColor">#d3f6f3</color>
+    <color name="lightGreenFourthAdditionalColor">#103251</color>
 
     <color name="selected_message">#4D5A5C5E</color>
 </resources>

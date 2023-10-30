@@ -29,6 +29,7 @@
         <item name="additionalColor">@color/baseAdditionalColor</item>
         <item name="secondAdditionalColor">@color/baseSecondAdditionalColor</item>
         <item name="thirdAdditionalColor">@color/baseThirdAdditionalColor</item>
+        <item name="fourthAdditionalColor">@color/baseFourthAdditionalColor</item>
 
         <item name="backgroundPrimary">@drawable/bg_spika</item>
         <item name="spikaLogo">@drawable/spika_mint_logo</item>
@@ -48,6 +49,7 @@
         <item name="additionalColor">@color/darkMarineAdditionalColor</item>
         <item name="secondAdditionalColor">@color/darkMarineSecondAdditionalColor</item>
         <item name="thirdAdditionalColor">@color/darkMarineThirdAdditionalColor</item>
+        <item name="fourthAdditionalColor">@color/darkMarineFourthAdditionalColor</item>
 
         <item name="backgroundPrimary">@drawable/bg_darkmarine</item>
         <item name="spikaLogo">@drawable/spika_darkmarine_logo</item>
@@ -70,6 +72,7 @@
         <item name="additionalColor">@color/neonAdditionalColor</item>
         <item name="secondAdditionalColor">@color/neonSecondAdditionalColor</item>
         <item name="thirdAdditionalColor">@color/neonThirdAdditionalColor</item>
+        <item name="fourthAdditionalColor">@color/neonFourthAdditionalColor</item>
 
         <item name="backgroundPrimary">@drawable/bg_neon</item>
         <item name="spikaLogo">@drawable/spika_neon_logo</item>
@@ -93,6 +96,7 @@
         <item name="additionalColor">@color/lightGreenAdditionalColor</item>
         <item name="secondAdditionalColor">@color/lightGreenSecondAdditionalColor</item>
         <item name="thirdAdditionalColor">@color/lightGreenThirdAdditionalColor</item>
+        <item name="fourthAdditionalColor">@color/lightGreenFourthAdditionalColor</item>
 
         <item name="backgroundPrimary">@drawable/bg_spika</item>
         <item name="spikaLogo">@drawable/spika_mint_logo</item>

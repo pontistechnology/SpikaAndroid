@@ -34,11 +34,11 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/CustomTextBody"
+        android:textAppearance="@style/CustomTextHeading"
         android:gravity="center"
         android:text="@string/no_messages_yet"
         android:textColor="?attr/secondaryTextColor"
-        android:textSize="@dimen/sixteen_sp_text"
+        android:textSize="@dimen/twenty_four_sp_text"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/iv_add"
         app:layout_constraintEnd_toEndOf="parent"

@@ -322,7 +322,7 @@ object Tools {
         )
     }
 
-    fun getRoomTime(startDate: Long) : CharSequence? {
+    fun getRoomTime(startDate: Long): CharSequence? {
         val currentTimeMillis = System.currentTimeMillis()
         val timeDifference = currentTimeMillis - startDate
 
@@ -381,8 +381,8 @@ object Tools {
         }
     }
 
-    fun getVideoSize(duration: Long, bitRate: Long) : Boolean {
-        val videoSIze = ( duration / TO_KILOBYTE) * bitRate / TO_BYTES
+    fun getVideoSize(duration: Long, bitRate: Long): Boolean {
+        val videoSIze = (duration / TO_KILOBYTE) * bitRate / TO_BYTES
         return videoSIze / TO_MEGABYTE > VIDEO_SIZE_LIMIT
     }
 
@@ -734,7 +734,7 @@ object Tools {
         }
     }
 
-    fun forbiddenMimeTypes(fileMimeType: String) : Boolean {
+    fun forbiddenMimeTypes(fileMimeType: String): Boolean {
         return (fileMimeType.contains(Const.JsonFields.SVG_TYPE) ||
                 fileMimeType.contains(Const.JsonFields.AVI_TYPE)) ||
                 fileMimeType.contains(Const.JsonFields.MOV_TYPE)
@@ -766,8 +766,8 @@ object Tools {
             .build()
     }
 
-    fun setTheme(theme: String) : Int {
-        return when(theme) {
+    fun setTheme(theme: String): Int {
+        return when (theme) {
             Const.Themes.MINT_THEME -> {
                 R.style.Theme_App_LightGreen
             }
@@ -783,6 +783,14 @@ object Tools {
             else -> {
                 R.style.Theme_ExampleApp
             }
+        }
+    }
+
+    fun getPlaceholderImage(roomType: String): Int {
+        return if (roomType == Const.JsonFields.GROUP) {
+            R.drawable.img_group_avatar
+        } else {
+            R.drawable.img_user_avatar
         }
     }
 }

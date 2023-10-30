@@ -11,6 +11,7 @@
     <attr name="additionalColor" format="reference|color"/>
     <attr name="secondAdditionalColor" format="reference|color"/>
     <attr name="thirdAdditionalColor" format="reference|color"/>
+    <attr name="fourthAdditionalColor" format="reference|color"/>
 
     <attr name="backgroundPrimary" format="reference" />
     <attr name="spikaLogo" format="reference" />

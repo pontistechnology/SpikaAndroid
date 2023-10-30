@@ -14,13 +14,13 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_pick_avatar"
             android:layout_width="match_parent"
-            android:layout_height="393dp"
+            android:layout_height="395dp"
             app:layout_constraintBottom_toTopOf="@id/tv_group_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/big_profile_picture"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:src="@drawable/img_group_avatar" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/fl_progress_screen"

@@ -9,20 +9,25 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.FragmentMainBinding
+import com.clover.studio.spikamessenger.ui.main.call_history.CallHistoryFragment
 import com.clover.studio.spikamessenger.ui.main.contacts.ContactsFragment
 import com.clover.studio.spikamessenger.ui.main.rooms.RoomsFragment
 import com.clover.studio.spikamessenger.ui.main.settings.SettingsFragment
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.android.material.tabs.TabLayoutMediator
+
 
 class MainFragment : BaseFragment() {
     private var bindingSetup: FragmentMainBinding? = null
     private val viewModel: MainViewModel by activityViewModels()
     private var count: Int = 0
-    val icons = arrayOf(
-        R.drawable.nav_chat_states,
-        R.drawable.nav_contact_states,
-        R.drawable.nav_settings_states
+    private val icons = arrayOf(
+        R.drawable.img_chat_selected,
+        R.drawable.img_account_default,
+        R.drawable.img_phone,
+        R.drawable.img_settings_default
     )
 
     private val binding get() = bindingSetup!!
@@ -55,6 +60,7 @@ class MainFragment : BaseFragment() {
         val fragmentList = arrayListOf(
             RoomsFragment(),
             ContactsFragment(),
+            CallHistoryFragment(),
             SettingsFragment()
         )
 
@@ -75,7 +81,6 @@ class MainFragment : BaseFragment() {
             if (count != 0) {
                 if (position == 0) {
                     val badge = tab.orCreateBadge
-
                     val typedValue = TypedValue()
                     val theme = requireContext().theme
                     theme.resolveAttribute(R.attr.primaryColor, typedValue, true)
@@ -93,5 +98,28 @@ class MainFragment : BaseFragment() {
         for (i in icons.indices) {
             binding.tabLayout.getTabAt(i)?.setIcon(icons[i])
         }
+
+        val tabSelectedListener: OnTabSelectedListener = object : OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                tab.view.background =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.bg_tab_selected)
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {
+                tab.view.setBackgroundColor(
+                    resources.getColor(
+                        android.R.color.transparent,
+                        requireContext().theme
+                    )
+                )
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab) {
+                // Ignore
+            }
+        }
+
+        binding.tabLayout.addOnTabSelectedListener(tabSelectedListener)
+
     }
 }

@@ -60,13 +60,18 @@ class RoomsAdapter(
                     View.VISIBLE
                 } else View.GONE
 
+                val placeholderDrawable = Tools.getPlaceholderImage(
+                    roomItem.roomWithUsers.room.type!!
+                )
+
                 Glide.with(context)
                     .load(Tools.getFilePathUrl(avatarFileId))
-                    .placeholder(R.drawable.img_user_placeholder)
+                    .placeholder(placeholderDrawable)
                     .centerCrop()
-                    .error(R.drawable.img_user_placeholder)
+                    .error(placeholderDrawable)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(binding.ivRoomImage)
+
 
                 if (roomItem.message != null) {
                     val sortedList = roomItem.message

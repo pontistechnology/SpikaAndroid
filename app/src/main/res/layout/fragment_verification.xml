@@ -258,7 +258,7 @@
         android:id="@+id/iv_spika_verify"
         android:layout_width="@dimen/one_hundred_seventy_dp"
         android:layout_height="@dimen/one_hundred_seventy_dp"
-        android:src="@drawable/img_spika_logo"
+        android:src="?attr/spikaLogo"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

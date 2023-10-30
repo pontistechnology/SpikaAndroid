@@ -31,7 +31,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/big_profile_picture"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:src="@drawable/img_user_avatar"/>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/fl_progress_screen"
@@ -112,7 +112,8 @@
             android:id="@+id/iv_telephone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/img_phone"
+            android:src="@drawable/img_phone_filled"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_chat"
             app:layout_constraintEnd_toStartOf="@+id/iv_add_contact"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/iv_chat"
