@@ -42,6 +42,7 @@
         <item name="cornerFamilyTopRight">rounded</item>
     </style>
 
+    <!--  Chat items style  -->
     <style name="SenderBubbleStyle">
         <item name="cornerSizeTopRight">16dp</item>
         <item name="cornerFamilyTopRight">rounded</item>
@@ -61,19 +62,19 @@
     </style>
 
     <style name="ReceiverReactionStyle">
-        <item name="cornerSizeTopRight">16dp</item>
-        <item name="cornerFamilyTopRight">rounded</item>
-        <item name="cornerSizeBottomRight">16dp</item>
+        <item name="cornerSizeBottomRight">8dp</item>
         <item name="cornerFamilyBottomRight">rounded</item>
         <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeTopLeft">0dp</item>
     </style>
 
     <style name="SenderReactionStyle">
-        <item name="cornerSizeTopLeft">16dp</item>
-        <item name="cornerFamilyTopLeft">rounded</item>
+        <item name="cornerSizeTopLeft">0dp</item>
         <item name="cornerSizeBottomLeft">16dp</item>
         <item name="cornerFamilyBottomLeft">rounded</item>
         <item name="cornerSizeBottomRight">0dp</item>
+        <item name="cornerSizeTopRight">0dp</item>
     </style>
 
     <style name="round">
@@ -82,15 +83,15 @@
 
     <!--  Switch style  -->
 <!--    <style name="CustomSwitch" parent="Theme.AppCompat.Light">-->
-<!--        <item name="colorControlActivated">@color/primary_color</item>-->
-<!--        <item name="colorSwitchThumbNormal">@color/text_tertiary</item>-->
-<!--        <item name="android:colorForeground">@color/text_tertiary</item>-->
+<!--        <item name="colorControlActivated">?attr/primaryColor</item>-->
+<!--        <item name="colorSwitchThumbNormal">?attr/secondaryTextColor</item>-->
+<!--        <item name="android:colorForeground">?attr/secondaryTextColor</item>-->
 <!--    </style>-->
 
     <!--  CheckBox style  -->
     <style name="CustomCheckBox" parent="Base.Theme.AppCompat">
-        <item name="colorAccent">@color/primary_color</item> <!-- for uncheck state -->
-        <item name="android:textColorSecondary">@color/text_tertiary</item> <!-- for check state -->
+        <item name="colorAccent">?attr/primaryColor</item> <!-- for uncheck state -->
+        <item name="android:textColorSecondary">?attr/secondaryTextColor</item> <!-- for check state -->
     </style>
 
     <!--  Selected text style  -->
@@ -119,11 +120,6 @@
         <item name="android:closeIcon">@drawable/img_search_close</item>
     </style>
 
-    <style name="YourCardView" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@android:color/transparent</item>
-    </style>
-
-
     <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
         <item name="searchIcon">@null</item>
         <item name="android:editTextColor">?attr/primaryTextColor</item>
@@ -151,10 +147,12 @@
         <item name="android:activityCloseExitAnimation">@anim/nav_slide_out_right</item>
     </style>
 
-
+    <!--  Options style  -->
     <style name="FirstOptionStyle">
         <item name="cornerFamilyTopRight">rounded</item>
         <item name="cornerSizeTopRight">20dp</item>
+        <item name="cornerFamilyTopLeft">rounded</item>
+        <item name="cornerSizeTopLeft">20dp</item>
     </style>
 
     <style name="OptionStyle">
@@ -163,6 +161,8 @@
     </style>
 
     <style name="LastOptionStyle" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamilyBottomRight">rounded</item>
+        <item name="cornerSizeBottomRight">20dp</item>
         <item name="cornerFamilyBottomLeft">rounded</item>
         <item name="cornerSizeBottomLeft">20dp</item>
     </style>

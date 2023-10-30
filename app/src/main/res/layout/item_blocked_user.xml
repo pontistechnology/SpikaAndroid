@@ -44,7 +44,7 @@
         android:ellipsize="end"
         android:fontFamily="@font/roboto_light"
         android:maxLines="1"
-        android:textColor="@color/text_tertiary"
+        android:textColor="?attr/secondaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintEnd_toStartOf="@id/iv_forward"
         app:layout_constraintTop_toBottomOf="@id/tv_user_name"

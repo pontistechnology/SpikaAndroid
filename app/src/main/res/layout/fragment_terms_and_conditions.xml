@@ -55,7 +55,7 @@
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/agree_and_continue"
         android:textSize="@dimen/eighteen_sp_text"
-        android:textColor="@color/primary_color"
+        android:textColor="?attr/primaryColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

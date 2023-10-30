@@ -68,7 +68,7 @@
         android:text="@string/no_notes_here"
         android:visibility="gone"
         android:gravity="center"
-        android:textColor="@color/text_tertiary"
+        android:textColor="?attr/secondaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

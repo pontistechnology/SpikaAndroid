@@ -46,7 +46,7 @@
         android:layout_marginStart="@dimen/five_dp_margin"
         android:textAppearance="@style/CustomTextBody"
         android:text="@string/outgoing"
-        android:textColor="@color/text_tertiary"
+        android:textColor="?attr/secondaryTextColor"
         android:textSize="@dimen/nine_sp_text"
         app:layout_constraintStart_toEndOf="@id/iv_call_icon"
         app:layout_constraintTop_toBottomOf="@id/tv_username" />

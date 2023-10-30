@@ -30,7 +30,7 @@
             android:theme="@style/CustomToolbar"
             app:title="@string/call_history"
             app:titleTextAppearance="@style/CustomTitleBold"
-            app:titleTextColor="@color/text_primary" />
+            app:titleTextColor="?attr/primaryTextColor" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <TextView
@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="@style/CustomTextHeading"
         android:text="@string/no_calls_yet"
-        android:textColor="@color/text_tertiary"
+        android:textColor="?attr/secondaryTextColor"
         android:textSize="@dimen/sixteen_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

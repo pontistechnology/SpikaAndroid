@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.ExampleApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="primaryColor">@color/primary_color</item>
+        <item name="primaryColor">?attr/primaryColor</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
@@ -13,7 +13,7 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" >@color/white</item>
         <!-- Customize your theme here. -->
-        <item name="colorAccent">@color/primary_color</item>
+        <item name="colorAccent">?attr/primaryColor</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
 
         <!-- Navigation animations -->

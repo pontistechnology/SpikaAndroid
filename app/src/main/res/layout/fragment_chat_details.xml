@@ -42,7 +42,7 @@
                 android:layout_height="@dimen/seventy_dp"
                 android:layout_gravity="center"
                 android:indeterminateOnly="true"
-                android:indeterminateTint="@color/primary_color"
+                android:indeterminateTint="?attr/primaryColor"
                 app:layout_constraintBottom_toBottomOf="parent" />
         </com.google.android.material.card.MaterialCardView>
 

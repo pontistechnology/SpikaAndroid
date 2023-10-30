@@ -84,7 +84,7 @@
             android:visibility="gone"
             android:text="@string/location"
             android:textAllCaps="false"
-            android:textColor="@color/primary_color"
+            android:textColor="?attr/primaryColor"
             android:textSize="@dimen/twelve_sp_text" />
 
         <Button
@@ -99,7 +99,7 @@
             android:visibility="gone"
             android:text="@string/contact"
             android:textAllCaps="false"
-            android:textColor="@color/primary_color"
+            android:textColor="?attr/primaryColor"
             android:textSize="@dimen/twelve_sp_text" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

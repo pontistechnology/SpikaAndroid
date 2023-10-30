@@ -15,7 +15,7 @@
         android:textAppearance="@style/CustomTextBody"
         android:maxLines="1"
         android:text="@string/username"
-        android:textColor="@color/text_tertiary"
+        android:textColor="?attr/secondaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"

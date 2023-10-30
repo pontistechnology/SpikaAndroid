@@ -25,7 +25,7 @@
             android:gravity="center"
             android:padding="@dimen/twenty_dp_margin"
             android:text="@string/placeholder_title"
-            android:textColor="@color/text_primary"
+            android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/fourteen_sp_text" />
 
         <TextView
@@ -36,7 +36,7 @@
             android:gravity="center"
             android:padding="@dimen/twenty_dp_margin"
             android:text="@string/placeholder_title"
-            android:textColor="@color/text_tertiary"
+            android:textColor="?attr/secondaryTextColor"
             android:textSize="@dimen/twelve_sp_text" />
 
         <View
@@ -63,7 +63,7 @@
                 android:padding="@dimen/ten_dp_margin"
                 android:text="@string/action"
                 android:textAllCaps="false"
-                android:textColor="@color/text_tertiary"
+                android:textColor="?attr/secondaryTextColor"
                 android:textSize="@dimen/fifteen_sp_text" />
 
             <Button
@@ -79,7 +79,7 @@
                 android:padding="@dimen/ten_dp_margin"
                 android:text="@string/action"
                 android:textAllCaps="false"
-                android:textColor="@color/primary_color"
+                android:textColor="?attr/primaryColor"
                 android:textSize="@dimen/fifteen_sp_text" />
         </LinearLayout>
     </LinearLayout>

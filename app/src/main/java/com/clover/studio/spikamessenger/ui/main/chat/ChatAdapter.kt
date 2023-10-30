@@ -6,6 +6,7 @@ import android.animation.ValueAnimator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
@@ -20,6 +21,7 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -133,7 +135,6 @@ class ChatAdapter(
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
 
-                holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_send)
                 holder.binding.tvTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
                     calendar.timeInMillis
                 ).toString()
@@ -147,6 +148,7 @@ class ChatAdapter(
                             tvMessage = holder.binding.tvMessage,
                             cvReactedEmoji = holder.binding.cvReactedEmoji,
                             chatMessage = it,
+                            sender = true
                         )
                     }
 
@@ -380,7 +382,6 @@ class ChatAdapter(
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
 
-                holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                 holder.binding.tvTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
                     calendar.timeInMillis
                 ).toString()
@@ -394,8 +395,8 @@ class ChatAdapter(
                             tvMessage = holder.binding.tvMessage,
                             cvReactedEmoji = holder.binding.cvReactedEmoji,
                             chatMessage = it,
+                            sender = false
                         )
-                        holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
                     }
 
                     Const.JsonFields.IMAGE_TYPE -> {
@@ -557,6 +558,7 @@ class ChatAdapter(
         tvMessage: TextView,
         cvReactedEmoji: CardView,
         chatMessage: MessageAndRecords,
+        sender: Boolean
     ) {
         var isDeleted = false
         if (chatMessage.message.deleted == true || chatMessage.message.body?.text == context.getString(
@@ -567,27 +569,33 @@ class ChatAdapter(
         }
 
         tvMessage.apply {
-            text = if (isDeleted) {
-                context.getString(R.string.message_deleted_text)
+            if (isDeleted) {
+                text = context.getString(R.string.message_deleted_text)
+                setTypeface(null, Typeface.ITALIC)
+                cvReactedEmoji.visibility = View.GONE
+                background =
+                    AppCompatResources.getDrawable(
+                        context,
+                        if (sender) R.drawable.bg_deleted_msg_send else R.drawable.bg_deleted_msg_received
+                    )
             } else {
-                chatMessage.message.body?.text
-            }
-
-            if (isDeleted) cvReactedEmoji.visibility = View.GONE
-
-            movementMethod = LinkMovementMethod.getInstance()
-
-            setOnLongClickListener {
-                if (!isDeleted) {
+                text = chatMessage.message.body?.text
+                setTypeface(null, Typeface.NORMAL)
+                background = AppCompatResources.getDrawable(
+                    context,
+                    if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
+                )
+                setOnLongClickListener {
                     chatMessage.message.messagePosition = holder.absoluteAdapterPosition
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)
+                    true
                 }
-                true
-            }
+                movementMethod = LinkMovementMethod.getInstance()
 
-            setOnClickListener {
-                if (chatMessage.message.deliveredCount == -1) {
-                    onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
+                setOnClickListener {
+                    if (chatMessage.message.deliveredCount == -1) {
+                        onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
+                    }
                 }
             }
         }

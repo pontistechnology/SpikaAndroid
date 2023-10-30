@@ -41,7 +41,7 @@
         android:fontFamily="@font/roboto_bold"
         android:gravity="center"
         android:text="@string/no_chats_yet"
-        android:textColor="@color/text_tertiary"
+        android:textColor="?attr/secondaryTextColor"
         android:textSize="@dimen/sixteen_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

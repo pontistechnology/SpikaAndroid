@@ -33,7 +33,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/primary_color" />
+            app:tint="?attr/primaryColor" />
 
         <TextView
             android:id="@+id/tv_media_info"
@@ -125,6 +125,6 @@
             android:layout_marginBottom="@dimen/eight_dp_margin"
             android:padding="@dimen/five_dp_margin"
             android:text="@string/more"
-            android:textColor="@color/primary_color" />
+            android:textColor="?attr/primaryColor" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
