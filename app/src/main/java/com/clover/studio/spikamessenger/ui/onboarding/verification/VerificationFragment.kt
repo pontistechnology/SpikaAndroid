@@ -114,8 +114,7 @@ class VerificationFragment : BaseFragment() {
 
                 Resource.Status.SUCCESS -> {
                     if (viewModel.isTeamMode()) {
-                        binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
-                        binding.ivCheckmark.visibility = View.VISIBLE
+                        binding.ivSpikaVerify.setImageResource(R.drawable.img_spika_logo_centered)
                     }
                     viewModel.writeDeviceId(deviceId)
                     goToMainActivity()
@@ -123,8 +122,7 @@ class VerificationFragment : BaseFragment() {
 
                 Resource.Status.NEW_USER -> {
                     if (viewModel.isTeamMode()) {
-                        binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
-                        binding.ivCheckmark.visibility = View.VISIBLE
+                        binding.ivSpikaVerify.setImageResource(R.drawable.img_spika_logo_centered)
                     }
                     viewModel.writeDeviceId(deviceId)
                     goToAccountCreation()

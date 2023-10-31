@@ -6,7 +6,9 @@
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusableInTouchMode="true"
-    tools:context=".ui.onboarding.verification.VerificationFragment">
+    tools:context=".ui.onboarding.verification.VerificationFragment"
+    android:background="?attr/backgroundPrimary"
+    android:fitsSystemWindows="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_input_ui"
@@ -18,10 +20,10 @@
 
         <ImageView
             android:id="@+id/iv_spika_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/twenty_dp_margin"
-            android:src="?attr/spikaLogo"
+            android:layout_width="98dp"
+            android:layout_height="85dp"
+            android:layout_marginTop="@dimen/sixty_four_dp"
+            android:src="@drawable/img_spika_logo_centered"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -31,7 +33,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
-            android:textAppearance="@style/CustomTextBody"
+            android:textAppearance="@style/CustomTextHeading"
+            android:textSize="@dimen/twenty_four_sp_text"
             android:text="@string/verification_code_sent"
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
@@ -239,16 +242,15 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_next"
+            style="@style/CustomButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
             android:background="@drawable/bg_btn_blue"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/next"
             android:textAllCaps="false"
-            android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cl_otp_input" />
@@ -264,17 +266,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/iv_checkmark"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/img_checkmark"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/iv_spika_verify"
-        app:layout_constraintEnd_toEndOf="@id/iv_spika_verify"
-        app:layout_constraintStart_toStartOf="@id/iv_spika_verify"
-        app:layout_constraintTop_toTopOf="@id/iv_spika_verify" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

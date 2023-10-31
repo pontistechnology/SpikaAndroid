@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/twenty_dp_margin"
-        android:textAppearance="@style/CustomTextBody"
+        android:textAppearance="@style/CustomTextLightBody"
         android:text="@string/country_code_placeholder"
         android:textColor="?attr/secondaryTextColor"
         app:layout_constraintBottom_toBottomOf="parent"

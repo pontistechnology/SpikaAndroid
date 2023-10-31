@@ -50,7 +50,7 @@
     <!--Register-->
     <string name="enter_username">Enter username</string>
     <string name="select_photo_my_profile">Select a photo for your profile</string>
-    <string name="enter_number_to_use">Enter your phone number to start using Spika</string>
+    <string name="enter_number_to_use">Enter your phone number to \n start using Spika</string>
     <string name="phone_number">Phone number</string>
     <string name="number_example">Eg. 98726546</string>
     <string name="all_countries">All Countries</string>
@@ -255,8 +255,8 @@
     <string name="terms_description">To proceed into the app, please accept our terms and conditions.</string>
     <string name="help">Help</string>
     <string name="terms_and_conditions">Terms and Conditions</string>
-    <string name="welcome_to_spika">Welcome to Spika Messenger</string>
-    <string name="welcome_description"><![CDATA[Tap Agree & Continue to accept the Terms and Conditions]]></string>
+    <string name="welcome_to_spika"><font size="16">Welcome to\n</font><font size="32">Spika Messenger</font></string>
+    <string name="welcome_description"><![CDATA[Tap Agree & Continue to accept the \n Terms and Conditions]]></string>
     <string name="agree_and_continue"><![CDATA[Agree & Continue]]></string>
     <string name="rooms">Rooms</string>
     <string name="messages">Messages</string>

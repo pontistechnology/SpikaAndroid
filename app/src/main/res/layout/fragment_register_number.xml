@@ -8,14 +8,15 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     tools:context=".ui.onboarding.number_registration.RegisterNumberFragment"
-    tools:ignore="contentDescription">
+    tools:ignore="contentDescription"
+    android:background="?attr/backgroundPrimary">
 
     <ImageView
         android:id="@+id/iv_spika_logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/twenty_dp_margin"
-        android:src="?attr/spikaLogo"
+        android:layout_width="98dp"
+        android:layout_height="85dp"
+        android:layout_marginTop="@dimen/sixty_four_dp"
+        android:src="@drawable/img_spika_logo_centered"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -25,7 +26,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/twenty_dp_margin"
-        android:textAppearance="@style/CustomTextBody"
+        android:gravity="center"
+        android:textAppearance="@style/CustomTextHeading"
         android:text="@string/enter_number_to_use"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,12 +37,12 @@
         android:id="@+id/tv_phone_number_static"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/twenty_dp_margin"
         android:layout_marginTop="@dimen/fifty_dp_margin"
-        android:textAppearance="@style/CustomTextBody"
         android:text="@string/phone_number"
+        android:textAppearance="@style/CustomTextBody"
         android:textColor="?attr/secondaryTextColor"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/cl_registration"
+        app:layout_constraintStart_toStartOf="@+id/cl_registration"
         app:layout_constraintTop_toBottomOf="@id/tv_enter_number" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -86,6 +88,7 @@
             android:hint="@string/number_example"
             android:inputType="phone"
             android:visibility="visible"
+            android:textColorHint="?attr/secondaryTextColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -118,32 +121,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cl_registration">
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_text_field"
-            android:backgroundTint="?attr/primaryColor"
+            style="@style/CustomButton"
             android:enabled="false"
-            android:fontFamily="@font/roboto_bold"
             android:text="@string/next"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <View
-            android:id="@+id/transparent_view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:alpha="0.8"
-            android:background="@drawable/bg_text_field"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@+id/btn_next"
-            app:layout_constraintEnd_toEndOf="@+id/btn_next"
-            app:layout_constraintStart_toStartOf="@id/btn_next"
-            app:layout_constraintTop_toTopOf="@id/btn_next" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
