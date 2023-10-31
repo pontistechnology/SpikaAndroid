@@ -47,7 +47,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.target.Target
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
@@ -151,6 +150,7 @@ class ChatMessagesFragment : BaseFragment() {
     private var replySearchId: Int? = 0
 
     private lateinit var emojiPopup: EmojiPopup
+    private var replyContainer: ReplyContainer? = null
 
     private var navOptionsBuilder: NavOptions? = null
 
@@ -232,6 +232,7 @@ class ChatMessagesFragment : BaseFragment() {
         }
 
         emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
+        replyContainer = ReplyContainer(requireContext(), null)
         navOptionsBuilder = Tools.createCustomNavOptions()
 
         return bindingSetup.root
@@ -409,7 +410,7 @@ class ChatMessagesFragment : BaseFragment() {
             }
             etMessage.setText("")
             hideSendButton()
-            replyAction.root.visibility = View.GONE
+            replyContainer?.closeBottomSheet()
         }
 
         tvUnblock.setOnClickListener {
@@ -434,11 +435,6 @@ class ChatMessagesFragment : BaseFragment() {
                 editMessage()
             }
             resetEditingFields()
-        }
-
-        replyAction.ivRemove.setOnClickListener {
-            replyAction.root.visibility = View.GONE
-            replyId = 0L
         }
 
         ivAdd.setOnClickListener {
@@ -807,9 +803,7 @@ class ChatMessagesFragment : BaseFragment() {
                 onSwipeAction = { action, position ->
                     when (action) {
                         Const.UserActions.ACTION_RIGHT -> {
-                            bindingSetup.replyAction.root.visibility = View.VISIBLE
-                            repliedMessage = messagesRecords[position].message
-                            repliedMessage?.let { handleMessageReply(it) }
+                            handleMessageReply(messagesRecords[position].message)
                         }
 
                         Const.UserActions.ACTION_LEFT -> {
@@ -1048,75 +1042,16 @@ class ChatMessagesFragment : BaseFragment() {
         findNavController().navigate(action, navOptionsBuilder)
     }
 
-    private fun handleMessageReply(message: Message) = with(bindingSetup.replyAction) {
-        root.visibility = View.VISIBLE
+    private fun handleMessageReply(message: Message) = with(bindingSetup) {
+        flReplyContainer.removeAllViews()
+        flReplyContainer.addView(replyContainer)
+
+        repliedMessage = message
         replyId = message.id.toLong()
 
-        val user = roomWithUsers!!.users.firstOrNull {
-            it.id == message.fromUserId
-        }
-        tvUsername.text = user!!.formattedDisplayName
-
-        when (message.type) {
-            Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                tvMessage.visibility = View.GONE
-                ivReplyImage.visibility = View.VISIBLE
-                if (Const.JsonFields.IMAGE_TYPE == message.type) {
-                    tvReplyMedia.text = getString(
-                        R.string.media,
-                        context!!.getString(R.string.photo)
-                    )
-                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera_reply, 0, 0, 0
-                    )
-                }
-                if (Const.JsonFields.VIDEO_TYPE == message.type) {
-                    tvReplyMedia.text =
-                        getString(R.string.media, context!!.getString(R.string.video))
-                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_video_reply, 0, 0, 0
-                    )
-                }
-                val mediaPath = Tools.getMediaFile(requireContext(), message)
-                tvReplyMedia.visibility = View.VISIBLE
-                Glide.with(this@ChatMessagesFragment)
-                    .load(mediaPath)
-                    .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                    .placeholder(R.drawable.img_image_placeholder)
-                    .dontTransform()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(ivReplyImage)
-            }
-
-            Const.JsonFields.AUDIO_TYPE -> {
-                tvMessage.visibility = View.GONE
-                tvReplyMedia.visibility = View.VISIBLE
-                ivReplyImage.visibility = View.GONE
-                tvReplyMedia.text =
-                    getString(R.string.media, context!!.getString(R.string.audio))
-                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_audio_reply, 0, 0, 0
-                )
-            }
-
-            Const.JsonFields.FILE_TYPE -> {
-                tvMessage.visibility = View.GONE
-                ivReplyImage.visibility = View.GONE
-                tvReplyMedia.visibility = View.VISIBLE
-                tvReplyMedia.text =
-                    getString(R.string.media, context!!.getString(R.string.file))
-                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_file_reply, 0, 0, 0
-                )
-            }
-
-            else -> {
-                ivReplyImage.visibility = View.GONE
-                tvReplyMedia.visibility = View.GONE
-                tvMessage.visibility = View.VISIBLE
-                val replyText = message.body?.text
-                tvMessage.text = replyText
-                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+        roomWithUsers?.let { roomWithUsers ->
+            repliedMessage?.let { repliedMessage ->
+                replyContainer?.setReactionContainer(repliedMessage, roomWithUsers)
             }
         }
     }
