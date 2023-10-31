@@ -96,6 +96,17 @@
             app:drawableLeftCompat="@drawable/img_favorite" />
 
         <TextView
+            android:id="@+id/tv_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/twenty_dp_margin"
+            android:drawablePadding="@dimen/sixteen_dp_margin"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/edit"
+            android:textSize="@dimen/sixteen_sp_text"
+            app:drawableLeftCompat="@drawable/img_edit" />
+
+        <TextView
             android:id="@+id/tv_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -106,16 +117,5 @@
             android:textColor="@color/style_red"
             android:textSize="@dimen/sixteen_sp_text"
             app:drawableLeftCompat="@drawable/img_delete" />
-
-        <TextView
-            android:id="@+id/tv_edit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/twenty_dp_margin"
-            android:drawablePadding="@dimen/sixteen_dp_margin"
-            android:fontFamily="@font/montserrat"
-            android:text="@string/edit"
-            android:textSize="@dimen/sixteen_sp_text"
-            app:drawableLeftCompat="@drawable/img_edit" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

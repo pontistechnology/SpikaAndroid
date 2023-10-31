@@ -349,12 +349,12 @@ class MainRepositoryImpl @Inject constructor(
         if (doMute) {
             performRestOperation(
                 networkCall = { mainRemoteDataSource.muteRoom(roomId) },
-                saveCallResult = { chatRoomDao.updateRoomPinned(true, roomId) }
+                saveCallResult = { chatRoomDao.updateRoomMuted(true, roomId) }
             )
         } else {
             performRestOperation(
                 networkCall = { mainRemoteDataSource.unmuteRoom(roomId) },
-                saveCallResult = { chatRoomDao.updateRoomPinned(false, roomId) }
+                saveCallResult = { chatRoomDao.updateRoomMuted(false, roomId) }
             )
         }
     }

@@ -231,7 +231,7 @@ class ChatRepositoryImpl @Inject constructor(
         } else {
             performRestOperation(
                 networkCall = { chatRemoteDataSource.unmuteRoom(roomId) },
-                saveCallResult = { roomDao.updateRoomMuted(true, roomId) }
+                saveCallResult = { roomDao.updateRoomMuted(false, roomId) }
             )
         }
     }
@@ -245,7 +245,7 @@ class ChatRepositoryImpl @Inject constructor(
         } else {
             performRestOperation(
                 networkCall = { chatRemoteDataSource.unpinRoom(roomId) },
-                saveCallResult = { roomDao.updateRoomPinned(true, roomId) }
+                saveCallResult = { roomDao.updateRoomPinned(false, roomId) }
             )
         }
     }
