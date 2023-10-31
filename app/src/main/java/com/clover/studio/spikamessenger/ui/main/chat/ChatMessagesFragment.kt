@@ -245,7 +245,7 @@ class ChatMessagesFragment : BaseFragment() {
             shouldScroll = true
         }
 
-        if (isEditing) editingMessage?.let { handleMessageEdit(it) }
+        editingMessage?.let { handleMessageEdit(it) }
 
         localUserId = viewModel.getLocalUserId()!!
         messageSearchId = viewModel.searchMessageId.value
@@ -892,7 +892,7 @@ class ChatMessagesFragment : BaseFragment() {
 
             override fun actionEdit() {
                 editingMessage = msg.message
-                handleMessageEdit(editingMessage!!)
+                editingMessage?.let { handleMessageEdit(it) }
             }
 
             override fun actionReply() {
@@ -1550,7 +1550,7 @@ class ChatMessagesFragment : BaseFragment() {
 
     override fun onPause() {
         super.onPause()
-        Timber.d("List state store = ${bindingSetup.rvChat.layoutManager?.onSaveInstanceState()}")
+//        Timber.d("List state store = ${bindingSetup.rvChat.layoutManager?.onSaveInstanceState()}")
         listState = bindingSetup.rvChat.layoutManager?.onSaveInstanceState()
     }
 }
