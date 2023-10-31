@@ -138,19 +138,6 @@ class ChatDetailsFragment : BaseFragment() {
         initializeViews(roomWithUsers)
         initializeObservers()
         handleUserStatusViews(isAdmin)
-
-        setSwitches()
-    }
-
-    private fun setSwitches() = with(binding) {
-        swMute.setOnCheckedChangeListener(null)
-        swPinChat.setOnCheckedChangeListener(null)
-
-        swMute.isChecked = roomWithUsers.room.muted
-        swPinChat.isChecked = roomWithUsers.room.pinned
-
-        swMute.setOnCheckedChangeListener(multiListener)
-        swPinChat.setOnCheckedChangeListener(multiListener)
     }
 
     private fun handleUserStatusViews(isAdmin: Boolean) = with(binding) {
@@ -189,6 +176,12 @@ class ChatDetailsFragment : BaseFragment() {
         if (!isUploading && ivDone.visibility == View.GONE) {
             setAvatarAndUsername(avatarFileId, userName)
         }
+
+        swPinChat.isChecked = roomWithUsers.room.pinned
+        swMute.isChecked = roomWithUsers.room.muted
+
+        swMute.setOnCheckedChangeListener(multiListener)
+        swPinChat.setOnCheckedChangeListener(multiListener)
 
         initializeListeners(roomWithUsers)
     }
