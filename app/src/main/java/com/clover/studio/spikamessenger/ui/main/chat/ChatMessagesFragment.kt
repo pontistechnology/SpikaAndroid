@@ -142,12 +142,13 @@ class ChatMessagesFragment : BaseFragment() {
     private var userName = ""
 
     private var isEditing = false
-    private var editingMessage : Message? = null
+    private var editingMessage: Message? = null
+    private var repliedMessage: Message? = null
     private var originalText = ""
     private var editedMessageId = 0
     private var replyId = 0L
     private var replyPosition = 0
-    private var replySearchId : Int? = 0
+    private var replySearchId: Int? = 0
 
     private lateinit var emojiPopup: EmojiPopup
 
@@ -246,6 +247,7 @@ class ChatMessagesFragment : BaseFragment() {
         }
 
         editingMessage?.let { handleMessageEdit(it) }
+        repliedMessage?.let { handleMessageReply(it) }
 
         localUserId = viewModel.getLocalUserId()!!
         messageSearchId = viewModel.searchMessageId.value
@@ -392,6 +394,10 @@ class ChatMessagesFragment : BaseFragment() {
                 } else {
                     hideSendButton()
                 }
+            } else {
+                tvSave.visibility = View.VISIBLE
+                ivButtonSend.visibility = View.INVISIBLE
+                ivCamera.visibility = View.INVISIBLE
             }
         }
 
@@ -424,7 +430,9 @@ class ChatMessagesFragment : BaseFragment() {
         }
 
         tvSave.setOnClickListener {
-            editMessage()
+            if (originalText != bindingSetup.etMessage.text.toString()) {
+                editMessage()
+            }
             resetEditingFields()
         }
 
@@ -498,10 +506,11 @@ class ChatMessagesFragment : BaseFragment() {
                         // If the reply is reply id != 0, it means that the search for the reply message was started and
                         // was not found in the first set of 20 messages.
                         // Other messages should be searched.
-                        if (replyPosition != 0 && messageSearchId != null){
+                        if (replyPosition != 0 && messageSearchId != null) {
                             replyPosition =
-                                messagesRecords.indexOfFirst {msg ->
-                                    msg.message.id == messageSearchId }
+                                messagesRecords.indexOfFirst { msg ->
+                                    msg.message.id == messageSearchId
+                                }
                         } else {
                             viewModel.fetchNextSet(roomWithUsers?.room!!.roomId)
                         }
@@ -799,7 +808,8 @@ class ChatMessagesFragment : BaseFragment() {
                     when (action) {
                         Const.UserActions.ACTION_RIGHT -> {
                             bindingSetup.replyAction.root.visibility = View.VISIBLE
-                            handleMessageReply(messagesRecords[position].message)
+                            repliedMessage = messagesRecords[position].message
+                            repliedMessage?.let { handleMessageReply(it) }
                         }
 
                         Const.UserActions.ACTION_LEFT -> {
@@ -896,8 +906,8 @@ class ChatMessagesFragment : BaseFragment() {
             }
 
             override fun actionReply() {
-                replyAction.root.visibility = View.VISIBLE
-                handleMessageReply(msg.message)
+                repliedMessage = msg.message
+                repliedMessage?.let { handleMessageReply(it) }
             }
 
             override fun actionDetails() {
@@ -1039,6 +1049,7 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun handleMessageReply(message: Message) = with(bindingSetup.replyAction) {
+        root.visibility = View.VISIBLE
         replyId = message.id.toLong()
 
         val user = roomWithUsers!!.users.firstOrNull {
@@ -1114,20 +1125,8 @@ class ChatMessagesFragment : BaseFragment() {
         isEditing = true
         originalText = message.body?.text.toString()
         editedMessageId = message.id
-        etMessage.setText(message.body?.text)
+        etMessage.setText(message.body?.text.toString())
         ivAdd.rotation = ROTATION_ON
-
-        etMessage.addTextChangedListener {
-            if (isEditing) {
-                if (!originalText.equals(it)) {
-                    tvSave.visibility = View.VISIBLE
-                    ivCamera.visibility = View.INVISIBLE
-                } else {
-                    tvSave.visibility = View.GONE
-                    ivCamera.visibility = View.VISIBLE
-                }
-            }
-        }
     }
 
     private fun addReaction(message: Message) {
