@@ -105,9 +105,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:drawablePadding="@dimen/sixteen_dp_margin"
-            android:text="@string/delete"
+            android:text="@string/edit"
             android:textAppearance="@style/CustomTextBody"
-            android:textColor="@color/warningColor"
             android:textSize="@dimen/sixteen_sp_text"
             app:drawableLeftCompat="@drawable/img_edit" />
 
@@ -117,9 +116,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:drawablePadding="@dimen/sixteen_dp_margin"
-            android:text="@string/edit"
+            android:text="@string/delete"
             android:textAppearance="@style/CustomTextBody"
-            android:textColor="?attr/primaryTextColor"
+            android:textColor="@color/warningColor"
             android:textSize="@dimen/sixteen_sp_text"
             app:drawableLeftCompat="@drawable/img_delete" />
     </LinearLayout>
