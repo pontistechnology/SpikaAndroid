@@ -826,6 +826,20 @@ class ChatMessagesFragment : BaseFragment() {
         )
     }
 
+    private fun handleMessageReply(message: Message) = with(bindingSetup) {
+        flReplyContainer.removeAllViews()
+        flReplyContainer.addView(replyContainer)
+
+        repliedMessage = message
+        replyId = message.id.toLong()
+
+        roomWithUsers?.let { roomWithUsers ->
+            repliedMessage?.let { repliedMessage ->
+                replyContainer?.setReactionContainer(repliedMessage, roomWithUsers)
+            }
+        }
+    }
+
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
         replySearchId = msg.message.body?.referenceMessage?.id
         replyPosition =
