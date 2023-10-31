@@ -1041,20 +1041,6 @@ class ChatMessagesFragment : BaseFragment() {
         findNavController().navigate(action, navOptionsBuilder)
     }
 
-    private fun handleMessageReply(message: Message) = with(bindingSetup) {
-        flReplyContainer.removeAllViews()
-        flReplyContainer.addView(replyContainer)
-
-        repliedMessage = message
-        replyId = message.id.toLong()
-
-        roomWithUsers?.let { roomWithUsers ->
-            repliedMessage?.let { repliedMessage ->
-                replyContainer?.setReactionContainer(repliedMessage, roomWithUsers)
-            }
-        }
-    }
-
     private fun handleMessageEdit(message: Message) = with(bindingSetup) {
         isEditing = true
         originalText = message.body?.text.toString()
