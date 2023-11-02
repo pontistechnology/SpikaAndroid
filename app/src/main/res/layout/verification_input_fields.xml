@@ -1,0 +1,167 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cl_otp_input"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/sixteen_dp_margin"
+    app:layout_constraintBottom_toTopOf="@id/btn_next"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/tv_resend_code">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_input_one"
+        android:layout_width="@dimen/fifty_dp_margin"
+        android:layout_height="@dimen/fifty_dp_margin"
+        android:background="@drawable/bg_number_box"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/et_input_one"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@null"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAppearance="@style/CustomTextBody"
+            android:textSize="@dimen/thirty_sp_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_input_two"
+        android:layout_width="@dimen/fifty_dp_margin"
+        android:layout_height="@dimen/fifty_dp_margin"
+        android:background="@drawable/bg_number_box"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cl_input_three"
+        app:layout_constraintStart_toEndOf="@id/cl_input_one"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/et_input_two"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@null"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAppearance="@style/CustomTextBody"
+            android:textSize="@dimen/thirty_sp_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_input_three"
+        android:layout_width="@dimen/fifty_dp_margin"
+        android:layout_height="@dimen/fifty_dp_margin"
+        android:background="@drawable/bg_number_box"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cl_input_four"
+        app:layout_constraintStart_toEndOf="@id/cl_input_two"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/et_input_three"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@null"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAppearance="@style/CustomTextBody"
+            android:textSize="@dimen/thirty_sp_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_input_four"
+        android:layout_width="@dimen/fifty_dp_margin"
+        android:layout_height="@dimen/fifty_dp_margin"
+        android:background="@drawable/bg_number_box"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cl_input_five"
+        app:layout_constraintStart_toEndOf="@id/cl_input_three"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/et_input_four"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@null"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAppearance="@style/CustomTextBody"
+            android:textSize="@dimen/thirty_sp_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_input_five"
+        android:layout_width="@dimen/fifty_dp_margin"
+        android:layout_height="@dimen/fifty_dp_margin"
+        android:background="@drawable/bg_number_box"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cl_input_six"
+        app:layout_constraintStart_toEndOf="@id/cl_input_four"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/et_input_five"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@null"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAppearance="@style/CustomTextBody"
+            android:textSize="@dimen/thirty_sp_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_input_six"
+        android:layout_width="@dimen/fifty_dp_margin"
+        android:layout_height="@dimen/fifty_dp_margin"
+        android:background="@drawable/bg_number_box"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cl_input_five"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/et_input_six"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@null"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAppearance="@style/CustomTextBody"
+            android:textSize="@dimen/thirty_sp_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

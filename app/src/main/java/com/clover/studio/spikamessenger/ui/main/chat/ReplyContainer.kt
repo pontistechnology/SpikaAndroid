@@ -37,11 +37,17 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
         roomWithUsers: RoomWithUsers,
     ) = with(binding) {
         clMessageReply.visibility = View.VISIBLE
-        val userName = roomWithUsers.users.firstOrNull {
-            it.id == message.fromUserId
-        }?.formattedDisplayName
 
-        tvUsername.text = userName
+        tvUsername.apply {
+            text = roomWithUsers.users.firstOrNull {
+                it.id == message.fromUserId
+            }?.formattedDisplayName
+            visibility = if (roomWithUsers.room.type == Const.JsonFields.PRIVATE){
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+        }
 
         when (message.type) {
             Const.JsonFields.IMAGE_TYPE -> setupMediaType(

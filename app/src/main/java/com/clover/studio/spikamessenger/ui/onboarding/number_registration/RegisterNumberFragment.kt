@@ -76,9 +76,8 @@ class RegisterNumberFragment : BaseFragment() {
                 binding.etPhoneNumber.visibility = View.GONE
                 binding.tvDefaultPhoneNumber.visibility = View.VISIBLE
                 binding.tvDefaultPhoneNumber.text = phoneNumber
+                binding.btnNext.isEnabled = true
             }
-
-            binding.btnNext.isEnabled = true
         }
         binding.tvCountryCode.text = countryCode
     }
@@ -157,6 +156,7 @@ class RegisterNumberFragment : BaseFragment() {
                 viewModel.writePhoneAndCountry(phoneNumber, countryCode)
             }
             viewModel.sendNewUserData(getJsonObject())
+            binding.btnNext.isEnabled = false
         }
     }
 
@@ -171,10 +171,7 @@ class RegisterNumberFragment : BaseFragment() {
             }
 
             override fun afterTextChanged(s: Editable) {
-                if (s.isNotEmpty()) {
-                    binding.btnNext.isEnabled = s.isNotEmpty()
-                }
-
+                binding.btnNext.isEnabled = s.isNotEmpty()
             }
         })
 

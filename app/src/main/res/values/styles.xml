@@ -32,10 +32,10 @@
         <item name="android:textColor">?attr/primaryTextColor</item>
     </style>
 
-    <style name="CustomTextBody" parent="Theme.ExampleApp">
+    <style name="CustomTextBody" parent="TextAppearance.MaterialComponents.Subtitle1">
         <item name="font">@font/roboto_flex</item>
         <item name="lineHeight">20sp</item>
-        <item name="android:textSize">@dimen/twelve_sp_text</item>
+        <item name="android:textSize">@dimen/fifteen_sp_text</item>
         <item name="android:textColor">?attr/primaryTextColor</item>
         <item name="android:textFontWeight">500</item>
     </style>
@@ -43,19 +43,27 @@
     <style name="CustomTextLightBody" parent="Theme.ExampleApp">
         <item name="font">@font/roboto_flex</item>
         <item name="lineHeight">20sp</item>
-        <item name="android:textSize">@dimen/twelve_sp_text</item>
+        <item name="android:textSize">@dimen/fifteen_sp_text</item>
         <item name="android:textColor">?attr/primaryTextColor</item>
-        <item name="android:textFontWeight">400</item>
+        <item name="android:textFontWeight">300</item>
+    </style>
+
+    <style name="CustomSearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="android:textColor">?attr/primaryTextColor</item>
+        <item name="android:textColorHint">?attr/secondaryTextColor</item>
+        <item name="searchIcon">@drawable/img_search</item>
+        <item name="queryBackground">@null</item>
+        <item name="closeIcon">@drawable/img_search_close</item>
     </style>
 
     <!-- Button style   -->
     <style name="CustomButton" parent="Base.Theme.AppCompat">
         <item name="cornerRadius">@dimen/sixteen_dp_margin</item>
-        <item name="backgroundTint">?attr/primaryColor</item>
+        <item name="backgroundTint">@color/button_color</item>
         <item name="android:letterSpacing">0.1</item>
         <item name="android:textAppearance">@style/CustomTextBody</item>
         <item name="android:textSize">@dimen/fourteen_sp_text</item>
-        <item name="android:padding">@dimen/sixteen_dp_margin</item>
+        <item name="android:padding">@dimen/twenty_dp_margin</item>
         <item name="android:textColor">?attr/primaryTextColor</item>
     </style>
 
@@ -131,14 +139,14 @@
 
     <!-- Toolbar style - SearchView  -->
     <style name="CustomToolbar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="searchViewStyle">@style/CustomSearchView</item>
+        <item name="searchViewStyle">@style/CustomSearchBar</item>
         <item name="android:editTextColor">?attr/primaryTextColor</item>
         <item name="android:textColorHint">?attr/primaryTextColor</item>
         <item name="android:colorControlNormal">?attr/primaryTextColor</item>
         <item name="android:closeIcon">@drawable/img_search_close</item>
     </style>
 
-    <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
+    <style name="CustomSearchBar" parent="Widget.AppCompat.SearchView">
         <item name="searchIcon">@null</item>
         <item name="android:editTextColor">?attr/primaryTextColor</item>
     </style>

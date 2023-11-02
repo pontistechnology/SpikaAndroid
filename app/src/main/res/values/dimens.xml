@@ -13,6 +13,7 @@
     <dimen name="seventy_dp">70dp</dimen>
     <dimen name="sixty_four_dp">64dp</dimen>
     <dimen name="fifty_eight_dp">58dp</dimen>
+    <dimen name="fifty_six_dp">56dp</dimen>
     <dimen name="fifty_two_dp">52dp</dimen>
     <dimen name="fifty_dp_margin">50dp</dimen>
     <dimen name="forty_eight_dp_margin">48dp</dimen>

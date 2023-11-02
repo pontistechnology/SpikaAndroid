@@ -10,21 +10,24 @@
         android:id="@+id/tv_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:textAppearance="@style/CustomTextBody"
+        android:layout_marginTop="@dimen/twenty_four_dp_margin"
         android:text="@string/cancel"
+        android:textAppearance="@style/CustomTextBody"
         android:textColor="?attr/primaryColor"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="@dimen/sixteen_sp_text"
+        app:layout_constraintStart_toStartOf="@+id/sv_country_search"
         app:layout_constraintTop_toTopOf="parent" />
 
-<!-- TODO change search   -->
     <androidx.appcompat.widget.SearchView
         android:id="@+id/sv_country_search"
+        style="@style/CustomSearchViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:background="@drawable/bg_search_field"
-        android:alpha="0.3"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:layout_marginTop="@dimen/twenty_four_dp_margin"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:background="@drawable/bg_text_field"
+        android:iconifiedByDefault="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_cancel"
@@ -34,24 +37,23 @@
         android:id="@+id/tv_all_countries"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/sixteen_dp_margin"
+        android:layout_marginTop="@dimen/twenty_four_dp_margin"
         android:text="@string/all_countries"
         android:textAllCaps="true"
         android:textAppearance="@style/CustomTextBody"
         android:textColor="?attr/secondaryTextColor"
-        app:layout_constraintStart_toStartOf="@+id/rv_country_codes"
+        android:textSize="@dimen/sixteen_sp_text"
+        app:layout_constraintStart_toStartOf="@+id/sv_country_search"
         app:layout_constraintTop_toBottomOf="@id/sv_country_search" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_country_codes"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="@dimen/twenty_dp_margin"
+        android:layout_marginTop="@dimen/eight_dp_margin"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/sv_country_search"
+        app:layout_constraintStart_toStartOf="@+id/tv_all_countries"
         app:layout_constraintTop_toBottomOf="@id/tv_all_countries"
-        tools:listitem="@layout/item_country_code"/>
-
-
+        tools:listitem="@layout/item_country_code" />
 </androidx.constraintlayout.widget.ConstraintLayout>

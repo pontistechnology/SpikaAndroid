@@ -4,19 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/backgroundPrimary"
     android:clickable="true"
     android:focusable="true"
     android:focusableInTouchMode="true"
     tools:context=".ui.onboarding.number_registration.RegisterNumberFragment"
-    tools:ignore="contentDescription"
-    android:background="?attr/backgroundPrimary">
+    tools:ignore="contentDescription">
 
     <ImageView
         android:id="@+id/iv_spika_logo"
         android:layout_width="98dp"
         android:layout_height="85dp"
         android:layout_marginTop="@dimen/sixty_four_dp"
-        android:src="@drawable/img_spika_logo_centered"
+        android:src="?attr/spikaLogo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,8 +27,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/twenty_dp_margin"
         android:gravity="center"
-        android:textAppearance="@style/CustomTextHeading"
         android:text="@string/enter_number_to_use"
+        android:textAppearance="@style/CustomTextHeading"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_spika_logo" />
@@ -37,7 +37,7 @@
         android:id="@+id/tv_phone_number_static"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fifty_dp_margin"
+        android:layout_marginTop="@dimen/fifty_six_dp"
         android:text="@string/phone_number"
         android:textAppearance="@style/CustomTextBody"
         android:textColor="?attr/secondaryTextColor"
@@ -49,7 +49,9 @@
         android:id="@+id/cl_registration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
         android:background="@drawable/bg_text_field"
         android:padding="@dimen/ten_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,8 +63,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/twenty_dp_margin"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/country_code_placeholder"
+            android:textAppearance="@style/CustomTextBody"
             android:textColor="?attr/primaryColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -84,11 +86,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/twenty_dp_margin"
             android:background="@null"
-            android:textAppearance="@style/CustomTextBody"
             android:hint="@string/number_example"
             android:inputType="phone"
-            android:visibility="visible"
+            android:textAppearance="@style/CustomTextBody"
             android:textColorHint="?attr/secondaryTextColor"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -114,24 +116,23 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_next"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="@dimen/sixteen_dp_margin"
+        app:layout_constraintEnd_toEndOf="@+id/cl_registration"
+        app:layout_constraintStart_toStartOf="@+id/cl_registration"
         app:layout_constraintTop_toBottomOf="@id/cl_registration">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_next"
+            style="@style/CustomButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/CustomButton"
             android:enabled="false"
             android:text="@string/next"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
