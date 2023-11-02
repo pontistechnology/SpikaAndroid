@@ -66,10 +66,15 @@
     <color name="neonPrimaryTextColor">#FFFFFF</color>
     <color name="neonSecondaryTextColor">#AFAFAF</color>
     <color name="neonAdditionalColor">#343434</color>
-    <color name="neonSecondAdditionalColor">#E84E4E</color>
+    <color name="neonSecondAdditionalColor">#2B0F43</color>
     <color name="neonThirdAdditionalColor">#1A3E93</color>
     <color name="neonFourthAdditionalColor">#244DA0</color>
     <color name="neonPrimaryColorDisabled">#B38F2D85</color>
+
+    <color name="backgroundPrimaryColor">#1E0042</color>
+    <color name="backgroundSecondaryColor">#DA0064</color>
+    <color name="backgroundColorTertiary">#12278A</color>
+    <color name="backgroundColorAdditional">#03045E</color>
 
     <!-- Light green Theme Colors -->
     <color name="lightGreenPrimaryColor">#43DAB6</color>

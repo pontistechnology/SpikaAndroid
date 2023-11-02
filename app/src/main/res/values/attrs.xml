@@ -14,6 +14,13 @@
     <attr name="fourthAdditionalColor" format="reference|color" />
 
     <attr name="primaryColorDisabled" format="reference|color" />
+
     <attr name="backgroundPrimary" format="reference" />
+    <attr name="backgroundPrimaryColor" format="reference" />
+    <attr name="backgroundSecondaryColor" format="reference" />
+    <attr name="backgroundColorTertiary" format="reference" />
+    <attr name="backgroundColorAdditional" format="reference" />
+
     <attr name="spikaLogo" format="reference" />
+
 </resources>

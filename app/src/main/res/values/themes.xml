@@ -70,13 +70,12 @@
         <item name="thirdAdditionalColor">@color/neonThirdAdditionalColor</item>
         <item name="fourthAdditionalColor">@color/neonFourthAdditionalColor</item>
 
-        <item name="backgroundPrimary">@drawable/bg_neon</item>
+        <item name="backgroundPrimary">@drawable/neon_background</item>
         <item name="spikaLogo">@drawable/spika_neon_logo</item>
         <item name="primaryColorDisabled">@color/neonPrimaryColorDisabled</item>
 
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
-
     </style>
 
 <!-- Mint theme   -->
