@@ -30,6 +30,7 @@
         android:text="@string/username"
         android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
+        android:letterSpacing="0.1"
         app:layout_constraintEnd_toStartOf="@+id/tv_user_time"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/iv_user_avatar"
