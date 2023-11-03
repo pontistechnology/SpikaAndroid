@@ -325,6 +325,7 @@ class ChatAdapter(
                         clContainer = holder.binding.clContainer,
                         tvUsername = holder.binding.tvUsernameOther,
                         sender = true,
+                        roomType = roomType,
                     )
                 }
 
@@ -466,6 +467,7 @@ class ChatAdapter(
                         clContainer = holder.binding.clContainer,
                         tvUsername = holder.binding.tvUsernameOther,
                         sender = false,
+                        roomType = roomType,
                     )
                 }
 

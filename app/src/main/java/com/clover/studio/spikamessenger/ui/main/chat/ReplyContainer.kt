@@ -52,7 +52,7 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
         when (message.type) {
             Const.JsonFields.IMAGE_TYPE -> setupMediaType(
                 R.string.photo,
-                R.drawable.img_camera_reply,
+                R.drawable.img_camera,
                 Tools.getMediaFile(context, message)
             )
 

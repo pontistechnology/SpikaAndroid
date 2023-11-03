@@ -229,6 +229,7 @@ object ChatAdapterHelper {
         clContainer: ConstraintLayout,
         tvUsername: TextView,
         sender: Boolean,
+        roomType: String?,
     ) {
         ivReplyImage.visibility = View.GONE
         tvReplyMedia.visibility = View.GONE
@@ -241,8 +242,13 @@ object ChatAdapterHelper {
             clContainer.setBackgroundResource(R.drawable.bg_message_received)
         }
 
-        tvUsername.text =
-            users.firstOrNull { it.id == chatMessage.message.body?.referenceMessage?.fromUserId }?.formattedDisplayName
+        if (roomType == Const.JsonFields.PRIVATE){
+            tvUsername.visibility = View.GONE
+        } else {
+            tvUsername.visibility = View.VISIBLE
+            tvUsername.text =
+                users.firstOrNull { it.id == chatMessage.message.body?.referenceMessage?.fromUserId }?.formattedDisplayName
+        }
 
         when (chatMessage.message.body?.referenceMessage?.type) {
             /**Image or video type*/
@@ -253,7 +259,7 @@ object ChatAdapterHelper {
                         context.getString(R.string.photo)
                     )
                     tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera_reply,
+                        R.drawable.img_camera,
                         0,
                         0,
                         0

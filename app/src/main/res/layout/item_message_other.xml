@@ -80,6 +80,8 @@
             app:layout_constraintVertical_bias="1.0" />
 
 
+<!--   TODO redesign reply layout for other-->
+<!--   maybe make one layout and change in code background     -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_reply_message"
             android:layout_width="match_parent"
