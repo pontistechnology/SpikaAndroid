@@ -45,7 +45,7 @@
             android:autoLink="all"
             android:ellipsize="end"
             android:gravity="center|start"
-            android:maxLines="1"
+            android:maxLines="3"
             android:text="@string/some_message"
             android:textAppearance="@style/CustomTextBody"
             android:textColorLink="@color/link_primary_color"
@@ -100,7 +100,8 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/twenty_dp_margin"
         android:src="@drawable/img_close"
+        app:layout_constraintBottom_toBottomOf="@+id/cl_reply_container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/cl_reply_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

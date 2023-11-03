@@ -24,7 +24,7 @@ class MainFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var count: Int = 0
     private val icons = arrayOf(
-        R.drawable.img_chat_selected,
+        R.drawable.img_chat_default,
         R.drawable.img_account_default,
         R.drawable.img_phone,
         R.drawable.img_settings_default

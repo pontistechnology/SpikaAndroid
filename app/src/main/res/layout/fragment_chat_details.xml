@@ -30,6 +30,7 @@
             android:backgroundTint="@color/background_80_transp"
             android:elevation="@dimen/five_dp_margin"
             android:visibility="gone"
+            app:cardPreventCornerOverlap="false"
             app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
             app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar"
             app:layout_constraintStart_toStartOf="@id/iv_pick_avatar"

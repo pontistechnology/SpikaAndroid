@@ -135,9 +135,11 @@ class ChatAdapter(
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
 
-                holder.binding.tvTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
-                    calendar.timeInMillis
-                ).toString()
+                bindMessageTime(
+                    tvTime = holder.binding.tvTime,
+                    clContainer = holder.binding.clMessage,
+                    calendar = calendar
+                )
 
                 /** Message types: */
                 when (it.message.type) {
@@ -382,9 +384,11 @@ class ChatAdapter(
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
 
-                holder.binding.tvTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
-                    calendar.timeInMillis
-                ).toString()
+                bindMessageTime(
+                    tvTime = holder.binding.tvTime,
+                    clContainer = holder.binding.clMessage,
+                    calendar = calendar
+                )
 
                 /** Message types: */
                 when (it.message.type) {
@@ -472,9 +476,9 @@ class ChatAdapter(
 
                 /** Show edited layout: */
                 if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.tvMessageEdited.visibility = View.VISIBLE
+                    holder.binding.tvEdited.visibility = View.VISIBLE
                 } else {
-                    holder.binding.tvMessageEdited.visibility = View.GONE
+                    holder.binding.tvEdited.visibility = View.GONE
                 }
 
                 /** Show user names and avatars in group chat */
@@ -527,6 +531,25 @@ class ChatAdapter(
             }
         }
 
+    }
+
+    private fun bindMessageTime(
+        calendar: Calendar,
+        tvTime: TextView,
+        clContainer: ConstraintLayout
+    ) {
+        tvTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+            calendar.timeInMillis
+        ).toString()
+
+        clContainer.setOnClickListener {
+            tvTime.visibility = if (tvTime.visibility == View.VISIBLE) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+
+        }
     }
 
     fun setSelectedPosition(position: Int) {

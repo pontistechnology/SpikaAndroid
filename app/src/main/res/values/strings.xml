@@ -49,6 +49,7 @@
 
     <!--Register-->
     <string name="enter_username">Enter username</string>
+    <string name="enter_username_with_exclamation_mark">Enter username!</string>
     <string name="select_photo_my_profile">Select a photo for your profile</string>
     <string name="enter_number_to_use">Enter your phone number to \n start using Spika</string>
     <string name="phone_number">Phone number</string>

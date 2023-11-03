@@ -24,7 +24,7 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.App.DarkMarine"
+        android:theme="@style/Theme.ExampleApp"
         tools:replace="android:allowBackup, android:label">
         <activity
             android:name="com.clover.studio.spikamessenger.ui.main.chat.ChatScreenActivity"

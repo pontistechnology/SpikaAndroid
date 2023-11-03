@@ -35,16 +35,16 @@
     <color name="secondWarningColor">#FFE3E3</color>
     <color name="tabSelectedColor">#33FFFFFF</color>
 
-    <!--  Base theme colors  -->
+    <!--  Base theme colors (light marine) -->
     <color name="basePrimaryColor">#90E0EF</color>
     <color name="baseSecondaryColor">#DEF9FF</color>
     <color name="baseTertiaryColor">#648FB8</color>
     <color name="basePrimaryTextColor">#001D3D</color>
     <color name="baseSecondaryTextColor">#648FB8</color>
-    <color name="baseAdditionalColor">#E84E4E</color>
-    <color name="baseSecondAdditionalColor">#010F20</color>
-    <color name="baseThirdAdditionalColor">#daeaf4</color>
-    <color name="baseFourthAdditionalColor">#103251</color>
+    <color name="baseAdditionalColor">#C6C6C6</color>
+    <color name="baseSecondAdditionalColor">#C4E8EF</color>
+    <color name="baseThirdAdditionalColor">#95BEE4</color>
+    <color name="baseFourthAdditionalColor">#689ECF</color>
     <color name="basePrimaryColorDisabled">#B390E0EF</color>
 
     <!--  Dark marine theme colors  -->
@@ -77,16 +77,16 @@
     <color name="backgroundColorAdditional">#03045E</color>
 
     <!-- Light green Theme Colors -->
-    <color name="lightGreenPrimaryColor">#43DAB6</color>
-    <color name="lightGreenSecondaryColor">#8CF3DB</color>
+    <color name="lightGreenPrimaryColor">#8CF3DB</color>
+    <color name="lightGreenSecondaryColor">#D4FFF5</color>
     <color name="lightGreenTertiaryColor">#648FB8</color>
     <color name="lightGreenPrimaryTextColor">#001D3D</color>
-    <color name="lightGreenSecondaryTextColor">#648FB8</color>
-    <color name="lightGreenAdditionalColor">#E84E4E</color>
-    <color name="lightGreenSecondAdditionalColor">#E84E4E</color>
-    <color name="lightGreenThirdAdditionalColor">#d3f6f3</color>
-    <color name="lightGreenFourthAdditionalColor">#103251</color>
-    <color name="lightGreenPrimaryColorDisabled">#B343DAB6</color>
+    <color name="lightGreenSecondaryTextColor">#64B8B3</color>
+    <color name="lightGreenAdditionalColor">#80C6C6C6</color>
+    <color name="lightGreenSecondAdditionalColor">#C4EFEC</color>
+    <color name="lightGreenThirdAdditionalColor">#95E4BF</color>
+    <color name="lightGreenFourthAdditionalColor">#68CFC9</color>
+    <color name="lightGreenPrimaryColorDisabled">#B390E0EF</color>
 
     <color name="selected_message">#4D5A5C5E</color>
 </resources>

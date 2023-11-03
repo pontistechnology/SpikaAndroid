@@ -783,8 +783,7 @@ object Tools {
             }
 
             else -> {
-//                R.style.Theme_ExampleApp
-                R.style.Theme_App_DarkMarine
+                R.style.Theme_ExampleApp
             }
         }
     }

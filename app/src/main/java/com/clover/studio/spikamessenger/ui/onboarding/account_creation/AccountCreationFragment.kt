@@ -58,8 +58,7 @@ class AccountCreationFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this).load(bitmap).into(binding.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
             } else {
                 Timber.d("Gallery error")
@@ -80,8 +79,7 @@ class AccountCreationFragment : BaseFragment() {
                 Glide.with(this).load(bitmap)
                     .placeholder(R.drawable.img_user_placeholder)
                     .centerCrop()
-                    .into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                    .into(binding.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
             } else {
                 Timber.d("Photo error")
@@ -138,7 +136,7 @@ class AccountCreationFragment : BaseFragment() {
             checkUsername()
         }
 
-        binding.ivPickPhoto.setOnClickListener {
+        binding.ivPickAvatar.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
@@ -165,14 +163,14 @@ class AccountCreationFragment : BaseFragment() {
             override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if (!text.isNullOrEmpty()) {
                     binding.btnNext.isEnabled = true
-                    binding.clUsernameError.visibility = View.INVISIBLE
+                    binding.cvUsernameError.visibility = View.INVISIBLE
                 }
             }
 
             override fun afterTextChanged(text: Editable?) {
                 if (!text.isNullOrEmpty()) {
                     binding.btnNext.isEnabled = true
-                    binding.clUsernameError.visibility = View.INVISIBLE
+                    binding.cvUsernameError.visibility = View.INVISIBLE
                 }
             }
         })
@@ -201,28 +199,26 @@ class AccountCreationFragment : BaseFragment() {
                     // ignore
                 }
             })
-        binding.clProgressScreen.visibility = View.GONE
+        binding.flProgressScreen.visibility = View.GONE
         binding.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this).clear(binding.ivPickPhoto)
-        binding.ivPickPhoto.setImageDrawable(
+        Glide.with(this).clear(binding.ivPickAvatar)
+        binding.ivPickAvatar.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
                 R.drawable.img_camera
             )
         )
-        binding.clSmallCameraPicker.visibility = View.GONE
     }
 
     private fun checkUsername() {
         if (binding.etEnterUsername.text.isNullOrEmpty()) {
             binding.btnNext.isEnabled = false
-            binding.clUsernameError.visibility = View.VISIBLE
+            binding.cvUsernameError.visibility = View.VISIBLE
         } else {
             if (currentPhotoLocation != Uri.EMPTY) {
                 val inputStream =
                     requireActivity().contentResolver.openInputStream(currentPhotoLocation)
-
                 val fileStream = Tools.copyStreamToFile(
                     inputStream!!,
                     activity?.contentResolver?.getType(currentPhotoLocation)!!
@@ -272,7 +268,7 @@ class AccountCreationFragment : BaseFragment() {
                                 messageBody: MessageBody?
                             ) {
                                 requireActivity().runOnUiThread {
-                                    binding.clProgressScreen.visibility = View.GONE
+                                    binding.flProgressScreen.visibility = View.GONE
                                 }
 
                                 val jsonObject = JsonObject()
@@ -290,7 +286,7 @@ class AccountCreationFragment : BaseFragment() {
                             }
                         })
                 }
-                binding.clProgressScreen.visibility = View.VISIBLE
+                binding.flProgressScreen.visibility = View.VISIBLE
             } else {
                 val jsonObject = JsonObject()
                 jsonObject.addProperty(

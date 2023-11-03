@@ -114,25 +114,15 @@
             app:layout_constraintVertical_bias="0.434" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_next"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_next"
+        style="@style/CustomButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/sixteen_dp_margin"
+        android:enabled="false"
+        android:text="@string/next"
         app:layout_constraintEnd_toEndOf="@+id/cl_registration"
         app:layout_constraintStart_toStartOf="@+id/cl_registration"
-        app:layout_constraintTop_toBottomOf="@id/cl_registration">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_next"
-            style="@style/CustomButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:enabled="false"
-            android:text="@string/next"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toBottomOf="@id/cl_registration" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,12 +1,13 @@
 <resources>
 <!--     Base application theme. -->
-    <style name="Theme.ExampleApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.ExampleApp" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/teal_200</item>
         <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="android:textColor">?attr/primaryTextColor</item>
+
         <item name="android:statusBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="colorAccent">?attr/primaryColor</item>
@@ -23,16 +24,15 @@
         <item name="fourthAdditionalColor">@color/baseFourthAdditionalColor</item>
 
         <item name="backgroundPrimary">@drawable/bg_spika</item>
-        <item name="spikaLogo">@drawable/spika_mint_logo</item>
+        <item name="spikaLogo">@drawable/spika_base_logo</item>
         <item name="primaryColorDisabled">@color/basePrimaryColorDisabled</item>
 
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
-
     </style>
 
     <!--  Dark Marine theme  -->
-    <style name="Theme.App.DarkMarine" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.App.DarkMarine" parent="Theme.MaterialComponents.Light.NoActionBar">
 
         <item name="android:windowTranslucentStatus">true</item>
 
@@ -56,7 +56,7 @@
 
 
 <!--  Neon theme  -->
-    <style name="Theme.App.Neon" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.App.Neon" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:statusBarColor">#FF61187B</item>
         <item name="android:windowLightStatusBar">true</item>
 
@@ -79,10 +79,10 @@
     </style>
 
 <!-- Mint theme   -->
-    <style name="Theme.App.LightGreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.App.LightGreen" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+<!--        <item name="windowNoTitle">true</item>-->
 
         <item name="primaryColor">@color/lightGreenPrimaryColor</item>
         <item name="secondaryColor">@color/lightGreenSecondaryColor</item>

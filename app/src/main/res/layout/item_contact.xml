@@ -11,10 +11,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/twenty_dp_margin"
-        android:textAppearance="@style/CustomTextBody"
+        android:textAppearance="@style/CustomTextHeading"
         android:text="@string/category_placeholder"
         android:textColor="?attr/primaryTextColor"
-        android:textSize="@dimen/sixteen_sp_text"
+        android:textSize="@dimen/thirty_two_sp_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/twenty_dp_margin"
-        android:textAppearance="@style/CustomTextBody"
+        android:textAppearance="@style/CustomTextHeading"
         android:text="@string/enter_username"
         android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
