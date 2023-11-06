@@ -1,11 +1,5 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
