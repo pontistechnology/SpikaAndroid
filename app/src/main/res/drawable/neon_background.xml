@@ -20,4 +20,6 @@
                 android:startColor="#00000000" />
         </shape>
     </item>
+    <item
+        android:drawable="@drawable/bg_spika_logo"/>
 </layer-list>
