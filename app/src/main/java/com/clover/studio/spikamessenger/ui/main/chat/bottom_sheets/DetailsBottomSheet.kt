@@ -73,15 +73,14 @@ class DetailsBottomSheet(
          remove reactions from those records(because we only need the seen and delivered types),
          remove the sender from the seen/delivered list and sort the list so that first we see
          seen and then delivered. */
-        val messageDetails = message.records!!
-            .filter { Const.JsonFields.REACTION != it.type }
-            .filter { it.userId != senderId }
-            .sortedByDescending { it.type }
+        val messageDetails = message.records.orEmpty()
+            .filter { it.type != Const.JsonFields.REACTION && it.userId != senderId }
+            .sortedWith(compareByDescending<MessageRecords> { it.createdAt }.thenByDescending { it.type })
             .distinctBy { it.userId }
             .toMutableList()
 
         /* Then we add the sender of the message to the first position of the messageDetails list
-        * so that we can display it in the RecyclerView */
+        * so that wŽe can display it in the RecyclerView */
         messageDetails.add(0, senderMessageRecord)
 
         /* If the room type is a group and the current user is not the sender, remove it from the list.*/
