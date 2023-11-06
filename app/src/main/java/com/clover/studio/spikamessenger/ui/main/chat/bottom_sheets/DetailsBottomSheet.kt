@@ -75,7 +75,7 @@ class DetailsBottomSheet(
          seen and then delivered. */
         val messageDetails = message.records.orEmpty()
             .filter { it.type != Const.JsonFields.REACTION && it.userId != senderId }
-            .sortedWith(compareByDescending<MessageRecords> { it.createdAt }.thenByDescending { it.type })
+            .sortedWith(compareByDescending<MessageRecords> { it.type }.thenByDescending { it.createdAt })
             .distinctBy { it.userId }
             .toMutableList()
 
