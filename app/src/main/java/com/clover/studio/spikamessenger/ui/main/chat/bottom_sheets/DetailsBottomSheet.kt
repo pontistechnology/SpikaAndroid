@@ -80,7 +80,7 @@ class DetailsBottomSheet(
             .toMutableList()
 
         /* Then we add the sender of the message to the first position of the messageDetails list
-        * so that wŽe can display it in the RecyclerView */
+        * so that we can display it in the RecyclerView */
         messageDetails.add(0, senderMessageRecord)
 
         /* If the room type is a group and the current user is not the sender, remove it from the list.*/
