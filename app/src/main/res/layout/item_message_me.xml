@@ -105,7 +105,7 @@
             android:layout_marginEnd="@dimen/eight_dp_margin"
             android:background="@drawable/bg_message_send"
             android:backgroundTint="?attr/secondaryColor"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -123,7 +123,7 @@
                 android:textAppearance="@style/CustomTextHeading"
                 android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -145,7 +145,7 @@
                 android:textColor="?attr/primaryTextColor"
                 android:textColorLink="@color/link_primary_color"
                 android:textSize="@dimen/fourteen_sp_text"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -165,7 +165,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearance="@style/reply_image" />
+                app:shapeAppearance="@style/reply_image_sender" />
 
             <TextView
                 android:id="@+id/tv_reply_media"
