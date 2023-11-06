@@ -1,10 +1,9 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -113,11 +112,16 @@ class ChatAdapter(
             if (holder.itemViewType == VIEW_TYPE_MESSAGE_SENT) {
                 holder as SentMessageHolder
 
-                if (selectedPosition != 0 && selectedPosition == position){
+                if (selectedPosition != 0 && selectedPosition == position) {
                     animateSelectedMessage(holder.itemView)
                     selectedPosition = 0
                 } else {
-                    holder.itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent))
+                    holder.itemView.setBackgroundColor(
+                        ContextCompat.getColor(
+                            context,
+                            android.R.color.transparent
+                        )
+                    )
                 }
 
                 if (playerListener != null) {
@@ -360,11 +364,16 @@ class ChatAdapter(
                 /** View holder for messages from other users */
                 holder as ReceivedMessageHolder
 
-                if (selectedPosition != 0 && selectedPosition == position){
+                if (selectedPosition != 0 && selectedPosition == position) {
                     animateSelectedMessage(holder.itemView)
                     selectedPosition = 0
                 } else {
-                    holder.itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent))
+                    holder.itemView.setBackgroundColor(
+                        ContextCompat.getColor(
+                            context,
+                            android.R.color.transparent
+                        )
+                    )
                 }
 
                 if (playerListener != null) {
@@ -532,25 +541,22 @@ class ChatAdapter(
         notifyItemChanged(position)
     }
 
-    private fun animateSelectedMessage(itemView: View){
-        val startColor = ContextCompat.getColor(context, android.R.color.transparent)
-        val endColor = ContextCompat.getColor(context, R.color.gray_transparent)
+    /** A method that sets the color of the selected message to the selected_message color and
+     *  then changes its alpha value to change from that color to transparent
+     *  (alpha from 255 to 0)*/
+    private fun animateSelectedMessage(itemView: View) {
+        val alphaAnimator = ObjectAnimator.ofInt(255, 0)
+        alphaAnimator.duration = 2000
 
-        val colorAnimator = ValueAnimator.ofArgb(startColor, endColor)
-        colorAnimator.duration = 2000
-
-        colorAnimator.addUpdateListener { animator ->
-            val color = animator.animatedValue as Int
-            itemView.setBackgroundColor(color)
+        alphaAnimator.addUpdateListener { animator ->
+            val alpha = animator.animatedValue as Int
+            val backgroundDrawable =
+                ColorDrawable(ContextCompat.getColor(context, R.color.selected_message))
+            backgroundDrawable.alpha = alpha
+            itemView.background = backgroundDrawable
         }
 
-        colorAnimator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent))
-            }
-        })
-
-        colorAnimator.start()
+        alphaAnimator.start()
     }
 
     /** Methods that bind different types of messages: */
