@@ -81,7 +81,7 @@ class ChatDetailsFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickAvatar)
+                Glide.with(this).load(bitmap).centerCrop().into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
             } else {
@@ -100,7 +100,7 @@ class ChatDetailsFragment : BaseFragment() {
                     )
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickAvatar)
+                Glide.with(this).load(bitmap).centerCrop().into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
             } else {
@@ -141,8 +141,8 @@ class ChatDetailsFragment : BaseFragment() {
         if (!isAdmin) {
             tvGroupName.isClickable = false
             ivDone.isFocusable = false
-            ivPickAvatar.isClickable = false
-            ivPickAvatar.isFocusable = false
+            profilePicture.ivPickAvatar.isClickable = false
+            profilePicture.ivPickAvatar.isFocusable = false
             ivAddMember.visibility = View.GONE
         }
     }
@@ -232,7 +232,7 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        ivPickAvatar.setOnClickListener {
+        profilePicture.ivPickAvatar.setOnClickListener {
             if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && isAdmin) {
                 ChooserDialog.getInstance(requireContext(),
                     getString(R.string.placeholder_title),
@@ -353,7 +353,7 @@ class ChatDetailsFragment : BaseFragment() {
                 .load(avatarFileId.let { Tools.getFilePathUrl(it) })
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .into(binding.ivPickAvatar)
+                .into(binding.profilePicture.ivPickAvatar)
         }
         binding.tvGroupName.text = username
     }
@@ -387,7 +387,7 @@ class ChatDetailsFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.LOADING -> {
                     if (progress <= uploadPieces) {
-                        binding.progressBar.secondaryProgress = progress.toInt()
+                        binding.profilePicture.progressBar.secondaryProgress = progress.toInt()
                         progress++
                     } else progress = 0
                 }
@@ -395,7 +395,7 @@ class ChatDetailsFragment : BaseFragment() {
                 Resource.Status.SUCCESS -> {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
-                        binding.flProgressScreen.visibility = View.GONE
+                        binding.profilePicture.flProgressScreen.visibility = View.GONE
                         binding.ivDone.visibility = View.VISIBLE
                     }
                     newAvatarFileId = it.responseData!!.fileId
@@ -536,7 +536,7 @@ class ChatDetailsFragment : BaseFragment() {
                     (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-            binding.progressBar.max = uploadPieces
+            binding.profilePicture.progressBar.max = uploadPieces
             Timber.d("File upload start")
             isUploading = true
             viewModel.uploadFile(
@@ -553,7 +553,7 @@ class ChatDetailsFragment : BaseFragment() {
                     null
                 )
             )
-            binding.flProgressScreen.visibility = View.VISIBLE
+            binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
         }
     }
 
@@ -572,11 +572,11 @@ class ChatDetailsFragment : BaseFragment() {
                     // Ignore
                 }
             })
-        binding.flProgressScreen.visibility = View.GONE
-        binding.progressBar.secondaryProgress = 0
+        binding.profilePicture.flProgressScreen.visibility = View.GONE
+        binding.profilePicture.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this).clear(binding.ivPickAvatar)
-        binding.ivPickAvatar.setImageDrawable(
+        Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
+        binding.profilePicture.ivPickAvatar.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
                 R.drawable.img_camera

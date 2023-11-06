@@ -122,7 +122,8 @@
     <!--  CheckBox style  -->
     <style name="CustomCheckBox" parent="Base.Theme.AppCompat">
         <item name="colorAccent">?attr/primaryColor</item> <!-- for uncheck state -->
-        <item name="android:textColorSecondary">?attr/secondaryTextColor</item> <!-- for check state -->
+        <item name="android:textColorSecondary">?attr/secondaryTextColor
+        </item> <!-- for check state -->
         <item name="font">@font/roboto_flex</item>
         <item name="fontWeight">500</item>
     </style>
@@ -136,7 +137,8 @@
     <!--  Toolbar tiles style  -->
     <style name="CustomTitleBold" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">@dimen/thirty_two_sp_text</item>
-        <item name="android:fontFamily">@font/roboto_bold</item>
+        <item name="android:fontFamily">@font/roboto_flex</item>
+        <item name="android:fontWeight">700</item>
     </style>
 
     <style name="CustomTitleNormal" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
@@ -151,6 +153,7 @@
         <item name="android:textColorHint">?attr/primaryTextColor</item>
         <item name="android:colorControlNormal">?attr/primaryTextColor</item>
         <item name="android:closeIcon">@drawable/img_search_close</item>
+        <item name="android:fontWeight">700</item>
     </style>
 
     <style name="CustomSearchBar" parent="Widget.AppCompat.SearchView">
@@ -184,9 +187,9 @@
     <!--  Options style  -->
     <style name="FirstOptionStyle">
         <item name="cornerFamilyTopRight">rounded</item>
-        <item name="cornerSizeTopRight">20dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
         <item name="cornerFamilyTopLeft">rounded</item>
-        <item name="cornerSizeTopLeft">20dp</item>
+        <item name="cornerSizeTopLeft">16dp</item>
     </style>
 
     <style name="OptionStyle">
@@ -196,9 +199,9 @@
 
     <style name="LastOptionStyle" parent="ShapeAppearance.MaterialComponents.MediumComponent">
         <item name="cornerFamilyBottomRight">rounded</item>
-        <item name="cornerSizeBottomRight">20dp</item>
+        <item name="cornerSizeBottomRight">16dp</item>
         <item name="cornerFamilyBottomLeft">rounded</item>
-        <item name="cornerSizeBottomLeft">20dp</item>
+        <item name="cornerSizeBottomLeft">16dp</item>
     </style>
 
 

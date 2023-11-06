@@ -10,29 +10,6 @@
     tools:context=".ui.main.rooms.RoomsFragment"
     tools:ignore="contentDescription">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/eight_dp_margin"
-        android:backgroundTint="@android:color/transparent"
-        app:elevation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/topAppBar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:backgroundTint="@android:color/transparent"
-            android:theme="@style/CustomToolbar"
-            app:elevation="0dp"
-            app:title="@string/settings"
-            app:titleTextAppearance="@style/CustomTitleBold"
-            app:titleTextColor="?attr/primaryTextColor"/>
-    </com.google.android.material.appbar.AppBarLayout>
-
     <ImageView
         android:id="@+id/iv_done"
         android:layout_width="wrap_content"
@@ -46,73 +23,15 @@
         app:layout_constraintStart_toEndOf="@+id/et_enter_username"
         app:layout_constraintTop_toTopOf="@+id/et_enter_username" />
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/iv_pick_photo"
-        android:layout_width="@dimen/one_hundred_dp"
-        android:layout_height="@dimen/one_hundred_dp"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:background="@drawable/img_selector_background"
-        android:backgroundTint="@color/light_blue"
-        android:scaleType="center"
-        android:src="@drawable/img_camera"
-        app:cardPreventCornerOverlap="false"
+    <include
+        android:id="@+id/profile_picture"
+        layout="@layout/profile_picture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/tv_username"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
-        app:shapeAppearanceOverlay="@style/circle" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_progress_screen"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:elevation="@dimen/five_dp_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/iv_pick_photo"
-        app:layout_constraintEnd_toEndOf="@id/iv_pick_photo"
-        app:layout_constraintStart_toStartOf="@id/iv_pick_photo"
-        app:layout_constraintTop_toTopOf="@id/iv_pick_photo">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/img_selector_background"
-            android:backgroundTint="@color/dark_background_transp" />
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="@dimen/seventy_dp"
-            android:layout_height="@dimen/seventy_dp"
-            android:indeterminate="false"
-            android:progress="0"
-            android:progressDrawable="@drawable/custom_circular_progress"
-            android:progressTint="?attr/primaryColor"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_small_camera_picker"
-        android:layout_width="@dimen/twenty_eight_dp"
-        android:layout_height="@dimen/twenty_eight_dp"
-        android:background="@drawable/img_selector_background"
-        android:elevation="@dimen/five_dp_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/iv_pick_photo"
-        app:layout_constraintEnd_toEndOf="@id/iv_pick_photo">
-
-        <ImageView
-            android:layout_width="@dimen/twelve_dp"
-            android:layout_height="@dimen/twelve_dp"
-            android:src="@drawable/img_camera"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/et_enter_username"
@@ -121,15 +40,15 @@
         android:layout_marginStart="@dimen/ten_dp_margin"
         android:layout_marginTop="@dimen/twenty_dp_margin"
         android:background="@drawable/bg_text_field"
-        android:textAppearance="@style/CustomTextBody"
         android:hint="@string/enter_username"
         android:inputType="text"
         android:padding="@dimen/sixteen_dp_margin"
+        android:textAppearance="@style/CustomTextBody"
         android:textSize="@dimen/fourteen_sp_text"
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/iv_done"
         app:layout_constraintStart_toStartOf="@+id/cl_appearance"
-        app:layout_constraintTop_toBottomOf="@id/iv_pick_photo" />
+        app:layout_constraintTop_toBottomOf="@id/profile_picture" />
     <!--        app:layout_constraintBottom_toTopOf="@id/cl_privacy"-->
 
 
@@ -138,13 +57,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/twenty_dp_margin"
-        android:textAppearance="@style/CustomTextBody"
         android:text="@string/enter_username"
+        android:textAppearance="@style/CustomTextBody"
         android:textColor="?attr/primaryColor"
         android:textSize="@dimen/sixteen_sp_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_pick_photo" />
+        app:layout_constraintTop_toBottomOf="@id/profile_picture" />
 
     <TextView
         android:id="@+id/tv_phone_number"
@@ -162,40 +81,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/twenty_dp_margin"
-        android:textAppearance="@style/CustomTextBody"
         android:gravity="center"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/placeholder_title"
+        android:textAppearance="@style/CustomTextBody"
         android:textColor="?attr/secondaryTextColor"
         android:textSize="@dimen/eleven_sp_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <FrameLayout
-        android:id="@+id/fl_privacy"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/ten_dp_margin"
-        android:padding="@dimen/twenty_dp_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cl_appearance">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/CustomTextBody"
-            android:text="@string/privacy"
-            android:textSize="@dimen/sixteen_sp_text"
-            android:textColor="?attr/primaryTextColor"/>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:src="@drawable/img_arrow_forward" />
-    </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_appearance"
@@ -223,10 +117,10 @@
             android:id="@+id/tv_appearance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/appearance"
-            android:textSize="@dimen/sixteen_sp_text"
+            android:textAppearance="@style/CustomTextBody"
             android:textColor="?attr/primaryTextColor"
+            android:textSize="@dimen/sixteen_sp_text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -242,6 +136,31 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
+        android:id="@+id/fl_privacy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/ten_dp_margin"
+        android:padding="@dimen/twenty_dp_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cl_appearance">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/privacy"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryTextColor"
+            android:textSize="@dimen/sixteen_sp_text" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:src="@drawable/img_arrow_forward" />
+    </FrameLayout>
+
+    <FrameLayout
         android:id="@+id/cl_delete_user"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -255,9 +174,9 @@
             android:id="@+id/tv_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/delete"
-            android:textSize="@dimen/sixteen_sp_text"
-            android:textColor="@color/warningColor" />
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="@color/warningColor"
+            android:textSize="@dimen/sixteen_sp_text" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

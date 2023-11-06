@@ -1,14 +1,15 @@
 package com.clover.studio.spikamessenger.ui.main.settings.screens
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
 import com.clover.studio.spikamessenger.databinding.FragmentAppearanceSettingsBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import timber.log.Timber
 
@@ -17,7 +18,7 @@ class AppearanceSettings : BaseFragment() {
 
     private val binding get() = bindingSetup!!
 
-    private var listOfCheckMarks = listOf<ImageView>()
+    private var themeOptions: Map<Int, String>? = null
 
     private val viewModel: MainViewModel by activityViewModels()
 
@@ -27,12 +28,15 @@ class AppearanceSettings : BaseFragment() {
     ): View {
         bindingSetup = FragmentAppearanceSettingsBinding.inflate(inflater, container, false)
 
-        listOfCheckMarks = listOf(
-            binding.ivLilacCheck, binding.ivMintCheck, binding.ivBaseCheck, binding.ivBaseDarkCheck
+        themeOptions = mapOf(
+            0 to Const.Themes.BASIC_THEME_NIGHT,
+            1 to Const.Themes.BASIC_THEME,
+            2 to Const.Themes.NEON_THEME,
+            3 to Const.Themes.NEON_THEME,
+            4 to Const.Themes.MINT_THEME
         )
 
         initializeViews()
-        initializeListeners()
 
         return binding.root
     }
@@ -43,69 +47,36 @@ class AppearanceSettings : BaseFragment() {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        when (viewModel.getUserTheme()) {
-            Const.Themes.MINT_THEME -> {
-                Timber.d("Mint theme")
-                setThemeChecks(ivMintCheck)
+        val userOptions = UserOptions(requireContext())
+        val optionList = mutableListOf<Pair<String, Drawable?>>(
+            Pair("Dark Marine", null),
+            Pair("Light Marine", null),
+            Pair("Neon", null),
+            Pair("Neon Light", null),
+            Pair("Light Green", null),
+        )
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(optionName: Int) {
+                themeOptions?.get(optionName)?.let { theme ->
+                    viewModel.writeUserTheme(theme)
+                    activity?.recreate()
+                } ?: run {
+                    Timber.d("Not implemented theme option: $optionName")
+                }
             }
+        })
 
-            Const.Themes.NEON_THEME -> {
-                Timber.d("Neon theme")
-                setThemeChecks(ivLilacCheck)
-            }
-
-            Const.Themes.BASIC_THEME_NIGHT -> {
-                setThemeChecks(ivBaseDarkCheck)
-            }
-
-            else -> {
-                Timber.d("Base theme")
-                setThemeChecks(ivBaseCheck)
-            }
-        }
+        binding.flOptionsContainer.addView(userOptions)
     }
 
-    private fun initializeListeners() = with(binding) {
-        // TODO change user theme:
-
-        flBaseTheme.setOnClickListener {
-            Timber.d("Base theme click")
-            viewModel.writeUserTheme(Const.Themes.BASIC_THEME)
-            setThemeChecks(ivBaseCheck)
-            activity?.recreate()
-        }
-
-        flBaseDarkTheme.setOnClickListener {
-            Timber.d("Base dark theme click")
-            viewModel.writeUserTheme(Const.Themes.BASIC_THEME_NIGHT)
-            setThemeChecks(ivBaseCheck)
-            activity?.recreate()
-        }
-
-        flMintTheme.setOnClickListener {
-            Timber.d("Mint theme click")
-            viewModel.writeUserTheme(Const.Themes.MINT_THEME)
-            setThemeChecks(ivMintCheck)
-            activity?.recreate()
-        }
-
-        flLilacTheme.setOnClickListener {
-            Timber.d("Neon theme click")
-            viewModel.writeUserTheme(Const.Themes.NEON_THEME)
-            setThemeChecks(ivLilacCheck)
-            activity?.recreate()
-        }
-
-        Timber.d("User theme: ${viewModel.getUserTheme()}")
-    }
-
-    private fun setThemeChecks(checkmark: ImageView) {
-        listOfCheckMarks.forEach {
-            it.visibility = if (checkmark == it) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-        }
-    }
+//    private fun setThemeChecks(checkmark: ImageView) {
+//        listOfCheckMarks.forEach {
+//            it.visibility = if (checkmark == it) {
+//                View.VISIBLE
+//            } else {
+//                View.GONE
+//            }
+//        }
+//    }
 }

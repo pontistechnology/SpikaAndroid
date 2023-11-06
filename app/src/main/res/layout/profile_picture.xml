@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_pick_avatar"
+        android:layout_width="match_parent"
+        android:layout_height="393dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/big_profile_picture"
+        android:src="@drawable/img_user_avatar"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/fl_progress_screen"
+        android:layout_width="match_parent"
+        android:layout_height="393dp"
+        android:backgroundTint="@android:color/transparent"
+        android:elevation="@dimen/five_dp_margin"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
+        app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar"
+        app:layout_constraintStart_toStartOf="@id/iv_pick_avatar"
+        app:layout_constraintTop_toTopOf="@id/iv_pick_avatar"
+        app:shapeAppearanceOverlay="@style/big_profile_picture">
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="@dimen/seventy_dp"
+            android:layout_height="@dimen/seventy_dp"
+            android:layout_gravity="center"
+            android:indeterminateOnly="true"
+            android:indeterminateTint="?attr/primaryColor"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </com.google.android.material.card.MaterialCardView>
+
+</FrameLayout>

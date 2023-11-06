@@ -241,9 +241,9 @@ class ContactDetailsFragment : BaseFragment() {
                 .error(R.drawable.img_user_avatar)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(ivPickAvatar)
+                .into(profilePicture.ivPickAvatar)
 
-            flProgressScreen.visibility = View.GONE
+            profilePicture.flProgressScreen.visibility = View.GONE
         }
 
         ivBack.setOnClickListener {

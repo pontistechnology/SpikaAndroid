@@ -64,8 +64,7 @@ class SettingsFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this).load(bitmap).into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateUserImage()
             } else {
@@ -84,8 +83,7 @@ class SettingsFragment : BaseFragment() {
                     )
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this).load(bitmap).into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateUserImage()
             } else {
@@ -148,19 +146,19 @@ class SettingsFragment : BaseFragment() {
         }
     }
 
-    private fun initializeObservers() {
+    private fun initializeObservers() = with(binding){
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
             val response = it.responseData
             if (response != null) {
-                binding.tvUsername.text = response.formattedDisplayName
-                binding.tvPhoneNumber.text = response.telephoneNumber
+                tvUsername.text = response.formattedDisplayName
+                tvPhoneNumber.text = response.telephoneNumber
                 avatarId = response.avatarFileId
 
                 Glide.with(requireActivity())
                     .load(response.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
                     .placeholder(R.drawable.img_user_placeholder)
                     .centerCrop()
-                    .into(binding.ivPickPhoto)
+                    .into(profilePicture.ivPickAvatar)
             }
         }
 
@@ -175,11 +173,11 @@ class SettingsFragment : BaseFragment() {
         })*/
     }
 
-    private fun showUserDetails() {
-        binding.tvUsername.visibility = View.VISIBLE
-        binding.tvPhoneNumber.visibility = View.VISIBLE
-        binding.etEnterUsername.visibility = View.INVISIBLE
-        binding.ivDone.visibility = View.GONE
+    private fun showUserDetails() = with(binding){
+        tvUsername.visibility = View.VISIBLE
+        tvPhoneNumber.visibility = View.VISIBLE
+        etEnterUsername.visibility = View.INVISIBLE
+        ivDone.visibility = View.GONE
     }
 
     private fun initializeViews() = with(binding) {
@@ -197,7 +195,7 @@ class SettingsFragment : BaseFragment() {
             goToPrivacySettings()
         }
 
-        ivPickPhoto.setOnClickListener {
+        profilePicture.ivPickAvatar.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
@@ -262,7 +260,7 @@ class SettingsFragment : BaseFragment() {
                     (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-            binding.progressBar.max = uploadPieces
+            binding.profilePicture.progressBar.max = uploadPieces
             Timber.d("File upload start")
             CoroutineScope(Dispatchers.IO).launch {
                 uploadDownloadManager.uploadFile(
@@ -282,7 +280,7 @@ class SettingsFragment : BaseFragment() {
                         FileUploadListener {
                         override fun filePieceUploaded() {
                             if (progress <= uploadPieces) {
-                                binding.progressBar.secondaryProgress = progress.toInt()
+                                binding.profilePicture.progressBar.secondaryProgress = progress.toInt()
                                 progress++
                             } else progress = 0
                         }
@@ -304,7 +302,7 @@ class SettingsFragment : BaseFragment() {
                         ) {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
-                                binding.clProgressScreen.visibility = View.GONE
+                                binding.profilePicture.flProgressScreen.visibility = View.GONE
                             }
 
                             val jsonObject = JsonObject()
@@ -318,7 +316,7 @@ class SettingsFragment : BaseFragment() {
 
                     })
             }
-            binding.clProgressScreen.visibility = View.VISIBLE
+            binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
         }
     }
 
@@ -376,17 +374,16 @@ class SettingsFragment : BaseFragment() {
                     // Ignore
                 }
             })
-        clProgressScreen.visibility = View.GONE
-        progressBar.secondaryProgress = 0
+        profilePicture.flProgressScreen.visibility = View.GONE
+        profilePicture.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this@SettingsFragment).clear(ivPickPhoto)
-        ivPickPhoto.setImageDrawable(
+        Glide.with(this@SettingsFragment).clear(profilePicture.ivPickAvatar)
+        profilePicture.ivPickAvatar.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
                 R.drawable.img_camera
             )
         )
-        clSmallCameraPicker.visibility = View.GONE
     }
 
     // Below navigation methods are unused until we implement all other functionality of settings
