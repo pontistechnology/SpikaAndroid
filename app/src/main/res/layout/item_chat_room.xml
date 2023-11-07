@@ -30,11 +30,10 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="@dimen/sixteen_dp_margin"
         android:ellipsize="end"
-        android:textAppearance="@style/CustomTextHeading"
+        android:textAppearance="@style/CustomTitleBold"
+        android:textSize="@dimen/fourteen_sp_text"
         android:letterSpacing="0.1"
         android:maxLines="1"
-        android:textColor="?attr/primaryTextColor"
-        android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintEnd_toStartOf="@id/tv_message_time"
         app:layout_constraintStart_toEndOf="@+id/iv_room_image"
         app:layout_constraintTop_toTopOf="@+id/iv_room_image" />

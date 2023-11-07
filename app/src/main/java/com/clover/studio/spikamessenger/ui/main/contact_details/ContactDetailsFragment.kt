@@ -4,12 +4,14 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
@@ -27,11 +29,13 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
+import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -48,6 +52,8 @@ class ContactDetailsFragment : BaseFragment() {
 
     private var bindingSetup: FragmentContactDetailsBinding? = null
     private val binding get() = bindingSetup!!
+    private var optionList: MutableList<UserOptionsData> = mutableListOf()
+    private var pinSwitch: Drawable? = null
 
     private var navOptionsBuilder: NavOptions? = null
 
@@ -85,6 +91,8 @@ class ContactDetailsFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentContactDetailsBinding.inflate(inflater, container, false)
 
+        pinSwitch = AppCompatResources.getDrawable(requireContext(), R.drawable.img_switch)
+
         initializeViews()
         initializeObservers()
         return binding.root
@@ -94,9 +102,13 @@ class ContactDetailsFragment : BaseFragment() {
         viewModel.getRoomByIdLiveData(roomId).observe(viewLifecycleOwner) {
             if (it.responseData != null) {
                 // Set room muted or not muted on switch
-                chatOptions.swMuteChat.rotation = if (it.responseData.muted) 0f else 180f
+                pinSwitch = AppCompatResources.getDrawable(
+                    requireContext(),
+                    if (it.responseData.muted) R.drawable.img_switch else R.drawable.img_switch_left
+                )
+
                 // Set room pinned or not pinned on switch
-                chatOptions.swPinChat.rotation = if (it.responseData.pinned) 0f else 180f
+//                chatOptions.swPinChat.rotation = if (it.responseData.pinned) 0f else 180f
             }
         }
 
@@ -277,42 +289,94 @@ class ContactDetailsFragment : BaseFragment() {
         }
 
         // Check if private room with user exists. Hide pin, mute and notes layouts if no room exists
-        val isVisible = roomId != 0
-        chatOptions.flMute.visibility = if (isVisible) View.VISIBLE else View.GONE
-        chatOptions.flPinChat.visibility = if (isVisible) View.VISIBLE else View.GONE
-        chatOptions.flNotes.visibility = if (isVisible) View.VISIBLE else View.GONE
+        setOptionList()
 
-        chatOptions.flNotes.setOnClickListener {
-            if (activity is MainActivity) {
-                findNavController().navigate(
-                    R.id.notesFragment,
-                    bundleOf(Const.Navigation.ROOM_ID to roomId),
-                    navOptionsBuilder
-                )
-            } else {
-                findNavController().navigate(
-                    R.id.notesFragment,
-                    bundleOf(Const.Navigation.ROOM_ID to roomId),
-                    navOptionsBuilder
-                )
+        val userOptions = UserOptions(requireContext())
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(option: Int, optionName: String) {
+                when (optionName) {
+                    getString(R.string.notes) -> {
+                        goToNotes()
+                    }
+                }
             }
-        }
 
-        chatOptions.swMuteChat.setOnClickListener {
-            if (chatOptions.swMuteChat.rotation == 0f) {
+            override fun switchOption(optionName: String, rotation: Float) {
+                switchPinMuteOptions(optionName, rotation)
+            }
+        })
+        binding.flOptionsContainer.addView(userOptions)
+    }
+
+    private fun switchPinMuteOptions(optionName: String, rotation: Float) {
+        if (optionName == getString(R.string.mute)) {
+            if (rotation == 0f) {
                 viewModel.handleRoomMute(roomId, false)
             } else {
                 viewModel.handleRoomMute(roomId, true)
             }
-        }
-
-        chatOptions.swPinChat.setOnClickListener {
-            if (chatOptions.swPinChat.rotation == 0f) {
+        } else {
+            if (rotation == 0f) {
                 viewModel.handleRoomPin(roomId, false)
             } else {
                 viewModel.handleRoomPin(roomId, true)
             }
         }
+    }
+
+    private fun goToNotes() {
+        if (activity is MainActivity) {
+            findNavController().navigate(
+                R.id.notesFragment,
+                bundleOf(Const.Navigation.ROOM_ID to roomId),
+                navOptionsBuilder
+            )
+        } else {
+            findNavController().navigate(
+                R.id.notesFragment,
+                bundleOf(Const.Navigation.ROOM_ID to roomId),
+                navOptionsBuilder
+            )
+        }
+    }
+
+    private fun setOptionList() {
+        optionList = mutableListOf(
+            UserOptionsData(
+                option = getString(R.string.notes),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_notes
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_arrow_forward
+                ),
+                additionalText = ""
+            ),
+            UserOptionsData(
+                option = getString(R.string.pin_chat),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_pin
+                ),
+                secondDrawable = pinSwitch,
+                additionalText = ""
+            ),
+            UserOptionsData(
+                option = getString(R.string.mute),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_mute
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_switch
+                ),
+                additionalText = ""
+            )
+        )
     }
 
     private fun copyNumber(telephoneNumber: String) {

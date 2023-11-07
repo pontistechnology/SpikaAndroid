@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.fragment.app.activityViewModels
@@ -27,11 +26,13 @@ import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
 import com.clover.studio.spikamessenger.utils.UploadDownloadManager
+import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.getChunkSize
+import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -54,6 +55,7 @@ class SettingsFragment : BaseFragment() {
     private var avatarId: Long? = 0L
 
     private var navOptionsBuilder: NavOptions? = null
+    private var optionList: MutableList<UserOptionsData> = mutableListOf()
 
     private val binding get() = bindingSetup!!
 
@@ -146,7 +148,7 @@ class SettingsFragment : BaseFragment() {
         }
     }
 
-    private fun initializeObservers() = with(binding){
+    private fun initializeObservers() = with(binding) {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
             val response = it.responseData
             if (response != null) {
@@ -156,7 +158,7 @@ class SettingsFragment : BaseFragment() {
 
                 Glide.with(requireActivity())
                     .load(response.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
-                    .placeholder(R.drawable.img_user_placeholder)
+                    .placeholder(R.drawable.img_user_avatar)
                     .centerCrop()
                     .into(profilePicture.ivPickAvatar)
             }
@@ -173,7 +175,7 @@ class SettingsFragment : BaseFragment() {
         })*/
     }
 
-    private fun showUserDetails() = with(binding){
+    private fun showUserDetails() = with(binding) {
         tvUsername.visibility = View.VISIBLE
         tvPhoneNumber.visibility = View.VISIBLE
         etEnterUsername.visibility = View.INVISIBLE
@@ -181,19 +183,88 @@ class SettingsFragment : BaseFragment() {
     }
 
     private fun initializeViews() = with(binding) {
-        when (viewModel.getUserTheme()) {
-            Const.Themes.NEON_THEME -> tvActiveTheme.text = "Neon"
-            Const.Themes.MINT_THEME -> tvActiveTheme.text = "Mint"
-            else -> binding.tvActiveTheme.text = "Base"
+        setOptionList()
+
+        val userOptions = UserOptions(requireContext())
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(option: Int, optionName: String) {
+                when (optionName) {
+                    getString(R.string.appearance) -> {
+                        goToAppearanceSettings()
+                    }
+
+                    getString(R.string.privacy) -> {
+                        goToPrivacySettings()
+                    }
+
+                    getString(R.string.delete) -> {
+                        deleteAccount()
+                    }
+                }
+            }
+
+            override fun switchOption(optionName: String, rotation: Float) {
+                // Ignore
+            }
+        })
+        binding.flOptionsContainer.addView(userOptions)
+    }
+
+    private fun setOptionList() {
+        val theme = getTheme()
+        optionList = mutableListOf(
+            UserOptionsData(
+                option = getString(R.string.appearance),
+                firstDrawable = requireContext().getDrawable(R.drawable.iv_edit_settings),
+                secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
+                additionalText = theme
+            ),
+            UserOptionsData(
+                option = getString(R.string.privacy),
+                firstDrawable = requireContext().getDrawable(R.drawable.iv_privacy),
+                secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
+                additionalText = ""
+            ),
+            UserOptionsData(
+                option = getString(R.string.delete),
+                firstDrawable = requireContext().getDrawable(R.drawable.iv_delete_settings),
+                secondDrawable = null,
+                additionalText = ""
+            ),
+        )
+    }
+
+    private fun getTheme(): String {
+        return when (viewModel.getUserTheme()) {
+            Const.Themes.MINT_THEME -> getString(R.string.theme_light_green)
+            Const.Themes.NEON_THEME -> getString(R.string.theme_neon)
+            Const.Themes.BASIC_THEME_NIGHT -> getString(R.string.theme_dark_marine)
+            Const.Themes.BASIC_THEME -> getString(R.string.theme_light_marine)
+            else -> getString(R.string.theme_light_marine)
         }
+    }
+
+    private fun deleteAccount() {
+        DialogError.getInstance(requireContext(),
+            getString(R.string.warning),
+            getString(R.string.data_deletion_warning),
+            getString(R.string.cancel),
+            getString(R.string.ok),
+            object : DialogInteraction {
+                override fun onFirstOptionClicked() {
+                    // Ignore
+                }
+
+                override fun onSecondOptionClicked() {
+                    viewModel.deleteUser()
+                }
+            })
     }
 
     private fun setupClickListeners() = with(binding) {
 
         // Removed and waiting for each respective screen to be implemented
-        flPrivacy.setOnClickListener {
-            goToPrivacySettings()
-        }
 
         profilePicture.ivPickAvatar.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
@@ -222,27 +293,6 @@ class SettingsFragment : BaseFragment() {
 
         ivDone.setOnClickListener {
             updateUsername()
-        }
-
-        clAppearance.setOnClickListener {
-            goToAppearanceSettings()
-        }
-
-        clDeleteUser.setOnClickListener {
-            DialogError.getInstance(requireContext(),
-                getString(R.string.warning),
-                getString(R.string.data_deletion_warning),
-                getString(R.string.cancel),
-                getString(R.string.ok),
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        // Ignore
-                    }
-
-                    override fun onSecondOptionClicked() {
-                        viewModel.deleteUser()
-                    }
-                })
         }
     }
 
@@ -280,7 +330,8 @@ class SettingsFragment : BaseFragment() {
                         FileUploadListener {
                         override fun filePieceUploaded() {
                             if (progress <= uploadPieces) {
-                                binding.profilePicture.progressBar.secondaryProgress = progress.toInt()
+                                binding.profilePicture.progressBar.secondaryProgress =
+                                    progress.toInt()
                                 progress++
                             } else progress = 0
                         }
@@ -378,12 +429,6 @@ class SettingsFragment : BaseFragment() {
         profilePicture.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
         Glide.with(this@SettingsFragment).clear(profilePicture.ivPickAvatar)
-        profilePicture.ivPickAvatar.setImageDrawable(
-            ContextCompat.getDrawable(
-                requireContext(),
-                R.drawable.img_camera
-            )
-        )
     }
 
     // Below navigation methods are unused until we implement all other functionality of settings

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.activityViewModels
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.FragmentAppearanceSettingsBinding
@@ -60,13 +61,17 @@ class AppearanceSettings : BaseFragment() {
         val userOptions = UserOptions(requireContext())
         userOptions.setOptions(optionList)
         userOptions.setOptionsListener(object : UserOptions.OptionsListener {
-            override fun clickedOption(optionName: Int) {
-                themeOptions?.get(optionName)?.let { theme ->
+            override fun clickedOption(option: Int, optionName: String) {
+                themeOptions?.get(option)?.let { theme ->
                     viewModel.writeUserTheme(theme)
                     activity?.recreate()
                 } ?: run {
-                    Timber.d("Not implemented theme option: $optionName")
+                    Timber.d("Not implemented theme option: $option")
                 }
+            }
+
+            override fun switchOption(optionName: String, rotation: Float) {
+                // Ignore
             }
         })
 
@@ -74,6 +79,7 @@ class AppearanceSettings : BaseFragment() {
     }
 
     private fun getActiveTheme() {
+        // TODO maybe extract this in Tools
         val theme = when (viewModel.getUserTheme()) {
             Const.Themes.MINT_THEME -> getString(R.string.theme_light_green)
             Const.Themes.NEON_THEME -> getString(R.string.theme_neon)
@@ -84,7 +90,7 @@ class AppearanceSettings : BaseFragment() {
 
         optionList.forEach {
             if (it.option == theme) {
-                it.secondDrawable = context?.getDrawable(R.drawable.img_checkmark)
+                it.secondDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.img_checkmark)
             }
         }
     }

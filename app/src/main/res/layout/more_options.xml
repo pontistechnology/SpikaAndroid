@@ -23,7 +23,7 @@
         app:shapeAppearanceOverlay="@style/FirstOptionStyle"
         tools:ignore="contentDescription">
 
-        <FrameLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fl_first_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,24 +35,40 @@
                 android:id="@+id/tv_first_item"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginStart="@dimen/four_dp_margin"
                 android:drawablePadding="@dimen/eight_dp_margin"
                 android:gravity="center"
                 android:letterSpacing="0.1"
-                android:text="New Item"
                 android:textAppearance="@style/CustomTextHeading"
                 android:textColor="?attr/primaryTextColor"
-                android:textSize="@dimen/fourteen_sp_text" />
+                android:textSize="@dimen/fourteen_sp_text"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/iv_first_option"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:layout_marginEnd="@dimen/eight_dp_margin"
+                android:backgroundTint="@color/white"
                 android:src="@drawable/img_arrow_forward"
-                android:visibility="gone" />
-        </FrameLayout>
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_additional_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/four_dp_margin"
+                android:textAppearance="@style/CustomTextLightBody"
+                android:textSize="@dimen/twelve_sp_text"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_first_option"
+                app:layout_constraintEnd_toStartOf="@+id/iv_first_option"
+                app:layout_constraintTop_toTopOf="@+id/iv_first_option" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
 
@@ -79,11 +95,10 @@
                 android:id="@+id/tv_last_item"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginStart="@dimen/four_dp_margin"
                 android:drawablePadding="@dimen/eight_dp_margin"
                 android:gravity="center"
                 android:letterSpacing="0.1"
-                android:text="Last Item"
                 android:textAppearance="@style/CustomTextHeading"
                 android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text" />
@@ -95,6 +110,7 @@
                 android:layout_gravity="end"
                 android:layout_marginEnd="@dimen/eight_dp_margin"
                 android:src="@drawable/img_arrow_forward"
+                android:backgroundTint="@color/white"
                 android:visibility="gone" />
         </FrameLayout>
 

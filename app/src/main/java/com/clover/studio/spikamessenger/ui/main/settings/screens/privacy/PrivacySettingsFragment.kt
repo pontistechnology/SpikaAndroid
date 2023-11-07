@@ -16,8 +16,10 @@ import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
+import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 import timber.log.Timber
 
 class PrivacySettingsFragment : BaseFragment() {
@@ -27,6 +29,8 @@ class PrivacySettingsFragment : BaseFragment() {
 
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var blockedUserAdapter: BlockedUserAdapter
+
+    private var optionList: MutableList<UserOptionsData> = mutableListOf()
 
     private var navOptionsBuilder: NavOptions? = null
 
@@ -87,16 +91,43 @@ class PrivacySettingsFragment : BaseFragment() {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        clBlockedUsers.setOnClickListener {
-            clBlockedUsers.visibility = View.GONE
-            flTerms.visibility = View.GONE
-            tvPageName.text = getString(R.string.blocked_users)
-            rvBlockedUsers.visibility = View.VISIBLE
-        }
+        optionList = mutableListOf(
+            UserOptionsData(
+                option = getString(R.string.blocked_users),
+                firstDrawable = null,
+                secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
+                additionalText = ""
+            ),
+            UserOptionsData(
+                option = getString(R.string.terms_and_conditions),
+                firstDrawable = null,
+                secondDrawable = null,
+                additionalText = ""
+            ),
+        )
 
-        flTerms.setOnClickListener {
-            Tools.openTermsAndConditions(requireActivity())
-        }
+        val userOptions = UserOptions(requireContext())
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(option: Int, optionName: String) {
+                when (optionName) {
+                    getString(R.string.blocked_users) -> {
+                        binding.flOptionsContainer.removeAllViews()
+                        tvPageName.text = getString(R.string.blocked_users)
+                        rvBlockedUsers.visibility = View.VISIBLE
+                    }
+
+                    getString(R.string.terms_and_conditions) -> {
+                        Tools.openTermsAndConditions(requireActivity())
+                    }
+                }
+            }
+
+            override fun switchOption(optionName: String, rotation: Float) {
+                // Ignore
+            }
+        })
+        binding.flOptionsContainer.addView(userOptions)
     }
 
     override fun onResume() {

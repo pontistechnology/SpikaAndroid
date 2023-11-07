@@ -26,20 +26,20 @@
     </style>
 
     <style name="CustomTextHeading" parent="Theme.ExampleApp">
-        <item name="font">@font/roboto_bold</item>
+        <item name="android:fontFamily">@font/roboto_bold</item>
         <item name="android:textSize">@dimen/twenty_four_sp_text</item>
         <item name="android:textColor">?attr/primaryTextColor</item>
     </style>
 
     <style name="CustomTextBody" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="font">@font/roboto</item>
+        <item name="android:fontFamily">@font/roboto</item>
         <item name="lineHeight">20sp</item>
         <item name="android:textSize">@dimen/fifteen_sp_text</item>
         <item name="android:textColor">?attr/primaryTextColor</item>
     </style>
 
     <style name="CustomTextLightBody" parent="Theme.ExampleApp">
-        <item name="font">@font/roboto_light</item>
+        <item name="android:fontFamily">@font/roboto_light</item>
         <item name="lineHeight">20sp</item>
         <item name="android:textSize">@dimen/fifteen_sp_text</item>
         <item name="android:textColor">?attr/primaryTextColor</item>
@@ -121,7 +121,7 @@
         <item name="colorAccent">?attr/primaryColor</item> <!-- for uncheck state -->
         <item name="android:textColorSecondary">?attr/secondaryTextColor
         </item> <!-- for check state -->
-        <item name="font">@font/roboto</item>
+        <item name="android:fontFamily">@font/roboto</item>
         <item name="fontWeight">500</item>
     </style>
 

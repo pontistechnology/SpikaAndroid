@@ -9,7 +9,8 @@
     android:focusableInTouchMode="true"
     tools:context=".ui.main.rooms.RoomsFragment"
     tools:ignore="contentDescription"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="@dimen/ten_dp_margin">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"

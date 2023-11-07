@@ -7,7 +7,8 @@
     android:clickable="true"
     android:focusableInTouchMode="true"
     tools:context=".ui.main.rooms.RoomsFragment"
-    android:focusable="true">
+    android:focusable="true"
+    android:layout_margin="@dimen/twenty_dp_margin">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
