@@ -7,6 +7,7 @@
 
     <attr name="primaryTextColor" format="reference|color" />
     <attr name="secondaryTextColor" format="reference|color" />
+    <attr name="tertiaryTextColor" format="reference|color" />
 
     <attr name="additionalColor" format="reference|color" />
     <attr name="secondAdditionalColor" format="reference|color" />

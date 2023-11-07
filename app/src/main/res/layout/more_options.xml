@@ -45,6 +45,7 @@
                 android:textSize="@dimen/fourteen_sp_text" />
 
             <ImageView
+                android:id="@+id/iv_first_option"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
@@ -88,6 +89,7 @@
                 android:textSize="@dimen/fourteen_sp_text" />
 
             <ImageView
+                android:id="@+id/iv_last_option"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"

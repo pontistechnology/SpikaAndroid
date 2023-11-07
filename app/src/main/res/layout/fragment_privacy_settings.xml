@@ -14,20 +14,20 @@
         android:background="?android:attr/selectableItemBackground"
         android:padding="@dimen/twenty_dp_margin"
         android:src="@drawable/img_arrow_back_chat"
-        app:layout_constraintEnd_toStartOf="@id/tv_page_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_page_name"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/twenty_dp_margin"
-        android:textAppearance="@style/CustomTextBody"
         android:text="@string/privacy"
-        android:textSize="@dimen/fourteen_sp_text"
+        android:textAppearance="@style/CustomTitleBold"
+        android:textSize="@dimen/thirty_two_sp_text"
         app:layout_constraintBottom_toBottomOf="@id/iv_back"
-        app:layout_constraintStart_toEndOf="@id/iv_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/iv_back" />
 
     <androidx.constraintlayout.widget.ConstraintLayout

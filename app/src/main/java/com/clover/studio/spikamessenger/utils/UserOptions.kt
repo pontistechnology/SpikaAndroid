@@ -1,7 +1,6 @@
 package com.clover.studio.spikamessenger.utils
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
@@ -9,6 +8,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.ChatOptionItemBinding
 import com.clover.studio.spikamessenger.databinding.MoreOptionsBinding
+import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 
 
 class UserOptions(context: Context) :
@@ -28,54 +28,45 @@ class UserOptions(context: Context) :
         this.listener = listener
     }
 
-    fun setOptions(optionList: MutableList<Pair<String, Drawable?>>) {
+    fun setOptions(optionList: MutableList<UserOptionsData>) {
         optionList.forEachIndexed { index, item ->
-            when (index) {
-                0 -> {
-                    binding.tvFirstItem.text = item.first
-                    binding.flFirstItem.apply {
-                        tag = 0
-                        setOnClickListener {
-                            listener?.clickedOption(tag as Int)
-                        }
-                    }
-                }
+            val isFirstView = index == 0
+            val isLastView = index == optionList.size - 1
 
-                optionList.size - 1 -> {
-                    binding.tvLastItem.text = item.first
-                    binding.flLastItem.apply {
-                        tag = optionList.size - 1
-                        setOnClickListener {
-                            listener?.clickedOption(tag as Int)
-                        }
-                    }
-                }
+            val newView: View =
+                LayoutInflater.from(context).inflate(R.layout.chat_option_item, null)
 
-                else -> {
-                    val newView: View =
-                        LayoutInflater.from(context).inflate(R.layout.chat_option_item, null)
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            )
 
-                    val layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                    )
+            val marginInPixels = resources.getDimensionPixelSize(R.dimen.eight_dp_margin)
+            layoutParams.setMargins(0, 0, 0, marginInPixels)
+            newView.layoutParams = layoutParams
 
-                    val marginInPixels = resources.getDimensionPixelSize(R.dimen.eight_dp_margin)
-                    layoutParams.setMargins(0, 0, 0, marginInPixels)
+            val newViewBinding = ChatOptionItemBinding.bind(newView)
 
-                    newView.layoutParams = layoutParams
+            if (item.secondDrawable != null) {
+                val imageView =
+                    if (isFirstView) binding.ivFirstOption else if (isLastView) binding.ivLastOption else newViewBinding.ivOption
+                imageView.setImageDrawable(item.secondDrawable)
+                imageView.visibility = View.VISIBLE
+            }
 
-                    val newViewBinding = ChatOptionItemBinding.bind(newView)
+            val textView =
+                if (isFirstView) binding.tvFirstItem else if (isLastView) binding.tvLastItem else newViewBinding.tvOptionName
+            textView.text = item.option
 
-                    newViewBinding.tvOptionName.text = item.first
-                    newViewBinding.flNewItem.apply {
-                        tag = index
-                        setOnClickListener {
-                            listener?.clickedOption(tag as Int)
-                        }
-                    }
-                    binding.llOptions.addView(newView, index)
-                }
+            val frameLayout =
+                if (isFirstView) binding.flFirstItem else if (isLastView) binding.flLastItem else newViewBinding.flNewItem
+            frameLayout.tag = index
+            frameLayout.setOnClickListener {
+                listener?.clickedOption(it.tag as Int)
+            }
+
+            if (index > 0 && index < optionList.size - 1) {
+                binding.llOptions.addView(newView, index)
             }
         }
     }

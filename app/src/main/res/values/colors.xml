@@ -26,6 +26,7 @@
     <color name="selected_text">#4696F0</color>
 
     <!--Link Colors-->
+<!--  TODO add lik color  -->
     <color name="link_primary_color">#4696F0</color>
 
     <!--  Common colors  -->
@@ -41,6 +42,7 @@
     <color name="baseTertiaryColor">#648FB8</color>
     <color name="basePrimaryTextColor">#001D3D</color>
     <color name="baseSecondaryTextColor">#648FB8</color>
+    <color name="baseTertiaryTextColor">#001AFF</color>
     <color name="baseAdditionalColor">#C6C6C6</color>
     <color name="baseSecondAdditionalColor">#C4E8EF</color>
     <color name="baseThirdAdditionalColor">#95BEE4</color>
@@ -53,6 +55,7 @@
     <color name="darkMarineTertiaryColor">#C6C6C6</color>
     <color name="darkMarinePrimaryTextColor">#FFFFFF</color>
     <color name="darkMarineSecondaryTextColor">#E9E9E9</color>
+    <color name="darkMarineTertiaryTextColor">#0075FF</color>
     <color name="darkMarineAdditionalColor">#343434</color>
     <color name="darkMarineSecondAdditionalColor">#010F20</color>
     <color name="darkMarineThirdAdditionalColor">#0C2744</color>
@@ -65,6 +68,7 @@
     <color name="neonTertiaryColor">#4CC9F0</color>
     <color name="neonPrimaryTextColor">#FFFFFF</color>
     <color name="neonSecondaryTextColor">#AFAFAF</color>
+    <color name="neonTertiaryTextColor">#00D1FF</color>
     <color name="neonAdditionalColor">#343434</color>
     <color name="neonSecondAdditionalColor">#2B0F43</color>
     <color name="neonThirdAdditionalColor">#1A3E93</color>
@@ -82,6 +86,7 @@
     <color name="lightGreenTertiaryColor">#648FB8</color>
     <color name="lightGreenPrimaryTextColor">#001D3D</color>
     <color name="lightGreenSecondaryTextColor">#64B8B3</color>
+    <color name="lightGreenTertiaryTextColor">#001AFF</color>
     <color name="lightGreenAdditionalColor">#80C6C6C6</color>
     <color name="lightGreenSecondAdditionalColor">#C4EFEC</color>
     <color name="lightGreenThirdAdditionalColor">#95E4BF</color>

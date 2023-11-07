@@ -1,16 +1,17 @@
 package com.clover.studio.spikamessenger.ui.main.settings.screens
 
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.FragmentAppearanceSettingsBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
+import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 import timber.log.Timber
 
 class AppearanceSettings : BaseFragment() {
@@ -19,6 +20,7 @@ class AppearanceSettings : BaseFragment() {
     private val binding get() = bindingSetup!!
 
     private var themeOptions: Map<Int, String>? = null
+    private var optionList: MutableList<UserOptionsData> = mutableListOf()
 
     private val viewModel: MainViewModel by activityViewModels()
 
@@ -36,25 +38,26 @@ class AppearanceSettings : BaseFragment() {
             4 to Const.Themes.MINT_THEME
         )
 
+        optionList = mutableListOf(
+            UserOptionsData(getString(R.string.theme_dark_marine), null, null, ""),
+            UserOptionsData(getString(R.string.theme_light_marine), null, null, ""),
+            UserOptionsData(getString(R.string.theme_neon), null, null, ""),
+            UserOptionsData(getString(R.string.theme_neon_light), null, null, ""),
+            UserOptionsData(getString(R.string.theme_light_green), null, null, "")
+        )
+
         initializeViews()
 
         return binding.root
     }
-
 
     private fun initializeViews() = with(binding) {
         binding.ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
+        getActiveTheme()
         val userOptions = UserOptions(requireContext())
-        val optionList = mutableListOf<Pair<String, Drawable?>>(
-            Pair("Dark Marine", null),
-            Pair("Light Marine", null),
-            Pair("Neon", null),
-            Pair("Neon Light", null),
-            Pair("Light Green", null),
-        )
         userOptions.setOptions(optionList)
         userOptions.setOptionsListener(object : UserOptions.OptionsListener {
             override fun clickedOption(optionName: Int) {
@@ -70,13 +73,19 @@ class AppearanceSettings : BaseFragment() {
         binding.flOptionsContainer.addView(userOptions)
     }
 
-//    private fun setThemeChecks(checkmark: ImageView) {
-//        listOfCheckMarks.forEach {
-//            it.visibility = if (checkmark == it) {
-//                View.VISIBLE
-//            } else {
-//                View.GONE
-//            }
-//        }
-//    }
+    private fun getActiveTheme() {
+        val theme = when (viewModel.getUserTheme()) {
+            Const.Themes.MINT_THEME -> getString(R.string.theme_light_green)
+            Const.Themes.NEON_THEME -> getString(R.string.theme_neon)
+            Const.Themes.BASIC_THEME_NIGHT -> getString(R.string.theme_dark_marine)
+            Const.Themes.BASIC_THEME -> getString(R.string.theme_light_marine)
+            else -> getString(R.string.theme_light_marine)
+        }
+
+        optionList.forEach {
+            if (it.option == theme) {
+                it.secondDrawable = context?.getDrawable(R.drawable.img_checkmark)
+            }
+        }
+    }
 }

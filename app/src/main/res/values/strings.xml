@@ -249,6 +249,7 @@
     <string name="five_hundred">500</string>
     <string name="six_hundred">600</string>
     <string name="seven_hundred">700</string>
+
     <string name="failed_to_delete_block_for_user">Failed to delete block for user</string>
     <string name="failed_delete_note">Failed to delete note, please try again.</string>
     <string name="unknown_user">Unknown user</string>
@@ -264,4 +265,11 @@
     <string name="failed_to_load_room_data">Failed to load room data</string>
     <string name="other_error">Other error</string>
     <string name="members">" members"</string>
+
+    <!-- Themes   -->
+    <string name="theme_dark_marine">Dark marine</string>
+    <string name="theme_light_marine">Light Marine</string>
+    <string name="theme_neon">Neon</string>
+    <string name="theme_neon_light">Neon Light</string>
+    <string name="theme_light_green">Light Green</string>
 </resources>

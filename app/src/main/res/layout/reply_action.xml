@@ -48,7 +48,7 @@
             android:maxLines="3"
             android:text="@string/some_message"
             android:textAppearance="@style/CustomTextBody"
-            android:textColorLink="@color/link_primary_color"
+            android:textColorLink="?attr/tertiaryTextColor"
             android:visibility="visible"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toBottomOf="parent"

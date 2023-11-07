@@ -106,6 +106,7 @@
             app:layout_constraintStart_toEndOf="@+id/iv_telephone"
             app:layout_constraintTop_toTopOf="@+id/iv_chat" />
 
+<!--   TODO add custom layout     -->
         <include
             android:id="@+id/chat_options"
             layout="@layout/chat_options"

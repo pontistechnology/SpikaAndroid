@@ -66,6 +66,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/profile_picture" />
 
+<!--   TODO add custom layout     -->
         <include
             android:id="@+id/chat_options"
             layout="@layout/chat_options"

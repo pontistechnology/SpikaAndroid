@@ -40,7 +40,7 @@
         android:textAppearance="@style/CustomTextBody"
         android:maxLines="3"
         android:text="@string/some_message"
-        android:textColorLink="@color/link_primary_color"
+        android:textColorLink="?attr/tertiaryTextColor"
         android:textSize="@dimen/eleven_sp_text"
         android:visibility="visible"
         app:layout_constrainedWidth="true"

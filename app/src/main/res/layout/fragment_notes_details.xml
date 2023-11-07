@@ -69,7 +69,7 @@
                 android:textAppearance="@style/CustomTextBody"
                 android:text="@string/placeholder_description"
                 android:textColor="?attr/secondaryTextColor"
-                android:textColorLink="@color/link_primary_color"
+                android:textColorLink="?attr/tertiaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text" />
 
             <EditText

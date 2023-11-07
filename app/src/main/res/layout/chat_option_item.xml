@@ -28,12 +28,12 @@
             android:drawablePadding="@dimen/eight_dp_margin"
             android:gravity="center"
             android:letterSpacing="0.1"
-            android:text="New Item"
             android:textAppearance="@style/CustomTextHeading"
             android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/fourteen_sp_text" />
 
         <ImageView
+            android:id="@+id/iv_option"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"

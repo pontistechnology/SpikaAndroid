@@ -18,6 +18,7 @@
         <item name="tertiaryColor">@color/baseTertiaryColor</item>
         <item name="primaryTextColor">@color/basePrimaryTextColor</item>
         <item name="secondaryTextColor">@color/baseSecondaryTextColor</item>
+        <item name="tertiaryTextColor">@color/baseTertiaryTextColor</item>
         <item name="additionalColor">@color/baseAdditionalColor</item>
         <item name="secondAdditionalColor">@color/baseSecondAdditionalColor</item>
         <item name="thirdAdditionalColor">@color/baseThirdAdditionalColor</item>
@@ -41,6 +42,7 @@
         <item name="tertiaryColor">@color/darkMarineTertiaryColor</item>
         <item name="primaryTextColor">@color/darkMarinePrimaryTextColor</item>
         <item name="secondaryTextColor">@color/darkMarineSecondaryTextColor</item>
+        <item name="tertiaryTextColor">@color/darkMarineTertiaryTextColor</item>
         <item name="additionalColor">@color/darkMarineAdditionalColor</item>
         <item name="secondAdditionalColor">@color/darkMarineSecondAdditionalColor</item>
         <item name="thirdAdditionalColor">@color/darkMarineThirdAdditionalColor</item>
@@ -65,6 +67,7 @@
         <item name="tertiaryColor">@color/neonTertiaryColor</item>
         <item name="primaryTextColor">@color/neonPrimaryTextColor</item>
         <item name="secondaryTextColor">@color/neonSecondaryTextColor</item>
+        <item name="tertiaryTextColor">@color/neonTertiaryTextColor</item>
         <item name="additionalColor">@color/neonAdditionalColor</item>
         <item name="secondAdditionalColor">@color/neonSecondAdditionalColor</item>
         <item name="thirdAdditionalColor">@color/neonThirdAdditionalColor</item>
@@ -89,6 +92,7 @@
         <item name="tertiaryColor">@color/lightGreenTertiaryColor</item>
         <item name="primaryTextColor">@color/lightGreenPrimaryTextColor</item>
         <item name="secondaryTextColor">@color/lightGreenSecondaryTextColor</item>
+        <item name="tertiaryTextColor">@color/lightGreenTertiaryTextColor</item>
         <item name="additionalColor">@color/lightGreenAdditionalColor</item>
         <item name="secondAdditionalColor">@color/lightGreenSecondAdditionalColor</item>
         <item name="thirdAdditionalColor">@color/lightGreenThirdAdditionalColor</item>
