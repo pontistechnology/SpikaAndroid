@@ -53,7 +53,7 @@
                 android:layout_gravity="end"
                 android:backgroundTint="@color/white"
                 android:src="@drawable/img_arrow_forward"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -109,8 +109,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginEnd="@dimen/eight_dp_margin"
-                android:src="@drawable/img_arrow_forward"
                 android:backgroundTint="@color/white"
+                android:src="@drawable/img_arrow_forward"
                 android:visibility="gone" />
         </FrameLayout>
 

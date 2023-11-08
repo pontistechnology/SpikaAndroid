@@ -20,6 +20,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentContactDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.MainActivity
@@ -47,6 +48,7 @@ class ContactDetailsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
 
     private var user: User? = null
+    private var room: ChatRoom? = null
 
     private var roomId = 0
 
@@ -54,6 +56,7 @@ class ContactDetailsFragment : BaseFragment() {
     private val binding get() = bindingSetup!!
     private var optionList: MutableList<UserOptionsData> = mutableListOf()
     private var pinSwitch: Drawable? = null
+    private var muteSwitch: Drawable? = null
 
     private var navOptionsBuilder: NavOptions? = null
 
@@ -79,6 +82,7 @@ class ContactDetailsFragment : BaseFragment() {
         } else {
             user = requireArguments().getParcelable(Const.Navigation.USER_PROFILE)
             roomId = requireArguments().getInt(Const.Navigation.ROOM_ID)
+            room = requireArguments().getParcelable(Const.Navigation.ROOM_DATA)
         }
 
         navOptionsBuilder = Tools.createCustomNavOptions()
@@ -91,27 +95,12 @@ class ContactDetailsFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentContactDetailsBinding.inflate(inflater, container, false)
 
-        pinSwitch = AppCompatResources.getDrawable(requireContext(), R.drawable.img_switch)
-
         initializeViews()
         initializeObservers()
         return binding.root
     }
 
     private fun initializeObservers() = with(binding) {
-        viewModel.getRoomByIdLiveData(roomId).observe(viewLifecycleOwner) {
-            if (it.responseData != null) {
-                // Set room muted or not muted on switch
-                pinSwitch = AppCompatResources.getDrawable(
-                    requireContext(),
-                    if (it.responseData.muted) R.drawable.img_switch else R.drawable.img_switch_left
-                )
-
-                // Set room pinned or not pinned on switch
-//                chatOptions.swPinChat.rotation = if (it.responseData.pinned) 0f else 180f
-            }
-        }
-
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
@@ -288,7 +277,6 @@ class ContactDetailsFragment : BaseFragment() {
             }
         }
 
-        // Check if private room with user exists. Hide pin, mute and notes layouts if no room exists
         setOptionList()
 
         val userOptions = UserOptions(requireContext())
@@ -302,26 +290,18 @@ class ContactDetailsFragment : BaseFragment() {
                 }
             }
 
-            override fun switchOption(optionName: String, rotation: Float) {
-                switchPinMuteOptions(optionName, rotation)
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
+                switchPinMuteOptions(optionName, isSwitched)
             }
         })
         binding.flOptionsContainer.addView(userOptions)
     }
 
-    private fun switchPinMuteOptions(optionName: String, rotation: Float) {
-        if (optionName == getString(R.string.mute)) {
-            if (rotation == 0f) {
-                viewModel.handleRoomMute(roomId, false)
-            } else {
-                viewModel.handleRoomMute(roomId, true)
-            }
+    private fun switchPinMuteOptions(optionName: String, isSwitched: Boolean) {
+        if (optionName == getString(R.string.pin_chat)) {
+            viewModel.handleRoomPin(roomId, isSwitched)
         } else {
-            if (rotation == 0f) {
-                viewModel.handleRoomPin(roomId, false)
-            } else {
-                viewModel.handleRoomPin(roomId, true)
-            }
+            viewModel.handleRoomMute(roomId, isSwitched)
         }
     }
 
@@ -342,6 +322,12 @@ class ContactDetailsFragment : BaseFragment() {
     }
 
     private fun setOptionList() {
+        val pinId = if (room!!.pinned) R.drawable.img_switch else R.drawable.img_switch_left
+        val muteId = if (room!!.muted) R.drawable.img_switch else R.drawable.img_switch_left
+
+        pinSwitch = AppCompatResources.getDrawable(requireContext(), pinId)
+        muteSwitch = AppCompatResources.getDrawable(requireContext(), muteId)
+
         optionList = mutableListOf(
             UserOptionsData(
                 option = getString(R.string.notes),
@@ -353,6 +339,7 @@ class ContactDetailsFragment : BaseFragment() {
                     requireContext(),
                     R.drawable.img_arrow_forward
                 ),
+                switchOption = false,
                 additionalText = ""
             ),
             UserOptionsData(
@@ -362,6 +349,7 @@ class ContactDetailsFragment : BaseFragment() {
                     R.drawable.img_pin
                 ),
                 secondDrawable = pinSwitch,
+                switchOption = true,
                 additionalText = ""
             ),
             UserOptionsData(
@@ -370,10 +358,8 @@ class ContactDetailsFragment : BaseFragment() {
                     requireContext(),
                     R.drawable.img_mute
                 ),
-                secondDrawable = AppCompatResources.getDrawable(
-                    requireContext(),
-                    R.drawable.img_switch
-                ),
+                secondDrawable = muteSwitch,
+                switchOption = true,
                 additionalText = ""
             )
         )

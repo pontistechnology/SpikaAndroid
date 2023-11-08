@@ -91,20 +91,7 @@ class PrivacySettingsFragment : BaseFragment() {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        optionList = mutableListOf(
-            UserOptionsData(
-                option = getString(R.string.blocked_users),
-                firstDrawable = null,
-                secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
-                additionalText = ""
-            ),
-            UserOptionsData(
-                option = getString(R.string.terms_and_conditions),
-                firstDrawable = null,
-                secondDrawable = null,
-                additionalText = ""
-            ),
-        )
+        setOptionList()
 
         val userOptions = UserOptions(requireContext())
         userOptions.setOptions(optionList)
@@ -123,11 +110,30 @@ class PrivacySettingsFragment : BaseFragment() {
                 }
             }
 
-            override fun switchOption(optionName: String, rotation: Float) {
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
                 // Ignore
             }
         })
         binding.flOptionsContainer.addView(userOptions)
+    }
+
+    private fun setOptionList() {
+        optionList = mutableListOf(
+            UserOptionsData(
+                option = getString(R.string.blocked_users),
+                firstDrawable = null,
+                secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
+                switchOption = false,
+                additionalText = ""
+            ),
+            UserOptionsData(
+                option = getString(R.string.terms_and_conditions),
+                firstDrawable = null,
+                secondDrawable = null,
+                switchOption = false,
+                additionalText = ""
+            ),
+        )
     }
 
     override fun onResume() {

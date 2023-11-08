@@ -40,11 +40,11 @@ class AppearanceSettings : BaseFragment() {
         )
 
         optionList = mutableListOf(
-            UserOptionsData(getString(R.string.theme_dark_marine), null, null, ""),
-            UserOptionsData(getString(R.string.theme_light_marine), null, null, ""),
-            UserOptionsData(getString(R.string.theme_neon), null, null, ""),
-            UserOptionsData(getString(R.string.theme_neon_light), null, null, ""),
-            UserOptionsData(getString(R.string.theme_light_green), null, null, "")
+            UserOptionsData(getString(R.string.theme_dark_marine), null, null, false, ""),
+            UserOptionsData(getString(R.string.theme_light_marine), null, null, false, ""),
+            UserOptionsData(getString(R.string.theme_neon), null, null, false, ""),
+            UserOptionsData(getString(R.string.theme_neon_light), null, null, false, ""),
+            UserOptionsData(getString(R.string.theme_light_green), null, null, false, "")
         )
 
         initializeViews()
@@ -70,7 +70,7 @@ class AppearanceSettings : BaseFragment() {
                 }
             }
 
-            override fun switchOption(optionName: String, rotation: Float) {
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
                 // Ignore
             }
         })
@@ -90,7 +90,8 @@ class AppearanceSettings : BaseFragment() {
 
         optionList.forEach {
             if (it.option == theme) {
-                it.secondDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.img_checkmark)
+                it.secondDrawable =
+                    AppCompatResources.getDrawable(requireContext(), R.drawable.img_checkmark)
             }
         }
     }

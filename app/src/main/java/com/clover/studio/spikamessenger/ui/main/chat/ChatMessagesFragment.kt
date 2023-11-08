@@ -312,6 +312,7 @@ class ChatMessagesFragment : BaseFragment() {
                     bundleOf(
                         Const.Navigation.USER_PROFILE to roomWithUsers?.users!!.firstOrNull { user -> user.id != localUserId },
                         Const.Navigation.ROOM_ID to roomWithUsers?.room!!.roomId,
+                        Const.Navigation.ROOM_DATA to roomWithUsers?.room!!
                     )
                 findNavController().navigate(
                     R.id.action_chatMessagesFragment_to_contactDetailsFragment,

@@ -204,7 +204,7 @@ class SettingsFragment : BaseFragment() {
                 }
             }
 
-            override fun switchOption(optionName: String, rotation: Float) {
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
                 // Ignore
             }
         })
@@ -218,18 +218,21 @@ class SettingsFragment : BaseFragment() {
                 option = getString(R.string.appearance),
                 firstDrawable = requireContext().getDrawable(R.drawable.iv_edit_settings),
                 secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
+                switchOption = false,
                 additionalText = theme
             ),
             UserOptionsData(
                 option = getString(R.string.privacy),
                 firstDrawable = requireContext().getDrawable(R.drawable.iv_privacy),
                 secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
+                switchOption = false,
                 additionalText = ""
             ),
             UserOptionsData(
                 option = getString(R.string.delete),
                 firstDrawable = requireContext().getDrawable(R.drawable.iv_delete_settings),
                 secondDrawable = null,
+                switchOption = false,
                 additionalText = ""
             ),
         )

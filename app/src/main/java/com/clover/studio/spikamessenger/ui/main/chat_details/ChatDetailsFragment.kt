@@ -1,6 +1,7 @@
 package com.clover.studio.spikamessenger.ui.main.chat_details
 
 import android.content.pm.ActivityInfo
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
@@ -29,12 +31,14 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.UploadDownloadManager
+import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.getChunkSize
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -73,6 +77,9 @@ class ChatDetailsFragment : BaseFragment() {
 
     private var allUsers = false
     private var modifiedList: List<User> = mutableListOf()
+    private var optionList: MutableList<UserOptionsData> = mutableListOf()
+    private var pinSwitch: Drawable? = null
+    private var muteSwitch: Drawable? = null
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -172,10 +179,80 @@ class ChatDetailsFragment : BaseFragment() {
             setAvatarAndUsername(avatarFileId, userName)
         }
 
-        chatOptions.swMuteChat.rotation = if (roomWithUsers.room.muted) 0f else 180f
-        chatOptions.swPinChat.rotation = if (roomWithUsers.room.pinned) 0f else 180f
+        setOptionList()
+
+        val userOptions = UserOptions(requireContext())
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(option: Int, optionName: String) {
+                when (optionName) {
+                    getString(R.string.notes) -> {
+                        goToNotes()
+                    }
+                }
+            }
+
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
+                switchPinMuteOptions(optionName, isSwitched)
+            }
+        })
+        binding.flOptionsContainer.addView(userOptions)
 
         initializeListeners(roomWithUsers)
+    }
+
+    private fun switchPinMuteOptions(optionName: String, isSwitched: Boolean) {
+        if (optionName == getString(R.string.pin_chat)) {
+            viewModel.handleRoomPin(roomWithUsers.room.roomId, isSwitched)
+        } else {
+            viewModel.handleRoomMute(roomWithUsers.room.roomId, isSwitched)
+        }
+    }
+
+    private fun setOptionList() {
+        val pinId =
+            if (roomWithUsers.room.pinned) R.drawable.img_switch else R.drawable.img_switch_left
+        val muteId =
+            if (roomWithUsers.room.pinned) R.drawable.img_switch else R.drawable.img_switch_left
+
+        pinSwitch = AppCompatResources.getDrawable(requireContext(), pinId)
+        muteSwitch = AppCompatResources.getDrawable(requireContext(), muteId)
+
+        optionList = mutableListOf(
+            UserOptionsData(
+                option = getString(R.string.notes),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_notes
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_arrow_forward
+                ),
+                switchOption = false,
+                additionalText = ""
+            ),
+            UserOptionsData(
+                option = getString(R.string.pin_chat),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_pin
+                ),
+                secondDrawable = pinSwitch,
+                switchOption = true,
+                additionalText = ""
+            ),
+            UserOptionsData(
+                option = getString(R.string.mute),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_mute
+                ),
+                secondDrawable = muteSwitch,
+                switchOption = true,
+                additionalText = ""
+            )
+        )
     }
 
     private fun initializeListeners(roomWithUsers: RoomWithUsers) = with(binding) {
@@ -219,17 +296,6 @@ class ChatDetailsFragment : BaseFragment() {
             etEnterGroupName.visibility = View.INVISIBLE
             tvGroupPlaceholder.visibility = View.VISIBLE
             tvGroupName.visibility = View.VISIBLE
-        }
-
-        chatOptions.flNotes.setOnClickListener {
-            val action = roomId?.let { id ->
-                ChatDetailsFragmentDirections.actionChatDetailsFragmentToNotesFragment(
-                    id
-                )
-            }
-            if (action != null) {
-                findNavController().navigate(action)
-            }
         }
 
         profilePicture.ivPickAvatar.setOnClickListener {
@@ -327,23 +393,16 @@ class ChatDetailsFragment : BaseFragment() {
                 allUsers = true
             }
         }
+    }
 
-        chatOptions.swMuteChat.setOnClickListener { _ ->
-            if (chatOptions.swMuteChat.rotation == 0f) {
-                roomId?.let { viewModel.handleRoomMute(it, false) }
-            } else {
-                roomId?.let { viewModel.handleRoomMute(it, true) }
-            }
+    private fun goToNotes() {
+        val action = roomId?.let { id ->
+            ChatDetailsFragmentDirections.actionChatDetailsFragmentToNotesFragment(
+                id
+            )
         }
-
-        chatOptions.swPinChat.setOnClickListener { _ ->
-            if (chatOptions.swPinChat.rotation == 0f) {
-                roomId?.let { viewModel.handleRoomPin(it, false) }
-                chatOptions.swMuteChat.rotation = 180f
-            } else {
-                roomId?.let { viewModel.handleRoomPin(it, true) }
-                chatOptions.swMuteChat.rotation = 0f
-            }
+        if (action != null) {
+            findNavController().navigate(action)
         }
     }
 

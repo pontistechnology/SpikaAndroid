@@ -4,12 +4,12 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.ChatOptionItemBinding
 import com.clover.studio.spikamessenger.databinding.MoreOptionsBinding
 import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
-import timber.log.Timber
 
 
 class UserOptions(context: Context) :
@@ -23,7 +23,7 @@ class UserOptions(context: Context) :
 
     interface OptionsListener {
         fun clickedOption(option: Int, optionName: String)
-        fun switchOption(optionName: String, rotation: Float)
+        fun switchOption(optionName: String, isSwitched: Boolean)
     }
 
     fun setOptionsListener(listener: OptionsListener?) {
@@ -49,7 +49,7 @@ class UserOptions(context: Context) :
 
             val newViewBinding = ChatOptionItemBinding.bind(newView)
 
-            if (item.additionalText.isNotEmpty()){
+            if (item.additionalText.isNotEmpty()) {
                 binding.tvAdditionalText.text = item.additionalText
             }
 
@@ -59,13 +59,25 @@ class UserOptions(context: Context) :
                 imageView.setImageDrawable(item.secondDrawable)
                 imageView.visibility = View.VISIBLE
 
-                // Special condition for switches
-                if (item.option in setOf(context.getString(R.string.pin_chat), context.getString(R.string.mute))) {
-                    val rotation = if (imageView.rotation == 0f) 180f else 0f
+                if (item.switchOption) {
+                    var isSwitched = item.secondDrawable == AppCompatResources.getDrawable(
+                        context,
+                        R.drawable.img_switch_left
+                    )
+
                     imageView.setOnClickListener {
-                        listener?.switchOption(item.option, rotation)
+                        isSwitched = !isSwitched
+
+                        val drawable = if (!isSwitched) {
+                            AppCompatResources.getDrawable(context, R.drawable.img_switch_left)
+                        } else {
+                            AppCompatResources.getDrawable(context, R.drawable.img_switch)
+                        }
+
+                        imageView.setImageDrawable(drawable)
+
+                        listener?.switchOption(item.option, isSwitched)
                     }
-                    Timber.d("Rotation: ${rotation}")
                 }
             }
 
@@ -73,7 +85,7 @@ class UserOptions(context: Context) :
                 if (isFirstView) binding.tvFirstItem else if (isLastView) binding.tvLastItem else newViewBinding.tvOptionName
             textView.text = item.option
 
-            if (item.firstDrawable != null){
+            if (item.firstDrawable != null) {
                 textView.setCompoundDrawablesWithIntrinsicBounds(
                     item.firstDrawable,
                     null,
@@ -89,8 +101,8 @@ class UserOptions(context: Context) :
                 listener?.clickedOption(it.tag as Int, item.option)
             }
 
-            if (item.option == context.getString(R.string.delete)){
-               frameLayout.setBackgroundColor(resources.getColor(R.color.warningColor))
+            if (item.option == context.getString(R.string.delete)) {
+                frameLayout.setBackgroundColor(resources.getColor(R.color.warningColor))
             }
 
             if (index > 0 && index < optionList.size - 1) {
