@@ -73,10 +73,9 @@ class DetailsBottomSheet(
          remove reactions from those records(because we only need the seen and delivered types),
          remove the sender from the seen/delivered list and sort the list so that first we see
          seen and then delivered. */
-        val messageDetails = message.records!!
-            .filter { Const.JsonFields.REACTION != it.type }
-            .filter { it.userId != senderId }
-            .sortedByDescending { it.type }
+        val messageDetails = message.records.orEmpty()
+            .filter { it.type != Const.JsonFields.REACTION && it.userId != senderId }
+            .sortedWith(compareByDescending<MessageRecords> { it.type }.thenByDescending { it.createdAt })
             .distinctBy { it.userId }
             .toMutableList()
 
