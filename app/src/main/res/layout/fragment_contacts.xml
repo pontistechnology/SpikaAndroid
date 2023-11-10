@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ui.main.contacts.ContactsFragment"
-    android:padding="@dimen/ten_dp_margin">
+    android:paddingEnd="@dimen/ten_dp_margin"
+    android:paddingStart="@dimen/ten_dp_margin">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -31,7 +32,6 @@
             app:titleTextAppearance="@style/CustomTitleBold"
             app:titleTextColor="?attr/primaryTextColor"/>
     </com.google.android.material.appbar.AppBarLayout>
-
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/srl_refresh_contacts"

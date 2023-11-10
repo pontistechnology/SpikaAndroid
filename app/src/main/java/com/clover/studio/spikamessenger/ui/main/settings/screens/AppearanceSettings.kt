@@ -40,11 +40,11 @@ class AppearanceSettings : BaseFragment() {
         )
 
         optionList = mutableListOf(
-            UserOptionsData(getString(R.string.theme_dark_marine), null, null, false, ""),
-            UserOptionsData(getString(R.string.theme_light_marine), null, null, false, ""),
-            UserOptionsData(getString(R.string.theme_neon), null, null, false, ""),
-            UserOptionsData(getString(R.string.theme_neon_light), null, null, false, ""),
-            UserOptionsData(getString(R.string.theme_light_green), null, null, false, "")
+            UserOptionsData(getString(R.string.theme_dark_marine), null, null, false, false, ""),
+            UserOptionsData(getString(R.string.theme_light_marine), null, null, false, false, ""),
+            UserOptionsData(getString(R.string.theme_neon), null, null, false, false, ""),
+            UserOptionsData(getString(R.string.theme_neon_light), null, null, false, false, ""),
+            UserOptionsData(getString(R.string.theme_light_green), null, null, false, false, "")
         )
 
         initializeViews()

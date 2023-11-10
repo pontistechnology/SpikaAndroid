@@ -109,8 +109,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginEnd="@dimen/eight_dp_margin"
-                android:backgroundTint="@color/white"
                 android:src="@drawable/img_arrow_forward"
+                android:backgroundTint="@color/white"
                 android:visibility="gone" />
         </FrameLayout>
 

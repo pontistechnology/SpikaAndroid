@@ -60,13 +60,12 @@ class ContactsAdapter(
 
                 if (userItem.user.hasAvatar) {
                     Glide.with(context).load(userItem.user.avatarFileId?.let { getFilePathUrl(it) })
-                        .placeholder(R.drawable.img_user_placeholder)
-                        .centerCrop()
+                        .placeholder(R.drawable.img_user_avatar)
                         .into(binding.ivUserImage)
                 } else binding.ivUserImage.setImageDrawable(
                     AppCompatResources.getDrawable(
                         context,
-                        R.drawable.img_user_placeholder
+                        R.drawable.img_user_avatar
                     )
                 )
 

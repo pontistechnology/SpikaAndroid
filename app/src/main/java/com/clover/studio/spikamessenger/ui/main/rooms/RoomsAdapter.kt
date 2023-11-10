@@ -148,7 +148,7 @@ class RoomsAdapter(
             when (sortedList?.type) {
                 Const.JsonFields.IMAGE_TYPE -> {
                     setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera_reply,
+                        R.drawable.img_camera,
                         0,
                         0,
                         0

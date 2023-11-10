@@ -24,7 +24,7 @@
         <item name="thirdAdditionalColor">@color/baseThirdAdditionalColor</item>
         <item name="fourthAdditionalColor">@color/baseFourthAdditionalColor</item>
 
-        <item name="backgroundPrimary">@drawable/bg_spika</item>
+        <item name="backgroundPrimary">@drawable/bg_main_background</item>
         <item name="spikaLogo">@drawable/spika_base_logo</item>
         <item name="primaryColorDisabled">@color/basePrimaryColorDisabled</item>
 
@@ -98,7 +98,7 @@
         <item name="thirdAdditionalColor">@color/lightGreenThirdAdditionalColor</item>
         <item name="fourthAdditionalColor">@color/lightGreenFourthAdditionalColor</item>
 
-        <item name="backgroundPrimary">@drawable/bg_spika</item>
+        <item name="backgroundPrimary">@drawable/bg_main_background</item>
         <item name="spikaLogo">@drawable/spika_mint_logo</item>
         <item name="primaryColorDisabled">@color/darkMarinePrimaryColorDisabled</item>
 

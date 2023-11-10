@@ -219,21 +219,24 @@ class SettingsFragment : BaseFragment() {
                 firstDrawable = requireContext().getDrawable(R.drawable.iv_edit_settings),
                 secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
                 switchOption = false,
-                additionalText = theme
+                additionalText = theme,
+                isSwitched = false
             ),
             UserOptionsData(
                 option = getString(R.string.privacy),
                 firstDrawable = requireContext().getDrawable(R.drawable.iv_privacy),
                 secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
                 switchOption = false,
-                additionalText = ""
+                additionalText = "",
+                isSwitched = false
             ),
             UserOptionsData(
                 option = getString(R.string.delete),
                 firstDrawable = requireContext().getDrawable(R.drawable.iv_delete_settings),
                 secondDrawable = null,
                 switchOption = false,
-                additionalText = ""
+                additionalText = "",
+                isSwitched = false
             ),
         )
     }

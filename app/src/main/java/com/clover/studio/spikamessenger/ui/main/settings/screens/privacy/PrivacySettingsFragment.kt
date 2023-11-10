@@ -124,14 +124,16 @@ class PrivacySettingsFragment : BaseFragment() {
                 firstDrawable = null,
                 secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
                 switchOption = false,
-                additionalText = ""
+                additionalText = "",
+                isSwitched = false
             ),
             UserOptionsData(
                 option = getString(R.string.terms_and_conditions),
                 firstDrawable = null,
                 secondDrawable = null,
                 switchOption = false,
-                additionalText = ""
+                additionalText = "",
+                isSwitched = false
             ),
         )
     }

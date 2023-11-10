@@ -108,7 +108,7 @@
     <string name="new_chat">New chat</string>
 
     <!--Chat settings-->
-    <string name="mute">Mute</string>
+    <string name="mute">Mute chat</string>
     <string name="block">Block</string>
     <string name="report">Report</string>
     <string name="exit">Exit</string>

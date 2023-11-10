@@ -58,27 +58,6 @@ class UserOptions(context: Context) :
                     if (isFirstView) binding.ivFirstOption else if (isLastView) binding.ivLastOption else newViewBinding.ivOption
                 imageView.setImageDrawable(item.secondDrawable)
                 imageView.visibility = View.VISIBLE
-
-                if (item.switchOption) {
-                    var isSwitched = item.secondDrawable == AppCompatResources.getDrawable(
-                        context,
-                        R.drawable.img_switch_left
-                    )
-
-                    imageView.setOnClickListener {
-                        isSwitched = !isSwitched
-
-                        val drawable = if (!isSwitched) {
-                            AppCompatResources.getDrawable(context, R.drawable.img_switch_left)
-                        } else {
-                            AppCompatResources.getDrawable(context, R.drawable.img_switch)
-                        }
-
-                        imageView.setImageDrawable(drawable)
-
-                        listener?.switchOption(item.option, isSwitched)
-                    }
-                }
             }
 
             val textView =
@@ -98,7 +77,25 @@ class UserOptions(context: Context) :
                 if (isFirstView) binding.flFirstItem else if (isLastView) binding.flLastItem else newViewBinding.flNewItem
             frameLayout.tag = index
             frameLayout.setOnClickListener {
-                listener?.clickedOption(it.tag as Int, item.option)
+                if (item.switchOption) {
+                    val imageView =
+                        if (isFirstView) binding.ivFirstOption else if (isLastView) binding.ivLastOption else newViewBinding.ivOption
+
+                    val isSwitched = !item.isSwitched
+
+                    val drawable = if (!isSwitched) {
+                        AppCompatResources.getDrawable(context, R.drawable.img_switch_left)
+                    } else {
+                        AppCompatResources.getDrawable(context, R.drawable.img_switch)
+                    }
+
+                    imageView.setImageDrawable(drawable)
+                    item.isSwitched = isSwitched
+
+                    listener?.switchOption(item.option, isSwitched)
+                } else {
+                    listener?.clickedOption(it.tag as Int, item.option)
+                }
             }
 
             if (item.option == context.getString(R.string.delete)) {

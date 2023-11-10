@@ -8,15 +8,17 @@
     android:focusableInTouchMode="true"
     tools:context=".ui.main.rooms.RoomsFragment"
     android:focusable="true"
-    android:layout_margin="@dimen/twenty_dp_margin">
+
+    android:paddingStart="@dimen/ten_dp_margin"
+    android:paddingEnd="@dimen/ten_dp_margin">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/eight_dp_margin"
         android:backgroundTint="@android:color/transparent"
         app:elevation="0dp"
+        android:layout_marginTop="@dimen/eight_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -31,7 +33,7 @@
             android:theme="@style/CustomToolbar"
             app:title="@string/call_history"
             app:titleTextAppearance="@style/CustomTitleBold"
-            app:titleTextColor="?attr/primaryTextColor" />
+            app:titleTextColor="?attr/primaryTextColor"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <TextView

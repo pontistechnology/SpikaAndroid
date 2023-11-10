@@ -10,7 +10,8 @@
     tools:context=".ui.main.rooms.RoomsFragment"
     tools:ignore="contentDescription"
     android:orientation="vertical"
-    android:padding="@dimen/ten_dp_margin">
+    android:paddingEnd="@dimen/ten_dp_margin"
+    android:paddingStart="@dimen/ten_dp_margin">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -25,7 +26,7 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
             android:theme="@style/CustomToolbar"
             app:elevation="0dp"
             app:menu="@menu/menu"
@@ -114,7 +115,7 @@
         android:focusable="true"
         app:borderWidth="0dp"
         android:backgroundTint="?attr/primaryColor"
-        app:tint="@color/white"
+        app:tint="?attr/primaryTextColor"
         android:src="@drawable/img_new_chat"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

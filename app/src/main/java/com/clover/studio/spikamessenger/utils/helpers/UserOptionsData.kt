@@ -7,5 +7,6 @@ data class UserOptionsData(
     val firstDrawable: Drawable?,
     var secondDrawable: Drawable?,
     val switchOption : Boolean,
+    var isSwitched: Boolean,
     val additionalText: String,
 )

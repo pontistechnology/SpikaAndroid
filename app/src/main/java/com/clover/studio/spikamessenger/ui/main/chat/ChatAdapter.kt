@@ -134,7 +134,6 @@ class ChatAdapter(
 
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
-
                 bindMessageTime(
                     tvTime = holder.binding.tvTime,
                     clContainer = holder.binding.clMessage,
@@ -540,6 +539,7 @@ class ChatAdapter(
         tvTime: TextView,
         clContainer: ConstraintLayout
     ) {
+        tvTime.visibility = View.GONE
         tvTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
             calendar.timeInMillis
         ).toString()

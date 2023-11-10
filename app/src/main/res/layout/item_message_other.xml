@@ -184,6 +184,7 @@
             android:layout_marginTop="@dimen/two_dp_margin"
             android:layout_marginEnd="@dimen/two_dp_margin"
             android:layout_marginBottom="@dimen/two_dp_margin"
+            android:backgroundTint="@android:color/transparent"
             android:saveEnabled="false"
             android:visibility="gone"
             app:cardCornerRadius="@dimen/eight_dp_margin"
