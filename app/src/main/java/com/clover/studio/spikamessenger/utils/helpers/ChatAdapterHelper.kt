@@ -46,7 +46,7 @@ object ChatAdapterHelper {
             holder.itemView.findViewById<TextView>(R.id.tv_message),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cl_image_chat),
             holder.itemView.findViewById<ConstraintLayout>(R.id.file_layout),
-            holder.itemView.findViewById<FrameLayout>(R.id.video_layout),
+            holder.itemView.findViewById<FrameLayout>(R.id.cv_video),
             holder.itemView.findViewById<CardView>(R.id.cv_audio),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cl_reply_message)
         )

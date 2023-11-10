@@ -216,12 +216,12 @@
     <string name="failed_room_update">Failed to update room</string>
 
     <!--Message details-->
-    <string name="read_by">Read by</string>
-    <string name="delivered_to">Delivered to</string>
+    <string name="read_by">Read</string>
+    <string name="delivered_to">Delivered</string>
     <string name="date">Date</string>
     <string name="message_sent_at">Message sent at: %s</string>
     <string name="message_edited_at">Message edited at: %s</string>
-    <string name="sender_actions">Sender actions</string>
+    <string name="sender_actions">Sent</string>
     <string name="all">ALL</string>
 
     <!--Notes-->

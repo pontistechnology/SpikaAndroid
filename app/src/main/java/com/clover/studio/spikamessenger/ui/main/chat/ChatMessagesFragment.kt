@@ -17,6 +17,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.IBinder
 import android.os.Parcelable
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -279,6 +280,19 @@ class ChatMessagesFragment : BaseFragment() {
 
         setAvatarAndName(avatarFileId, userName)
 
+        if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
+            user =
+                roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
+            avatarFileId = user?.avatarFileId ?: 0
+            userName = user?.formattedDisplayName.toString()
+            chatHeader.tvTitle.text = user?.telephoneNumber
+        } else {
+            avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
+            userName = roomWithUsers?.room?.name.toString()
+            chatHeader.tvTitle.text =
+                roomWithUsers?.users?.size.toString() + getString(R.string.members)
+        }
+
         // Clear notifications for this room
         roomWithUsers?.room?.roomId?.let {
             NotificationManagerCompat.from(requireContext())
@@ -409,6 +423,7 @@ class ChatMessagesFragment : BaseFragment() {
             etMessage.setText("")
             hideSendButton()
             replyContainer?.closeBottomSheet()
+            clSendingArea.setBackgroundColor(android.R.color.transparent)
         }
 
         tvUnblock.setOnClickListener {
@@ -831,6 +846,12 @@ class ChatMessagesFragment : BaseFragment() {
         flReplyContainer.removeAllViews()
         flReplyContainer.addView(replyContainer)
 
+        replyContainer?.setReplyContainerListener(object : ReplyContainer.ReplyContainerListener {
+            override fun closeSheet() {
+                clSendingArea.setBackgroundColor(android.R.color.transparent)
+            }
+        })
+
         repliedMessage = message
         replyId = message.id.toLong()
 
@@ -839,6 +860,11 @@ class ChatMessagesFragment : BaseFragment() {
                 replyContainer?.setReactionContainer(repliedMessage, roomWithUsers)
             }
         }
+
+        val typedValue = TypedValue()
+        val theme = requireContext().theme
+        theme.resolveAttribute(R.attr.secondAdditionalColor, typedValue, true)
+        clSendingArea.setBackgroundColor(typedValue.data)
     }
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {

@@ -22,9 +22,20 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
     )
     private val binding get() = bindingSetup
 
+    private var listener: ReplyContainerListener? = null
+
+    interface ReplyContainerListener {
+        fun closeSheet()
+    }
+
+    fun setReplyContainerListener(listener: ReplyContainerListener) {
+        this.listener = listener
+    }
+
     init {
         binding.ivRemove.setOnClickListener {
             binding.clMessageReply.visibility = View.GONE
+            listener?.closeSheet()
         }
     }
 
@@ -42,7 +53,7 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
             text = roomWithUsers.users.firstOrNull {
                 it.id == message.fromUserId
             }?.formattedDisplayName
-            visibility = if (roomWithUsers.room.type == Const.JsonFields.PRIVATE){
+            visibility = if (roomWithUsers.room.type == Const.JsonFields.PRIVATE) {
                 View.GONE
             } else {
                 View.VISIBLE

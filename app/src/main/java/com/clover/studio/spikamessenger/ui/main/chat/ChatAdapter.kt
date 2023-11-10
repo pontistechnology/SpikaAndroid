@@ -1,12 +1,8 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
@@ -181,8 +177,8 @@ class ChatAdapter(
                                 clContainer = holder.binding.clContainer,
                             )
                         } else {
-                            with(holder.binding.videoLayout) {
-                                setViewsVisibility(flVideos, holder)
+                            with(holder.binding) {
+                                setViewsVisibility(cvVideo, holder)
                                 bindVideo(
                                     chatMessage = it,
                                     videoLayoutBinding = holder.binding.videoLayout
@@ -414,8 +410,8 @@ class ChatAdapter(
                     }
 
                     Const.JsonFields.VIDEO_TYPE -> {
-                        with(holder.binding.videoLayout) {
-                            setViewsVisibility(flVideos, holder)
+                        with(holder.binding) {
+                            setViewsVisibility(cvVideo, holder)
                             bindVideo(
                                 chatMessage = it,
                                 videoLayoutBinding = holder.binding.videoLayout

@@ -100,6 +100,7 @@ class UserOptions(context: Context) :
 
             if (item.option == context.getString(R.string.delete)) {
                 frameLayout.setBackgroundColor(resources.getColor(R.color.warningColor))
+                textView.setTextColor(resources.getColor(R.color.white))
             }
 
             if (index > 0 && index < optionList.size - 1) {

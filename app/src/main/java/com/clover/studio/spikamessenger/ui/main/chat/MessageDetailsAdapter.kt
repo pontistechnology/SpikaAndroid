@@ -37,6 +37,7 @@ class MessageDetailsAdapter(
                 // Show sender header - this is first and only message record for sender
                 if (Const.JsonFields.SENT == messageRecord.type) {
                     binding.tvDetailsHeader.text = context.getString(R.string.sender_actions)
+                    binding.tvDetailsHeader.visibility = View.GONE
                     binding.ivMessageState.setImageResource(R.drawable.img_sender_actions)
                     binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
                         0,
@@ -106,8 +107,8 @@ class MessageDetailsAdapter(
 
                     }
                 } else {
-                    binding.tvDetailsHeader.visibility = View.VISIBLE
-                    binding.ivMessageState.visibility = View.VISIBLE
+                    binding.tvDetailsHeader.visibility = View.GONE
+                    binding.ivMessageState.visibility = View.GONE
                 }
             }
         }
