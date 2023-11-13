@@ -45,7 +45,7 @@
         android:textAppearance="@style/CustomTextHeading"
         android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/sixteen_sp_text"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintStart_toEndOf="@+id/iv_message_state"
         app:layout_constraintTop_toTopOf="parent" />
 

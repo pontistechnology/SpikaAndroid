@@ -117,7 +117,8 @@ class ContactsFragment : BaseFragment() {
                     if (selectedUser != null) {
                         val bundle = bundleOf(
                             Const.Navigation.USER_PROFILE to selectedUser,
-                            Const.Navigation.ROOM_ID to it.responseData?.data?.room?.roomId
+                            Const.Navigation.ROOM_ID to it.responseData?.data?.room?.roomId,
+                            Const.Navigation.ROOM_DATA to it.responseData?.data?.room
                         )
                         findNavController().navigate(
                             R.id.action_mainFragment_to_contactDetailsFragment,

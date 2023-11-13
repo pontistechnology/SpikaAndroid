@@ -133,15 +133,32 @@ class ChatDetailsFragment : BaseFragment() {
         bindingSetup = FragmentChatDetailsBinding.inflate(inflater, container, false)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) = with(binding) {
-        super.onViewCreated(view, savedInstanceState)
-
-        initializeViews(roomWithUsers)
-        initializeObservers()
         handleUserStatusViews(isAdmin)
+        initializeViews(roomWithUsers)
+
+        setOptionList()
+
+        val userOptions = UserOptions(requireContext())
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(option: Int, optionName: String) {
+                when (optionName) {
+                    getString(R.string.notes) -> {
+                        goToNotes()
+                    }
+                }
+            }
+
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
+                switchPinMuteOptions(optionName, isSwitched)
+            }
+        })
+        binding.flOptionsContainer.addView(userOptions)
+
+
+        initializeObservers()
+
+        return binding.root
     }
 
     private fun handleUserStatusViews(isAdmin: Boolean) = with(binding) {
@@ -179,25 +196,6 @@ class ChatDetailsFragment : BaseFragment() {
             setAvatarAndUsername(avatarFileId, userName)
         }
 
-        setOptionList()
-
-        val userOptions = UserOptions(requireContext())
-        userOptions.setOptions(optionList)
-        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
-            override fun clickedOption(option: Int, optionName: String) {
-                when (optionName) {
-                    getString(R.string.notes) -> {
-                        goToNotes()
-                    }
-                }
-            }
-
-            override fun switchOption(optionName: String, isSwitched: Boolean) {
-                switchPinMuteOptions(optionName, isSwitched)
-            }
-        })
-        binding.flOptionsContainer.addView(userOptions)
-
         initializeListeners(roomWithUsers)
     }
 
@@ -213,10 +211,13 @@ class ChatDetailsFragment : BaseFragment() {
         val pinId =
             if (roomWithUsers.room.pinned) R.drawable.img_switch else R.drawable.img_switch_left
         val muteId =
-            if (roomWithUsers.room.pinned) R.drawable.img_switch else R.drawable.img_switch_left
+            if (roomWithUsers.room.muted) R.drawable.img_switch else R.drawable.img_switch_left
 
         pinSwitch = AppCompatResources.getDrawable(requireContext(), pinId)
         muteSwitch = AppCompatResources.getDrawable(requireContext(), muteId)
+
+        Timber.d("Pinned : ${roomWithUsers.room.pinned}")
+        Timber.d("Muted: ${roomWithUsers.room.muted}")
 
         optionList = mutableListOf(
             UserOptionsData(
@@ -421,6 +422,7 @@ class ChatDetailsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
+        // TODO here is problem for mute/switch
         roomId?.let {
             viewModel.getRoomAndUsers(it).observe(viewLifecycleOwner) { data ->
                 when (data.status) {

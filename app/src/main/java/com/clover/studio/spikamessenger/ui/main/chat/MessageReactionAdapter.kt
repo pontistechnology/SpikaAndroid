@@ -35,14 +35,14 @@ class MessageReactionAdapter(
 
     override fun onBindViewHolder(holder: MessageReactionViewHolder, position: Int) {
         val item = getItem(position)
-        val user = roomWithUsers.users.find { user ->  user.id == item.userId }
+        val user = roomWithUsers.users.find { user -> user.id == item.userId }
 
         if (user != null) {
             holder.binding.tvUserReaction.text = item.reaction
             holder.binding.tvUsernameReaction.text = user.formattedDisplayName
             Glide.with(context)
                 .load(user.avatarFileId?.let { Tools.getFilePathUrl(it) })
-                .placeholder(R.drawable.img_user_placeholder)
+                .placeholder(R.drawable.img_user_avatar)
                 .dontTransform()
                 .dontAnimate()
                 .centerCrop()

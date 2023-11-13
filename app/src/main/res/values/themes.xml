@@ -1,7 +1,7 @@
 <resources>
 <!--     Base application theme. -->
     <style name="Theme.ExampleApp" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimaryVariant">?attr/tertiaryColor</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/teal_200</item>
         <item name="colorSecondaryVariant">@color/teal_700</item>
@@ -30,6 +30,8 @@
 
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
+
+        <item name="alphaHelperColor">@color/lightThemeAlpha</item>
     </style>
 
     <!--  Dark Marine theme  -->
@@ -54,6 +56,8 @@
 
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
+
+        <item name="alphaHelperColor">@color/darkThemeAlpha</item>
     </style>
 
 
@@ -79,6 +83,8 @@
 
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
+
+        <item name="alphaHelperColor">@color/darkThemeAlpha</item>
     </style>
 
 <!-- Mint theme   -->
@@ -104,6 +110,8 @@
 
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
+
+        <item name="alphaHelperColor">@color/lightThemeAlpha</item>
     </style>
 
 </resources>

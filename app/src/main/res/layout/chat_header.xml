@@ -54,7 +54,7 @@
             android:fontFamily="@font/roboto_bold"
             android:maxLines="1"
             android:textColor="?attr/primaryTextColor"
-            android:textSize="@dimen/twenty_sp_text"
+            android:textSize="@dimen/sixteen_sp_text"
             app:layout_constraintBottom_toTopOf="@+id/tv_title"
             app:layout_constraintStart_toEndOf="@+id/iv_user_image"
             app:layout_constraintTop_toTopOf="@+id/iv_user_image" />

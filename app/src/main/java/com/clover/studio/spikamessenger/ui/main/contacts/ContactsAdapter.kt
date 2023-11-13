@@ -45,7 +45,6 @@ class ContactsAdapter(
                     userItem.user.selected = true
                 } else binding.transparentView.visibility = View.GONE
 
-
                 if (isGroupCreation) {
                     binding.cbUserSelected.visibility = View.VISIBLE
 

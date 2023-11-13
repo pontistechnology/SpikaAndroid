@@ -77,7 +77,7 @@ class AccountCreationFragment : BaseFragment() {
                 val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap)
-                    .placeholder(R.drawable.img_user_placeholder)
+                    .placeholder(R.drawable.img_user_avatar)
                     .centerCrop()
                     .into(binding.ivPickAvatar)
                 currentPhotoLocation = bitmapUri

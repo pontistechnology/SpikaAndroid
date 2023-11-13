@@ -95,8 +95,8 @@ class ContactDetailsFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentContactDetailsBinding.inflate(inflater, container, false)
 
-        initializeViews()
         initializeObservers()
+        initializeViews()
         return binding.root
     }
 
@@ -322,8 +322,8 @@ class ContactDetailsFragment : BaseFragment() {
     }
 
     private fun setOptionList() {
-        val pinId = if (room!!.pinned) R.drawable.img_switch else R.drawable.img_switch_left
-        val muteId = if (room!!.muted) R.drawable.img_switch else R.drawable.img_switch_left
+        val pinId = if (room?.pinned == true) R.drawable.img_switch else R.drawable.img_switch_left
+        val muteId = if (room?.muted == true) R.drawable.img_switch else R.drawable.img_switch_left
 
         pinSwitch = AppCompatResources.getDrawable(requireContext(), pinId)
         muteSwitch = AppCompatResources.getDrawable(requireContext(), muteId)
@@ -351,7 +351,7 @@ class ContactDetailsFragment : BaseFragment() {
                 ),
                 secondDrawable = pinSwitch,
                 switchOption = true,
-                isSwitched = room!!.pinned,
+                isSwitched = room?.pinned == true,
                 additionalText = ""
             ),
             UserOptionsData(
@@ -362,7 +362,7 @@ class ContactDetailsFragment : BaseFragment() {
                 ),
                 secondDrawable = muteSwitch,
                 switchOption = true,
-                isSwitched = room!!.muted,
+                isSwitched = room?.muted == true,
                 additionalText = ""
             )
         )

@@ -492,8 +492,8 @@ class ChatAdapter(
                         Glide.with(context)
                             .load(userPath)
                             .dontTransform()
-                            .placeholder(R.drawable.img_user_placeholder)
-                            .error(R.drawable.img_user_placeholder)
+                            .placeholder(R.drawable.img_user_avatar)
+                            .error(R.drawable.img_user_avatar)
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .into(holder.binding.ivUserImage)
 

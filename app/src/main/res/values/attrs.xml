@@ -24,4 +24,7 @@
 
     <attr name="spikaLogo" format="reference" />
 
+<!-- Helpers -->
+    <attr name="alphaHelperColor" format="color|reference" />
+
 </resources>

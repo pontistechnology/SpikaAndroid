@@ -46,6 +46,8 @@
         android:inputType="text"
         android:padding="@dimen/sixteen_dp_margin"
         android:textAppearance="@style/CustomTextBody"
+        android:textColor="?attr/primaryTextColor"
+        android:textColorHint="?attr/primaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/iv_done"

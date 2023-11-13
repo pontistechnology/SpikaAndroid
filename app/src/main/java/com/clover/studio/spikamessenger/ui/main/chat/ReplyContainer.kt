@@ -87,9 +87,8 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
 
             else -> {
                 ivReplyImage.visibility = View.GONE
-                tvReplyMedia.visibility = View.GONE
-                tvMessage.visibility = View.VISIBLE
-                tvMessage.text = message.body?.text
+                tvReplyMedia.visibility = View.VISIBLE
+                tvReplyMedia.text = message.body?.text
                 tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
             }
         }
@@ -97,7 +96,6 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
 
     private fun setupMediaType(textResId: Int, drawableResId: Int, mediaPath: String?) =
         with(binding) {
-            tvMessage.visibility = View.GONE
             ivReplyImage.visibility = View.VISIBLE
 
             tvReplyMedia.apply {

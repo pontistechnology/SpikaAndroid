@@ -5,7 +5,6 @@
     android:id="@+id/cl_audio_layout"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/forty_eight_dp_margin"
-    android:layout_marginTop="@dimen/two_dp_margin"
     tools:ignore="contentDescription">
 
     <TextView

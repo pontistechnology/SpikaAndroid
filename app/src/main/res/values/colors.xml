@@ -35,6 +35,8 @@
     <color name="warningColor">#E84E4E</color>
     <color name="secondWarningColor">#FFE3E3</color>
     <color name="tabSelectedColor">#33FFFFFF</color>
+    <color name="lightThemeAlpha">#40343434</color>
+    <color name="darkThemeAlpha">#80343434</color>
 
     <!--  Base theme colors (light marine) -->
     <color name="basePrimaryColor">#90E0EF</color>
@@ -56,7 +58,7 @@
     <color name="darkMarinePrimaryTextColor">#FFFFFF</color>
     <color name="darkMarineSecondaryTextColor">#E9E9E9</color>
     <color name="darkMarineTertiaryTextColor">#0075FF</color>
-    <color name="darkMarineAdditionalColor">#343434</color>
+    <color name="darkMarineAdditionalColor">#80343434</color>
     <color name="darkMarineSecondAdditionalColor">#010F20</color>
     <color name="darkMarineThirdAdditionalColor">#0C2744</color>
     <color name="darkMarineFourthAdditionalColor">#103251</color>
@@ -69,7 +71,7 @@
     <color name="neonPrimaryTextColor">#FFFFFF</color>
     <color name="neonSecondaryTextColor">#AFAFAF</color>
     <color name="neonTertiaryTextColor">#00D1FF</color>
-    <color name="neonAdditionalColor">#343434</color>
+    <color name="neonAdditionalColor">#80343434</color>
     <color name="neonSecondAdditionalColor">#2B0F43</color>
     <color name="neonThirdAdditionalColor">#1A3E93</color>
     <color name="neonFourthAdditionalColor">#244DA0</color>

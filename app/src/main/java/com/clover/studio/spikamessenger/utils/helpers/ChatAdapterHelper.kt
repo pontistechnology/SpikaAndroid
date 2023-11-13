@@ -242,7 +242,7 @@ object ChatAdapterHelper {
             clContainer.setBackgroundResource(R.drawable.bg_message_received)
         }
 
-        if (roomType == Const.JsonFields.PRIVATE){
+        if (roomType == Const.JsonFields.PRIVATE) {
             tvUsername.visibility = View.GONE
         } else {
             tvUsername.visibility = View.VISIBLE
@@ -259,7 +259,7 @@ object ChatAdapterHelper {
                         context.getString(R.string.photo)
                     )
                     tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera,
+                        R.drawable.img_camera_reply,
                         0,
                         0,
                         0

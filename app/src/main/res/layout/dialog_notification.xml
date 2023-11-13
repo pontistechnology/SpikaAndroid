@@ -33,8 +33,7 @@
                 android:id="@+id/iv_user_image"
                 android:layout_width="@dimen/forty_two_dp"
                 android:layout_height="@dimen/forty_two_dp"
-                android:scaleType="center"
-                android:src="@drawable/img_user_placeholder" />
+                android:src="@drawable/img_user_avatar" />
         </androidx.cardview.widget.CardView>
 
         <com.vanniktech.emoji.EmojiTextView

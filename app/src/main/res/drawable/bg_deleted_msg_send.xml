@@ -4,7 +4,7 @@
         android:topRightRadius="16dp"
         android:bottomLeftRadius="16dp"
         android:bottomRightRadius="0dp" />
-    <solid android:color="@android:color/transparent" />
+    <solid android:color="?attr/additionalColor" />
     <stroke
         android:width="2dp"
         android:color="?attr/primaryColor" />
