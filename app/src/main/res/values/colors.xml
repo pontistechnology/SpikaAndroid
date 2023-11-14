@@ -54,7 +54,7 @@
     <!--  Dark marine theme colors  -->
     <color name="darkMarinePrimaryColor">#43B6DA</color>
     <color name="darkMarineSecondaryColor">#13436E</color>
-    <color name="darkMarineTertiaryColor">#C6C6C6</color>
+    <color name="darkMarineTertiaryColor">#FFFFFF</color>
     <color name="darkMarinePrimaryTextColor">#FFFFFF</color>
     <color name="darkMarineSecondaryTextColor">#E9E9E9</color>
     <color name="darkMarineTertiaryTextColor">#0075FF</color>

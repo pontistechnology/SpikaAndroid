@@ -5,50 +5,85 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.spikamessenger.R
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.clover.studio.spikamessenger.data.models.entity.Note
-import com.clover.studio.spikamessenger.databinding.ItemNoteBinding
-import com.clover.studio.spikamessenger.utils.Tools
+import com.clover.studio.spikamessenger.databinding.FirstChatOptionBinding
+import com.clover.studio.spikamessenger.databinding.OnlyChatOptionBinding
+import timber.log.Timber
+
+const val VIEW_TYPE_ONLY_NOTE = 0
+const val VIEW_TYPE_FIRST_NOTE = 1
+const val VIEW_TYPE_NOTE = 2
+// TODO last
+
 
 class NotesAdapter(
     private val context: Context,
     private val onNoteInteraction: ((note: Note) -> Unit)
 ) :
-    ListAdapter<Note, NotesAdapter.NotesViewHolder>(NoteCallback()) {
+    ListAdapter<Note, ViewHolder>(NoteCallback()) {
 
-    inner class NotesViewHolder(val binding: ItemNoteBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    inner class OnlyNoteViewHolder(val binding: OnlyChatOptionBinding) :
+        ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotesViewHolder {
-        val binding =
-            ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return NotesViewHolder(binding)
+    inner class FirstNoteViewHolder(val binding: FirstChatOptionBinding) :
+        ViewHolder(binding.root)
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return if (viewType == VIEW_TYPE_ONLY_NOTE) {
+            val binding =
+                OnlyChatOptionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            OnlyNoteViewHolder(binding)
+        } else {
+            val binding =
+                FirstChatOptionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            FirstNoteViewHolder(binding)
+        }
     }
 
-    override fun onBindViewHolder(holder: NotesViewHolder, position: Int) {
-        with(holder) {
-            getItem(position).let { noteItem ->
-                binding.tvNoteTitle.text = noteItem.title
-                binding.tvNoteTime.text = if (noteItem.modifiedAt != noteItem.createdAt) {
-                    context.getString(
-                        R.string.note_edited_at,
-                        Tools.fullDateFormat(noteItem.modifiedAt).toString()
-                    )
-                } else {
-                    context.getString(
-                        R.string.note_created_at,
-                        Tools.fullDateFormat(noteItem.createdAt).toString()
-                    )
-                }
+    override fun getItemViewType(position: Int): Int {
+        Timber.d("position: $position, ${currentList.size}")
+        if (currentList.size == 1) {
+            return VIEW_TYPE_ONLY_NOTE
+        }
+//        if (position == currentList.size -1){
+//            return
+//        }
+//        if (position == 0 && currentList.size > 1){
+//
+//        }
+        else {
+            return VIEW_TYPE_FIRST_NOTE
+        }
+    }
 
-                itemView.setOnClickListener {
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        getItem(position).let { noteItem ->
+            if (holder.itemViewType == VIEW_TYPE_ONLY_NOTE) {
+                holder as OnlyNoteViewHolder
+                holder.binding.tvOnlyItem.text = noteItem.title
+
+                holder.itemView.setOnClickListener {
                     noteItem.let {
                         onNoteInteraction.invoke(it)
                     }
                 }
+            } else {
+                holder as FirstNoteViewHolder
+
+                holder.binding.tvFirstItem.text = noteItem.title
+
+                holder.itemView.setOnClickListener {
+                    noteItem.let {
+                        onNoteInteraction.invoke(it)
+                    }
+                }
+
             }
         }
+
     }
 
     private class NoteCallback : DiffUtil.ItemCallback<Note>() {

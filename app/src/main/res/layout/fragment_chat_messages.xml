@@ -95,11 +95,12 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/iv_microphone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/eight_dp_margin"
                 android:src="@drawable/img_microphone"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/et_message"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/et_message" />
@@ -123,7 +124,7 @@
                 app:emojiSize="@dimen/twenty_sp_text"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/iv_btn_emoji"
-                app:layout_constraintStart_toEndOf="@+id/imageView"
+                app:layout_constraintStart_toEndOf="@+id/iv_microphone"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
@@ -185,6 +186,7 @@
         android:layout_width="match_parent"
         android:layout_height="0.7dp"
         android:layout_marginBottom="@dimen/eight_dp_margin"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/fl_reply_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

@@ -340,8 +340,7 @@ class ContactDetailsFragment : BaseFragment() {
                     R.drawable.img_arrow_forward
                 ),
                 switchOption = false,
-                isSwitched = false,
-                additionalText = ""
+                isSwitched = false
             ),
             UserOptionsData(
                 option = getString(R.string.pin_chat),
@@ -352,7 +351,6 @@ class ContactDetailsFragment : BaseFragment() {
                 secondDrawable = pinSwitch,
                 switchOption = true,
                 isSwitched = room?.pinned == true,
-                additionalText = ""
             ),
             UserOptionsData(
                 option = getString(R.string.mute),
@@ -363,7 +361,6 @@ class ContactDetailsFragment : BaseFragment() {
                 secondDrawable = muteSwitch,
                 switchOption = true,
                 isSwitched = room?.muted == true,
-                additionalText = ""
             )
         )
     }

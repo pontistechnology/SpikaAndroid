@@ -160,7 +160,7 @@
     <string name="failed_room_creation">Failed to create room</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="error_room_exists">Error while checking if room exists</string>
-    <string name="delete_chat">Delete Chat</string>
+    <string name="delete_chat">Delete chat</string>
     <string name="delete_chat_description">Are you sure you want to delete this conversation?</string>
     <string name="exit_group_description">Are you sure you want to exit group?</string>
     <string name="exit_group_error">Can\'t leave group where you are only admin.</string>

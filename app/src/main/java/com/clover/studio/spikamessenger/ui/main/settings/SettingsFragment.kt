@@ -212,14 +212,12 @@ class SettingsFragment : BaseFragment() {
     }
 
     private fun setOptionList() {
-        val theme = getTheme()
         optionList = mutableListOf(
             UserOptionsData(
                 option = getString(R.string.appearance),
                 firstDrawable = requireContext().getDrawable(R.drawable.iv_edit_settings),
                 secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
                 switchOption = false,
-                additionalText = theme,
                 isSwitched = false
             ),
             UserOptionsData(
@@ -227,7 +225,6 @@ class SettingsFragment : BaseFragment() {
                 firstDrawable = requireContext().getDrawable(R.drawable.iv_privacy),
                 secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
                 switchOption = false,
-                additionalText = "",
                 isSwitched = false
             ),
             UserOptionsData(
@@ -235,7 +232,6 @@ class SettingsFragment : BaseFragment() {
                 firstDrawable = requireContext().getDrawable(R.drawable.iv_delete_settings),
                 secondDrawable = null,
                 switchOption = false,
-                additionalText = "",
                 isSwitched = false
             ),
         )

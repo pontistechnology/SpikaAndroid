@@ -31,6 +31,9 @@ class UserOptions(context: Context) :
     }
 
     fun setOptions(optionList: MutableList<UserOptionsData>) {
+        // TODO if its only one option
+
+
         optionList.forEachIndexed { index, item ->
             val isFirstView = index == 0
             val isLastView = index == optionList.size - 1
@@ -48,10 +51,6 @@ class UserOptions(context: Context) :
             newView.layoutParams = layoutParams
 
             val newViewBinding = ChatOptionItemBinding.bind(newView)
-
-            if (item.additionalText.isNotEmpty()) {
-                binding.tvAdditionalText.text = item.additionalText
-            }
 
             if (item.secondDrawable != null) {
                 val imageView =
@@ -98,9 +97,9 @@ class UserOptions(context: Context) :
                 }
             }
 
-            if (item.option == context.getString(R.string.delete)) {
+            if (item.option in setOf(context.getString(R.string.delete_chat), context.getString(R.string.exit_group))) {
                 frameLayout.setBackgroundColor(resources.getColor(R.color.warningColor))
-                textView.setTextColor(resources.getColor(R.color.white))
+                textView.setTextColor(resources.getColor(R.color.secondWarningColor))
             }
 
             if (index > 0 && index < optionList.size - 1) {

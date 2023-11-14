@@ -9,15 +9,14 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
+        style="@style/Widget.App.TabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/eight_dp_margin"
         android:background="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view_pager"
-        app:tabIconTint="@color/tab_chat_color"
         app:tabIndicatorColor="?attr/primaryTextColor"
         app:tabIndicatorHeight="4dp"
         app:tabMode="fixed" />

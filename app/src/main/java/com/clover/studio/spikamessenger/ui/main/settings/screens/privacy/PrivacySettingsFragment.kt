@@ -124,7 +124,6 @@ class PrivacySettingsFragment : BaseFragment() {
                 firstDrawable = null,
                 secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
                 switchOption = false,
-                additionalText = "",
                 isSwitched = false
             ),
             UserOptionsData(
@@ -132,7 +131,6 @@ class PrivacySettingsFragment : BaseFragment() {
                 firstDrawable = null,
                 secondDrawable = null,
                 switchOption = false,
-                additionalText = "",
                 isSwitched = false
             ),
         )

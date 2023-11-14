@@ -57,20 +57,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tv_additional_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/four_dp_margin"
-                android:textAppearance="@style/CustomTextLightBody"
-                android:textSize="@dimen/twelve_sp_text"
-                app:layout_constraintBottom_toBottomOf="@+id/iv_first_option"
-                app:layout_constraintEnd_toStartOf="@+id/iv_first_option"
-                app:layout_constraintTop_toTopOf="@+id/iv_first_option" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
-
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_last_option"
@@ -113,7 +101,5 @@
                 android:backgroundTint="@color/white"
                 android:visibility="gone" />
         </FrameLayout>
-
     </com.google.android.material.card.MaterialCardView>
-
 </LinearLayout>

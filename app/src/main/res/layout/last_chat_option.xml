@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cv_last_option"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    app:cardBackgroundColor="?attr/primaryColor"
+    app:cardElevation="0dp"
+    app:cardPreventCornerOverlap="false"
+    app:shapeAppearanceOverlay="@style/LastOptionStyle"
+    tools:ignore="contentDescription">
+
+    <FrameLayout
+        android:id="@+id/fl_last_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/twenty_four_dp_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/tv_last_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/four_dp_margin"
+            android:drawablePadding="@dimen/eight_dp_margin"
+            android:gravity="center"
+            android:letterSpacing="0.1"
+            android:textAppearance="@style/CustomTextHeading"
+            android:textColor="?attr/primaryTextColor"
+            android:textSize="@dimen/fourteen_sp_text" />
+
+        <ImageView
+            android:id="@+id/iv_last_option"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="@dimen/eight_dp_margin"
+            android:src="@drawable/img_arrow_forward"
+            android:backgroundTint="@color/white"
+            android:visibility="gone" />
+    </FrameLayout>
+</com.google.android.material.card.MaterialCardView>

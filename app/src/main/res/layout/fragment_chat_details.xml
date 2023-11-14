@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.main.contact_details.ContactDetailsFragment"
-    tools:ignore="RtlSymmetry,ContentDescription">
+    tools:ignore="RtlSymmetry,ContentDescription"
+    android:scrollbars="none">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -113,60 +114,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/eight_dp_margin"
 
+                android:layout_marginBottom="@dimen/twenty_four_dp_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_members_number"
                 tools:listitem="@layout/item_people_selected" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <TextView
-            android:id="@+id/tv_exit_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/twenty_four_dp_margin"
-            android:layout_marginTop="@dimen/thirty_two_dp_margin"
-            android:layout_marginBottom="@dimen/thirty_two_dp_margin"
-            android:letterSpacing="0.1"
-            android:text="@string/exit_group"
-            android:textAppearance="@style/CustomTextBody"
-            android:textColor="@color/warningColor"
-            android:textSize="@dimen/sixteen_sp_text"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_see_more_less" />
-
-        <TextView
-            android:id="@+id/tv_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/twenty_four_dp_margin"
-            android:layout_marginBottom="@dimen/eight_dp_margin"
-            android:letterSpacing="0.1"
-            android:text="@string/delete_chat"
-            android:textAppearance="@style/CustomTextBody"
-            android:textColor="@color/warningColor"
-            android:textSize="@dimen/sixteen_sp_text"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_exit_group"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tv_exit_group"
-            app:layout_constraintVertical_bias="0.625" />
-
-        <TextView
-            android:id="@+id/tv_see_more_less"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/eight_dp_margin"
-            android:text="@string/see_more"
-            android:textAppearance="@style/CustomTextBody"
-            android:textColor="?attr/primaryTextColor"
-            android:textSize="@dimen/fourteen_sp_text"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cl_member_list" />
 
         <ImageView
             android:id="@+id/iv_back"

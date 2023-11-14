@@ -283,6 +283,7 @@
         android:layout_marginStart="@dimen/eight_dp_margin"
         android:layout_marginBottom="@dimen/two_dp_margin"
         android:visibility="visible"
+        android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="@+id/cl_container"
         app:layout_constraintStart_toStartOf="parent"
         app:shapeAppearanceOverlay="@style/circle"

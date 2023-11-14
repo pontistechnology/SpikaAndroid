@@ -34,6 +34,7 @@
         app:layout_constraintEnd_toEndOf="@+id/tv_user_name"
         app:layout_constraintStart_toStartOf="@+id/tv_user_name"
         app:layout_constraintTop_toTopOf="parent"
+        android:scaleType="centerCrop"
         app:shapeAppearanceOverlay="@style/circle" />
 
     <ImageView

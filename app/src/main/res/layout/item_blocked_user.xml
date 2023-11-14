@@ -13,6 +13,7 @@
         android:layout_marginBottom="@dimen/sixteen_dp_margin"
         android:src="@drawable/img_user_avatar"
         android:visibility="visible"
+        android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -16,6 +16,7 @@
         android:src="@drawable/img_user_avatar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:scaleType="centerCrop"
         app:shapeAppearanceOverlay="@style/circle" />
 
     <TextView
