@@ -46,6 +46,7 @@
         android:layout_marginStart="@dimen/sixteen_dp_margin"
         android:layout_marginTop="@dimen/thirty_two_dp_margin"
         android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:layout_marginBottom="@dimen/sixteen_dp_margin"
         android:fillViewport="true"
         android:visibility="visible"
         android:windowSoftInputMode="adjustResize"

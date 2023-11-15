@@ -20,6 +20,11 @@ class UserOptions(context: Context) :
     )
     private val binding get() = bindingSetup
     private var listener: OptionsListener? = null
+    private val destructiveActions = setOf(
+        context.getString(R.string.delete_chat),
+        context.getString(R.string.exit_group),
+        context.getString(R.string.delete)
+    )
 
     interface OptionsListener {
         fun clickedOption(option: Int, optionName: String)
@@ -31,9 +36,6 @@ class UserOptions(context: Context) :
     }
 
     fun setOptions(optionList: MutableList<UserOptionsData>) {
-        // TODO if its only one option
-
-
         optionList.forEachIndexed { index, item ->
             val isFirstView = index == 0
             val isLastView = index == optionList.size - 1
@@ -97,8 +99,10 @@ class UserOptions(context: Context) :
                 }
             }
 
-            if (item.option in setOf(context.getString(R.string.delete_chat), context.getString(R.string.exit_group))) {
-                frameLayout.setBackgroundColor(resources.getColor(R.color.warningColor))
+            if (item.option in destructiveActions) {
+                val cardView =
+                    if (isFirstView) binding.cvFirstOption else if (isLastView) binding.cvLastOption else newViewBinding.cvOption
+                cardView.setCardBackgroundColor(resources.getColor(R.color.warningColor))
                 textView.setTextColor(resources.getColor(R.color.secondWarningColor))
             }
 

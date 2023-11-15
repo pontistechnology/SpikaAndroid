@@ -40,14 +40,15 @@
         android:id="@+id/tv_no_calls"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/CustomTextHeading"
         android:text="@string/no_calls_yet"
-        android:textColor="?attr/secondaryTextColor"
-        android:textSize="@dimen/sixteen_sp_text"
+        android:textAppearance="@style/CustomTitleBold"
+        android:textSize="@dimen/twenty_four_sp_text"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appBarLayout" />
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_call_history"

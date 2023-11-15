@@ -15,14 +15,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tv_edit"
+    <ImageView
+        android:id="@+id/iv_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
         android:fontFamily="@font/roboto_bold"
         android:padding="@dimen/twenty_dp_margin"
+        android:src="@drawable/iv_edit_settings"
         android:text="@string/edit"
-        android:textColor="?attr/primaryColor"
+        app:layout_constraintBottom_toBottomOf="@id/iv_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/iv_back" />
+
+    <ImageView
+        android:id="@+id/iv_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:fontFamily="@font/roboto_bold"
+        android:padding="@dimen/twenty_dp_margin"
+        android:src="@drawable/img_checkmark"
+        android:text="@string/edit"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/iv_back"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/iv_back" />
@@ -34,7 +49,7 @@
         android:padding="@dimen/ten_dp_margin"
         android:src="@drawable/img_attach_file"
         android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@+id/tv_edit"
+        app:layout_constraintEnd_toStartOf="@+id/iv_option"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
@@ -55,10 +70,12 @@
 
             <TextView
                 android:id="@+id/tv_title"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto_bold"
+                android:background="@drawable/bg_input"
+                android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/notes"
+                android:textAppearance="@style/CustomTitleBold"
                 android:textSize="@dimen/eighteen_sp_text" />
 
             <TextView
@@ -66,20 +83,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/eight_dp_margin"
-                android:textAppearance="@style/CustomTextBody"
+                android:minHeight="@dimen/two_hundred_fifty_six_dp"
+                android:background="@drawable/bg_input"
+                android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/placeholder_description"
+                android:textAppearance="@style/CustomTextBody"
                 android:textColor="?attr/secondaryTextColor"
                 android:textColorLink="?attr/tertiaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text" />
+
 
             <EditText
                 android:id="@+id/et_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/roboto_bold"
+                android:background="@drawable/bg_input"
                 android:maxLength="135"
+                android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/notes"
+                android:textColor="?attr/secondaryTextColor"
+                android:textAppearance="@style/CustomTitleBold"
                 android:textSize="@dimen/eighteen_sp_text"
                 android:visibility="gone" />
 
@@ -88,9 +111,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="@dimen/eight_dp_margin"
-                android:background="@android:color/transparent"
-                android:textAppearance="@style/CustomTextBody"
+                android:background="@drawable/bg_input"
+                android:gravity="start"
+                android:minHeight="@dimen/two_hundred_fifty_six_dp"
+                android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/placeholder_description"
+                android:textAppearance="@style/CustomTextBody"
                 android:textColor="?attr/secondaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text"
                 android:visibility="gone" />

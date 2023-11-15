@@ -55,8 +55,6 @@ class NotesDetailsFragment : BaseFragment() {
                     binding.etTitle.visibility = View.GONE
                     binding.etDescription.visibility = View.GONE
 
-                    binding.tvEdit.text = getString(R.string.edit)
-
                     notesName = binding.etTitle.text.toString()
                     notes = binding.etDescription.text.toString()
 
@@ -96,65 +94,53 @@ class NotesDetailsFragment : BaseFragment() {
         })
     }
 
-    private fun initializeViews() {
+    private fun initializeViews() = with(binding) {
         markdownNotes()
 
-        binding.ivBack.setOnClickListener {
+        ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        binding.tvEdit.setOnClickListener {
-            if (binding.tvEdit.text == getString(R.string.save)) {
-                // TODO upload updated note
-                binding.tvTitle.visibility = View.VISIBLE
-                binding.tvNotesDetails.visibility = View.VISIBLE
-                binding.etTitle.visibility = View.GONE
-                binding.etDescription.visibility = View.GONE
+        ivSave.setOnClickListener {
+            viewModel.updateNote(
+                noteId,
+                NewNote(etTitle.text.toString(), etDescription.text.toString())
+            )
 
-                binding.tvEdit.text = getString(R.string.edit)
-            } else {
-                binding.tvTitle.visibility = View.GONE
-                binding.tvNotesDetails.visibility = View.GONE
-                binding.etTitle.visibility = View.VISIBLE
-                binding.etDescription.visibility = View.VISIBLE
+            tvTitle.visibility = View.VISIBLE
+            tvNotesDetails.visibility = View.VISIBLE
+            etTitle.visibility = View.GONE
+            etDescription.visibility = View.GONE
 
-                binding.tvEdit.text = getString(R.string.save)
+            ivSave.visibility = View.GONE
+            ivEdit.visibility = View.VISIBLE
 
-                binding.etTitle.setText(notesName)
-                binding.etDescription.setText(notes)
-            }
         }
 
-        binding.tvEdit.setOnClickListener {
-            if (binding.tvEdit.text == getString(R.string.save)) {
-                viewModel.updateNote(
-                    noteId,
-                    NewNote(binding.etTitle.text.toString(), binding.etDescription.text.toString())
-                )
-            } else {
-                binding.tvTitle.visibility = View.GONE
-                binding.tvNotesDetails.visibility = View.GONE
-                binding.etTitle.visibility = View.VISIBLE
-                binding.etDescription.visibility = View.VISIBLE
+        ivEdit.setOnClickListener {
+            tvTitle.visibility = View.GONE
+            tvNotesDetails.visibility = View.GONE
+            etTitle.visibility = View.VISIBLE
+            etDescription.visibility = View.VISIBLE
 
-                binding.tvEdit.text = getString(R.string.save)
 
-                binding.etTitle.setText(notesName)
-                binding.etDescription.setText(notes)
+            etTitle.setText(notesName)
+            etDescription.setText(notes)
 
-                showKeyboard(binding.etTitle)
-            }
+            ivSave.visibility = View.VISIBLE
+            ivEdit.visibility = View.GONE
         }
+
     }
 
-    private fun markdownNotes() {
-        binding.tvTitle.text = notesName
+    private fun markdownNotes() = with(binding) {
+        tvTitle.text = notesName
 
         val markwon = Markwon.create(requireContext())
-        markwon.setMarkdown(binding.tvNotesDetails, notes)
-        Linkify.addLinks(binding.tvNotesDetails, Linkify.WEB_URLS)
+        markwon.setMarkdown(tvNotesDetails, notes)
+        Linkify.addLinks(tvNotesDetails, Linkify.WEB_URLS)
 
-        binding.ivBack.setOnClickListener {
+        ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
     }

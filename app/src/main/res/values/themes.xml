@@ -63,7 +63,7 @@
 
 <!--  Neon theme  -->
     <style name="Theme.App.Neon" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="android:statusBarColor">#FF61187B</item>
+
         <item name="android:windowLightStatusBar">true</item>
 
         <item name="primaryColor">@color/neonPrimaryColor</item>
