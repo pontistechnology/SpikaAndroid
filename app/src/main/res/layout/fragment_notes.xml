@@ -13,7 +13,6 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/twenty_dp_margin"
         android:src="@drawable/img_arrow_back_chat"
-        app:layout_constraintBottom_toTopOf="@+id/rv_notes"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -40,22 +39,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/iv_back"/>
 
-
-<!--    <FrameLayout-->
-<!--        android:id="@+id/fl_notes"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintHorizontal_bias="1.0"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/iv_back">-->
-
-<!--    </FrameLayout>-->
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_notes"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:layout_marginTop="@dimen/thirty_two_dp_margin"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
         android:fillViewport="true"
         android:visibility="visible"
         android:windowSoftInputMode="adjustResize"
@@ -64,7 +54,7 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_back"
-        tools:listitem="@layout/item_note" />
+        tools:listitem="@layout/notes_option" />
 
     <TextView
         android:id="@+id/tv_no_notes"
@@ -72,11 +62,12 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/no_notes_here"
-        android:textAppearance="@style/CustomTextBody"
+        android:textAppearance="@style/CustomTitleBold"
         android:textColor="?attr/secondaryTextColor"
-        android:textSize="@dimen/fourteen_sp_text"
+        android:textSize="@dimen/twenty_four_sp_text"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

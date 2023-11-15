@@ -3,7 +3,6 @@ package com.clover.studio.spikamessenger.utils.dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.DialogErrorBinding
@@ -58,49 +57,44 @@ class DialogError(
         initViews()
     }
 
-    private fun initViews() {
-        binding.tvTextTitle.text = title
+    private fun initViews() = with(binding) {
+        tvTextTitle.text = title
 
         if (!description.isNullOrEmpty())
-            binding.tvTextDescription.text = description
+            tvTextDescription.text = description
         else
-            binding.tvTextDescription.visibility = View.GONE
-
-        if (!firstOption.isNullOrEmpty())
-            binding.btnFirstOption.text = firstOption
-        else
-            binding.btnFirstOption.visibility = View.INVISIBLE
+            tvTextDescription.visibility = View.GONE
 
         if (firstOption == null && secondOption == context.getString(R.string.ok)) {
-            binding.btnFirstOption.visibility = View.GONE
-            val param = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                2.0f
-            )
-            param.gravity = LinearLayout.TEXT_ALIGNMENT_CENTER
-            binding.btnSecondOption.layoutParams = param
-        }
+            btnOneOption.visibility = View.VISIBLE
+            btnOneOption.text = secondOption
+            llTwoOptions.visibility = View.GONE
+        } else {
+            llTwoOptions.visibility = View.VISIBLE
+            btnOneOption.visibility = View.GONE
 
-        if (secondOption == context.getString(R.string.exit)) {
-            binding.btnSecondOption.setTextColor(
-                ContextCompat.getColor(
-                    context,
-                    R.color.warningColor
+            if (!firstOption.isNullOrEmpty()) btnFirstOption.text = firstOption
+
+            if (secondOption == context.getString(R.string.exit)) {
+                btnSecondOption.setTextColor(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.warningColor
+                    )
                 )
-            )
-        }
+            }
 
-        binding.btnSecondOption.text = secondOption
+            btnSecondOption.text = secondOption
 
-        binding.btnSecondOption.setOnClickListener {
-            listener.onSecondOptionClicked()
-            dismiss()
-        }
+            btnSecondOption.setOnClickListener {
+                listener.onSecondOptionClicked()
+                dismiss()
+            }
 
-        binding.btnFirstOption.setOnClickListener {
-            listener.onFirstOptionClicked()
-            dismiss()
+            btnFirstOption.setOnClickListener {
+                listener.onFirstOptionClicked()
+                dismiss()
+            }
         }
     }
 

@@ -2,7 +2,7 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cv_only_option"
+    android:id="@+id/cv_notes_option"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -10,6 +10,7 @@
     app:cardBackgroundColor="?attr/primaryColor"
     app:cardCornerRadius="@dimen/sixteen_dp_margin"
     app:cardElevation="0dp"
+    android:layout_marginTop="@dimen/eight_dp_margin"
     app:cardPreventCornerOverlap="false"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
@@ -17,39 +18,52 @@
     tools:ignore="contentDescription">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/fl_only_item"
+        android:id="@+id/fl_notes_option"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/twenty_four_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
-            android:id="@+id/tv_only_item"
+        <ImageView
+            android:id="@+id/iv_tmp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/four_dp_margin"
-            android:drawablePadding="@dimen/eight_dp_margin"
-            android:gravity="center"
-            android:letterSpacing="0.1"
-            android:textAppearance="@style/CustomTextHeading"
-            android:textColor="?attr/primaryTextColor"
-            android:textSize="@dimen/fourteen_sp_text"
+            android:src="@drawable/img_empty_file"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/tv_notes_option"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/eight_dp_margin"
+            android:layout_marginEnd="@dimen/eight_dp_margin"
+            android:drawablePadding="@dimen/eight_dp_margin"
+            android:ellipsize="end"
+            android:letterSpacing="0.1"
+            android:maxLines="1"
+            android:text="@string/placeholder_title"
+            android:textAppearance="@style/CustomTextHeading"
+            android:textSize="@dimen/fifteen_sp_text"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_tmp"
+            app:layout_constraintEnd_toStartOf="@+id/iv_notes_option"
+            app:layout_constraintStart_toEndOf="@id/iv_tmp"
+            app:layout_constraintTop_toTopOf="@+id/iv_tmp" />
+
         <ImageView
-            android:id="@+id/iv_only_option"
+            android:id="@+id/iv_notes_option"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:backgroundTint="@color/white"
             android:src="@drawable/img_arrow_forward"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?attr/tertiaryColor" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

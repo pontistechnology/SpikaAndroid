@@ -53,9 +53,8 @@
         <item name="closeIcon">@drawable/img_search_close</item>
     </style>
 
-    <!-- Button style   -->
+    <!-- Button styles   -->
     <style name="CustomButton" parent="Base.Theme.AppCompat">
-        <item name="cornerRadius">@dimen/sixteen_dp_margin</item>
         <item name="backgroundTint">@color/button_color</item>
         <item name="android:letterSpacing">0.1</item>
         <item name="android:textAppearance">@style/CustomTextBody</item>
@@ -64,6 +63,29 @@
         <item name="android:textColor">?attr/primaryTextColor</item>
     </style>
 
+    <style name="HalfButtonLeft" parent="CustomButton">
+        <item name="shapeAppearanceOverlay">@style/LeftButtonShapeAppearance</item>
+    </style>
+    <style name="LeftButtonShapeAppearance">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">16dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
+    </style>
+
+    <style name="HalfRightLeft" parent="CustomButton">
+        <item name="shapeAppearanceOverlay">@style/RightButtonShapeAppearance</item>
+    </style>
+    <style name="RightButtonShapeAppearance">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeBottomLeft">16dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+        <item name="cornerSizeTopRight">0dp</item>
+    </style>
+
+    <!-- Reply images styles -->
     <style name="reply_image_receiver">
         <item name="cornerSizeTopRight">16dp</item>
         <item name="cornerFamilyTopRight">rounded</item>

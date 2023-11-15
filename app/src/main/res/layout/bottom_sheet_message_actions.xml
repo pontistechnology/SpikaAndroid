@@ -120,6 +120,7 @@
             android:textAppearance="@style/CustomTextBody"
             android:textColor="@color/warningColor"
             android:textSize="@dimen/sixteen_sp_text"
-            app:drawableLeftCompat="@drawable/img_delete" />
+            app:drawableLeftCompat="@drawable/img_delete"
+            app:drawableTint="@color/warningColor" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
