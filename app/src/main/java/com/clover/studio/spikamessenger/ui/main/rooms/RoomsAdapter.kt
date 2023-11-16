@@ -148,7 +148,7 @@ class RoomsAdapter(
             when (sortedList?.type) {
                 Const.JsonFields.IMAGE_TYPE -> {
                     setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera,
+                        R.drawable.img_camera_small,
                         0,
                         0,
                         0
@@ -157,7 +157,7 @@ class RoomsAdapter(
 
                 Const.JsonFields.VIDEO_TYPE -> {
                     setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_video_reply,
+                        R.drawable.img_video_small,
                         0,
                         0,
                         0
@@ -166,7 +166,7 @@ class RoomsAdapter(
 
                 Const.JsonFields.AUDIO_TYPE -> {
                     setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_audio_reply,
+                        R.drawable.img_microphone_small,
                         0,
                         0,
                         0
@@ -175,7 +175,7 @@ class RoomsAdapter(
 
                 Const.JsonFields.FILE_TYPE -> {
                     setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_document,
+                        R.drawable.img_file_small,
                         0,
                         0,
                         0

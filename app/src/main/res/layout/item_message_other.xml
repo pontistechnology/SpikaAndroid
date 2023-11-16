@@ -39,7 +39,40 @@
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toEndOf="@+id/iv_user_image"
         app:layout_constraintTop_toBottomOf="@+id/tv_username"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintVertical_bias="0.0"
+        android:background="@drawable/bg_message_received">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_reacted_emoji"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/eight_dp_margin"
+            android:layout_marginEnd="@dimen/four_dp_margin"
+            android:layout_marginBottom="@dimen/four_dp_margin"
+            android:backgroundTint="?attr/additionalColor"
+            android:elevation="0dp"
+            android:outlineProvider="none"
+            android:visibility="gone"
+            app:cardElevation="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:shapeAppearanceOverlay="@style/ReceiverBubbleStyle">
+
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/tv_reacted_emoji"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/eight_dp_margin"
+                android:layout_marginTop="@dimen/two_dp_margin"
+                android:layout_marginEnd="@dimen/eight_dp_margin"
+                android:layout_marginBottom="@dimen/two_dp_margin"
+                android:padding="@dimen/two_dp_margin"
+                android:text="@string/heart_emoji"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="?attr/primaryTextColor" />
+        </com.google.android.material.card.MaterialCardView>
 
         <com.vanniktech.emoji.EmojiTextView
             android:id="@+id/tv_message"
@@ -57,6 +90,7 @@
             android:textSize="@dimen/fourteen_sp_text"
             android:visibility="visible"
             app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toTopOf="@id/cv_reacted_emoji"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -188,7 +222,7 @@
             android:visibility="gone"
             app:cardElevation="0dp"
             app:cardPreventCornerOverlap="false"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/cv_reacted_emoji"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -217,7 +251,6 @@
                 android:id="@+id/iv_media_loading"
                 android:layout_width="@dimen/two_hundred_fifty_six_dp"
                 android:layout_height="@dimen/two_hundred_fifty_six_dp"
-                android:layout_margin="@dimen/two_dp_margin"
                 android:scaleType="centerInside"
                 android:src="@drawable/img_media_loading"
                 app:layout_constrainedHeight="true"
@@ -246,9 +279,11 @@
             android:id="@+id/cv_video"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/two_dp_margin"
             android:backgroundTint="?attr/primaryColor"
             android:saveEnabled="false"
             android:visibility="gone"
+            app:cardElevation="0dp"
             app:cardPreventCornerOverlap="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -266,16 +301,28 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </com.google.android.material.card.MaterialCardView>
 
-        <include
-            android:id="@+id/file_layout"
-            layout="@layout/file_layout"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_files"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/secondaryColor"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:cardElevation="0dp"
+            app:cardPreventCornerOverlap="false"
+            app:layout_constraintBottom_toTopOf="@+id/cv_reacted_emoji"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/ReceiverBubbleStyle">
+
+            <include
+                android:id="@+id/file_layout"
+                layout="@layout/file_layout" />
+        </com.google.android.material.card.MaterialCardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv_user_image"
@@ -302,35 +349,6 @@
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="@+id/cl_container"
         app:layout_constraintTop_toBottomOf="@+id/tv_section_header" />
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_reacted_emoji"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/two_dp_margin"
-        android:backgroundTint="?attr/secondaryColor"
-        android:elevation="0dp"
-        android:visibility="gone"
-        app:cardElevation="0dp"
-        app:cardPreventCornerOverlap="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/cl_container"
-        app:layout_constraintTop_toBottomOf="@+id/cl_container"
-        app:shapeAppearanceOverlay="@style/ReceiverReactionStyle">
-
-        <com.vanniktech.emoji.EmojiTextView
-            android:id="@+id/tv_reacted_emoji"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/eight_dp_margin"
-            android:layout_marginTop="@dimen/two_dp_margin"
-            android:layout_marginEnd="@dimen/eight_dp_margin"
-            android:layout_marginBottom="@dimen/two_dp_margin"
-            android:padding="@dimen/two_dp_margin"
-            android:text="@string/heart_emoji"
-            android:textAppearance="@style/CustomTextBody"
-            android:textColor="?attr/primaryTextColor" />
-    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/tv_time"

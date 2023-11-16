@@ -106,6 +106,7 @@
         <item name="cornerFamilyTopLeft">rounded</item>
         <item name="cornerSizeBottomLeft">16dp</item>
         <item name="cornerFamilyBottomLeft">rounded</item>
+        <item name="cornerSizeBottomRight">0dp</item>
     </style>
 
     <style name="ReceiverBubbleStyle">
@@ -115,22 +116,7 @@
         <item name="cornerFamilyTopLeft">rounded</item>
         <item name="cornerSizeBottomRight">16dp</item>
         <item name="cornerFamilyBottomRight">rounded</item>
-    </style>
-
-    <style name="ReceiverReactionStyle">
-        <item name="cornerSizeBottomRight">8dp</item>
-        <item name="cornerFamilyBottomRight">rounded</item>
         <item name="cornerSizeBottomLeft">0dp</item>
-        <item name="cornerSizeTopRight">0dp</item>
-        <item name="cornerSizeTopLeft">0dp</item>
-    </style>
-
-    <style name="SenderReactionStyle">
-        <item name="cornerSizeTopLeft">0dp</item>
-        <item name="cornerSizeBottomLeft">8dp</item>
-        <item name="cornerFamilyBottomLeft">rounded</item>
-        <item name="cornerSizeBottomRight">0dp</item>
-        <item name="cornerSizeTopRight">0dp</item>
     </style>
 
     <style name="round">
