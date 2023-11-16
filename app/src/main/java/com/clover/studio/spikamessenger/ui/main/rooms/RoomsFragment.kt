@@ -103,10 +103,12 @@ class RoomsFragment : BaseFragment() {
                         binding.tvNoChats.visibility = View.VISIBLE
                     }
                 }
-                Resource.Status.LOADING -> Timber.d("Loading!")
+                Resource.Status.LOADING -> Timber.d("Rooms loading")
                 Resource.Status.ERROR -> {
                     binding.tvNoChats.visibility = View.VISIBLE
+                    Timber.d("Rooms Error")
                 }
+                else -> Timber.d("Rooms unknown state")
             }
         }
 
@@ -227,10 +229,12 @@ class RoomsFragment : BaseFragment() {
             viewModel.getRoomWithUsers(it.roomWithUsers.room.roomId)
         }
 
-        binding.rvRooms.itemAnimator = null
-        binding.rvRooms.adapter = roomsAdapter
-        val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        binding.rvRooms.layoutManager = layoutManager
+        binding.rvRooms.apply {
+            itemAnimator = null
+            isMotionEventSplittingEnabled = false
+            adapter = roomsAdapter
+            layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+        }
     }
 
     private fun setupSearchView(searchView: SearchView?) = with(binding) {
