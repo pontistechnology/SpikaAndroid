@@ -58,7 +58,11 @@ class AccountCreationFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickAvatar)
+                Glide.with(this)
+                    .load(bitmap)
+                    .placeholder(R.drawable.img_user_avatar)
+                    .centerCrop()
+                    .into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
             } else {
                 Timber.d("Gallery error")
@@ -79,7 +83,7 @@ class AccountCreationFragment : BaseFragment() {
                 Glide.with(this).load(bitmap)
                     .placeholder(R.drawable.img_user_avatar)
                     .centerCrop()
-                    .into(binding.ivPickAvatar)
+                    .into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
             } else {
                 Timber.d("Photo error")
@@ -136,7 +140,7 @@ class AccountCreationFragment : BaseFragment() {
             checkUsername()
         }
 
-        binding.ivPickAvatar.setOnClickListener {
+        binding.profilePicture.ivPickAvatar.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
@@ -199,11 +203,11 @@ class AccountCreationFragment : BaseFragment() {
                     // ignore
                 }
             })
-        binding.flProgressScreen.visibility = View.GONE
-        binding.progressBar.secondaryProgress = 0
+        binding.profilePicture.flProgressScreen.visibility = View.GONE
+        binding.profilePicture.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this).clear(binding.ivPickAvatar)
-        binding.ivPickAvatar.setImageDrawable(
+        Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
+        binding.profilePicture.ivPickAvatar.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
                 R.drawable.img_camera
@@ -228,7 +232,7 @@ class AccountCreationFragment : BaseFragment() {
                         (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                     else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-                binding.progressBar.max = uploadPieces
+                binding.profilePicture.progressBar.max = uploadPieces
                 Timber.d("File upload start")
                 CoroutineScope(Dispatchers.IO).launch {
                     uploadDownloadManager.uploadFile(
@@ -247,7 +251,8 @@ class AccountCreationFragment : BaseFragment() {
                         object : FileUploadListener {
                             override fun filePieceUploaded() {
                                 if (progress <= uploadPieces) {
-                                    binding.progressBar.secondaryProgress = progress.toInt()
+                                    binding.profilePicture.progressBar.secondaryProgress =
+                                        progress.toInt()
                                     progress++
                                 } else progress = 0
                             }
@@ -268,7 +273,7 @@ class AccountCreationFragment : BaseFragment() {
                                 messageBody: MessageBody?
                             ) {
                                 requireActivity().runOnUiThread {
-                                    binding.flProgressScreen.visibility = View.GONE
+                                    binding.profilePicture.flProgressScreen.visibility = View.GONE
                                 }
 
                                 val jsonObject = JsonObject()
@@ -286,7 +291,7 @@ class AccountCreationFragment : BaseFragment() {
                             }
                         })
                 }
-                binding.flProgressScreen.visibility = View.VISIBLE
+                binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
             } else {
                 val jsonObject = JsonObject()
                 jsonObject.addProperty(

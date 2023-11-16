@@ -6,10 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
+    android:focusable="true"
     android:focusableInTouchMode="true"
     tools:context=".ui.onboarding.account_creation.AccountCreationFragment"
-    tools:ignore="contentDescription"
-    android:focusable="true">
+    tools:ignore="contentDescription">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_username_error"
@@ -42,39 +42,14 @@
             app:layout_constraintTop_toBottomOf="@id/tv_enter_number" />
     </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/iv_pick_avatar"
+    <include
+        android:id="@+id/profile_picture"
+        layout="@layout/profile_picture"
         android:layout_width="match_parent"
-        android:layout_height="395dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/big_profile_picture"
-        android:src="@drawable/img_group_avatar" />
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/fl_progress_screen"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/dark_background_transp"
-        android:backgroundTint="@color/background_80_transp"
-        android:elevation="@dimen/five_dp_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
-        app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar"
-        app:layout_constraintStart_toStartOf="@id/iv_pick_avatar"
-        app:layout_constraintTop_toTopOf="@id/iv_pick_avatar"
-        app:shapeAppearanceOverlay="@style/big_profile_picture">
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="@dimen/seventy_dp"
-            android:layout_height="@dimen/seventy_dp"
-            android:layout_gravity="center"
-            android:indeterminateOnly="true"
-            android:indeterminateTint="?attr/primaryColor"
-            app:layout_constraintBottom_toBottomOf="parent" />
-    </com.google.android.material.card.MaterialCardView>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_username"
@@ -86,7 +61,7 @@
         android:textColor="?attr/primaryTextColor"
         app:layout_constraintEnd_toEndOf="@+id/et_enter_username"
         app:layout_constraintStart_toStartOf="@+id/et_enter_username"
-        app:layout_constraintTop_toBottomOf="@id/iv_pick_avatar" />
+        app:layout_constraintTop_toBottomOf="@id/profile_picture" />
 
     <EditText
         android:id="@+id/et_enter_username"
@@ -94,13 +69,15 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/sixteen_dp_margin"
         android:background="@drawable/bg_text_field"
-        android:textAppearance="@style/CustomTextHeading"
         android:hint="@string/enter_username"
         android:inputType="text"
         android:padding="@dimen/sixteen_dp_margin"
         android:paddingStart="@dimen/twenty_four_dp_margin"
         android:paddingEnd="@dimen/twenty_four_dp_margin"
+        android:textAppearance="@style/CustomTextHeading"
+        android:textColor="?attr/primaryTextColor"
         android:textColorHint="?attr/secondaryTextColor"
+        android:backgroundTint="?attr/secondaryColor"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -110,12 +87,12 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_next"
         style="@style/CustomButton"
-        app:cornerRadius="@dimen/sixteen_dp_margin"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/sixteen_dp_margin"
         android:enabled="false"
         android:text="@string/next"
+        app:cornerRadius="@dimen/sixteen_dp_margin"
         app:layout_constraintEnd_toEndOf="@+id/et_enter_username"
         app:layout_constraintStart_toStartOf="@+id/et_enter_username"
         app:layout_constraintTop_toBottomOf="@+id/et_enter_username" />

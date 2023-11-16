@@ -132,6 +132,7 @@
     <string name="new_group_chat">New group chat</string>
     <string name="name_the_group">Name the group</string>
     <string name="group_name">Group name…</string>
+    <string name="enter_group_name">Enter group name</string>
     <string name="report_group">Report group</string>
     <string name="exit_group">Exit group</string>
     <string name="make_group_admin">Make group admin</string>

@@ -42,16 +42,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/iv_back" />
 
-    <ImageView
-        android:id="@+id/iv_attachment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/ten_dp_margin"
-        android:src="@drawable/img_attach_file"
-        android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@+id/iv_option"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -75,6 +65,7 @@
                 android:background="@drawable/bg_input"
                 android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/notes"
+                android:textColor="?attr/secondaryTextColor"
                 android:textAppearance="@style/CustomTitleBold"
                 android:textSize="@dimen/eighteen_sp_text" />
 
@@ -101,7 +92,7 @@
                 android:maxLength="135"
                 android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/notes"
-                android:textColor="?attr/secondaryTextColor"
+                android:textColor="?attr/primaryTextColor"
                 android:textAppearance="@style/CustomTitleBold"
                 android:textSize="@dimen/eighteen_sp_text"
                 android:visibility="gone" />
@@ -117,7 +108,7 @@
                 android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/placeholder_description"
                 android:textAppearance="@style/CustomTextBody"
-                android:textColor="?attr/secondaryTextColor"
+                android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text"
                 android:visibility="gone" />
         </LinearLayout>

@@ -46,10 +46,12 @@ class ContactsAdapter(
                 } else binding.transparentView.visibility = View.GONE
 
                 if (isGroupCreation) {
-                    binding.cbUserSelected.visibility = View.VISIBLE
-
-                    binding.cbUserSelected.isChecked = userItem.user.selected
-                } else binding.cbUserSelected.visibility = View.GONE
+                    binding.ivCheckedUser.visibility = if (userItem.user.selected) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
+                } else binding.ivCheckedUser.visibility = View.GONE
 
                 binding.tvHeader.text = userItem.phoneUser?.name?.uppercase()?.substring(0, 1)
                     ?: userItem.user.formattedDisplayName.uppercase().substring(0, 1)

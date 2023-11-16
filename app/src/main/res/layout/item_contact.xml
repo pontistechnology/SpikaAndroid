@@ -58,19 +58,17 @@
         app:layout_constraintStart_toEndOf="@id/iv_user_image"
         app:layout_constraintTop_toBottomOf="@id/tv_username" />
 
-    <CheckBox
-        android:id="@+id/cb_user_selected"
+    <ImageView
+        android:id="@+id/iv_checked_user"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:clickable="false"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:visibility="gone"
+        android:src="@drawable/img_checkmark"
+        app:tint="?attr/primaryTextColor"
         app:layout_constraintBottom_toBottomOf="@id/tv_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/tv_username"
-        android:theme="@style/CustomCheckBox" />
+
+        />
 
     <View
         android:id="@+id/transparent_view"

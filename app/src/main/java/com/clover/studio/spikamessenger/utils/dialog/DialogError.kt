@@ -69,6 +69,11 @@ class DialogError(
             btnOneOption.visibility = View.VISIBLE
             btnOneOption.text = secondOption
             llTwoOptions.visibility = View.GONE
+
+            btnOneOption.setOnClickListener {
+                listener.onSecondOptionClicked()
+                dismiss()
+            }
         } else {
             llTwoOptions.visibility = View.VISIBLE
             btnOneOption.visibility = View.GONE
