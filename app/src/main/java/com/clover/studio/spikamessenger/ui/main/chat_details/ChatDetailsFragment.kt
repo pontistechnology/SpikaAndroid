@@ -1,14 +1,15 @@
 package com.clover.studio.spikamessenger.ui.main.chat_details
 
 import android.content.pm.ActivityInfo
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton.OnCheckedChangeListener
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
@@ -30,12 +31,14 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.UploadDownloadManager
+import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.getChunkSize
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,8 +75,10 @@ class ChatDetailsFragment : BaseFragment() {
     private var bindingSetup: FragmentChatDetailsBinding? = null
     private val binding get() = bindingSetup!!
 
-    private var allUsers = false
     private var modifiedList: List<User> = mutableListOf()
+    private var optionList: MutableList<UserOptionsData> = mutableListOf()
+    private var pinSwitch: Drawable? = null
+    private var muteSwitch: Drawable? = null
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -82,8 +87,7 @@ class ChatDetailsFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickAvatar)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this).load(bitmap).centerCrop().into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
             } else {
@@ -102,8 +106,7 @@ class ChatDetailsFragment : BaseFragment() {
                     )
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickAvatar)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this).load(bitmap).centerCrop().into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
             } else {
@@ -129,23 +132,100 @@ class ChatDetailsFragment : BaseFragment() {
         bindingSetup = FragmentChatDetailsBinding.inflate(inflater, container, false)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        handleUserStatusViews(isAdmin)
+        initializeViews(roomWithUsers)
+
+        setOptionList()
+
+        val userOptions = UserOptions(requireContext())
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(option: Int, optionName: String) {
+                when (optionName) {
+                    getString(R.string.notes) -> goToNotes()
+                    getString(R.string.delete_chat) -> goToDeleteChat()
+                    getString(R.string.exit_group) -> goToExitGroup()
+
+                }
+            }
+
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
+                switchPinMuteOptions(optionName, isSwitched)
+            }
+        })
+        binding.flOptionsContainer.addView(userOptions)
+
+
+        initializeObservers()
+
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) = with(binding) {
-        super.onViewCreated(view, savedInstanceState)
+    private fun goToExitGroup() {
+        val adminIds = ArrayList<Int>()
+        for (user in roomUsers) {
+            if (user.isAdmin)
+                adminIds.add(user.id)
+        }
 
-        initializeViews(roomWithUsers)
-        initializeObservers()
-        handleUserStatusViews(isAdmin)
+        // Exit condition:
+        // If current user is not admin
+        // Or current user is admin and and there are other admins
+        if (!isAdmin || (adminIds.size > 1) && isAdmin) {
+            DialogError.getInstance(requireActivity(),
+                getString(R.string.exit_group),
+                getString(R.string.exit_group_description),
+                getString(R.string.cancel),
+                getString(
+                    R.string.exit
+                ),
+                object : DialogInteraction {
+                    override fun onSecondOptionClicked() {
+                        roomId?.let { id -> viewModel.leaveRoom(id) }
+                        // Remove if admin
+                        if (isAdmin) {
+                            roomId?.let { id -> viewModel.removeAdmin(id, localUserId!!) }
+                        }
+                        activity?.finish()
+                    }
+                })
+        } else {
+            DialogError.getInstance(requireActivity(),
+                getString(R.string.exit_group),
+                getString(R.string.exit_group_error),
+                null,
+                getString(R.string.ok),
+                object : DialogInteraction {
+                    override fun onSecondOptionClicked() {
+                        // Ignore
+                    }
+                })
+        }
+    }
+
+    private fun goToDeleteChat() {
+        DialogError.getInstance(requireActivity(),
+            getString(R.string.delete_chat),
+            getString(R.string.delete_chat_description),
+            getString(
+                R.string.yes
+            ),
+            getString(R.string.no),
+            object : DialogInteraction {
+                override fun onFirstOptionClicked() {
+                    roomId?.let { id -> viewModel.deleteRoom(id) }
+                    activity?.finish()
+                }
+            })
+
     }
 
     private fun handleUserStatusViews(isAdmin: Boolean) = with(binding) {
         if (!isAdmin) {
             tvGroupName.isClickable = false
             ivDone.isFocusable = false
-            ivPickAvatar.isClickable = false
-            ivPickAvatar.isFocusable = false
+            profilePicture.ivPickAvatar.isClickable = false
+            profilePicture.ivPickAvatar.isFocusable = false
             ivAddMember.visibility = View.GONE
         }
     }
@@ -159,31 +239,98 @@ class ChatDetailsFragment : BaseFragment() {
         tvMembersNumber.text =
             getString(R.string.number_of_members, roomWithUsers.users.size)
 
-        if (isAdmin) {
-            tvDelete.visibility = View.VISIBLE
-            ivAddMember.visibility = View.VISIBLE
-        }
-
-        if (!roomWithUsers.room.roomExit) {
-            tvExitGroup.visibility = View.VISIBLE
-        } else {
-            tvExitGroup.visibility = View.GONE
-        }
-
-        binding.chatHeader.tvTitle.text = roomWithUsers.room.type
-
         // This will stop image file changes while file is uploading via LiveData
         if (!isUploading && ivDone.visibility == View.GONE) {
             setAvatarAndUsername(avatarFileId, userName)
         }
 
-        swPinChat.isChecked = roomWithUsers.room.pinned
-        swMute.isChecked = roomWithUsers.room.muted
-
-        swMute.setOnCheckedChangeListener(multiListener)
-        swPinChat.setOnCheckedChangeListener(multiListener)
-
         initializeListeners(roomWithUsers)
+    }
+
+    private fun switchPinMuteOptions(optionName: String, isSwitched: Boolean) {
+        if (optionName == getString(R.string.pin_chat)) {
+            viewModel.handleRoomPin(roomWithUsers.room.roomId, isSwitched)
+        } else {
+            viewModel.handleRoomMute(roomWithUsers.room.roomId, isSwitched)
+        }
+    }
+
+    private fun setOptionList() = with(binding) {
+        val pinId =
+            if (roomWithUsers.room.pinned) R.drawable.img_switch else R.drawable.img_switch_left
+        val muteId =
+            if (roomWithUsers.room.muted) R.drawable.img_switch else R.drawable.img_switch_left
+
+        pinSwitch = AppCompatResources.getDrawable(requireContext(), pinId)
+        muteSwitch = AppCompatResources.getDrawable(requireContext(), muteId)
+
+        optionList = mutableListOf(
+            UserOptionsData(
+                option = getString(R.string.notes),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_notes
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_arrow_forward
+                ),
+                switchOption = false,
+                isSwitched = false,
+            ),
+            UserOptionsData(
+                option = getString(R.string.pin_chat),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_pin
+                ),
+                secondDrawable = pinSwitch,
+                switchOption = true,
+                isSwitched = roomWithUsers.room.pinned
+            ),
+            UserOptionsData(
+                option = getString(R.string.mute),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_mute
+                ),
+                secondDrawable = muteSwitch,
+                switchOption = true,
+                isSwitched = roomWithUsers.room.pinned
+            ),
+        )
+
+        if (isAdmin){
+            optionList.add(
+                UserOptionsData(
+                    option = getString(R.string.delete_chat),
+                    firstDrawable = AppCompatResources.getDrawable(
+                        requireContext(),
+                        R.drawable.img_delete_note
+                    ),
+                    secondDrawable = null,
+                    switchOption = false,
+                    isSwitched = false
+                )
+            )
+            ivAddMember.visibility = View.VISIBLE
+
+        }
+
+        if (!roomWithUsers.room.roomExit) {
+            optionList.add(
+                UserOptionsData(
+                    option = getString(R.string.exit_group),
+                    firstDrawable = AppCompatResources.getDrawable(
+                        requireContext(),
+                        R.drawable.img_chat_exit
+                    ),
+                    secondDrawable = null,
+                    switchOption = false,
+                    isSwitched = false
+                )
+            )
+        }
     }
 
     private fun initializeListeners(roomWithUsers: RoomWithUsers) = with(binding) {
@@ -204,6 +351,7 @@ class ChatDetailsFragment : BaseFragment() {
         tvGroupName.setOnClickListener {
             if (roomWithUsers.room.type.toString() == Const.JsonFields.GROUP && isAdmin) {
                 etEnterGroupName.visibility = View.VISIBLE
+                tvGroupPlaceholder.visibility = View.GONE
                 ivDone.visibility = View.VISIBLE
                 tvGroupName.visibility = View.INVISIBLE
             }
@@ -224,21 +372,11 @@ class ChatDetailsFragment : BaseFragment() {
 
             ivDone.visibility = View.GONE
             etEnterGroupName.visibility = View.INVISIBLE
+            tvGroupPlaceholder.visibility = View.VISIBLE
             tvGroupName.visibility = View.VISIBLE
         }
 
-        flNotes.setOnClickListener {
-            val action = roomId?.let { id ->
-                ChatDetailsFragmentDirections.actionChatDetailsFragmentToNotesFragment(
-                    id
-                )
-            }
-            if (action != null) {
-                findNavController().navigate(action)
-            }
-        }
-
-        ivPickAvatar.setOnClickListener {
+        profilePicture.ivPickAvatar.setOnClickListener {
             if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && isAdmin) {
                 ChooserDialog.getInstance(requireContext(),
                     getString(R.string.placeholder_title),
@@ -257,125 +395,44 @@ class ChatDetailsFragment : BaseFragment() {
             }
         }
 
-        binding.chatHeader.ivArrowBack.setOnClickListener {
+        binding.ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        // Rooms can only be deleted by room admins.
-        tvDelete.setOnClickListener {
-            if (isAdmin) {
-                DialogError.getInstance(requireActivity(),
-                    getString(R.string.delete_chat),
-                    getString(R.string.delete_chat_description),
-                    getString(
-                        R.string.yes
-                    ),
-                    getString(R.string.no),
-                    object : DialogInteraction {
-                        override fun onFirstOptionClicked() {
-                            roomId?.let { id -> viewModel.deleteRoom(id) }
-                            activity?.finish()
-                        }
-                    })
-            }
-        }
-
-        tvExitGroup.setOnClickListener {
-            val adminIds = ArrayList<Int>()
-            for (user in roomUsers) {
-                if (user.isAdmin)
-                    adminIds.add(user.id)
-            }
-
-            // Exit condition:
-            // If current user is not admin
-            // Or current user is admin and and there are other admins
-            if (!isAdmin || (adminIds.size > 1) && isAdmin) {
-                DialogError.getInstance(requireActivity(),
-                    getString(R.string.exit_group),
-                    getString(R.string.exit_group_description),
-                    getString(R.string.cancel),
-                    getString(
-                        R.string.exit
-                    ),
-                    object : DialogInteraction {
-                        override fun onSecondOptionClicked() {
-                            roomId?.let { id -> viewModel.leaveRoom(id) }
-                            // Remove if admin
-                            if (isAdmin) {
-                                roomId?.let { id -> viewModel.removeAdmin(id, localUserId!!) }
-                            }
-                            activity?.finish()
-                        }
-                    })
-            } else {
-                DialogError.getInstance(requireActivity(),
-                    getString(R.string.exit_group),
-                    getString(R.string.exit_group_error),
-                    null,
-                    getString(R.string.ok),
-                    object : DialogInteraction {
-                        override fun onSecondOptionClicked() {
-                            // Ignore
-                        }
-                    })
-            }
-        }
-
-        tvSeeMoreLess.setOnClickListener {
-            if (allUsers) {
-                adapter.submitList(modifiedList.toList())
-                tvSeeMoreLess.text = context!!.getString(R.string.see_less)
-                allUsers = false
-            } else {
-                adapter.submitList(modifiedList.subList(0, 3).toList())
-                tvSeeMoreLess.text = context!!.getString(R.string.see_more)
-                allUsers = true
-            }
-        }
+//        tvSeeMoreLess.setOnClickListener {
+//            if (allUsers) {
+//                adapter.submitList(modifiedList.toList())
+//                tvSeeMoreLess.text = context!!.getString(R.string.see_less)
+//                allUsers = false
+//            } else {
+//                adapter.submitList(modifiedList.subList(0, 3).toList())
+//                tvSeeMoreLess.text = context!!.getString(R.string.see_more)
+//                allUsers = true
+//            }
+//        }
     }
 
-    // Listener which handles switch events and sends event to specific switch
-    private val multiListener: OnCheckedChangeListener =
-        OnCheckedChangeListener { buttonView, isChecked ->
-            when (buttonView.id) {
-                binding.swPinChat.id -> {
-                    if (buttonView.isPressed) {
-                        if (isChecked) {
-                            roomId?.let { viewModel.handleRoomPin(it, true) }
-                        } else {
-                            roomId?.let { viewModel.handleRoomPin(it, false) }
-                        }
-                    }
-                }
-
-                binding.swMute.id -> {
-                    if (buttonView.isPressed) {
-                        if (isChecked) {
-                            roomId?.let { viewModel.handleRoomMute(it, true) }
-                        } else {
-                            roomId?.let { viewModel.handleRoomMute(it, false) }
-                        }
-                    }
-                }
-            }
+    private fun goToNotes() {
+        val action = roomId?.let { id ->
+            ChatDetailsFragmentDirections.actionChatDetailsFragmentToNotesFragment(
+                id
+            )
         }
+        if (action != null) {
+            findNavController().navigate(action)
+        }
+    }
 
     private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
         if (avatarFileId != 0L) {
             Glide.with(this)
                 .load(avatarFileId.let { Tools.getFilePathUrl(it) })
                 .centerCrop()
+                .placeholder(R.drawable.img_group_avatar)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .into(binding.ivPickAvatar)
-            Glide.with(this)
-                .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .into(binding.chatHeader.ivUserImage)
+                .into(binding.profilePicture.ivPickAvatar)
         }
         binding.tvGroupName.text = username
-        binding.chatHeader.tvChatName.text = username
     }
 
     private fun initializeObservers() {
@@ -407,7 +464,7 @@ class ChatDetailsFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.LOADING -> {
                     if (progress <= uploadPieces) {
-                        binding.progressBar.secondaryProgress = progress.toInt()
+                        binding.profilePicture.progressBar.secondaryProgress = progress.toInt()
                         progress++
                     } else progress = 0
                 }
@@ -415,7 +472,7 @@ class ChatDetailsFragment : BaseFragment() {
                 Resource.Status.SUCCESS -> {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
-                        binding.flProgressScreen.visibility = View.GONE
+                        binding.profilePicture.flProgressScreen.visibility = View.GONE
                         binding.ivDone.visibility = View.VISIBLE
                     }
                     newAvatarFileId = it.responseData!!.fileId
@@ -530,15 +587,8 @@ class ChatDetailsFragment : BaseFragment() {
                 }
             }
             modifiedList = roomUsers.sortedBy { user -> user.isAdmin }.reversed()
-            if (modifiedList.size > 3) {
-                adapter.submitList(modifiedList.subList(0, 3).toList())
-                binding.tvSeeMoreLess.visibility = View.VISIBLE
-                binding.tvSeeMoreLess.text = context!!.getString(R.string.see_more)
-                allUsers = true
-            } else {
-                adapter.submitList(modifiedList.toList())
-                binding.tvSeeMoreLess.visibility = View.GONE
-            }
+            adapter.submitList(modifiedList.toList())
+
         }
     }
 
@@ -556,7 +606,7 @@ class ChatDetailsFragment : BaseFragment() {
                     (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-            binding.progressBar.max = uploadPieces
+            binding.profilePicture.progressBar.max = uploadPieces
             Timber.d("File upload start")
             isUploading = true
             viewModel.uploadFile(
@@ -573,7 +623,7 @@ class ChatDetailsFragment : BaseFragment() {
                     null
                 )
             )
-            binding.flProgressScreen.visibility = View.VISIBLE
+            binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
         }
     }
 
@@ -592,17 +642,16 @@ class ChatDetailsFragment : BaseFragment() {
                     // Ignore
                 }
             })
-        binding.flProgressScreen.visibility = View.GONE
-        binding.progressBar.secondaryProgress = 0
+        binding.profilePicture.flProgressScreen.visibility = View.GONE
+        binding.profilePicture.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this).clear(binding.ivPickAvatar)
-        binding.ivPickAvatar.setImageDrawable(
+        Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
+        binding.profilePicture.ivPickAvatar.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
                 R.drawable.img_camera
             )
         )
-        binding.clSmallCameraPicker.visibility = View.GONE
     }
 
     private fun chooseImage() {

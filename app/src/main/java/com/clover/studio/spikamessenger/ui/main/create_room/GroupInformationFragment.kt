@@ -64,8 +64,7 @@ class GroupInformationFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this).load(bitmap).centerCrop().into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
             } else {
@@ -84,8 +83,7 @@ class GroupInformationFragment : BaseFragment() {
                     )
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this).load(bitmap).centerCrop().into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
             } else {
@@ -160,7 +158,7 @@ class GroupInformationFragment : BaseFragment() {
         adapter.submitList(selectedUsers)
 
         binding.etEnterUsername.addTextChangedListener {
-            binding.fabDone.visibility = if (binding.etEnterUsername.text.isNotEmpty()){
+            binding.fabDone.visibility = if (binding.etEnterUsername.text.isNotEmpty()) {
                 View.VISIBLE
             } else {
                 View.GONE
@@ -175,7 +173,7 @@ class GroupInformationFragment : BaseFragment() {
             }
         }
 
-        binding.ivPickPhoto.setOnClickListener {
+        binding.profilePicture.ivPickAvatar.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
@@ -235,7 +233,7 @@ class GroupInformationFragment : BaseFragment() {
             when (it.status) {
                 Resource.Status.LOADING -> {
                     if (progress <= uploadPieces) {
-                        binding.progressBar.secondaryProgress = progress.toInt()
+                        binding.profilePicture.progressBar.secondaryProgress = progress.toInt()
                         progress++
                     } else progress = 0
                 }
@@ -243,7 +241,7 @@ class GroupInformationFragment : BaseFragment() {
                 Resource.Status.SUCCESS -> {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
-                        binding.clProgressScreen.visibility = View.GONE
+                        binding.profilePicture.flProgressScreen.visibility = View.GONE
                     }
                     avatarFileId = it.responseData?.fileId
                 }
@@ -307,7 +305,7 @@ class GroupInformationFragment : BaseFragment() {
                     (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-            binding.progressBar.max = uploadPieces
+            binding.profilePicture.progressBar.max = uploadPieces
             Timber.d("File upload start")
             viewModel.uploadMedia(
                 FileData(
@@ -323,7 +321,7 @@ class GroupInformationFragment : BaseFragment() {
                     null
                 )
             )
-            binding.clProgressScreen.visibility = View.VISIBLE
+            binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
         }
     }
 
@@ -342,17 +340,16 @@ class GroupInformationFragment : BaseFragment() {
                     // Ignore
                 }
             })
-        binding.clProgressScreen.visibility = View.GONE
-        binding.progressBar.secondaryProgress = 0
+        binding.profilePicture.flProgressScreen.visibility = View.GONE
+        binding.profilePicture.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this).clear(binding.ivPickPhoto)
-        binding.ivPickPhoto.setImageDrawable(
+        Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
+        binding.profilePicture.ivPickAvatar.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
-                R.drawable.img_camera
+                R.drawable.img_group_avatar
             )
         )
-        binding.clSmallCameraPicker.visibility = View.GONE
     }
 
     private fun showRoomCreationError(description: String) {

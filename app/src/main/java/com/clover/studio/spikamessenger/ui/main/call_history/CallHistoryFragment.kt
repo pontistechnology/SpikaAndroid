@@ -5,13 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentCallHistoryBinding
-import com.clover.studio.spikamessenger.ui.main.MainFragmentDirections
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import timber.log.Timber
 
@@ -59,7 +57,6 @@ class CallHistoryFragment : BaseFragment() {
     }
 
     private fun initializeViews() = with(binding) {
-        topAppBar.menu.findItem(R.id.create_room_menu_icon).isVisible = false
         topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
@@ -73,10 +70,10 @@ class CallHistoryFragment : BaseFragment() {
                     true
                 }
 
-                R.id.create_room_menu_icon -> {
-                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
-                    true
-                }
+//                R.id.create_room_menu_icon -> {
+//                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
+//                    true
+//                }
 
                 else -> false
             }

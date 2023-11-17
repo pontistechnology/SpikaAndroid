@@ -1,8 +1,5 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
@@ -133,9 +130,11 @@ class ChatAdapter(
 
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
-
-                holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_send)
-                holder.binding.tvTime.visibility = View.GONE
+                bindMessageTime(
+                    tvTime = holder.binding.tvTime,
+                    clContainer = holder.binding.clMessage,
+                    calendar = calendar
+                )
 
                 /** Message types: */
                 when (it.message.type) {
@@ -147,12 +146,6 @@ class ChatAdapter(
                             cvReactedEmoji = holder.binding.cvReactedEmoji,
                             chatMessage = it,
                             sender = true
-                        )
-                        showMessageTime(
-                            message = it,
-                            tvTime = holder.binding.tvTime,
-                            tvMessage = holder.binding.tvMessage,
-                            calendar = calendar
                         )
                     }
 
@@ -184,8 +177,8 @@ class ChatAdapter(
                                 clContainer = holder.binding.clContainer,
                             )
                         } else {
-                            with(holder.binding.videoLayout) {
-                                setViewsVisibility(flVideos, holder)
+                            with(holder.binding) {
+                                setViewsVisibility(cvVideo, holder)
                                 bindVideo(
                                     chatMessage = it,
                                     videoLayoutBinding = holder.binding.videoLayout
@@ -327,6 +320,7 @@ class ChatAdapter(
                         clContainer = holder.binding.clContainer,
                         tvUsername = holder.binding.tvUsernameOther,
                         sender = true,
+                        roomType = roomType,
                     )
                 }
 
@@ -386,8 +380,11 @@ class ChatAdapter(
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
 
-                holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
-                holder.binding.tvTime.visibility = View.GONE
+                bindMessageTime(
+                    tvTime = holder.binding.tvTime,
+                    clContainer = holder.binding.clMessage,
+                    calendar = calendar
+                )
 
                 /** Message types: */
                 when (it.message.type) {
@@ -399,13 +396,6 @@ class ChatAdapter(
                             cvReactedEmoji = holder.binding.cvReactedEmoji,
                             chatMessage = it,
                             sender = false
-                        )
-                        holder.binding.clContainer.setBackgroundResource(R.drawable.bg_message_received)
-                        showMessageTime(
-                            message = it,
-                            tvTime = holder.binding.tvTime,
-                            tvMessage = holder.binding.tvMessage,
-                            calendar = calendar
                         )
                     }
 
@@ -420,8 +410,8 @@ class ChatAdapter(
                     }
 
                     Const.JsonFields.VIDEO_TYPE -> {
-                        with(holder.binding.videoLayout) {
-                            setViewsVisibility(flVideos, holder)
+                        with(holder.binding) {
+                            setViewsVisibility(cvVideo, holder)
                             bindVideo(
                                 chatMessage = it,
                                 videoLayoutBinding = holder.binding.videoLayout
@@ -472,6 +462,7 @@ class ChatAdapter(
                         clContainer = holder.binding.clContainer,
                         tvUsername = holder.binding.tvUsernameOther,
                         sender = false,
+                        roomType = roomType,
                     )
                 }
 
@@ -482,9 +473,9 @@ class ChatAdapter(
 
                 /** Show edited layout: */
                 if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.tvMessageEdited.visibility = View.VISIBLE
+                    holder.binding.tvEdited.visibility = View.VISIBLE
                 } else {
-                    holder.binding.tvMessageEdited.visibility = View.GONE
+                    holder.binding.tvEdited.visibility = View.GONE
                 }
 
                 /** Show user names and avatars in group chat */
@@ -501,8 +492,8 @@ class ChatAdapter(
                         Glide.with(context)
                             .load(userPath)
                             .dontTransform()
-                            .placeholder(R.drawable.img_user_placeholder)
-                            .error(R.drawable.img_user_placeholder)
+                            .placeholder(R.drawable.img_user_avatar)
+                            .error(R.drawable.img_user_avatar)
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .into(holder.binding.ivUserImage)
 
@@ -539,6 +530,26 @@ class ChatAdapter(
 
     }
 
+    private fun bindMessageTime(
+        calendar: Calendar,
+        tvTime: TextView,
+        clContainer: ConstraintLayout
+    ) {
+        tvTime.visibility = View.GONE
+        tvTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+            calendar.timeInMillis
+        ).toString()
+
+        clContainer.setOnClickListener {
+            tvTime.visibility = if (tvTime.visibility == View.VISIBLE) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+
+        }
+    }
+
     fun setSelectedPosition(position: Int) {
         selectedPosition = position
         notifyItemChanged(position)
@@ -568,7 +579,7 @@ class ChatAdapter(
         tvMessage: TextView,
         cvReactedEmoji: CardView,
         chatMessage: MessageAndRecords,
-        sender: Boolean,
+        sender: Boolean
     ) {
         var isDeleted = false
         if (chatMessage.message.deleted == true || chatMessage.message.body?.text == context.getString(
@@ -577,41 +588,35 @@ class ChatAdapter(
         ) {
             isDeleted = true
         }
+
         tvMessage.apply {
-            text = if (isDeleted) {
-                context.getString(R.string.message_deleted_text)
+            if (isDeleted) {
+                text = context.getString(R.string.message_deleted_text)
+                cvReactedEmoji.visibility = View.GONE
+                background =
+                    AppCompatResources.getDrawable(
+                        context,
+                        if (sender) R.drawable.bg_deleted_msg_send else R.drawable.bg_deleted_msg_received
+                    )
             } else {
-                chatMessage.message.body?.text
-            }
-            setTextColor(
-                ContextCompat.getColor(
-                    context,
-                    if (isDeleted) R.color.text_tertiary else R.color.text_primary
-                )
-            )
+                text = chatMessage.message.body?.text
 
-            if (isDeleted) cvReactedEmoji.visibility = View.GONE
-
-            background = if (isDeleted) {
-                AppCompatResources.getDrawable(
-                    context,
-                    R.drawable.img_deleted_message
-                )
-            } else {
-                AppCompatResources.getDrawable(
+                background = AppCompatResources.getDrawable(
                     context,
                     if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
                 )
-            }
-
-            movementMethod = LinkMovementMethod.getInstance()
-
-            setOnLongClickListener {
-                if (!isDeleted) {
+                setOnLongClickListener {
                     chatMessage.message.messagePosition = holder.absoluteAdapterPosition
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)
+                    true
                 }
-                true
+                movementMethod = LinkMovementMethod.getInstance()
+
+                setOnClickListener {
+                    if (chatMessage.message.deliveredCount == -1) {
+                        onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
+                    }
+                }
             }
         }
     }
@@ -872,29 +877,6 @@ class ChatAdapter(
             chatMessage!!.message.messagePosition = position
             onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)
             true
-        }
-    }
-
-    /** A method that shows the time of a message when it is tapped */
-    private fun showMessageTime(
-        message: MessageAndRecords,
-        tvTime: TextView,
-        tvMessage: TextView,
-        calendar: Calendar
-    ) {
-        tvMessage.setOnClickListener {
-            tvTime.visibility = if (tvTime.visibility == View.GONE) {
-                tvTime.text =
-                    SimpleDateFormat("HH:mm", Locale.getDefault()).format(calendar.timeInMillis)
-                        .toString()
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-
-            if (message.message.deliveredCount == -1) {
-                onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, message)
-            }
         }
     }
 

@@ -4,6 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DownloadManager
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -322,7 +324,7 @@ object Tools {
         )
     }
 
-    fun getRoomTime(startDate: Long) : CharSequence? {
+    fun getRoomTime(startDate: Long): CharSequence? {
         val currentTimeMillis = System.currentTimeMillis()
         val timeDifference = currentTimeMillis - startDate
 
@@ -381,8 +383,8 @@ object Tools {
         }
     }
 
-    fun getVideoSize(duration: Long, bitRate: Long) : Boolean {
-        val videoSIze = ( duration / TO_KILOBYTE) * bitRate / TO_BYTES
+    fun getVideoSize(duration: Long, bitRate: Long): Boolean {
+        val videoSIze = (duration / TO_KILOBYTE) * bitRate / TO_BYTES
         return videoSIze / TO_MEGABYTE > VIDEO_SIZE_LIMIT
     }
 
@@ -734,7 +736,7 @@ object Tools {
         }
     }
 
-    fun forbiddenMimeTypes(fileMimeType: String) : Boolean {
+    fun forbiddenMimeTypes(fileMimeType: String): Boolean {
         return (fileMimeType.contains(Const.JsonFields.SVG_TYPE) ||
                 fileMimeType.contains(Const.JsonFields.AVI_TYPE)) ||
                 fileMimeType.contains(Const.JsonFields.MOV_TYPE)
@@ -764,5 +766,45 @@ object Tools {
             .setPopEnterAnim(R.anim.nav_slide_in_left)
             .setPopExitAnim(R.anim.nav_slide_out_right)
             .build()
+    }
+
+    fun setTheme(theme: String): Int {
+        return when (theme) {
+            Const.Themes.MINT_THEME -> {
+                R.style.Theme_App_LightGreen
+            }
+
+            Const.Themes.NEON_THEME -> {
+                R.style.Theme_App_Neon
+            }
+
+            Const.Themes.BASIC_THEME_NIGHT -> {
+                R.style.Theme_App_DarkMarine
+            }
+
+            else -> {
+                R.style.Theme_ExampleApp
+            }
+        }
+    }
+
+     fun handleCopyAction(text: String) {
+        val clipboard =
+            MainApplication.appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip: ClipData = ClipData.newPlainText("", text)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(
+            MainApplication.appContext,
+            MainApplication.appContext.getString(R.string.text_copied),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    fun getPlaceholderImage(roomType: String): Int {
+        return if (roomType == Const.JsonFields.GROUP) {
+            R.drawable.img_group_avatar
+        } else {
+            R.drawable.img_user_avatar
+        }
     }
 }

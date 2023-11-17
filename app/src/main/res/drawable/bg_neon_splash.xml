@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="360dp"
+    android:height="724dp"
+    android:viewportWidth="360"
+    android:viewportHeight="724">
+  <path
+      android:pathData="M0,0h360v724h-360z">
+    <aapt:attr name="android:fillColor">
+      <gradient 
+          android:startX="110.76"
+          android:startY="10.37"
+          android:endX="271.7"
+          android:endY="827.67"
+          android:type="linear">
+        <item android:offset="0" android:color="#FF1E0042"/>
+        <item android:offset="0.49" android:color="#FF3A0762"/>
+        <item android:offset="1" android:color="#FF080F6B"/>
+      </gradient>
+    </aapt:attr>
+  </path>
+  <path
+      android:pathData="M7.8,220.3a200.8,200.8 0,0 0,-7.6 21c-14.4,47.1 -13.3,88.1 2.9,123.2s39.3,63.6 69,85.9 68.1,46.4 114.9,72.2q54.9,29.9 77,47.9c15.1,12 20.5,24.7 16.3,38.3 -3.6,11.9 -12.7,18.6 -27.6,20.6s-37.3,-1.8 -67.6,-11c-35.2,-10.8 -70.5,-27.4 -105.4,-50S14.2,521 -11.1,493.6L-130.4,631.3q40.1,45.8 110.8,87.2h0.1a721.8,721.8 0,0 0,151.7 66c64.8,19.8 123.1,27 174.3,21.3s93.5,-21.3 126.6,-47.5 55.8,-59.5 68.2,-100.4q21.6,-70.5 -3.5,-122.8c-16.7,-34.7 -40.1,-63.3 -70.5,-85.8s-68.8,-45.8 -115.4,-70.2c-36.1,-19.1 -61.6,-34.5 -76.2,-46.1s-20.2,-23.9 -16.2,-36.9c8.3,-27.3 40.1,-32.4 96.9,-15.1s112.1,52 166,103.5L596.7,246.1c-27.1,-28.7 -60.6,-54.2 -100.6,-76.9a631.5,631.5 0,0 0,-126.9 -54.5C304.4,94.9 246.2,87.5 195,92.9l-1.6,0.2a124.9,124.9 0,0 1,-39.7 108.4l1.3,54.2a4.3,4.3 0,0 1,-6.7 3.6L106,229.2a126.1,126.1 0,0 1,-75.2 0.6A123.5,123.5 0,0 1,7.8 220.3Z"
+      android:fillColor="#9c45ff"
+      android:fillAlpha="0.05"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="M48.5,-115.7c66.9,20.4 104.7,91.5 84.2,158.5A125.2,125.2 0,0 1,97.4 98.6l1.4,54.3a4.3,4.3 0,0 1,-6.7 3.6L49.7,126.2a126.3,126.3 0,0 1,-75.5 0.7A126.8,126.8 0,0 1,-110.1 -31.6,126.8 126.8,0 0,1 48.3,-115.9Z"
+      android:fillColor="#9c45ff"
+      android:fillAlpha="0.05"/>
+</vector>

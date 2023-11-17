@@ -1,0 +1,43 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@android:color/transparent">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_pick_avatar"
+        android:layout_width="match_parent"
+        android:layout_height="395dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_group_avatar"
+        app:layout_constraintBottom_toTopOf="@id/tv_group_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/big_profile_picture" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/fl_progress_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/dark_background_transp"
+        android:backgroundTint="@color/background_80_transp"
+        android:elevation="@dimen/five_dp_margin"
+        android:visibility="gone"
+        app:cardPreventCornerOverlap="false"
+        app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
+        app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar"
+        app:layout_constraintStart_toStartOf="@id/iv_pick_avatar"
+        app:layout_constraintTop_toTopOf="@id/iv_pick_avatar"
+        app:shapeAppearanceOverlay="@style/big_profile_picture">
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="@dimen/seventy_dp"
+            android:layout_height="@dimen/seventy_dp"
+            android:layout_gravity="center"
+            android:indeterminateOnly="true"
+            android:indeterminateTint="?attr/primaryColor"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

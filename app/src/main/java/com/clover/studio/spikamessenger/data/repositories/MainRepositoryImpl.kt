@@ -344,7 +344,6 @@ class MainRepositoryImpl @Inject constructor(
         )
     }
 
-
     override suspend fun handleRoomMute(roomId: Int, doMute: Boolean) {
         if (doMute) {
             performRestOperation(

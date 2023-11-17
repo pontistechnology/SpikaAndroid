@@ -45,12 +45,13 @@ class ContactsAdapter(
                     userItem.user.selected = true
                 } else binding.transparentView.visibility = View.GONE
 
-
                 if (isGroupCreation) {
-                    binding.cbUserSelected.visibility = View.VISIBLE
-
-                    binding.cbUserSelected.isChecked = userItem.user.selected
-                } else binding.cbUserSelected.visibility = View.GONE
+                    binding.ivCheckedUser.visibility = if (userItem.user.selected) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
+                } else binding.ivCheckedUser.visibility = View.GONE
 
                 binding.tvHeader.text = userItem.phoneUser?.name?.uppercase()?.substring(0, 1)
                     ?: userItem.user.formattedDisplayName.uppercase().substring(0, 1)
@@ -60,13 +61,12 @@ class ContactsAdapter(
 
                 if (userItem.user.hasAvatar) {
                     Glide.with(context).load(userItem.user.avatarFileId?.let { getFilePathUrl(it) })
-                        .placeholder(R.drawable.img_user_placeholder)
-                        .centerCrop()
+                        .placeholder(R.drawable.img_user_avatar)
                         .into(binding.ivUserImage)
                 } else binding.ivUserImage.setImageDrawable(
                     AppCompatResources.getDrawable(
                         context,
-                        R.drawable.img_user_placeholder
+                        R.drawable.img_user_avatar
                     )
                 )
 

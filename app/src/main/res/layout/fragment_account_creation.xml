@@ -6,165 +6,95 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
+    android:focusable="true"
     android:focusableInTouchMode="true"
     tools:context=".ui.onboarding.account_creation.AccountCreationFragment"
-    tools:ignore="contentDescription"
-    android:focusable="true">
+    tools:ignore="contentDescription">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_username_error"
-        android:layout_width="match_parent"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_username_error"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:background="@drawable/bg_search_field"
-        android:backgroundTint="@color/error_background"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@id/iv_pick_photo"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:layout_marginTop="@dimen/sixteen_dp_margin"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:backgroundTint="@color/secondWarningColor"
+        android:elevation="@dimen/eight_dp_margin"
+        android:visibility="gone"
+        app:cardCornerRadius="@dimen/sixteen_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/iv_warning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/ten_dp_margin"
-            android:src="@drawable/img_alert"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/ten_dp_margin"
-            android:fontFamily="@font/montserrat"
-            android:text="@string/enter_username"
-            android:textColor="@color/style_red"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/iv_warning"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_gravity="center"
+            android:drawablePadding="@dimen/eight_dp_margin"
+            android:padding="@dimen/eight_dp_margin"
+            android:text="@string/enter_username_with_exclamation_mark"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="@color/warningColor"
+            android:visibility="visible"
+            app:drawableStartCompat="@drawable/img_alert_triangle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_enter_number" />
+    </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/iv_pick_photo"
-        android:layout_width="@dimen/one_hundred_dp"
-        android:layout_height="@dimen/one_hundred_dp"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:background="@drawable/img_selector_background"
-        android:backgroundTint="@color/light_blue"
-        android:scaleType="center"
-        android:src="@drawable/img_camera"
-        app:layout_constraintBottom_toTopOf="@id/tv_username"
+    <include
+        android:id="@+id/profile_picture"
+        layout="@layout/profile_picture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cl_username_error"
-        app:shapeAppearanceOverlay="@style/circle" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_progress_screen"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:elevation="@dimen/five_dp_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/iv_pick_photo"
-        app:layout_constraintEnd_toEndOf="@id/iv_pick_photo"
-        app:layout_constraintStart_toStartOf="@id/iv_pick_photo"
-        app:layout_constraintTop_toTopOf="@id/iv_pick_photo">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/img_selector_background"
-            android:backgroundTint="@color/dark_background_transp" />
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="@dimen/seventy_dp"
-            android:layout_height="@dimen/seventy_dp"
-            android:indeterminate="false"
-            android:progress="0"
-            android:progressDrawable="@drawable/custom_circular_progress"
-            android:progressTint="@color/primary_color"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_small_camera_picker"
-        android:layout_width="@dimen/twenty_eight_dp"
-        android:layout_height="@dimen/twenty_eight_dp"
-        android:background="@drawable/img_selector_background"
-        android:elevation="@dimen/five_dp_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/iv_pick_photo"
-        app:layout_constraintEnd_toEndOf="@id/iv_pick_photo">
-
-        <ImageView
-            android:layout_width="@dimen/twelve_dp"
-            android:layout_height="@dimen/twelve_dp"
-            android:src="@drawable/img_camera"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/twenty_dp_margin"
-        android:fontFamily="@font/montserrat"
         android:text="@string/username"
-        android:textColor="@color/text_tertiary"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_pick_photo" />
+        android:textAppearance="@style/CustomTextBody"
+        android:textColor="?attr/primaryTextColor"
+        app:layout_constraintEnd_toEndOf="@+id/et_enter_username"
+        app:layout_constraintStart_toStartOf="@+id/et_enter_username"
+        app:layout_constraintTop_toBottomOf="@id/profile_picture" />
 
     <EditText
         android:id="@+id/et_enter_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
+        android:layout_margin="@dimen/sixteen_dp_margin"
         android:background="@drawable/bg_text_field"
-        android:fontFamily="@font/montserrat"
         android:hint="@string/enter_username"
-        android:paddingStart="@dimen/ten_dp_margin"
-        android:paddingEnd="@dimen/ten_dp_margin"
-        android:textColorHint="@color/text_tertiary"
+        android:inputType="text"
+        android:padding="@dimen/sixteen_dp_margin"
+        android:paddingStart="@dimen/twenty_four_dp_margin"
+        android:paddingEnd="@dimen/twenty_four_dp_margin"
+        android:textAppearance="@style/CustomTextHeading"
+        android:textColor="?attr/primaryTextColor"
+        android:textColorHint="?attr/secondaryTextColor"
+        android:backgroundTint="?attr/secondaryColor"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_username" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_next"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:background="@drawable/bg_btn_blue"
-        android:enabled="true"
-        android:fontFamily="@font/montserrat"
-        android:text="@string/next"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/et_enter_username" />
 
-    <View
-        android:id="@+id/transparent_view"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_next"
+        style="@style/CustomButton"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:alpha="0.8"
-        android:background="@drawable/bg_text_field"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_next"
-        app:layout_constraintEnd_toEndOf="@+id/btn_next"
-        app:layout_constraintStart_toStartOf="@id/btn_next"
-        app:layout_constraintTop_toTopOf="@id/btn_next" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/sixteen_dp_margin"
+        android:enabled="false"
+        android:text="@string/next"
+        app:cornerRadius="@dimen/sixteen_dp_margin"
+        app:layout_constraintEnd_toEndOf="@+id/et_enter_username"
+        app:layout_constraintStart_toStartOf="@+id/et_enter_username"
+        app:layout_constraintTop_toBottomOf="@+id/et_enter_username" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

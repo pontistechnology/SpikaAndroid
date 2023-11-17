@@ -5,17 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_rounded_corners_top"
-    android:backgroundTint="@color/inputs"
+    android:backgroundTint="?attr/secondaryColor"
     android:paddingBottom="@dimen/twenty_dp_margin"
     tools:ignore="contentDescription">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat_bold"
+        android:fontFamily="@font/roboto_bold"
         android:padding="@dimen/twenty_dp_margin"
         android:text="@string/more_actions"
         android:textSize="@dimen/sixteen_sp_text"
+        android:textColor="?attr/primaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -46,13 +47,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:drawableTop="@drawable/img_file"
+            android:drawableTop="@drawable/img_empty_file"
             android:ellipsize="end"
-            android:fontFamily="@font/montserrat"
+            android:textAppearance="@style/CustomTitleBold"
             android:maxLines="1"
             android:text="@string/files"
             android:textAllCaps="false"
-            android:textColor="@color/primary_color"
+            android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/twelve_sp_text" />
 
         <Button
@@ -63,11 +64,11 @@
             android:background="@android:color/transparent"
             android:drawableTop="@drawable/img_library"
             android:ellipsize="end"
-            android:fontFamily="@font/montserrat"
+            android:textAppearance="@style/CustomTitleBold"
             android:maxLines="1"
             android:text="@string/library"
             android:textAllCaps="false"
-            android:textColor="@color/primary_color"
+            android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/twelve_sp_text" />
 
 
@@ -78,12 +79,12 @@
             android:background="@android:color/transparent"
             android:drawableTop="@drawable/img_location"
             android:ellipsize="end"
-            android:fontFamily="@font/montserrat"
+            android:textAppearance="@style/CustomTextBody"
             android:maxLines="1"
             android:visibility="gone"
             android:text="@string/location"
             android:textAllCaps="false"
-            android:textColor="@color/primary_color"
+            android:textColor="?attr/primaryColor"
             android:textSize="@dimen/twelve_sp_text" />
 
         <Button
@@ -93,12 +94,12 @@
             android:background="@android:color/transparent"
             android:drawableTop="@drawable/img_contact"
             android:ellipsize="end"
-            android:fontFamily="@font/montserrat"
+            android:textAppearance="@style/CustomTextBody"
             android:maxLines="1"
             android:visibility="gone"
             android:text="@string/contact"
             android:textAllCaps="false"
-            android:textColor="@color/primary_color"
+            android:textColor="?attr/primaryColor"
             android:textSize="@dimen/twelve_sp_text" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

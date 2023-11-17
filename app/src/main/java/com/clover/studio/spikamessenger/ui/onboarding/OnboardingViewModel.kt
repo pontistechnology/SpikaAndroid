@@ -32,7 +32,9 @@ class OnboardingViewModel @Inject constructor(
     fun sendNewUserData(
         jsonObject: JsonObject
     ) = viewModelScope.launch {
-        resolveResponseStatus(registrationListener, onboardingRepository.sendUserData(jsonObject))
+        resolveResponseStatus(registrationListener, Resource(Resource.Status.LOADING, null, ""))
+        val response = onboardingRepository.sendUserData(jsonObject)
+        resolveResponseStatus(registrationListener, response)
     }
 
     fun sendCodeVerification(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {

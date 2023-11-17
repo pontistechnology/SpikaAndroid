@@ -8,8 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.fragment.app.activityViewModels
@@ -28,11 +26,13 @@ import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
 import com.clover.studio.spikamessenger.utils.UploadDownloadManager
+import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.getChunkSize
+import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -55,6 +55,7 @@ class SettingsFragment : BaseFragment() {
     private var avatarId: Long? = 0L
 
     private var navOptionsBuilder: NavOptions? = null
+    private var optionList: MutableList<UserOptionsData> = mutableListOf()
 
     private val binding get() = bindingSetup!!
 
@@ -65,8 +66,7 @@ class SettingsFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this).load(bitmap).into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateUserImage()
             } else {
@@ -85,8 +85,7 @@ class SettingsFragment : BaseFragment() {
                     )
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this).load(bitmap).into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateUserImage()
             } else {
@@ -149,19 +148,19 @@ class SettingsFragment : BaseFragment() {
         }
     }
 
-    private fun initializeObservers() {
+    private fun initializeObservers() = with(binding) {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
             val response = it.responseData
             if (response != null) {
-                binding.tvUsername.text = response.formattedDisplayName
-                binding.tvPhoneNumber.text = response.telephoneNumber
+                tvUsername.text = response.formattedDisplayName
+                tvPhoneNumber.text = response.telephoneNumber
                 avatarId = response.avatarFileId
 
                 Glide.with(requireActivity())
                     .load(response.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
-                    .placeholder(R.drawable.img_user_placeholder)
+                    .placeholder(R.drawable.img_user_avatar)
                     .centerCrop()
-                    .into(binding.ivPickPhoto)
+                    .into(profilePicture.ivPickAvatar)
             }
         }
 
@@ -176,33 +175,100 @@ class SettingsFragment : BaseFragment() {
         })*/
     }
 
-    private fun showUserDetails() {
-        binding.tvUsername.visibility = View.VISIBLE
-        binding.tvPhoneNumber.visibility = View.VISIBLE
-        binding.etEnterUsername.visibility = View.INVISIBLE
-        binding.ivDone.visibility = View.GONE
+    private fun showUserDetails() = with(binding) {
+        tvUsername.visibility = View.VISIBLE
+        tvPhoneNumber.visibility = View.VISIBLE
+        etEnterUsername.visibility = View.INVISIBLE
+        ivDone.visibility = View.GONE
     }
 
-    private fun initializeViews() {
-        when (viewModel.getUserTheme()) {
-            AppCompatDelegate.MODE_NIGHT_NO -> binding.tvActiveTheme.text =
-                getString(R.string.light_theme)
+    private fun initializeViews() = with(binding) {
+        setOptionList()
 
-            AppCompatDelegate.MODE_NIGHT_YES -> binding.tvActiveTheme.text =
-                getString(R.string.dark_theme)
+        val userOptions = UserOptions(requireContext())
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(option: Int, optionName: String) {
+                when (optionName) {
+                    getString(R.string.appearance) -> {
+                        goToAppearanceSettings()
+                    }
 
-            else -> binding.tvActiveTheme.text = getString(R.string.system_theme)
+                    getString(R.string.privacy) -> {
+                        goToPrivacySettings()
+                    }
+
+                    getString(R.string.delete) -> {
+                        deleteAccount()
+                    }
+                }
+            }
+
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
+                // Ignore
+            }
+        })
+        binding.flOptionsContainer.addView(userOptions)
+    }
+
+    private fun setOptionList() {
+        optionList = mutableListOf(
+            UserOptionsData(
+                option = getString(R.string.appearance),
+                firstDrawable = requireContext().getDrawable(R.drawable.iv_edit_settings),
+                secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
+                switchOption = false,
+                isSwitched = false
+            ),
+            UserOptionsData(
+                option = getString(R.string.privacy),
+                firstDrawable = requireContext().getDrawable(R.drawable.iv_privacy),
+                secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
+                switchOption = false,
+                isSwitched = false
+            ),
+            UserOptionsData(
+                option = getString(R.string.delete),
+                firstDrawable = requireContext().getDrawable(R.drawable.iv_delete_settings),
+                secondDrawable = null,
+                switchOption = false,
+                isSwitched = false
+            ),
+        )
+    }
+
+    private fun getTheme(): String {
+        return when (viewModel.getUserTheme()) {
+            Const.Themes.MINT_THEME -> getString(R.string.theme_light_green)
+            Const.Themes.NEON_THEME -> getString(R.string.theme_neon)
+            Const.Themes.BASIC_THEME_NIGHT -> getString(R.string.theme_dark_marine)
+            Const.Themes.BASIC_THEME -> getString(R.string.theme_light_marine)
+            else -> getString(R.string.theme_light_marine)
         }
+    }
+
+    private fun deleteAccount() {
+        DialogError.getInstance(requireContext(),
+            getString(R.string.warning),
+            getString(R.string.data_deletion_warning),
+            getString(R.string.cancel),
+            getString(R.string.ok),
+            object : DialogInteraction {
+                override fun onFirstOptionClicked() {
+                    // Ignore
+                }
+
+                override fun onSecondOptionClicked() {
+                    viewModel.deleteUser()
+                }
+            })
     }
 
     private fun setupClickListeners() = with(binding) {
 
         // Removed and waiting for each respective screen to be implemented
-        flPrivacy.setOnClickListener {
-            goToPrivacySettings()
-        }
 
-        ivPickPhoto.setOnClickListener {
+        profilePicture.ivPickAvatar.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
@@ -230,27 +296,6 @@ class SettingsFragment : BaseFragment() {
         ivDone.setOnClickListener {
             updateUsername()
         }
-
-        clAppearance.setOnClickListener {
-            goToAppearanceSettings()
-        }
-
-        clDeleteUser.setOnClickListener {
-            DialogError.getInstance(requireContext(),
-                getString(R.string.warning),
-                getString(R.string.data_deletion_warning),
-                getString(R.string.cancel),
-                getString(R.string.ok),
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        // Ignore
-                    }
-
-                    override fun onSecondOptionClicked() {
-                        viewModel.deleteUser()
-                    }
-                })
-        }
     }
 
     private fun updateUserImage() {
@@ -267,7 +312,7 @@ class SettingsFragment : BaseFragment() {
                     (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-            binding.progressBar.max = uploadPieces
+            binding.profilePicture.progressBar.max = uploadPieces
             Timber.d("File upload start")
             CoroutineScope(Dispatchers.IO).launch {
                 uploadDownloadManager.uploadFile(
@@ -287,7 +332,8 @@ class SettingsFragment : BaseFragment() {
                         FileUploadListener {
                         override fun filePieceUploaded() {
                             if (progress <= uploadPieces) {
-                                binding.progressBar.secondaryProgress = progress.toInt()
+                                binding.profilePicture.progressBar.secondaryProgress =
+                                    progress.toInt()
                                 progress++
                             } else progress = 0
                         }
@@ -309,7 +355,7 @@ class SettingsFragment : BaseFragment() {
                         ) {
                             Timber.d("Upload verified")
                             requireActivity().runOnUiThread {
-                                binding.clProgressScreen.visibility = View.GONE
+                                binding.profilePicture.flProgressScreen.visibility = View.GONE
                             }
 
                             val jsonObject = JsonObject()
@@ -323,7 +369,7 @@ class SettingsFragment : BaseFragment() {
 
                     })
             }
-            binding.clProgressScreen.visibility = View.VISIBLE
+            binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
         }
     }
 
@@ -381,27 +427,26 @@ class SettingsFragment : BaseFragment() {
                     // Ignore
                 }
             })
-        clProgressScreen.visibility = View.GONE
-        progressBar.secondaryProgress = 0
+        profilePicture.flProgressScreen.visibility = View.GONE
+        profilePicture.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this@SettingsFragment).clear(ivPickPhoto)
-        ivPickPhoto.setImageDrawable(
-            ContextCompat.getDrawable(
-                requireContext(),
-                R.drawable.img_camera
-            )
-        )
-        clSmallCameraPicker.visibility = View.GONE
+        Glide.with(this@SettingsFragment).clear(profilePicture.ivPickAvatar)
     }
 
     // Below navigation methods are unused until we implement all other functionality of settings
     // screens
     private fun goToPrivacySettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToPrivacySettingsFragment(), navOptionsBuilder)
+        findNavController().navigate(
+            MainFragmentDirections.actionMainFragmentToPrivacySettingsFragment(),
+            navOptionsBuilder
+        )
     }
 
     private fun goToAppearanceSettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToAppearanceSettings(), navOptionsBuilder)
+        findNavController().navigate(
+            MainFragmentDirections.actionMainFragmentToAppearanceSettings(),
+            navOptionsBuilder
+        )
     }
 
     override fun onPause() {

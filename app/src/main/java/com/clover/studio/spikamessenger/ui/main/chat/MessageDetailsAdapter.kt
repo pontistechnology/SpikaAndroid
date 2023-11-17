@@ -82,7 +82,7 @@ class MessageDetailsAdapter(
                             .placeholder(
                                 AppCompatResources.getDrawable(
                                     context,
-                                    R.drawable.img_user_placeholder
+                                    R.drawable.img_user_avatar
                                 )
                             )
                             .centerCrop()

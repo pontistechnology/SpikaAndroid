@@ -120,7 +120,7 @@ class NotesSwipeHelper(
 
         val y = (mView.top + mView.measuredHeight / 2).toFloat()
 
-        background.color = context.getColor(R.color.style_red)
+        background.color = context.getColor(R.color.warningColor)
         background.setBounds(
             itemView.right + dX.toInt(),
             itemView.top,

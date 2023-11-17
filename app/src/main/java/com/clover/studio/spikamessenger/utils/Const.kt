@@ -262,6 +262,7 @@ class Const {
 
             // Theme
             const val THEME = "theme"
+            const val THEMES = "themes"
         }
     }
 
@@ -275,6 +276,15 @@ class Const {
     class Urls {
         companion object {
             const val TERMS_AND_CONDITIONS = "https://clover.studio/projects/spika/spika-messenger-terms-and-coditions/"
+        }
+    }
+
+    class Themes {
+        companion object {
+            const val MINT_THEME = "mint"
+            const val NEON_THEME = "neon"
+            const val BASIC_THEME = "basic"
+            const val BASIC_THEME_NIGHT = "basic_night"
         }
     }
 }

@@ -32,11 +32,12 @@ class SelectedContactsAdapter(
             getItem(position).let { userItem ->
 
                 val displayName = userItem.phoneUser?.name ?: userItem.user.formattedDisplayName
-                binding.tvUserName.text = if (displayName.length > 10) "${displayName.take(10)}..." else displayName
+                binding.tvUserName.text =
+                    if (displayName.length > 10) "${displayName.take(10)}..." else displayName
 
                 Glide.with(context)
                     .load(userItem.user.avatarFileId?.let { Tools.getFilePathUrl(it) })
-                    .placeholder(R.drawable.img_user_placeholder)
+                    .placeholder(R.drawable.img_user_avatar)
                     .centerCrop()
                     .into(binding.ivUserImage)
 

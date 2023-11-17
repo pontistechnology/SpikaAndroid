@@ -5,7 +5,7 @@
     android:id="@+id/fl_videos"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:visibility="gone"
+    android:visibility="visible"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
@@ -38,23 +38,30 @@
         android:layout_width="@dimen/two_hundred_fifty_six_dp"
         android:layout_height="@dimen/two_hundred_fifty_six_dp"
         android:layout_gravity="center"
-        android:layout_margin="@dimen/two_dp_margin"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
         app:cardCornerRadius="@dimen/eight_dp_margin"
         app:layout_constrainedHeight="true"
-        app:layout_constrainedWidth="true"
-        app:shapeAppearanceOverlay="@style/chat_image" />
+        app:layout_constrainedWidth="true" />
 
     <TextView
         android:id="@+id/tv_video_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:background="@drawable/img_video_shadow"
-        android:fontFamily="@font/montserrat"
-        android:gravity="bottom|end"
-        android:padding="@dimen/eight_dp_margin"
+        android:layout_gravity="top|start"
+        android:gravity="bottom"
+        android:elevation="@dimen/four_dp_margin"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:textAppearance="@style/CustomTextBody"
         android:textColor="@color/white"
-        android:textSize="@dimen/twelve_sp_text" />
+        android:textSize="@dimen/twelve_sp_text"
+        android:visibility="visible" />
+
+    <View
+        android:layout_width="256dp"
+        android:layout_height="62dp"
+        android:layout_gravity="top"
+        android:background="@drawable/bg_shadow"/>
+
 </FrameLayout>

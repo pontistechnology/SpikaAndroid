@@ -22,9 +22,20 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
     )
     private val binding get() = bindingSetup
 
+    private var listener: ReplyContainerListener? = null
+
+    interface ReplyContainerListener {
+        fun closeSheet()
+    }
+
+    fun setReplyContainerListener(listener: ReplyContainerListener) {
+        this.listener = listener
+    }
+
     init {
         binding.ivRemove.setOnClickListener {
             binding.clMessageReply.visibility = View.GONE
+            listener?.closeSheet()
         }
     }
 
@@ -37,16 +48,22 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
         roomWithUsers: RoomWithUsers,
     ) = with(binding) {
         clMessageReply.visibility = View.VISIBLE
-        val userName = roomWithUsers.users.firstOrNull {
-            it.id == message.fromUserId
-        }?.formattedDisplayName
 
-        tvUsername.text = userName
+        tvUsername.apply {
+            text = roomWithUsers.users.firstOrNull {
+                it.id == message.fromUserId
+            }?.formattedDisplayName
+            visibility = if (roomWithUsers.room.type == Const.JsonFields.PRIVATE) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+        }
 
         when (message.type) {
             Const.JsonFields.IMAGE_TYPE -> setupMediaType(
                 R.string.photo,
-                R.drawable.img_camera_reply,
+                R.drawable.img_camera,
                 Tools.getMediaFile(context, message)
             )
 
@@ -70,9 +87,8 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
 
             else -> {
                 ivReplyImage.visibility = View.GONE
-                tvReplyMedia.visibility = View.GONE
-                tvMessage.visibility = View.VISIBLE
-                tvMessage.text = message.body?.text
+                tvReplyMedia.visibility = View.VISIBLE
+                tvReplyMedia.text = message.body?.text
                 tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
             }
         }
@@ -80,7 +96,6 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
 
     private fun setupMediaType(textResId: Int, drawableResId: Int, mediaPath: String?) =
         with(binding) {
-            tvMessage.visibility = View.GONE
             ivReplyImage.visibility = View.VISIBLE
 
             tvReplyMedia.apply {

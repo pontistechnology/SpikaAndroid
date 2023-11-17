@@ -2,11 +2,8 @@ package com.clover.studio.spikamessenger.ui.main.chat
 
 import android.Manifest
 import android.animation.ValueAnimator
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
-import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.content.ServiceConnection
@@ -20,6 +17,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.IBinder
 import android.os.Parcelable
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -275,6 +273,18 @@ class ChatMessagesFragment : BaseFragment() {
                 roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
             avatarFileId = user?.avatarFileId ?: 0
             userName = user?.formattedDisplayName.toString()
+        } else {
+            avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
+            userName = roomWithUsers?.room?.name.toString()
+        }
+
+        setAvatarAndName(avatarFileId, userName)
+
+        if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
+            user =
+                roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
+            avatarFileId = user?.avatarFileId ?: 0
+            userName = user?.formattedDisplayName.toString()
             chatHeader.tvTitle.text = user?.telephoneNumber
         } else {
             avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
@@ -282,8 +292,6 @@ class ChatMessagesFragment : BaseFragment() {
             chatHeader.tvTitle.text =
                 roomWithUsers?.users?.size.toString() + getString(R.string.members)
         }
-
-        setAvatarAndName(avatarFileId, userName)
 
         // Clear notifications for this room
         roomWithUsers?.room?.roomId?.let {
@@ -295,13 +303,16 @@ class ChatMessagesFragment : BaseFragment() {
     private fun setAvatarAndName(avatarFileId: Long, userName: String) =
         with(bindingSetup.chatHeader) {
             tvChatName.text = userName
+
             Glide.with(this@ChatMessagesFragment)
                 .load(avatarFileId.let { Tools.getFilePathUrl(it) })
                 .placeholder(
-                    AppCompatResources.getDrawable(
-                        requireContext(),
-                        R.drawable.img_user_placeholder
-                    )
+                    roomWithUsers?.room?.type?.let { Tools.getPlaceholderImage(it) }?.let {
+                        AppCompatResources.getDrawable(
+                            requireContext(),
+                            it
+                        )
+                    }
                 )
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -315,6 +326,7 @@ class ChatMessagesFragment : BaseFragment() {
                     bundleOf(
                         Const.Navigation.USER_PROFILE to roomWithUsers?.users!!.firstOrNull { user -> user.id != localUserId },
                         Const.Navigation.ROOM_ID to roomWithUsers?.room!!.roomId,
+                        Const.Navigation.ROOM_DATA to roomWithUsers?.room!!
                     )
                 findNavController().navigate(
                     R.id.action_chatMessagesFragment_to_contactDetailsFragment,
@@ -411,6 +423,7 @@ class ChatMessagesFragment : BaseFragment() {
             etMessage.setText("")
             hideSendButton()
             replyContainer?.closeBottomSheet()
+            clSendingArea.setBackgroundColor(android.R.color.transparent)
         }
 
         tvUnblock.setOnClickListener {
@@ -829,6 +842,31 @@ class ChatMessagesFragment : BaseFragment() {
         )
     }
 
+    private fun handleMessageReply(message: Message) = with(bindingSetup) {
+        flReplyContainer.removeAllViews()
+        flReplyContainer.addView(replyContainer)
+
+        replyContainer?.setReplyContainerListener(object : ReplyContainer.ReplyContainerListener {
+            override fun closeSheet() {
+                clSendingArea.setBackgroundColor(android.R.color.transparent)
+            }
+        })
+
+        repliedMessage = message
+        replyId = message.id.toLong()
+
+        roomWithUsers?.let { roomWithUsers ->
+            repliedMessage?.let { repliedMessage ->
+                replyContainer?.setReactionContainer(repliedMessage, roomWithUsers)
+            }
+        }
+
+        val typedValue = TypedValue()
+        val theme = requireContext().theme
+        theme.resolveAttribute(R.attr.secondAdditionalColor, typedValue, true)
+        clSendingArea.setBackgroundColor(typedValue.data)
+    }
+
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
         replySearchId = msg.message.body?.referenceMessage?.id
         replyPosition =
@@ -883,7 +921,7 @@ class ChatMessagesFragment : BaseFragment() {
         val bottomSheet = ChatBottomSheet(msg.message, localUserId)
         bottomSheet.setActionListener(object : ChatBottomSheet.BottomSheetAction {
             override fun actionCopy() {
-                handleMessageCopy(msg.message)
+                Tools.handleCopyAction(msg.message.body?.text.toString())
             }
 
             override fun actionClose() {
@@ -933,18 +971,6 @@ class ChatMessagesFragment : BaseFragment() {
             }
         })
         bottomSheet.show(requireActivity().supportFragmentManager, ChatBottomSheet.TAG)
-    }
-
-    private fun handleMessageCopy(message: Message) {
-        val clipboard =
-            requireContext().getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        val clip: ClipData = ClipData.newPlainText("", message.body?.text.toString())
-        clipboard.setPrimaryClip(clip)
-        Toast.makeText(
-            requireContext(),
-            getString(R.string.text_copied),
-            Toast.LENGTH_SHORT
-        ).show()
     }
 
     private fun openCustomEmojiKeyboard(message: Message) {
@@ -1040,20 +1066,6 @@ class ChatMessagesFragment : BaseFragment() {
             )
 
         findNavController().navigate(action, navOptionsBuilder)
-    }
-
-    private fun handleMessageReply(message: Message) = with(bindingSetup) {
-        flReplyContainer.removeAllViews()
-        flReplyContainer.addView(replyContainer)
-
-        repliedMessage = message
-        replyId = message.id.toLong()
-
-        roomWithUsers?.let { roomWithUsers ->
-            repliedMessage?.let { repliedMessage ->
-                replyContainer?.setReactionContainer(repliedMessage, roomWithUsers)
-            }
-        }
     }
 
     private fun handleMessageEdit(message: Message) = with(bindingSetup) {

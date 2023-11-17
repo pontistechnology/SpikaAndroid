@@ -60,13 +60,18 @@ class RoomsAdapter(
                     View.VISIBLE
                 } else View.GONE
 
+                val placeholderDrawable = Tools.getPlaceholderImage(
+                    roomItem.roomWithUsers.room.type!!
+                )
+
                 Glide.with(context)
                     .load(Tools.getFilePathUrl(avatarFileId))
-                    .placeholder(R.drawable.img_user_placeholder)
+                    .placeholder(placeholderDrawable)
                     .centerCrop()
-                    .error(R.drawable.img_user_placeholder)
+                    .error(placeholderDrawable)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(binding.ivRoomImage)
+
 
                 if (roomItem.message != null) {
                     val sortedList = roomItem.message
@@ -143,7 +148,7 @@ class RoomsAdapter(
             when (sortedList?.type) {
                 Const.JsonFields.IMAGE_TYPE -> {
                     setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera_reply,
+                        R.drawable.img_camera_small,
                         0,
                         0,
                         0
@@ -152,7 +157,7 @@ class RoomsAdapter(
 
                 Const.JsonFields.VIDEO_TYPE -> {
                     setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_video_reply,
+                        R.drawable.img_video_small,
                         0,
                         0,
                         0
@@ -161,7 +166,7 @@ class RoomsAdapter(
 
                 Const.JsonFields.AUDIO_TYPE -> {
                     setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_audio_reply,
+                        R.drawable.img_microphone_small,
                         0,
                         0,
                         0
@@ -170,7 +175,7 @@ class RoomsAdapter(
 
                 Const.JsonFields.FILE_TYPE -> {
                     setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_document,
+                        R.drawable.img_file_small,
                         0,
                         0,
                         0

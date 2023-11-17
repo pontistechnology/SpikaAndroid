@@ -1,101 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.main.contact_details.ContactDetailsFragment"
-    tools:ignore="RtlSymmetry,ContentDescription">
+    tools:ignore="RtlSymmetry,ContentDescription"
+    android:scrollbars="none">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <include
-            android:id="@+id/chat_header"
-            layout="@layout/chat_header"
+            android:id="@+id/profile_picture"
+            layout="@layout/profile_picture"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:behavior_peekHeight="0dp"
-            app:layout_anchorGravity="bottom"
-            app:layout_behavior="@string/bottom_sheet_behavior"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat"
-            android:padding="@dimen/ten_dp_margin"
-            android:text="@string/done"
-            android:textColor="@color/primary_color"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/chat_header" />
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/iv_pick_avatar"
-            android:layout_width="@dimen/one_hundred_dp"
-            android:layout_height="@dimen/one_hundred_dp"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:layout_marginTop="@dimen/eight_dp_margin"
-            android:background="@drawable/img_selector_background"
-            android:backgroundTint="@color/light_blue"
-            android:scaleType="center"
-            android:src="@drawable/img_camera"
             app:layout_constraintBottom_toTopOf="@id/tv_group_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chat_header"
-            app:shapeAppearanceOverlay="@style/circle" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_small_camera_picker"
-            android:layout_width="@dimen/twenty_eight_dp"
-            android:layout_height="@dimen/twenty_eight_dp"
-            android:background="@drawable/img_selector_background"
-            android:elevation="@dimen/five_dp_margin"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
-            app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar">
-
-            <ImageView
-                android:layout_width="@dimen/twelve_dp"
-                android:layout_height="@dimen/twelve_dp"
-                android:src="@drawable/img_camera"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <FrameLayout
-            android:id="@+id/fl_progress_screen"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:elevation="@dimen/five_dp_margin"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
-            app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar"
-            app:layout_constraintStart_toStartOf="@id/iv_pick_avatar"
-            app:layout_constraintTop_toTopOf="@id/iv_pick_avatar">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/img_selector_background"
-                android:backgroundTint="@color/dark_background_transp" />
-
-            <ProgressBar
-                android:id="@+id/progress_bar"
-                android:layout_width="@dimen/seventy_dp"
-                android:layout_height="@dimen/seventy_dp"
-                android:layout_gravity="center"
-                android:indeterminateOnly="true"
-                android:indeterminateTint="@color/primary_color"
-                app:layout_constraintBottom_toBottomOf="parent" />
-        </FrameLayout>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/iv_done"
@@ -103,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
             android:padding="@dimen/eight_dp_margin"
-            android:src="@drawable/img_done_button"
+            android:src="@drawable/img_checkmark"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/et_enter_group_name"
             app:layout_constraintEnd_toEndOf="parent"
@@ -114,126 +39,88 @@
             android:id="@+id/et_enter_group_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/thirty_dp_margin"
-            android:layout_marginTop="@dimen/twenty_dp_margin"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
             android:background="@drawable/bg_text_field"
-            android:fontFamily="@font/montserrat"
             android:hint="@string/enter_username"
             android:inputType="text"
             android:padding="@dimen/sixteen_dp_margin"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColorHint="?attr/secondaryTextColor"
             android:textSize="@dimen/fourteen_sp_text"
             android:visibility="invisible"
             app:layout_constraintEnd_toStartOf="@+id/iv_done"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_pick_avatar" />
-        <!--        app:layout_constraintBottom_toTopOf="@id/cl_shared_media"-->
+            app:layout_constraintTop_toBottomOf="@id/profile_picture" />
 
         <TextView
             android:id="@+id/tv_group_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat_bold"
+            android:fontFamily="@font/roboto_bold"
             android:text="@string/group_name"
-            android:textColor="@color/primary_color"
-            android:textSize="@dimen/sixteen_sp_text"
+            android:textColor="?attr/primaryTextColor"
+            android:textSize="@dimen/twenty_four_sp_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_pick_avatar" />
+            app:layout_constraintTop_toBottomOf="@id/profile_picture" />
 
         <FrameLayout
-            android:id="@+id/fl_notes"
+            android:id="@+id/fl_options_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?android:selectableItemBackground"
-            android:padding="@dimen/twenty_dp_margin"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_enter_group_name">
+            app:layout_constraintTop_toBottomOf="@+id/tv_group_placeholder" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/montserrat"
-                android:text="@string/notes" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:src="@drawable/img_arrow_forward" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/fl_pin_chat"
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/twenty_dp_margin"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_margin="@dimen/sixteen_dp_margin"
+            android:layout_marginTop="1dp"
+            android:elevation="@dimen/eight_dp_margin"
+            android:padding="@dimen/ten_dp_margin"
+            android:src="@drawable/img_arrow_back_chat"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fl_notes">
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/montserrat"
-                android:text="@string/pin_chat"
-                android:textSize="@dimen/fourteen_sp_text" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/sw_pin_chat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:theme="@style/CustomSwitch"
-                android:layout_gravity="end" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/fl_mute"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tv_group_placeholder"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/twenty_dp_margin"
+            android:letterSpacing="0.2"
+            android:text="@string/group_label"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/secondaryTextColor"
+            android:textSize="@dimen/twelve_sp_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fl_pin_chat">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ten_dp_margin"
-                android:fontFamily="@font/montserrat"
-                android:text="@string/mute"
-                android:textSize="@dimen/fourteen_sp_text" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/sw_mute"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:theme="@style/CustomSwitch"
-                android:layout_gravity="end"/>
-        </FrameLayout>
+            app:layout_constraintTop_toBottomOf="@+id/et_enter_group_name" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_member_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/twenty_dp_margin"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fl_mute">
+            app:layout_constraintTop_toBottomOf="@id/fl_options_container">
 
             <TextView
                 android:id="@+id/tv_members_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/montserrat_bold"
                 android:paddingStart="@dimen/ten_dp_margin"
                 android:text="@string/number_of_members"
-                android:textColor="@color/text_primary"
-                android:textSize="@dimen/sixteen_sp_text"
+                android:textAppearance="@style/CustomTextHeading"
+                android:textColor="?attr/primaryTextColor"
+                android:textSize="@dimen/twenty_sp_text"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -248,61 +135,16 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_group_members"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:layout_marginTop="@dimen/eight_dp_margin"
-                android:paddingStart="@dimen/ten_dp_margin"
+                android:layout_marginBottom="@dimen/twenty_four_dp_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_percent="0.8"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_members_number"
                 tools:listitem="@layout/item_people_selected" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <TextView
-            android:id="@+id/tv_exit_group"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat"
-            android:paddingStart="@dimen/ten_dp_margin"
-            android:text="@string/exit_group"
-            android:textColor="@color/style_red"
-            android:textSize="@dimen/sixteen_sp_text"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/tv_delete"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_see_more_less" />
-
-        <TextView
-            android:id="@+id/tv_delete"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:layout_marginBottom="@dimen/eight_dp_margin"
-            android:fontFamily="@font/montserrat"
-            android:paddingStart="@dimen/ten_dp_margin"
-            android:text="@string/delete_chat"
-            android:textColor="@color/style_red"
-            android:textSize="@dimen/sixteen_sp_text"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_see_more_less"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/eight_dp_margin"
-            android:text="@string/see_more"
-            android:visibility="gone"
-            android:textSize="@dimen/fourteen_sp_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cl_member_list" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+</ScrollView>

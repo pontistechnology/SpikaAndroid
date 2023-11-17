@@ -5,7 +5,6 @@
     android:id="@+id/cl_audio_layout"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/forty_eight_dp_margin"
-    android:layout_marginTop="@dimen/two_dp_margin"
     tools:ignore="contentDescription">
 
     <TextView
@@ -13,9 +12,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/eight_dp_margin"
-        android:fontFamily="@font/montserrat"
-        android:foregroundTint="@color/icons"
+        android:textAppearance="@style/CustomTextBody"
+        android:foregroundTint="?attr/primaryTextColor"
         android:text="@string/audio_duration"
+        android:textColor="?attr/primaryTextColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -30,9 +30,9 @@
         android:max="100"
         android:min="0"
         android:progress="0"
-        android:progressBackgroundTint="@color/icons"
-        android:progressTint="@color/icons"
-        android:thumbTint="@color/icons"
+        android:progressBackgroundTint="?attr/primaryTextColor"
+        android:progressTint="?attr/primaryTextColor"
+        android:thumbTint="?attr/primaryTextColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/iv_play_audio"
         app:layout_constraintTop_toTopOf="parent" />

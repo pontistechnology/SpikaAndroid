@@ -5,14 +5,14 @@
     android:viewportHeight="40">
   <path
       android:pathData="M7.613,9.306C10.623,5.819 15.051,3.595 20.003,3.595C29.048,3.595 36.405,10.953 36.405,19.99H38.818C38.818,9.622 30.378,1.183 20.003,1.183C14.379,1.183 9.333,3.662 5.879,7.573L2.97,4.656L2.916,11.927L10.18,11.873L7.613,9.306Z"
-      android:fillColor="@color/icons"/>
+      android:fillColor="?attr/tertiaryColor"/>
   <path
       android:pathData="M32.474,30.6C29.457,34.141 25.003,36.405 20.003,36.405C10.966,36.405 3.608,29.048 3.608,19.99H1.183C1.183,30.378 9.622,38.817 20.003,38.817C25.668,38.817 30.747,36.298 34.201,32.327L36.815,34.94L36.869,27.677L29.598,27.724L32.474,30.6Z"
-      android:fillColor="@color/icons"/>
+      android:fillColor="?attr/tertiaryColor"/>
   <path
       android:pathData="M19.997,29.222C21.013,29.222 21.838,28.398 21.838,27.381C21.838,26.364 21.013,25.54 19.997,25.54C18.98,25.54 18.156,26.364 18.156,27.381C18.156,28.398 18.98,29.222 19.997,29.222Z"
-      android:fillColor="@color/alert_icon_color"/>
+      android:fillColor="@color/warningColor"/>
   <path
       android:pathData="M21.838,10.778H18.156V23.805H21.838V10.778Z"
-      android:fillColor="@color/alert_icon_color"/>
+      android:fillColor="@color/warningColor"/>
 </vector>

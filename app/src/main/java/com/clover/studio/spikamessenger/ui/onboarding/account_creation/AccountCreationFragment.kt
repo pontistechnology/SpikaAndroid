@@ -58,8 +58,11 @@ class AccountCreationFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this)
+                    .load(bitmap)
+                    .placeholder(R.drawable.img_user_avatar)
+                    .centerCrop()
+                    .into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
             } else {
                 Timber.d("Gallery error")
@@ -78,10 +81,9 @@ class AccountCreationFragment : BaseFragment() {
                 val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap)
-                    .placeholder(R.drawable.img_user_placeholder)
+                    .placeholder(R.drawable.img_user_avatar)
                     .centerCrop()
-                    .into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                    .into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
             } else {
                 Timber.d("Photo error")
@@ -138,7 +140,7 @@ class AccountCreationFragment : BaseFragment() {
             checkUsername()
         }
 
-        binding.ivPickPhoto.setOnClickListener {
+        binding.profilePicture.ivPickAvatar.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
@@ -165,14 +167,14 @@ class AccountCreationFragment : BaseFragment() {
             override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if (!text.isNullOrEmpty()) {
                     binding.btnNext.isEnabled = true
-                    binding.clUsernameError.visibility = View.INVISIBLE
+                    binding.cvUsernameError.visibility = View.INVISIBLE
                 }
             }
 
             override fun afterTextChanged(text: Editable?) {
                 if (!text.isNullOrEmpty()) {
                     binding.btnNext.isEnabled = true
-                    binding.clUsernameError.visibility = View.INVISIBLE
+                    binding.cvUsernameError.visibility = View.INVISIBLE
                 }
             }
         })
@@ -201,28 +203,26 @@ class AccountCreationFragment : BaseFragment() {
                     // ignore
                 }
             })
-        binding.clProgressScreen.visibility = View.GONE
-        binding.progressBar.secondaryProgress = 0
+        binding.profilePicture.flProgressScreen.visibility = View.GONE
+        binding.profilePicture.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this).clear(binding.ivPickPhoto)
-        binding.ivPickPhoto.setImageDrawable(
+        Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
+        binding.profilePicture.ivPickAvatar.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
                 R.drawable.img_camera
             )
         )
-        binding.clSmallCameraPicker.visibility = View.GONE
     }
 
     private fun checkUsername() {
         if (binding.etEnterUsername.text.isNullOrEmpty()) {
             binding.btnNext.isEnabled = false
-            binding.clUsernameError.visibility = View.VISIBLE
+            binding.cvUsernameError.visibility = View.VISIBLE
         } else {
             if (currentPhotoLocation != Uri.EMPTY) {
                 val inputStream =
                     requireActivity().contentResolver.openInputStream(currentPhotoLocation)
-
                 val fileStream = Tools.copyStreamToFile(
                     inputStream!!,
                     activity?.contentResolver?.getType(currentPhotoLocation)!!
@@ -232,7 +232,7 @@ class AccountCreationFragment : BaseFragment() {
                         (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                     else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-                binding.progressBar.max = uploadPieces
+                binding.profilePicture.progressBar.max = uploadPieces
                 Timber.d("File upload start")
                 CoroutineScope(Dispatchers.IO).launch {
                     uploadDownloadManager.uploadFile(
@@ -251,7 +251,8 @@ class AccountCreationFragment : BaseFragment() {
                         object : FileUploadListener {
                             override fun filePieceUploaded() {
                                 if (progress <= uploadPieces) {
-                                    binding.progressBar.secondaryProgress = progress.toInt()
+                                    binding.profilePicture.progressBar.secondaryProgress =
+                                        progress.toInt()
                                     progress++
                                 } else progress = 0
                             }
@@ -272,7 +273,7 @@ class AccountCreationFragment : BaseFragment() {
                                 messageBody: MessageBody?
                             ) {
                                 requireActivity().runOnUiThread {
-                                    binding.clProgressScreen.visibility = View.GONE
+                                    binding.profilePicture.flProgressScreen.visibility = View.GONE
                                 }
 
                                 val jsonObject = JsonObject()
@@ -290,7 +291,7 @@ class AccountCreationFragment : BaseFragment() {
                             }
                         })
                 }
-                binding.clProgressScreen.visibility = View.VISIBLE
+                binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
             } else {
                 val jsonObject = JsonObject()
                 jsonObject.addProperty(

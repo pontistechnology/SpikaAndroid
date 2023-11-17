@@ -280,15 +280,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getUserTheme(): Int? {
-        var theme: Int? = null
-        viewModelScope.launch {
-            theme = sharedPrefsRepo.readUserTheme()
-        }
-        return theme
-    }
-
-    fun writeUserTheme(userTheme: Int) = viewModelScope.launch {
+    fun writeUserTheme(userTheme: String) = viewModelScope.launch {
         sharedPrefsRepo.writeUserTheme(userTheme)
     }
 

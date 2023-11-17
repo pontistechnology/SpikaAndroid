@@ -4,9 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/backgroundPrimary"
     android:clickable="true"
+    android:fitsSystemWindows="true"
     android:focusableInTouchMode="true"
-    tools:context=".ui.onboarding.verification.VerificationFragment">
+    tools:context=".ui.onboarding.verification.VerificationFragment"
+    android:focusable="true"
+    tools:ignore="contentDescription">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_input_ui"
@@ -18,263 +22,118 @@
 
         <ImageView
             android:id="@+id/iv_spika_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/twenty_dp_margin"
-            android:src="@drawable/img_spika_logo"
+            android:layout_width="98dp"
+            android:layout_height="85dp"
+            android:layout_marginTop="@dimen/sixty_four_dp"
+            android:src="?attr/spikaLogo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/cv_incorrect_code" />
 
         <TextView
             android:id="@+id/tv_enter_number"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
             android:text="@string/verification_code_sent"
             android:textAlignment="center"
+            android:textAppearance="@style/CustomTextHeading"
+            android:textSize="@dimen/twenty_eight_sp_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iv_spika_logo" />
 
         <TextView
-            android:id="@+id/tv_incorrect_code"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat"
-            android:text="@string/incorrect_code"
-            android:textColor="@color/style_red"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_enter_number" />
-
-        <TextView
             android:id="@+id/tv_timer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat"
+            android:layout_marginTop="@dimen/fifty_six_dp"
             android:text="@string/time_placeholder"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_incorrect_code" />
+            android:textAppearance="@style/CustomTextBody"
+            app:layout_constraintStart_toStartOf="@+id/tv_enter_number"
+            app:layout_constraintTop_toBottomOf="@+id/tv_enter_number" />
 
         <TextView
             android:id="@+id/tv_resend_code"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:fontFamily="@font/montserrat"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
             android:text="@string/resend_code"
-            android:textColor="@color/primary_color"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_incorrect_code" />
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryColor"
+            app:layout_constraintEnd_toEndOf="@+id/tv_enter_number"
+            app:layout_constraintTop_toTopOf="@+id/tv_timer" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_otp_input"
+        <include
+            android:id="@+id/verification_input_fields"
+            layout="@layout/verification_input_fields"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/twenty_dp_margin"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
             app:layout_constraintBottom_toTopOf="@id/btn_next"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_resend_code">
+            app:layout_constraintTop_toBottomOf="@id/tv_resend_code" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_input_one"
-                android:layout_width="@dimen/fifty_dp_margin"
-                android:layout_height="@dimen/fifty_dp_margin"
-                android:background="@drawable/bg_number_box"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <EditText
-                    android:id="@+id/et_input_one"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@null"
-                    android:fontFamily="@font/montserrat"
-                    android:gravity="center"
-                    android:inputType="number"
-                    android:maxLength="1"
-                    android:textSize="@dimen/thirty_sp_text"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_input_two"
-                android:layout_width="@dimen/fifty_dp_margin"
-                android:layout_height="@dimen/fifty_dp_margin"
-                android:background="@drawable/bg_number_box"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/cl_input_three"
-                app:layout_constraintStart_toEndOf="@id/cl_input_one"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <EditText
-                    android:id="@+id/et_input_two"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@null"
-                    android:fontFamily="@font/montserrat"
-                    android:gravity="center"
-                    android:inputType="number"
-                    android:maxLength="1"
-                    android:textSize="@dimen/thirty_sp_text"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_input_three"
-                android:layout_width="@dimen/fifty_dp_margin"
-                android:layout_height="@dimen/fifty_dp_margin"
-                android:background="@drawable/bg_number_box"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/cl_input_four"
-                app:layout_constraintStart_toEndOf="@id/cl_input_two"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <EditText
-                    android:id="@+id/et_input_three"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@null"
-                    android:fontFamily="@font/montserrat"
-                    android:gravity="center"
-                    android:inputType="number"
-                    android:maxLength="1"
-                    android:textSize="@dimen/thirty_sp_text"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_input_four"
-                android:layout_width="@dimen/fifty_dp_margin"
-                android:layout_height="@dimen/fifty_dp_margin"
-                android:background="@drawable/bg_number_box"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/cl_input_five"
-                app:layout_constraintStart_toEndOf="@id/cl_input_three"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <EditText
-                    android:id="@+id/et_input_four"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@null"
-                    android:fontFamily="@font/montserrat"
-                    android:gravity="center"
-                    android:inputType="number"
-                    android:maxLength="1"
-                    android:textSize="@dimen/thirty_sp_text"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_input_five"
-                android:layout_width="@dimen/fifty_dp_margin"
-                android:layout_height="@dimen/fifty_dp_margin"
-                android:background="@drawable/bg_number_box"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/cl_input_six"
-                app:layout_constraintStart_toEndOf="@id/cl_input_four"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <EditText
-                    android:id="@+id/et_input_five"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@null"
-                    android:fontFamily="@font/montserrat"
-                    android:gravity="center"
-                    android:inputType="number"
-                    android:maxLength="1"
-                    android:textSize="@dimen/thirty_sp_text"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_input_six"
-                android:layout_width="@dimen/fifty_dp_margin"
-                android:layout_height="@dimen/fifty_dp_margin"
-                android:background="@drawable/bg_number_box"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/cl_input_five"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <EditText
-                    android:id="@+id/et_input_six"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@null"
-                    android:fontFamily="@font/montserrat"
-                    android:gravity="center"
-                    android:inputType="number"
-                    android:maxLength="1"
-                    android:textSize="@dimen/thirty_sp_text"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.appcompat.widget.AppCompatButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_next"
-            android:layout_width="match_parent"
+            style="@style/CustomButton"
+            app:cornerRadius="@dimen/sixteen_dp_margin"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:background="@drawable/bg_btn_blue"
-            android:fontFamily="@font/montserrat"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
+            android:enabled="true"
             android:text="@string/next"
             android:textAllCaps="false"
-            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="@+id/verification_input_fields"
+            app:layout_constraintStart_toStartOf="@+id/verification_input_fields"
+            app:layout_constraintTop_toBottomOf="@id/verification_input_fields" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_incorrect_code"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
+            android:backgroundTint="@color/secondWarningColor"
+            android:visibility="gone"
+            app:cardCornerRadius="@dimen/sixteen_dp_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cl_otp_input" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:drawablePadding="@dimen/eight_dp_margin"
+                android:padding="@dimen/eight_dp_margin"
+                android:text="@string/incorrect_code"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="@color/warningColor"
+                android:visibility="visible"
+                app:drawableStartCompat="@drawable/img_alert_triangle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_enter_number" />
+        </com.google.android.material.card.MaterialCardView>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
         android:id="@+id/iv_spika_verify"
-        android:layout_width="@dimen/one_hundred_seventy_dp"
-        android:layout_height="@dimen/one_hundred_seventy_dp"
-        android:src="@drawable/img_spika_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="?attr/spikaLogo"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/iv_checkmark"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/img_checkmark"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/iv_spika_verify"
-        app:layout_constraintEnd_toEndOf="@id/iv_spika_verify"
-        app:layout_constraintStart_toStartOf="@id/iv_spika_verify"
-        app:layout_constraintTop_toTopOf="@id/iv_spika_verify" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

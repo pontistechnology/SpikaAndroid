@@ -6,11 +6,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:visibility="visible"
-    app:layout_constrainedWidth="true"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="1.0"
-    app:layout_constraintStart_toStartOf="parent"
     tools:ignore="contentDescription">
 
     <ImageView
@@ -31,9 +26,10 @@
         android:layout_marginTop="@dimen/ten_dp_margin"
         android:layout_marginEnd="@dimen/thirty_two_dp_margin"
         android:ellipsize="end"
-        android:fontFamily="@font/montserrat_bold"
+        android:textAppearance="@style/CustomTextBody"
         android:maxEms="8"
         android:maxLines="3"
+        android:textColor="?attr/primaryTextColor"
         android:text="@string/placeholder_title"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constrainedWidth="true"
@@ -48,9 +44,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/ten_dp_margin"
-        android:fontFamily="@font/montserrat"
+        android:textAppearance="@style/CustomTextLightBody"
         android:text="@string/number_example"
         android:textSize="@dimen/twelve_sp_text"
+        android:textColor="?attr/primaryTextColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/tv_file_title"
         app:layout_constraintTop_toBottomOf="@id/tv_file_title" />

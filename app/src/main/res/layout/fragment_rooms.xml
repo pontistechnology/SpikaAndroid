@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,80 +9,128 @@
     android:focusableInTouchMode="true"
     tools:context=".ui.main.rooms.RoomsFragment"
     tools:ignore="contentDescription"
-    android:orientation="vertical">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/eight_dp_margin"
-        android:backgroundTint="@color/main"
-        app:elevation="0dp">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/topAppBar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:backgroundTint="@color/main"
-            android:theme="@style/CustomToolbar"
-            app:elevation="0dp"
-            app:menu="@menu/menu"
-            app:title="@string/chat"
-            app:titleTextAppearance="@style/CustomTitleBold"
-            app:titleTextColor="@color/text_primary" />
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <TextView
-        android:id="@+id/tv_no_chats"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fontFamily="@font/montserrat_bold"
-        android:text="@string/no_chats_yet"
-        android:gravity="center"
-        android:textColor="@color/text_tertiary"
-        android:textSize="@dimen/sixteen_sp_text" />
+    android:orientation="vertical"
+    android:paddingEnd="@dimen/ten_dp_margin"
+    android:background="?android:attr/selectableItemBackground"
+    android:paddingStart="@dimen/ten_dp_margin">
 
     <LinearLayout
-        android:id="@+id/ll_search_rooms_messages"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_search_rooms"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/sixty_four_dp"
-            android:layout_weight="1"
-            android:background="@null"
-            android:fontFamily="@font/montserrat"
-            android:text="@string/rooms"
-            android:textAllCaps="false"
-            android:textColor="@color/text_primary" />
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/eight_dp_margin"
+            android:backgroundTint="@android:color/transparent"
+            app:elevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_search_messages"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/sixty_four_dp"
-            android:layout_weight="1"
-            android:background="@null"
-            android:fontFamily="@font/montserrat"
-            android:text="@string/messages"
-            android:textAllCaps="false"
-            android:textColor="@color/text_primary" />
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/topAppBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@style/CustomToolbar"
+                app:closeIcon="@drawable/img_search_close"
+                app:elevation="0dp"
+                app:menu="@menu/menu"
+                app:title="@string/chat"
+                app:titleTextAppearance="@style/CustomTitleBold"
+                app:titleTextColor="?attr/primaryTextColor" />
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <TextView
+            android:id="@+id/tv_no_chats"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/no_chats_yet"
+            android:textAppearance="@style/CustomTextHeading"
+            android:textColor="?attr/secondaryTextColor"
+            android:textSize="@dimen/twenty_four_sp_text"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/ll_search_rooms_messages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@+id/tv_no_chats"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_search_rooms"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/sixty_four_dp"
+                android:layout_weight="1"
+                android:background="@null"
+                android:text="@string/rooms"
+                android:textAllCaps="false"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="?attr/primaryTextColor" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_search_messages"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/sixty_four_dp"
+                android:layout_weight="1"
+                android:background="@null"
+                android:text="@string/messages"
+                android:textAllCaps="false"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="?attr/primaryTextColor" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_rooms"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ll_search_rooms_messages"
+            tools:listitem="@layout/item_chat_room" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_messages"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="24dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ll_search_rooms_messages" />
+
+
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_rooms"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/four_dp_margin"
-        android:visibility="visible" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_messages"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/four_dp_margin"
-        android:visibility="gone" />
-</LinearLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_new_room"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:layout_marginBottom="@dimen/sixteen_dp_margin"
+        android:clickable="true"
+        android:focusable="true"
+        app:borderWidth="0dp"
+        android:backgroundTint="?attr/primaryColor"
+        app:tint="?attr/primaryTextColor"
+        android:src="@drawable/img_new_chat"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,9 +11,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/twenty_dp_margin"
-        android:fontFamily="@font/montserrat_bold"
+        android:layout_marginTop="@dimen/four_dp_margin"
         android:text="@string/category_placeholder"
-        android:textSize="@dimen/sixteen_sp_text"
+        android:textAppearance="@style/CustomTextHeading"
+        android:textColor="?attr/primaryTextColor"
+        android:textSize="@dimen/thirty_two_sp_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -24,8 +26,8 @@
         android:layout_marginStart="@dimen/twenty_dp_margin"
         android:layout_marginTop="@dimen/eight_dp_margin"
         android:layout_marginBottom="@dimen/eight_dp_margin"
-        android:scaleType="center"
-        android:src="@drawable/img_user_placeholder"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_user_avatar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_header"
@@ -36,8 +38,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/twenty_dp_margin"
-        android:fontFamily="@font/montserrat"
+        android:textAppearance="@style/CustomTextHeading"
         android:text="@string/enter_username"
+        android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
         app:layout_constraintStart_toEndOf="@+id/iv_user_image"
         app:layout_constraintTop_toTopOf="@+id/iv_user_image" />
@@ -47,26 +50,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/twenty_dp_margin"
-        android:fontFamily="@font/montserrat_thin"
+        android:fontFamily="@font/roboto_light"
         android:text="@string/enter_username"
         android:textSize="@dimen/twelve_sp_text"
+        android:textColor="?attr/primaryTextColor"
         app:layout_constraintBottom_toBottomOf="@+id/iv_user_image"
         app:layout_constraintStart_toEndOf="@id/iv_user_image"
         app:layout_constraintTop_toBottomOf="@id/tv_username" />
 
-    <CheckBox
-        android:id="@+id/cb_user_selected"
+    <ImageView
+        android:id="@+id/iv_checked_user"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:clickable="false"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:visibility="gone"
+        android:src="@drawable/img_checkmark"
+        app:tint="?attr/primaryTextColor"
         app:layout_constraintBottom_toBottomOf="@id/tv_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/tv_username"
-        android:theme="@style/CustomCheckBox" />
+
+        />
 
     <View
         android:id="@+id/transparent_view"

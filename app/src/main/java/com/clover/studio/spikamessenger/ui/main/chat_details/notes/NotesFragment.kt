@@ -31,6 +31,7 @@ class NotesFragment : BaseFragment() {
     private lateinit var adapter: NotesAdapter
     private val args: NotesFragmentArgs by navArgs()
     private var roomId: Int = 0
+
     private var itemTouchHelper: ItemTouchHelper? = null
     private var navOptionsBuilder: NavOptions? = null
 
