@@ -19,12 +19,12 @@
         android:name="com.clover.studio.spikamessenger.MainApplication"
         android:allowBackup="false"
         android:fullBackupContent="false"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_app_icon"
         android:label="@string/APP_NAME"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_app_icon"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ExampleApp"
+        android:theme="@style/Theme.App.DarkMarine"
         tools:replace="android:allowBackup, android:label">
         <activity
             android:name="com.clover.studio.spikamessenger.ui.main.chat.ChatScreenActivity"

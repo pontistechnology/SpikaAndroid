@@ -35,14 +35,13 @@ class AppearanceSettings : BaseFragment() {
             0 to Const.Themes.BASIC_THEME_NIGHT,
             1 to Const.Themes.BASIC_THEME,
             2 to Const.Themes.NEON_THEME,
-            3 to Const.Themes.NEON_THEME,
-            4 to Const.Themes.MINT_THEME
+            3 to Const.Themes.MINT_THEME
         )
 
         optionList = mutableListOf(
             UserOptionsData(getString(R.string.theme_dark_marine), null, null, false, false),
             UserOptionsData(getString(R.string.theme_light_marine), null, null, false, false),
-            UserOptionsData(getString(R.string.theme_neon), null, null, false, false,),
+            UserOptionsData(getString(R.string.theme_neon), null, null, false, false),
             UserOptionsData(getString(R.string.theme_light_green), null, null, false, false)
         )
 
@@ -86,6 +85,8 @@ class AppearanceSettings : BaseFragment() {
             Const.Themes.BASIC_THEME -> getString(R.string.theme_light_marine)
             else -> getString(R.string.theme_light_marine)
         }
+
+        Timber.d("Theme: $theme")
 
         optionList.forEach {
             if (it.option == theme) {

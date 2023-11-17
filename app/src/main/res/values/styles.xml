@@ -142,11 +142,13 @@
     <style name="CustomTitleBold" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">@dimen/thirty_two_sp_text</item>
         <item name="android:fontFamily">@font/roboto_bold</item>
+        <item name="android:textColor">?attr/primaryTextColor</item>
     </style>
 
     <style name="CustomTitleNormal" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">@dimen/fourteen_sp_text</item>
         <item name="android:fontFamily">@font/roboto</item>
+        <item name="android:textColor">?attr/primaryTextColor</item>
     </style>
 
     <!-- Toolbar style - SearchView  -->
