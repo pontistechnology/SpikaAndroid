@@ -32,6 +32,7 @@
         <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
 
         <item name="alphaHelperColor">@color/lightThemeAlpha</item>
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <!--  Dark Marine theme  -->
@@ -64,7 +65,7 @@
 <!--  Neon theme  -->
     <style name="Theme.App.Neon" parent="Theme.MaterialComponents.Light.NoActionBar">
 
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
 
         <item name="primaryColor">@color/neonPrimaryColor</item>
         <item name="secondaryColor">@color/neonSecondaryColor</item>
@@ -89,9 +90,7 @@
 
 <!-- Mint theme   -->
     <style name="Theme.App.LightGreen" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="windowActionBar">false</item>
-<!--        <item name="windowNoTitle">true</item>-->
+        <item name="android:windowTranslucentStatus">true</item>
 
         <item name="primaryColor">@color/lightGreenPrimaryColor</item>
         <item name="secondaryColor">@color/lightGreenSecondaryColor</item>
