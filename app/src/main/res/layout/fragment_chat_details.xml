@@ -77,6 +77,31 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_group_placeholder" />
 
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/sixteen_dp_margin"
+            android:layout_marginTop="1dp"
+            android:elevation="@dimen/eight_dp_margin"
+            android:padding="@dimen/ten_dp_margin"
+            android:src="@drawable/img_arrow_back_chat"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_group_placeholder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.2"
+            android:text="@string/group_label"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/secondaryTextColor"
+            android:textSize="@dimen/twelve_sp_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_enter_group_name" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_member_list"
             android:layout_width="match_parent"
@@ -110,41 +135,16 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_group_members"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:layout_marginTop="@dimen/eight_dp_margin"
-
                 android:layout_marginBottom="@dimen/twenty_four_dp_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_percent="0.8"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_members_number"
                 tools:listitem="@layout/item_people_selected" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <ImageView
-            android:id="@+id/iv_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/sixteen_dp_margin"
-            android:layout_marginTop="1dp"
-            android:elevation="@dimen/eight_dp_margin"
-            android:padding="@dimen/ten_dp_margin"
-            android:src="@drawable/img_arrow_back_chat"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_group_placeholder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:letterSpacing="0.2"
-            android:text="@string/group_label"
-            android:textAppearance="@style/CustomTextBody"
-            android:textColor="?attr/secondaryTextColor"
-            android:textSize="@dimen/twelve_sp_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_enter_group_name" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
