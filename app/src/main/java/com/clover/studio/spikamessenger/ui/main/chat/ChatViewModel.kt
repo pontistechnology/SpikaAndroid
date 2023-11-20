@@ -56,7 +56,7 @@ class ChatViewModel @Inject constructor(
 
     private fun updateCounterLimit() {
         val currentLimit = liveDataLimit.value ?: 0
-        Timber.d("Current limit = $currentLimit")
+//        Timber.d("Current limit = $currentLimit")
 
         liveDataLimit.postValue(currentLimit + 1)
     }
@@ -64,7 +64,11 @@ class ChatViewModel @Inject constructor(
     fun storeMessageLocally(message: Message) = CoroutineScope(Dispatchers.IO).launch {
         repository.storeMessageLocally(message)
 
+        Timber.d("Store locally")
+
         updateCounterLimit()
+
+        Timber.d("Updated counter limit")
     }
 
     override fun newMessageReceived(message: Message) {
@@ -77,22 +81,25 @@ class ChatViewModel @Inject constructor(
                 currentMessages.add(message)
                 messagesReceived.value = currentMessages
             }
-            Timber.d("Messages received: $messagesReceived")
+//            Timber.d("Messages received: $messagesReceived")
         }
     }
 
     fun clearMessages() {
         viewModelScope.launch {
             messagesReceived.value = emptyList()
-            Timber.d("Messages received cleared: ${messagesReceived.value}")
+//            Timber.d("Messages received cleared: ${messagesReceived.value}")
         }
     }
 
     fun sendMessage(jsonObject: JsonObject, localId: String) = viewModelScope.launch {
+        Timber.d("sendMessage method")
         val response = repository.sendMessage(jsonObject)
         if (response.status == Resource.Status.SUCCESS) {
+            Timber.d("Success ")
             resolveResponseStatus(messageSendListener, response)
         } else {
+            Timber.d("Error")
             updateMessages(
                 Resource.Status.ERROR.toString(),
                 localId
@@ -150,13 +157,13 @@ class ChatViewModel @Inject constructor(
     fun getRoomAndUsers(roomId: Int) = repository.getRoomWithUsersLiveData(roomId)
 
     fun getMessageAndRecords(roomId: Int) = Transformations.switchMap(liveDataLimit) {
-        Timber.d("Limit check ${liveDataLimit.value}")
+//        Timber.d("Limit check ${liveDataLimit.value}")
         repository.getMessagesAndRecords(roomId, it, 0)
     }
 
     fun fetchNextSet(roomId: Int) {
         val currentLimit = liveDataLimit.value ?: 0
-        Timber.d("Current limit = $currentLimit")
+//        Timber.d("Current limit = $currentLimit")
 
         if (getMessageCount(roomId = roomId) > currentLimit)
             liveDataLimit.value = currentLimit + 20
@@ -168,7 +175,7 @@ class ChatViewModel @Inject constructor(
         runBlocking {
             messageCount = repository.getMessageCount(roomId)
         }
-        Timber.d("Message count = $messageCount")
+//        Timber.d("Message count = $messageCount")
         return messageCount
     }
 

@@ -460,6 +460,7 @@ class ChatMessagesFragment : BaseFragment() {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
+                    Timber.d("Here, success")
                     if (unsentMessages.isNotEmpty()) {
                         val message =
                             unsentMessages.find { msg -> msg.localId == it.responseData?.data?.message?.localId }

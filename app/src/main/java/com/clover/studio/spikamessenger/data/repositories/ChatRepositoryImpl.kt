@@ -58,14 +58,17 @@ class ChatRepositoryImpl @Inject constructor(
                     it.data.message.deleted!!,
                     it.data.message.replyId ?: 0L,
                     it.data.message.localId!!,
-                    Resource.Status.SUCCESS.toString(),
+                    it.status.toString(),
                 )
+
             })
 
     override suspend fun storeMessageLocally(message: Message) {
+        Timber.d("Message id: ${message.id}, ${message.localId}, ${message.body}")
         queryDatabaseCoreData(
             databaseQuery = { messageDao.upsert(message) }
         )
+        Timber.d("Upserted")
     }
 
     override suspend fun deleteLocalMessages(messages: List<Message>) {
@@ -334,7 +337,7 @@ class ChatRepositoryImpl @Inject constructor(
                     }
                     roomsToUpdate.add(room)
                 }
-                Timber.d("Rooms to update: $roomsToUpdate")
+//                Timber.d("Rooms to update: $roomsToUpdate")
                 queryDatabaseCoreData(
                     databaseQuery = { roomDao.upsert(roomsToUpdate) }
                 )
@@ -345,7 +348,7 @@ class ChatRepositoryImpl @Inject constructor(
 
 interface ChatRepository : BaseRepository {
     // Message calls
-    suspend fun sendMessage(jsonObject: JsonObject): Resource<MessageResponse>
+    suspend fun sendMessage(jsonObject: JsonObject) : Resource<MessageResponse>
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
     suspend fun deleteLocalMessage(message: Message)
