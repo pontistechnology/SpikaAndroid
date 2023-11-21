@@ -220,7 +220,7 @@ class ChatDetailsFragment : BaseFragment() {
                 jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, newAvatarFileId)
             }
 
-            viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0)
+            viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0, roomWithUsers.users.size)
 
             ivDone.visibility = View.GONE
             etEnterGroupName.visibility = View.INVISIBLE
@@ -516,7 +516,7 @@ class ChatDetailsFragment : BaseFragment() {
         if (adminIds.size() > 0)
             jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminIds)
 
-        roomId?.let { viewModel.updateRoom(jsonObject, it, 0) }
+        roomId?.let { viewModel.updateRoom(jsonObject, it, 0, roomUsers.size) }
 
     }
 
@@ -623,13 +623,12 @@ class ChatDetailsFragment : BaseFragment() {
         val jsonObject = JsonObject()
         val userIds = JsonArray()
 
-        for (user in roomUsers) {
-            if (!user.isAdmin)
-                userIds.add(user.id)
+        roomUsers.forEach {
+            userIds.add(it.id)
         }
 
         jsonObject.add(Const.JsonFields.USER_IDS, userIds)
 
-        roomId?.let { viewModel.updateRoom(jsonObject, it, idToRemove) }
+        roomId?.let { viewModel.updateRoom(jsonObject, it, idToRemove, roomUsers.size) }
     }
 }

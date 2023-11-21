@@ -13,7 +13,7 @@ import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.NewNote
 import com.clover.studio.spikamessenger.data.models.networking.responses.MessageResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.NotesResponse
-import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
+import com.clover.studio.spikamessenger.data.models.networking.responses.UpdatedRoom
 import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.utils.Event
@@ -44,7 +44,7 @@ class ChatViewModel @Inject constructor(
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val noteDeletionListener = MutableLiveData<Event<NoteDeletion>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
-    val roomInfoUpdated = MutableLiveData<Event<Resource<RoomResponse?>>>()
+    val roomInfoUpdated = MutableLiveData<Event<UpdatedRoom>>()
     private val liveDataLimit = MutableLiveData(20)
     val messagesReceived = MutableLiveData<List<Message>>()
     val searchMessageId = MutableLiveData(0)
@@ -118,12 +118,19 @@ class ChatViewModel @Inject constructor(
         repository.sendMessagesSeen(roomId)
     }
 
-    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
-        CoroutineScope(Dispatchers.IO).launch {
-            resolveResponseStatus(
-                roomInfoUpdated,
-                repository.updateRoom(jsonObject, roomId, userId)
-            )
+    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int, roomSize: Int) =
+        viewModelScope.launch {
+            val response = repository.updateRoom(jsonObject, roomId, userId)
+
+            if (response.status == Resource.Status.SUCCESS) {
+                val updated = UpdatedRoom(
+                    roomId = roomId,
+                    groupName = response.responseData?.data?.room?.name.toString(),
+                    avatarId = response.responseData?.data?.room?.avatarFileId ?: 0L,
+                    userNumber = roomSize
+                )
+                roomInfoUpdated.postValue(Event(updated))
+            }
         }
 
     fun isUserAdmin(roomId: Int, userId: Int): Boolean {
