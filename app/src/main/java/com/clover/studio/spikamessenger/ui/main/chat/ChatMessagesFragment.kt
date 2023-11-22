@@ -594,21 +594,18 @@ class ChatMessagesFragment : BaseFragment() {
         }
 
         viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
-                    if (it.responseData?.data?.room?.roomId == roomWithUsers!!.room.roomId) {
-                        val avatarFile = it.responseData.data.room.avatarFileId ?: 0L
-                        val roomName = it.responseData.data.room.name ?: ""
-                        roomWithUsers!!.room.apply {
-                            avatarFileId = avatarFile
-                            name = roomName
-                        }
-                        setAvatarAndName(avatarFile, roomName)
-                    }
+            if (it.roomId == roomWithUsers!!.room.roomId) {
+                val avatarFile = it.avatarId
+                val roomName = it.groupName
+
+                roomWithUsers!!.room.apply {
+                    avatarFileId = avatarFile
+                    name = roomName
                 }
 
-                Resource.Status.ERROR -> Timber.d("Error while updating room data")
-                else -> Timber.d("Other error")
+                bindingSetup.chatHeader.tvTitle.text =
+                    it.userNumber.toString() + getString(R.string.members)
+                setAvatarAndName(avatarFile, roomName)
             }
         })
 
