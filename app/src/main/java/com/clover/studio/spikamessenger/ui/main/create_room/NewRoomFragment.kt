@@ -33,7 +33,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Arrays
-import kotlin.streams.toList
 
 class NewRoomFragment : BaseFragment() {
     private var args: NewRoomFragmentArgs? = null
@@ -65,7 +64,7 @@ class NewRoomFragment : BaseFragment() {
 
         localId = viewModel.getLocalUserId()!!
 
-        if (viewModel.roomUsers.isNotEmpty()) {
+        if (viewModel.roomUsers.isNotEmpty() && args?.userIds == null) {
             selectedUsers = viewModel.roomUsers
             selectedContactsAdapter.submitList(selectedUsers)
             handleGroupChat()
@@ -224,7 +223,15 @@ class NewRoomFragment : BaseFragment() {
         binding.rvContacts.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
-        // Contacts Selected Adapter
+        setUpSelectedContactsAdapter()
+
+        selectedContactsAdapter.submitList(selectedUsers)
+        binding.rvSelected.adapter = selectedContactsAdapter
+        binding.rvSelected.layoutManager =
+            LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
+    }
+
+    private fun setUpSelectedContactsAdapter() {
         selectedContactsAdapter = SelectedContactsAdapter(requireContext()) {
             if (selectedUsers.contains(it)) {
                 selectedUsers.remove(it)
@@ -237,11 +244,6 @@ class NewRoomFragment : BaseFragment() {
             handleNextTextView()
             handleSelectedUserList(it)
         }
-
-        selectedContactsAdapter.submitList(selectedUsers)
-        binding.rvSelected.adapter = selectedContactsAdapter
-        binding.rvSelected.layoutManager =
-            LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
     }
 
     private fun handleSelectedUserList(userItem: UserAndPhoneUser) {
