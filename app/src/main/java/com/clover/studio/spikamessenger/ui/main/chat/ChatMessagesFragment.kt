@@ -1199,15 +1199,33 @@ class ChatMessagesFragment : BaseFragment() {
         )
 
         val jsonObject = jsonMessage.messageToJson()
-        Timber.d("Message object: $jsonObject")
+//        Timber.d("Message object: $jsonObject")
+
         viewModel.sendMessage(jsonObject, localId)
+
+//        val message = viewModel.getMessages(
+//            roomId = roomWithUsers!!.room.roomId
+//        )
+//        Timber.d("After temp1, messages: $message")
 
         if (replyId != 0L) {
             replyId = 0L
         }
+
+//        val message2 = viewModel.getMessages(
+//            roomId = roomWithUsers!!.room.roomId
+//        )
+//        Timber.d("After temp2, messages: $message2")
     }
 
     private fun createTempTextMessage() {
+
+//        val message = viewModel.getMessages(
+//            roomId = roomWithUsers!!.room.roomId
+//        )
+
+//        Timber.d("Before temp, messages: $message")
+
         val messageBody =
             MessageBody(null, bindingSetup.etMessage.text.toString().trim(), 1, 1, null, null)
 

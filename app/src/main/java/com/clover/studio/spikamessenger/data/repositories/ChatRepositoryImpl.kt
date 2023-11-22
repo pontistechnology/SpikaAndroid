@@ -60,8 +60,8 @@ class ChatRepositoryImpl @Inject constructor(
                     it.data.message.localId!!,
                     it.status.toString(),
                 )
-
             })
+
 
     override suspend fun storeMessageLocally(message: Message) {
         Timber.d("Message id: ${message.id}, ${message.localId}, ${message.body}")
@@ -135,6 +135,8 @@ class ChatRepositoryImpl @Inject constructor(
         queryDatabase(
             databaseQuery = { messageDao.getMessagesAndRecords(roomId, limit, offset) }
         )
+
+//    override fun getMessages(roomId: Int) = messageDao.getMessages(roomId)
 
     override suspend fun getMessageCount(roomId: Int) =
         messageDao.getMessageCount(roomId)
@@ -348,7 +350,7 @@ class ChatRepositoryImpl @Inject constructor(
 
 interface ChatRepository : BaseRepository {
     // Message calls
-    suspend fun sendMessage(jsonObject: JsonObject) : Resource<MessageResponse>
+    suspend fun sendMessage(jsonObject: JsonObject): Resource<MessageResponse>
     suspend fun storeMessageLocally(message: Message)
     suspend fun deleteLocalMessages(messages: List<Message>)
     suspend fun deleteLocalMessage(message: Message)
@@ -360,6 +362,7 @@ interface ChatRepository : BaseRepository {
         limit: Int,
         offset: Int
     ): LiveData<Resource<List<MessageAndRecords>>>
+//    fun getMessages(roomId: Int) : List<Message>
 
     suspend fun getMessageCount(roomId: Int): Int
     suspend fun updateMessageStatus(messageStatus: String, localId: String)
@@ -378,7 +381,7 @@ interface ChatRepository : BaseRepository {
     suspend fun leaveRoom(roomId: Int)
     suspend fun removeAdmin(roomId: Int, userId: Int)
 
-    suspend fun getRoomUsers(roomId: Int) : RoomWithUsers?
+    suspend fun getRoomUsers(roomId: Int): RoomWithUsers?
 
     // Reaction calls
     suspend fun sendReaction(jsonObject: JsonObject)

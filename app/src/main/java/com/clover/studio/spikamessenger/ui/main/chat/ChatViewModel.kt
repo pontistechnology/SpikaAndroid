@@ -161,6 +161,8 @@ class ChatViewModel @Inject constructor(
         repository.getMessagesAndRecords(roomId, it, 0)
     }
 
+//    fun getMessages(roomId: Int) = repository.getMessages(roomId)
+
     fun fetchNextSet(roomId: Int) {
         val currentLimit = liveDataLimit.value ?: 0
 //        Timber.d("Current limit = $currentLimit")
