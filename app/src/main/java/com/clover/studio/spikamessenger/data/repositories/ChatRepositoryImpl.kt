@@ -43,32 +43,18 @@ class ChatRepositoryImpl @Inject constructor(
 ) : ChatRepository {
     override suspend fun sendMessage(jsonObject: JsonObject) =
         performRestOperation(
-            networkCall = { chatRemoteDataSource.sendMessage(jsonObject) },
-            saveCallResult = {
-                messageDao.updateMessage(
-                    it.data?.message!!.id,
-                    it.data.message.fromUserId!!,
-                    it.data.message.totalUserCount!!,
-                    it.data.message.deliveredCount!!,
-                    it.data.message.seenCount!!,
-                    it.data.message.type!!,
-                    it.data.message.body!!,
-                    it.data.message.createdAt!!,
-                    it.data.message.modifiedAt!!,
-                    it.data.message.deleted!!,
-                    it.data.message.replyId ?: 0L,
-                    it.data.message.localId!!,
-                    it.status.toString(),
-                )
-            })
-
+            networkCall = { chatRemoteDataSource.sendMessage(jsonObject) })
 
     override suspend fun storeMessageLocally(message: Message) {
+        Timber.d("storeMessageLocally")
         Timber.d("Message id: ${message.id}, ${message.localId}, ${message.body}")
-        queryDatabaseCoreData(
-            databaseQuery = { messageDao.upsert(message) }
-        )
-        Timber.d("Upserted")
+        val response = queryDatabaseCoreData(
+            databaseQuery = { messageDao.getMessageByLocalId(message.localId.toString()) }
+        ).responseData
+
+        if (response == null) {
+            messageDao.insert(message)
+        }
     }
 
     override suspend fun deleteLocalMessages(messages: List<Message>) {

@@ -303,13 +303,23 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeMessages(message: Message) {
-        Timber.d("WRITE MESSAGE: $message")
-        CoroutineScope(Dispatchers.IO).launch {
-            queryDatabaseCoreData(
-                databaseQuery = { messageDao.upsert(message) }
-            )
-            Timber.d("Done!")
-        }
+        Timber.d("writeMessage: $message")
+        messageDao.updateMessage(
+            message.id,
+            message.fromUserId!!,
+            message.totalUserCount!!,
+            message.deliveredCount!!,
+            message.seenCount!!,
+            message.type!!,
+            message.body!!,
+            message.createdAt!!,
+            message.modifiedAt!!,
+            message.deleted!!,
+            message.replyId ?: 0L,
+            message.localId.toString(),
+            Resource.Status.SUCCESS.toString(),
+        )
+        Timber.d("Done!")
     }
 
     override suspend fun writeMessageRecord(messageRecords: MessageRecords) {
@@ -328,103 +338,91 @@ class SSERepositoryImpl @Inject constructor(
      */
     private suspend fun writeRecord(messageRecords: MessageRecords) {
         /** Update seenCount / deliveredCount from NEW_MESSAGE_RECORD event */
-            Timber.d("WRITE MESSAGE RECORD: $messageRecords")
-//            if (messageRecords.recordMessage != null) {
-//                val databaseRecord = queryDatabaseCoreData {
-//                    messageDao.getMessage(messageRecords.recordMessage.id)
-//                }.responseData
-//
-//                Timber.d("DATABASE  MESSAGE RECORD: $databaseRecord")
-//
-//                if (databaseRecord != null) {
-//                    if (databaseRecord.seenCount != null) {
-//                        if (messageRecords.recordMessage.seenCount > databaseRecord.seenCount) {
-//                            queryDatabaseCoreData {
-//                                messageDao.updateMessageSeenCount(
-//                                    messageId = messageRecords.recordMessage.id,
-//                                    seenCount = messageRecords.recordMessage.seenCount,
-//                                )
-//                            }
-//                            Timber.d("UPDATE SEEN:")
-//                        }
-//                    }
-//                    if (databaseRecord.deliveredCount != null) {
-//                        if (messageRecords.recordMessage.deliveredCount > databaseRecord.deliveredCount) {
-//                            queryDatabaseCoreData {
-//                                messageDao.updateMessageDeliveredCount(
-//                                    messageId = messageRecords.recordMessage.id,
-//                                    deliveredCount = messageRecords.recordMessage.deliveredCount,
-//                                )
-//                            }
-//                            Timber.d("UPDATE DELIVERED:")
-//                        }
-//                    }
-//                }
-//            } else {
-//                Timber.d("RECORD NULL")
-//            }
-            /***/
+        Timber.d("WwriteRecord: $messageRecords")
+        if (messageRecords.recordMessage != null) {
+            val databaseRecord = queryDatabaseCoreData {
+                messageDao.getMessage(messageRecords.recordMessage.id)
+            }.responseData
 
-            /** Update seen / reaction */
+            if (databaseRecord != null) {
+                if (databaseRecord.seenCount != null) {
+                    if (messageRecords.recordMessage.seenCount > databaseRecord.seenCount) {
+                        queryDatabaseCoreData {
+                            messageDao.updateMessageSeenCount(
+                                messageId = messageRecords.recordMessage.id,
+                                seenCount = messageRecords.recordMessage.seenCount,
+                            )
+                        }
+                    }
+                }
+                if (databaseRecord.deliveredCount != null) {
+                    if (messageRecords.recordMessage.deliveredCount > databaseRecord.deliveredCount) {
+                        queryDatabaseCoreData {
+                            messageDao.updateMessageDeliveredCount(
+                                messageId = messageRecords.recordMessage.id,
+                                deliveredCount = messageRecords.recordMessage.deliveredCount,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        /***/
 
-//            Timber.d("UPDATE SEEN/REACTION:")
-            // TODO
-//            val databaseRecords = queryDatabaseCoreData(
-//                databaseQuery = {
-//                    messageRecordsDao.getMessageRecordId(
-//                        id = messageRecords.messageId,
-//                        userId = messageRecords.userId
-//                    )
-//                }
-//            ).responseData
+        /** Update seen / reaction */
+        val databaseRecords = queryDatabaseCoreData(
+            databaseQuery = {
+                messageRecordsDao.getMessageRecordId(
+                    id = messageRecords.messageId,
+                    userId = messageRecords.userId
+                )
+            }
+        ).responseData
 
-//            Timber.d("Response data: $databaseRecords")
-
-//            if (databaseRecords == null) {
-//                queryDatabaseCoreData(
-//                    databaseQuery = { messageRecordsDao.upsert(messageRecords) }
-//                )
-//                Timber.d("UPSERTED:")
-//            } else {
-//                if (Const.JsonFields.SEEN == messageRecords.type) {
-//                    queryDatabaseCoreData(
-//                        databaseQuery = {
-//                            messageRecordsDao.updateMessageRecords(
-//                                messageId = messageRecords.messageId,
-//                                type = messageRecords.type,
-//                                createdAt = messageRecords.createdAt,
-//                                modifiedAt = messageRecords.modifiedAt,
-//                                userId = messageRecords.userId,
-//                            )
-//                        }
-//                    )
-//                } else if (Const.JsonFields.REACTION == messageRecords.type) {
-//                    val databaseReaction = queryDatabaseCoreData(
-//                        databaseQuery = {
-//                            messageRecordsDao.getMessageReactionId(
-//                                id = messageRecords.messageId,
-//                                userId = messageRecords.userId
-//                            )
-//                        }
-//                    ).responseData
-//                    if (databaseReaction == null) {
-//                        queryDatabaseCoreData(
-//                            databaseQuery = { messageRecordsDao.upsert(messageRecords) }
-//                        )
-//                    } else {
-//                        queryDatabaseCoreData(
-//                            databaseQuery = {
-//                                messageRecordsDao.updateReaction(
-//                                    messageId = messageRecords.messageId,
-//                                    reaction = messageRecords.reaction!!,
-//                                    userId = messageRecords.userId,
-//                                    createdAt = messageRecords.createdAt,
-//                                )
-//                            }
-//                        )
-//                    }
-//                }
-//        }
+        if (databaseRecords == null) {
+            queryDatabaseCoreData(
+                databaseQuery = { messageRecordsDao.upsert(messageRecords) }
+            )
+        } else {
+            if (Const.JsonFields.SEEN == messageRecords.type) {
+                queryDatabaseCoreData(
+                    databaseQuery = {
+                        messageRecordsDao.updateMessageRecords(
+                            messageId = messageRecords.messageId,
+                            type = messageRecords.type,
+                            createdAt = messageRecords.createdAt,
+                            modifiedAt = messageRecords.modifiedAt,
+                            userId = messageRecords.userId,
+                        )
+                    }
+                )
+            } else if (Const.JsonFields.REACTION == messageRecords.type) {
+                val databaseReaction = queryDatabaseCoreData(
+                    databaseQuery = {
+                        messageRecordsDao.getMessageReactionId(
+                            id = messageRecords.messageId,
+                            userId = messageRecords.userId
+                        )
+                    }
+                ).responseData
+                if (databaseReaction == null) {
+                    queryDatabaseCoreData(
+                        databaseQuery = { messageRecordsDao.upsert(messageRecords) }
+                    )
+                } else {
+                    queryDatabaseCoreData(
+                        databaseQuery = {
+                            messageRecordsDao.updateReaction(
+                                messageId = messageRecords.messageId,
+                                reaction = messageRecords.reaction!!,
+                                userId = messageRecords.userId,
+                                createdAt = messageRecords.createdAt,
+                            )
+                        }
+                    )
+                }
+            }
+        }
     }
 
     override suspend fun writeUser(user: User) {

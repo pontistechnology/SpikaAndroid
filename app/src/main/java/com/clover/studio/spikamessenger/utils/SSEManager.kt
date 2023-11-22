@@ -98,7 +98,7 @@ class SSEManager @Inject constructor(
                     sharedPrefs.writeFirstSSELaunch()
                 }
 
-                // run while the coroutine is active
+                // Run while the coroutine is active
                 while (isActive) {
                     val line =
                         inputReader.readLine() // Blocking function. Read stream until \n is found
@@ -128,7 +128,6 @@ class SSEManager @Inject constructor(
                                 Timber.d("Response type: ${response.data?.type}")
                                 when (response.data?.type) {
                                     Const.JsonFields.NEW_MESSAGE -> {
-                                        response.data?.message?.let { repo.writeMessages(it) }
                                         response.data?.message?.id?.let {
                                             repo.sendMessageDelivered(
                                                 it
@@ -140,15 +139,13 @@ class SSEManager @Inject constructor(
                                             )
                                         }
                                         repo.getUnreadCount()
-                                    }
 
-                                    Const.JsonFields.UPDATE_MESSAGE -> {
                                         response.data?.message?.let { repo.writeMessages(it) }
                                     }
 
-                                    Const.JsonFields.DELETE_MESSAGE -> {
+                                    Const.JsonFields.UPDATE_MESSAGE, Const.JsonFields.DELETE_MESSAGE -> {
                                         // We replace old message with new one displaying "Deleted
-                                        // message" in its text field
+                                        // message" or  we add "edited" in its text field
                                         response.data?.message?.let { repo.writeMessages(it) }
                                     }
 
