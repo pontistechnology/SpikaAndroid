@@ -33,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Arrays
+import kotlin.streams.toList
 
 class NewRoomFragment : BaseFragment() {
     private var args: NewRoomFragmentArgs? = null
