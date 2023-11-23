@@ -385,31 +385,16 @@ object ChatAdapterHelper {
         holder: ChatAdapter.ReceivedMessageHolder,
         currentList: MutableList<MessageAndRecords>,
     ) {
-        if (position > 0) {
-            try {
-                val nextItem = currentList[position + 1].message.fromUserId
-                val previousItem = currentList[position - 1].message.fromUserId
-                val currentItem = currentList[position].message.fromUserId
-
-                if (previousItem == currentItem) {
-                    holder.binding.ivUserImage.visibility = View.INVISIBLE
-                } else {
-                    holder.binding.ivUserImage.visibility = View.VISIBLE
-                }
-
-                if (nextItem == currentItem) {
-                    holder.binding.tvUsername.visibility = View.GONE
-                } else {
-                    holder.binding.tvUsername.visibility = View.VISIBLE
-                }
-            } catch (ex: IndexOutOfBoundsException) {
-                Tools.checkError(ex)
-                holder.binding.tvUsername.visibility = View.VISIBLE
-                holder.binding.ivUserImage.visibility = View.VISIBLE
-            }
+        if (currentList[position + 1].message.fromUserId == currentList[position].message.fromUserId) {
+            holder.binding.tvUsername.visibility = View.GONE
         } else {
             holder.binding.tvUsername.visibility = View.VISIBLE
+        }
+
+        if (position == 0 || currentList[position - 1].message.fromUserId != currentList[position].message.fromUserId) {
             holder.binding.ivUserImage.visibility = View.VISIBLE
+        } else {
+            holder.binding.ivUserImage.visibility = View.INVISIBLE
         }
     }
 }

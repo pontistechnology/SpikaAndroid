@@ -504,6 +504,8 @@ class ChatMessagesFragment : BaseFragment() {
                             }
                         } else chatAdapter.submitList(messagesRecords.toList())
 
+                        chatAdapter.notifyItemRangeChanged(0, messagesRecords.size)
+
                         (view?.parent as? ViewGroup)?.doOnPreDraw {
                             startPostponedEnterTransition()
                         }
@@ -516,13 +518,21 @@ class ChatMessagesFragment : BaseFragment() {
                         // If the reply is reply id != 0, it means that the search for the reply message was started and
                         // was not found in the first set of 20 messages.
                         // Other messages should be searched.
-                        if (replyPosition != 0 && messageSearchId != null) {
-                            replyPosition =
-                                messagesRecords.indexOfFirst { msg ->
-                                    msg.message.id == messageSearchId
+                        if (replyPosition != 0) {
+                            if (messagesRecords.firstOrNull { messageAndRecords -> messageAndRecords.message.id == replySearchId } != null) {
+                                val position =
+                                    messagesRecords.indexOfFirst { messageAndRecords -> messageAndRecords.message.id == replySearchId }
+                                scrollToPosition = position
+                                if (position != -1) {
+                                    bindingSetup.rvChat.smoothScrollToPosition(position)
+                                    chatAdapter.setSelectedPosition(position)
                                 }
-                        } else {
-                            viewModel.fetchNextSet(roomWithUsers?.room!!.roomId)
+
+                                replySearchId = 0
+                                viewModel.searchMessageId.value = 0
+                            } else {
+                                viewModel.fetchNextSet(roomWithUsers?.room!!.roomId)
+                            }
                         }
 
                         // If messageSearchId is not 0, it means the user navigated via message
@@ -645,11 +655,7 @@ class ChatMessagesFragment : BaseFragment() {
                 tvNewMessage.text =
                     getString(R.string.new_messages, messagesSize.toString(), "").trim()
 
-                val startWidth = ivBottomArrow.width
-                val endWidth =
-                    (tvNewMessage.width + bindingSetup.ivBottomArrow.width)
-
-                valueAnimator = ValueAnimator.ofInt(startWidth, endWidth).apply {
+                valueAnimator = ValueAnimator.ofInt(cvBottomArrow.width, tvNewMessage.width).apply {
                     addUpdateListener { valueAnimator ->
                         val layoutParams = cvNewMessages.layoutParams
                         layoutParams.width = valueAnimator.animatedValue as Int
