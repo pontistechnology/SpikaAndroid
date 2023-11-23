@@ -473,6 +473,7 @@ class ChatMessagesFragment : BaseFragment() {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
+                    Timber.d("Message send success")
                     if (unsentMessages.isNotEmpty()) {
                         val message =
                             unsentMessages.find { msg -> msg.localId == it.responseData?.data?.message?.localId }
@@ -607,21 +608,18 @@ class ChatMessagesFragment : BaseFragment() {
         }
 
         viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver {
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
-                    if (it.responseData?.data?.room?.roomId == roomWithUsers!!.room.roomId) {
-                        val avatarFile = it.responseData.data.room.avatarFileId ?: 0L
-                        val roomName = it.responseData.data.room.name ?: ""
-                        roomWithUsers!!.room.apply {
-                            avatarFileId = avatarFile
-                            name = roomName
-                        }
-                        setAvatarAndName(avatarFile, roomName)
-                    }
+            if (it.roomId == roomWithUsers!!.room.roomId) {
+                val avatarFile = it.avatarId
+                val roomName = it.groupName
+
+                roomWithUsers!!.room.apply {
+                    avatarFileId = avatarFile
+                    name = roomName
                 }
 
-                Resource.Status.ERROR -> Timber.d("Error while updating room data")
-                else -> Timber.d("Other error")
+                bindingSetup.chatHeader.tvTitle.text =
+                    it.userNumber.toString() + getString(R.string.members)
+                setAvatarAndName(avatarFile, roomName)
             }
         })
 
@@ -795,7 +793,7 @@ class ChatMessagesFragment : BaseFragment() {
                 val scrollingIndex = positionStart + itemCount - 1
                 if (scrollingIndex >= 0 && chatAdapter.currentList.getOrNull(scrollingIndex)?.message?.fromUserId == localUserId) {
                     if (sendingScrollVisibility()) {
-                        rvChat.scrollToPosition(0)
+                        rvChat.smoothScrollToPosition(0)
                         scrollYDistance = 0
                         cvBottomArrow.visibility = View.INVISIBLE
                     } else {
@@ -1213,7 +1211,7 @@ class ChatMessagesFragment : BaseFragment() {
         )
 
         val jsonObject = jsonMessage.messageToJson()
-        Timber.d("Message object: $jsonObject")
+
         viewModel.sendMessage(jsonObject, localId)
 
         if (replyId != 0L) {
@@ -1496,7 +1494,6 @@ class ChatMessagesFragment : BaseFragment() {
 
     override fun onPause() {
         super.onPause()
-//        Timber.d("List state store = ${bindingSetup.rvChat.layoutManager?.onSaveInstanceState()}")
         listState = bindingSetup.rvChat.layoutManager?.onSaveInstanceState()
     }
 }

@@ -170,7 +170,6 @@ class MainRepositoryImpl @Inject constructor(
                     }
                     roomsToUpdate.add(room)
                 }
-                // Timber.d("Rooms to update: $roomsToUpdate")
                 queryDatabaseCoreData(
                     databaseQuery = { chatRoomDao.upsert(roomsToUpdate) }
                 )

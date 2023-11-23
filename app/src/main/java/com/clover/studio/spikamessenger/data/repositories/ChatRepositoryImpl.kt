@@ -29,7 +29,6 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
@@ -43,29 +42,16 @@ class ChatRepositoryImpl @Inject constructor(
 ) : ChatRepository {
     override suspend fun sendMessage(jsonObject: JsonObject) =
         performRestOperation(
-            networkCall = { chatRemoteDataSource.sendMessage(jsonObject) },
-            saveCallResult = {
-                messageDao.updateMessage(
-                    it.data?.message!!.id,
-                    it.data.message.fromUserId!!,
-                    it.data.message.totalUserCount!!,
-                    it.data.message.deliveredCount!!,
-                    it.data.message.seenCount!!,
-                    it.data.message.type!!,
-                    it.data.message.body!!,
-                    it.data.message.createdAt!!,
-                    it.data.message.modifiedAt!!,
-                    it.data.message.deleted!!,
-                    it.data.message.replyId ?: 0L,
-                    it.data.message.localId!!,
-                    Resource.Status.SUCCESS.toString(),
-                )
-            })
+            networkCall = { chatRemoteDataSource.sendMessage(jsonObject) })
 
     override suspend fun storeMessageLocally(message: Message) {
-        queryDatabaseCoreData(
-            databaseQuery = { messageDao.upsert(message) }
-        )
+        val response = queryDatabaseCoreData(
+            databaseQuery = { messageDao.getMessageByLocalId(message.localId.toString()) }
+        ).responseData
+
+        if (response == null) {
+            messageDao.insert(message)
+        }
     }
 
     override suspend fun deleteLocalMessages(messages: List<Message>) {
@@ -334,7 +320,6 @@ class ChatRepositoryImpl @Inject constructor(
                     }
                     roomsToUpdate.add(room)
                 }
-                Timber.d("Rooms to update: $roomsToUpdate")
                 queryDatabaseCoreData(
                     databaseQuery = { roomDao.upsert(roomsToUpdate) }
                 )
@@ -375,7 +360,7 @@ interface ChatRepository : BaseRepository {
     suspend fun leaveRoom(roomId: Int)
     suspend fun removeAdmin(roomId: Int, userId: Int)
 
-    suspend fun getRoomUsers(roomId: Int) : RoomWithUsers?
+    suspend fun getRoomUsers(roomId: Int): RoomWithUsers?
 
     // Reaction calls
     suspend fun sendReaction(jsonObject: JsonObject)

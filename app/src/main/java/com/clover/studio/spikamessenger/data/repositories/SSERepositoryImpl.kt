@@ -303,11 +303,21 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeMessages(message: Message) {
-        CoroutineScope(Dispatchers.IO).launch {
-            queryDatabaseCoreData(
-                databaseQuery = { messageDao.upsert(message) }
-            )
-        }
+        messageDao.updateMessage(
+            message.id,
+            message.fromUserId!!,
+            message.totalUserCount!!,
+            message.deliveredCount!!,
+            message.seenCount!!,
+            message.type!!,
+            message.body!!,
+            message.createdAt!!,
+            message.modifiedAt!!,
+            message.deleted!!,
+            message.replyId ?: 0L,
+            message.localId.toString(),
+            Resource.Status.SUCCESS.toString(),
+        )
     }
 
     override suspend fun writeMessageRecord(messageRecords: MessageRecords) {
@@ -512,7 +522,6 @@ class SSERepositoryImpl @Inject constructor(
                     }
                     if (!room.deleted) roomsToUpdate.add(room)
                 }
-                Timber.d("Rooms to update: $roomsToUpdate")
                 queryDatabaseCoreData(
                     databaseQuery = { chatRoomDao.upsert(roomsToUpdate) }
                 )

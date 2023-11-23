@@ -22,3 +22,10 @@ data class RoomUsers(
     val isAdmin: Boolean?,
     val user: User?
 )
+
+data class UpdatedRoom (
+    val roomId: Int,
+    val groupName : String,
+    val avatarId: Long,
+    val userNumber: Int,
+)
