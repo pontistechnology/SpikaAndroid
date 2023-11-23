@@ -385,16 +385,20 @@ object ChatAdapterHelper {
         holder: ChatAdapter.ReceivedMessageHolder,
         currentList: MutableList<MessageAndRecords>,
     ) {
-        if (currentList[position + 1].message.fromUserId == currentList[position].message.fromUserId) {
-            holder.binding.tvUsername.visibility = View.GONE
-        } else {
-            holder.binding.tvUsername.visibility = View.VISIBLE
-        }
+        try {
+            if (currentList[position + 1].message.fromUserId == currentList[position].message.fromUserId) {
+                holder.binding.tvUsername.visibility = View.GONE
+            } else {
+                holder.binding.tvUsername.visibility = View.VISIBLE
+            }
 
-        if (position == 0 || currentList[position - 1].message.fromUserId != currentList[position].message.fromUserId) {
-            holder.binding.ivUserImage.visibility = View.VISIBLE
-        } else {
-            holder.binding.ivUserImage.visibility = View.INVISIBLE
+            if (position == 0 || currentList[position - 1].message.fromUserId != currentList[position].message.fromUserId) {
+                holder.binding.ivUserImage.visibility = View.VISIBLE
+            } else {
+                holder.binding.ivUserImage.visibility = View.INVISIBLE
+            }
+        } catch (e: Exception){
+            Timber.d("Exception: $e")
         }
     }
 }
