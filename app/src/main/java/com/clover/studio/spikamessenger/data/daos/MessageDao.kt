@@ -41,9 +41,11 @@ interface MessageDao : BaseDao<Message> {
     @Query("SELECT COUNT(*) FROM message WHERE room_id_message= :roomId")
     suspend fun getMessageCount(roomId: Int): Int
 
-    @Transaction
     @Query("SELECT * FROM message WHERE id=:messageId LIMIT 1")
     suspend fun getMessage(messageId: Long): Message
+
+    @Query("SELECT * FROM message WHERE local_id=:localId LIMIT 1")
+    suspend fun getMessageByLocalId(localId: String): Message
 
     @Transaction
     @Query("UPDATE message SET seen_count=:seenCount WHERE id=:messageId")

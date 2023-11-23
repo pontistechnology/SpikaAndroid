@@ -13,7 +13,7 @@ data class Message @JvmOverloads constructor(
 
     @PrimaryKey
     @ColumnInfo(name = AppDatabase.TablesInfo.ID)
-    val id: Int,
+    var id: Int,
 
     @SerializedName("fromUserId")
     @ColumnInfo(name = "from_user_id")
