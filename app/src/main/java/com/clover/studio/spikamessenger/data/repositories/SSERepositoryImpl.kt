@@ -522,7 +522,6 @@ class SSERepositoryImpl @Inject constructor(
                     }
                     if (!room.deleted) roomsToUpdate.add(room)
                 }
-//                Timber.d("Rooms to update: $roomsToUpdate")
                 queryDatabaseCoreData(
                     databaseQuery = { chatRoomDao.upsert(roomsToUpdate) }
                 )

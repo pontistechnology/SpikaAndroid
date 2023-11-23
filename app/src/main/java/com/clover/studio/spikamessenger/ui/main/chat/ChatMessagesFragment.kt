@@ -1482,7 +1482,6 @@ class ChatMessagesFragment : BaseFragment() {
 
     override fun onPause() {
         super.onPause()
-//        Timber.d("List state store = ${bindingSetup.rvChat.layoutManager?.onSaveInstanceState()}")
         listState = bindingSetup.rvChat.layoutManager?.onSaveInstanceState()
     }
 }
