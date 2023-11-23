@@ -48,6 +48,7 @@
         android:backgroundTint="?attr/primaryColor"
         android:visibility="visible"
         app:cardElevation="0dp"
+        app:cardCornerRadius="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cv_first_option">

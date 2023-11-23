@@ -553,12 +553,21 @@ class ChatDetailsFragment : BaseFragment() {
     }
 
     private fun removeUser(user: User) {
-        roomUsers.remove(user)
-        updateRoomUsers(user.id)
-        modifiedList =
-            roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
-        adapter.submitList(modifiedList.toList())
-        adapter.notifyDataSetChanged()
+        DialogError.getInstance(requireActivity(),
+            getString(R.string.remove_from_group),
+            getString(R.string.remove_person, user.formattedDisplayName),
+            getString(R.string.cancel),
+            getString(R.string.ok),
+            object : DialogInteraction {
+                override fun onSecondOptionClicked() {
+                    roomUsers.remove(user)
+                    updateRoomUsers(user.id)
+                    modifiedList =
+                        roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
+                    adapter.submitList(modifiedList.toList())
+                    adapter.notifyDataSetChanged()
+                }
+            })
     }
 
     private fun makeAdmin() {

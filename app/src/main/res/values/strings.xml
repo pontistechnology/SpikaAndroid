@@ -9,7 +9,7 @@
     <string name="outgoing">Outgoing</string>
     <string name="chat">Chat</string>
     <string name="no_chats_yet">No chats yet.</string>
-    <string name="pin_chat">Pin Chat</string>
+    <string name="pin_chat">Pin chat</string>
     <string name="chat_search">Chat Search</string>
     <string name="privacy_explanation">See and share when messages have been read. This applies to all chats.</string>
     <string name="no_username">No Username</string>
@@ -134,6 +134,8 @@
     <string name="group_name">Group name…</string>
     <string name="enter_group_name">Enter group name</string>
     <string name="report_group">Report group</string>
+    <string name="remove_from_group">Remove from group</string>
+    <string name="remove_person">Are you sure you want to remove %s</string>
     <string name="exit_group">Exit group</string>
     <string name="make_group_admin">Make group admin</string>
     <string name="admin">Admin</string>
