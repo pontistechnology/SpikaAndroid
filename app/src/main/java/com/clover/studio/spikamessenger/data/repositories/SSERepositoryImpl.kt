@@ -303,7 +303,6 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeMessages(message: Message) {
-        Timber.d("writeMessage: $message")
         messageDao.updateMessage(
             message.id,
             message.fromUserId!!,
@@ -319,7 +318,6 @@ class SSERepositoryImpl @Inject constructor(
             message.localId.toString(),
             Resource.Status.SUCCESS.toString(),
         )
-        Timber.d("Done!")
     }
 
     override suspend fun writeMessageRecord(messageRecords: MessageRecords) {
@@ -338,7 +336,6 @@ class SSERepositoryImpl @Inject constructor(
      */
     private suspend fun writeRecord(messageRecords: MessageRecords) {
         /** Update seenCount / deliveredCount from NEW_MESSAGE_RECORD event */
-        Timber.d("WwriteRecord: $messageRecords")
         if (messageRecords.recordMessage != null) {
             val databaseRecord = queryDatabaseCoreData {
                 messageDao.getMessage(messageRecords.recordMessage.id)

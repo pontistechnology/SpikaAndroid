@@ -460,7 +460,7 @@ class ChatMessagesFragment : BaseFragment() {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    Timber.d("Here, success")
+                    Timber.d("Message send success")
                     if (unsentMessages.isNotEmpty()) {
                         val message =
                             unsentMessages.find { msg -> msg.localId == it.responseData?.data?.message?.localId }
@@ -780,7 +780,7 @@ class ChatMessagesFragment : BaseFragment() {
                 val scrollingIndex = positionStart + itemCount - 1
                 if (scrollingIndex >= 0 && chatAdapter.currentList.getOrNull(scrollingIndex)?.message?.fromUserId == localUserId) {
                     if (sendingScrollVisibility()) {
-                        rvChat.scrollToPosition(0)
+                        rvChat.smoothScrollToPosition(0)
                         scrollYDistance = 0
                         cvBottomArrow.visibility = View.INVISIBLE
                     } else {
@@ -1199,33 +1199,15 @@ class ChatMessagesFragment : BaseFragment() {
         )
 
         val jsonObject = jsonMessage.messageToJson()
-//        Timber.d("Message object: $jsonObject")
 
         viewModel.sendMessage(jsonObject, localId)
-
-//        val message = viewModel.getMessages(
-//            roomId = roomWithUsers!!.room.roomId
-//        )
-//        Timber.d("After temp1, messages: $message")
 
         if (replyId != 0L) {
             replyId = 0L
         }
-
-//        val message2 = viewModel.getMessages(
-//            roomId = roomWithUsers!!.room.roomId
-//        )
-//        Timber.d("After temp2, messages: $message2")
     }
 
     private fun createTempTextMessage() {
-
-//        val message = viewModel.getMessages(
-//            roomId = roomWithUsers!!.room.roomId
-//        )
-
-//        Timber.d("Before temp, messages: $message")
-
         val messageBody =
             MessageBody(null, bindingSetup.etMessage.text.toString().trim(), 1, 1, null, null)
 

@@ -47,10 +47,6 @@ interface MessageDao : BaseDao<Message> {
     @Query("SELECT * FROM message WHERE local_id=:localId LIMIT 1")
     suspend fun getMessageByLocalId(localId: String): Message
 
-//    @Transaction
-//    @Query("SELECT * FROM message WHERE room_id_message=:roomId")
-//    fun getMessages(roomId: Int): List<Message>
-
     @Transaction
     @Query("UPDATE message SET seen_count=:seenCount WHERE id=:messageId")
     suspend fun updateMessageSeenCount(

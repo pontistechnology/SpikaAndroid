@@ -29,7 +29,6 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
@@ -46,8 +45,6 @@ class ChatRepositoryImpl @Inject constructor(
             networkCall = { chatRemoteDataSource.sendMessage(jsonObject) })
 
     override suspend fun storeMessageLocally(message: Message) {
-        Timber.d("storeMessageLocally")
-        Timber.d("Message id: ${message.id}, ${message.localId}, ${message.body}")
         val response = queryDatabaseCoreData(
             databaseQuery = { messageDao.getMessageByLocalId(message.localId.toString()) }
         ).responseData
@@ -121,8 +118,6 @@ class ChatRepositoryImpl @Inject constructor(
         queryDatabase(
             databaseQuery = { messageDao.getMessagesAndRecords(roomId, limit, offset) }
         )
-
-//    override fun getMessages(roomId: Int) = messageDao.getMessages(roomId)
 
     override suspend fun getMessageCount(roomId: Int) =
         messageDao.getMessageCount(roomId)
@@ -348,7 +343,6 @@ interface ChatRepository : BaseRepository {
         limit: Int,
         offset: Int
     ): LiveData<Resource<List<MessageAndRecords>>>
-//    fun getMessages(roomId: Int) : List<Message>
 
     suspend fun getMessageCount(roomId: Int): Int
     suspend fun updateMessageStatus(messageStatus: String, localId: String)

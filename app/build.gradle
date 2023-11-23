@@ -44,7 +44,7 @@ android {
         applicationId "com.clover.studio.spikamessenger"
         minSdk 24
         targetSdk 33
-        versionCode 111002
+        versionCode 120002
         versionName "1.1.1"
 
         kapt {
@@ -206,7 +206,7 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
     //Glide
-    def glide_version = "4.12.0"
+    def glide_version = "4.13.0"
     implementation "com.github.bumptech.glide:glide:$glide_version"
     implementation "com.github.bumptech.glide:annotations:$glide_version"
     kapt "com.github.bumptech.glide:compiler:$glide_version"
