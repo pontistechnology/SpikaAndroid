@@ -13,13 +13,13 @@
       android:strokeWidth="1.5"
       android:fillColor="#00000000"
       android:fillType="evenOdd"
-      android:strokeColor="?attr/primaryTextColor"
+      android:strokeColor="@color/white"
       android:strokeLineCap="round"/>
   <path
       android:pathData="M16.183,8.746L10.906,14L16.183,19.253"
       android:strokeLineJoin="round"
       android:strokeWidth="1.5"
       android:fillColor="#00000000"
-      android:strokeColor="?attr/primaryTextColor"
+      android:strokeColor="@color/white"
       android:strokeLineCap="round"/>
 </vector>

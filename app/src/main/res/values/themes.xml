@@ -10,7 +10,7 @@
 
         <item name="android:statusBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="colorAccent">?attr/primaryColor</item>
+
 
 <!--   Base theme     -->
         <item name="primaryColor">@color/basePrimaryColor</item>

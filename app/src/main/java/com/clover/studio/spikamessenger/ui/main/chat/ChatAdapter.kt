@@ -191,7 +191,7 @@ class ChatAdapter(
                     Const.JsonFields.FILE_TYPE -> {
                         /** Uploading file: */
                         holder.binding.fileLayout.apply {
-                            setViewsVisibility(clFileMessage, holder)
+                            setViewsVisibility(holder.binding.cvFiles, holder)
                             addFiles(
                                 context = context,
                                 ivFileType = ivFileType,
@@ -422,7 +422,7 @@ class ChatAdapter(
                     }
 
                     Const.JsonFields.FILE_TYPE -> {
-                        setViewsVisibility(holder.binding.fileLayout.clFileMessage, holder)
+                        setViewsVisibility(holder.binding.cvFiles, holder)
                         holder.binding.fileLayout.clFileMessage.setBackgroundResource(R.drawable.bg_message_received)
                         bindFile(
                             chatMessage = it,

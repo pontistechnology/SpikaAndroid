@@ -77,6 +77,7 @@ import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
+import com.vanniktech.emoji.EmojiTheming
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.io.File
@@ -146,6 +147,10 @@ class ChatMessagesFragment : BaseFragment() {
     private var replyId = 0L
     private var replyPosition = 0
     private var replySearchId: Int? = 0
+
+    private var typedValue: TypedValue? = null
+    private var typedValueSecondaryColor: TypedValue? = null
+    private var typedValueAdditionalColor: TypedValue? = null
 
     private lateinit var emojiPopup: EmojiPopup
     private var replyContainer: ReplyContainer? = null
@@ -229,7 +234,14 @@ class ChatMessagesFragment : BaseFragment() {
             activity?.intent!!.getParcelableExtra(Const.IntentExtras.ROOM_ID_EXTRA)
         }
 
-        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
+        setColors()
+
+        emojiPopup = EmojiPopup(
+            rootView = bindingSetup.root,
+            editText = bindingSetup.etMessage,
+            theming = setTheme()
+        )
+
         replyContainer = ReplyContainer(requireContext(), null)
         navOptionsBuilder = Tools.createCustomNavOptions()
 
@@ -256,6 +268,26 @@ class ChatMessagesFragment : BaseFragment() {
         initViews()
         initListeners()
         checkStoragePermission()
+    }
+
+    private fun setColors(){
+        typedValue = TypedValue()
+        val theme = requireContext().theme
+        theme.resolveAttribute(R.attr.primaryTextColor, typedValue, true)
+
+        typedValueSecondaryColor = TypedValue()
+        theme.resolveAttribute(R.attr.primaryColor, typedValueSecondaryColor, true)
+
+        typedValueAdditionalColor = TypedValue()
+        theme.resolveAttribute(R.attr.secondaryColor, typedValueAdditionalColor, true)
+    }
+
+    private fun setTheme() : EmojiTheming {
+        return EmojiTheming(
+            primaryColor = typedValueSecondaryColor?.data,
+            secondaryColor = typedValue?.data,
+            backgroundColor = typedValueAdditionalColor?.data
+        )
     }
 
     private fun initViews() = with(bindingSetup) {
@@ -991,6 +1023,7 @@ class ChatMessagesFragment : BaseFragment() {
                 updatedEmojiPopup.dismiss()
                 hideKeyboard(bindingSetup.root)
             },
+            theming = setTheme(),
             onEmojiPopupDismissListener = { setSendingAreaVisibility(View.VISIBLE) },
         )
         updatedEmojiPopup.toggle()

@@ -33,8 +33,7 @@ import com.vanniktech.emoji.EmojiTextView
 import timber.log.Timber
 
 const val MAX_REACTIONS = 3
-const val MAX_HEIGHT = 300
-const val MIN_HEIGHT = 256
+const val HEIGHT = 256
 
 object ChatAdapterHelper {
 
@@ -45,7 +44,7 @@ object ChatAdapterHelper {
         val viewsToHide = listOf<View>(
             holder.itemView.findViewById<TextView>(R.id.tv_message),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cl_image_chat),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.file_layout),
+            holder.itemView.findViewById<ConstraintLayout>(R.id.cv_files),
             holder.itemView.findViewById<FrameLayout>(R.id.cv_video),
             holder.itemView.findViewById<CardView>(R.id.cv_audio),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cl_reply_message)
@@ -73,15 +72,11 @@ object ChatAdapterHelper {
         height: Int,
         playButton: ImageView?
     ) {
-        val maxHeight = convertToDp(context, MAX_HEIGHT)
-        val newHeight: Int = if (height <= 100) {
-            convertToDp(context, MIN_HEIGHT)
+        val maxHeight = convertToDp(context, HEIGHT)
+        val newHeight: Int = if (convertToDp(context, height) <= maxHeight) {
+            convertToDp(context, height)
         } else {
-            if (convertToDp(context, height) > maxHeight) {
-                maxHeight
-            } else {
-                height
-            }
+            maxHeight
         }
 
         val params = mediaImage.layoutParams
@@ -101,7 +96,6 @@ object ChatAdapterHelper {
 
         Glide.with(context)
             .load(mediaPath)
-            .dontTransform()
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,

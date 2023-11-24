@@ -55,7 +55,7 @@
         android:layout_marginBottom="@dimen/sixteen_dp_margin"
         android:background="@drawable/bg_text_field"
         android:hint="@string/enter_group_name"
-        android:padding="@dimen/ten_dp_margin"
+        android:padding="@dimen/sixteen_dp_margin"
         android:textAppearance="@style/CustomTextBody"
         android:textColor="?attr/primaryTextColor"
         android:textColorHint="?attr/primaryTextColor"
