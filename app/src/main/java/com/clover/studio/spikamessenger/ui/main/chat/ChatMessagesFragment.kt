@@ -77,6 +77,7 @@ import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
+import com.vanniktech.emoji.EmojiTheming
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.io.File
@@ -146,6 +147,10 @@ class ChatMessagesFragment : BaseFragment() {
     private var replyId = 0L
     private var replyPosition = 0
     private var replySearchId: Int? = 0
+
+    private var typedValue: TypedValue? = null
+    private var typedValueSecondaryColor: TypedValue? = null
+    private var typedValueAdditionalColor: TypedValue? = null
 
     private lateinit var emojiPopup: EmojiPopup
     private var replyContainer: ReplyContainer? = null
@@ -229,7 +234,14 @@ class ChatMessagesFragment : BaseFragment() {
             activity?.intent!!.getParcelableExtra(Const.IntentExtras.ROOM_ID_EXTRA)
         }
 
-        emojiPopup = EmojiPopup(bindingSetup.root, bindingSetup.etMessage)
+        setColors()
+
+        emojiPopup = EmojiPopup(
+            rootView = bindingSetup.root,
+            editText = bindingSetup.etMessage,
+            theming = setTheme()
+        )
+
         replyContainer = ReplyContainer(requireContext(), null)
         navOptionsBuilder = Tools.createCustomNavOptions()
 
@@ -256,6 +268,26 @@ class ChatMessagesFragment : BaseFragment() {
         initViews()
         initListeners()
         checkStoragePermission()
+    }
+
+    private fun setColors(){
+        typedValue = TypedValue()
+        val theme = requireContext().theme
+        theme.resolveAttribute(R.attr.primaryTextColor, typedValue, true)
+
+        typedValueSecondaryColor = TypedValue()
+        theme.resolveAttribute(R.attr.primaryColor, typedValueSecondaryColor, true)
+
+        typedValueAdditionalColor = TypedValue()
+        theme.resolveAttribute(R.attr.secondaryColor, typedValueAdditionalColor, true)
+    }
+
+    private fun setTheme() : EmojiTheming {
+        return EmojiTheming(
+            primaryColor = typedValueSecondaryColor?.data,
+            secondaryColor = typedValue?.data,
+            backgroundColor = typedValueAdditionalColor?.data
+        )
     }
 
     private fun initViews() = with(bindingSetup) {
@@ -504,6 +536,8 @@ class ChatMessagesFragment : BaseFragment() {
                             }
                         } else chatAdapter.submitList(messagesRecords.toList())
 
+                        chatAdapter.notifyItemRangeChanged(0, messagesRecords.size)
+
                         (view?.parent as? ViewGroup)?.doOnPreDraw {
                             startPostponedEnterTransition()
                         }
@@ -516,13 +550,21 @@ class ChatMessagesFragment : BaseFragment() {
                         // If the reply is reply id != 0, it means that the search for the reply message was started and
                         // was not found in the first set of 20 messages.
                         // Other messages should be searched.
-                        if (replyPosition != 0 && messageSearchId != null) {
-                            replyPosition =
-                                messagesRecords.indexOfFirst { msg ->
-                                    msg.message.id == messageSearchId
+                        if (replyPosition != 0) {
+                            if (messagesRecords.firstOrNull { messageAndRecords -> messageAndRecords.message.id == replySearchId } != null) {
+                                val position =
+                                    messagesRecords.indexOfFirst { messageAndRecords -> messageAndRecords.message.id == replySearchId }
+                                scrollToPosition = position
+                                if (position != -1) {
+                                    bindingSetup.rvChat.smoothScrollToPosition(position)
+                                    chatAdapter.setSelectedPosition(position)
                                 }
-                        } else {
-                            viewModel.fetchNextSet(roomWithUsers?.room!!.roomId)
+
+                                replySearchId = 0
+                                viewModel.searchMessageId.value = 0
+                            } else {
+                                viewModel.fetchNextSet(roomWithUsers?.room!!.roomId)
+                            }
                         }
 
                         // If messageSearchId is not 0, it means the user navigated via message
@@ -645,11 +687,7 @@ class ChatMessagesFragment : BaseFragment() {
                 tvNewMessage.text =
                     getString(R.string.new_messages, messagesSize.toString(), "").trim()
 
-                val startWidth = ivBottomArrow.width
-                val endWidth =
-                    (tvNewMessage.width + bindingSetup.ivBottomArrow.width)
-
-                valueAnimator = ValueAnimator.ofInt(startWidth, endWidth).apply {
+                valueAnimator = ValueAnimator.ofInt(cvBottomArrow.width, tvNewMessage.width).apply {
                     addUpdateListener { valueAnimator ->
                         val layoutParams = cvNewMessages.layoutParams
                         layoutParams.width = valueAnimator.animatedValue as Int
@@ -985,6 +1023,7 @@ class ChatMessagesFragment : BaseFragment() {
                 updatedEmojiPopup.dismiss()
                 hideKeyboard(bindingSetup.root)
             },
+            theming = setTheme(),
             onEmojiPopupDismissListener = { setSendingAreaVisibility(View.VISIBLE) },
         )
         updatedEmojiPopup.toggle()

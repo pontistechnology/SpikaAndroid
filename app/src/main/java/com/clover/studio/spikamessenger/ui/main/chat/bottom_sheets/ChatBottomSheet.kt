@@ -65,27 +65,27 @@ class ChatBottomSheet(
     }
 
     private fun handleBottomSheetAction() {
-        binding.tvDelete.setOnClickListener {
+        binding.cvDeleted.setOnClickListener {
             listener?.actionDelete()
             dismiss()
         }
 
-        binding.tvEdit.setOnClickListener {
+        binding.cvEdited.setOnClickListener {
             listener?.actionEdit()
             dismiss()
         }
 
-        binding.tvReply.setOnClickListener {
+        binding.cvReply.setOnClickListener {
             listener?.actionReply()
             dismiss()
         }
 
-        binding.tvDetails.setOnClickListener {
+        binding.cvDetails.setOnClickListener {
             listener?.actionDetails()
             dismiss()
         }
 
-        binding.tvCopy.setOnClickListener {
+        binding.cvCopy.setOnClickListener {
             listener?.actionCopy()
             dismiss()
         }

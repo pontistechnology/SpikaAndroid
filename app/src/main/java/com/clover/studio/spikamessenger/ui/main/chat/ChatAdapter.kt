@@ -191,7 +191,7 @@ class ChatAdapter(
                     Const.JsonFields.FILE_TYPE -> {
                         /** Uploading file: */
                         holder.binding.fileLayout.apply {
-                            setViewsVisibility(clFileMessage, holder)
+                            setViewsVisibility(holder.binding.cvFiles, holder)
                             addFiles(
                                 context = context,
                                 ivFileType = ivFileType,
@@ -357,6 +357,8 @@ class ChatAdapter(
 
                 ChatAdapterHelper.showMessageStatus(it, holder.binding.ivMessageStatus)
 
+                addMargins(position, true, holder.binding.clMessage)
+
             } else {
                 /** View holder for messages from other users */
                 holder as ReceivedMessageHolder
@@ -420,7 +422,7 @@ class ChatAdapter(
                     }
 
                     Const.JsonFields.FILE_TYPE -> {
-                        setViewsVisibility(holder.binding.fileLayout.clFileMessage, holder)
+                        setViewsVisibility(holder.binding.cvFiles, holder)
                         holder.binding.fileLayout.clFileMessage.setBackgroundResource(R.drawable.bg_message_received)
                         bindFile(
                             chatMessage = it,
@@ -525,9 +527,28 @@ class ChatAdapter(
                 if (roomType != Const.JsonFields.PRIVATE) {
                     showHideUserInformation(position, holder, currentList)
                 }
+
+                addMargins(position, false, holder.binding.clMessage)
             }
         }
 
+    }
+
+    private fun addMargins(position: Int, sender: Boolean, clMessage: ConstraintLayout) {
+        val layoutParams = clMessage.layoutParams as ViewGroup.MarginLayoutParams
+
+        if (position != currentList.size - 1) {
+            val type = getItemViewType(position + 1)
+            val margin =
+                if (sender && type == VIEW_TYPE_MESSAGE_RECEIVED || !sender && type == VIEW_TYPE_MESSAGE_SENT) {
+                    context.resources.getDimensionPixelSize(R.dimen.sixteen_dp_margin)
+                } else {
+                    context.resources.getDimensionPixelSize(R.dimen.four_dp_margin)
+                }
+            layoutParams.topMargin = margin
+        }
+
+        clMessage.layoutParams = layoutParams
     }
 
     private fun bindMessageTime(

@@ -5,7 +5,6 @@
     android:id="@+id/cl_file_message"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:visibility="visible"
     tools:ignore="contentDescription">
 
     <ImageView
@@ -14,10 +13,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/two_dp_margin"
         android:padding="@dimen/ten_dp_margin"
-        android:src="@drawable/img_zip"
+        android:elevation="@dimen/eight_dp_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/primaryTextColor" />
 
     <TextView
         android:id="@+id/tv_file_title"
@@ -56,7 +56,7 @@
         android:id="@+id/iv_download_file"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/eight_dp_margin"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
         android:layout_marginEnd="@dimen/eight_dp_margin"
         app:layout_constraintBottom_toBottomOf="@+id/tv_file_size"
         app:layout_constraintEnd_toEndOf="parent"

@@ -374,20 +374,6 @@
                 layout="@layout/file_layout" />
         </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:id="@+id/tv_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/eight_dp_margin"
-            android:text="@string/audio_duration"
-            android:textAppearance="@style/CustomTextLightBody"
-            android:textColor="?attr/primaryTextColor"
-            android:textSize="@dimen/nine_sp_text"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/cl_container"
-            app:layout_constraintTop_toTopOf="@+id/cl_container" />
-
         <ImageView
             android:id="@+id/iv_reply_message"
             android:layout_width="wrap_content"
@@ -399,4 +385,17 @@
             app:layout_constraintTop_toTopOf="@+id/cl_container"
             app:srcCompat="@drawable/img_reply_message" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/audio_duration"
+        android:visibility="gone"
+        android:textSize="@dimen/nine_sp_text"
+        android:layout_marginEnd="@dimen/eight_dp_margin"
+        android:textAppearance="@style/CustomTextLightBody"
+        app:layout_constraintBottom_toBottomOf="@+id/cl_container"
+        app:layout_constraintEnd_toStartOf="@+id/cl_container"
+        app:layout_constraintTop_toTopOf="@+id/cl_container" />
 </androidx.constraintlayout.widget.ConstraintLayout>
