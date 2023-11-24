@@ -137,7 +137,7 @@ class Const {
             const val PRIVATE = "private"
             const val GROUP = "group"
             const val BODY = "body"
-            const val MESSAGE_IDS = "messagesIds"
+            const val MESSAGE_IDS = "messageIds"
             const val REACTION = "reaction"
 
             // Reply
