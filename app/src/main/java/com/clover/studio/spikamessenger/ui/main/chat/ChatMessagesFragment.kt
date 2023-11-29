@@ -59,6 +59,7 @@ import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentChatMessagesBinding
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ChatBottomSheet
+import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.CustomReactionBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.DetailsBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.MediaBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ReactionsBottomSheet
@@ -77,7 +78,6 @@ import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
-import com.vanniktech.emoji.EmojiTheming
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.io.File
@@ -147,10 +147,6 @@ class ChatMessagesFragment : BaseFragment() {
     private var replyId = 0L
     private var replyPosition = 0
     private var replySearchId: Int? = 0
-
-    private var typedValue: TypedValue? = null
-    private var typedValueSecondaryColor: TypedValue? = null
-    private var typedValueAdditionalColor: TypedValue? = null
 
     private lateinit var emojiPopup: EmojiPopup
     private var replyContainer: ReplyContainer? = null
@@ -234,12 +230,10 @@ class ChatMessagesFragment : BaseFragment() {
             activity?.intent!!.getParcelableExtra(Const.IntentExtras.ROOM_ID_EXTRA)
         }
 
-        setColors()
-
         emojiPopup = EmojiPopup(
             rootView = bindingSetup.root,
             editText = bindingSetup.etMessage,
-            theming = setTheme()
+            theming = Tools.setEmojiViewTheme(requireContext())
         )
 
         replyContainer = ReplyContainer(requireContext(), null)
@@ -268,26 +262,6 @@ class ChatMessagesFragment : BaseFragment() {
         initViews()
         initListeners()
         checkStoragePermission()
-    }
-
-    private fun setColors(){
-        typedValue = TypedValue()
-        val theme = requireContext().theme
-        theme.resolveAttribute(R.attr.primaryTextColor, typedValue, true)
-
-        typedValueSecondaryColor = TypedValue()
-        theme.resolveAttribute(R.attr.primaryColor, typedValueSecondaryColor, true)
-
-        typedValueAdditionalColor = TypedValue()
-        theme.resolveAttribute(R.attr.secondaryColor, typedValueAdditionalColor, true)
-    }
-
-    private fun setTheme() : EmojiTheming {
-        return EmojiTheming(
-            primaryColor = typedValueSecondaryColor?.data,
-            secondaryColor = typedValue?.data,
-            backgroundColor = typedValueAdditionalColor?.data
-        )
     }
 
     private fun initViews() = with(bindingSetup) {
@@ -490,7 +464,7 @@ class ChatMessagesFragment : BaseFragment() {
                     MediaBottomSheet.TAG
                 )
                 mediaBottomSheet.setActionListener(object :
-                    MediaBottomSheet.BottomSheetMediaAAction {
+                    MediaBottomSheet.BottomSheetMediaAction {
                     override fun chooseFileAction() {
                         chooseFile()
                     }
@@ -1001,40 +975,17 @@ class ChatMessagesFragment : BaseFragment() {
             }
 
             override fun addCustomReaction() {
-                root.postDelayed({
-                    openCustomEmojiKeyboard(msg.message)
-                }, 200)
+                val customReactionBottomSheet = CustomReactionBottomSheet(context = requireContext())
+                customReactionBottomSheet.setCustomReactionListener(object: CustomReactionBottomSheet.BottomSheetCustomReactionListener{
+                    override fun addCustomReaction(emoji: String) {
+                        msg.message.reaction = emoji
+                        addReaction(msg.message)
+                    }
+                })
+                customReactionBottomSheet.show(requireActivity().supportFragmentManager, CustomReactionBottomSheet.TAG)
             }
         })
         bottomSheet.show(requireActivity().supportFragmentManager, ChatBottomSheet.TAG)
-    }
-
-    private fun openCustomEmojiKeyboard(message: Message) {
-        setSendingAreaVisibility(View.GONE)
-
-        lateinit var updatedEmojiPopup: EmojiPopup
-        updatedEmojiPopup = EmojiPopup(
-            rootView = bindingSetup.root,
-            editText = bindingSetup.etMessage,
-            onEmojiClickListener = { emoji ->
-                message.reaction = emoji.unicode
-                addReaction(message)
-                setSendingAreaVisibility(View.VISIBLE)
-                updatedEmojiPopup.dismiss()
-                hideKeyboard(bindingSetup.root)
-            },
-            theming = setTheme(),
-            onEmojiPopupDismissListener = { setSendingAreaVisibility(View.VISIBLE) },
-        )
-        updatedEmojiPopup.toggle()
-    }
-
-    private fun setSendingAreaVisibility(visibility: Int) = with(bindingSetup) {
-        if (View.VISIBLE == visibility) hideSendButton()
-        etMessage.text?.clear()
-        ivAdd.visibility = visibility
-        clTyping.visibility = visibility
-        ivCamera.visibility = visibility
     }
 
     private fun handleDownloadFile(message: MessageAndRecords) {

@@ -45,6 +45,7 @@ import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.vanniktech.emoji.EmojiTheming
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -788,7 +789,7 @@ object Tools {
         }
     }
 
-     fun handleCopyAction(text: String) {
+    fun handleCopyAction(text: String) {
         val clipboard =
             MainApplication.appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip: ClipData = ClipData.newPlainText("", text)
@@ -806,5 +807,23 @@ object Tools {
         } else {
             R.drawable.img_user_avatar
         }
+    }
+
+    fun setEmojiViewTheme(context: Context): EmojiTheming {
+        val typedValue = TypedValue()
+        val theme = context.theme
+        theme.resolveAttribute(R.attr.primaryTextColor, typedValue, true)
+
+        val typedValueSecondaryColor = TypedValue()
+        theme.resolveAttribute(R.attr.primaryColor, typedValueSecondaryColor, true)
+
+        val typedValueAdditionalColor = TypedValue()
+        theme.resolveAttribute(R.attr.secondaryColor, typedValueAdditionalColor, true)
+
+        return EmojiTheming(
+            primaryColor = typedValueSecondaryColor.data,
+            secondaryColor = typedValue.data,
+            backgroundColor = typedValueAdditionalColor.data
+        )
     }
 }

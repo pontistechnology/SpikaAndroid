@@ -610,6 +610,9 @@ class ChatAdapter(
             isDeleted = true
         }
 
+//        Timber.d("Contains only emojis: ${containsOnlyEmojis(chatMessage.message.body?.text.toString())} " +
+//                "${chatMessage.message.body?.text.toString()}")
+
         tvMessage.apply {
             if (isDeleted) {
                 text = context.getString(R.string.message_deleted_text)
