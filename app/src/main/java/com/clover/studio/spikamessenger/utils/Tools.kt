@@ -46,6 +46,7 @@ import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepos
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.vanniktech.emoji.EmojiTheming
+import com.vanniktech.emoji.emojisCount
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -825,5 +826,21 @@ object Tools {
             secondaryColor = typedValue.data,
             backgroundColor = typedValueAdditionalColor.data
         )
+    }
+
+    fun getEmojiSize(messageText: String): Int {
+        return when (messageText.emojisCount()) {
+            1 -> {
+                176
+            }
+
+            in 2..3 -> {
+                156
+            }
+
+            else -> {
+                128
+            }
+        }
     }
 }
