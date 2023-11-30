@@ -69,6 +69,10 @@ const val TO_MINUTES = 60
 const val VIDEO_SIZE_LIMIT = 128
 const val TOKEN_EXPIRED_CODE = 401
 
+const val BIG_EMOJI_SIZE = 144
+const val MEDIUM_EMOJI_SIZE = 104
+const val SMALL_EMOJI_SIZE = 80
+
 object Tools {
 
     private var density = 1f
@@ -831,15 +835,15 @@ object Tools {
     fun getEmojiSize(messageText: String): Int {
         return when (messageText.emojisCount()) {
             1 -> {
-                176
+                BIG_EMOJI_SIZE
             }
 
             in 2..3 -> {
-                156
+                MEDIUM_EMOJI_SIZE
             }
 
             else -> {
-                128
+                SMALL_EMOJI_SIZE
             }
         }
     }

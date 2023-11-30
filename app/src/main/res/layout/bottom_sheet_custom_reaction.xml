@@ -6,14 +6,37 @@
     android:background="@drawable/bg_rounded_corners_top"
     android:backgroundTint="?attr/secondaryColor">
 
+    <TextView
+        android:id="@+id/custom_reaction_placeholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:text="@string/reactions"
+        android:textAppearance="@style/CustomTextBody"
+        android:textSize="@dimen/twenty_sp_text"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_close"
+        app:layout_constraintEnd_toStartOf="@+id/iv_close"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/iv_close" />
+
+    <ImageView
+        android:id="@+id/iv_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/sixteen_dp_margin"
+        android:src="@drawable/img_close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.vanniktech.emoji.EmojiView
         android:id="@+id/view"
         android:layout_width="0dp"
-        android:layout_height="256dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="parent"
+        android:layout_marginStart="@dimen/eight_dp_margin"
+        android:layout_marginEnd="@dimen/eight_dp_margin"
+        android:layout_height="@dimen/two_hundred_fifty_six_dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/iv_close" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

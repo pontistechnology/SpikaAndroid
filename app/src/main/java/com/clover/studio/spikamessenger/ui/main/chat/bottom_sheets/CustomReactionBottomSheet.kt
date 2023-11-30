@@ -54,5 +54,9 @@ class CustomReactionBottomSheet(
             editText = null,
             theming = Tools.setEmojiViewTheme(context)
         )
+
+        binding.ivClose.setOnClickListener {
+            dismiss()
+        }
     }
 }
