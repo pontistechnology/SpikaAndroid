@@ -96,7 +96,7 @@
             android:letterSpacing="0.2"
             android:text="@string/group_label"
             android:textAppearance="@style/CustomTextBody"
-            android:textColor="?attr/secondaryTextColor"
+            android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/twelve_sp_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

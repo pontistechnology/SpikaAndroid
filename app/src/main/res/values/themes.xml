@@ -11,6 +11,7 @@
         <item name="android:statusBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
 
+        <item name="colorAccent">@color/basePrimaryColor</item>
 
 <!--   Base theme     -->
         <item name="primaryColor">@color/basePrimaryColor</item>
@@ -40,6 +41,8 @@
 
         <item name="android:windowTranslucentStatus">true</item>
 
+        <item name="colorAccent">@color/darkMarinePrimaryColor</item>
+
         <item name="primaryColor">@color/darkMarinePrimaryColor</item>
         <item name="secondaryColor">@color/darkMarineSecondaryColor</item>
         <item name="tertiaryColor">@color/darkMarineTertiaryColor</item>
@@ -67,6 +70,8 @@
 
         <item name="android:windowTranslucentStatus">true</item>
 
+        <item name="colorAccent">@color/neonPrimaryColor</item>
+
         <item name="primaryColor">@color/neonPrimaryColor</item>
         <item name="secondaryColor">@color/neonSecondaryColor</item>
         <item name="tertiaryColor">@color/neonTertiaryColor</item>
@@ -91,6 +96,8 @@
 <!-- Mint theme   -->
     <style name="Theme.App.LightGreen" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
+
+        <item name="colorAccent">@color/lightGreenPrimaryColor</item>
 
         <item name="primaryColor">@color/lightGreenPrimaryColor</item>
         <item name="secondaryColor">@color/lightGreenSecondaryColor</item>
