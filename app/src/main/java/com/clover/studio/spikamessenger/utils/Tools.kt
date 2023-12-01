@@ -45,6 +45,8 @@ import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.vanniktech.emoji.EmojiTheming
+import com.vanniktech.emoji.emojisCount
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -66,6 +68,10 @@ const val TO_HOURS = 3600
 const val TO_MINUTES = 60
 const val VIDEO_SIZE_LIMIT = 128
 const val TOKEN_EXPIRED_CODE = 401
+
+const val BIG_EMOJI_SIZE = 144
+const val MEDIUM_EMOJI_SIZE = 104
+const val SMALL_EMOJI_SIZE = 80
 
 object Tools {
 
@@ -788,7 +794,7 @@ object Tools {
         }
     }
 
-     fun handleCopyAction(text: String) {
+    fun handleCopyAction(text: String) {
         val clipboard =
             MainApplication.appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip: ClipData = ClipData.newPlainText("", text)
@@ -805,6 +811,40 @@ object Tools {
             R.drawable.img_group_avatar
         } else {
             R.drawable.img_user_avatar
+        }
+    }
+
+    fun setEmojiViewTheme(context: Context): EmojiTheming {
+        val typedValue = TypedValue()
+        val theme = context.theme
+        theme.resolveAttribute(R.attr.primaryTextColor, typedValue, true)
+
+        val typedValueSecondaryColor = TypedValue()
+        theme.resolveAttribute(R.attr.primaryColor, typedValueSecondaryColor, true)
+
+        val typedValueAdditionalColor = TypedValue()
+        theme.resolveAttribute(R.attr.secondaryColor, typedValueAdditionalColor, true)
+
+        return EmojiTheming(
+            primaryColor = typedValueSecondaryColor.data,
+            secondaryColor = typedValue.data,
+            backgroundColor = typedValueAdditionalColor.data
+        )
+    }
+
+    fun getEmojiSize(messageText: String): Int {
+        return when (messageText.emojisCount()) {
+            1 -> {
+                BIG_EMOJI_SIZE
+            }
+
+            in 2..3 -> {
+                MEDIUM_EMOJI_SIZE
+            }
+
+            else -> {
+                SMALL_EMOJI_SIZE
+            }
         }
     }
 }

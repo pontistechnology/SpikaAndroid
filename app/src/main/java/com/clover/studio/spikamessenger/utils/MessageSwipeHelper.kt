@@ -132,9 +132,17 @@ class MessageSwipeController(
                     || (mView.translationX < SMALL_MESSAGE_NEGATIVE_SIZE_1 && mView.translationX > SMALL_MESSAGE_NEGATIVE_SIZE_2)
                 ) {
                     onSwipeAction.invoke(action, viewHolder.absoluteAdapterPosition)
+                    resetPosition()
                 }
             }
             false
+        }
+    }
+
+    private fun resetPosition() {
+        if (currentItemViewHolder != null) {
+            val view = currentItemViewHolder!!.itemView
+            view.translationX = 0f
         }
     }
 
@@ -202,11 +210,12 @@ class MessageSwipeController(
         val y = (mView.top + mView.measuredHeight / 2).toFloat()
 
         // Draw icon
+        val iconSize = (convertToDp(12) * scale)
         icon?.setBounds(
-            (x - convertToDp(12) * scale).toInt(),
-            (y - convertToDp(11) * scale).toInt(),
-            (x + convertToDp(12) * scale).toInt(),
-            (y + convertToDp(10) * scale).toInt()
+            (x - iconSize).toInt(),
+            (y - iconSize).toInt(),
+            (x + iconSize).toInt(),
+            (y + iconSize).toInt()
         )
         icon?.draw(canvas)
         icon?.alpha = MAX_ALPHA

@@ -48,6 +48,8 @@ import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.loadMedi
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHideUserInformation
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.vanniktech.emoji.EmojiTextView
+import com.vanniktech.emoji.isOnlyEmojis
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -337,6 +339,7 @@ class ChatAdapter(
                 }
 
                 /** Show reactions: */
+                holder.binding.cvReactedEmoji.visibility = View.GONE
                 if (it.message.deleted != null && !it.message.deleted) {
                     ChatAdapterHelper.bindReactions(
                         chatMessage = it,
@@ -397,7 +400,7 @@ class ChatAdapter(
                             tvMessage = holder.binding.tvMessage,
                             cvReactedEmoji = holder.binding.cvReactedEmoji,
                             chatMessage = it,
-                            sender = false
+                            sender = false,
                         )
                     }
 
@@ -505,6 +508,7 @@ class ChatAdapter(
                 }
 
                 /** Show reactions: */
+                holder.binding.cvReactedEmoji.visibility = View.GONE
                 if (it.message.deleted != null && !it.message.deleted) {
                     ChatAdapterHelper.bindReactions(
                         chatMessage = it,
@@ -597,21 +601,28 @@ class ChatAdapter(
     /** Methods that bind different types of messages: */
     private fun bindText(
         holder: ViewHolder,
-        tvMessage: TextView,
+        tvMessage: EmojiTextView,
         cvReactedEmoji: CardView,
         chatMessage: MessageAndRecords,
         sender: Boolean
     ) {
-        var isDeleted = false
-        if (chatMessage.message.deleted == true || chatMessage.message.body?.text == context.getString(
-                R.string.deleted_message
+        val messageText = chatMessage.message.body?.text.toString()
+        if (messageText.isOnlyEmojis()) {
+            tvMessage.setEmojiSize(Tools.getEmojiSize(messageText))
+        } else {
+            tvMessage.background = AppCompatResources.getDrawable(
+                context,
+                if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
             )
-        ) {
-            isDeleted = true
         }
 
+        tvMessage.text = messageText
+
         tvMessage.apply {
-            if (isDeleted) {
+            if (chatMessage.message.deleted == true || chatMessage.message.body?.text == context.getString(
+                    R.string.deleted_message
+                )
+            ) {
                 text = context.getString(R.string.message_deleted_text)
                 cvReactedEmoji.visibility = View.GONE
                 background =
@@ -620,12 +631,6 @@ class ChatAdapter(
                         if (sender) R.drawable.bg_deleted_msg_send else R.drawable.bg_deleted_msg_received
                     )
             } else {
-                text = chatMessage.message.body?.text
-
-                background = AppCompatResources.getDrawable(
-                    context,
-                    if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
-                )
                 setOnLongClickListener {
                     chatMessage.message.messagePosition = holder.absoluteAdapterPosition
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_ACTION, chatMessage)

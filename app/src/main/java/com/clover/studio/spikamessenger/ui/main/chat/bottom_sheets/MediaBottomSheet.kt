@@ -14,7 +14,7 @@ class MediaBottomSheet(
     BottomSheetDialogFragment() {
 
     private lateinit var binding: BottomSheetMediaBinding
-    private var listener: BottomSheetMediaAAction? = null
+    private var listener: BottomSheetMediaAction? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,11 +33,11 @@ class MediaBottomSheet(
         const val TAG = "mediaSheet"
     }
 
-    interface BottomSheetMediaAAction {
+    interface BottomSheetMediaAction {
         fun chooseFileAction()
     }
 
-    fun setActionListener(listener: BottomSheetMediaAAction) {
+    fun setActionListener(listener: BottomSheetMediaAction) {
         this.listener = listener
     }
 

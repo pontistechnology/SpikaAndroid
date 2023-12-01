@@ -89,7 +89,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="?attr/secondaryColor"
             android:outlineProvider="none"
-            android:visibility="gone"
+            android:visibility="visible"
             app:cardElevation="@dimen/two_dp_margin"
             app:cardPreventCornerOverlap="true">
 
