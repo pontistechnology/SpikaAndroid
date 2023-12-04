@@ -42,21 +42,31 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/iv_back" />
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_back"
-        tools:context=".ui.main.chat_details.notes.NotesDetailsFragment">
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/twenty_dp_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_back"
+        android:layout_marginBottom="24dp">
 
         <LinearLayout
             android:id="@+id/ll_note_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
 
             <TextView
                 android:id="@+id/tv_title"
@@ -65,24 +75,23 @@
                 android:background="@drawable/bg_input"
                 android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/notes"
-                android:textColor="?attr/secondaryTextColor"
                 android:textAppearance="@style/CustomTitleBold"
-                android:textSize="@dimen/eighteen_sp_text" />
+                android:textColor="?attr/secondaryTextColor"
+                android:textSize="@dimen/fourteen_sp_text" />
 
             <TextView
                 android:id="@+id/tv_notes_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/eight_dp_margin"
-                android:minHeight="@dimen/two_hundred_fifty_six_dp"
                 android:background="@drawable/bg_input"
+                android:minHeight="@dimen/two_hundred_fifty_six_dp"
                 android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/placeholder_description"
                 android:textAppearance="@style/CustomTextBody"
                 android:textColor="?attr/secondaryTextColor"
                 android:textColorLink="?attr/tertiaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text" />
-
 
             <EditText
                 android:id="@+id/et_title"
@@ -92,9 +101,9 @@
                 android:maxLength="135"
                 android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/notes"
-                android:textColor="?attr/primaryTextColor"
                 android:textAppearance="@style/CustomTitleBold"
-                android:textSize="@dimen/eighteen_sp_text"
+                android:textColor="?attr/primaryTextColor"
+                android:textSize="@dimen/fourteen_sp_text"
                 android:visibility="gone" />
 
             <EditText
@@ -103,15 +112,18 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="@dimen/eight_dp_margin"
                 android:background="@drawable/bg_input"
-                android:gravity="start"
+                android:inputType="textMultiLine"
+                android:isScrollContainer="true"
                 android:minHeight="@dimen/two_hundred_fifty_six_dp"
                 android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/placeholder_description"
                 android:textAppearance="@style/CustomTextBody"
                 android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text"
+                android:lineSpacingMultiplier="1.2"
                 android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
 
