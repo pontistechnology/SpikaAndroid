@@ -42,7 +42,8 @@ class ChatBottomSheet(
         fun actionReply()
         fun actionDetails()
         fun actionReaction(reaction: String)
-        fun addCustomReaction()
+        fun actionAddCustomReaction()
+        fun actionDownload()
     }
 
     fun setActionListener(listener: BottomSheetAction?) {
@@ -53,40 +54,48 @@ class ChatBottomSheet(
         const val TAG = "chatBottomSheet"
     }
 
-    private fun setFunctionsVisibility() {
-        binding.tvDelete.visibility =
+    private fun setFunctionsVisibility() = with(binding) {
+        tvDelete.visibility =
             if (message.fromUserId == localId) View.VISIBLE else View.GONE
 
-        binding.tvEdit.visibility =
+        tvEdit.visibility =
             if (message.fromUserId == localId && Const.JsonFields.TEXT_TYPE == message.type) View.VISIBLE else View.GONE
 
-        binding.tvCopy.visibility =
+        tvCopy.visibility =
             if (Const.JsonFields.TEXT_TYPE == message.type) View.VISIBLE else View.GONE
+
+        tvDownload.visibility =
+            if (Const.JsonFields.IMAGE_TYPE == message.type) View.VISIBLE else View.GONE
     }
 
-    private fun handleBottomSheetAction() {
-        binding.cvDeleted.setOnClickListener {
+    private fun handleBottomSheetAction() = with(binding) {
+        cvDeleted.setOnClickListener {
             listener?.actionDelete()
             dismiss()
         }
 
-        binding.cvEdited.setOnClickListener {
+        cvEdited.setOnClickListener {
             listener?.actionEdit()
             dismiss()
         }
 
-        binding.cvReply.setOnClickListener {
+        cvReply.setOnClickListener {
             listener?.actionReply()
             dismiss()
         }
 
-        binding.cvDetails.setOnClickListener {
+        cvDetails.setOnClickListener {
             listener?.actionDetails()
             dismiss()
         }
 
-        binding.cvCopy.setOnClickListener {
+        cvCopy.setOnClickListener {
             listener?.actionCopy()
+            dismiss()
+        }
+
+        cvDownload.setOnClickListener {
+            listener?.actionDownload()
             dismiss()
         }
 
@@ -101,7 +110,7 @@ class ChatBottomSheet(
             }
 
             override fun addCustomReaction() {
-                listener?.addCustomReaction()
+                listener?.actionAddCustomReaction()
                 dismiss()
             }
         })
