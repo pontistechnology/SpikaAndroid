@@ -37,10 +37,15 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
             binding.clMessageReply.visibility = View.GONE
             listener?.closeSheet()
         }
+        binding.clMessageReply.visibility = View.GONE
     }
 
     fun closeBottomSheet() {
         binding.clMessageReply.visibility = View.GONE
+    }
+
+    fun isReplyBottomSheetVisible() : Boolean {
+        return binding.clMessageReply.visibility == View.VISIBLE
     }
 
     fun setReactionContainer(

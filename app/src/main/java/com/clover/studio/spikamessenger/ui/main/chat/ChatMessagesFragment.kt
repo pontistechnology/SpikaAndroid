@@ -67,6 +67,7 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.MessageSwipeController
 import com.clover.studio.spikamessenger.utils.Tools
+import com.clover.studio.spikamessenger.utils.Tools.downloadFile
 import com.clover.studio.spikamessenger.utils.Tools.getFileMimeType
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
@@ -110,7 +111,7 @@ class ChatMessagesFragment : BaseFragment() {
     private var localUserId: Int = 0
 
     private lateinit var chatAdapter: ChatAdapter
-    var itemTouchHelper: ItemTouchHelper? = null
+    private var itemTouchHelper: ItemTouchHelper? = null
     private var valueAnimator: ValueAnimator? = null
 
     private var currentMediaLocation: MutableList<Uri> = ArrayList()
@@ -853,6 +854,10 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun handleMessageReply(message: Message) = with(bindingSetup) {
+        if (isEditing){
+            resetEditingFields()
+        }
+
         flReplyContainer.removeAllViews()
         flReplyContainer.addView(replyContainer)
 
@@ -943,6 +948,11 @@ class ChatMessagesFragment : BaseFragment() {
             }
 
             override fun actionEdit() {
+                replyContainer?.let {
+                    if (it.isReplyBottomSheetVisible()){
+                        it.closeBottomSheet()
+                    }
+                }
                 editingMessage = msg.message
                 editingMessage?.let { handleMessageEdit(it) }
             }
@@ -966,6 +976,13 @@ class ChatMessagesFragment : BaseFragment() {
                 )
             }
 
+            override fun actionDownload() {
+                downloadFile(
+                    context = requireContext(),
+                    message = msg.message
+                )
+            }
+
             override fun actionReaction(reaction: String) {
                 if (reaction.isNotEmpty()) {
                     msg.message.reaction = reaction
@@ -974,7 +991,7 @@ class ChatMessagesFragment : BaseFragment() {
                 }
             }
 
-            override fun addCustomReaction() {
+            override fun actionAddCustomReaction() {
                 val customReactionBottomSheet = CustomReactionBottomSheet(context = requireContext())
                 customReactionBottomSheet.setCustomReactionListener(object: CustomReactionBottomSheet.BottomSheetCustomReactionListener{
                     override fun addCustomReaction(emoji: String) {
@@ -997,7 +1014,7 @@ class ChatMessagesFragment : BaseFragment() {
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
                     )
                 } == PackageManager.PERMISSION_GRANTED -> {
-                    Tools.downloadFile(requireContext(), message.message)
+                    downloadFile(requireContext(), message.message)
                 }
 
                 shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
@@ -1009,7 +1026,7 @@ class ChatMessagesFragment : BaseFragment() {
                     storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 }
             }
-        } else Tools.downloadFile(requireContext(), message.message)
+        } else downloadFile(requireContext(), message.message)
     }
 
     private fun handleDownloadCancelFile(message: Message) {
@@ -1456,7 +1473,7 @@ class ChatMessagesFragment : BaseFragment() {
         storagePermission =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) {
                 if (it) {
-                    context?.let { context -> Tools.downloadFile(context, storedMessage) }
+                    context?.let { context -> downloadFile(context, storedMessage) }
                 } else {
                     Timber.d("Couldn't download file. No permission granted.")
                 }

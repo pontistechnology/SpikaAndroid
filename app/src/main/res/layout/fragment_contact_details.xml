@@ -66,23 +66,24 @@
             android:textSize="@dimen/twelve_sp_text"
             android:letterSpacing="0.1"
             android:textAppearance="@style/CustomTextBody"
-            android:textColor="?attr/secondaryTextColor"
+            android:textColor="?attr/primaryTextColor"
             app:layout_constraintEnd_toEndOf="@+id/tv_number"
             app:layout_constraintStart_toStartOf="@+id/tv_number"
             app:layout_constraintTop_toBottomOf="@+id/tv_number" />
 
         <ImageView
             android:id="@+id/iv_chat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/twenty_four_dp_margin"
+            android:layout_height="@dimen/twenty_four_dp_margin"
             android:layout_marginTop="@dimen/sixteen_dp_margin"
             android:layout_marginEnd="@dimen/thirty_two_dp_margin"
-            android:src="@drawable/img_chat"
+            android:src="@drawable/img_chat_default"
             app:layout_constraintEnd_toStartOf="@+id/iv_telephone"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_private_label" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_private_label"
+            app:tint="?attr/tertiaryColor" />
 
         <ImageView
             android:id="@+id/iv_telephone"
