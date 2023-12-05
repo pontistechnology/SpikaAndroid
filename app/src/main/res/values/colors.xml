@@ -41,7 +41,7 @@
     <color name="basePrimaryTextColor">#001D3D</color>
     <color name="baseSecondaryTextColor">#648FB8</color>
     <color name="baseTertiaryTextColor">#001AFF</color>
-    <color name="baseAdditionalColor">#4D343434</color>
+    <color name="baseAdditionalColor">#4DDFE2E3</color>
     <color name="baseSecondAdditionalColor">#C4E8EF</color>
     <color name="baseThirdAdditionalColor">#AFE0EF</color>
     <color name="baseFourthAdditionalColor">#689ECF</color>

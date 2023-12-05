@@ -1,8 +1,24 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-  <corners
-      android:topLeftRadius="16dp"
-      android:topRightRadius="16dp"
-      android:bottomLeftRadius="16dp"
-      android:bottomRightRadius="0dp" />
-  <solid android:color="?attr/primaryColor" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+<item android:bottom="1dp" android:left="1dp" android:top="1dp" android:right="1dp">
+  <shape android:shape="rectangle">
+    <solid android:color="?additionalColor" />
+    <corners
+        android:topLeftRadius="16dp"
+        android:topRightRadius="16dp"
+        android:bottomLeftRadius="16dp"
+        android:bottomRightRadius="0dp" />
+  </shape>
+</item>
+
+<item android:bottom="3dp" android:left="3dp" android:top="3dp" android:right="3dp">
+  <shape android:shape="rectangle">
+    <solid android:color="?attr/primaryColor" />
+    <corners
+        android:topLeftRadius="16dp"
+        android:topRightRadius="16dp"
+        android:bottomLeftRadius="16dp"
+        android:bottomRightRadius="0dp" />
+  </shape>
+</item>
+</layer-list>
