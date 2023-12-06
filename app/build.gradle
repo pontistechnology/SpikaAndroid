@@ -136,7 +136,7 @@ android {
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
-            resValue "string", "APP_NAME", "Spika Messenger"
+            resValue "string", "APP_NAME", "Spika"
             buildConfigField("String", "SERVER_URL", "\"https://messenger.spika.chat/\"")
 
             signingConfig signingConfigs.messenger

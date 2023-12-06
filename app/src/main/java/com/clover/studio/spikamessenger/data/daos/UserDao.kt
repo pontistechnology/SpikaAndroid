@@ -24,8 +24,8 @@ interface UserDao: BaseDao<User> {
     @Query("DELETE FROM user")
     suspend fun removeUsers()
 
-    @Query("DELETE FROM user WHERE user_id NOT IN (:ids)")
-    suspend fun removeSpecificUsers(ids: List<Int>)
+    @Query("DELETE FROM user WHERE user_id NOT IN (:ids) AND user_id != :localId")
+    suspend fun removeSpecificUsers(ids: List<Int>, localId: Int)
 
     @Transaction
     @Query("SELECT * FROM user WHERE user_id NOT LIKE :localId AND deleted NOT LIKE 1")
