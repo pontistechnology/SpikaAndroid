@@ -36,7 +36,12 @@ class MainApplication : Application(), LifecycleEventObserver {
 
     override fun onCreate() {
         super.onCreate()
-        if (BuildConfig.BUILD_TYPE == "debug" || BuildConfig.BUILD_TYPE == "dev" || BuildConfig.BUILD_TYPE == "releaseDebug" || BuildConfig.BUILD_TYPE == "messengerDebug") {
+        if (BuildConfig.BUILD_TYPE == "debug" ||
+            BuildConfig.BUILD_TYPE == "dev" ||
+            BuildConfig.BUILD_TYPE == "releaseDebug" ||
+            BuildConfig.BUILD_TYPE == "messengerDebug" ||
+            BuildConfig.BUILD_TYPE == "messenger"
+        ) {
             Timber.plant(Timber.DebugTree())
         }
         // TODO release tree implementation

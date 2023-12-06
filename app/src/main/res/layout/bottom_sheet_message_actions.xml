@@ -105,7 +105,7 @@
                 android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/sixteen_sp_text"
                 android:visibility="gone"
-                app:drawableLeftCompat="@drawable/img_download" />
+                app:drawableLeftCompat="@drawable/img_download_small" />
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
