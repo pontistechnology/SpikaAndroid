@@ -39,8 +39,7 @@ class MainApplication : Application(), LifecycleEventObserver {
         if (BuildConfig.BUILD_TYPE == "debug" ||
             BuildConfig.BUILD_TYPE == "dev" ||
             BuildConfig.BUILD_TYPE == "releaseDebug" ||
-            BuildConfig.BUILD_TYPE == "messengerDebug" ||
-            BuildConfig.BUILD_TYPE == "messenger"
+            BuildConfig.BUILD_TYPE == "messengerDebug"
         ) {
             Timber.plant(Timber.DebugTree())
         }
