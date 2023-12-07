@@ -462,7 +462,8 @@ object Tools {
             null,
             generateRandomId(),
             Resource.Status.LOADING.toString(),
-            null
+            null,
+            isForwarded = false
         )
     }
 

@@ -87,6 +87,10 @@ data class Message @JvmOverloads constructor(
     @SerializedName("fromUserName")
     val userName: String = "",
 
+    @SerializedName("isForwarded")
+    @ColumnInfo("is_forwarded")
+    val isForwarded: Boolean,
+
     @Ignore
     val groupName: String? = "",
 

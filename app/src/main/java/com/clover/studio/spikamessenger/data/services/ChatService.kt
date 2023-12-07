@@ -132,4 +132,10 @@ interface ChatService {
     suspend fun getUnreadCount(
         @HeaderMap headers: Map<String, String?>
     ): Response<UnreadCountResponse>
+
+    @POST(Const.Networking.API_FORWARD)
+    suspend fun forwardMessages(
+        @HeaderMap headers: Map<String, String>,
+        @Body jsonObject: JsonObject
+    ): Response<ForwardMessagesResponse>
 }

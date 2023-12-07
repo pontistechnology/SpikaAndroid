@@ -347,6 +347,12 @@ class ChatAdapter(
                     holder.binding.tvEdited.visibility = View.GONE
                 }
 
+                holder.binding.tvForward.visibility = if (it.message.isForwarded){
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+
                 /** Show reactions: */
                 holder.binding.cvReactedEmoji.visibility = View.GONE
                 if (it.message.deleted != null && !it.message.deleted) {
@@ -491,6 +497,12 @@ class ChatAdapter(
                 /** Find replied message: */
                 holder.binding.clReplyMessage.setOnClickListener { _ ->
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it)
+                }
+
+                holder.binding.tvForward.visibility = if (it.message.isForwarded){
+                    View.VISIBLE
+                } else {
+                    View.GONE
                 }
 
                 /** Show edited layout: */

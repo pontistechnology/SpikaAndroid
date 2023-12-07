@@ -115,6 +115,22 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/tv_message" />
 
+        <TextView
+            android:id="@+id/tv_forward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/four_dp_margin"
+            android:elevation="@dimen/eight_dp_margin"
+            android:gravity="center"
+            android:paddingStart="@dimen/sixteen_dp_margin"
+            android:text="@string/forwarded"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/secondaryTextColor"
+            android:textSize="@dimen/nine_sp_text"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/tv_message" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_reply_message"
             android:layout_width="match_parent"
