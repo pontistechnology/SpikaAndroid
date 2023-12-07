@@ -610,12 +610,12 @@ class ChatAdapter(
         if (messageText.isOnlyEmojis()) {
             tvMessage.setEmojiSize(Tools.getEmojiSize(messageText))
         }
-//        else {
-//            tvMessage.background = AppCompatResources.getDrawable(
-//                context,
-//                if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
-//            )
-//        }
+        else {
+            tvMessage.background = AppCompatResources.getDrawable(
+                context,
+                if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
+            )
+        }
 
         tvMessage.text = messageText
 
