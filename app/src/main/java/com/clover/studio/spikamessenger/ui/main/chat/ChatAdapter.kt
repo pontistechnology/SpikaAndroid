@@ -609,8 +609,7 @@ class ChatAdapter(
         val messageText = chatMessage.message.body?.text.toString()
         if (messageText.isOnlyEmojis()) {
             tvMessage.setEmojiSize(Tools.getEmojiSize(messageText))
-        }
-        else {
+        } else {
             tvMessage.background = AppCompatResources.getDrawable(
                 context,
                 if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
