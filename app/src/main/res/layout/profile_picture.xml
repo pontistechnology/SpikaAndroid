@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="395dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/img_group_avatar"
+        android:src="@drawable/img_user_avatar"
         app:layout_constraintBottom_toTopOf="@id/tv_group_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
