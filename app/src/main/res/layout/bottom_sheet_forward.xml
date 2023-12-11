@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_rounded_corners_top"
+    android:backgroundTint="?attr/secondaryColor">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/sixteen_dp_margin"
+            android:text="@string/forward_messages"
+            android:textAppearance="@style/CustomTextBody"
+            android:padding="@dimen/sixteen_dp_margin"
+            android:textSize="@dimen/eighteen_sp_text"/>
+
+        <EditText
+            android:id="@+id/sv_rooms_contacts"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_input"
+            android:backgroundTint="?attr/fourthAdditionalColor"
+            android:hint="@string/search"
+            android:padding="@dimen/sixteen_dp_margin"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
+            android:textColorHint="?attr/primaryTextColor" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="2"
+            android:padding="@dimen/sixteen_dp_margin">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_contacts"
+                style="@style/HalfRightLeft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/four_dp_margin"
+                android:layout_weight="1"
+                android:backgroundTint="?attr/fourthAdditionalColor"
+                android:text="@string/contacts" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_groups"
+                style="@style/HalfButtonLeft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/four_dp_margin"
+                android:layout_weight="1"
+                android:backgroundTint="?attr/primaryColor"
+                android:text="@string/groups_label" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/recent_chats"
+            android:padding="@dimen/sixteen_dp_margin"
+            android:textAppearance="@style/CustomTextBody"
+            android:textSize="@dimen/eighteen_sp_text" />
+
+        <LinearLayout
+            android:id="@+id/ll_recent_chats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:padding="@dimen/sixteen_dp_margin"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_recent_chats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_user_forward">
+        </androidx.recyclerview.widget.RecyclerView>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

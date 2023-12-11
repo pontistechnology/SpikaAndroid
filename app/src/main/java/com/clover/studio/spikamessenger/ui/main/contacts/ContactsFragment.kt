@@ -165,7 +165,7 @@ class ContactsFragment : BaseFragment() {
     }
 
     private fun setupAdapter() {
-        contactsAdapter = ContactsAdapter(requireContext(), false, null) {
+        contactsAdapter = ContactsAdapter(requireContext(), false, null, isForward = false) {
             selectedUser = it.user
             run {
                 CoroutineScope(Dispatchers.IO).launch {

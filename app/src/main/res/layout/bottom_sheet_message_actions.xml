@@ -72,14 +72,14 @@
 
             <TextView
                 android:id="@+id/tv_forward"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/twenty_dp_margin"
+                android:padding="@dimen/ten_dp_margin"
                 android:drawablePadding="@dimen/sixteen_dp_margin"
                 android:text="@string/forward"
                 android:textAppearance="@style/CustomTextBody"
                 android:textSize="@dimen/sixteen_sp_text"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:drawableLeftCompat="@drawable/img_forward" />
         </com.google.android.material.card.MaterialCardView>
 

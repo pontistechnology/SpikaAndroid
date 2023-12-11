@@ -185,7 +185,7 @@ class NewRoomFragment : BaseFragment() {
         // This is only for adding users to Room
         val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
 
-        contactsAdapter = ContactsAdapter(requireContext(), isGroupCreation, userIdsInRoom) {
+        contactsAdapter = ContactsAdapter(requireContext(), isGroupCreation, userIdsInRoom, isForward = false) {
             if (tvNewGroupChat.visibility == View.GONE) {
                 if (selectedUsers.contains(it)) {
                     selectedUsers.remove(it)

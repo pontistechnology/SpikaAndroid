@@ -18,6 +18,7 @@ class ContactsAdapter(
     private val context: Context,
     private val isGroupCreation: Boolean,
     private val userIdsInRoom: List<Int>?,
+    private val isForward: Boolean,
     private val onItemClick: ((item: UserAndPhoneUser) -> Unit)
 ) :
     ListAdapter<UserAndPhoneUser, ContactsAdapter.ContactsViewHolder>(ContactsDiffCallback()) {
@@ -52,6 +53,12 @@ class ContactsAdapter(
                         View.GONE
                     }
                 } else binding.ivCheckedUser.visibility = View.GONE
+
+                binding.ivForwardSend.visibility = if (isForward){
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
 
                 binding.tvHeader.text = userItem.phoneUser?.name?.uppercase()?.substring(0, 1)
                     ?: userItem.user.formattedDisplayName.uppercase().substring(0, 1)

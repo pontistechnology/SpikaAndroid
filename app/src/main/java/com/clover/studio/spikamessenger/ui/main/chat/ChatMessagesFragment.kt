@@ -61,6 +61,7 @@ import com.clover.studio.spikamessenger.databinding.FragmentChatMessagesBinding
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ChatBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.CustomReactionBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.DetailsBottomSheet
+import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ForwardBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.MediaBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ReactionsBottomSheet
 import com.clover.studio.spikamessenger.utils.Const
@@ -1023,6 +1024,18 @@ class ChatMessagesFragment : BaseFragment() {
                     requireActivity().supportFragmentManager,
                     CustomReactionBottomSheet.TAG
                 )
+            }
+
+            override fun actionForward(){
+                val forwardBottomSheet = ForwardBottomSheet(context = requireContext(), localUserId)
+                forwardBottomSheet.setForwardListener(object: ForwardBottomSheet.BottomSheetForwardAction{
+                    override fun forwardMessage() {
+                        TODO("Not yet implemented")
+                    }
+
+                })
+                forwardBottomSheet.show(requireActivity().supportFragmentManager, ForwardBottomSheet.TAG)
+
             }
         })
         bottomSheet.show(requireActivity().supportFragmentManager, ChatBottomSheet.TAG)

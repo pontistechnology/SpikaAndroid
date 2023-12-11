@@ -44,6 +44,7 @@ class ChatBottomSheet(
         fun actionReaction(reaction: String)
         fun actionAddCustomReaction()
         fun actionDownload()
+        fun actionForward()
     }
 
     fun setActionListener(listener: BottomSheetAction?) {
@@ -96,6 +97,11 @@ class ChatBottomSheet(
 
         cvDownload.setOnClickListener {
             listener?.actionDownload()
+            dismiss()
+        }
+
+        cvForward.setOnClickListener {
+            listener?.actionForward()
             dismiss()
         }
 
