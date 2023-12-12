@@ -273,6 +273,16 @@ class ChatViewModel @Inject constructor(
         mainRepository.updateUnreadCount(roomId)
     }
 
+    fun forwardMessage(jsonObject: JsonObject) = viewModelScope.launch {
+        mainRepository.forwardMessages(jsonObject)
+    }
+
+    // TODO
+    suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
+        return if (mainRepository.checkIfUserInPrivateRoom(userId) != null) {
+            mainRepository.checkIfUserInPrivateRoom(userId)!!
+        } else null
+    }
 
     fun cancelUploadFile(messageId: String) = viewModelScope.launch {
         mainRepository.cancelUpload(messageId)

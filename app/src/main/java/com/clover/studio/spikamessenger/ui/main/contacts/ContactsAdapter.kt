@@ -13,6 +13,7 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.databinding.ItemContactBinding
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
+import timber.log.Timber
 
 class ContactsAdapter(
     private val context: Context,
@@ -46,19 +47,13 @@ class ContactsAdapter(
                     userItem.user.selected = true
                 } else binding.transparentView.visibility = View.GONE
 
-                if (isGroupCreation) {
+                if (isGroupCreation || isForward) {
                     binding.ivCheckedUser.visibility = if (userItem.user.selected) {
                         View.VISIBLE
                     } else {
                         View.GONE
                     }
                 } else binding.ivCheckedUser.visibility = View.GONE
-
-                binding.ivForwardSend.visibility = if (isForward){
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
 
                 binding.tvHeader.text = userItem.phoneUser?.name?.uppercase()?.substring(0, 1)
                     ?: userItem.user.formattedDisplayName.uppercase().substring(0, 1)
@@ -78,22 +73,33 @@ class ContactsAdapter(
                 )
 
                 // if not first item, check if item above has the same header
-                if (position > 0) {
-                    val previousItem =
-                        getItem(position - 1).phoneUser?.name?.lowercase()?.substring(0, 1)
-                            ?: getItem(position - 1).user.formattedDisplayName.lowercase()
-                                .substring(0, 1)
+                if (!userItem.user.isForwarded) {
+                    if (position > 0) {
+                        val previousItem =
+                            getItem(position - 1).phoneUser?.name?.lowercase()?.substring(0, 1)
+                                ?: getItem(position - 1).user.formattedDisplayName.lowercase()
+                                    .substring(0, 1)
 
-                    val currentItem = userItem.phoneUser?.name?.lowercase()?.substring(0, 1)
-                        ?: userItem.user.formattedDisplayName.lowercase().substring(0, 1)
+                        val currentItem = userItem.phoneUser?.name?.lowercase()?.substring(0, 1)
+                            ?: userItem.user.formattedDisplayName.lowercase().substring(0, 1)
 
-                    if (previousItem == currentItem) {
-                        binding.tvHeader.visibility = View.GONE
+                        if (previousItem == currentItem) {
+                            binding.tvHeader.visibility = View.GONE
+                        } else {
+                            binding.tvHeader.visibility = View.VISIBLE
+                        }
                     } else {
                         binding.tvHeader.visibility = View.VISIBLE
                     }
                 } else {
-                    binding.tvHeader.visibility = View.VISIBLE
+                    // Recent chats
+                    Timber.d("Recent contact: $userItem!")
+                    if (position == 0) {
+                        binding.tvHeader.text = context.getString(R.string.recent_chats)
+                        binding.tvHeader.visibility = View.VISIBLE
+                    } else {
+                        binding.tvHeader.visibility = View.GONE
+                    }
                 }
 
                 itemView.setOnClickListener {

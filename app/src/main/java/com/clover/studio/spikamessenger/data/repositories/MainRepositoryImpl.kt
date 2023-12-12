@@ -18,6 +18,7 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.AuthRes
 import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.DeleteUserResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.FileResponse
+import com.clover.studio.spikamessenger.data.models.networking.responses.ForwardMessagesResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.Settings
 import com.clover.studio.spikamessenger.data.repositories.data_sources.MainRemoteDataSource
@@ -139,9 +140,9 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getAllRoomsWithLatestMessageAndRecord() }
         )
 
-    override fun getRecentMessages(): LiveData<Resource<List<RoomWithMessage>>> =
+    override fun getRecentMessages(chatType: String): LiveData<Resource<List<RoomWithMessage>>> =
         queryDatabase (
-            databaseQuery = { chatRoomDao.getRecentMessages() }
+            databaseQuery = { chatRoomDao.getRecentChats(chatType = chatType) }
         )
 
 
@@ -213,6 +214,15 @@ class MainRepositoryImpl @Inject constructor(
             sharedPrefs.accountCreated(true)
             data.responseData?.data?.user?.id?.let { sharedPrefs.writeUserId(it) }
         }
+
+        return data
+    }
+
+    override suspend fun forwardMessages(jsonObject: JsonObject): Resource<ForwardMessagesResponse> {
+        val data =  performRestOperation(
+            networkCall = { mainRemoteDataSource.forwardMessages(jsonObject) }
+        )
+        Timber.d("Data: $data")
 
         return data
     }
@@ -382,6 +392,7 @@ interface MainRepository : BaseRepository {
     suspend fun getUserByID(id: Int): LiveData<Resource<User>>
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
+    suspend fun forwardMessages(jsonObject: JsonObject): Resource<ForwardMessagesResponse>
     fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
     suspend fun deleteUser(): Resource<DeleteUserResponse>
 
@@ -397,7 +408,7 @@ interface MainRepository : BaseRepository {
     fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithMessage>>>
-    fun getRecentMessages(): LiveData<Resource<List<RoomWithMessage>>>
+    fun getRecentMessages(chatType: String): LiveData<Resource<List<RoomWithMessage>>>
     suspend fun updateRoom(
         jsonObject: JsonObject,
         roomId: Int,

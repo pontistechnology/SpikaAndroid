@@ -17,7 +17,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.IBinder
 import android.os.Parcelable
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -74,10 +73,12 @@ import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
+import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
 import com.clover.studio.spikamessenger.utils.helpers.FilesHelper
 import com.clover.studio.spikamessenger.utils.helpers.FilesHelper.getUniqueRandomId
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.UploadService
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
@@ -895,10 +896,7 @@ class ChatMessagesFragment : BaseFragment() {
             }
         }
 
-        val typedValue = TypedValue()
-        val theme = requireContext().theme
-        theme.resolveAttribute(R.attr.secondAdditionalColor, typedValue, true)
-        clSendingArea.setBackgroundColor(typedValue.data)
+        clSendingArea.setBackgroundColor(ColorHelper.getSecondAdditionalColor(requireContext()))
     }
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
@@ -1026,16 +1024,35 @@ class ChatMessagesFragment : BaseFragment() {
                 )
             }
 
-            override fun actionForward(){
+            override fun actionForward() {
                 val forwardBottomSheet = ForwardBottomSheet(context = requireContext(), localUserId)
-                forwardBottomSheet.setForwardListener(object: ForwardBottomSheet.BottomSheetForwardAction{
-                    override fun forwardMessage() {
-                        TODO("Not yet implemented")
+                forwardBottomSheet.setForwardListener(object :
+                    ForwardBottomSheet.BottomSheetForwardAction {
+                    override fun forward(userId: ArrayList<Int>?, roomId: ArrayList<Int>) {
+                        // TODO
+                        // userIds - check for each one if room exist or not
+                        // roomIds - send to forward method
+
+                        val jsonObject = JsonObject()
+                        val roomIds = JsonArray()
+                        roomId.forEach {
+                            roomIds.add(it)
+                        }
+
+                        jsonObject.add("roomIds", roomIds)
+
+                        val messageIds = JsonArray()
+                        messageIds.add(msg.message.id)
+
+                        jsonObject.add("messageIds", messageIds)
+
+                        viewModel.forwardMessage(jsonObject)
                     }
-
                 })
-                forwardBottomSheet.show(requireActivity().supportFragmentManager, ForwardBottomSheet.TAG)
-
+                forwardBottomSheet.show(
+                    requireActivity().supportFragmentManager,
+                    ForwardBottomSheet.TAG
+                )
             }
         })
         bottomSheet.show(requireActivity().supportFragmentManager, ChatBottomSheet.TAG)

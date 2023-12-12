@@ -1,27 +1,29 @@
 package com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.databinding.BottomSheetForwardBinding
-import com.clover.studio.spikamessenger.databinding.ItemUserForwardBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.contacts.ContactsAdapter
+import com.clover.studio.spikamessenger.ui.main.create_room.SelectedContactsAdapter
 import com.clover.studio.spikamessenger.ui.main.rooms.RoomsAdapter
 import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
 import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortUsersByLocale
+import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import timber.log.Timber
 
-const val RECENT_CHATS_NUMBER = 3
+const val MAX_CHATS_NUMBER = 3
 
 class ForwardBottomSheet(
     private val context: Context,
@@ -35,10 +37,12 @@ class ForwardBottomSheet(
 
     private lateinit var contactsAdapter: ContactsAdapter
     private lateinit var roomsAdapter: RoomsAdapter
+    private lateinit var selectedAdapter: SelectedContactsAdapter
 
     private var recentChats: List<RoomWithMessage> = mutableListOf()
     private var recentContacts: List<RoomWithMessage> = mutableListOf()
     private var userList: List<UserAndPhoneUser> = mutableListOf()
+    private var selectedChats: MutableList<UserAndPhoneUser> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,9 +52,15 @@ class ForwardBottomSheet(
         binding = BottomSheetForwardBinding.inflate(layoutInflater)
 
         initializeLists()
-        initializeViews()
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initializeViews()
+        setUpSelectedAdapter()
     }
 
     companion object {
@@ -58,111 +68,141 @@ class ForwardBottomSheet(
     }
 
     interface BottomSheetForwardAction {
-        fun forwardMessage()
+        fun forward(userId: ArrayList<Int>?, roomId: ArrayList<Int>)
     }
 
     fun setForwardListener(listener: BottomSheetForwardAction) {
         this.listener = listener
     }
 
-    private fun initializeLists() {
+    private fun initializeLists() = with(binding) {
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
-            if (it.responseData != null) {
-                userList = it.responseData.toMutableList().sortUsersByLocale(context)
-                setUpContactsAdapter()
-            }
-        }
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
 
-        // Use custom view adding for it
-        viewModel.getRecentMessages().observe(viewLifecycleOwner) {
-            if (!it.responseData.isNullOrEmpty()) {
-                binding.llRecentChats.visibility = View.VISIBLE
-                recentContacts = it.responseData
-                    .filter { user -> user.roomWithUsers.room.type == Const.JsonFields.PRIVATE }
-                recentChats = it.responseData
-                    .filter { user -> user.roomWithUsers.room.type == Const.JsonFields.GROUP }
+                    if (it.responseData != null) {
+                        userList = it.responseData.toMutableList().sortUsersByLocale(context)
 
-                setUpRecentChats(recentContacts, isPrivate = true)
-            }
-        }
-    }
+                        Timber.d("User list: $userList")
 
-    private fun initializeViews() {
-        binding.btnContacts.setOnClickListener {
-            setUpRecentChats(recentContacts, isPrivate = true)
-            setUpContactsAdapter()
-        }
+                        viewModel.getRecentMessages(Const.JsonFields.PRIVATE)
+                            .observe(viewLifecycleOwner) { recentMessages ->
+                                if (!recentMessages.responseData.isNullOrEmpty()) {
+                                    recentContacts = recentMessages.responseData
+                                        .filter { user -> user.roomWithUsers.room.type == Const.JsonFields.PRIVATE }
+                                        .take(MAX_CHATS_NUMBER)
 
+                                    pbForward.visibility = View.GONE
+                                    nsvForward.visibility = View.VISIBLE
 
-        binding.btnGroups.setOnClickListener {
-            setUpRecentChats(recentChats, isPrivate = false)
-            setUpRoomsAdapter()
-        }
-    }
-
-    private fun setUpRecentChats(recentContacts: List<RoomWithMessage>, isPrivate: Boolean) {
-        binding.llRecentChats.removeAllViews()
-        recentContacts.forEachIndexed { index, roomWithMessage ->
-            if (index == RECENT_CHATS_NUMBER) {
-                return
-            }
-
-            val newView: View =
-                LayoutInflater.from(context).inflate(R.layout.item_user_forward, null)
-
-            val layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-            )
-
-            val marginInPixels = resources.getDimensionPixelSize(R.dimen.eight_dp_margin)
-            layoutParams.setMargins(0, 0, 0, marginInPixels)
-            newView.layoutParams = layoutParams
-
-            val newViewBinding = ItemUserForwardBinding.bind(newView)
-
-            newViewBinding.tvNumberPlaceholder.apply {
-                if (isPrivate) {
-                    visibility = View.VISIBLE
-                    text =
-                        roomWithMessage.roomWithUsers.users.find { it.id != localId }?.telephoneNumber
-                } else {
-                    visibility = View.GONE
+                                    setUpContactsAdapter()
+                                }
+                            }
+                    }
                 }
+
+                Resource.Status.LOADING -> {
+                    pbForward.visibility = View.VISIBLE
+                    nsvForward.visibility = View.GONE
+                }
+
+                Resource.Status.ERROR -> {
+                    // TODO ask Matko
+                    // Maybe toast with "Something went wrong" and dismiss it
+                    dismiss()
+                }
+
+                else -> Timber.d("Other error::: ${it.status}, ${it.responseData}")
             }
-            newViewBinding.tvNamePlaceholder.text = roomWithMessage.roomWithUsers.room.name
-            binding.llRecentChats.addView(newView)
         }
     }
 
-    private fun setUpRoomsAdapter() {
-        roomsAdapter = RoomsAdapter(
-            context = context,
-            myUserId = localId.toString(),
-            onItemClick = {
-                // TODO method for group chat clicks
-            }
-        )
 
-        roomsAdapter.submitList(recentChats)
-        binding.rvRecentChats.apply {
-            adapter = roomsAdapter
-            layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+    private fun initializeViews() = with(binding) {
+        btnContacts.setOnClickListener {
+            btnContacts.backgroundTintList =
+                ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
+            btnGroups.backgroundTintList =
+                ColorStateList.valueOf(ColorHelper.getPrimaryColor(context))
+
+            rvContacts.visibility = View.VISIBLE
         }
 
+
+        btnGroups.setOnClickListener {
+            btnGroups.backgroundTintList =
+                ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
+            btnContacts.backgroundTintList =
+                ColorStateList.valueOf(ColorHelper.getPrimaryColor(context))
+
+            rvContacts.visibility = View.INVISIBLE
+        }
+
+        fabForward.setOnClickListener {
+            val userIds = arrayListOf<Int>()
+            val roomIds = arrayListOf(0)
+
+            selectedChats.forEach {
+                userIds.add(it.user.id)
+//                roomIds.add()
+            }
+
+            listener?.forward(userIds, roomIds)
+            dismiss()
+        }
     }
 
-    private fun setUpContactsAdapter() {
+    private fun setUpSelectedAdapter() = with(binding) {
+        selectedAdapter = SelectedContactsAdapter(
+            context
+        ) {
+            selectedChats.remove(it)
+            it.user.selected = false
+            contactsAdapter.notifyDataSetChanged()
+            selectedAdapter.notifyDataSetChanged()
+
+            if (selectedChats.isEmpty()) {
+                rvSelected.visibility = View.GONE
+                fabForward.visibility = View.VISIBLE
+            }
+        }
+
+        rvSelected.apply {
+            adapter = selectedAdapter
+            layoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
+        }
+    }
+
+    private fun setUpContactsAdapter()  = with(binding){
+        val list: List<UserAndPhoneUser> = recentContacts
+            .flatMap { it.roomWithUsers.users }
+            .mapNotNull { user -> userList.find { it.user.id == user.id } }
+
+        list.forEach {
+            it.user.isForwarded = true
+        }
+
+        userList = list + userList
+
         contactsAdapter = ContactsAdapter(
             context = requireContext(),
             isGroupCreation = false,
             userIdsInRoom = null,
-            isForward = true)
+            isForward = true
+        )
         {
-            // TODO method for private chat clicks
+            if (!selectedChats.contains(it)) {
+                selectedChats.add(it)
+                selectedAdapter.submitList(selectedChats)
+                selectedAdapter.notifyDataSetChanged()
+
+                it.user.selected = true
+                contactsAdapter.notifyDataSetChanged()
+            }
+            rvSelected.visibility = View.VISIBLE
         }
 
-        binding.rvRecentChats.apply {
+        rvContacts.apply {
             adapter = contactsAdapter
             layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         }

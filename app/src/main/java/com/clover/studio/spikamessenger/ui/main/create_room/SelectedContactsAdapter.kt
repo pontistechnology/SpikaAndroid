@@ -46,6 +46,12 @@ class SelectedContactsAdapter(
                         onItemClick.invoke(it)
                     }
                 }
+
+                binding.ivRemove.setOnClickListener {
+                    userItem.let {
+                        onItemClick.invoke(it)
+                    }
+                }
             }
         }
     }

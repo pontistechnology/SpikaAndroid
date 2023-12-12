@@ -820,20 +820,10 @@ object Tools {
     }
 
     fun setEmojiViewTheme(context: Context): EmojiTheming {
-        val typedValue = TypedValue()
-        val theme = context.theme
-        theme.resolveAttribute(R.attr.primaryTextColor, typedValue, true)
-
-        val typedValueSecondaryColor = TypedValue()
-        theme.resolveAttribute(R.attr.primaryColor, typedValueSecondaryColor, true)
-
-        val typedValueAdditionalColor = TypedValue()
-        theme.resolveAttribute(R.attr.secondaryColor, typedValueAdditionalColor, true)
-
         return EmojiTheming(
-            primaryColor = typedValueSecondaryColor.data,
-            secondaryColor = typedValue.data,
-            backgroundColor = typedValueAdditionalColor.data
+            primaryColor = ColorHelper.getPrimaryColor(context),
+            secondaryColor = ColorHelper.getPrimaryTextColor(context),
+            backgroundColor = ColorHelper.getSecondaryColor(context)
         )
     }
 
