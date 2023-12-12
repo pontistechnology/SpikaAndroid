@@ -135,7 +135,11 @@ class MainViewModel @Inject constructor(
 
     fun getChatRoomsWithLatestMessage() = repository.getChatRoomsWithLatestMessage()
 
-    fun getRecentMessages(chatType: String) = repository.getRecentMessages(chatType = chatType)
+    fun getRecentContacts() = repository.getRecentContacts()
+
+    fun getRecentGroups() = repository.getRecentGroups()
+
+    fun getAllGroups() = repository.getAllGroups()
 
     fun getRoomsLiveData() = repository.getRoomsUnreadCount()
 

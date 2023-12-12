@@ -99,8 +99,7 @@
             android:id="@+id/rv_contacts"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:nestedScrollingEnabled="false"
-            tools:listitem="@layout/item_user_forward" />
+            android:nestedScrollingEnabled="false" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

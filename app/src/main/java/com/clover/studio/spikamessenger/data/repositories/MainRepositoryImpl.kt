@@ -140,9 +140,19 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getAllRoomsWithLatestMessageAndRecord() }
         )
 
-    override fun getRecentMessages(chatType: String): LiveData<Resource<List<RoomWithMessage>>> =
-        queryDatabase (
-            databaseQuery = { chatRoomDao.getRecentChats(chatType = chatType) }
+    override fun getRecentContacts(): LiveData<Resource<List<RoomWithMessage>>> =
+        queryDatabase(
+            databaseQuery = { chatRoomDao.getRecentContacts() }
+        )
+
+    override fun getRecentGroups(): LiveData<Resource<List<RoomWithMessage>>> =
+        queryDatabase(
+            databaseQuery = { chatRoomDao.getRecentGroups() }
+        )
+
+    override fun getAllGroups(): LiveData<Resource<List<RoomWithMessage>>> =
+        queryDatabase(
+            databaseQuery = { chatRoomDao.getAllGroups() }
         )
 
 
@@ -408,7 +418,9 @@ interface MainRepository : BaseRepository {
     fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithMessage>>>
-    fun getRecentMessages(chatType: String): LiveData<Resource<List<RoomWithMessage>>>
+    fun getRecentContacts(): LiveData<Resource<List<RoomWithMessage>>>
+    fun getRecentGroups(): LiveData<Resource<List<RoomWithMessage>>>
+    fun getAllGroups(): LiveData<Resource<List<RoomWithMessage>>>
     suspend fun updateRoom(
         jsonObject: JsonObject,
         roomId: Int,
