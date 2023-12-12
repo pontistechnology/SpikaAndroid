@@ -51,6 +51,8 @@ class ForwardBottomSheet(
     ): View {
         binding = BottomSheetForwardBinding.inflate(layoutInflater)
 
+        setUpAdapter()
+        setUpSelectedAdapter()
         initializeLists()
 
         return binding.root
@@ -60,7 +62,6 @@ class ForwardBottomSheet(
         super.onViewCreated(view, savedInstanceState)
 
         initializeViews()
-        setUpSelectedAdapter()
     }
 
     companion object {
@@ -73,6 +74,26 @@ class ForwardBottomSheet(
 
     fun setForwardListener(listener: BottomSheetForwardAction) {
         this.listener = listener
+    }
+
+    private fun setUpAdapter(){
+        contactsAdapter = ContactsAdapter(
+            context = requireContext(),
+            isGroupCreation = false,
+            userIdsInRoom = null,
+            isForward = true
+        )
+        {
+            if (!selectedChats.contains(it)) {
+                selectedChats.add(it)
+                selectedAdapter.submitList(selectedChats.toMutableList())
+                selectedAdapter.notifyDataSetChanged()
+
+                it.user.selected = true
+                contactsAdapter.notifyDataSetChanged()
+            }
+            binding.rvSelected.visibility = View.VISIBLE
+        }
     }
 
     private fun initializeLists() = with(binding) {
@@ -93,7 +114,7 @@ class ForwardBottomSheet(
                                         .take(MAX_CHATS_NUMBER)
 
                                     pbForward.visibility = View.GONE
-                                    nsvForward.visibility = View.VISIBLE
+                                    llForward.visibility = View.VISIBLE
 
                                     setUpContactsAdapter()
                                 }
@@ -103,7 +124,7 @@ class ForwardBottomSheet(
 
                 Resource.Status.LOADING -> {
                     pbForward.visibility = View.VISIBLE
-                    nsvForward.visibility = View.GONE
+                    llForward.visibility = View.GONE
                 }
 
                 Resource.Status.ERROR -> {
@@ -116,7 +137,6 @@ class ForwardBottomSheet(
             }
         }
     }
-
 
     private fun initializeViews() = with(binding) {
         btnContacts.setOnClickListener {
@@ -158,16 +178,20 @@ class ForwardBottomSheet(
         ) {
             selectedChats.remove(it)
             it.user.selected = false
+
             contactsAdapter.notifyDataSetChanged()
             selectedAdapter.notifyDataSetChanged()
 
             if (selectedChats.isEmpty()) {
                 rvSelected.visibility = View.GONE
                 fabForward.visibility = View.VISIBLE
+            } else {
+                fabForward.visibility = View.VISIBLE
             }
         }
 
         rvSelected.apply {
+            itemAnimator = null
             adapter = selectedAdapter
             layoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
         }
@@ -184,25 +208,8 @@ class ForwardBottomSheet(
 
         userList = list + userList
 
-        contactsAdapter = ContactsAdapter(
-            context = requireContext(),
-            isGroupCreation = false,
-            userIdsInRoom = null,
-            isForward = true
-        )
-        {
-            if (!selectedChats.contains(it)) {
-                selectedChats.add(it)
-                selectedAdapter.submitList(selectedChats)
-                selectedAdapter.notifyDataSetChanged()
-
-                it.user.selected = true
-                contactsAdapter.notifyDataSetChanged()
-            }
-            rvSelected.visibility = View.VISIBLE
-        }
-
         rvContacts.apply {
+            itemAnimator = null
             adapter = contactsAdapter
             layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         }
