@@ -76,7 +76,7 @@ class ForwardBottomSheet(
         this.listener = listener
     }
 
-    private fun setUpAdapter(){
+    private fun setUpAdapter() {
         contactsAdapter = ContactsAdapter(
             context = requireContext(),
             isGroupCreation = false,
@@ -87,12 +87,41 @@ class ForwardBottomSheet(
             if (!selectedChats.contains(it)) {
                 selectedChats.add(it)
                 selectedAdapter.submitList(selectedChats.toMutableList())
-                selectedAdapter.notifyDataSetChanged()
 
                 it.user.selected = true
-                contactsAdapter.notifyDataSetChanged()
+                contactsAdapter.notifyItemChanged(userList.indexOf(it))
+
+                binding.rvSelected.visibility = View.VISIBLE
+                binding.fabForward.visibility = View.VISIBLE
             }
-            binding.rvSelected.visibility = View.VISIBLE
+        }
+
+        binding.rvContacts.apply {
+            itemAnimator = null
+            adapter = contactsAdapter
+            layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+        }
+    }
+
+    private fun setUpSelectedAdapter() = with(binding) {
+        selectedAdapter = SelectedContactsAdapter(
+            context
+        ) {
+            selectedChats.remove(it)
+            selectedAdapter.submitList(selectedChats.toMutableList())
+
+            it.user.selected = false
+            contactsAdapter.notifyItemChanged(userList.indexOf(it))
+
+            if (selectedChats.isEmpty()){
+                fabForward.visibility = View.GONE
+            }
+        }
+
+        rvSelected.apply {
+            itemAnimator = null
+            adapter = selectedAdapter
+            layoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
         }
     }
 
@@ -100,11 +129,8 @@ class ForwardBottomSheet(
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-
                     if (it.responseData != null) {
                         userList = it.responseData.toMutableList().sortUsersByLocale(context)
-
-                        Timber.d("User list: $userList")
 
                         viewModel.getRecentMessages(Const.JsonFields.PRIVATE)
                             .observe(viewLifecycleOwner) { recentMessages ->
@@ -172,32 +198,7 @@ class ForwardBottomSheet(
         }
     }
 
-    private fun setUpSelectedAdapter() = with(binding) {
-        selectedAdapter = SelectedContactsAdapter(
-            context
-        ) {
-            selectedChats.remove(it)
-            it.user.selected = false
-
-            contactsAdapter.notifyDataSetChanged()
-            selectedAdapter.notifyDataSetChanged()
-
-            if (selectedChats.isEmpty()) {
-                rvSelected.visibility = View.GONE
-                fabForward.visibility = View.VISIBLE
-            } else {
-                fabForward.visibility = View.VISIBLE
-            }
-        }
-
-        rvSelected.apply {
-            itemAnimator = null
-            adapter = selectedAdapter
-            layoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
-        }
-    }
-
-    private fun setUpContactsAdapter()  = with(binding){
+    private fun setUpContactsAdapter() = with(binding) {
         val list: List<UserAndPhoneUser> = recentContacts
             .flatMap { it.roomWithUsers.users }
             .mapNotNull { user -> userList.find { it.user.id == user.id } }
@@ -208,12 +209,6 @@ class ForwardBottomSheet(
 
         userList = list + userList
 
-        rvContacts.apply {
-            itemAnimator = null
-            adapter = contactsAdapter
-            layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        }
-
-        contactsAdapter.submitList(userList)
+        contactsAdapter.submitList(userList.toMutableList())
     }
 }
