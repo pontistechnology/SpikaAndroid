@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -47,7 +48,7 @@ class GroupInformationFragment : BaseFragment() {
 
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var adapter: GroupInformationAdapter
-    private var selectedUsers: MutableList<UserAndPhoneUser> = ArrayList()
+    private var selectedUsers: MutableList<PrivateGroupChats> = ArrayList()
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var progress: Long = 1L
     private var uploadPieces: Int = 0
@@ -135,7 +136,7 @@ class GroupInformationFragment : BaseFragment() {
 
             val userIdsArray = JsonArray()
             for (user in selectedUsers) {
-                userIdsArray.add(user.user.id)
+                userIdsArray.add(user.id)
             }
             val adminUserIds = JsonArray()
             adminUserIds.add(viewModel.getLocalUserId())

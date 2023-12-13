@@ -13,18 +13,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
-import com.clover.studio.spikamessenger.data.models.entity.User
-import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.databinding.FragmentNewRoomBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.ui.main.contacts.ContactsAdapter
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortUsersByLocale
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateGroupChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -40,10 +40,10 @@ class NewRoomFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var contactsAdapter: ContactsAdapter
     private lateinit var selectedContactsAdapter: SelectedContactsAdapter
-    private lateinit var userList: MutableList<UserAndPhoneUser>
-    private var selectedUsers: MutableList<UserAndPhoneUser> = ArrayList()
-    private var filteredList: MutableList<UserAndPhoneUser> = ArrayList()
-    private var user: User? = null
+    private var userList: MutableList<PrivateGroupChats> = mutableListOf()
+    private var selectedUsers: MutableList<PrivateGroupChats> = ArrayList()
+    private var filteredList: MutableList<PrivateGroupChats> = ArrayList()
+    private var user: PrivateGroupChats? = null
     private var isRoomUpdate = false
     private var newGroupFlag = false
 
@@ -151,7 +151,7 @@ class NewRoomFragment : BaseFragment() {
         val userIds = JsonArray()
 
         for (data in selectedUsers) {
-            userIds.add(data.user.id)
+            userIds.add(data.id)
         }
 
         val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
@@ -185,40 +185,41 @@ class NewRoomFragment : BaseFragment() {
         // This is only for adding users to Room
         val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
 
-        contactsAdapter = ContactsAdapter(requireContext(), isGroupCreation, userIdsInRoom, isForward = false) {
-            if (tvNewGroupChat.visibility == View.GONE) {
-                if (selectedUsers.contains(it)) {
-                    selectedUsers.remove(it)
-                    tvSelectedNumber.text =
-                        getString(R.string.users_selected, selectedUsers.size)
+        contactsAdapter =
+            ContactsAdapter(requireContext(), isGroupCreation, userIdsInRoom, isForward = false) {
+                if (tvNewGroupChat.visibility == View.GONE) {
+                    if (selectedUsers.contains(it)) {
+                        selectedUsers.remove(it)
+                        tvSelectedNumber.text =
+                            getString(R.string.users_selected, selectedUsers.size)
+                    } else {
+                        selectedUsers.add(it)
+                        tvSelectedNumber.text =
+                            getString(R.string.users_selected, selectedUsers.size)
+                    }
+
+                    selectedContactsAdapter.notifyDataSetChanged()
+
+                    handleNextTextView()
+                    handleSelectedUserList(it)
                 } else {
-                    selectedUsers.add(it)
-                    tvSelectedNumber.text =
-                        getString(R.string.users_selected, selectedUsers.size)
-                }
-
-                selectedContactsAdapter.notifyDataSetChanged()
-
-                handleNextTextView()
-                handleSelectedUserList(it)
-            } else {
-                user = it.user
-                showProgress(false)
-                it.user.id.let { id ->
-                    run {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
-                            val roomId = viewModel.checkIfUserInPrivateRoom(id)
-                            if (roomId != null) {
-                                viewModel.getRoomWithUsers(roomId)
-                            } else {
-                                viewModel.checkIfRoomExists(id)
+                    user = it
+                    showProgress(false)
+                    it.id.let { id ->
+                        run {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
+                                val roomId = viewModel.checkIfUserInPrivateRoom(id)
+                                if (roomId != null) {
+                                    viewModel.getRoomWithUsers(roomId)
+                                } else {
+                                    viewModel.checkIfRoomExists(id)
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
         binding.rvContacts.adapter = contactsAdapter
         binding.rvContacts.layoutManager =
@@ -247,10 +248,10 @@ class NewRoomFragment : BaseFragment() {
         }
     }
 
-    private fun handleSelectedUserList(userItem: UserAndPhoneUser) {
+    private fun handleSelectedUserList(userItem: PrivateGroupChats) {
         for (user in userList) {
-            if (user.user.id == userItem.user.id) {
-                user.user.selected = !user.user.selected
+            if (user.id == userItem.id) {
+                user.isSelected = !user.isSelected
                 break
             }
         }
@@ -270,18 +271,18 @@ class NewRoomFragment : BaseFragment() {
     private fun initializeObservers() {
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
             if (it.responseData != null) {
-                userList = it.responseData.toMutableList()
+                userList = Tools.transformPrivateList(it.responseData)
 
                 if (newGroupFlag) {
-                    userList.removeIf { userData -> userData.user.isBot }
+                    userList.removeIf { userData -> userData.isBot }
                 }
 
-                val users = userList.sortUsersByLocale(requireContext())
+                val users = userList.sortPrivateGroupChats(requireContext())
                 users.forEach { user ->
                     val isSelected = selectedUsers.any { selectedUser ->
-                        user.user.id == selectedUser.user.id
+                        user.id == selectedUser.id
                     }
-                    user.user.selected = isSelected
+                    user.isSelected = isSelected
                 }
 
                 userList = users.toMutableList()
@@ -380,46 +381,42 @@ class NewRoomFragment : BaseFragment() {
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
-                    if (::userList.isInitialized) {
-                        for (user in userList) {
-                            if (user.phoneUser?.name?.lowercase()?.contains(
-                                    query,
-                                    ignoreCase = true
-                                ) ?: user.user.formattedDisplayName.lowercase()
-                                    .contains(query, ignoreCase = true)
-                            ) {
-                                filteredList.add(user)
-                            }
+                    for (user in userList) {
+                        if ((user.name?.lowercase()?.contains(
+                                query,
+                                ignoreCase = true
+                            ) ?: user.formattedDisplayName?.lowercase()
+                                ?.contains(query, ignoreCase = true)) == true
+                        ) {
+                            filteredList.add(user)
                         }
-                        val users = filteredList.sortUsersByLocale(requireContext())
-                        contactsAdapter.submitList(ArrayList(users)) {
-                            binding.rvContacts.scrollToPosition(0)
-                        }
-                        filteredList.clear()
                     }
+                    val users = filteredList.sortPrivateGroupChats(requireContext())
+                    contactsAdapter.submitList(ArrayList(users)) {
+                        binding.rvContacts.scrollToPosition(0)
+                    }
+                    filteredList.clear()
                 }
                 return true
             }
 
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
-                    if (::userList.isInitialized) {
-                        for (user in userList) {
-                            if (user.phoneUser?.name?.lowercase()?.contains(
-                                    query,
-                                    ignoreCase = true
-                                ) ?: user.user.formattedDisplayName.lowercase()
-                                    .contains(query, ignoreCase = true)
-                            ) {
-                                filteredList.add(user)
-                            }
+                    for (user in userList) {
+                        if ((user.name?.lowercase()?.contains(
+                                query,
+                                ignoreCase = true
+                            ) ?: user.formattedDisplayName?.lowercase()
+                                ?.contains(query, ignoreCase = true)) == true
+                        ) {
+                            filteredList.add(user)
                         }
-                        val users = filteredList.sortUsersByLocale(requireContext())
-                        contactsAdapter.submitList(ArrayList(users)) {
-                            binding.rvContacts.scrollToPosition(0)
-                        }
-                        filteredList.clear()
                     }
+                    val users = filteredList.sortPrivateGroupChats(requireContext())
+                    contactsAdapter.submitList(ArrayList(users)) {
+                        binding.rvContacts.scrollToPosition(0)
+                    }
+                    filteredList.clear()
                 }
                 return true
             }

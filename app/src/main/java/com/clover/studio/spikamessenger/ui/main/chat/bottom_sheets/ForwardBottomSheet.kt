@@ -9,17 +9,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
-import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
-import com.clover.studio.spikamessenger.data.models.entity.User
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.databinding.BottomSheetForwardBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.contacts.ContactsAdapter
 import com.clover.studio.spikamessenger.ui.main.create_room.SelectedContactsAdapter
-import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortUsersByLocale
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateGroupChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import timber.log.Timber
@@ -37,10 +35,10 @@ class ForwardBottomSheet(
     private lateinit var contactsAdapter: ContactsAdapter
     private lateinit var selectedAdapter: SelectedContactsAdapter
 
-    private var groupList: List<RoomWithMessage> = mutableListOf()
-    private var recentContacts: List<RoomWithMessage> = mutableListOf()
-    private var userList: List<UserAndPhoneUser> = mutableListOf()
-    private var selectedChats: MutableList<UserAndPhoneUser> = mutableListOf()
+    private var groupList: List<PrivateGroupChats> = mutableListOf()
+    private var recentContacts: List<PrivateGroupChats> = mutableListOf()
+    private var userList: List<PrivateGroupChats> = mutableListOf()
+    private var selectedChats: MutableList<PrivateGroupChats> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -86,8 +84,12 @@ class ForwardBottomSheet(
                 selectedChats.add(it)
                 selectedAdapter.submitList(selectedChats.toMutableList())
 
-                it.user.selected = true
-                contactsAdapter.notifyItemChanged(userList.indexOf(it))
+                it.isSelected = true
+                if (contactsAdapter.currentList == userList) {
+                    contactsAdapter.notifyItemChanged(userList.indexOf(it))
+                } else {
+                    contactsAdapter.notifyItemChanged(groupList.indexOf(it))
+                }
 
                 rvSelected.visibility = View.VISIBLE
                 fabForward.visibility = View.VISIBLE
@@ -108,7 +110,7 @@ class ForwardBottomSheet(
             selectedChats.remove(it)
             selectedAdapter.submitList(selectedChats.toMutableList())
 
-            it.user.selected = false
+            it.isSelected = false
             contactsAdapter.notifyItemChanged(userList.indexOf(it))
 
             if (selectedChats.isEmpty()) {
@@ -128,28 +130,34 @@ class ForwardBottomSheet(
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (it.responseData != null) {
-                        userList = it.responseData.toMutableList().sortUsersByLocale(context)
 
-                        viewModel.getRecentContacts()
-                            .observe(viewLifecycleOwner) { recentMessages ->
-                                when (recentMessages.status) {
-                                    Resource.Status.SUCCESS -> {
-                                        if (!recentMessages.responseData.isNullOrEmpty()) {
-                                            recentContacts = recentMessages.responseData
-                                                .filter { user -> user.roomWithUsers.room.type == Const.JsonFields.PRIVATE }
+                        userList = Tools.transformPrivateList(it.responseData)
+                            .sortPrivateGroupChats(context)
 
-                                            pbForward.visibility = View.GONE
-                                            llForward.visibility = View.VISIBLE
+                        pbForward.visibility = View.GONE
+                        llForward.visibility = View.VISIBLE
+                        contactsAdapter.submitList(userList.toMutableList())
 
-                                            setUpContactsAdapter()
-                                        } else {
-                                            contactsAdapter.submitList(userList.toMutableList())
-                                        }
-                                    }
-
-                                    else -> Timber.d("Other error")
-                                }
-                            }
+//                        viewModel.getRecentContacts()
+//                            .observe(viewLifecycleOwner) { recentMessages ->
+//                                when (recentMessages.status) {
+//                                    Resource.Status.SUCCESS -> {
+//                                        if (!recentMessages.responseData.isNullOrEmpty()) {
+//                                            recentContacts = recentMessages.responseData
+//                                                .filter { user -> user.roomWithUsers.room.type == Const.JsonFields.PRIVATE }
+//
+//                                            pbForward.visibility = View.GONE
+//                                            llForward.visibility = View.VISIBLE
+//
+//                                            setUpContactsAdapter()
+//                                        } else {
+//                                            contactsAdapter.submitList(userList.toMutableList())
+//                                        }
+//                                    }
+//
+//                                    else -> Timber.d("Other error")
+//                                }
+//                            }
                     }
                 }
 
@@ -171,24 +179,22 @@ class ForwardBottomSheet(
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (!it.responseData.isNullOrEmpty()) {
-                        groupList = it.responseData.toMutableList()
 
-                        Timber.d("Groups:: ${groupList}")
+                        groupList = Tools.transformGroupList(it.responseData)
 
-                        viewModel.getRecentGroups().observe(viewLifecycleOwner) { recentGroups ->
-                            when (recentGroups.status) {
-                                Resource.Status.SUCCESS -> {
-                                    if (!recentGroups.responseData.isNullOrEmpty()) {
-                                        // TODO add recent chats
-                                    } else {
-                                        // TODO
-                                    }
-                                }
-
-                                else -> Timber.d("Other error")
-                            }
-                        }
-
+//                        viewModel.getRecentGroups().observe(viewLifecycleOwner) { recentGroups ->
+//                            when (recentGroups.status) {
+//                                Resource.Status.SUCCESS -> {
+//                                    if (!recentGroups.responseData.isNullOrEmpty()) {
+//                                        // TODO add recent chats
+//                                    } else {
+//                                        // TODO
+//                                    }
+//                                }
+//
+//                                else -> Timber.d("Other error")
+//                            }
+//                        }
                     }
                 }
 
@@ -224,7 +230,7 @@ class ForwardBottomSheet(
             val roomIds = arrayListOf(0)
 
             selectedChats.forEach {
-                userIds.add(it.user.id)
+                userIds.add(it.id)
 //                roomIds.add()
             }
 
@@ -237,45 +243,45 @@ class ForwardBottomSheet(
         val list: MutableList<UserAndPhoneUser> = mutableListOf()
         Timber.d("Group")
 
-        groupList.forEach {
-            val element = UserAndPhoneUser(
-                User(
-                    id = it.roomWithUsers.room.roomId,
-                    displayName = it.roomWithUsers.room.name.toString(),
-                    telephoneNumber = null,
-                    avatarFileId = it.roomWithUsers.room.avatarFileId,
-                    createdAt = it.roomWithUsers.room.createdAt.toString(),
-                    modifiedAt = it.roomWithUsers.room.modifiedAt,
-                    deleted = false,
-                    emailAddress = null,
-                    telephoneNumberHashed = null,
-                    selected = false
-                ),
-                phoneUser = PhoneUser(
-                    name = it.roomWithUsers.room.name.toString(),
-                    number = "0"
-                )
-            )
-            list.add(element)
-        }
+//        groupList.forEach {
+//            val element = UserAndPhoneUser(
+//                User(
+//                    id = it.roomWithUsers.room.roomId,
+//                    displayName = it.roomWithUsers.room.name.toString(),
+//                    telephoneNumber = null,
+//                    avatarFileId = it.roomWithUsers.room.avatarFileId,
+//                    createdAt = it.roomWithUsers.room.createdAt.toString(),
+//                    modifiedAt = it.roomWithUsers.room.modifiedAt,
+//                    deleted = false,
+//                    emailAddress = null,
+//                    telephoneNumberHashed = null,
+//                    selected = false
+//                ),
+//                phoneUser = PhoneUser(
+//                    name = it.roomWithUsers.room.name.toString(),
+//                    number = "0"
+//                )
+//            )
+//            list.add(element)
+//        }
 
         Timber.d("List: $list")
 
-        contactsAdapter.submitList(list.toMutableList())
+        contactsAdapter.submitList(groupList)
     }
 
     private fun setUpContactsAdapter() = with(binding) {
-        val list: List<UserAndPhoneUser> = recentContacts
-            .flatMap { it.roomWithUsers.users }
-            .mapNotNull { user ->
-                userList.find { it.user.id == user.id }
-            }
-
-        list.forEach {
-            it.user.isForwarded = true
-        }
-
-        userList = list + userList
+//        val list: List<UserAndPhoneUser> = recentContacts
+//            .flatMap { it.roomWithUsers.users }
+//            .mapNotNull { user ->
+//                userList.find { it.user.id == user.id }
+//            }
+//
+//        list.forEach {
+//            it.user.isForwarded = true
+//        }
+//
+//        userList = list + userList
 
         contactsAdapter.submitList(userList.toMutableList())
     }

@@ -45,6 +45,9 @@ import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
+import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
+import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
@@ -841,6 +844,44 @@ object Tools {
                 SMALL_EMOJI_SIZE
             }
         }
+    }
+
+    fun transformPrivateList(list: List<UserAndPhoneUser>): MutableList<PrivateGroupChats> {
+        val tmp = mutableListOf<PrivateGroupChats>()
+        list.forEach { responseUser ->
+            val element = PrivateGroupChats(
+                name = responseUser.phoneUser?.name,
+                formattedDisplayName = responseUser.user.formattedDisplayName,
+                avatarFileId = responseUser.user.avatarFileId ?: 0L,
+                id = responseUser.user.id,
+                telephoneNumber = responseUser.user.telephoneNumber.toString(),
+                isForwarded = false,
+                isSelected = false,
+                isBot = responseUser.user.isBot,
+                isGroup = false
+            )
+            tmp.add(element)
+        }
+        return tmp.toMutableList()
+    }
+
+    fun transformGroupList(list: List<RoomWithMessage>): MutableList<PrivateGroupChats> {
+        val tmp = mutableListOf<PrivateGroupChats>()
+        list.forEach { responseGroup ->
+            val element = PrivateGroupChats(
+                name = responseGroup.roomWithUsers.room.name,
+                formattedDisplayName = null,
+                avatarFileId = responseGroup.roomWithUsers.room.avatarFileId ?: 0L,
+                id = responseGroup.roomWithUsers.room.roomId,
+                telephoneNumber = "",
+                isForwarded = false,
+                isSelected = false,
+                isBot = false,
+                isGroup = false
+            )
+            tmp.add(element)
+        }
+        return tmp.toMutableList()
     }
 
     fun setUpSearchBar(context: Context, searchView: androidx.appcompat.widget.SearchView){

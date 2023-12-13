@@ -8,8 +8,8 @@ import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
-import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.responses.AuthResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
@@ -55,7 +55,7 @@ class MainViewModel @Inject constructor(
     val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
     val deleteUserListener = MutableLiveData<Event<Resource<DeleteUserResponse?>>>()
     val searchedMessageListener = MutableLiveData<Event<Resource<List<MessageWithRoom>?>>>()
-    val roomUsers: MutableList<UserAndPhoneUser> = ArrayList()
+    val roomUsers: MutableList<PrivateGroupChats> = ArrayList()
 
     init {
         sseManager.setupListener(this)
@@ -87,7 +87,7 @@ class MainViewModel @Inject constructor(
         )
     }
 
-    fun saveSelectedUsers(users: MutableList<UserAndPhoneUser>) {
+    fun saveSelectedUsers(users: MutableList<PrivateGroupChats>) {
         roomUsers.addAll(users.toMutableSet())
     }
 

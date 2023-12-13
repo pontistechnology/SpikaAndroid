@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentContactDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.MainActivity
@@ -47,7 +48,7 @@ import timber.log.Timber
 class ContactDetailsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
 
-    private var user: User? = null
+    private var user: PrivateGroupChats? = null
     private var room: ChatRoom? = null
 
     private var roomId = 0
@@ -208,7 +209,7 @@ class ContactDetailsFragment : BaseFragment() {
                         override fun onSecondOptionClicked() {
                             saveContactToPhone(
                                 user?.telephoneNumber.toString(),
-                                user?.displayName.toString()
+                                user?.formattedDisplayName.toString()
                             )
                         }
                     })

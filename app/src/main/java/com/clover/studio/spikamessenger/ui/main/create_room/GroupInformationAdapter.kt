@@ -9,15 +9,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.clover.studio.spikamessenger.R
-import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.databinding.ItemPeopleSelectedBinding
 import com.clover.studio.spikamessenger.utils.Tools
 
 class GroupInformationAdapter(
     private val context: Context,
-    private val onItemClick: ((item: UserAndPhoneUser) -> Unit)
+    private val onItemClick: ((item: PrivateGroupChats) -> Unit)
 ) :
-    ListAdapter<UserAndPhoneUser, GroupInformationAdapter.ContactsViewHolder>(ContactsDiffCallback()) {
+    ListAdapter<PrivateGroupChats, GroupInformationAdapter.ContactsViewHolder>(ContactsDiffCallback()) {
 
     inner class ContactsViewHolder(val binding: ItemPeopleSelectedBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -32,10 +32,10 @@ class GroupInformationAdapter(
         with(holder) {
             getItem(position).let { userItem ->
                 binding.tvUsername.text =
-                    userItem.phoneUser?.name ?: userItem.user.formattedDisplayName
-                binding.tvTitle.text = userItem.user.telephoneNumber
+                    userItem?.name ?: userItem.formattedDisplayName
+                binding.tvTitle.text = userItem.telephoneNumber
                 Glide.with(context)
-                    .load(userItem.user.avatarFileId?.let { Tools.getFilePathUrl(it) })
+                    .load(userItem.avatarFileId.let { Tools.getFilePathUrl(it) })
                     .placeholder(R.drawable.img_user_avatar)
                     .centerCrop()
                     .into(binding.ivUserImage)
@@ -50,11 +50,11 @@ class GroupInformationAdapter(
         }
     }
 
-    private class ContactsDiffCallback : DiffUtil.ItemCallback<UserAndPhoneUser>() {
-        override fun areItemsTheSame(oldItem: UserAndPhoneUser, newItem: UserAndPhoneUser) =
-            oldItem.user.id == newItem.user.id
+    private class ContactsDiffCallback : DiffUtil.ItemCallback<PrivateGroupChats>() {
+        override fun areItemsTheSame(oldItem: PrivateGroupChats, newItem: PrivateGroupChats) =
+            oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: UserAndPhoneUser, newItem: UserAndPhoneUser) =
+        override fun areContentsTheSame(oldItem: PrivateGroupChats, newItem: PrivateGroupChats) =
             oldItem == newItem
     }
 }
