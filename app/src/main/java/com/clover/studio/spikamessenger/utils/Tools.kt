@@ -46,12 +46,12 @@ import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
-import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
+import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateGroupChats
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.vanniktech.emoji.EmojiTheming
 import com.vanniktech.emoji.emojisCount
@@ -847,10 +847,13 @@ object Tools {
         }
     }
 
-    fun transformPrivateList(context: Context, list: List<UserAndPhoneUser>): MutableList<PrivateGroupChats> =
+    fun transformPrivateList(
+        context: Context,
+        list: List<UserAndPhoneUser>
+    ): MutableList<PrivateGroupChats> =
         list.map { PrivateGroupChats(private = it, group = null) }
             .toMutableList()
-            .sortPrivateGroupChats(context)
+            .sortPrivateChats(context)
             .toMutableList()
 
     fun transformGroupList(list: List<RoomWithMessage>): MutableList<PrivateGroupChats> {

@@ -17,14 +17,14 @@ import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.databinding.FragmentNewRoomBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
-import com.clover.studio.spikamessenger.ui.main.contacts.ContactsAdapter
+import com.clover.studio.spikamessenger.ui.main.contacts.UsersGroupsAdapter
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateGroupChats
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -38,8 +38,8 @@ import kotlin.streams.toList
 class NewRoomFragment : BaseFragment() {
     private var args: NewRoomFragmentArgs? = null
     private val viewModel: MainViewModel by activityViewModels()
-    private lateinit var contactsAdapter: ContactsAdapter
-    private lateinit var selectedContactsAdapter: SelectedContactsAdapter
+    private lateinit var contactsAdapter: UsersGroupsAdapter
+    private lateinit var selectedContactsAdapter: UsersGroupsSelectedAdapter
     private var userList: MutableList<PrivateGroupChats> = mutableListOf()
     private var selectedUsers: MutableList<PrivateGroupChats> = ArrayList()
     private var filteredList: MutableList<PrivateGroupChats> = ArrayList()
@@ -186,7 +186,7 @@ class NewRoomFragment : BaseFragment() {
         val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
 
         contactsAdapter =
-            ContactsAdapter(requireContext(), isGroupCreation, userIdsInRoom, isForward = false) {
+            UsersGroupsAdapter(requireContext(), isGroupCreation, userIdsInRoom, isForward = false) {
                 if (tvNewGroupChat.visibility == View.GONE) {
                     if (selectedUsers.contains(it)) {
                         selectedUsers.remove(it)
@@ -234,7 +234,7 @@ class NewRoomFragment : BaseFragment() {
     }
 
     private fun setUpSelectedContactsAdapter() {
-        selectedContactsAdapter = SelectedContactsAdapter(requireContext()) {
+        selectedContactsAdapter = UsersGroupsSelectedAdapter(requireContext()) {
             if (selectedUsers.contains(it)) {
                 selectedUsers.remove(it)
                 selectedContactsAdapter.submitList(selectedUsers)
@@ -277,7 +277,7 @@ class NewRoomFragment : BaseFragment() {
                     userList.removeIf { userData -> userData.private!!.user.isBot }
                 }
 
-                val users = userList.sortPrivateGroupChats(requireContext())
+                val users = userList.sortPrivateChats(requireContext())
                 users.forEach { user ->
                     val isSelected = selectedUsers.any { selectedUser ->
                         user.private!!.user.id == selectedUser.private!!.user.id
@@ -391,7 +391,7 @@ class NewRoomFragment : BaseFragment() {
                             filteredList.add(user)
                         }
                     }
-                    val users = filteredList.sortPrivateGroupChats(requireContext())
+                    val users = filteredList.sortPrivateChats(requireContext())
                     contactsAdapter.submitList(ArrayList(users)) {
                         binding.rvContacts.scrollToPosition(0)
                     }
@@ -412,7 +412,7 @@ class NewRoomFragment : BaseFragment() {
                             filteredList.add(user)
                         }
                     }
-                    val users = filteredList.sortPrivateGroupChats(requireContext())
+                    val users = filteredList.sortPrivateChats(requireContext())
                     contactsAdapter.submitList(ArrayList(users)) {
                         binding.rvContacts.scrollToPosition(0)
                     }

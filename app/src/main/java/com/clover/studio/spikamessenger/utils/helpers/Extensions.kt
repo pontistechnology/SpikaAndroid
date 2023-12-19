@@ -8,7 +8,7 @@ import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import java.text.Collator
 
 object Extensions {
-    fun MutableList<PrivateGroupChats>.sortPrivateGroupChats(context: Context): List<PrivateGroupChats> {
+    fun MutableList<PrivateGroupChats>.sortPrivateChats(context: Context): List<PrivateGroupChats> {
         val locale = context.resources.configuration.locales.get(0)
         val collator = Collator.getInstance(locale)
         return this.toList().sortedWith(compareBy(collator) {
@@ -16,6 +16,15 @@ object Extensions {
                 ?: it.private.user.formattedDisplayName.lowercase()
         })
     }
+
+    fun MutableList<PrivateGroupChats>.sortGroupChats(context: Context): List<PrivateGroupChats> {
+        val locale = context.resources.configuration.locales.get(0)
+        val collator = Collator.getInstance(locale)
+        return this.toList().sortedWith(compareBy(collator) {
+            it.group!!.room.name
+        })
+    }
+
 
     fun <T> LiveData<T>.getDistinct(): LiveData<T> {
         val distinctLiveData = MediatorLiveData<T>()

@@ -20,7 +20,7 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateGroupChats
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +29,7 @@ import timber.log.Timber
 
 class ContactsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
-    private lateinit var contactsAdapter: ContactsAdapter
+    private lateinit var contactsAdapter: UsersGroupsAdapter
     private var userList: MutableList<PrivateGroupChats> = mutableListOf()
     private var filteredList: MutableList<PrivateGroupChats> = ArrayList()
     private var selectedUser: PrivateGroupChats? = null
@@ -162,7 +162,7 @@ class ContactsFragment : BaseFragment() {
     }
 
     private fun setupAdapter() {
-        contactsAdapter = ContactsAdapter(requireContext(), false, null, isForward = false) {
+        contactsAdapter = UsersGroupsAdapter(requireContext(), false, null, isForward = false) {
             selectedUser = it
                 CoroutineScope(Dispatchers.IO).launch {
                     Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(it.private!!.user.id)}")
@@ -208,7 +208,7 @@ class ContactsFragment : BaseFragment() {
                             filteredList.add(user)
                         }
                     }
-                    val users = filteredList.sortPrivateGroupChats(requireContext())
+                    val users = filteredList.sortPrivateChats(requireContext())
                     contactsAdapter.submitList(ArrayList(users))
                     filteredList.clear()
                 }
@@ -227,7 +227,7 @@ class ContactsFragment : BaseFragment() {
                             filteredList.add(user)
                         }
                     }
-                    val users = filteredList.sortPrivateGroupChats(requireContext())
+                    val users = filteredList.sortPrivateChats(requireContext())
                     contactsAdapter.submitList(ArrayList(users))
                     filteredList.clear()
                 }

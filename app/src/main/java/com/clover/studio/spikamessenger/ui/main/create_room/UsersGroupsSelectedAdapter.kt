@@ -12,11 +12,11 @@ import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.databinding.ItemNewRoomContactBinding
 import com.clover.studio.spikamessenger.utils.Tools
 
-class SelectedContactsAdapter(
+class UsersGroupsSelectedAdapter(
     private val context: Context,
     private val onItemClick: ((item: PrivateGroupChats) -> Unit)
 ) :
-    ListAdapter<PrivateGroupChats, SelectedContactsAdapter.ContactsViewHolder>(ContactsDiffCallback()) {
+    ListAdapter<PrivateGroupChats, UsersGroupsSelectedAdapter.ContactsViewHolder>(ContactsDiffCallback()) {
 
     inner class ContactsViewHolder(val binding: ItemNewRoomContactBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -30,28 +30,38 @@ class SelectedContactsAdapter(
     override fun onBindViewHolder(holder: ContactsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let {
+                
+                // Chat name
+                val displayName = if (it.private != null) {
+                    it.private.phoneUser?.name ?: it.private.user.formattedDisplayName
+                } else {
+                    it.group!!.room.name.toString()
+                }
+                binding.tvUserName.text =
+                    if (displayName.length > 10) "${displayName.take(10)}..." else displayName
 
-                if (it.private != null){
-                    val displayName = it.private.phoneUser?.name ?: it.private.user.formattedDisplayName
-                    binding.tvUserName.text =
-                        if (displayName.length > 10) "${displayName.take(10)}..." else displayName
+                val avatarFileId = if (it.private != null) {
+                    it.private.user.avatarFileId ?: 0L
+                } else {
+                    it.group!!.room.avatarFileId ?: 0L
+                }
 
-                    Glide.with(context)
-                        .load(it.private.user.avatarFileId?.let { avatar ->  Tools.getFilePathUrl(avatar) })
-                        .placeholder(R.drawable.img_user_avatar)
-                        .centerCrop()
-                        .into(binding.ivUserImage)
+                Glide.with(context)
+                    .load(Tools.getFilePathUrl(avatarFileId))
+                    .placeholder(R.drawable.img_user_avatar)
+                    .error(R.drawable.img_user_avatar)
+                    .centerCrop()
+                    .into(binding.ivUserImage)
 
-                    itemView.setOnClickListener { _ ->
-                        it.let {
-                            onItemClick.invoke(it)
-                        }
+                itemView.setOnClickListener { _ ->
+                    it.let {
+                        onItemClick.invoke(it)
                     }
+                }
 
-                    binding.ivRemove.setOnClickListener { _ ->
-                        it.let {
-                            onItemClick.invoke(it)
-                        }
+                binding.ivRemove.setOnClickListener { _ ->
+                    it.let {
+                        onItemClick.invoke(it)
                     }
                 }
             }

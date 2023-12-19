@@ -57,4 +57,12 @@ data class ChatRoom @JvmOverloads constructor(
     @Ignore
     @IgnoredOnParcel
     val hasAvatar: Boolean = avatarFileId != null && avatarFileId!! > 0L
+
+    @Ignore
+    @IgnoredOnParcel
+    var isForwarded : Boolean = false
+
+    @Ignore
+    @IgnoredOnParcel
+    var selected : Boolean = false
 }
