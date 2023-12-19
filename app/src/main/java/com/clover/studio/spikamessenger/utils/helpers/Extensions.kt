@@ -5,23 +5,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
-import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import java.text.Collator
 
 object Extensions {
-    fun MutableList<UserAndPhoneUser>.sortUsersByLocale(context: Context): List<UserAndPhoneUser> {
-        val locale = context.resources.configuration.locales.get(0)
-        val collator = Collator.getInstance(locale)
-        return this.toList().sortedWith(compareBy(collator) {
-            it.phoneUser?.name?.lowercase() ?: it.user.formattedDisplayName.lowercase()
-        })
-    }
-
     fun MutableList<PrivateGroupChats>.sortPrivateGroupChats(context: Context): List<PrivateGroupChats> {
         val locale = context.resources.configuration.locales.get(0)
         val collator = Collator.getInstance(locale)
         return this.toList().sortedWith(compareBy(collator) {
-            it.name?.lowercase() ?: it.formattedDisplayName?.lowercase()
+            it.private!!.phoneUser?.name?.lowercase()
+                ?: it.private.user.formattedDisplayName.lowercase()
         })
     }
 

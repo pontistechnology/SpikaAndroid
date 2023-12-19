@@ -5,13 +5,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class PrivateGroupChats(
-    val name: String?,
-    val formattedDisplayName: String?,
-    val telephoneNumber: String,
-    val avatarFileId: Long,
-    val id: Int,
-    val isForwarded: Boolean,
-    var isSelected: Boolean,
-    val isGroup: Boolean,
-    val isBot: Boolean,
+    val private: UserAndPhoneUser?,
+    val group: RoomWithMessage?
 ) : Parcelable

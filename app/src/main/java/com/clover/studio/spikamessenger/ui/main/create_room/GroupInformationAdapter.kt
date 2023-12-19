@@ -30,19 +30,19 @@ class GroupInformationAdapter(
 
     override fun onBindViewHolder(holder: ContactsViewHolder, position: Int) {
         with(holder) {
-            getItem(position).let { userItem ->
+            getItem(position).let {
                 binding.tvUsername.text =
-                    userItem?.name ?: userItem.formattedDisplayName
-                binding.tvTitle.text = userItem.telephoneNumber
+                    it.private?.phoneUser?.name ?:  it.private?.user?.formattedDisplayName
+                binding.tvTitle.text =  it.private?.user?.telephoneNumber
                 Glide.with(context)
-                    .load(userItem.avatarFileId.let { Tools.getFilePathUrl(it) })
+                    .load( it.private?.user?.avatarFileId?.let { avatar -> Tools.getFilePathUrl(avatar) })
                     .placeholder(R.drawable.img_user_avatar)
                     .centerCrop()
                     .into(binding.ivUserImage)
 
                 binding.ivRemoveUser.visibility = View.VISIBLE
-                binding.ivRemoveUser.setOnClickListener {
-                    userItem.let {
+                binding.ivRemoveUser.setOnClickListener {_ ->
+                    it.let {
                         onItemClick.invoke(it)
                     }
                 }
@@ -52,7 +52,7 @@ class GroupInformationAdapter(
 
     private class ContactsDiffCallback : DiffUtil.ItemCallback<PrivateGroupChats>() {
         override fun areItemsTheSame(oldItem: PrivateGroupChats, newItem: PrivateGroupChats) =
-            oldItem.id == newItem.id
+            oldItem == newItem
 
         override fun areContentsTheSame(oldItem: PrivateGroupChats, newItem: PrivateGroupChats) =
             oldItem == newItem

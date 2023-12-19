@@ -29,27 +29,29 @@ class SelectedContactsAdapter(
 
     override fun onBindViewHolder(holder: ContactsViewHolder, position: Int) {
         with(holder) {
-            getItem(position).let { userItem ->
+            getItem(position).let {
 
-                val displayName = userItem?.name ?: userItem.formattedDisplayName
-                binding.tvUserName.text =
-                    if (displayName?.length!! > 10) "${displayName.take(10)}..." else displayName
+                if (it.private != null){
+                    val displayName = it.private.phoneUser?.name ?: it.private.user.formattedDisplayName
+                    binding.tvUserName.text =
+                        if (displayName.length > 10) "${displayName.take(10)}..." else displayName
 
-                Glide.with(context)
-                    .load(userItem.avatarFileId.let { Tools.getFilePathUrl(it) })
-                    .placeholder(R.drawable.img_user_avatar)
-                    .centerCrop()
-                    .into(binding.ivUserImage)
+                    Glide.with(context)
+                        .load(it.private.user.avatarFileId?.let { avatar ->  Tools.getFilePathUrl(avatar) })
+                        .placeholder(R.drawable.img_user_avatar)
+                        .centerCrop()
+                        .into(binding.ivUserImage)
 
-                itemView.setOnClickListener {
-                    userItem.let {
-                        onItemClick.invoke(it)
+                    itemView.setOnClickListener { _ ->
+                        it.let {
+                            onItemClick.invoke(it)
+                        }
                     }
-                }
 
-                binding.ivRemove.setOnClickListener {
-                    userItem.let {
-                        onItemClick.invoke(it)
+                    binding.ivRemove.setOnClickListener { _ ->
+                        it.let {
+                            onItemClick.invoke(it)
+                        }
                     }
                 }
             }
@@ -58,7 +60,7 @@ class SelectedContactsAdapter(
 
     private class ContactsDiffCallback : DiffUtil.ItemCallback<PrivateGroupChats>() {
         override fun areItemsTheSame(oldItem: PrivateGroupChats, newItem: PrivateGroupChats) =
-            oldItem.id == newItem.id
+            oldItem == newItem
 
         override fun areContentsTheSame(oldItem: PrivateGroupChats, newItem: PrivateGroupChats) =
             oldItem == newItem

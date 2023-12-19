@@ -151,7 +151,7 @@ class NewRoomFragment : BaseFragment() {
         val userIds = JsonArray()
 
         for (data in selectedUsers) {
-            userIds.add(data.id)
+            userIds.add(data.private!!.user.id)
         }
 
         val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
@@ -205,7 +205,7 @@ class NewRoomFragment : BaseFragment() {
                 } else {
                     user = it
                     showProgress(false)
-                    it.id.let { id ->
+                    it.private!!.user.id.let { id ->
                         run {
                             CoroutineScope(Dispatchers.IO).launch {
                                 Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
@@ -250,8 +250,8 @@ class NewRoomFragment : BaseFragment() {
 
     private fun handleSelectedUserList(userItem: PrivateGroupChats) {
         for (user in userList) {
-            if (user.id == userItem.id) {
-                user.isSelected = !user.isSelected
+            if (user.private!!.user.id == userItem.private!!.user.id) {
+                user.private.user.selected = !user.private.user.selected
                 break
             }
         }
@@ -271,18 +271,18 @@ class NewRoomFragment : BaseFragment() {
     private fun initializeObservers() {
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
             if (it.responseData != null) {
-                userList = Tools.transformPrivateList(it.responseData)
+                userList = Tools.transformPrivateList(requireContext(), it.responseData)
 
                 if (newGroupFlag) {
-                    userList.removeIf { userData -> userData.isBot }
+                    userList.removeIf { userData -> userData.private!!.user.isBot }
                 }
 
                 val users = userList.sortPrivateGroupChats(requireContext())
                 users.forEach { user ->
                     val isSelected = selectedUsers.any { selectedUser ->
-                        user.id == selectedUser.id
+                        user.private!!.user.id == selectedUser.private!!.user.id
                     }
-                    user.isSelected = isSelected
+                    user.private!!.user.selected = isSelected
                 }
 
                 userList = users.toMutableList()
@@ -330,10 +330,10 @@ class NewRoomFragment : BaseFragment() {
                     val jsonObject = JsonObject()
 
                     val userIdsArray = JsonArray()
-                    userIdsArray.add(user?.id)
+                    userIdsArray.add(user?.private!!.user.id)
 
-                    jsonObject.addProperty(Const.JsonFields.NAME, user?.formattedDisplayName)
-                    jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, user?.avatarFileId)
+                    jsonObject.addProperty(Const.JsonFields.NAME, user?.private!!.user.formattedDisplayName)
+                    jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, user?.private!!.user.avatarFileId)
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
                     jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
 
@@ -382,11 +382,11 @@ class NewRoomFragment : BaseFragment() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
                     for (user in userList) {
-                        if ((user.name?.lowercase()?.contains(
+                        if (user.private!!.phoneUser?.name?.lowercase()?.contains(
                                 query,
                                 ignoreCase = true
-                            ) ?: user.formattedDisplayName?.lowercase()
-                                ?.contains(query, ignoreCase = true)) == true
+                            ) ?: user.private.user.formattedDisplayName.lowercase()
+                                .contains(query, ignoreCase = true)
                         ) {
                             filteredList.add(user)
                         }
@@ -403,11 +403,11 @@ class NewRoomFragment : BaseFragment() {
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
                     for (user in userList) {
-                        if ((user.name?.lowercase()?.contains(
+                        if (user.private!!.phoneUser?.name?.lowercase()?.contains(
                                 query,
                                 ignoreCase = true
-                            ) ?: user.formattedDisplayName?.lowercase()
-                                ?.contains(query, ignoreCase = true)) == true
+                            ) ?: user.private.user.formattedDisplayName.lowercase()
+                                .contains(query, ignoreCase = true)
                         ) {
                             filteredList.add(user)
                         }

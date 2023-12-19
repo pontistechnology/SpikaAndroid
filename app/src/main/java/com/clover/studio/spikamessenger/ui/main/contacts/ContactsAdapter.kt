@@ -13,7 +13,6 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.databinding.ItemContactBinding
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
-import timber.log.Timber
 
 class ContactsAdapter(
     private val context: Context,
@@ -38,84 +37,94 @@ class ContactsAdapter(
             // Transparent view should ignore all click events on cards.
             binding.transparentView.setOnClickListener { }
 
-            getItem(position).let { userItem ->
+            getItem(position).let {
 
-                // TODO add condition if room is private of group
-                // Show transparent view if userId is already in the room while adding users
-                // This is only for adding users to already created room
-                if (userIdsInRoom?.contains(userItem.id) == true) {
-                    binding.transparentView.visibility =
-                        View.VISIBLE
-                    userItem.isSelected = true
-                } else binding.transparentView.visibility = View.GONE
+                if (it.private != null) {
+                    // Private room
+                    if (userIdsInRoom?.contains(it.private.user.id) == true) {
+                        binding.transparentView.visibility =
+                            View.VISIBLE
+                        // TODO
+                        it.private.user.selected = true
+                    } else binding.transparentView.visibility = View.GONE
 
-                if (isGroupCreation || isForward) {
-                    binding.ivCheckedUser.visibility = if (userItem.isSelected) {
-                        View.VISIBLE
-                    } else {
-                        View.GONE
-                    }
-                } else binding.ivCheckedUser.visibility = View.GONE
+                    if (isGroupCreation || isForward) {
+                        binding.ivCheckedUser.visibility = if (it.private.user.selected) {
+                            View.VISIBLE
+                        } else {
+                            View.GONE
+                        }
+                    } else binding.ivCheckedUser.visibility = View.GONE
 
-                binding.tvHeader.text = userItem?.name?.uppercase()?.substring(0, 1)
-                    ?: userItem.formattedDisplayName?.uppercase()?.substring(0, 1)
-                binding.tvUsername.text =
-                    userItem?.name ?: userItem.formattedDisplayName
-                binding.tvTitle.text = userItem.telephoneNumber
+                    binding.tvHeader.text = it.private.phoneUser?.name?.uppercase()?.substring(0, 1)
+                        ?: it.private.user.formattedDisplayName.uppercase().substring(0, 1)
+                    binding.tvUsername.text =
+                        it.private.phoneUser?.name ?: it.private.user.formattedDisplayName
+                    binding.tvTitle.text = it.private.user.telephoneNumber
 
-                if (userItem.avatarFileId != null && userItem.avatarFileId > 0L) {
-                    Glide.with(context).load(userItem.avatarFileId.let { getFilePathUrl(it) })
-                        .placeholder(R.drawable.img_user_avatar)
-                        .into(binding.ivUserImage)
-                } else binding.ivUserImage.setImageDrawable(
-                    AppCompatResources.getDrawable(
-                        context,
-                        R.drawable.img_user_avatar
+                    if (it.private.user.hasAvatar) {
+                        Glide.with(context).load(it.private.user.avatarFileId?.let { avatar ->
+                            getFilePathUrl(avatar)
+                        })
+                            .placeholder(R.drawable.img_user_avatar)
+                            .into(binding.ivUserImage)
+                    } else binding.ivUserImage.setImageDrawable(
+                        AppCompatResources.getDrawable(
+                            context,
+                            R.drawable.img_user_avatar
+                        )
                     )
-                )
-
-                // if not first item, check if item above has the same header
-                if (!userItem.isForwarded) {
-                    if (position > 0) {
-                        val previousItem =
-                            getItem(position - 1)?.name?.lowercase()?.substring(0, 1)
-                                ?: getItem(position - 1).formattedDisplayName?.lowercase()
+                    if (!it.private.user.isForwarded) {
+                        if (position > 0) {
+                            val previousItem =
+                                getItem(position - 1)?.private?.phoneUser?.name?.lowercase()
                                     ?.substring(0, 1)
+                                    ?: getItem(position - 1).private?.user?.formattedDisplayName?.lowercase()
+                                        ?.substring(0, 1)
 
-                        val currentItem = userItem?.name?.lowercase()?.substring(0, 1)
-                            ?: userItem.formattedDisplayName?.lowercase()?.substring(0, 1)
+                            val currentItem =
+                                it.private.phoneUser?.name?.lowercase()?.substring(0, 1)
+                                    ?: it.private.user.formattedDisplayName.lowercase()
+                                        .substring(0, 1)
 
-                        if (previousItem == currentItem) {
-                            binding.tvHeader.visibility = View.GONE
+                            if (previousItem == currentItem) {
+                                binding.tvHeader.visibility = View.GONE
+                            } else {
+                                binding.tvHeader.visibility = View.VISIBLE
+                            }
                         } else {
                             binding.tvHeader.visibility = View.VISIBLE
                         }
                     } else {
-                        binding.tvHeader.visibility = View.VISIBLE
+                        // Recent chats
+//                        Timber.d("Recent contact: $userItem!")
+                        if (position == 0) {
+                            binding.tvHeader.text = context.getString(R.string.recent_chats)
+                            binding.tvHeader.visibility = View.VISIBLE
+                        } else {
+                            binding.tvHeader.visibility = View.GONE
+                        }
                     }
-                } else {
-                    // Recent chats
-                    Timber.d("Recent contact: $userItem!")
-                    if (position == 0) {
-                        binding.tvHeader.text = context.getString(R.string.recent_chats)
-                        binding.tvHeader.visibility = View.VISIBLE
-                    } else {
-                        binding.tvHeader.visibility = View.GONE
-                    }
-                }
 
-                itemView.setOnClickListener {
-                    userItem.let {
+                    itemView.setOnClickListener { _ ->
                         onItemClick.invoke(it)
                     }
+
+                } else {
+                    // Group room
                 }
+
+
+                // if not first item, check if item above has the same header
+
             }
         }
     }
 
     private class ContactsDiffCallback : DiffUtil.ItemCallback<PrivateGroupChats>() {
+        // TODO
         override fun areItemsTheSame(oldItem: PrivateGroupChats, newItem: PrivateGroupChats) =
-            oldItem.id == newItem.id
+            oldItem == newItem
 
         override fun areContentsTheSame(oldItem: PrivateGroupChats, newItem: PrivateGroupChats) =
             oldItem == newItem

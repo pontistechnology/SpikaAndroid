@@ -98,12 +98,9 @@ class ContactsFragment : BaseFragment() {
         viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
             if (it.responseData != null) {
                 userList.clear()
-                userList = Tools.transformPrivateList(it.responseData)
+                userList = Tools.transformPrivateList(requireContext(), it.responseData)
 
-                // TODO fix this later
-                val users = userList.sortPrivateGroupChats(requireContext())
-
-                contactsAdapter.submitList(users)
+                contactsAdapter.submitList(userList)
             }
         }
 
@@ -168,8 +165,8 @@ class ContactsFragment : BaseFragment() {
         contactsAdapter = ContactsAdapter(requireContext(), false, null, isForward = false) {
             selectedUser = it
                 CoroutineScope(Dispatchers.IO).launch {
-                    Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(it.id)}")
-                    val roomId = viewModel.checkIfUserInPrivateRoom(it.id)
+                    Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(it.private!!.user.id)}")
+                    val roomId = viewModel.checkIfUserInPrivateRoom(it.private.user.id)
                     if (roomId != null) {
                         if (selectedUser != null) {
                             val bundle = bundleOf(
@@ -185,7 +182,7 @@ class ContactsFragment : BaseFragment() {
                             }
                         }
                     } else {
-                        viewModel.checkIfRoomExists(it.id)
+                        viewModel.checkIfRoomExists(it.private.user.id)
                     }
                 }
         }
@@ -202,11 +199,11 @@ class ContactsFragment : BaseFragment() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
                     for (user in userList) {
-                        if ((user.name?.lowercase()?.contains(
+                        if (user.private!!.phoneUser?.name?.lowercase()?.contains(
                                 query,
                                 ignoreCase = true
-                            ) ?: user.formattedDisplayName?.lowercase()
-                                ?.contains(query, ignoreCase = true)) == true
+                            ) ?: user.private.user.formattedDisplayName.lowercase()
+                                .contains(query, ignoreCase = true)
                         ) {
                             filteredList.add(user)
                         }
@@ -221,11 +218,11 @@ class ContactsFragment : BaseFragment() {
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
                     for (user in userList) {
-                        if ((user.name?.lowercase()?.contains(
+                        if (user.private!!.phoneUser?.name?.lowercase()?.contains(
                                 query,
                                 ignoreCase = true
-                            ) ?: user.formattedDisplayName?.lowercase()
-                                ?.contains(query, ignoreCase = true)) == true
+                            ) ?: user.private.user.formattedDisplayName.lowercase()
+                                .contains(query, ignoreCase = true)
                         ) {
                             filteredList.add(user)
                         }
