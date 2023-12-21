@@ -846,34 +846,53 @@ object Tools {
             }
         }
     }
+    fun transformPrivateList(context: Context, list: List<UserAndPhoneUser>): MutableList<PrivateGroupChats> {
+        return list.map {
+            PrivateGroupChats(
+                userId = it.user.id,
+                roomId = null,
+                userName = it.user.formattedDisplayName ?: it.phoneUser?.name,
+                roomName = null,
+                avatarId = it.user.avatarFileId ?: 0L,
+                phoneNumber = it.user.telephoneNumber ?: "",
+                isForwarded = false,
+                selected = false,
+                isBot = false
+            )
+        }.toMutableList().sortPrivateChats(context).toMutableList()
+    }
 
-    fun transformPrivateList(
-        context: Context,
-        list: List<UserAndPhoneUser>
-    ): MutableList<PrivateGroupChats> =
-        list.map { PrivateGroupChats(private = it, group = null) }
-            .toMutableList()
-            .sortPrivateChats(context)
-            .toMutableList()
+    fun transformGroupList(list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
+        return list.map {
+                PrivateGroupChats(
+                    userId = 0,
+                    roomId = it.room.roomId,
+                    avatarId = it.room.avatarFileId ?: 0L,
+                    phoneNumber = null,
+                    userName = null,
+                    roomName = it.room.name,
+                    isForwarded = false,
+                    isBot = false,
+                    selected = false)
+            }.toMutableList()
+    }
 
-    fun transformGroupList(
-        context: Context,
-        list: List<RoomWithUsers>
-    ): MutableList<PrivateGroupChats> =
-        list.map { PrivateGroupChats(private = null, group = it) }
-            .toMutableList()
-    //            .sortGroupChats(context)
-//            .toMutableList()
-
-    fun transformRecentContacts(
-        list: List<RoomWithUsers>,
-        localUserId: Int?
-    ) {
-        val userList = mutableListOf<UserAndPhoneUser>()
-        list.forEach { room ->
-            room.users
-
-        }
+    fun transformRecentContacts(localUserId: Int?, list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
+        return list.flatMap { room ->
+            room.users.filter { it.id != localUserId && !it.isBot }.map { user ->
+                PrivateGroupChats(
+                    userId = user.id,
+                    roomId = room.room.roomId,
+                    avatarId = user.avatarFileId ?: 0L,
+                    phoneNumber = user.telephoneNumber,
+                    userName = user.formattedDisplayName,
+                    roomName = null,
+                    isForwarded = false,
+                    isBot = false,
+                    selected = false
+                )
+            }
+        }.toMutableList()
     }
 
     fun setUpSearchBar(context: Context, searchView: androidx.appcompat.widget.SearchView){

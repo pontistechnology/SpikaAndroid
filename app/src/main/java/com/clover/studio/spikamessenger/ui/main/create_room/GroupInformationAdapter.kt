@@ -32,10 +32,10 @@ class GroupInformationAdapter(
         with(holder) {
             getItem(position).let {
                 binding.tvUsername.text =
-                    it.private?.phoneUser?.name ?:  it.private?.user?.formattedDisplayName
-                binding.tvTitle.text =  it.private?.user?.telephoneNumber
+                    it.userName
+                binding.tvTitle.text =  it.phoneNumber
                 Glide.with(context)
-                    .load( it.private?.user?.avatarFileId?.let { avatar -> Tools.getFilePathUrl(avatar) })
+                    .load( it.avatarId.let { avatar -> Tools.getFilePathUrl(avatar) })
                     .placeholder(R.drawable.img_user_avatar)
                     .centerCrop()
                     .into(binding.ivUserImage)

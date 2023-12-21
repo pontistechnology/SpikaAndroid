@@ -136,7 +136,7 @@ class GroupInformationFragment : BaseFragment() {
 
             val userIdsArray = JsonArray()
             for (user in selectedUsers) {
-                userIdsArray.add(user.private!!.user.id)
+                userIdsArray.add(user.userId)
             }
             val adminUserIds = JsonArray()
             adminUserIds.add(viewModel.getLocalUserId())

@@ -134,11 +134,11 @@ class ContactDetailsFragment : BaseFragment() {
                     Timber.d("Room not found, creating new one")
                     val jsonObject = JsonObject()
                     val userIdsArray = JsonArray()
-                    userIdsArray.add(user?.private!!.user.id)
+                    userIdsArray.add(user?.userId)
 
-                    jsonObject.addProperty(Const.JsonFields.NAME, user?.private!!.user.formattedDisplayName)
+                    jsonObject.addProperty(Const.JsonFields.NAME, user?.userName)
                     jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID,
-                        user?.private!!.user.avatarFileId
+                        user?.avatarId
                     )
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
                     jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
@@ -179,7 +179,7 @@ class ContactDetailsFragment : BaseFragment() {
                 Resource.Status.SUCCESS -> {
                     if (it.responseData != null) {
                         val containsElement =
-                            it.responseData.any { blockedUser -> blockedUser.id == user?.private!!.user.id }
+                            it.responseData.any { blockedUser -> blockedUser.id == user?.userId }
                         if (containsElement) {
                             binding.tvBlocked.text = getString(R.string.unblock)
                         } else binding.tvBlocked.text = getString(R.string.block)
@@ -194,8 +194,8 @@ class ContactDetailsFragment : BaseFragment() {
 
     private fun initializeViews() = with(binding) {
         if (user != null) {
-            tvUsername.text = user?.private!!.user.formattedDisplayName
-            tvNumber.text = user?.private!!.user.telephoneNumber
+            tvUsername.text = user?.userName
+            tvNumber.text = user?.phoneNumber
 
             ivAddContact.setOnClickListener {
                 ChooserDialog.getInstance(requireContext(),
@@ -205,20 +205,20 @@ class ContactDetailsFragment : BaseFragment() {
                     getString(R.string.save_contact),
                     object : DialogInteraction {
                         override fun onFirstOptionClicked() {
-                            copyNumber(user?.private!!.user.telephoneNumber.toString())
+                            copyNumber(user?.phoneNumber.toString())
                         }
 
                         override fun onSecondOptionClicked() {
                             saveContactToPhone(
-                                user?.private!!.user.telephoneNumber.toString(),
-                                user?.private!!.user.formattedDisplayName
+                                user?.phoneNumber.toString(),
+                                user?.userName.toString()
                             )
                         }
                     })
             }
 
             ivChat.setOnClickListener {
-                user?.private!!.user.id.let { id ->
+                user?.userId?.let { id ->
                     run {
                         CoroutineScope(Dispatchers.IO).launch {
                             Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
@@ -234,7 +234,7 @@ class ContactDetailsFragment : BaseFragment() {
             }
 
             Glide.with(this@ContactDetailsFragment)
-                .load(user?.private!!.user.avatarFileId?.let { getFilePathUrl(it) })
+                .load(user?.avatarId?.let { getFilePathUrl(it) })
                 .placeholder(
                     ResourcesCompat.getDrawable(
                         requireContext().resources,
@@ -263,18 +263,18 @@ class ContactDetailsFragment : BaseFragment() {
                     getString(R.string.block),
                     object : DialogInteraction {
                         override fun onSecondOptionClicked() {
-                            user?.private!!.user.id.let { id -> viewModel.blockUser(id) }
+                            user?.userId?.let { id -> viewModel.blockUser(id) }
                         }
                     })
             } else {
                 DialogError.getInstance(requireContext(),
                     getString(R.string.unblock_user),
-                    getString(R.string.unblock_description, user?.private!!.user.formattedDisplayName),
+                    getString(R.string.unblock_description, user?.userName),
                     getString(R.string.no),
                     getString(R.string.unblock),
                     object : DialogInteraction {
                         override fun onSecondOptionClicked() {
-                            user?.private!!.user.id.let { viewModel.deleteBlockForSpecificUser(it) }
+                            user?.userId?.let { viewModel.deleteBlockForSpecificUser(it) }
                         }
                     })
             }

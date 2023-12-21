@@ -165,8 +165,8 @@ class ContactsFragment : BaseFragment() {
         contactsAdapter = UsersGroupsAdapter(requireContext(), false, null, isForward = false) {
             selectedUser = it
                 CoroutineScope(Dispatchers.IO).launch {
-                    Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(it.private!!.user.id)}")
-                    val roomId = viewModel.checkIfUserInPrivateRoom(it.private.user.id)
+                    Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(it.userId)}")
+                    val roomId = viewModel.checkIfUserInPrivateRoom(it.userId)
                     if (roomId != null) {
                         if (selectedUser != null) {
                             val bundle = bundleOf(
@@ -182,7 +182,7 @@ class ContactsFragment : BaseFragment() {
                             }
                         }
                     } else {
-                        viewModel.checkIfRoomExists(it.private.user.id)
+                        viewModel.checkIfRoomExists(it.userId)
                     }
                 }
         }
@@ -199,11 +199,8 @@ class ContactsFragment : BaseFragment() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
                     for (user in userList) {
-                        if (user.private!!.phoneUser?.name?.lowercase()?.contains(
-                                query,
-                                ignoreCase = true
-                            ) ?: user.private.user.formattedDisplayName.lowercase()
-                                .contains(query, ignoreCase = true)
+                        if (user.userName?.lowercase()
+                                ?.contains(query, ignoreCase = true) == true
                         ) {
                             filteredList.add(user)
                         }
@@ -218,11 +215,8 @@ class ContactsFragment : BaseFragment() {
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
                     for (user in userList) {
-                        if (user.private!!.phoneUser?.name?.lowercase()?.contains(
-                                query,
-                                ignoreCase = true
-                            ) ?: user.private.user.formattedDisplayName.lowercase()
-                                .contains(query, ignoreCase = true)
+                        if (user.userName?.lowercase()
+                                ?.contains(query, ignoreCase = true) == true
                         ) {
                             filteredList.add(user)
                         }

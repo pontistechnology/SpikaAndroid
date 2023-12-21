@@ -40,48 +40,38 @@ class UsersGroupsAdapter(
             getItem(position).let {
 
                 // Header
-                binding.tvHeader.text = if (it.private != null) {
-                    it.private.phoneUser?.name?.uppercase()?.substring(0, 1)
-                        ?: it.private.user.formattedDisplayName.uppercase().substring(0, 1)
+                binding.tvHeader.text = if (it.phoneNumber != null) {
+                    it.userName?.uppercase()?.substring(0, 1)
                 } else {
-                    it.group!!.room.name?.uppercase()?.substring(0, 1)
+                    it.roomName?.uppercase()?.substring(0, 1)
                 }
 
                 // Username
-                binding.tvUsername.text = if (it.private != null) {
-                    it.private.phoneUser?.name ?: it.private.user.formattedDisplayName
+                binding.tvUsername.text = if (it.phoneNumber != null) {
+                    it.userName.toString()
+//                    it.private.phoneUser?.name ?: it.private.user.formattedDisplayName
                 } else {
-                    it.group!!.room.name.toString()
+                    it.roomName.toString()
                 }
 
                 // Title
-                binding.tvTitle.text = if (it.private != null) {
-                    it.private.user.telephoneNumber
-                } else {
-                    it.group!!.room.name.toString()
-                }
+                binding.tvTitle.text = it.phoneNumber ?: ""
 
                 // Avatar
-                val avatarId = if (it.private != null) {
-                    it.private.user.avatarFileId ?: 0L
-                } else {
-                    it.group!!.room.avatarFileId ?: 0L
-                }
-
-                Glide.with(context).load(getFilePathUrl(avatarId))
+                Glide.with(context).load(getFilePathUrl(it.avatarId))
                     .placeholder(R.drawable.img_user_avatar)
                     .error(R.drawable.img_user_avatar)
                     .into(binding.ivUserImage)
 
                 if (isForward || isGroupCreation) {
-                    val setCheck = if (it.private != null) {
-                        if (it.private.user.selected) {
+                    val setCheck = if (it.phoneNumber != null) {
+                        if (it.selected) {
                             View.VISIBLE
                         } else {
                             View.GONE
                         }
                     } else {
-                        if (it.group!!.room.selected) {
+                        if (it.selected) {
                             View.VISIBLE
                         } else {
                             View.GONE
@@ -92,15 +82,15 @@ class UsersGroupsAdapter(
                     binding.ivCheckedUser.visibility = View.GONE
                 }
 
-                if (it.private != null) {
-                    if (userIdsInRoom?.contains(it.private.user.id) == true) {
+                if (it.phoneNumber != null) {
+                    if (userIdsInRoom?.contains(it.userId) == true) {
                         binding.transparentView.visibility =
                             View.VISIBLE
-                        it.private.user.selected = true
+                        it.selected = true
                     } else binding.transparentView.visibility = View.GONE
                 }
 
-                if ((it.private != null && it.private.user.isForwarded) || (it.group != null && it.group.room.isForwarded)) {
+                if (it.isForwarded) {
                     // Logic for items that are forwarded
                     Timber.d("Here, $it")
                     // Recent chats
@@ -115,21 +105,16 @@ class UsersGroupsAdapter(
                     Timber.d("Here, other logic")
                     if (position > 0) {
                         // Check if item above has the same header
-                        val previousItem = if (it.private != null) {
-                            getItem(position - 1)?.private?.phoneUser?.name?.lowercase()
-                                ?.substring(0, 1)
-                                ?: getItem(position - 1).private?.user?.formattedDisplayName?.lowercase()
-                                    ?.substring(0, 1)
+                        val previousItem = if (it.phoneNumber != null) {
+                            getItem(position - 1)?.userName?.lowercase()?.substring(0, 1)
                         } else {
-                            getItem(position - 1)?.group!!.room.name?.lowercase()?.substring(0, 1)
+                            getItem(position - 1)?.roomName?.lowercase()?.substring(0, 1)
                         }
 
-                        val currentItem = if (it.private != null) {
-                            it.private.phoneUser?.name?.lowercase()?.substring(0, 1)
-                                ?: it.private.user.formattedDisplayName.lowercase()
-                                    .substring(0, 1)
+                        val currentItem = if (it.phoneNumber != null) {
+                            it.userName?.lowercase()?.substring(0, 1)
                         } else {
-                            it.group!!.room.name?.lowercase()?.substring(0, 1)
+                            it.roomName?.lowercase()?.substring(0, 1)
                         }
 
                         if (previousItem == currentItem) {

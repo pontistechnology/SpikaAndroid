@@ -32,22 +32,16 @@ class UsersGroupsSelectedAdapter(
             getItem(position).let {
                 
                 // Chat name
-                val displayName = if (it.private != null) {
-                    it.private.phoneUser?.name ?: it.private.user.formattedDisplayName
+                val displayName = if (it.phoneNumber != null) {
+                    it.userName.toString()
                 } else {
-                    it.group!!.room.name.toString()
+                    it.roomName.toString()
                 }
                 binding.tvUserName.text =
                     if (displayName.length > 10) "${displayName.take(10)}..." else displayName
 
-                val avatarFileId = if (it.private != null) {
-                    it.private.user.avatarFileId ?: 0L
-                } else {
-                    it.group!!.room.avatarFileId ?: 0L
-                }
-
                 Glide.with(context)
-                    .load(Tools.getFilePathUrl(avatarFileId))
+                    .load(Tools.getFilePathUrl(it.avatarId))
                     .placeholder(R.drawable.img_user_avatar)
                     .error(R.drawable.img_user_avatar)
                     .centerCrop()
