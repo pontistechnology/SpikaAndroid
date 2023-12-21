@@ -96,8 +96,13 @@ class MainRepositoryImpl @Inject constructor(
         return response
     }
 
-    override fun getUserAndPhoneUser(localId: Int) =
+    override fun getUserAndPhoneUserLiveData(localId: Int) =
         queryDatabase(
+            databaseQuery = { userDao.getUserAndPhoneUserLiveData(localId) }
+        )
+
+    override suspend fun getUserAndPhoneUser(localId: Int) =
+        queryDatabaseCoreData (
             databaseQuery = { userDao.getUserAndPhoneUser(localId) }
         )
 
@@ -140,18 +145,18 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getAllRoomsWithLatestMessageAndRecord() }
         )
 
-    override fun getRecentContacts(): LiveData<Resource<List<RoomWithUsers>>> =
-        queryDatabase(
+    override suspend fun getRecentContacts() =
+        queryDatabaseCoreData (
             databaseQuery = { chatRoomDao.getRecentContacts() }
         )
 
-    override fun getRecentGroups(): LiveData<Resource<List<RoomWithUsers>>> =
-        queryDatabase(
+    override suspend fun getRecentGroups() =
+        queryDatabaseCoreData (
             databaseQuery = { chatRoomDao.getRecentGroups() }
         )
 
-    override fun getAllGroups(): LiveData<Resource<List<RoomWithUsers>>> =
-        queryDatabase(
+    override suspend fun getAllGroups() =
+        queryDatabaseCoreData (
             databaseQuery = { chatRoomDao.getAllGroups() }
         )
 
@@ -403,7 +408,8 @@ interface MainRepository : BaseRepository {
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
     suspend fun forwardMessages(jsonObject: JsonObject): Resource<ForwardMessagesResponse>
-    fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
+    fun getUserAndPhoneUserLiveData(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
+    suspend fun getUserAndPhoneUser(localId: Int): Resource<List<UserAndPhoneUser>>
     suspend fun deleteUser(): Resource<DeleteUserResponse>
 
     // Rooms calls
@@ -418,9 +424,9 @@ interface MainRepository : BaseRepository {
     fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithMessage>>>
-    fun getRecentContacts(): LiveData<Resource<List<RoomWithUsers>>>
-    fun getRecentGroups(): LiveData<Resource<List<RoomWithUsers>>>
-    fun getAllGroups(): LiveData<Resource<List<RoomWithUsers>>>
+    suspend fun getRecentContacts(): Resource<List<RoomWithUsers>>
+    suspend fun getRecentGroups(): Resource<List<RoomWithUsers>>
+    suspend fun getAllGroups(): Resource<List<RoomWithUsers>>
     suspend fun updateRoom(
         jsonObject: JsonObject,
         roomId: Int,

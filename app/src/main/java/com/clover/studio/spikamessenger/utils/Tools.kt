@@ -856,16 +856,24 @@ object Tools {
             .sortPrivateChats(context)
             .toMutableList()
 
-    fun transformGroupList(list: List<RoomWithMessage>): MutableList<PrivateGroupChats> {
-        val tmp = mutableListOf<PrivateGroupChats>()
-        list.forEach { responseGroup ->
-            val element = PrivateGroupChats(
-                private = null,
-                group = responseGroup
-            )
-            tmp.add(element)
+    fun transformGroupList(
+        context: Context,
+        list: List<RoomWithUsers>
+    ): MutableList<PrivateGroupChats> =
+        list.map { PrivateGroupChats(private = null, group = it) }
+            .toMutableList()
+    //            .sortGroupChats(context)
+//            .toMutableList()
+
+    fun transformRecentContacts(
+        list: List<RoomWithUsers>,
+        localUserId: Int?
+    ) {
+        val userList = mutableListOf<UserAndPhoneUser>()
+        list.forEach { room ->
+            room.users
+
         }
-        return tmp.toMutableList()
     }
 
     fun setUpSearchBar(context: Context, searchView: androidx.appcompat.widget.SearchView){

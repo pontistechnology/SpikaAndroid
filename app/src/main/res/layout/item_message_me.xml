@@ -102,6 +102,7 @@
             android:id="@+id/tv_forward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/eight_dp_margin"
             android:layout_marginEnd="@dimen/two_dp_margin"
             android:layout_marginBottom="3dp"
             android:elevation="@dimen/eight_dp_margin"
@@ -112,7 +113,9 @@
             android:textSize="@dimen/nine_sp_text"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/iv_message_status" />
+            app:layout_constraintEnd_toStartOf="@+id/iv_message_status"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cv_reacted_emoji"

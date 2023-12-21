@@ -41,7 +41,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2">
 
-        <EditText
+        <androidx.appcompat.widget.SearchView
             android:id="@+id/sv_rooms_contacts"
             android:layout_width="match_parent"
             android:layout_height="52dp"
@@ -69,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/four_dp_margin"
                 android:layout_weight="1"
-                android:backgroundTint="?attr/fourthAdditionalColor"
+                android:backgroundTint="?attr/primaryColor"
                 android:text="@string/contacts" />
 
             <com.google.android.material.button.MaterialButton
@@ -79,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/four_dp_margin"
                 android:layout_weight="1"
-                android:backgroundTint="?attr/primaryColor"
+                android:backgroundTint="?attr/fourthAdditionalColor"
                 android:text="@string/groups_label" />
         </LinearLayout>
 

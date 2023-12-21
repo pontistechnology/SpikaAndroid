@@ -269,7 +269,7 @@ class NewRoomFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
+        viewModel.getUserAndPhoneUserLiveData(localId).observe(viewLifecycleOwner) {
             if (it.responseData != null) {
                 userList = Tools.transformPrivateList(requireContext(), it.responseData)
 

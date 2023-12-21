@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +15,7 @@ import com.clover.studio.spikamessenger.databinding.BottomSheetForwardBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.contacts.UsersGroupsAdapter
 import com.clover.studio.spikamessenger.ui.main.create_room.UsersGroupsSelectedAdapter
+import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
 import com.clover.studio.spikamessenger.utils.helpers.Resource
@@ -46,9 +48,12 @@ class ForwardBottomSheet(
     ): View {
         binding = BottomSheetForwardBinding.inflate(layoutInflater)
 
+        viewModel.getUserAndPhoneUser(localId)
+        viewModel.getAllGroups()
+
         setUpAdapter()
         setUpSelectedAdapter()
-        initializeLists()
+        initializeObservers()
 
         return binding.root
     }
@@ -57,6 +62,65 @@ class ForwardBottomSheet(
         super.onViewCreated(view, savedInstanceState)
 
         initializeViews()
+        setUpSearch()
+    }
+
+    private fun setUpSearch() = with(binding) {
+        val list = mutableListOf<PrivateGroupChats>()
+        svRoomsContacts.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query != null) {
+                    if (contactsAdapter.currentList == userList) {
+                        userList.forEach {
+                            if ((it.private!!.user.displayName?.lowercase()
+                                    ?.contains(query, ignoreCase = true) == true)
+//                                || (it.private.phoneUser?.name?.lowercase()
+//                                    ?.contains(query, ignoreCase = true) == true)
+                            ) {
+                                list.add(it)
+                                Timber.d("Added")
+                            }
+                        }
+
+                        Timber.d("list: $list, isEmpty: ${list.isEmpty()}")
+
+                        contactsAdapter.submitList(list.toMutableList())
+
+                    } else {
+                        // Groups
+                    }
+                }
+
+                return true
+            }
+
+            override fun onQueryTextChange(query: String?): Boolean {
+                Timber.d("New text: $query")
+
+                if (query != null) {
+                    if (contactsAdapter.currentList == userList) {
+                        userList.forEach {
+                            if ((it.private!!.user.displayName?.lowercase()
+                                    ?.contains(query, ignoreCase = true) == true) ||
+                                (it.private.phoneUser?.name?.lowercase()
+                                    ?.contains(query, ignoreCase = true) == true)
+                            ) {
+                                list.add(it)
+                                Timber.d("list: $list, add: $it")
+                            }
+                        }
+
+                        Timber.d("list: $list, isEmpty: ${list.isEmpty()}")
+
+                        contactsAdapter.submitList(list.toMutableList())
+
+                    } else {
+                        // Groups
+                    }
+                }
+                return true
+            }
+        })
     }
 
     companion object {
@@ -120,7 +184,6 @@ class ForwardBottomSheet(
                 contactsAdapter.notifyItemChanged(groupList.indexOf(it))
             }
 
-
             if (selectedChats.isEmpty()) {
                 fabForward.visibility = View.GONE
             }
@@ -133,48 +196,23 @@ class ForwardBottomSheet(
         }
     }
 
-    private fun initializeLists() = with(binding) {
-        viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
+    private fun initializeObservers() = with(binding) {
+        // TODO
+        viewModel.contactListener.observe(viewLifecycleOwner, EventObserver {
+            Timber.d("IT:::: ${it.status}, ${it.responseData}")
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (it.responseData != null) {
+                        Timber.d("Here, ${it.responseData}")
+
+                        pbForward.visibility = View.GONE
+                        llForward.visibility = View.VISIBLE
 
                         userList = Tools.transformPrivateList(context, it.responseData)
-
-//                        pbForward.visibility = View.GONE
-//                        llForward.visibility = View.VISIBLE
                         contactsAdapter.submitList(userList)
 
+                        // TODO recent contacts just call here viewmodel
                         viewModel.getRecentContacts()
-                            .observe(viewLifecycleOwner) { contacts ->
-                                when (contacts.status) {
-                                    Resource.Status.SUCCESS -> {
-                                        if (!contacts.responseData.isNullOrEmpty()) {
-
-                                            // This we can show like groups
-
-                                            pbForward.visibility = View.GONE
-                                            llForward.visibility = View.VISIBLE
-
-
-                                            recentContacts = Tools.transformGroupList(
-                                                context,
-                                                contacts.responseData
-                                            )
-
-//                                            Timber.d("Recent contacts: ${Tools.transformGroupList(recentMessages.responseData)}")
-//                                            setUpRecentContacts(Tools.transformPrivateList(it.responseData))
-                                        } else {
-//                                            contactsAdapter.submitList(userList.toMutableList())
-                                        }
-                                    }
-
-                                    else -> {
-                                        contactsAdapter.submitList(userList.toMutableList())
-                                        Timber.d("Other error")
-                                    }
-                                }
-                            }
                     }
                 }
 
@@ -187,33 +225,28 @@ class ForwardBottomSheet(
                     dismiss()
                 }
 
-                else -> Timber.d("Other error::: ${it.status}, ${it.responseData}")
+                else -> dismiss()
             }
-        }
+        })
 
-        viewModel.getAllGroups().observe(viewLifecycleOwner) {
+        viewModel.recentContacts.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    Timber.d("It:::::::::: ${it.responseData}")
+                    if (!it.responseData.isNullOrEmpty()) {
+                        val list = Tools.transformRecentContacts(it.responseData, localId)
+
+                    }
+                }
+            }
+        })
+
+        viewModel.allGroupsListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (!it.responseData.isNullOrEmpty()) {
                         groupList = Tools.transformGroupList(context, it.responseData)
-                        viewModel.getRecentGroups().observe(viewLifecycleOwner) { groups ->
-                            when (groups.status) {
-                                Resource.Status.SUCCESS -> {
-                                    if (!groups.responseData.isNullOrEmpty()) {
-                                        recentGroups = emptyList()
-                                        recentGroups =
-                                            Tools.transformGroupList(context, groups.responseData)
-
-                                        setUpRecentGroups(recentGroups)
-
-                                    } else {
-                                        // TODO
-                                    }
-                                }
-
-                                else -> Timber.d("Error 1")
-                            }
-                        }
+                        viewModel.getRecentGroups()
                     }
                 }
 
@@ -221,15 +254,29 @@ class ForwardBottomSheet(
                     Timber.d("Error 2")
                 }
             }
-        }
+        })
+
+        viewModel.recentGroupsListener.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    if (it.responseData != null) {
+                        val list = Tools.transformGroupList(context, it.responseData)
+                        list.map { it1 -> it1.group!!.room.isForwarded = true }
+                        groupList = list + groupList
+                    }
+                }
+
+                else -> Timber.d("Other error")
+            }
+        })
     }
 
     private fun initializeViews() = with(binding) {
         btnContacts.setOnClickListener {
             btnContacts.backgroundTintList =
-                ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
-            btnGroups.backgroundTintList =
                 ColorStateList.valueOf(ColorHelper.getPrimaryColor(context))
+            btnGroups.backgroundTintList =
+                ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
 
             contactsAdapter.submitList(userList)
         }
@@ -237,9 +284,9 @@ class ForwardBottomSheet(
 
         btnGroups.setOnClickListener {
             btnGroups.backgroundTintList =
-                ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
-            btnContacts.backgroundTintList =
                 ColorStateList.valueOf(ColorHelper.getPrimaryColor(context))
+            btnContacts.backgroundTintList =
+                ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
 
             contactsAdapter.submitList(groupList)
         }
@@ -266,10 +313,9 @@ class ForwardBottomSheet(
         }
     }
 
-    private fun setUpRecentGroups(recentGroups: List<PrivateGroupChats>) {
-        recentGroups.map { it.group!!.room.isForwarded = true }
-        Timber.d("Recent groups: $recentGroups")
-        groupList = recentGroups + groupList
-    }
-
+//    private fun setUpRecentGroups(recentGroups: List<PrivateGroupChats>) {
+//        recentGroups.map { it.group!!.room.isForwarded = true }
+////        Timber.d("Recent groups: $recentGroups")
+//        groupList = recentGroups + groupList
+//    }
 }

@@ -95,7 +95,7 @@ class ContactsFragment : BaseFragment() {
             }
         })
 
-        viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
+        viewModel.getUserAndPhoneUserLiveData(localId).observe(viewLifecycleOwner) {
             if (it.responseData != null) {
                 userList.clear()
                 userList = Tools.transformPrivateList(requireContext(), it.responseData)
