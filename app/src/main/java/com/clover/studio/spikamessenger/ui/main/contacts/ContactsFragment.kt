@@ -201,6 +201,7 @@ class ContactsFragment : BaseFragment() {
                     for (user in userList) {
                         if (user.userName?.lowercase()
                                 ?.contains(query, ignoreCase = true) == true
+                            || user.userPhoneName?.lowercase()?.contains(query, ignoreCase = true) == true
                         ) {
                             filteredList.add(user)
                         }
@@ -217,6 +218,7 @@ class ContactsFragment : BaseFragment() {
                     for (user in userList) {
                         if (user.userName?.lowercase()
                                 ?.contains(query, ignoreCase = true) == true
+                            || user.userPhoneName?.lowercase()?.contains(query, ignoreCase = true) == true
                         ) {
                             filteredList.add(user)
                         }

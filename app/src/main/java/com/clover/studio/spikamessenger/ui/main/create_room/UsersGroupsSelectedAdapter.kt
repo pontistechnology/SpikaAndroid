@@ -33,7 +33,7 @@ class UsersGroupsSelectedAdapter(
                 
                 // Chat name
                 val displayName = if (it.phoneNumber != null) {
-                    it.userName.toString()
+                    it.userName ?: it.userPhoneName.toString()
                 } else {
                     it.roomName.toString()
                 }

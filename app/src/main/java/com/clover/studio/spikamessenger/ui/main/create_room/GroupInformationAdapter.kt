@@ -31,9 +31,9 @@ class GroupInformationAdapter(
     override fun onBindViewHolder(holder: ContactsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let {
-                binding.tvUsername.text =
-                    it.userName
+                binding.tvUsername.text = it.userName ?: it.userPhoneName
                 binding.tvTitle.text =  it.phoneNumber
+
                 Glide.with(context)
                     .load( it.avatarId.let { avatar -> Tools.getFilePathUrl(avatar) })
                     .placeholder(R.drawable.img_user_avatar)

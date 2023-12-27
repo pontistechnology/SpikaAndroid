@@ -8,6 +8,7 @@ data class PrivateGroupChats(
     val userId: Int,
     val roomId: Int?,
     val userName: String?,
+    val userPhoneName: String?,
     val roomName: String?,
     val avatarId: Long,
     val phoneNumber: String?,

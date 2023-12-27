@@ -12,20 +12,13 @@ object Extensions {
         val locale = context.resources.configuration.locales.get(0)
         val collator = Collator.getInstance(locale)
         return this.toList().sortedWith(compareBy(collator) {
-            it.userName?.lowercase()
-                ?: it.roomName?.lowercase()
+            if (it.phoneNumber != null) {
+                it.userName?.lowercase() ?: it.phoneNumber.lowercase()
+            } else {
+                it.roomName?.lowercase()
+            }
         })
     }
-
-    // TODO group sorting (if needed)
-//    fun MutableList<PrivateGroupChats>.sortGroupChats(context: Context): List<PrivateGroupChats> {
-//        val locale = context.resources.configuration.locales.get(0)
-//        val collator = Collator.getInstance(locale)
-//        return this.toList().sortedWith(compareBy(collator) {
-//            it.group!!.room.name
-//        })
-//    }
-
 
     fun <T> LiveData<T>.getDistinct(): LiveData<T> {
         val distinctLiveData = MediatorLiveData<T>()

@@ -12,7 +12,6 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.databinding.ItemContactBinding
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
-import timber.log.Timber
 
 class UsersGroupsAdapter(
     private val context: Context,
@@ -38,7 +37,6 @@ class UsersGroupsAdapter(
             binding.transparentView.setOnClickListener { }
 
             getItem(position).let {
-
                 // Header
                 binding.tvHeader.text = if (it.phoneNumber != null) {
                     it.userName?.uppercase()?.substring(0, 1)
@@ -48,8 +46,7 @@ class UsersGroupsAdapter(
 
                 // Username
                 binding.tvUsername.text = if (it.phoneNumber != null) {
-                    it.userName.toString()
-//                    it.private.phoneUser?.name ?: it.private.user.formattedDisplayName
+                    it.userName ?: it.userPhoneName
                 } else {
                     it.roomName.toString()
                 }
@@ -63,6 +60,7 @@ class UsersGroupsAdapter(
                     .error(R.drawable.img_user_avatar)
                     .into(binding.ivUserImage)
 
+                // Selected chats
                 if (isForward || isGroupCreation) {
                     val setCheck = if (it.phoneNumber != null) {
                         if (it.selected) {
@@ -91,8 +89,6 @@ class UsersGroupsAdapter(
                 }
 
                 if (it.isForwarded) {
-                    // Logic for items that are forwarded
-                    Timber.d("Here, $it")
                     // Recent chats
                     if (position == 0) {
                         binding.tvHeader.text = context.getString(R.string.recent_chats)
@@ -101,8 +97,6 @@ class UsersGroupsAdapter(
                         binding.tvHeader.visibility = View.GONE
                     }
                 } else {
-                    // Logic for items that are not forwarded
-                    Timber.d("Here, other logic")
                     if (position > 0) {
                         // Check if item above has the same header
                         val previousItem = if (it.phoneNumber != null) {
