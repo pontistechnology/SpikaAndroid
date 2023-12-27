@@ -52,6 +52,9 @@
             android:backgroundTint="?attr/fourthAdditionalColor"
             android:hint="@string/search"
             android:padding="@dimen/sixteen_dp_margin"
+            app:searchIcon="@drawable/img_search"
+            app:closeIcon="@drawable/img_close"
+            style="@style/CustomSearchView"
             android:textColorHint="?attr/primaryTextColor" />
 
         <LinearLayout

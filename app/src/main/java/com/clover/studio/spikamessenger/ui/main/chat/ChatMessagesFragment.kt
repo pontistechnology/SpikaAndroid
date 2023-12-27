@@ -1028,23 +1028,27 @@ class ChatMessagesFragment : BaseFragment() {
                 val forwardBottomSheet = ForwardBottomSheet(context = requireContext(), localUserId)
                 forwardBottomSheet.setForwardListener(object :
                     ForwardBottomSheet.BottomSheetForwardAction {
-                    override fun forward(userId: ArrayList<Int>?, roomId: ArrayList<Int>) {
-                        // TODO
-                        // userIds - check for each one if room exist or not
-                        // roomIds - send to forward method
-
+                    override fun forward(userIds: ArrayList<Int>, roomIds: ArrayList<Int>) {
                         val jsonObject = JsonObject()
-                        val roomIds = JsonArray()
-                        roomId.forEach {
-                            roomIds.add(it)
+
+                        val rooms = JsonArray()
+                        roomIds.forEach { room ->
+                            rooms.add(room)
                         }
 
-                        jsonObject.add("roomIds", roomIds)
+                        val users = JsonArray()
+                        userIds.forEach { user ->
+                            users.add(user)
+                        }
 
-                        val messageIds = JsonArray()
-                        messageIds.add(msg.message.id)
+                        val message = JsonArray()
+                        message.add(msg.message.id)
 
-                        jsonObject.add("messageIds", messageIds)
+                        jsonObject.add("roomIds", rooms)
+                        jsonObject.add("userIds", users)
+                        jsonObject.add("messageIds", message)
+
+                        Timber.d("Json object: $jsonObject")
 
                         viewModel.forwardMessage(jsonObject)
                     }

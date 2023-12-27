@@ -863,7 +863,7 @@ object Tools {
         }.toMutableList().sortPrivateChats(context).toMutableList()
     }
 
-    fun transformGroupList(list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
+    fun transformGroupList(context: Context,list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
         return list.map {
                 PrivateGroupChats(
                     userId = 0,
@@ -876,7 +876,7 @@ object Tools {
                     isForwarded = false,
                     isBot = false,
                     selected = false)
-            }.toMutableList()
+            }.toMutableList().sortPrivateChats(context).toMutableList()
     }
 
     fun transformRecentContacts(localUserId: Int?, list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {

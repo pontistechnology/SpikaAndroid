@@ -21,7 +21,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
-import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentContactDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.MainActivity
@@ -48,7 +47,7 @@ import timber.log.Timber
 class ContactDetailsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
 
-    private var user: PrivateGroupChats? = null
+    private var user: User? = null
     private var room: ChatRoom? = null
 
     private var roomId = 0
@@ -134,11 +133,12 @@ class ContactDetailsFragment : BaseFragment() {
                     Timber.d("Room not found, creating new one")
                     val jsonObject = JsonObject()
                     val userIdsArray = JsonArray()
-                    userIdsArray.add(user?.userId)
+                    userIdsArray.add(user?.id)
 
-                    jsonObject.addProperty(Const.JsonFields.NAME, user?.userName)
-                    jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID,
-                        user?.avatarId
+                    jsonObject.addProperty(Const.JsonFields.NAME, user?.formattedDisplayName)
+                    jsonObject.addProperty(
+                        Const.JsonFields.AVATAR_FILE_ID,
+                        user?.avatarFileId
                     )
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
                     jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
@@ -179,7 +179,7 @@ class ContactDetailsFragment : BaseFragment() {
                 Resource.Status.SUCCESS -> {
                     if (it.responseData != null) {
                         val containsElement =
-                            it.responseData.any { blockedUser -> blockedUser.id == user?.userId }
+                            it.responseData.any { blockedUser -> blockedUser.id == user?.id }
                         if (containsElement) {
                             binding.tvBlocked.text = getString(R.string.unblock)
                         } else binding.tvBlocked.text = getString(R.string.block)
@@ -194,8 +194,8 @@ class ContactDetailsFragment : BaseFragment() {
 
     private fun initializeViews() = with(binding) {
         if (user != null) {
-            tvUsername.text = user?.userName
-            tvNumber.text = user?.phoneNumber
+            tvUsername.text = user?.formattedDisplayName
+            tvNumber.text = user?.telephoneNumber
 
             ivAddContact.setOnClickListener {
                 ChooserDialog.getInstance(requireContext(),
@@ -205,20 +205,20 @@ class ContactDetailsFragment : BaseFragment() {
                     getString(R.string.save_contact),
                     object : DialogInteraction {
                         override fun onFirstOptionClicked() {
-                            copyNumber(user?.phoneNumber.toString())
+                            copyNumber(user?.telephoneNumber.toString())
                         }
 
                         override fun onSecondOptionClicked() {
                             saveContactToPhone(
-                                user?.phoneNumber.toString(),
-                                user?.userName.toString()
+                                user?.telephoneNumber.toString(),
+                                user?.formattedDisplayName.toString()
                             )
                         }
                     })
             }
 
             ivChat.setOnClickListener {
-                user?.userId?.let { id ->
+                user?.id?.let { id ->
                     run {
                         CoroutineScope(Dispatchers.IO).launch {
                             Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
@@ -234,7 +234,7 @@ class ContactDetailsFragment : BaseFragment() {
             }
 
             Glide.with(this@ContactDetailsFragment)
-                .load(user?.avatarId?.let { getFilePathUrl(it) })
+                .load(user?.avatarFileId?.let { getFilePathUrl(it) })
                 .placeholder(
                     ResourcesCompat.getDrawable(
                         requireContext().resources,
@@ -263,18 +263,18 @@ class ContactDetailsFragment : BaseFragment() {
                     getString(R.string.block),
                     object : DialogInteraction {
                         override fun onSecondOptionClicked() {
-                            user?.userId?.let { id -> viewModel.blockUser(id) }
+                            user?.id?.let { id -> viewModel.blockUser(id) }
                         }
                     })
             } else {
                 DialogError.getInstance(requireContext(),
                     getString(R.string.unblock_user),
-                    getString(R.string.unblock_description, user?.userName),
+                    getString(R.string.unblock_description, user?.formattedDisplayName),
                     getString(R.string.no),
                     getString(R.string.unblock),
                     object : DialogInteraction {
                         override fun onSecondOptionClicked() {
-                            user?.userId?.let { viewModel.deleteBlockForSpecificUser(it) }
+                            user?.id?.let { viewModel.deleteBlockForSpecificUser(it) }
                         }
                     })
             }

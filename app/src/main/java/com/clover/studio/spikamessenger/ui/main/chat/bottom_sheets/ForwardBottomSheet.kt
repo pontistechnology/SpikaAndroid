@@ -40,6 +40,7 @@ class ForwardBottomSheet(
     private var groupList: List<PrivateGroupChats> = mutableListOf()
     private var userList: List<PrivateGroupChats> = mutableListOf()
     private var selectedChats: MutableList<PrivateGroupChats> = mutableListOf()
+    private var searchQuery: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -85,7 +86,7 @@ class ForwardBottomSheet(
     }
 
     interface BottomSheetForwardAction {
-        fun forward(userId: ArrayList<Int>?, roomId: ArrayList<Int>)
+        fun forward(userIds: ArrayList<Int>, roomIds: ArrayList<Int>)
     }
 
     fun setForwardListener(listener: BottomSheetForwardAction) {
@@ -172,9 +173,7 @@ class ForwardBottomSheet(
                         pbForward.visibility = View.GONE
                         llForward.visibility = View.VISIBLE
 
-                        userList = Tools.transformPrivateList(
-                            context,
-                            it.responseData.filter { it1 -> !it1.user.isBot })
+                        userList = Tools.transformPrivateList(context, it.responseData)
 
                         viewModel.getRecentContacts()
                     }
@@ -203,7 +202,7 @@ class ForwardBottomSheet(
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (!it.responseData.isNullOrEmpty()) {
-                        groupList = Tools.transformGroupList(it.responseData)
+                        groupList = Tools.transformGroupList(context, it.responseData)
                         viewModel.getRecentGroups()
                     }
                 }
@@ -216,7 +215,7 @@ class ForwardBottomSheet(
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     if (it.responseData != null) {
-                        val list = Tools.transformGroupList(it.responseData)
+                        val list = Tools.transformGroupList(context, it.responseData)
                         list.map { it1 -> it1.isForwarded = true }
                         groupList = list + groupList
                     }
@@ -235,6 +234,10 @@ class ForwardBottomSheet(
                 ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
 
             contactsAdapter.submitList(userList)
+
+//            if (searchQuery.isNotEmpty()) {
+//                setUpSearch()
+//            }
         }
 
         btnGroups.setOnClickListener {
@@ -244,6 +247,10 @@ class ForwardBottomSheet(
                 ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
 
             contactsAdapter.submitList(groupList)
+
+//            if (searchQuery.isNotEmpty()) {
+//                setUpSearch()
+//            }
         }
 
         fabForward.setOnClickListener {
@@ -257,7 +264,7 @@ class ForwardBottomSheet(
                     roomIds.add(it.roomId)
                 } else if (it.phoneNumber != null) {
                     // This is contact selected from list
-                    userIds.add(it.userId)
+                    it.userId.let { userId -> userIds.add(userId) }
                 } else {
                     // This is group
                     it.roomId?.let { roomId -> roomIds.add(roomId) }
@@ -280,6 +287,7 @@ class ForwardBottomSheet(
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
+                    searchQuery = query
                     if (contactsAdapter.currentList == userList) {
                         userList.forEach {
                             if (it.userName?.lowercase()
@@ -307,7 +315,7 @@ class ForwardBottomSheet(
 
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
-                    Timber.d("Contacts adappter: ${contactsAdapter.currentList}")
+                    searchQuery = query
                     if (contactsAdapter.currentList.all { it.phoneNumber != null }) {
                         userList.forEach {
                             if (it.userName?.lowercase()
@@ -316,7 +324,6 @@ class ForwardBottomSheet(
                                 filteredList.add(it)
                             }
                         }
-                        Timber.d("Here 1")
                     } else {
                         groupList.forEach {
                             if (it.roomName?.lowercase()
@@ -325,7 +332,6 @@ class ForwardBottomSheet(
                                 filteredList.add(it)
                             }
                         }
-                        Timber.d("Here 2")
                     }
 
                     val users = filteredList.sortPrivateChats(requireContext())

@@ -273,15 +273,8 @@ class ChatViewModel @Inject constructor(
         mainRepository.updateUnreadCount(roomId)
     }
 
-    fun forwardMessage(jsonObject: JsonObject) = viewModelScope.launch {
+    fun forwardMessage(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch  {
         mainRepository.forwardMessages(jsonObject)
-    }
-
-    // TODO
-    suspend fun checkIfUserInPrivateRoom(userId: Int): Int? {
-        return if (mainRepository.checkIfUserInPrivateRoom(userId) != null) {
-            mainRepository.checkIfUserInPrivateRoom(userId)!!
-        } else null
     }
 
     fun cancelUploadFile(messageId: String) = viewModelScope.launch {
