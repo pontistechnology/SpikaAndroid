@@ -54,6 +54,7 @@ import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentChatMessagesBinding
@@ -346,9 +347,22 @@ class ChatMessagesFragment : BaseFragment() {
     private fun initListeners() = with(bindingSetup) {
         chatHeader.clHeader.setOnClickListener {
             if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
+                val user = roomWithUsers?.users!!.firstOrNull { user -> user.id != localUserId }
+                val privateGroupUser = PrivateGroupChats(
+                    userId = user?.id ?: 0,
+                    roomId = null,
+                    userPhoneName = user?.displayName ?: "",
+                    roomName = null,
+                    avatarId = user?.avatarFileId ?: 0L,
+                    userName = user?.formattedDisplayName ?: "",
+                    phoneNumber = user?.telephoneNumber ?: "",
+                    isBot = false,
+                    isForwarded = false,
+                    selected = false
+                )
                 val bundle =
                     bundleOf(
-                        Const.Navigation.USER_PROFILE to roomWithUsers?.users!!.firstOrNull { user -> user.id != localUserId },
+                        Const.Navigation.USER_PROFILE to privateGroupUser,
                         Const.Navigation.ROOM_ID to roomWithUsers?.room!!.roomId,
                         Const.Navigation.ROOM_DATA to roomWithUsers?.room!!
                     )

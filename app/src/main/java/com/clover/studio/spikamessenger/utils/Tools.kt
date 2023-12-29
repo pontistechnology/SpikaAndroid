@@ -51,7 +51,7 @@ import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateChats
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateGroupChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.vanniktech.emoji.EmojiTheming
 import com.vanniktech.emoji.emojisCount
@@ -860,7 +860,7 @@ object Tools {
                 selected = false,
                 isBot = false
             )
-        }.toMutableList().sortPrivateChats(context).toMutableList()
+        }.toMutableList().sortPrivateGroupChats(context).toMutableList()
     }
 
     fun transformGroupList(context: Context,list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
@@ -876,7 +876,7 @@ object Tools {
                     isForwarded = false,
                     isBot = false,
                     selected = false)
-            }.toMutableList().sortPrivateChats(context).toMutableList()
+            }.toMutableList().sortPrivateGroupChats(context).toMutableList()
     }
 
     fun transformRecentContacts(localUserId: Int?, list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {

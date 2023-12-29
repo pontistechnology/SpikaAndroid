@@ -24,7 +24,7 @@ import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateChats
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateGroupChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -277,7 +277,7 @@ class NewRoomFragment : BaseFragment() {
                     userList.removeIf { userData -> userData.isBot }
                 }
 
-                val users = userList.sortPrivateChats(requireContext())
+                val users = userList.sortPrivateGroupChats(requireContext())
                 users.forEach { user ->
                     val isSelected = selectedUsers.any { selectedUser ->
                         user.userId == selectedUser.userId
@@ -389,7 +389,7 @@ class NewRoomFragment : BaseFragment() {
                             filteredList.add(user)
                         }
                     }
-                    val users = filteredList.sortPrivateChats(requireContext())
+                    val users = filteredList.sortPrivateGroupChats(requireContext())
                     contactsAdapter.submitList(ArrayList(users)) {
                         binding.rvContacts.scrollToPosition(0)
                     }
@@ -408,7 +408,7 @@ class NewRoomFragment : BaseFragment() {
                             filteredList.add(user)
                         }
                     }
-                    val users = filteredList.sortPrivateChats(requireContext())
+                    val users = filteredList.sortPrivateGroupChats(requireContext())
                     contactsAdapter.submitList(ArrayList(users)) {
                         binding.rvContacts.scrollToPosition(0)
                     }

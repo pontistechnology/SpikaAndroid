@@ -18,7 +18,7 @@ import com.clover.studio.spikamessenger.ui.main.create_room.UsersGroupsSelectedA
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateChats
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateGroupChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -101,13 +101,13 @@ class ForwardBottomSheet(
             isForward = true
         )
         {
-            if (!selectedChats.any { user -> user.userId == it.userId }
-                && !selectedChats.any { room -> room.roomId == it.roomId }) {
+            if (!selectedChats.any { item ->
+                    (isPrivateUser() && item.userId == it.userId) ||
+                            (!isPrivateUser() && item.roomId == it.roomId)
+                }) {
                 selectedChats.add(it)
                 selectedAdapter.submitList(selectedChats.toMutableList())
-
                 refreshAdapter(it, true)
-
                 rvSelected.visibility = View.VISIBLE
                 fabForward.visibility = View.VISIBLE
             }
@@ -119,6 +119,8 @@ class ForwardBottomSheet(
             layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         }
     }
+
+    private fun isPrivateUser() = contactsAdapter.currentList.all { it.phoneNumber !=  null }
 
     private fun setUpSelectedAdapter() = with(binding) {
         selectedAdapter = UsersGroupsSelectedAdapter(
@@ -142,7 +144,7 @@ class ForwardBottomSheet(
     }
 
     private fun refreshAdapter(list: PrivateGroupChats, isSelected: Boolean) {
-        if (contactsAdapter.currentList == userList) {
+        if (isPrivateUser()) {
             userList
                 .filter { user -> user.userId == list.userId }
                 .forEach { user ->
@@ -235,9 +237,10 @@ class ForwardBottomSheet(
 
             contactsAdapter.submitList(userList)
 
-//            if (searchQuery.isNotEmpty()) {
-//                setUpSearch()
-//            }
+            if (searchQuery.isNotEmpty()) {
+                svRoomsContacts.setQuery(searchQuery, true)
+                setUpSearch()
+            }
         }
 
         btnGroups.setOnClickListener {
@@ -248,9 +251,11 @@ class ForwardBottomSheet(
 
             contactsAdapter.submitList(groupList)
 
-//            if (searchQuery.isNotEmpty()) {
-//                setUpSearch()
-//            }
+            if (searchQuery.isNotEmpty()) {
+                Timber.d("Searching groups")
+                svRoomsContacts.setQuery(searchQuery, true)
+                setUpSearch()
+            }
         }
 
         fabForward.setOnClickListener {
@@ -271,44 +276,36 @@ class ForwardBottomSheet(
                 }
             }
 
-            Timber.d("User ids: $userIds")
-            Timber.d("Group ids: $roomIds")
-
-            // TODO for each userIds we need to find room
-
             listener?.forward(userIds, roomIds)
             dismiss()
         }
     }
 
+    private var filteredList: MutableList<PrivateGroupChats> = mutableListOf()
+
     private fun setUpSearch() = with(binding) {
-        val filteredList = mutableListOf<PrivateGroupChats>()
         svRoomsContacts.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
                     searchQuery = query
-                    if (contactsAdapter.currentList == userList) {
-                        userList.forEach {
-                            if (it.userName?.lowercase()
-                                    ?.contains(query, ignoreCase = true) == true
-                            ) {
-                                filteredList.add(it)
-                            }
-                        }
-                        val users = filteredList.sortPrivateChats(requireContext())
-                        contactsAdapter.submitList(ArrayList(users))
-                        filteredList.clear()
+                    filteredList = if (isPrivateUser()) {
+                        userList.filter {
+                            it.userName?.contains(query, ignoreCase = true) == true
+                        }.toMutableList()
                     } else {
-                        groupList.forEach {
-                            if (it.roomName?.lowercase()
-                                    ?.contains(query, ignoreCase = true) == true
-                            ) {
-                                filteredList.add(it)
-                            }
-                        }
-                        contactsAdapter.submitList(ArrayList(filteredList))
+                        Timber.d("Here groups: $query")
+                        groupList.filter {
+                            it.roomName?.contains(query, ignoreCase = true) == true
+                        }.toMutableList()
                     }
+
+                    val list = filteredList.sortPrivateGroupChats(requireContext())
+                    contactsAdapter.submitList(ArrayList(list))
+                    filteredList.clear()
+
+                } else {
+                    contactsAdapter.submitList(userList)
                 }
                 return true
             }
@@ -316,26 +313,19 @@ class ForwardBottomSheet(
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query != null) {
                     searchQuery = query
-                    if (contactsAdapter.currentList.all { it.phoneNumber != null }) {
-                        userList.forEach {
-                            if (it.userName?.lowercase()
-                                    ?.contains(query, ignoreCase = true) == true
-                            ) {
-                                filteredList.add(it)
-                            }
-                        }
+                    filteredList = if (isPrivateUser()) {
+                        userList.filter {
+                            it.userName?.contains(query, ignoreCase = true) == true
+                        }.toMutableList()
                     } else {
-                        groupList.forEach {
-                            if (it.roomName?.lowercase()
-                                    ?.contains(query, ignoreCase = true) == true
-                            ) {
-                                filteredList.add(it)
-                            }
-                        }
+                        Timber.d("Here groups: $query")
+                        groupList.filter {
+                            it.roomName?.contains(query, ignoreCase = true) == true
+                        }.toMutableList()
                     }
 
-                    val users = filteredList.sortPrivateChats(requireContext())
-                    contactsAdapter.submitList(ArrayList(users))
+                    val list = filteredList.sortPrivateGroupChats(requireContext())
+                    contactsAdapter.submitList(ArrayList(list))
                     filteredList.clear()
 
                 } else {

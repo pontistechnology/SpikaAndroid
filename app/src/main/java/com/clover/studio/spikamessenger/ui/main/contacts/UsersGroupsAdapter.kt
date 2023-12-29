@@ -55,9 +55,15 @@ class UsersGroupsAdapter(
                 binding.tvTitle.text = it.phoneNumber ?: ""
 
                 // Avatar
+                val avatar = if (it.phoneNumber != null){
+                    R.drawable.img_user_avatar
+                } else {
+                    R.drawable.img_group_avatar
+                }
+
                 Glide.with(context).load(getFilePathUrl(it.avatarId))
-                    .placeholder(R.drawable.img_user_avatar)
-                    .error(R.drawable.img_user_avatar)
+                    .placeholder(avatar)
+                    .error(avatar)
                     .into(binding.ivUserImage)
 
                 // Selected chats

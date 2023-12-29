@@ -236,7 +236,26 @@ class MainRepositoryImpl @Inject constructor(
         performRestOperation(
             networkCall = { mainRemoteDataSource.forwardMessages(jsonObject) },
             saveCallResult = {
-                chatRoomDao.upsert(it.data.newRooms)
+                val roomUsers = mutableListOf<RoomUser>()
+                it.data.newRooms.flatMap { chatRoom ->
+                    chatRoom.users.map { roomUser ->
+                        roomUsers.add(
+                            RoomUser(
+                                userId = roomUser.userId,
+                                roomId = chatRoom.roomId,
+                                isAdmin = roomUser.isAdmin,
+                            )
+                        )
+                    }
+                }
+
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.upsert(it.data.newRooms) }
+                )
+
+                queryDatabaseCoreData(
+                    databaseQuery = { roomUserDao.upsert(roomUsers) }
+                )
             }
         )
     }
