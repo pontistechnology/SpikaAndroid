@@ -1,5 +1,6 @@
 package com.clover.studio.spikamessenger.ui.main.rooms
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +23,7 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
+import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import timber.log.Timber
 
@@ -103,11 +105,13 @@ class RoomsFragment : BaseFragment() {
                         binding.tvNoChats.visibility = View.VISIBLE
                     }
                 }
+
                 Resource.Status.LOADING -> Timber.d("Rooms loading")
                 Resource.Status.ERROR -> {
                     binding.tvNoChats.visibility = View.VISIBLE
                     Timber.d("Rooms Error")
                 }
+
                 else -> Timber.d("Rooms unknown state")
             }
         }
@@ -165,9 +169,18 @@ class RoomsFragment : BaseFragment() {
             rvMessages.visibility = View.GONE
             rvRooms.visibility = View.VISIBLE
             btnSearchRooms.isSelected = true
-            btnSearchMessages.isSelected = false
-            btnSearchRooms.setBackgroundDrawable(requireContext().getDrawable(R.drawable.btn_selected_search))
-            btnSearchMessages.background = null
+
+            btnSearchMessages.apply {
+                isSelected = false
+                backgroundTintList =
+                    ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(requireContext()))
+            }
+
+            btnSearchRooms.apply {
+                isSelected = false
+                backgroundTintList =
+                    ColorStateList.valueOf(ColorHelper.getPrimaryColor(requireContext()))
+            }
 
             if (searchView != null) {
                 searchView?.setQuery(searchQuery, true)
@@ -178,10 +191,18 @@ class RoomsFragment : BaseFragment() {
         btnSearchMessages.setOnClickListener {
             rvMessages.visibility = View.VISIBLE
             rvRooms.visibility = View.GONE
-            btnSearchRooms.isSelected = false
-            btnSearchMessages.isSelected = true
-            btnSearchMessages.setBackgroundDrawable(requireContext().getDrawable(R.drawable.btn_selected_search))
-            btnSearchRooms.background = null
+
+            btnSearchRooms.apply {
+                backgroundTintList =
+                    ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(requireContext()))
+                isSelected = false
+            }
+
+            btnSearchMessages.apply {
+                backgroundTintList =
+                    ColorStateList.valueOf(ColorHelper.getPrimaryColor(requireContext()))
+                isSelected = true
+            }
 
             if (searchView != null) {
                 searchView?.setQuery(searchQuery, true)
@@ -193,15 +214,29 @@ class RoomsFragment : BaseFragment() {
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
                     searchView = menuItem.actionView as SearchView
-                    searchView?.queryHint = getString(R.string.contact_message_search)
-                    searchView?.setIconifiedByDefault(false)
+                    searchView?.apply {
+                        queryHint = getString(R.string.contact_message_search)
+                        setBackgroundResource(R.drawable.bg_input)
+                        backgroundTintList = ColorStateList.valueOf(
+                            ColorHelper.getFourthAdditionalColor(requireContext())
+                        )
+                        setIconifiedByDefault(false)
+                    }
+
+                    val searchPlate =
+                        searchView!!.findViewById<View>(androidx.appcompat.R.id.search_plate)
+                    searchPlate.setBackgroundColor(android.R.color.transparent)
+
                     setupSearchAdapter()
                     setupSearchView(searchView)
                     setSearch(searchView)
 
                     menuItem.expandActionView()
-                    btnSearchRooms.setBackgroundDrawable(requireContext().getDrawable(R.drawable.btn_selected_search))
-                    btnSearchMessages.background = null
+
+                    btnSearchRooms.backgroundTintList =
+                        ColorStateList.valueOf(ColorHelper.getPrimaryColor(requireContext()))
+                    btnSearchMessages.backgroundTintList =
+                        ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(requireContext()))
 
                     true
                 }
