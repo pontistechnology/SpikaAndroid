@@ -76,7 +76,6 @@ class Const {
             const val TELEPHONE_NUMBER_HASHED = "telephoneNumberHashed"
             const val COUNTRY_CODE = "countryCode"
             const val PUSH_TOKEN = "pushToken"
-            const val TEMPORARY_FILE_ID = 1L
 
             // Mute/Unmute
             const val SUCCESS = "success"
@@ -106,6 +105,7 @@ class Const {
             const val VIDEO_TYPE = "video"
             const val TEXT_TYPE = "text"
             const val IMAGE_TYPE = "image"
+            const val SYSTEM_TYPE = "system"
             const val SVG_TYPE = "svg"
             const val AVI_TYPE = "avi"
             const val MOV_TYPE = "quicktime"
@@ -171,7 +171,6 @@ class Const {
             const val API_UPDATE_USER = "api/messenger/me" // Fix
             const val API_SSE_STREAM = "api/sse"
             const val API_UPDATE_TOKEN = "api/messenger/device"
-            const val API_GET_SETTINGS = "api/messenger/me/settings"
 
             // Files
             const val API_GET_FILE_FROM_ID = "api/upload/files/"
@@ -204,7 +203,6 @@ class Const {
             const val API_BLOCK = "api/messenger/blocks"
             const val API_DELETE_BLOCK = "api/messenger/blocks/{id}"
             const val API_DELETE_BLOCK_FOR_USER = "api/messenger/blocks/userId/{userId}"
-            const val API_ROOM_BLOCKS = "api/messenger/blocks/rooms/{roomId}"
             const val API_SETTINGS = "api/messenger/settings"
 
             // Queries
@@ -215,7 +213,6 @@ class Const {
             const val LAST_UPDATE = "lastUpdate"
             const val ID = "id"
             const val TARGET = "target"
-            const val AVATAR_ID = "avatarFileId"
             const val IS_LAST_PAGE = "isLastPage"
             const val PAGE = "page"
         }
@@ -261,7 +258,6 @@ class Const {
             const val CONTACT_SYNC = "contact_sync"
 
             // Theme
-            const val THEME = "theme"
             const val THEMES = "themes"
         }
     }

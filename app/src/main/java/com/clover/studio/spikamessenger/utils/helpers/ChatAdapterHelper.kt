@@ -41,22 +41,24 @@ object ChatAdapterHelper {
      * @param viewToShow - active view
      * @param holder -SentMessageHolder / ReceivedMessageHolder */
     fun setViewsVisibility(viewToShow: View, holder: RecyclerView.ViewHolder) {
+        val tvSystemMessage = holder.itemView.findViewById<TextView>(R.id.tv_system_message)
+
         val viewsToHide = listOf<View>(
             holder.itemView.findViewById<TextView>(R.id.tv_message),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cl_image_chat),
             holder.itemView.findViewById<ConstraintLayout>(R.id.cv_files),
             holder.itemView.findViewById<FrameLayout>(R.id.cv_video),
             holder.itemView.findViewById<CardView>(R.id.cv_audio),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.cl_reply_message)
+            holder.itemView.findViewById<ConstraintLayout>(R.id.cl_reply_message),
+            tvSystemMessage,
         )
 
-        for (view in viewsToHide) {
-            if (view == viewToShow) {
-                view.visibility = View.VISIBLE
-            } else {
-                view.visibility = View.GONE
-            }
+        viewsToHide.forEach {
+            it.visibility = if (it == viewToShow) View.VISIBLE else View.GONE
         }
+
+        val clMessages = holder.itemView.findViewById<ConstraintLayout>(R.id.cl_container)
+        clMessages.visibility = if (tvSystemMessage.visibility == View.VISIBLE) View.GONE else View.VISIBLE
     }
 
     /** A method that loads a media item into Glide
