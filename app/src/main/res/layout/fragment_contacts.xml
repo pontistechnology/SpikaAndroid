@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.main.contacts.ContactsFragment"
+    android:paddingStart="@dimen/ten_dp_margin"
     android:paddingEnd="@dimen/ten_dp_margin"
-    android:paddingStart="@dimen/ten_dp_margin">
+    tools:context=".ui.main.contacts.ContactsFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -25,12 +25,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/transparent"
+            android:theme="@style/CustomToolbar"
+            app:collapseIcon="@drawable/img_arrow_back_chat"
             app:elevation="0dp"
             app:menu="@menu/menu"
             app:title="@string/contacts"
-            android:theme="@style/CustomToolbar"
             app:titleTextAppearance="@style/CustomTitleBold"
-            app:titleTextColor="?attr/primaryTextColor"/>
+            app:titleTextColor="?attr/primaryTextColor" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

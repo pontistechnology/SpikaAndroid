@@ -77,6 +77,7 @@
     <style name="HalfRightLeft" parent="CustomButton">
         <item name="shapeAppearanceOverlay">@style/RightButtonShapeAppearance</item>
     </style>
+
     <style name="RightButtonShapeAppearance">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSizeTopLeft">16dp</item>
@@ -155,9 +156,12 @@
     <style name="CustomToolbar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="searchViewStyle">@style/CustomSearchBar</item>
         <item name="android:editTextColor">?attr/primaryTextColor</item>
-        <item name="android:textColorHint">?attr/primaryTextColor</item>
+        <item name="android:textColorHint">?attr/secondaryTextColor</item>
         <item name="android:colorControlNormal">?attr/primaryTextColor</item>
-        <item name="android:closeIcon">@drawable/img_search_close</item>
+        <item name="android:textSize">@dimen/fourteen_sp_text</item>
+        <item name="android:fontFamily">@font/roboto_light</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="colorAccent">?attr/primaryTextColor</item>
     </style>
 
     <style name="CustomSearchBar" parent="Widget.AppCompat.SearchView">

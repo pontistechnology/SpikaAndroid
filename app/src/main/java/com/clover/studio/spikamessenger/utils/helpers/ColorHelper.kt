@@ -2,6 +2,7 @@ package com.clover.studio.spikamessenger.utils.helpers
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Color
 import android.util.TypedValue
 import com.clover.studio.spikamessenger.R
 import timber.log.Timber
@@ -30,4 +31,9 @@ object ColorHelper {
 
     fun getFourthAdditionalColor(context: Context) =
         getAttributeColor(context, R.attr.fourthAdditionalColor)
+
+    fun getFourthAdditionalColorWithAlpha(context: Context) : Int {
+        val color = getAttributeColor(context, R.attr.fourthAdditionalColor)
+        return Color.argb(60, Color.red(color), Color.green(color), Color.blue(color))
+    }
 }

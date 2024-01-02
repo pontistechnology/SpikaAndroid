@@ -74,8 +74,7 @@ class ContactsFragment : BaseFragment() {
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
                     val searchView = menuItem.actionView as SearchView
-                    searchView.queryHint = getString(R.string.contact_search)
-                    searchView.setIconifiedByDefault(false)
+                    searchView.let { Tools.setUpSearchBar(requireContext(), it) }
                     setupSearchView(searchView)
 
                     menuItem.expandActionView()

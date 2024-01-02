@@ -41,6 +41,9 @@ class RoomsFragment : BaseFragment() {
     private var searchView: SearchView? = null
     private var searchQuery: String = ""
 
+    private var primaryColor = ColorStateList.valueOf(0)
+    private var fourthAdditionalColor = ColorStateList.valueOf(0)
+
     private val binding get() = bindingSetup!!
 
     private var navOptionsBuilder: NavOptions? = null
@@ -51,6 +54,10 @@ class RoomsFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentRoomsBinding.inflate(inflater, container, false)
         navOptionsBuilder = Tools.createCustomNavOptions()
+
+        primaryColor = ColorStateList.valueOf(ColorHelper.getPrimaryColor(requireContext()))
+        fourthAdditionalColor =
+            ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(requireContext()))
 
         return binding.root
     }
@@ -163,69 +170,19 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun initializeViews() = with(binding) {
-        btnSearchRooms.isSelected = true
-
         btnSearchRooms.setOnClickListener {
-            rvMessages.visibility = View.GONE
-            rvRooms.visibility = View.VISIBLE
-            btnSearchRooms.isSelected = true
-
-            btnSearchMessages.apply {
-                isSelected = false
-                backgroundTintList =
-                    ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(requireContext()))
-            }
-
-            btnSearchRooms.apply {
-                isSelected = false
-                backgroundTintList =
-                    ColorStateList.valueOf(ColorHelper.getPrimaryColor(requireContext()))
-            }
-
-            if (searchView != null) {
-                searchView?.setQuery(searchQuery, true)
-                setSearch(searchView)
-            }
+            setUpButtons(searchRooms = true)
         }
 
         btnSearchMessages.setOnClickListener {
-            rvMessages.visibility = View.VISIBLE
-            rvRooms.visibility = View.GONE
-
-            btnSearchRooms.apply {
-                backgroundTintList =
-                    ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(requireContext()))
-                isSelected = false
-            }
-
-            btnSearchMessages.apply {
-                backgroundTintList =
-                    ColorStateList.valueOf(ColorHelper.getPrimaryColor(requireContext()))
-                isSelected = true
-            }
-
-            if (searchView != null) {
-                searchView?.setQuery(searchQuery, true)
-                setSearch(searchView)
-            }
+            setUpButtons(searchRooms = false)
         }
 
         topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
                     searchView = menuItem.actionView as SearchView
-                    searchView?.apply {
-                        queryHint = getString(R.string.contact_message_search)
-                        setBackgroundResource(R.drawable.bg_input)
-                        backgroundTintList = ColorStateList.valueOf(
-                            ColorHelper.getFourthAdditionalColor(requireContext())
-                        )
-                        setIconifiedByDefault(false)
-                    }
-
-                    val searchPlate =
-                        searchView!!.findViewById<View>(androidx.appcompat.R.id.search_plate)
-                    searchPlate.setBackgroundColor(android.R.color.transparent)
+                    searchView?.let { Tools.setUpSearchBar(requireContext(), it) }
 
                     setupSearchAdapter()
                     setupSearchView(searchView)
@@ -233,10 +190,8 @@ class RoomsFragment : BaseFragment() {
 
                     menuItem.expandActionView()
 
-                    btnSearchRooms.backgroundTintList =
-                        ColorStateList.valueOf(ColorHelper.getPrimaryColor(requireContext()))
-                    btnSearchMessages.backgroundTintList =
-                        ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(requireContext()))
+                    btnSearchRooms.backgroundTintList = primaryColor
+                    btnSearchMessages.backgroundTintList = fourthAdditionalColor
 
                     true
                 }
@@ -253,6 +208,21 @@ class RoomsFragment : BaseFragment() {
         }
 
         viewModel.roomUsers.clear()
+    }
+
+    private fun setUpButtons(
+        searchRooms: Boolean
+    ) = with(binding) {
+        rvMessages.visibility = if (searchRooms) View.GONE else View.VISIBLE
+        rvRooms.visibility = if (searchRooms) View.VISIBLE else View.GONE
+
+        btnSearchMessages.backgroundTintList = if (searchRooms) fourthAdditionalColor else primaryColor
+        btnSearchRooms.backgroundTintList = if (searchRooms) primaryColor else fourthAdditionalColor
+
+        if (searchView != null) {
+            searchView?.setQuery(searchQuery, true)
+            setSearch(searchView)
+        }
     }
 
     private fun setupAdapter() {
