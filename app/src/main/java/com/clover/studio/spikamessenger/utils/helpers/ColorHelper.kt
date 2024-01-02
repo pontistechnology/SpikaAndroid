@@ -2,8 +2,8 @@ package com.clover.studio.spikamessenger.utils.helpers
 
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.Color
 import android.util.TypedValue
+import androidx.core.graphics.ColorUtils
 import com.clover.studio.spikamessenger.R
 import timber.log.Timber
 
@@ -21,19 +21,30 @@ object ColorHelper {
     }
 
     fun getPrimaryColor(context: Context) = getAttributeColor(context, R.attr.primaryColor)
+    fun getSecondaryColor(context: Context) = getAttributeColor(context, R.attr.secondaryColor)
 
     fun getPrimaryTextColor(context: Context) = getAttributeColor(context, R.attr.primaryTextColor)
 
-    fun getSecondaryColor(context: Context) = getAttributeColor(context, R.attr.secondaryColor)
+    fun getSecondaryTextColor(context: Context) =
+        getAttributeColor(context, R.attr.secondaryTextColor)
+
+    fun getTertiaryTextColor(context: Context) =
+        getAttributeColor(context, R.attr.tertiaryTextColor)
+
+    fun getAdditionalColor(context: Context) =
+        getAttributeColor(context, R.attr.additionalColor)
 
     fun getSecondAdditionalColor(context: Context) =
         getAttributeColor(context, R.attr.secondAdditionalColor)
 
+    fun getThirdAdditionalColor(context: Context) =
+        getAttributeColor(context, R.attr.thirdAdditionalColor)
+
     fun getFourthAdditionalColor(context: Context) =
         getAttributeColor(context, R.attr.fourthAdditionalColor)
 
-    fun getFourthAdditionalColorWithAlpha(context: Context) : Int {
+    fun getFourthAdditionalColorWithAlpha(context: Context): Int {
         val color = getAttributeColor(context, R.attr.fourthAdditionalColor)
-        return Color.argb(60, Color.red(color), Color.green(color), Color.blue(color))
+        return ColorUtils.setAlphaComponent(color, 60)
     }
 }
