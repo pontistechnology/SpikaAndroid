@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentCallHistoryBinding
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import timber.log.Timber
 
@@ -61,8 +62,7 @@ class CallHistoryFragment : BaseFragment() {
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
                     val searchView = menuItem.actionView as SearchView
-                    searchView.queryHint = getString(R.string.call_history_search_hint)
-                    searchView.setIconifiedByDefault(false)
+                    Tools.setUpSearchBar(requireContext(), searchView)
                     setupSearchView(searchView)
 
                     menuItem.expandActionView()

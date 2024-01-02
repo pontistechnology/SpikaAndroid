@@ -10,6 +10,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.database.Cursor
 import android.database.DatabaseUtils
 import android.graphics.Bitmap
@@ -26,6 +27,8 @@ import android.telephony.TelephonyManager
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.util.TypedValue
+import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.collection.ArraySet
 import androidx.core.content.ContextCompat
@@ -44,6 +47,7 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
+import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.vanniktech.emoji.EmojiTheming
 import com.vanniktech.emoji.emojisCount
@@ -845,6 +849,22 @@ object Tools {
             else -> {
                 SMALL_EMOJI_SIZE
             }
+        }
+    }
+
+    fun setUpSearchBar(context: Context, searchView: androidx.appcompat.widget.SearchView){
+        searchView.apply {
+            queryHint = context.getString(R.string.contact_message_search)
+            setBackgroundResource(R.drawable.bg_input)
+            backgroundTintList =  ColorStateList.valueOf(ColorHelper.getFourthAdditionalColorWithAlpha(context))
+            setIconifiedByDefault(false)
+
+            val searchPlate =
+                this.findViewById<View>(androidx.appcompat.R.id.search_plate)
+            searchPlate.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent))
+
+            val closeImageView = this.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+            closeImageView.imageTintList = ColorStateList.valueOf(ColorHelper.getPrimaryTextColor(context))
         }
     }
 }

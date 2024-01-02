@@ -79,16 +79,21 @@ class RoomsAdapter(
 
                     val user =
                         roomItem.roomWithUsers.users.firstOrNull { it.id == sortedList.fromUserId }
-                    binding.tvUsername.text = if (user?.id.toString() == myUserId) {
-                        context.getString(
-                            R.string.username_message,
-                            context.getString(R.string.you).trim()
-                        )
+
+                    if (Const.JsonFields.SYSTEM_TYPE == sortedList.type){
+                        binding.tvUsername.text = ""
                     } else {
-                        context.getString(
-                            R.string.username_message,
-                            user?.formattedDisplayName?.trim()
-                        )
+                        binding.tvUsername.text = if (user?.id.toString() == myUserId) {
+                            context.getString(
+                                R.string.username_message,
+                                context.getString(R.string.you).trim()
+                            )
+                        } else {
+                            context.getString(
+                                R.string.username_message,
+                                user?.formattedDisplayName?.trim()
+                            )
+                        }
                     }
 
                     if (lastMessage?.text.isNullOrEmpty()) {

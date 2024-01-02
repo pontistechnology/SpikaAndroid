@@ -302,6 +302,11 @@ class ChatAdapter(
                         }
                     }
 
+                    Const.JsonFields.SYSTEM_TYPE -> {
+                        setViewsVisibility(holder.binding.tvSystemMessage, holder)
+                        bindSystemMessage(holder.binding.tvSystemMessage, it)
+                    }
+
                     else -> {
                         setViewsVisibility(holder.binding.tvMessage, holder)
                     }
@@ -446,6 +451,11 @@ class ChatAdapter(
                             chatMessage = it,
                             audioLayoutBinding = holder.binding.audioLayout
                         )
+                    }
+
+                    Const.JsonFields.SYSTEM_TYPE -> {
+                        setViewsVisibility(holder.binding.tvSystemMessage, holder)
+                        bindSystemMessage(holder.binding.tvSystemMessage, it)
                     }
 
                     else -> {
@@ -645,6 +655,10 @@ class ChatAdapter(
                 }
             }
         }
+    }
+
+    private fun bindSystemMessage(tvMessage: EmojiTextView, msg: MessageAndRecords) {
+        tvMessage.text = msg.message.body?.text.toString()
     }
 
     private fun bindImage(
