@@ -658,7 +658,15 @@ class ChatAdapter(
     }
 
     private fun bindSystemMessage(tvMessage: EmojiTextView, msg: MessageAndRecords) {
-        tvMessage.text = msg.message.body?.text.toString()
+        tvMessage.text = buildString {
+            append(
+                SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+                    msg.message.createdAt
+                ).toString()
+            )
+            append(" ")
+            append(msg.message.body?.text.toString())
+        }
     }
 
     private fun bindImage(
