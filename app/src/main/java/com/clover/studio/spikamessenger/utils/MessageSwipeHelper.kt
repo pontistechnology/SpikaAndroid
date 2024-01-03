@@ -59,6 +59,7 @@ class MessageSwipeController(
 
         return if (messageRecords[viewHolder.absoluteAdapterPosition].message.deleted == null
             || messageRecords[viewHolder.absoluteAdapterPosition].message.deleted == true
+            || messageRecords[viewHolder.absoluteAdapterPosition].message.type == Const.JsonFields.SYSTEM_TYPE
         ) {
             // Disable swipe for deleted messages
             makeMovementFlags(ACTION_STATE_IDLE, 0)

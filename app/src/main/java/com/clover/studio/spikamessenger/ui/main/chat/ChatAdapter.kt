@@ -132,11 +132,14 @@ class ChatAdapter(
 
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
-                bindMessageTime(
-                    tvTime = holder.binding.tvTime,
-                    clContainer = holder.binding.clMessage,
-                    calendar = calendar
-                )
+                // System messages are displaying time so we don't need this interaction
+                if (it.message.type != Const.JsonFields.SYSTEM_TYPE) {
+                    bindMessageTime(
+                        tvTime = holder.binding.tvTime,
+                        clContainer = holder.binding.clMessage,
+                        calendar = calendar
+                    )
+                }
 
                 /** Message types: */
                 when (it.message.type) {
@@ -389,12 +392,14 @@ class ChatAdapter(
 
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
-
-                bindMessageTime(
-                    tvTime = holder.binding.tvTime,
-                    clContainer = holder.binding.clMessage,
-                    calendar = calendar
-                )
+                // System messages are displaying time so we don't need this interaction
+                if (it.message.type != Const.JsonFields.SYSTEM_TYPE) {
+                    bindMessageTime(
+                        tvTime = holder.binding.tvTime,
+                        clContainer = holder.binding.clMessage,
+                        calendar = calendar
+                    )
+                }
 
                 /** Message types: */
                 when (it.message.type) {
@@ -631,7 +636,7 @@ class ChatAdapter(
         tvMessage.apply {
             if (chatMessage.message.deleted == true || chatMessage.message.body?.text == context.getString(
                     R.string.deleted_message
-                )
+                ) || chatMessage.message.type == Const.JsonFields.SYSTEM_TYPE
             ) {
                 text = context.getString(R.string.message_deleted_text)
                 cvReactedEmoji.visibility = View.GONE
