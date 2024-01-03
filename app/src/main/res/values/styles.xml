@@ -38,6 +38,13 @@
         <item name="android:textColor">?attr/primaryTextColor</item>
     </style>
 
+    <style name="CustomSystemBody" parent="Theme.ExampleApp">
+        <item name="android:fontFamily">@font/roboto</item>
+        <item name="lineHeight">20sp</item>
+        <item name="android:textSize">@dimen/eleven_sp_text</item>
+        <item name="android:textColor">?attr/primaryTextColor</item>
+    </style>
+
     <style name="CustomTextLightBody" parent="Theme.ExampleApp">
         <item name="android:fontFamily">@font/roboto_light</item>
         <item name="lineHeight">20sp</item>
