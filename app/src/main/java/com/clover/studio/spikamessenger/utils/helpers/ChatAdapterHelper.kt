@@ -382,18 +382,29 @@ object ChatAdapterHelper {
         currentList: MutableList<MessageAndRecords>,
     ) {
         try {
-            if (currentList[position + 1].message.fromUserId == currentList[position].message.fromUserId) {
-                holder.binding.tvUsername.visibility = View.GONE
-            } else {
-                holder.binding.tvUsername.visibility = View.VISIBLE
-            }
+            val currentMessage = currentList[position].message
+            val nextMessage = if (position + 1 < currentList.size) currentList[position + 1].message else null
+            val previousMessage = if (position - 1 >= 0) currentList[position - 1].message else null
 
-            if (position == 0 || currentList[position - 1].message.fromUserId != currentList[position].message.fromUserId) {
-                holder.binding.ivUserImage.visibility = View.VISIBLE
+            if (Const.JsonFields.SYSTEM_TYPE == currentMessage.type) {
+                // For system messages, don't display username or user image
+                holder.binding.tvUsername.visibility = View.GONE
+                holder.binding.ivUserImage.visibility = View.GONE
             } else {
-                holder.binding.ivUserImage.visibility = View.INVISIBLE
+                // Regular user messages handling
+                if (position == 0 || (previousMessage != null && previousMessage.fromUserId != currentMessage.fromUserId) || Const.JsonFields.SYSTEM_TYPE == previousMessage?.type) {
+                    holder.binding.ivUserImage.visibility = View.VISIBLE
+                } else {
+                    holder.binding.ivUserImage.visibility = View.INVISIBLE
+                }
+
+                if (nextMessage != null && nextMessage.fromUserId == currentMessage.fromUserId) {
+                    holder.binding.tvUsername.visibility = View.GONE
+                } else {
+                    holder.binding.tvUsername.visibility = View.VISIBLE
+                }
             }
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Timber.d("Exception: $e")
         }
     }
