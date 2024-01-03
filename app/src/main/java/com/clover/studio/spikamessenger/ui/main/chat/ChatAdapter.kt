@@ -133,7 +133,7 @@ class ChatAdapter(
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
                 // System messages are displaying time so we don't need this interaction
-                if (it.message.type != Const.JsonFields.SYSTEM_TYPE) {
+                if (Const.JsonFields.SYSTEM_TYPE != it.message.type) {
                     bindMessageTime(
                         tvTime = holder.binding.tvTime,
                         clContainer = holder.binding.clMessage,
@@ -393,7 +393,7 @@ class ChatAdapter(
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
                 // System messages are displaying time so we don't need this interaction
-                if (it.message.type != Const.JsonFields.SYSTEM_TYPE) {
+                if (Const.JsonFields.SYSTEM_TYPE != it.message.type) {
                     bindMessageTime(
                         tvTime = holder.binding.tvTime,
                         clContainer = holder.binding.clMessage,
