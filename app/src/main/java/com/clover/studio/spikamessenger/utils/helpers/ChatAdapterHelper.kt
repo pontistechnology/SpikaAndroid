@@ -392,13 +392,13 @@ object ChatAdapterHelper {
                 holder.binding.ivUserImage.visibility = View.GONE
             } else {
                 // Regular user messages handling
-                if (position == 0 || (previousMessage != null && previousMessage.fromUserId != currentMessage.fromUserId) || Const.JsonFields.SYSTEM_TYPE == previousMessage?.type) {
+                if (position == 0 || (previousMessage != null && (previousMessage.fromUserId != currentMessage.fromUserId || Const.JsonFields.SYSTEM_TYPE == previousMessage.type))) {
                     holder.binding.ivUserImage.visibility = View.VISIBLE
                 } else {
                     holder.binding.ivUserImage.visibility = View.INVISIBLE
                 }
 
-                if (nextMessage != null && nextMessage.fromUserId == currentMessage.fromUserId) {
+                if (nextMessage != null && nextMessage.fromUserId == currentMessage.fromUserId && Const.JsonFields.SYSTEM_TYPE != nextMessage.type) {
                     holder.binding.tvUsername.visibility = View.GONE
                 } else {
                     holder.binding.tvUsername.visibility = View.VISIBLE
