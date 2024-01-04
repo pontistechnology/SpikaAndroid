@@ -57,10 +57,7 @@ class MessageSwipeController(
         val width = Resources.getSystem().displayMetrics.widthPixels
         halfScreen = width / 3
 
-        return if (messageRecords[viewHolder.absoluteAdapterPosition].message.deleted == null
-            || messageRecords[viewHolder.absoluteAdapterPosition].message.deleted == true
-            || messageRecords[viewHolder.absoluteAdapterPosition].message.type == Const.JsonFields.SYSTEM_TYPE
-        ) {
+        return if (messageRecords[viewHolder.absoluteAdapterPosition].message.canDelete()) {
             // Disable swipe for deleted messages
             makeMovementFlags(ACTION_STATE_IDLE, 0)
         } else {

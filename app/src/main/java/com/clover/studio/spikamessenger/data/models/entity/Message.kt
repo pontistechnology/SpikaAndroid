@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.room.*
 import com.clover.studio.spikamessenger.data.AppDatabase
 import com.clover.studio.spikamessenger.data.models.FileMetadata
+import com.clover.studio.spikamessenger.utils.Const
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
@@ -103,7 +104,11 @@ data class Message @JvmOverloads constructor(
 
     // @Ignore
     // var roomUser: String = ""
-) : Parcelable
+) : Parcelable {
+    fun canDelete(): Boolean {
+        return deleted == null || deleted == true || Const.JsonFields.SYSTEM_TYPE == type
+    }
+}
 
 @Parcelize
 data class MessageBody(
