@@ -90,17 +90,20 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         val title: String
                         val content: String
                         if (response.messageAttributes.groupName.isNullOrEmpty()) {
-                            content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
-                                getString(
-                                    R.string.generic_shared,
-                                    response.message.type.toString()
-                                        .replaceFirstChar { it.uppercase() })
-                            } else {
-                                response.message.body?.text.toString()
-                            }
+                            content =
+                                if (Const.JsonFields.TEXT_TYPE != response.message.type && Const.JsonFields.SYSTEM_TYPE != response.message.type) {
+                                    getString(
+                                        R.string.generic_shared,
+                                        response.message.type.toString()
+                                            .replaceFirstChar { it.uppercase() })
+                                } else {
+                                    response.message.body?.text.toString()
+                                }
                             title = response.messageAttributes.fromUserName
                         } else {
-                            content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
+                            content = if (Const.JsonFields.SYSTEM_TYPE == response.message.type) {
+                                response.message.body?.text.toString()
+                            } else if (response.message.type != Const.JsonFields.TEXT_TYPE) {
                                 response.messageAttributes.fromUserName + ": " + getString(
                                     R.string.generic_shared,
                                     response.message.type.toString()
