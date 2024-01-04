@@ -275,4 +275,5 @@
     <string name="theme_neon">Neon</string>
     <string name="theme_neon_light">Neon Light</string>
     <string name="theme_light_green">Light Green</string>
+    <string name="removed_group_user">Removed group user</string>
 </resources>

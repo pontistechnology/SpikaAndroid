@@ -474,7 +474,7 @@ class SSERepositoryImpl @Inject constructor(
                     )
                     if (filteredList?.isNotEmpty() == true) {
                         queryDatabaseCoreData(
-                            databaseQuery = { roomUserDao.deleteRoomUsers(filteredList) }
+                            databaseQuery = { roomUserDao.deleteRoomUsers(filteredList, room.roomId) }
                         )
                     }
                     queryDatabaseCoreData(

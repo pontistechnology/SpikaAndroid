@@ -519,6 +519,21 @@ class ChatAdapter(
 
                         holder.binding.ivUserImage.visibility = View.VISIBLE
                         holder.binding.tvUsername.visibility = View.VISIBLE
+                    } else {
+                        // User probably doesn't exist in the room anymore
+                        holder.binding.tvUsername.text =
+                            context.getString(R.string.removed_group_user)
+
+                        Glide.with(context)
+                            .load(R.drawable.img_user_avatar)
+                            .dontTransform()
+                            .placeholder(R.drawable.img_user_avatar)
+                            .error(R.drawable.img_user_avatar)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .into(holder.binding.ivUserImage)
+
+                        holder.binding.ivUserImage.visibility = View.VISIBLE
+                        holder.binding.tvUsername.visibility = View.VISIBLE
                     }
                 }
 
