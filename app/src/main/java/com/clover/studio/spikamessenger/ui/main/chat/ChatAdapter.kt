@@ -132,11 +132,14 @@ class ChatAdapter(
 
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
-                bindMessageTime(
-                    tvTime = holder.binding.tvTime,
-                    clContainer = holder.binding.clMessage,
-                    calendar = calendar
-                )
+                // System messages are displaying time so we don't need this interaction
+                if (Const.JsonFields.SYSTEM_TYPE != it.message.type) {
+                    bindMessageTime(
+                        tvTime = holder.binding.tvTime,
+                        clContainer = holder.binding.clMessage,
+                        calendar = calendar
+                    )
+                }
 
                 /** Message types: */
                 when (it.message.type) {
@@ -389,12 +392,14 @@ class ChatAdapter(
 
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
-
-                bindMessageTime(
-                    tvTime = holder.binding.tvTime,
-                    clContainer = holder.binding.clMessage,
-                    calendar = calendar
-                )
+                // System messages are displaying time so we don't need this interaction
+                if (Const.JsonFields.SYSTEM_TYPE != it.message.type) {
+                    bindMessageTime(
+                        tvTime = holder.binding.tvTime,
+                        clContainer = holder.binding.clMessage,
+                        calendar = calendar
+                    )
+                }
 
                 /** Message types: */
                 when (it.message.type) {
@@ -506,6 +511,21 @@ class ChatAdapter(
                         }
                         Glide.with(context)
                             .load(userPath)
+                            .dontTransform()
+                            .placeholder(R.drawable.img_user_avatar)
+                            .error(R.drawable.img_user_avatar)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .into(holder.binding.ivUserImage)
+
+                        holder.binding.ivUserImage.visibility = View.VISIBLE
+                        holder.binding.tvUsername.visibility = View.VISIBLE
+                    } else {
+                        // User probably doesn't exist in the room anymore
+                        holder.binding.tvUsername.text =
+                            context.getString(R.string.removed_group_user)
+
+                        Glide.with(context)
+                            .load(R.drawable.img_user_avatar)
                             .dontTransform()
                             .placeholder(R.drawable.img_user_avatar)
                             .error(R.drawable.img_user_avatar)
@@ -631,7 +651,7 @@ class ChatAdapter(
         tvMessage.apply {
             if (chatMessage.message.deleted == true || chatMessage.message.body?.text == context.getString(
                     R.string.deleted_message
-                )
+                ) || chatMessage.message.type == Const.JsonFields.SYSTEM_TYPE
             ) {
                 text = context.getString(R.string.message_deleted_text)
                 cvReactedEmoji.visibility = View.GONE
