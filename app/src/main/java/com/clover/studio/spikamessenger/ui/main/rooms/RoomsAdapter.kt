@@ -17,6 +17,7 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getRoomTime
 import com.vanniktech.emoji.EmojiTextView
+import timber.log.Timber
 
 class RoomsAdapter(
     private val context: Context,
@@ -77,11 +78,14 @@ class RoomsAdapter(
                     val sortedList = roomItem.message
                     val lastMessage = sortedList.body
 
+                    Timber.d("Last message = $lastMessage")
+                    Timber.d("Last message2 = $sortedList")
                     val user =
                         roomItem.roomWithUsers.users.firstOrNull { it.id == sortedList.fromUserId }
 
-                    if (Const.JsonFields.SYSTEM_TYPE == sortedList.type){
-                        binding.tvUsername.text = ""
+                    if (Const.JsonFields.SYSTEM_TYPE == sortedList.type) {
+                        // We need to hide the username since it is prefixed to the last message
+                        binding.tvUsername.visibility = View.GONE
                     } else {
                         binding.tvUsername.text = if (user?.id.toString() == myUserId) {
                             context.getString(
@@ -94,6 +98,8 @@ class RoomsAdapter(
                                 user?.formattedDisplayName?.trim()
                             )
                         }
+                        // RV fallback, so it doesn't recycle username hiding
+                        binding.tvUsername.visibility = View.VISIBLE
                     }
 
                     if (lastMessage?.text.isNullOrEmpty()) {
