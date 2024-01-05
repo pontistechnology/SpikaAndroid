@@ -223,6 +223,21 @@ class ChatMessagesFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
 
+        // Code below will handle an issue with system keyboard squeezing the background image
+        // when opened. We are setting the background programmatically instead of using the
+        // background resource in XML
+        val drawable = ContextCompat.getDrawable(
+            requireContext(),
+            TypedValue().apply {
+                activity?.theme?.resolveAttribute(
+                    R.attr.backgroundPrimary,
+                    this,
+                    true
+                )
+            }.resourceId
+        )
+        activity?.window?.setBackgroundDrawable(drawable)
+
         postponeEnterTransition()
 
         roomWithUsers = if (viewModel.roomWithUsers.value != null) {
@@ -854,7 +869,7 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun handleMessageReply(message: Message) = with(bindingSetup) {
-        if (isEditing){
+        if (isEditing) {
             resetEditingFields()
         }
 
@@ -949,7 +964,7 @@ class ChatMessagesFragment : BaseFragment() {
 
             override fun actionEdit() {
                 replyContainer?.let {
-                    if (it.isReplyBottomSheetVisible()){
+                    if (it.isReplyBottomSheetVisible()) {
                         it.closeBottomSheet()
                     }
                 }
@@ -992,14 +1007,19 @@ class ChatMessagesFragment : BaseFragment() {
             }
 
             override fun actionAddCustomReaction() {
-                val customReactionBottomSheet = CustomReactionBottomSheet(context = requireContext())
-                customReactionBottomSheet.setCustomReactionListener(object: CustomReactionBottomSheet.BottomSheetCustomReactionListener{
+                val customReactionBottomSheet =
+                    CustomReactionBottomSheet(context = requireContext())
+                customReactionBottomSheet.setCustomReactionListener(object :
+                    CustomReactionBottomSheet.BottomSheetCustomReactionListener {
                     override fun addCustomReaction(emoji: String) {
                         msg.message.reaction = emoji
                         addReaction(msg.message)
                     }
                 })
-                customReactionBottomSheet.show(requireActivity().supportFragmentManager, CustomReactionBottomSheet.TAG)
+                customReactionBottomSheet.show(
+                    requireActivity().supportFragmentManager,
+                    CustomReactionBottomSheet.TAG
+                )
             }
         })
         bottomSheet.show(requireActivity().supportFragmentManager, ChatBottomSheet.TAG)

@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.main.chat.ChatMessagesFragment"
-    tools:ignore="contentDescription"
-    android:background="?attr/backgroundPrimary">
+    tools:ignore="contentDescription">
 
     <View
         android:id="@+id/v_transparent"
@@ -34,9 +33,9 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/CustomTextHeading"
         android:gravity="center"
         android:text="@string/no_messages_yet"
+        android:textAppearance="@style/CustomTextHeading"
         android:textColor="?attr/secondaryTextColor"
         android:textSize="@dimen/twenty_four_sp_text"
         android:visibility="gone"
@@ -60,12 +59,12 @@
         app:layout_constraintTop_toBottomOf="@+id/chat_header" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_sending_area"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:id="@+id/cl_sending_area">
+        app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
             android:id="@+id/iv_add"
@@ -220,9 +219,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/eight_dp_margin"
             android:src="@drawable/img_arrow_down"
-            app:tint="?attr/primaryTextColor"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?attr/primaryTextColor" />
 
     </androidx.cardview.widget.CardView>
 
@@ -251,10 +250,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginEnd="@dimen/sixteen_dp_margin"
-                android:textAppearance="@style/CustomTextBody"
                 android:gravity="center"
                 android:maxWidth="@dimen/two_hundred_fifty_six_dp"
                 android:text="@string/new_messages"
+                android:textAppearance="@style/CustomTextBody"
                 android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/sixteen_sp_text" />
 
@@ -283,9 +282,9 @@
             android:layout_marginTop="@dimen/eight_dp_margin"
             android:layout_marginEnd="@dimen/thirty_two_dp_margin"
             android:layout_marginBottom="@dimen/eight_dp_margin"
-            android:textAppearance="@style/CustomTextBody"
             android:gravity="center"
             android:text="@string/room_exit"
+            android:textAppearance="@style/CustomTextBody"
             android:textColor="?attr/primaryTextColor" />
     </FrameLayout>
 
@@ -310,8 +309,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:drawablePadding="@dimen/eight_dp_margin"
-            android:textAppearance="@style/CustomTextBody"
             android:text="@string/contact_blocked"
+            android:textAppearance="@style/CustomTextBody"
             android:textColor="@color/white"
             android:textSize="@dimen/fourteen_sp_text"
             app:drawableStartCompat="@drawable/img_block"
@@ -324,12 +323,12 @@
             android:layout_marginTop="@dimen/twenty_dp_margin"
             android:layout_marginBottom="@dimen/twenty_dp_margin"
             android:background="@drawable/bg_message_received"
-            android:textAppearance="@style/CustomTextBody"
             android:paddingStart="@dimen/thirty_dp_margin"
             android:paddingTop="@dimen/five_dp_margin"
             android:paddingEnd="@dimen/thirty_dp_margin"
             android:paddingBottom="@dimen/five_dp_margin"
             android:text="@string/unblock"
+            android:textAppearance="@style/CustomTextBody"
             android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/fourteen_sp_text" />
     </LinearLayout>
