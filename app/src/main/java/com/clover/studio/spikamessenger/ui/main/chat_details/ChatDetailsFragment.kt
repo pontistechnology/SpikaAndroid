@@ -300,7 +300,7 @@ class ChatDetailsFragment : BaseFragment() {
             ),
         )
 
-        if (isAdmin){
+        if (isAdmin) {
             optionList.add(
                 UserOptionsData(
                     option = getString(R.string.delete_chat),
@@ -470,12 +470,26 @@ class ChatDetailsFragment : BaseFragment() {
                 }
 
                 Resource.Status.SUCCESS -> {
+                    // We need to update the profile picture instantly, instead of waiting for
+                    // confirmation from the user
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
                         binding.profilePicture.flProgressScreen.visibility = View.GONE
-                        binding.ivDone.visibility = View.VISIBLE
                     }
                     newAvatarFileId = it.responseData!!.fileId
+
+                    val jsonObject = JsonObject()
+
+                    if (newAvatarFileId != 0L) {
+                        jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, newAvatarFileId)
+                    }
+
+                    viewModel.updateRoom(
+                        jsonObject,
+                        roomWithUsers.room.roomId,
+                        0,
+                        roomWithUsers.users.size
+                    )
                     isUploading = false
                 }
 
