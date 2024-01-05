@@ -864,6 +864,9 @@ class ChatMessagesFragment : BaseFragment() {
         replyContainer?.setReplyContainerListener(object : ReplyContainer.ReplyContainerListener {
             override fun closeSheet() {
                 clSendingArea.setBackgroundColor(android.R.color.transparent)
+                // We need to reset replyId in this case, otherwise it will just persist on the
+                // next message you're sending.
+                replyId = 0L
             }
         })
 
