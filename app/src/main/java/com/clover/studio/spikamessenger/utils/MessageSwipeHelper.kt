@@ -106,7 +106,8 @@ class MessageSwipeController(
 
         if (mView.translationX < halfScreen || dX < this.dX) {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-            this.dX = dX
+            // Move the section header in the opposite direction to counter the container's movement
+            mView.findViewById<View>(R.id.tv_section_header).translationX = -dX
             startTracking = true
         }
         currentItemViewHolder = viewHolder
