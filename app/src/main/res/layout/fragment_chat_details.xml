@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:scrollbars="none"
     tools:context=".ui.main.contact_details.ContactDetailsFragment"
-    tools:ignore="RtlSymmetry,ContentDescription"
-    android:scrollbars="none">
+    tools:ignore="RtlSymmetry,ContentDescription">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -47,6 +47,7 @@
             android:inputType="text"
             android:padding="@dimen/sixteen_dp_margin"
             android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryTextColor"
             android:textColorHint="?attr/secondaryTextColor"
             android:textSize="@dimen/fourteen_sp_text"
             android:visibility="invisible"
