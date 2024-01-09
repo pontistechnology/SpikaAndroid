@@ -32,7 +32,7 @@ class UsersGroupsSelectedAdapter(
             getItem(position).let {
                 
                 // Chat name
-                val displayName = if (it.phoneNumber != null) {
+                val displayName = if (it.phoneNumber != null || it.isBot) {
                     it.userName ?: it.userPhoneName.toString()
                 } else {
                     it.roomName.toString()

@@ -881,7 +881,8 @@ object Tools {
 
     fun transformRecentContacts(localUserId: Int?, context: Context, list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
         return list.flatMap { room ->
-            room.users.filter { it.id != localUserId}.map { user ->
+            room.users.filter { it.id != localUserId && !it.formattedDisplayName.contains(context.getString(R.string.deleted_user))}
+                .map { user ->
                 PrivateGroupChats(
                     userId = user.id,
                     roomId = room.room.roomId,
@@ -891,7 +892,7 @@ object Tools {
                     userPhoneName = null,
                     roomName = null,
                     isRecent = false,
-                    isBot = false,
+                    isBot = user.isBot,
                     selected = false
                 )
             }

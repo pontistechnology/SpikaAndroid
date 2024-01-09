@@ -33,7 +33,7 @@ class ForwardBottomSheet(
     private var listener: BottomSheetForwardAction? = null
     private val viewModel: MainViewModel by activityViewModels()
 
-    private lateinit var contactsAdapter: UsersGroupsAdapter
+    private lateinit var usersGroupsAdapter: UsersGroupsAdapter
     private lateinit var selectedAdapter: UsersGroupsSelectedAdapter
 
     private var groupList: List<PrivateGroupChats> = mutableListOf()
@@ -41,6 +41,7 @@ class ForwardBottomSheet(
     private var selectedChats: MutableList<PrivateGroupChats> = mutableListOf()
 
     private var searchedQuery: String = ""
+    private var isContactButtonActive: Boolean = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,13 +72,6 @@ class ForwardBottomSheet(
         val peekHeight = (screenHeight)
         bottomSheetBehavior.peekHeight = peekHeight
 
-        binding.rvContacts.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (dy > 0 && bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                }
-            }
-        })
         setUpSearch()
     }
 
@@ -94,7 +88,7 @@ class ForwardBottomSheet(
     }
 
     private fun setUpAdapter() = with(binding) {
-        contactsAdapter = UsersGroupsAdapter(
+        usersGroupsAdapter = UsersGroupsAdapter(
             context = requireContext(),
             isGroupCreation = false,
             userIdsInRoom = null,
@@ -102,8 +96,8 @@ class ForwardBottomSheet(
         )
         {
             if (!selectedChats.any { item ->
-                    (isPrivateUser() && item.userId == it.userId) ||
-                            (!isPrivateUser() && item.roomId == it.roomId)
+                    (isContactButtonActive && item.userId == it.userId) ||
+                            (!isContactButtonActive && item.roomId == it.roomId)
                 }) {
                 selectedChats.add(it)
                 selectedAdapter.submitList(selectedChats.toMutableList())
@@ -117,12 +111,10 @@ class ForwardBottomSheet(
 
         rvContacts.apply {
             itemAnimator = null
-            adapter = contactsAdapter
+            adapter = usersGroupsAdapter
             layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         }
     }
-
-    private fun isPrivateUser() = contactsAdapter.currentList.all { it.phoneNumber != null }
 
     private fun setUpSelectedAdapter() = with(binding) {
         selectedAdapter = UsersGroupsSelectedAdapter(
@@ -146,13 +138,13 @@ class ForwardBottomSheet(
     }
 
     private fun refreshAdapter(list: PrivateGroupChats, isSelected: Boolean) {
-        val activeList = if (isPrivateUser()) userList else groupList
-        val activeId = if (isPrivateUser()) list.userId else list.roomId
+        val activeList = if (isContactButtonActive) userList else groupList
+        val activeId = if (isContactButtonActive) list.userId else list.roomId
 
         activeList.forEachIndexed { index, item ->
-            if ((isPrivateUser() && item.userId == activeId) || (!isPrivateUser() && item.roomId == activeId)) {
+            if ((isContactButtonActive && item.userId == activeId) || (!isContactButtonActive && item.roomId == activeId)) {
                 item.selected = isSelected
-                contactsAdapter.notifyItemChanged(index)
+                usersGroupsAdapter.notifyItemChanged(index)
             }
         }
     }
@@ -182,11 +174,11 @@ class ForwardBottomSheet(
                         val list = Tools.transformRecentContacts(localId, context, it.responseData)
                         list.map { it1 -> it1.isRecent = true }
                         userList = list + userList
-                        contactsAdapter.submitList(userList)
+                        usersGroupsAdapter.submitList(userList)
                     }
                 }
 
-                else -> contactsAdapter.submitList(userList)
+                else -> usersGroupsAdapter.submitList(userList)
             }
         })
 
@@ -225,8 +217,10 @@ class ForwardBottomSheet(
             btnGroups.backgroundTintList =
                 ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
 
-            contactsAdapter.submitList(null)
-            contactsAdapter.submitList(userList)
+            usersGroupsAdapter.submitList(null)
+            usersGroupsAdapter.submitList(userList)
+
+            isContactButtonActive = true
 
             if (searchedQuery.isNotEmpty()) {
                 svRoomsContacts.setQuery(searchedQuery, true)
@@ -240,8 +234,10 @@ class ForwardBottomSheet(
             btnContacts.backgroundTintList =
                 ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
 
-            contactsAdapter.submitList(null)
-            contactsAdapter.submitList(groupList)
+            usersGroupsAdapter.submitList(null)
+            usersGroupsAdapter.submitList(groupList)
+
+            isContactButtonActive = false
 
             if (searchedQuery.isNotEmpty()) {
                 svRoomsContacts.setQuery(searchedQuery, true)
@@ -255,7 +251,7 @@ class ForwardBottomSheet(
 
             selectedChats.forEach {
                 if (it.phoneNumber != null && it.roomId != null) {
-                    // This is contact from recent list
+                    // This is the contact from recent list
                     // For it we don't need to make new group, just send roomId
                     roomIds.add(it.roomId)
                 } else if (it.phoneNumber != null) {
@@ -298,20 +294,15 @@ class ForwardBottomSheet(
         val closeButton: View =
             svRoomsContacts.findViewById(androidx.appcompat.R.id.search_close_btn)
         closeButton.setOnClickListener {
-            svRoomsContacts.setQuery("", false)
-
-            if (isPrivateUser()) {
-                contactsAdapter.submitList(userList)
-            } else {
-                contactsAdapter.submitList(groupList)
-            }
+            svRoomsContacts.setQuery("", true)
+            searchedQuery = ""
         }
     }
 
     private fun makeQuery(query: String?) {
         if (query != null && query != "") {
             searchedQuery = query
-            val filteredList = if (isPrivateUser()) {
+            val filteredList = if (isContactButtonActive) {
                 userList.filter {
                     it.userName?.contains(query, ignoreCase = true) == true
                 }.toMutableList()
@@ -320,18 +311,13 @@ class ForwardBottomSheet(
                     it.roomName?.contains(query, ignoreCase = true) == true
                 }.toMutableList()
             }
-
-            contactsAdapter.submitList(null)
-            contactsAdapter.submitList(ArrayList(filteredList))
-
-            filteredList.clear()
-
+            usersGroupsAdapter.submitList(null)
+            usersGroupsAdapter.submitList(ArrayList(filteredList))
         } else {
-            if (isPrivateUser()) {
-                contactsAdapter.submitList(userList)
-            } else {
-                contactsAdapter.submitList(groupList)
-            }
+            searchedQuery = ""
+            val list = if (isContactButtonActive) userList else groupList
+            usersGroupsAdapter.submitList(null)
+            usersGroupsAdapter.submitList(list)
         }
     }
 }

@@ -104,7 +104,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="@dimen/fifty_two_dp"
-            android:nestedScrollingEnabled="false" />
+            android:nestedScrollingEnabled="true" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

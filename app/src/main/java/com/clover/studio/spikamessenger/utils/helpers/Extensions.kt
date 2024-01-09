@@ -11,9 +11,10 @@ object Extensions {
     fun MutableList<PrivateGroupChats>.sortChats(context: Context): List<PrivateGroupChats> {
         val locale = context.resources.configuration.locales.get(0)
         val collator = Collator.getInstance(locale)
+        // Special conditions for the Bots because they are like private users but without phoneNumber
         return this.toList().sortedWith(compareBy(collator) {
-            if (it.phoneNumber != null) {
-                it.userName?.lowercase() ?: it.phoneNumber.lowercase()
+            if (it.phoneNumber != null || it.isBot) {
+                it.userName?.lowercase() ?: it.userPhoneName?.lowercase()
             } else {
                 it.roomName?.lowercase()
             }

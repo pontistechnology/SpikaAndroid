@@ -44,7 +44,7 @@ class UsersGroupsAdapter(
                 }
 
                 // Username
-                binding.tvUsername.text = if (it.phoneNumber != null) {
+                binding.tvUsername.text = if (it.phoneNumber != null || it.isBot) {
                     it.userName ?: it.userPhoneName
                 } else {
                     it.roomName.toString()
