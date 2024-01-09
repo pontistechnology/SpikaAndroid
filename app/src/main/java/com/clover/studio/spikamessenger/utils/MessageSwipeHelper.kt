@@ -24,7 +24,7 @@ const val MIN_SCALE = 0f
 const val SMALL_MESSAGE_POSITIVE_SIZE_1 = 80
 const val SMALL_MESSAGE_POSITIVE_SIZE_2 = 250
 const val SMALL_MESSAGE_NEGATIVE_SIZE_1 = -10
-const val SMALL_MESSAGE_NEGATIVE_SIZE_2 = -150
+const val SMALL_MESSAGE_NEGATIVE_SIZE_2 = -200
 
 class MessageSwipeController(
     private val context: Context,
@@ -38,7 +38,6 @@ class MessageSwipeController(
 
     private var currentItemViewHolder: ViewHolder? = null
     private lateinit var mView: View
-    private var dX = 0f
     private var swipeBack = false
     private var isVibrate = false
     private var startTracking = false
@@ -104,12 +103,24 @@ class MessageSwipeController(
             setTouchListener(recyclerView, viewHolder)
         }
 
-        if (mView.translationX < halfScreen || dX < this.dX) {
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-            // Move the section header in the opposite direction to counter the container's movement
-            mView.findViewById<View>(R.id.tv_section_header).translationX = -dX
-            startTracking = true
-        }
+        var newDx = dX
+        if (Const.UserActions.ACTION_LEFT == action && dX <= -halfScreen / 2) {
+            newDx = (-halfScreen / 2).toFloat()
+        } else if (Const.UserActions.ACTION_RIGHT == action && dX >= halfScreen / 2) newDx =
+            (halfScreen / 2).toFloat()
+
+        super.onChildDraw(
+            c,
+            recyclerView,
+            viewHolder,
+            newDx,
+            dY,
+            actionState,
+            isCurrentlyActive
+        )
+        // Move the section header in the opposite direction to counter the container's movement
+        mView.findViewById<View>(R.id.tv_section_header).translationX = -newDx
+        startTracking = true
         currentItemViewHolder = viewHolder
 
         if (Const.UserActions.ACTION_RIGHT == action) {
@@ -193,17 +204,13 @@ class MessageSwipeController(
         }
 
         // Calculate where to show icon (x,y)
-        val x: Int = if (action == Const.UserActions.ACTION_RIGHT) {
+        val x: Int = if (action == Const.UserActions.ACTION_LEFT) {
+            (mView.measuredWidth + mView.translationX / 2).toInt() - convertToDp(16)
+        } else {
             if (mView.translationX > halfScreen) {
                 halfScreen / 2
             } else {
                 (mView.translationX / 2).toInt()
-            }
-        } else {
-            if (mView.translationX < -convertToDp(SHOW_LIMIT)) {
-                mView.measuredWidth - convertToDp(SHOW_LIMIT) / 2 - convertToDp(16)
-            } else {
-                (mView.measuredWidth - mView.translationX / 2).toInt() - convertToDp(16)
             }
         }
         val y = (mView.top + mView.measuredHeight / 2).toFloat()
