@@ -18,6 +18,7 @@ import com.clover.studio.spikamessenger.utils.helpers.Resource
 import io.noties.markwon.Markwon
 import timber.log.Timber
 
+
 class NotesDetailsFragment : BaseFragment() {
     private var bindingSetup: FragmentNotesDetailsBinding? = null
     private val binding get() = bindingSetup!!
@@ -115,6 +116,7 @@ class NotesDetailsFragment : BaseFragment() {
             ivSave.visibility = View.GONE
             ivEdit.visibility = View.VISIBLE
 
+            hideKeyboard(it)
         }
 
         ivEdit.setOnClickListener {
@@ -123,14 +125,15 @@ class NotesDetailsFragment : BaseFragment() {
             etTitle.visibility = View.VISIBLE
             etDescription.visibility = View.VISIBLE
 
-
             etTitle.setText(notesName)
             etDescription.setText(notes)
 
             ivSave.visibility = View.VISIBLE
             ivEdit.visibility = View.GONE
-        }
+            etDescription.requestFocus()
 
+            showKeyboard(etDescription)
+        }
     }
 
     private fun markdownNotes() = with(binding) {
