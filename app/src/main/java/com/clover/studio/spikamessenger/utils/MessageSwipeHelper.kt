@@ -119,7 +119,7 @@ class MessageSwipeController(
             isCurrentlyActive
         )
         // Move the section header in the opposite direction to counter the container's movement
-        mView.findViewById<View>(R.id.tv_section_header).translationX = -dX
+        mView.findViewById<View>(R.id.tv_section_header).translationX = -newDx
         startTracking = true
         currentItemViewHolder = viewHolder
 

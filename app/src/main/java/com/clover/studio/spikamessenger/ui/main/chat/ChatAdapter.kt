@@ -133,11 +133,12 @@ class ChatAdapter(
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
                 // System messages are displaying time so we don't need this interaction
-                if (Const.JsonFields.SYSTEM_TYPE != it.message.type) {
+                it.message.type?.let { type ->
                     bindMessageTime(
                         tvTime = holder.binding.tvTime,
                         clContainer = holder.binding.clMessage,
-                        calendar = calendar
+                        calendar = calendar,
+                        type = type
                     )
                 }
 
@@ -393,11 +394,12 @@ class ChatAdapter(
                 // The line below sets each adapter item to be unique (uses more memory)
                 // holder.setIsRecyclable(false)
                 // System messages are displaying time so we don't need this interaction
-                if (Const.JsonFields.SYSTEM_TYPE != it.message.type) {
+                it.message.type?.let { type ->
                     bindMessageTime(
                         tvTime = holder.binding.tvTime,
                         clContainer = holder.binding.clMessage,
-                        calendar = calendar
+                        calendar = calendar,
+                        type = type
                     )
                 }
 
@@ -588,20 +590,25 @@ class ChatAdapter(
     private fun bindMessageTime(
         calendar: Calendar,
         tvTime: TextView,
-        clContainer: ConstraintLayout
+        clContainer: ConstraintLayout,
+        type: String
     ) {
         tvTime.visibility = View.GONE
         tvTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
             calendar.timeInMillis
         ).toString()
 
-        clContainer.setOnClickListener {
-            tvTime.visibility = if (tvTime.visibility == View.VISIBLE) {
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
+        if (Const.JsonFields.SYSTEM_TYPE != type) {
+            clContainer.setOnClickListener {
+                tvTime.visibility = if (tvTime.visibility == View.VISIBLE) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
 
+            }
+        } else {
+            clContainer.setOnClickListener(null)
         }
     }
 
