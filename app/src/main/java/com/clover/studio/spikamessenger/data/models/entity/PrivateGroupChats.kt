@@ -12,7 +12,7 @@ data class PrivateGroupChats(
     val roomName: String?,
     val avatarId: Long,
     val phoneNumber: String?,
-    var isForwarded: Boolean,
+    var isRecent: Boolean = false,
     var selected: Boolean,
     var isBot: Boolean,
 ) : Parcelable

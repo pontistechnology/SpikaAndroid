@@ -177,6 +177,8 @@
     </style>
 
     <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
+        <item name="android:editTextColor">?attr/primaryTextColor</item>
+        <item name="editTextColor">?attr/primaryTextColor</item>
         <item name="android:textColor">?attr/primaryTextColor</item>
         <item name="android:textColorHint">?attr/primaryTextColor</item>
     </style>

@@ -17,6 +17,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.IBinder
 import android.os.Parcelable
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -357,7 +358,7 @@ class ChatMessagesFragment : BaseFragment() {
                     userName = user?.formattedDisplayName ?: "",
                     phoneNumber = user?.telephoneNumber ?: "",
                     isBot = false,
-                    isForwarded = false,
+                    isRecent = false,
                     selected = false
                 )
                 val bundle =

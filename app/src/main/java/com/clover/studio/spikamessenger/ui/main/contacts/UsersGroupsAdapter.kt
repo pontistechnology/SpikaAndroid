@@ -21,7 +21,6 @@ class UsersGroupsAdapter(
     private val onItemClick: ((item: PrivateGroupChats) -> Unit)
 ) :
     ListAdapter<PrivateGroupChats, UsersGroupsAdapter.ContactsViewHolder>(ContactsDiffCallback()) {
-
     inner class ContactsViewHolder(val binding: ItemContactBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -55,7 +54,7 @@ class UsersGroupsAdapter(
                 binding.tvTitle.text = it.phoneNumber ?: ""
 
                 // Avatar
-                val avatar = if (it.phoneNumber != null){
+                val avatar = if (it.phoneNumber != null) {
                     R.drawable.img_user_avatar
                 } else {
                     R.drawable.img_group_avatar
@@ -68,18 +67,10 @@ class UsersGroupsAdapter(
 
                 // Selected chats
                 if (isForward || isGroupCreation) {
-                    val setCheck = if (it.phoneNumber != null) {
-                        if (it.selected) {
-                            View.VISIBLE
-                        } else {
-                            View.GONE
-                        }
+                    val setCheck = if (it.selected) {
+                        View.VISIBLE
                     } else {
-                        if (it.selected) {
-                            View.VISIBLE
-                        } else {
-                            View.GONE
-                        }
+                        View.GONE
                     }
                     binding.ivCheckedUser.visibility = setCheck
                 } else {
@@ -94,7 +85,7 @@ class UsersGroupsAdapter(
                     } else binding.transparentView.visibility = View.GONE
                 }
 
-                if (it.isForwarded) {
+                if (it.isRecent) {
                     // Recent chats
                     if (position == 0) {
                         binding.tvHeader.text = context.getString(R.string.recent_chats)
@@ -104,11 +95,11 @@ class UsersGroupsAdapter(
                     }
                 } else {
                     if (position > 0) {
-                        // Check if item above has the same header
+                        val previousUser = getItem(position - 1)
                         val previousItem = if (it.phoneNumber != null) {
-                            getItem(position - 1)?.userName?.lowercase()?.substring(0, 1)
+                            previousUser.userName?.lowercase()?.substring(0, 1)
                         } else {
-                            getItem(position - 1)?.roomName?.lowercase()?.substring(0, 1)
+                            previousUser.roomName?.lowercase()?.substring(0, 1)
                         }
 
                         val currentItem = if (it.phoneNumber != null) {
@@ -117,7 +108,7 @@ class UsersGroupsAdapter(
                             it.roomName?.lowercase()?.substring(0, 1)
                         }
 
-                        if (previousItem == currentItem) {
+                        if (previousItem == currentItem && !previousUser.isRecent) {
                             binding.tvHeader.visibility = View.GONE
                         } else {
                             binding.tvHeader.visibility = View.VISIBLE
@@ -127,7 +118,6 @@ class UsersGroupsAdapter(
                     }
                 }
 
-
                 itemView.setOnClickListener { _ ->
                     onItemClick.invoke(it)
                 }
@@ -136,10 +126,26 @@ class UsersGroupsAdapter(
     }
 
     private class ContactsDiffCallback : DiffUtil.ItemCallback<PrivateGroupChats>() {
-        override fun areItemsTheSame(oldItem: PrivateGroupChats, newItem: PrivateGroupChats) =
-            oldItem == newItem
+        override fun areItemsTheSame(
+            oldItem: PrivateGroupChats,
+            newItem: PrivateGroupChats
+        ): Boolean {
+            return if (oldItem.phoneNumber != null && newItem.phoneNumber != null) {
+                oldItem.userId == newItem.userId
+            } else {
+                oldItem.roomId == newItem.roomId
+            }
+        }
 
-        override fun areContentsTheSame(oldItem: PrivateGroupChats, newItem: PrivateGroupChats) =
-            oldItem == newItem
+        override fun areContentsTheSame(
+            oldItem: PrivateGroupChats,
+            newItem: PrivateGroupChats
+        ): Boolean {
+            return if (oldItem.phoneNumber != null && newItem.phoneNumber != null) {
+                oldItem.userId == newItem.userId
+            } else {
+                oldItem.roomId == newItem.roomId
+            }
+        }
     }
 }

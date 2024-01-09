@@ -20,7 +20,7 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateGroupChats
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -206,7 +206,7 @@ class ContactsFragment : BaseFragment() {
                             filteredList.add(user)
                         }
                     }
-                    val users = filteredList.sortPrivateGroupChats(requireContext())
+                    val users = filteredList.sortChats(requireContext())
                     contactsAdapter.submitList(ArrayList(users))
                     filteredList.clear()
                 }
@@ -223,7 +223,7 @@ class ContactsFragment : BaseFragment() {
                             filteredList.add(user)
                         }
                     }
-                    val users = filteredList.sortPrivateGroupChats(requireContext())
+                    val users = filteredList.sortChats(requireContext())
                     contactsAdapter.submitList(ArrayList(users))
                     filteredList.clear()
                 }

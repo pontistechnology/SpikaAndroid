@@ -51,7 +51,7 @@ import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortPrivateGroupChats
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.vanniktech.emoji.EmojiTheming
 import com.vanniktech.emoji.emojisCount
@@ -856,11 +856,11 @@ object Tools {
                 roomName = null,
                 avatarId = it.user.avatarFileId ?: 0L,
                 phoneNumber = it.user.telephoneNumber ?: "",
-                isForwarded = false,
+                isRecent = false,
                 selected = false,
                 isBot = false
             )
-        }.toMutableList().sortPrivateGroupChats(context).toMutableList()
+        }.toMutableList().sortChats(context).toMutableList()
     }
 
     fun transformGroupList(context: Context,list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
@@ -873,15 +873,15 @@ object Tools {
                     userName = null,
                     userPhoneName = null,
                     roomName = it.room.name,
-                    isForwarded = false,
+                    isRecent = false,
                     isBot = false,
                     selected = false)
-            }.toMutableList().sortPrivateGroupChats(context).toMutableList()
+            }.toMutableList().sortChats(context).toMutableList()
     }
 
-    fun transformRecentContacts(localUserId: Int?, list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
+    fun transformRecentContacts(localUserId: Int?, context: Context, list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
         return list.flatMap { room ->
-            room.users.filter { it.id != localUserId && !it.isBot }.map { user ->
+            room.users.filter { it.id != localUserId}.map { user ->
                 PrivateGroupChats(
                     userId = user.id,
                     roomId = room.room.roomId,
@@ -890,12 +890,12 @@ object Tools {
                     userName =  user.formattedDisplayName,
                     userPhoneName = null,
                     roomName = null,
-                    isForwarded = false,
+                    isRecent = false,
                     isBot = false,
                     selected = false
                 )
             }
-        }.toMutableList()
+        }.toMutableList().sortChats(context).toMutableList()
     }
 
     fun setUpSearchBar(context: Context, searchView: androidx.appcompat.widget.SearchView){
