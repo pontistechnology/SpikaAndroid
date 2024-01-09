@@ -40,6 +40,8 @@ class ForwardBottomSheet(
     private var userList: List<PrivateGroupChats> = mutableListOf()
     private var selectedChats: MutableList<PrivateGroupChats> = mutableListOf()
 
+    private var searchedQuery: String = ""
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -105,7 +107,9 @@ class ForwardBottomSheet(
                 }) {
                 selectedChats.add(it)
                 selectedAdapter.submitList(selectedChats.toMutableList())
+
                 refreshAdapter(it, true)
+
                 rvSelected.visibility = View.VISIBLE
                 fabForward.visibility = View.VISIBLE
             }
@@ -118,7 +122,7 @@ class ForwardBottomSheet(
         }
     }
 
-    private fun isPrivateUser() = contactsAdapter.currentList.all { it.phoneNumber !=  null }
+    private fun isPrivateUser() = contactsAdapter.currentList.all { it.phoneNumber != null }
 
     private fun setUpSelectedAdapter() = with(binding) {
         selectedAdapter = UsersGroupsSelectedAdapter(
@@ -142,26 +146,14 @@ class ForwardBottomSheet(
     }
 
     private fun refreshAdapter(list: PrivateGroupChats, isSelected: Boolean) {
-        if (isPrivateUser()) {
-            userList
-                .filter { user -> user.userId == list.userId }
-                .forEach { user ->
-                    val position = userList.indexOf(user)
-                    if (position != -1) {
-                        user.selected = isSelected
-                        contactsAdapter.notifyItemChanged(position)
-                    }
-                }
-        } else {
-            groupList
-                .filter { room -> room.roomId == list.roomId }
-                .forEach { room ->
-                    val position = groupList.indexOf(room)
-                    if (position != -1) {
-                        room.selected = isSelected
-                        contactsAdapter.notifyItemChanged(position)
-                    }
-                }
+        val activeList = if (isPrivateUser()) userList else groupList
+        val activeId = if (isPrivateUser()) list.userId else list.roomId
+
+        activeList.forEachIndexed { index, item ->
+            if ((isPrivateUser() && item.userId == activeId) || (!isPrivateUser() && item.roomId == activeId)) {
+                item.selected = isSelected
+                contactsAdapter.notifyItemChanged(index)
+            }
         }
     }
 
@@ -233,7 +225,13 @@ class ForwardBottomSheet(
             btnGroups.backgroundTintList =
                 ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
 
+            contactsAdapter.submitList(null)
             contactsAdapter.submitList(userList)
+
+            if (searchedQuery.isNotEmpty()) {
+                svRoomsContacts.setQuery(searchedQuery, true)
+                setUpSearch()
+            }
         }
 
         btnGroups.setOnClickListener {
@@ -242,7 +240,13 @@ class ForwardBottomSheet(
             btnContacts.backgroundTintList =
                 ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
 
+            contactsAdapter.submitList(null)
             contactsAdapter.submitList(groupList)
+
+            if (searchedQuery.isNotEmpty()) {
+                svRoomsContacts.setQuery(searchedQuery, true)
+                setUpSearch()
+            }
         }
 
         fabForward.setOnClickListener {
@@ -269,6 +273,9 @@ class ForwardBottomSheet(
     }
 
     private fun setUpSearch() = with(binding) {
+        svRoomsContacts.setIconifiedByDefault(false)
+
+        // Searching users / groups
         svRoomsContacts.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -282,18 +289,28 @@ class ForwardBottomSheet(
             }
         })
 
-        svRoomsContacts.setOnCloseListener {
-            if (isPrivateUser()){
+        // Setting click listener on whole search area
+        svRoomsContacts.setOnClickListener {
+            svRoomsContacts.onActionViewExpanded()
+        }
+
+        // Setting listener for clearing user input
+        val closeButton: View =
+            svRoomsContacts.findViewById(androidx.appcompat.R.id.search_close_btn)
+        closeButton.setOnClickListener {
+            svRoomsContacts.setQuery("", false)
+
+            if (isPrivateUser()) {
                 contactsAdapter.submitList(userList)
             } else {
                 contactsAdapter.submitList(groupList)
             }
-            true
         }
     }
 
-    private fun makeQuery(query: String?){
+    private fun makeQuery(query: String?) {
         if (query != null && query != "") {
+            searchedQuery = query
             val filteredList = if (isPrivateUser()) {
                 userList.filter {
                     it.userName?.contains(query, ignoreCase = true) == true
@@ -310,7 +327,7 @@ class ForwardBottomSheet(
             filteredList.clear()
 
         } else {
-            if (isPrivateUser()){
+            if (isPrivateUser()) {
                 contactsAdapter.submitList(userList)
             } else {
                 contactsAdapter.submitList(groupList)
