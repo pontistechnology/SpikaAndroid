@@ -136,11 +136,6 @@ class NewRoomFragment : BaseFragment() {
                     true
                 }
 
-//                R.id.create_room_menu_icon -> {
-//                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
-//                    true
-//                }
-
                 else -> false
             }
         }
@@ -186,7 +181,12 @@ class NewRoomFragment : BaseFragment() {
         val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
 
         contactsAdapter =
-            UsersGroupsAdapter(requireContext(), isGroupCreation, userIdsInRoom, isForward = false) {
+            UsersGroupsAdapter(
+                requireContext(),
+                isGroupCreation,
+                userIdsInRoom,
+                isForward = false
+            ) {
                 if (tvNewGroupChat.visibility == View.GONE) {
                     if (selectedUsers.contains(it)) {
                         selectedUsers.remove(it)
@@ -380,40 +380,12 @@ class NewRoomFragment : BaseFragment() {
         searchView.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null) {
-                    for (user in userList) {
-                        if (user.userName?.lowercase()
-                                ?.contains(query, ignoreCase = true) == true
-                            || user.userPhoneName?.lowercase()?.contains(query, ignoreCase = true) == true
-                        ) {
-                            filteredList.add(user)
-                        }
-                    }
-                    val users = filteredList.sortChats(requireContext())
-                    contactsAdapter.submitList(ArrayList(users)) {
-                        binding.rvContacts.scrollToPosition(0)
-                    }
-                    filteredList.clear()
-                }
+                makeQuery(query)
                 return true
             }
 
             override fun onQueryTextChange(query: String?): Boolean {
-                if (query != null) {
-                    for (user in userList) {
-                        if (user.userName?.lowercase()
-                                ?.contains(query, ignoreCase = true) == true
-                            || user.userPhoneName?.lowercase()?.contains(query, ignoreCase = true) == true
-                        ) {
-                            filteredList.add(user)
-                        }
-                    }
-                    val users = filteredList.sortChats(requireContext())
-                    contactsAdapter.submitList(ArrayList(users)) {
-                        binding.rvContacts.scrollToPosition(0)
-                    }
-                    filteredList.clear()
-                }
+                makeQuery(query)
                 return true
             }
         })
@@ -425,6 +397,25 @@ class NewRoomFragment : BaseFragment() {
                     binding.ivCancel.visibility = View.VISIBLE
                 }
             }
+        }
+    }
+
+    fun makeQuery(query: String?) {
+        if (query != null) {
+            for (user in userList) {
+                if (user.userName?.lowercase()
+                        ?.contains(query, ignoreCase = true) == true
+                    || user.userPhoneName?.lowercase()?.contains(query, ignoreCase = true) == true
+                ) {
+                    filteredList.add(user)
+                }
+            }
+            val users = filteredList.sortChats(requireContext())
+            contactsAdapter.submitList(null)
+            contactsAdapter.submitList(ArrayList(users)) {
+                binding.rvContacts.scrollToPosition(0)
+            }
+            filteredList.clear()
         }
     }
 

@@ -10,6 +10,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.databinding.BottomSheetForwardBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
@@ -217,6 +218,10 @@ class ForwardBottomSheet(
             btnGroups.backgroundTintList =
                 ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
 
+            rvContacts.visibility = View.VISIBLE
+            tvEmptyList.visibility = View.GONE
+            tvNoResults.visibility = View.GONE
+
             usersGroupsAdapter.submitList(null)
             usersGroupsAdapter.submitList(userList)
 
@@ -234,8 +239,20 @@ class ForwardBottomSheet(
             btnContacts.backgroundTintList =
                 ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
 
-            usersGroupsAdapter.submitList(null)
-            usersGroupsAdapter.submitList(groupList)
+            if (groupList.isEmpty()){
+                rvContacts.visibility = View.GONE
+                tvNoResults.visibility = View.GONE
+                tvEmptyList.apply {
+                    text = context.getString(R.string.no_groups_yet)
+                    visibility = View.VISIBLE
+                }
+            } else {
+                rvContacts.visibility = View.VISIBLE
+                tvEmptyList.visibility = View.GONE
+
+                usersGroupsAdapter.submitList(null)
+                usersGroupsAdapter.submitList(groupList)
+            }
 
             isContactButtonActive = false
 
@@ -262,7 +279,6 @@ class ForwardBottomSheet(
                     it.roomId?.let { roomId -> roomIds.add(roomId) }
                 }
             }
-
             listener?.forward(userIds, roomIds)
             dismiss()
         }
@@ -299,7 +315,7 @@ class ForwardBottomSheet(
         }
     }
 
-    private fun makeQuery(query: String?) {
+    private fun makeQuery(query: String?) = with(binding){
         if (query != null && query != "") {
             searchedQuery = query
             val filteredList = if (isContactButtonActive) {
@@ -311,13 +327,21 @@ class ForwardBottomSheet(
                     it.roomName?.contains(query, ignoreCase = true) == true
                 }.toMutableList()
             }
+
+            tvNoResults.visibility = if (filteredList.isEmpty() && tvEmptyList.visibility == View.GONE) View.VISIBLE else View.GONE
+            rvContacts.visibility = if (filteredList.isEmpty()) View.GONE else View.VISIBLE
+
             usersGroupsAdapter.submitList(null)
             usersGroupsAdapter.submitList(ArrayList(filteredList))
         } else {
             searchedQuery = ""
             val list = if (isContactButtonActive) userList else groupList
+
             usersGroupsAdapter.submitList(null)
             usersGroupsAdapter.submitList(list)
+
+            tvNoResults.visibility = if (tvEmptyList.visibility == View.GONE) View.VISIBLE else View.GONE
+            rvContacts.visibility = if (tvEmptyList.visibility == View.GONE) View.VISIBLE else View.GONE
         }
     }
 }

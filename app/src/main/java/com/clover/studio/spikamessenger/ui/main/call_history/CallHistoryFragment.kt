@@ -12,7 +12,6 @@ import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentCallHistoryBinding
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
-import timber.log.Timber
 
 class CallHistoryFragment : BaseFragment() {
     private lateinit var callHistoryAdapter: CallHistoryAdapter
@@ -70,11 +69,6 @@ class CallHistoryFragment : BaseFragment() {
                     true
                 }
 
-//                R.id.create_room_menu_icon -> {
-//                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToNewRoomFragment())
-//                    true
-//                }
-
                 else -> false
             }
         }
@@ -87,40 +81,12 @@ class CallHistoryFragment : BaseFragment() {
             searchView.setOnQueryTextListener(object :
                 SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
-                    if (query != null) {
-                        Timber.d("Query: $query")
-                        for (user in userList) {
-                            if (user.formattedDisplayName.contains(
-                                    query,
-                                    ignoreCase = true
-                                )
-                            ) {
-                                filteredList.add(user)
-                            }
-                        }
-                        Timber.d("Filtered List: $filteredList")
-                        callHistoryAdapter.submitList(ArrayList(filteredList))
-                        filteredList.clear()
-                    }
+                    makeQuery(query)
                     return true
                 }
 
                 override fun onQueryTextChange(query: String?): Boolean {
-                    if (query != null) {
-                        Timber.d("Query: $query")
-                        for (user in userList) {
-                            if (user.formattedDisplayName.contains(
-                                    query,
-                                    ignoreCase = true
-                                )
-                            ) {
-                                filteredList.add(user)
-                            }
-                        }
-                        Timber.d("Filtered List: $filteredList")
-                        callHistoryAdapter.submitList(ArrayList(filteredList))
-                        filteredList.clear()
-                    }
+                    makeQuery(query)
                     return true
                 }
             })
@@ -132,6 +98,23 @@ class CallHistoryFragment : BaseFragment() {
                     hideKeyboard(view)
                 }
             }
+        }
+    }
+
+    fun makeQuery(query: String?) {
+        if (query != null) {
+            for (user in userList) {
+                if (user.formattedDisplayName.contains(
+                        query,
+                        ignoreCase = true
+                    )
+                ) {
+                    filteredList.add(user)
+                }
+            }
+            callHistoryAdapter.submitList(null)
+            callHistoryAdapter.submitList(ArrayList(filteredList))
+            filteredList.clear()
         }
     }
 

@@ -164,27 +164,27 @@ class ContactsFragment : BaseFragment() {
     private fun setupAdapter() {
         contactsAdapter = UsersGroupsAdapter(requireContext(), false, null, isForward = false) {
             selectedUser = it
-                CoroutineScope(Dispatchers.IO).launch {
-                    Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(it.userId)}")
-                    val roomId = viewModel.checkIfUserInPrivateRoom(it.userId)
-                    if (roomId != null) {
-                        if (selectedUser != null) {
-                            val bundle = bundleOf(
-                                Const.Navigation.USER_PROFILE to selectedUser,
-                                Const.Navigation.ROOM_ID to roomId
+            CoroutineScope(Dispatchers.IO).launch {
+                Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(it.userId)}")
+                val roomId = viewModel.checkIfUserInPrivateRoom(it.userId)
+                if (roomId != null) {
+                    if (selectedUser != null) {
+                        val bundle = bundleOf(
+                            Const.Navigation.USER_PROFILE to selectedUser,
+                            Const.Navigation.ROOM_ID to roomId
+                        )
+                        activity?.runOnUiThread {
+                            findNavController().navigate(
+                                R.id.action_mainFragment_to_contactDetailsFragment,
+                                bundle,
+                                navOptionsBuilder
                             )
-                            activity?.runOnUiThread {
-                                findNavController().navigate(
-                                    R.id.action_mainFragment_to_contactDetailsFragment,
-                                    bundle,
-                                    navOptionsBuilder
-                                )
-                            }
                         }
-                    } else {
-                        viewModel.checkIfRoomExists(it.userId)
                     }
+                } else {
+                    viewModel.checkIfRoomExists(it.userId)
                 }
+            }
         }
 
         binding.rvContacts.adapter = contactsAdapter
@@ -197,36 +197,12 @@ class ContactsFragment : BaseFragment() {
         searchView.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null) {
-                    for (user in userList) {
-                        if (user.userName?.lowercase()
-                                ?.contains(query, ignoreCase = true) == true
-                            || user.userPhoneName?.lowercase()?.contains(query, ignoreCase = true) == true
-                        ) {
-                            filteredList.add(user)
-                        }
-                    }
-                    val users = filteredList.sortChats(requireContext())
-                    contactsAdapter.submitList(ArrayList(users))
-                    filteredList.clear()
-                }
+                makeQuery(query)
                 return true
             }
 
             override fun onQueryTextChange(query: String?): Boolean {
-                if (query != null) {
-                    for (user in userList) {
-                        if (user.userName?.lowercase()
-                                ?.contains(query, ignoreCase = true) == true
-                            || user.userPhoneName?.lowercase()?.contains(query, ignoreCase = true) == true
-                        ) {
-                            filteredList.add(user)
-                        }
-                    }
-                    val users = filteredList.sortChats(requireContext())
-                    contactsAdapter.submitList(ArrayList(users))
-                    filteredList.clear()
-                }
+                makeQuery(query)
                 return true
             }
         })
@@ -237,6 +213,23 @@ class ContactsFragment : BaseFragment() {
                     hideKeyboard(view)
                 }
             }
+        }
+    }
+
+    fun makeQuery(query: String?) {
+        if (query != null) {
+            for (user in userList) {
+                if (user.userName?.lowercase()
+                        ?.contains(query, ignoreCase = true) == true
+                    || user.userPhoneName?.lowercase()?.contains(query, ignoreCase = true) == true
+                ) {
+                    filteredList.add(user)
+                }
+            }
+            val users = filteredList.sortChats(requireContext())
+            contactsAdapter.submitList(null)
+            contactsAdapter.submitList(ArrayList(users))
+            filteredList.clear()
         }
     }
 
