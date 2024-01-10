@@ -1059,9 +1059,10 @@ class ChatMessagesFragment : BaseFragment() {
                         val message = JsonArray()
                         message.add(msg.message.id)
 
-                        jsonObject.add("roomIds", rooms)
-                        jsonObject.add("userIds", users)
-                        jsonObject.add("messageIds", message)
+                        jsonObject.add(Const.JsonFields.ROOM_IDS, rooms)
+                        jsonObject.add(Const.JsonFields.USER_IDS, users)
+                        // For now we only send one message
+                        jsonObject.add(Const.JsonFields.MESSAGE_IDS, message)
 
                         Timber.d("Json object: $jsonObject")
 

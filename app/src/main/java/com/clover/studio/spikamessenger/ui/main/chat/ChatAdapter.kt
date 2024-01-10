@@ -507,10 +507,10 @@ class ChatAdapter(
                 }
 
                 /** Show edited layout: */
-                if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.tvEdited.visibility = View.VISIBLE
+                holder.binding.tvEdited.visibility = if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
+                   View.VISIBLE
                 } else {
-                    holder.binding.tvEdited.visibility = View.GONE
+                   View.GONE
                 }
 
                 /** Show user names and avatars in group chat */

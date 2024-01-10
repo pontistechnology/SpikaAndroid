@@ -62,9 +62,4 @@ data class User(
     val formattedDisplayName: String
         get() = displayName?.takeIf { it.isNotEmpty() }
             ?: MainApplication.appContext.getString(R.string.unknown_user)
-
-    @IgnoredOnParcel
-    @Ignore
-    var isForwarded : Boolean = false
-
 }

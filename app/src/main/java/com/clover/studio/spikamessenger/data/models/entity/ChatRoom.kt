@@ -60,9 +60,5 @@ data class ChatRoom @JvmOverloads constructor(
 
     @Ignore
     @IgnoredOnParcel
-    var isForwarded : Boolean = false
-
-    @Ignore
-    @IgnoredOnParcel
     var selected : Boolean = false
 }

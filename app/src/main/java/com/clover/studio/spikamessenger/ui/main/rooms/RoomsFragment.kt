@@ -385,9 +385,4 @@ class RoomsFragment : BaseFragment() {
         binding.topAppBar.menu.findItem(R.id.search_menu_icon).collapseActionView()
         searchQuery = ""
     }
-
-    override fun onResume() {
-        super.onResume()
-        Timber.d("Here on resume")
-    }
 }
