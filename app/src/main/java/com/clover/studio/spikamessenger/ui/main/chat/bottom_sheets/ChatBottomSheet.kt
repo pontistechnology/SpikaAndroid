@@ -44,6 +44,7 @@ class ChatBottomSheet(
         fun actionReaction(reaction: String)
         fun actionAddCustomReaction()
         fun actionDownload()
+        fun actionForward()
     }
 
     fun setActionListener(listener: BottomSheetAction?) {
@@ -59,7 +60,7 @@ class ChatBottomSheet(
             if (message.fromUserId == localId) View.VISIBLE else View.GONE
 
         tvEdit.visibility =
-            if (message.fromUserId == localId && Const.JsonFields.TEXT_TYPE == message.type) View.VISIBLE else View.GONE
+            if (message.fromUserId == localId && Const.JsonFields.TEXT_TYPE == message.type && !message.isForwarded) View.VISIBLE else View.GONE
 
         tvCopy.visibility =
             if (Const.JsonFields.TEXT_TYPE == message.type) View.VISIBLE else View.GONE
@@ -96,6 +97,11 @@ class ChatBottomSheet(
 
         cvDownload.setOnClickListener {
             listener?.actionDownload()
+            dismiss()
+        }
+
+        cvForward.setOnClickListener {
+            listener?.actionForward()
             dismiss()
         }
 

@@ -8,6 +8,7 @@ import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -55,7 +56,11 @@ class MainViewModel @Inject constructor(
     val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
     val deleteUserListener = MutableLiveData<Event<Resource<DeleteUserResponse?>>>()
     val searchedMessageListener = MutableLiveData<Event<Resource<List<MessageWithRoom>?>>>()
-    val roomUsers: MutableList<UserAndPhoneUser> = ArrayList()
+    val contactListener = MutableLiveData<Event<Resource<List<UserAndPhoneUser>?>>>()
+    val recentContacts = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
+    val allGroupsListener = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
+    val recentGroupsListener = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
+    val roomUsers: MutableList<PrivateGroupChats> = ArrayList()
 
     init {
         sseManager.setupListener(this)
@@ -87,7 +92,7 @@ class MainViewModel @Inject constructor(
         )
     }
 
-    fun saveSelectedUsers(users: MutableList<UserAndPhoneUser>) {
+    fun saveSelectedUsers(users: MutableList<PrivateGroupChats>) {
         roomUsers.addAll(users.toMutableSet())
     }
 
@@ -131,9 +136,25 @@ class MainViewModel @Inject constructor(
         resolveResponseStatus(searchedMessageListener, repository.getSearchedMessages(query))
     }
 
-    fun getUserAndPhoneUser(localId: Int) = repository.getUserAndPhoneUser(localId)
+    fun getUserAndPhoneUserLiveData(localId: Int) = repository.getUserAndPhoneUserLiveData(localId)
+
+    fun getUserAndPhoneUser(localId: Int) = viewModelScope.launch {
+        resolveResponseStatus(contactListener, repository.getUserAndPhoneUser(localId))
+    }
 
     fun getChatRoomsWithLatestMessage() = repository.getChatRoomsWithLatestMessage()
+
+    fun getRecentContacts() = viewModelScope.launch {
+        resolveResponseStatus(recentContacts, repository.getRecentContacts())
+    }
+
+    fun getRecentGroups() = viewModelScope.launch {
+        resolveResponseStatus(recentGroupsListener, repository.getRecentGroups())
+    }
+
+    fun getAllGroups() = viewModelScope.launch {
+        resolveResponseStatus(allGroupsListener, repository.getAllGroups()   )
+    }
 
     fun getRoomsLiveData() = repository.getRoomsUnreadCount()
 

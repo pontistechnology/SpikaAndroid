@@ -28,6 +28,10 @@
     <string name="number_copied">Telephone number copied</string>
     <string name="private_contact_label">Private contact</string>
     <string name="group_label">Group</string>
+    <string name="groups_label">Groups</string>
+    <string name="recent_chats">Recent chats</string>
+    <string name="no_results">No results</string>
+    <string name="no_groups_yet">No groups yet</string>
     <string name="contact_search"><font size="14"> Search for contact</font></string>
     <string name="contact_message_search"><font size="14"> Search for room or message</font></string>
 
@@ -194,6 +198,8 @@
     <!--Message options-->
     <string name="reply">Reply</string>
     <string name="forward">Forward</string>
+    <string name="forwarded">forwarded</string>
+    <string name="forward_messages">Forward messages</string>
     <string name="copy">Copy</string>
     <string name="edit">Edit</string>
     <string name="details">Details</string>
@@ -256,6 +262,7 @@
     <string name="failed_to_delete_block_for_user">Failed to delete block for user</string>
     <string name="failed_delete_note">Failed to delete note, please try again.</string>
     <string name="unknown_user">Unknown user</string>
+    <string name="deleted_user">Deleted user</string>
     <string name="data_deletion_warning">Your user and all his data will be deleted</string>
     <string name="terms_description">To proceed into the app, please accept our terms and conditions.</string>
     <string name="help">Help</string>

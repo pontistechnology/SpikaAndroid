@@ -45,9 +45,13 @@ import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
+import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
+import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.vanniktech.emoji.EmojiTheming
 import com.vanniktech.emoji.emojisCount
@@ -462,7 +466,8 @@ object Tools {
             null,
             generateRandomId(),
             Resource.Status.LOADING.toString(),
-            null
+            null,
+            isForwarded = false
         )
     }
 
@@ -819,20 +824,10 @@ object Tools {
     }
 
     fun setEmojiViewTheme(context: Context): EmojiTheming {
-        val typedValue = TypedValue()
-        val theme = context.theme
-        theme.resolveAttribute(R.attr.primaryTextColor, typedValue, true)
-
-        val typedValueSecondaryColor = TypedValue()
-        theme.resolveAttribute(R.attr.primaryColor, typedValueSecondaryColor, true)
-
-        val typedValueAdditionalColor = TypedValue()
-        theme.resolveAttribute(R.attr.secondaryColor, typedValueAdditionalColor, true)
-
         return EmojiTheming(
-            primaryColor = typedValueSecondaryColor.data,
-            secondaryColor = typedValue.data,
-            backgroundColor = typedValueAdditionalColor.data
+            primaryColor = ColorHelper.getPrimaryColor(context),
+            secondaryColor = ColorHelper.getPrimaryTextColor(context),
+            backgroundColor = ColorHelper.getSecondaryColor(context)
         )
     }
 
@@ -850,6 +845,58 @@ object Tools {
                 SMALL_EMOJI_SIZE
             }
         }
+    }
+    fun transformPrivateList(context: Context, list: List<UserAndPhoneUser>): MutableList<PrivateGroupChats> {
+        return list.map {
+            PrivateGroupChats(
+                userId = it.user.id,
+                roomId = null,
+                userName = it.user.formattedDisplayName,
+                userPhoneName = it.phoneUser?.name,
+                roomName = null,
+                avatarId = it.user.avatarFileId ?: 0L,
+                phoneNumber = it.user.telephoneNumber ?: "",
+                isRecent = false,
+                selected = false,
+                isBot = false
+            )
+        }.toMutableList().sortChats(context).toMutableList()
+    }
+
+    fun transformGroupList(context: Context,list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
+        return list.map {
+                PrivateGroupChats(
+                    userId = 0,
+                    roomId = it.room.roomId,
+                    avatarId = it.room.avatarFileId ?: 0L,
+                    phoneNumber = null,
+                    userName = null,
+                    userPhoneName = null,
+                    roomName = it.room.name,
+                    isRecent = false,
+                    isBot = false,
+                    selected = false)
+            }.toMutableList().sortChats(context).toMutableList()
+    }
+
+    fun transformRecentContacts(localUserId: Int?, context: Context, list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
+        return list.flatMap { room ->
+            room.users.filter { it.id != localUserId && !it.formattedDisplayName.contains(context.getString(R.string.deleted_user))}
+                .map { user ->
+                PrivateGroupChats(
+                    userId = user.id,
+                    roomId = room.room.roomId,
+                    avatarId = user.avatarFileId ?: 0L,
+                    phoneNumber = user.telephoneNumber,
+                    userName =  user.formattedDisplayName,
+                    userPhoneName = null,
+                    roomName = null,
+                    isRecent = false,
+                    isBot = user.isBot,
+                    selected = false
+                )
+            }
+        }.toMutableList().sortChats(context).toMutableList()
     }
 
     fun setUpSearchBar(context: Context, searchView: androidx.appcompat.widget.SearchView){

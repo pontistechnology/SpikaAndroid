@@ -41,6 +41,7 @@
         android:layout_width="@dimen/twenty_dp_margin"
         android:layout_height="@dimen/twenty_dp_margin"
         android:elevation="@dimen/five_dp_margin"
+        android:id="@+id/iv_remove"
         android:src="@drawable/img_remove_contact"
         app:layout_constraintBottom_toTopOf="@id/iv_user_image"
         app:layout_constraintEnd_toEndOf="parent"

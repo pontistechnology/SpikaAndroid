@@ -5,6 +5,15 @@
       <entry key="app">
         <State />
       </entry>
+      <entry key="migrate4To5()">
+        <State />
+      </entry>
+      <entry key="migrate5To6()">
+        <State />
+      </entry>
+      <entry key="migrate6to7()">
+        <State />
+      </entry>
     </value>
   </component>
 </project>

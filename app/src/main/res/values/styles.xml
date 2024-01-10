@@ -176,9 +176,17 @@
         <item name="android:editTextColor">?attr/primaryTextColor</item>
     </style>
 
+    <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
+        <item name="android:editTextColor">?attr/primaryTextColor</item>
+        <item name="editTextColor">?attr/primaryTextColor</item>
+        <item name="android:textColor">?attr/primaryTextColor</item>
+        <item name="android:textColorHint">?attr/primaryTextColor</item>
+    </style>
+
     <!--  Bottom sheet style  -->
     <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/ModalBottomSheetDialog</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="android:backgroundTint">@android:color/transparent</item>
     </style>
 

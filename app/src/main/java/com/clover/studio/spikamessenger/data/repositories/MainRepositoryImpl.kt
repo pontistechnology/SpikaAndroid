@@ -95,8 +95,13 @@ class MainRepositoryImpl @Inject constructor(
         return response
     }
 
-    override fun getUserAndPhoneUser(localId: Int) =
+    override fun getUserAndPhoneUserLiveData(localId: Int) =
         queryDatabase(
+            databaseQuery = { userDao.getUserAndPhoneUserLiveData(localId) }
+        )
+
+    override suspend fun getUserAndPhoneUser(localId: Int) =
+        queryDatabaseCoreData(
             databaseQuery = { userDao.getUserAndPhoneUser(localId) }
         )
 
@@ -137,6 +142,21 @@ class MainRepositoryImpl @Inject constructor(
     override fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithMessage>>> =
         queryDatabase(
             databaseQuery = { chatRoomDao.getAllRoomsWithLatestMessageAndRecord() }
+        )
+
+    override suspend fun getRecentContacts() =
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.getRecentContacts() }
+        )
+
+    override suspend fun getRecentGroups() =
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.getRecentGroups() }
+        )
+
+    override suspend fun getAllGroups() =
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.getAllGroups() }
         )
 
 
@@ -210,6 +230,34 @@ class MainRepositoryImpl @Inject constructor(
         }
 
         return data
+    }
+
+    override suspend fun forwardMessages(jsonObject: JsonObject) {
+        performRestOperation(
+            networkCall = { mainRemoteDataSource.forwardMessages(jsonObject) },
+            saveCallResult = {
+                val roomUsers = mutableListOf<RoomUser>()
+                it.data.newRooms.flatMap { chatRoom ->
+                    chatRoom.users.map { roomUser ->
+                        roomUsers.add(
+                            RoomUser(
+                                userId = roomUser.userId,
+                                roomId = chatRoom.roomId,
+                                isAdmin = roomUser.isAdmin,
+                            )
+                        )
+                    }
+                }
+
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.upsert(it.data.newRooms) }
+                )
+
+                queryDatabaseCoreData(
+                    databaseQuery = { roomUserDao.upsert(roomUsers) }
+                )
+            }
+        )
     }
 
     override suspend fun uploadFiles(jsonObject: JsonObject): Resource<FileResponse> {
@@ -377,7 +425,9 @@ interface MainRepository : BaseRepository {
     suspend fun getUserByID(id: Int): LiveData<Resource<User>>
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
-    fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
+    suspend fun forwardMessages(jsonObject: JsonObject)
+    fun getUserAndPhoneUserLiveData(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
+    suspend fun getUserAndPhoneUser(localId: Int): Resource<List<UserAndPhoneUser>>
     suspend fun deleteUser(): Resource<DeleteUserResponse>
 
     // Rooms calls
@@ -392,6 +442,9 @@ interface MainRepository : BaseRepository {
     fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithMessage>>>
+    suspend fun getRecentContacts(): Resource<List<RoomWithUsers>>
+    suspend fun getRecentGroups(): Resource<List<RoomWithUsers>>
+    suspend fun getAllGroups(): Resource<List<RoomWithUsers>>
     suspend fun updateRoom(
         jsonObject: JsonObject,
         roomId: Int,

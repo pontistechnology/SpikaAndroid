@@ -273,6 +273,9 @@ class ChatViewModel @Inject constructor(
         mainRepository.updateUnreadCount(roomId)
     }
 
+    fun forwardMessage(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch  {
+        mainRepository.forwardMessages(jsonObject)
+    }
 
     fun cancelUploadFile(messageId: String) = viewModelScope.launch {
         mainRepository.cancelUpload(messageId)

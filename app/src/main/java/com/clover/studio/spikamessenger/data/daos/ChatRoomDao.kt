@@ -61,6 +61,28 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     fun getAllRoomsWithLatestMessageAndRecord(): LiveData<List<RoomWithMessage>>
 
     @Transaction
+    @Query(
+        "SELECT room.*, message.* FROM room LEFT JOIN (SELECT room_id_message, MAX(created_at_message) AS max_created_at FROM message GROUP BY room_id_message) \n" +
+                "AS latestMessageTime ON room.room_id = latestMessageTime.room_id_message LEFT JOIN message\n" +
+                "ON message.room_id_message = room.room_id AND message.created_at_message = latestMessageTime.max_created_at \n" +
+                "WHERE type = 'private' ORDER BY message.created_at_message DESC LIMIT 3"
+    )
+    fun getRecentContacts(): List<RoomWithUsers>
+
+    @Transaction
+    @Query(
+        "SELECT room.* FROM room LEFT JOIN (SELECT room_id_message, MAX(created_at_message) AS max_created_at FROM message GROUP BY room_id_message) \n" +
+                "AS latestMessageTime ON room.room_id = latestMessageTime.room_id_message LEFT JOIN message\n" +
+                "ON message.room_id_message = room.room_id AND message.created_at_message = latestMessageTime.max_created_at \n" +
+                "WHERE type = 'group' ORDER BY message.created_at_message DESC LIMIT 3"
+    )
+    fun getRecentGroups(): List<RoomWithUsers>
+
+    @Transaction
+    @Query("SELECT * FROM room WHERE type = 'group' ORDER BY name COLLATE UNICODE ASC")
+    fun getAllGroups(): List<RoomWithUsers>
+
+    @Transaction
     @Query("SELECT * FROM room")
     fun getChatRoomAndMessageAndRecords(): LiveData<List<RoomAndMessageAndRecords>>
 

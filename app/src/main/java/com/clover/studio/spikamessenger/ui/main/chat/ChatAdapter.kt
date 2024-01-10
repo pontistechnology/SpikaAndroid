@@ -341,10 +341,17 @@ class ChatAdapter(
                 }
 
                 /** Show edited layout: */
-                if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.tvEdited.visibility = View.VISIBLE
+                holder.binding.tvEdited.visibility = if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt){
+                    View.VISIBLE
                 } else {
-                    holder.binding.tvEdited.visibility = View.GONE
+                    View.GONE
+                }
+
+                holder.binding.tvForward.visibility = if (it.message.isForwarded &&
+                    (it.message.deleted != null && !it.message.deleted)){
+                    View.VISIBLE
+                } else {
+                    View.GONE
                 }
 
                 /** Show reactions: */
@@ -493,11 +500,17 @@ class ChatAdapter(
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it)
                 }
 
-                /** Show edited layout: */
-                if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                    holder.binding.tvEdited.visibility = View.VISIBLE
+                holder.binding.tvForward.visibility = if (it.message.isForwarded){
+                    View.VISIBLE
                 } else {
-                    holder.binding.tvEdited.visibility = View.GONE
+                    View.GONE
+                }
+
+                /** Show edited layout: */
+                holder.binding.tvEdited.visibility = if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
+                   View.VISIBLE
+                } else {
+                   View.GONE
                 }
 
                 /** Show user names and avatars in group chat */
@@ -667,6 +680,7 @@ class ChatAdapter(
                         context,
                         if (sender) R.drawable.bg_deleted_msg_send else R.drawable.bg_deleted_msg_received
                     )
+                setOnLongClickListener { true }
             } else {
                 setOnLongClickListener {
                     chatMessage.message.messagePosition = holder.absoluteAdapterPosition

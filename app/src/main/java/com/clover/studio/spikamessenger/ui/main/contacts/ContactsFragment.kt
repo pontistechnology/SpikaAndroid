@@ -13,15 +13,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.R
-import com.clover.studio.spikamessenger.data.models.entity.User
-import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.databinding.FragmentContactsBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortUsersByLocale
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,10 +29,10 @@ import timber.log.Timber
 
 class ContactsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
-    private lateinit var contactsAdapter: ContactsAdapter
-    private lateinit var userList: MutableList<UserAndPhoneUser>
-    private var filteredList: MutableList<UserAndPhoneUser> = ArrayList()
-    private var selectedUser: User? = null
+    private lateinit var contactsAdapter: UsersGroupsAdapter
+    private var userList: MutableList<PrivateGroupChats> = mutableListOf()
+    private var filteredList: MutableList<PrivateGroupChats> = ArrayList()
+    private var selectedUser: PrivateGroupChats? = null
 
     private var bindingSetup: FragmentContactsBinding? = null
     private val binding get() = bindingSetup!!
@@ -96,14 +95,12 @@ class ContactsFragment : BaseFragment() {
             }
         })
 
-        viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
+        viewModel.getUserAndPhoneUserLiveData(localId).observe(viewLifecycleOwner) {
             if (it.responseData != null) {
-                userList = it.responseData.toMutableList()
+                userList.clear()
+                userList = Tools.transformPrivateList(requireContext(), it.responseData)
 
-                // TODO fix this later
-                val users = userList.sortUsersByLocale(requireContext())
-
-                contactsAdapter.submitList(users)
+                contactsAdapter.submitList(userList)
             }
         }
 
@@ -165,29 +162,27 @@ class ContactsFragment : BaseFragment() {
     }
 
     private fun setupAdapter() {
-        contactsAdapter = ContactsAdapter(requireContext(), false, null) {
-            selectedUser = it.user
-            run {
-                CoroutineScope(Dispatchers.IO).launch {
-                    Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(it.user.id)}")
-                    val roomId = viewModel.checkIfUserInPrivateRoom(it.user.id)
-                    if (roomId != null) {
-                        if (selectedUser != null) {
-                            val bundle = bundleOf(
-                                Const.Navigation.USER_PROFILE to selectedUser,
-                                Const.Navigation.ROOM_ID to roomId
+        contactsAdapter = UsersGroupsAdapter(requireContext(), false, null, isForward = false) {
+            selectedUser = it
+            CoroutineScope(Dispatchers.IO).launch {
+                Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(it.userId)}")
+                val roomId = viewModel.checkIfUserInPrivateRoom(it.userId)
+                if (roomId != null) {
+                    if (selectedUser != null) {
+                        val bundle = bundleOf(
+                            Const.Navigation.USER_PROFILE to selectedUser,
+                            Const.Navigation.ROOM_ID to roomId
+                        )
+                        activity?.runOnUiThread {
+                            findNavController().navigate(
+                                R.id.action_mainFragment_to_contactDetailsFragment,
+                                bundle,
+                                navOptionsBuilder
                             )
-                            activity?.runOnUiThread {
-                                findNavController().navigate(
-                                    R.id.action_mainFragment_to_contactDetailsFragment,
-                                    bundle,
-                                    navOptionsBuilder
-                                )
-                            }
                         }
-                    } else {
-                        viewModel.checkIfRoomExists(it.user.id)
                     }
+                } else {
+                    viewModel.checkIfRoomExists(it.userId)
                 }
             }
         }
@@ -202,44 +197,12 @@ class ContactsFragment : BaseFragment() {
         searchView.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null) {
-                    if (::userList.isInitialized) {
-                        for (user in userList) {
-                            if (user.phoneUser?.name?.lowercase()?.contains(
-                                    query,
-                                    ignoreCase = true
-                                ) ?: user.user.formattedDisplayName.lowercase()
-                                    .contains(query, ignoreCase = true)
-                            ) {
-                                filteredList.add(user)
-                            }
-                        }
-                        val users = filteredList.sortUsersByLocale(requireContext())
-                        contactsAdapter.submitList(ArrayList(users))
-                        filteredList.clear()
-                    }
-                }
+                makeQuery(query)
                 return true
             }
 
             override fun onQueryTextChange(query: String?): Boolean {
-                if (query != null) {
-                    if (::userList.isInitialized) {
-                        for (user in userList) {
-                            if (user.phoneUser?.name?.lowercase()?.contains(
-                                    query,
-                                    ignoreCase = true
-                                ) ?: user.user.formattedDisplayName.lowercase()
-                                    .contains(query, ignoreCase = true)
-                            ) {
-                                filteredList.add(user)
-                            }
-                        }
-                        val users = filteredList.sortUsersByLocale(requireContext())
-                        contactsAdapter.submitList(ArrayList(users))
-                        filteredList.clear()
-                    }
-                }
+                makeQuery(query)
                 return true
             }
         })
@@ -250,6 +213,23 @@ class ContactsFragment : BaseFragment() {
                     hideKeyboard(view)
                 }
             }
+        }
+    }
+
+    fun makeQuery(query: String?) {
+        if (query != null) {
+            for (user in userList) {
+                if (user.userName?.lowercase()
+                        ?.contains(query, ignoreCase = true) == true
+                    || user.userPhoneName?.lowercase()?.contains(query, ignoreCase = true) == true
+                ) {
+                    filteredList.add(user)
+                }
+            }
+            val users = filteredList.sortChats(requireContext())
+            contactsAdapter.submitList(null)
+            contactsAdapter.submitList(ArrayList(users))
+            filteredList.clear()
         }
     }
 

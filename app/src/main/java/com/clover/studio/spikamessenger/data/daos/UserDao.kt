@@ -29,7 +29,11 @@ interface UserDao: BaseDao<User> {
 
     @Transaction
     @Query("SELECT * FROM user WHERE user_id NOT LIKE :localId AND deleted NOT LIKE 1")
-    fun getUserAndPhoneUser(localId: Int): LiveData<List<UserAndPhoneUser>>
+    fun getUserAndPhoneUserLiveData(localId: Int): LiveData<List<UserAndPhoneUser>>
+
+    @Transaction
+    @Query("SELECT * FROM user WHERE user_id NOT LIKE :localId AND deleted NOT LIKE 1")
+    fun getUserAndPhoneUser(localId: Int): List<UserAndPhoneUser>
 
     @Transaction
     @Query("SELECT * FROM user")

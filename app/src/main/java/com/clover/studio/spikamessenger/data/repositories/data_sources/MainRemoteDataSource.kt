@@ -44,6 +44,10 @@ class MainRemoteDataSource @Inject constructor(
         retrofitService.updateUser(getHeaderMap(sharedPrefs.readToken()), jsonObject)
     }
 
+    suspend fun forwardMessages(jsonObject: JsonObject) = getResult {
+        retrofitService.forwardMessages(getHeaderMap(sharedPrefs.readToken()), jsonObject)
+    }
+
     suspend fun getUserSettings() = getResult {
         retrofitService.getSettings(getHeaderMap(sharedPrefs.readToken()))
     }

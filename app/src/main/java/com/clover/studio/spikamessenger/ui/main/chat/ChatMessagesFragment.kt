@@ -55,12 +55,14 @@ import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentChatMessagesBinding
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ChatBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.CustomReactionBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.DetailsBottomSheet
+import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ForwardBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.MediaBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ReactionsBottomSheet
 import com.clover.studio.spikamessenger.utils.Const
@@ -73,10 +75,12 @@ import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
+import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
 import com.clover.studio.spikamessenger.utils.helpers.FilesHelper
 import com.clover.studio.spikamessenger.utils.helpers.FilesHelper.getUniqueRandomId
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.UploadService
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
@@ -344,9 +348,22 @@ class ChatMessagesFragment : BaseFragment() {
     private fun initListeners() = with(bindingSetup) {
         chatHeader.clHeader.setOnClickListener {
             if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
+                val user = roomWithUsers?.users!!.firstOrNull { user -> user.id != localUserId }
+                val privateGroupUser = PrivateGroupChats(
+                    userId = user?.id ?: 0,
+                    roomId = null,
+                    userPhoneName = user?.displayName ?: "",
+                    roomName = null,
+                    avatarId = user?.avatarFileId ?: 0L,
+                    userName = user?.formattedDisplayName ?: "",
+                    phoneNumber = user?.telephoneNumber ?: "",
+                    isBot = false,
+                    isRecent = false,
+                    selected = false
+                )
                 val bundle =
                     bundleOf(
-                        Const.Navigation.USER_PROFILE to roomWithUsers?.users!!.firstOrNull { user -> user.id != localUserId },
+                        Const.Navigation.USER_PROFILE to privateGroupUser,
                         Const.Navigation.ROOM_ID to roomWithUsers?.room!!.roomId,
                         Const.Navigation.ROOM_DATA to roomWithUsers?.room!!
                     )
@@ -894,10 +911,7 @@ class ChatMessagesFragment : BaseFragment() {
             }
         }
 
-        val typedValue = TypedValue()
-        val theme = requireContext().theme
-        theme.resolveAttribute(R.attr.secondAdditionalColor, typedValue, true)
-        clSendingArea.setBackgroundColor(typedValue.data)
+        clSendingArea.setBackgroundColor(ColorHelper.getSecondAdditionalColor(requireContext()))
     }
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
@@ -1022,6 +1036,42 @@ class ChatMessagesFragment : BaseFragment() {
                 customReactionBottomSheet.show(
                     requireActivity().supportFragmentManager,
                     CustomReactionBottomSheet.TAG
+                )
+            }
+
+            override fun actionForward() {
+                val forwardBottomSheet = ForwardBottomSheet(context = requireContext(), localUserId)
+                forwardBottomSheet.setForwardListener(object :
+                    ForwardBottomSheet.BottomSheetForwardAction {
+                    override fun forward(userIds: ArrayList<Int>, roomIds: ArrayList<Int>) {
+                        val jsonObject = JsonObject()
+
+                        val rooms = JsonArray()
+                        roomIds.forEach { room ->
+                            rooms.add(room)
+                        }
+
+                        val users = JsonArray()
+                        userIds.forEach { user ->
+                            users.add(user)
+                        }
+
+                        val message = JsonArray()
+                        message.add(msg.message.id)
+
+                        jsonObject.add(Const.JsonFields.ROOM_IDS, rooms)
+                        jsonObject.add(Const.JsonFields.USER_IDS, users)
+                        // For now we only send one message
+                        jsonObject.add(Const.JsonFields.MESSAGE_IDS, message)
+
+                        Timber.d("Json object: $jsonObject")
+
+                        viewModel.forwardMessage(jsonObject)
+                    }
+                })
+                forwardBottomSheet.show(
+                    requireActivity().supportFragmentManager,
+                    ForwardBottomSheet.TAG
                 )
             }
         })
