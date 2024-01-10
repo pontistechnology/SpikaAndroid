@@ -680,6 +680,7 @@ class ChatAdapter(
                         context,
                         if (sender) R.drawable.bg_deleted_msg_send else R.drawable.bg_deleted_msg_received
                     )
+                setOnLongClickListener { true }
             } else {
                 setOnLongClickListener {
                     chatMessage.message.messagePosition = holder.absoluteAdapterPosition
