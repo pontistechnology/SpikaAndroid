@@ -1,5 +1,6 @@
 <resources>
     <!-- Layout -->
+    <dimen name="five_hundred_twelve">512dp</dimen>
     <dimen name="two_hundred_seventy_two_dp">272dp</dimen>
     <dimen name="two_hundred_fifty_six_dp">256dp</dimen>
     <dimen name="two_hundred_fourteen_dp">214dp</dimen>

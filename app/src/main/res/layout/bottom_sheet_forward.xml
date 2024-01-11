@@ -110,6 +110,7 @@
             android:id="@+id/tv_no_results"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minHeight="@dimen/five_hundred_twelve"
             android:textAppearance="@style/CustomTextBody"
             android:text="@string/no_results"
             android:textSize="@dimen/twenty_sp_text"
