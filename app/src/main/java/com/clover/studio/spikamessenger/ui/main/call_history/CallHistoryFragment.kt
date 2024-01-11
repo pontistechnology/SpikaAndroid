@@ -61,7 +61,8 @@ class CallHistoryFragment : BaseFragment() {
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
                     val searchView = menuItem.actionView as SearchView
-                    Tools.setUpSearchBar(requireContext(), searchView)
+                    Tools.setUpSearchBar(requireContext(), searchView,
+                        getString(R.string.search_contacts))
                     setupSearchView(searchView)
 
                     menuItem.expandActionView()

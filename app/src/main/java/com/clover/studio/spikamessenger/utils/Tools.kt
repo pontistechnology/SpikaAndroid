@@ -899,9 +899,9 @@ object Tools {
         }.toMutableList().sortChats(context).toMutableList()
     }
 
-    fun setUpSearchBar(context: Context, searchView: androidx.appcompat.widget.SearchView){
+    fun setUpSearchBar(context: Context, searchView: androidx.appcompat.widget.SearchView, hint: String){
         searchView.apply {
-            queryHint = context.getString(R.string.contact_message_search)
+            queryHint = hint
             setBackgroundResource(R.drawable.bg_input)
             backgroundTintList =  ColorStateList.valueOf(ColorHelper.getFourthAdditionalColorWithAlpha(context))
             setIconifiedByDefault(false)

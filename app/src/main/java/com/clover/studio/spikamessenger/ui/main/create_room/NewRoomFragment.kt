@@ -114,8 +114,8 @@ class NewRoomFragment : BaseFragment() {
                 R.id.search_menu_icon -> {
                     ivCancel.visibility = View.GONE
                     val searchView = menuItem.actionView as SearchView
-                    searchView.queryHint = getString(R.string.contact_search)
-                    searchView.setIconifiedByDefault(false)
+                    searchView.let { Tools.setUpSearchBar(requireContext(), it, getString(R.string.search_contacts)) }
+
                     setupSearchView(searchView)
 
                     menuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {

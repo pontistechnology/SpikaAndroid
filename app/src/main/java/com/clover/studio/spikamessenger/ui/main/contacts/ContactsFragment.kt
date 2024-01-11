@@ -73,7 +73,7 @@ class ContactsFragment : BaseFragment() {
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
                     val searchView = menuItem.actionView as SearchView
-                    searchView.let { Tools.setUpSearchBar(requireContext(), it) }
+                    searchView.let { Tools.setUpSearchBar(requireContext(), it, getString(R.string.search_contacts)) }
                     setupSearchView(searchView)
 
                     menuItem.expandActionView()
