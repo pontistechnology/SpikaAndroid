@@ -17,7 +17,7 @@
         android:backgroundTint="@android:color/transparent"
         app:elevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/iv_cancel"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -28,8 +28,9 @@
             app:collapseIcon="@drawable/img_arrow_back_chat"
             app:elevation="0dp"
             app:menu="@menu/menu"
-            app:title="@string/chat"
-            app:titleTextAppearance="@style/CustomTitleBold"
+            app:title="@string/new_chat"
+            app:titleCentered="true"
+            app:titleTextAppearance="@style/CustomTextBody"
             app:titleTextColor="?attr/primaryTextColor" />
     </com.google.android.material.appbar.AppBarLayout>
 
