@@ -34,6 +34,7 @@
     <string name="no_groups_yet">No groups yet</string>
     <string name="contact_search"><font size="14"> Search for contact</font></string>
     <string name="contact_message_search"><font size="14"> Search for room or message</font></string>
+    <string name="contact_groups_search"><font size="14"> Search for contacts or groups</font></string>
 
     <!--Settings-->
     <string name="settings">Settings</string>
