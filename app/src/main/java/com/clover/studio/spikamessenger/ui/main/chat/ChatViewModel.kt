@@ -1,8 +1,9 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.liveData
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
 import com.clover.studio.spikamessenger.data.models.FileData
@@ -143,7 +144,7 @@ class ChatViewModel @Inject constructor(
 
     fun getRoomAndUsers(roomId: Int) = repository.getRoomWithUsersLiveData(roomId)
 
-    fun getMessageAndRecords(roomId: Int) = Transformations.switchMap(liveDataLimit) {
+    fun getMessageAndRecords(roomId: Int) = liveDataLimit.switchMap {
         repository.getMessagesAndRecords(roomId, it, 0)
     }
 
@@ -273,7 +274,7 @@ class ChatViewModel @Inject constructor(
         mainRepository.updateUnreadCount(roomId)
     }
 
-    fun forwardMessage(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch  {
+    fun forwardMessage(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
         mainRepository.forwardMessages(jsonObject)
     }
 

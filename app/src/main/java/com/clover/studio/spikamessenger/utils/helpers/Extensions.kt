@@ -27,7 +27,7 @@ object Extensions {
             private var initialized = false
             private var lastObj: T? = null
 
-            override fun onChanged(obj: T?) {
+            override fun onChanged(obj: T) {
                 if (!initialized) {
                     initialized = true
                     lastObj = obj
