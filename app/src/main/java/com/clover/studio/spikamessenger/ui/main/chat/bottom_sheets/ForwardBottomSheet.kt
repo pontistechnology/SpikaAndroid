@@ -239,7 +239,7 @@ class ForwardBottomSheet(
             btnContacts.backgroundTintList =
                 ColorStateList.valueOf(ColorHelper.getFourthAdditionalColor(context))
 
-            if (groupList.isEmpty()){
+            if (groupList.isEmpty()) {
                 rvContacts.visibility = View.GONE
                 tvNoResults.visibility = View.GONE
                 tvEmptyList.apply {
@@ -282,10 +282,18 @@ class ForwardBottomSheet(
             listener?.forward(userIds, roomIds)
             dismiss()
         }
+
+        ivCloseSheet.setOnClickListener {
+            dismiss()
+        }
     }
 
     private fun setUpSearch() = with(binding) {
-        svRoomsContacts.setIconifiedByDefault(false)
+        Tools.setUpSearchBar(
+            context = context,
+            searchView = svRoomsContacts,
+            hint = getString(R.string.contact_groups_search)
+        )
 
         // Searching users / groups
         svRoomsContacts.setOnQueryTextListener(object :
@@ -315,7 +323,7 @@ class ForwardBottomSheet(
         }
     }
 
-    private fun makeQuery(query: String?) = with(binding){
+    private fun makeQuery(query: String?) = with(binding) {
         if (query != null && query != "") {
             searchedQuery = query
             val filteredList = if (isContactButtonActive) {
@@ -328,7 +336,8 @@ class ForwardBottomSheet(
                 }.toMutableList()
             }
 
-            tvNoResults.visibility = if (filteredList.isEmpty() && tvEmptyList.visibility == View.GONE) View.VISIBLE else View.GONE
+            tvNoResults.visibility =
+                if (filteredList.isEmpty() && tvEmptyList.visibility == View.GONE) View.VISIBLE else View.GONE
             rvContacts.visibility = if (filteredList.isEmpty()) View.GONE else View.VISIBLE
 
             usersGroupsAdapter.submitList(null)
@@ -340,8 +349,10 @@ class ForwardBottomSheet(
             usersGroupsAdapter.submitList(null)
             usersGroupsAdapter.submitList(list)
 
-            tvNoResults.visibility = if (tvEmptyList.visibility == View.GONE) View.VISIBLE else View.GONE
-            rvContacts.visibility = if (tvEmptyList.visibility == View.GONE) View.VISIBLE else View.GONE
+            tvNoResults.visibility =
+                if (tvEmptyList.visibility == View.GONE) View.VISIBLE else View.GONE
+            rvContacts.visibility =
+                if (tvEmptyList.visibility == View.GONE) View.VISIBLE else View.GONE
         }
     }
 }

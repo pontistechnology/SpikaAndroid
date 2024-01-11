@@ -180,7 +180,10 @@
         <item name="android:editTextColor">?attr/primaryTextColor</item>
         <item name="editTextColor">?attr/primaryTextColor</item>
         <item name="android:textColor">?attr/primaryTextColor</item>
-        <item name="android:textColorHint">?attr/primaryTextColor</item>
+        <item name="android:textColorHint">?attr/secondaryTextColor</item>
+        <item name="android:textSize">@dimen/fourteen_sp_text</item>
+        <item name="android:fontFamily">@font/roboto_light</item>
+        <item name="android:letterSpacing">0.03</item>
     </style>
 
     <!--  Bottom sheet style  -->
