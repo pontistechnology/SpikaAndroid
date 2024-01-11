@@ -182,7 +182,13 @@ class RoomsFragment : BaseFragment() {
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
                     searchView = menuItem.actionView as SearchView
-                    searchView?.let { Tools.setUpSearchBar(requireContext(), it) }
+                    searchView?.let {
+                        Tools.setUpSearchBar(
+                            requireContext(),
+                            it,
+                            getString(R.string.contact_message_search)
+                        )
+                    }
 
                     setupSearchAdapter()
                     setupSearchView(searchView)
@@ -216,7 +222,8 @@ class RoomsFragment : BaseFragment() {
         rvMessages.visibility = if (searchRooms) View.GONE else View.VISIBLE
         rvRooms.visibility = if (searchRooms) View.VISIBLE else View.GONE
 
-        btnSearchMessages.backgroundTintList = if (searchRooms) fourthAdditionalColor else primaryColor
+        btnSearchMessages.backgroundTintList =
+            if (searchRooms) fourthAdditionalColor else primaryColor
         btnSearchRooms.backgroundTintList = if (searchRooms) primaryColor else fourthAdditionalColor
 
         if (searchView != null) {
