@@ -757,8 +757,8 @@ object Tools {
                 fileMimeType.contains(Const.JsonFields.MOV_TYPE)
     }
 
-    fun getFileMimeType(context: Context?, uri: Uri): String? {
-        val cR: ContentResolver = context!!.contentResolver
+    fun getFileMimeType(context: Context, uri: Uri): String? {
+        val cR: ContentResolver = context.contentResolver
         return cR.getType(uri)
     }
 

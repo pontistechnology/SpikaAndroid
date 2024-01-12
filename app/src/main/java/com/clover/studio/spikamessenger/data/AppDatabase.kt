@@ -82,53 +82,53 @@ abstract class AppDatabase : RoomDatabase() {
             buildDatabase(MainApplication.appContext).clearAllTables()
         }
 
-        val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE_RECORDS + " ADD COLUMN record_message TEXT")
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0")
+        private val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE_RECORDS + " ADD COLUMN record_message TEXT")
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0")
             }
         }
 
-        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM + " ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0")
-                database.execSQL("CREATE TABLE IF NOT EXISTS " + TablesInfo.TABLE_CHAT_ROOM_NEW + " (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER NOT NULL, `deleted` INTEGER NOT NULL, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))")
-                database.execSQL("INSERT INTO " + TablesInfo.TABLE_CHAT_ROOM_NEW + " (room_id, name, type, avatar_file_id, created_at, modified_at, muted, pinned, room_exit, deleted, unread_count) SELECT room_id, name, type, avatar_file_id, created_at, modified_at, muted, pinned, IFNULL(room_exit, 0), deleted, unread_count FROM room")
-                database.execSQL("DROP TABLE " + TablesInfo.TABLE_CHAT_ROOM)
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM_NEW + " RENAME TO " + TablesInfo.TABLE_CHAT_ROOM)
+        private val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM + " ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("CREATE TABLE IF NOT EXISTS " + TablesInfo.TABLE_CHAT_ROOM_NEW + " (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER NOT NULL, `deleted` INTEGER NOT NULL, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))")
+                db.execSQL("INSERT INTO " + TablesInfo.TABLE_CHAT_ROOM_NEW + " (room_id, name, type, avatar_file_id, created_at, modified_at, muted, pinned, room_exit, deleted, unread_count) SELECT room_id, name, type, avatar_file_id, created_at, modified_at, muted, pinned, IFNULL(room_exit, 0), deleted, unread_count FROM room")
+                db.execSQL("DROP TABLE " + TablesInfo.TABLE_CHAT_ROOM)
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM_NEW + " RENAME TO " + TablesInfo.TABLE_CHAT_ROOM)
 
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN type TO type_message")
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN room_id TO room_id_message")
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN created_at TO created_at_message")
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN modified_at TO modified_at_message")
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN deleted TO deleted_message")
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN type TO type_message")
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN room_id TO room_id_message")
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN created_at TO created_at_message")
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN modified_at TO modified_at_message")
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " RENAME COLUMN deleted TO deleted_message")
             }
         }
 
-        val MIGRATION_3_4: Migration = object : Migration(3, 4) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0")
+        private val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0")
             }
         }
 
-        val MIGRATION_4_5: Migration = object : Migration(4, 5) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN message_status TEXT")
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN uri TEXT")
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " RENAME COLUMN id TO user_id")
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_ROOM_USER + " RENAME COLUMN id TO user_id")
+        private val MIGRATION_4_5: Migration = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN message_status TEXT")
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN uri TEXT")
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " RENAME COLUMN id TO user_id")
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_ROOM_USER + " RENAME COLUMN id TO user_id")
             }
         }
 
-        val MIGRATION_5_6: Migration = object : Migration(5, 6) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE_RECORDS + " ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0")
+        private val MIGRATION_5_6: Migration = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE_RECORDS + " ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0")
             }
         }
 
-        val MIGRATION_6_7: Migration = object : Migration(6, 7) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN is_forwarded INTEGER NOT NULL DEFAULT 0")
+        private val MIGRATION_6_7: Migration = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN is_forwarded INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

@@ -51,6 +51,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("DELETE FROM room")
     suspend fun removeRooms()
 
+    @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
         "SELECT room.*, message.* FROM room\n" +
@@ -60,6 +61,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     )
     fun getAllRoomsWithLatestMessageAndRecord(): LiveData<List<RoomWithMessage>>
 
+    @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
         "SELECT room.*, message.* FROM room LEFT JOIN (SELECT room_id_message, MAX(created_at_message) AS max_created_at FROM message GROUP BY room_id_message) \n" +
@@ -118,6 +120,8 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("UPDATE room SET deleted =:deleted WHERE room_id LIKE :roomId")
     suspend fun updateRoomDeleted(roomId: Int, deleted: Boolean)
 
+    @RewriteQueriesToDropUnusedColumns
+    @Transaction
     @Query(
         "SELECT * FROM message " +
                 "INNER JOIN user ON from_user_id = user.user_id " +

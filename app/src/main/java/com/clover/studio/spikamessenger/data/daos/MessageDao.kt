@@ -31,6 +31,7 @@ interface MessageDao : BaseDao<Message> {
         status: String
     )
 
+    @Transaction
     @Query("SELECT * FROM message WHERE room_id_message= :roomId ORDER BY created_at_message DESC LIMIT :limit OFFSET :offset")
     fun getMessagesAndRecords(
         roomId: Int,
