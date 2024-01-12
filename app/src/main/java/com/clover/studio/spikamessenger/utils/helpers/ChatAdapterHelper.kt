@@ -2,10 +2,13 @@ package com.clover.studio.spikamessenger.utils.helpers
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.text.Spannable
+import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
@@ -263,4 +266,101 @@ object ChatAdapterHelper {
             Timber.d("Exception: $e")
         }
     }
+
+    fun formatSystemMessage(
+        subjectName: String,
+        objectNames: String?,
+        systemObject: String,
+        type: String
+    ): SpannableString {
+        val text: SpannableString
+
+        val spannableSubject = SpannableString(subjectName).applyBold()
+
+        val spannableObjectNames = objectNames?.let {
+            SpannableString(it).applyBold()
+        }
+
+        val spannableSystemObject = SpannableString(systemObject).applyBold()
+
+        text = when (type) {
+            Const.SystemMessages.UPDATED_NOTE, Const.SystemMessages.DELETED_NOTE,
+            Const.SystemMessages.CREATED_NOTE ->
+                SpannableString("$spannableSubject ${getAction(type)} $spannableSystemObject")
+
+            Const.SystemMessages.CREATED_GROUP, Const.SystemMessages.UPDATED_GROUP_AVATAR -> SpannableString(
+                "$spannableSubject ${getAction(type)}"
+            )
+
+            Const.SystemMessages.UPDATED_GROUP_NAME -> {
+                SpannableString("$spannableSubject $systemObject")
+            }
+
+            Const.SystemMessages.UPDATED_GROUP_ADMINS, Const.SystemMessages.UPDATED_GROUP_MEMBERS -> {
+                SpannableString("")
+            }
+
+            Const.SystemMessages.USER_LEFT_GROUP, Const.SystemMessages.UPDATED_GROUP -> {
+                SpannableString("$spannableSubject ${getAction(type)}")
+            }
+
+            Const.SystemMessages.REMOVED_GROUP_MEMBERS -> SpannableString(
+                "$spannableSubject ${
+                    getAction(
+                        type
+                    )
+                } $spannableObjectNames from the group"
+            )
+
+            Const.SystemMessages.ADDED_GROUP_MEMBERS -> SpannableString(
+                "$spannableSubject ${
+                    getAction(
+                        type
+                    )
+                } $spannableObjectNames to the group"
+            )
+
+            Const.SystemMessages.ADDED_GROUP_ADMINS -> SpannableString(
+                "$spannableSubject ${
+                    getAction(
+                        type
+                    )
+                } $spannableObjectNames as group admin"
+            )
+
+            Const.SystemMessages.REMOVED_GROUP_ADMINS ->
+                SpannableString("$spannableSubject ${getAction(type)} $spannableSystemObject as group admin")
+
+            else -> SpannableString("Error")
+        }
+
+        return text
+    }
+
+    private fun SpannableString.applyBold(): SpannableString {
+        setSpan(StyleSpan(Typeface.BOLD), 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        return this
+    }
+
+    private fun getAction(type: String): String {
+        return when (type) {
+            // Notes
+            Const.SystemMessages.UPDATED_NOTE -> "updated note"
+            Const.SystemMessages.CREATED_NOTE -> "created note"
+            Const.SystemMessages.DELETED_NOTE -> "deleted note"
+
+            // Groups
+            Const.SystemMessages.UPDATED_GROUP -> "updated the group"
+            Const.SystemMessages.UPDATED_GROUP_NAME -> "changed the name of group to"
+            Const.SystemMessages.UPDATED_GROUP_AVATAR -> "updated the avatar of group"
+            Const.SystemMessages.USER_LEFT_GROUP -> "left the group"
+
+            // Users
+            Const.SystemMessages.ADDED_GROUP_ADMINS -> "added"
+            Const.SystemMessages.ADDED_GROUP_MEMBERS -> "added"
+            Const.SystemMessages.REMOVED_GROUP_ADMINS, Const.SystemMessages.REMOVED_GROUP_MEMBERS -> "removed"
+            else -> "Error"
+        }
+    }
+
 }

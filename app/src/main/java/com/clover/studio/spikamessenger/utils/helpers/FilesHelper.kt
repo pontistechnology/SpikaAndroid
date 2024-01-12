@@ -31,7 +31,19 @@ object FilesHelper {
         metadata: FileMetadata?
     ): FileData {
 
-        val messageBody = MessageBody(null, "", 0, 0, null, null)
+        val messageBody = MessageBody(
+            referenceMessage = null,
+            text = "",
+            fileId = 0,
+            thumbId = 0,
+            file = null,
+            thumb = null,
+            subjectId = null,
+            objectIds = null,
+            type = "",
+            `object` = null,
+            subject = ""
+        )
         val inputStream =
             MainApplication.appContext.contentResolver.openInputStream(uri)
 
@@ -113,7 +125,12 @@ object FilesHelper {
                     metaData = fileMetadata,
                     uri = uri.toString()
                 ),
-                thumb = null
+                thumb = null,
+                subjectId = null,
+                objectIds = null,
+                type = "",
+                `object` = null,
+                subject = ""
             )
         )
 

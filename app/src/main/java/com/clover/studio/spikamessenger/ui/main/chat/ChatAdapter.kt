@@ -669,6 +669,25 @@ class ChatAdapter(
     }
 
     private fun bindSystemMessage(tvMessage: EmojiTextView, msg: MessageAndRecords) {
+        Timber.d("msg:::::::::::: ${msg.message.body}")
+
+        val usersObject = users.filter { userId ->
+            userId.id in msg.message.body?.objectIds.orEmpty()
+        }.map { user ->
+            user.displayName
+        }
+
+        val objectUsers = if (usersObject.size == msg.message.body?.objectIds?.size) {
+            usersObject.joinToString(", ") { it.toString() }
+        } else {
+            msg.message.body?.`object`?.joinToString(", ") { it }
+        }
+
+        val userSubject = users.firstOrNull { it.id == msg.message.body?.subjectId }?.displayName
+            ?: msg.message.body?.subject
+
+        Timber.d("User object: $usersObject")
+
         tvMessage.text = buildString {
             append(
                 SimpleDateFormat("HH:mm", Locale.getDefault()).format(
@@ -676,7 +695,14 @@ class ChatAdapter(
                 ).toString()
             )
             append(" ")
-            append(msg.message.body?.text.toString())
+            append(
+                ChatAdapterHelper.formatSystemMessage(
+                    subjectName = userSubject.toString(),
+                    objectNames = objectUsers.toString(),
+                    systemObject = msg.message.body?.`object`.toString(),
+                    type = msg.message.body?.type.toString()
+                )
+            )
         }
     }
 

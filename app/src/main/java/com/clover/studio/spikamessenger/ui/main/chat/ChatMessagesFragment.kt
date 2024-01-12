@@ -1341,7 +1341,19 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
     private fun createTempTextMessage() {
         val messageBody =
-            MessageBody(null, bindingSetup.etMessage.text.toString().trim(), 1, 1, null, null)
+            MessageBody(
+                referenceMessage = null,
+                text = bindingSetup.etMessage.text.toString().trim(),
+                fileId = 1,
+                thumbId = 1,
+                file = null,
+                thumb = null,
+                subjectId = null,
+                objectIds = null,
+                type = "",
+                `object` = null,
+                subject = ""
+            )
 
         val tempMessage = Tools.createTemporaryMessage(
             getUniqueRandomId(unsentMessages),

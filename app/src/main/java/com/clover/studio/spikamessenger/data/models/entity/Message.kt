@@ -20,14 +20,6 @@ data class Message @JvmOverloads constructor(
     @ColumnInfo(name = "from_user_id")
     val fromUserId: Int?,
 
-//    @SerializedName("fromDeviceId")
-//    @ColumnInfo(name = "from_device_id")
-//    val fromDeviceId: Int?,
-//
-//    @SerializedName("totalDeviceCount")
-//    @ColumnInfo(name = "total_device_count")
-//    val totalDeviceCount: Int?,
-
     @SerializedName("totalUserCount")
     @ColumnInfo(name = "total_user_count")
     val totalUserCount: Int?,
@@ -122,6 +114,11 @@ data class MessageBody(
     var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?,
+    val type: String,
+    val subjectId: Int?,
+    val subject: String?,
+    val objectIds: List<Int>?,
+    val `object`: List<String>?,
 ) : Parcelable
 
 @Parcelize
