@@ -263,8 +263,8 @@
 
             <ImageView
                 android:id="@+id/iv_media_loading"
-                android:layout_width="@dimen/two_hundred_fifty_six_dp"
-                android:layout_height="@dimen/two_hundred_fifty_six_dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:scaleType="centerInside"
                 android:src="@drawable/img_media_loading"
                 app:layout_constrainedHeight="true"
@@ -276,8 +276,8 @@
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/iv_chat_image"
-                android:layout_width="@dimen/two_hundred_fifty_six_dp"
-                android:layout_height="@dimen/two_hundred_fifty_six_dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:scaleType="centerCrop"
                 android:visibility="visible"
                 app:layout_constrainedHeight="true"

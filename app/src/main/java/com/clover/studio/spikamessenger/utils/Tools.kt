@@ -81,6 +81,8 @@ const val BIG_EMOJI_SIZE = 144
 const val MEDIUM_EMOJI_SIZE = 104
 const val SMALL_EMOJI_SIZE = 80
 
+const val MAX_IMAGE_SIZE = 256
+
 object Tools {
 
     private var density = 1f
@@ -912,6 +914,55 @@ object Tools {
 
             val closeImageView = this.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
             closeImageView.imageTintList = ColorStateList.valueOf(ColorHelper.getPrimaryTextColor(context))
+        }
+    }
+
+    fun resizeImage(width: Int?, height: Int?): Pair<Int, Int> {
+
+        Timber.d("Image resize original = $width, $height")
+        val correctedWidth = width ?: MAX_IMAGE_SIZE
+        val correctedHeight = height ?: MAX_IMAGE_SIZE
+
+        val isPortrait = correctedHeight > correctedWidth
+        val maxSizeLimit = MAX_IMAGE_SIZE
+        val sizeIncreasePercentage = 1.25
+
+        val isWidthAboveLimit = correctedWidth > (maxSizeLimit * sizeIncreasePercentage)
+        val isHeightAboveLimit = correctedHeight > (maxSizeLimit * sizeIncreasePercentage)
+
+        if (isWidthAboveLimit && isHeightAboveLimit) {
+            // Both dimensions are more than 25% above the limit of 512, resize both while maintaining aspect ratio
+            val ratio = correctedWidth.toDouble() / correctedHeight.toDouble()
+
+            val newWidth = minOf(maxSizeLimit, correctedWidth)
+            val newHeight = (newWidth / ratio).toInt()
+
+            if (newHeight > maxSizeLimit) {
+                // If new height is still above the limit, resize height and update width accordingly
+                val adjustedHeight = minOf(maxSizeLimit, correctedHeight)
+                val adjustedWidth = (adjustedHeight * ratio).toInt()
+                Timber.d("Image resize resized 4 = $adjustedWidth, $adjustedHeight")
+                return Pair(adjustedWidth, adjustedHeight)
+            }
+
+            Timber.d("Image resize resized 1 = $newWidth, $newHeight")
+            return Pair(newWidth, newHeight)
+        }
+
+        return if (isPortrait) {
+            // Resize for portrait, keeping original aspect ratio
+            val ratio = correctedWidth.toDouble() / correctedHeight.toDouble()
+            val newHeight = if (isHeightAboveLimit) maxSizeLimit else minOf(maxSizeLimit, correctedHeight)
+            val newWidth = (ratio * newHeight).toInt()
+            Timber.d("Image resize resized 2 = $newWidth, $newHeight")
+            Pair(newWidth, newHeight)
+        } else {
+            // Resize for landscape, keeping original aspect ratio
+            val ratio = correctedHeight.toDouble() / correctedWidth.toDouble()
+            val newWidth = if (isWidthAboveLimit) maxSizeLimit else minOf(maxSizeLimit, correctedWidth)
+            val newHeight = (ratio * newWidth).toInt()
+            Timber.d("Image resize resized 3 = $newWidth, $newHeight")
+            Pair(newWidth, newHeight)
         }
     }
 }
