@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.text.SpannableStringBuilder
 import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
 import android.view.*
@@ -669,41 +670,50 @@ class ChatAdapter(
     }
 
     private fun bindSystemMessage(tvMessage: EmojiTextView, msg: MessageAndRecords) {
-        Timber.d("msg:::::::::::: ${msg.message.body}")
+        // We check if the current list of users contains users who are in the objectIds field:
+        // if it contains (eg no user has been "removed" from the group) show the names as written in the database,
+        // otherwise show the entire message from the server
+        val objectUsers = msg.message.body?.let { body ->
+            val usersObject = users.filter { userId ->
+                userId.id in body.objectIds.orEmpty()
+            }.map { user ->
+                user.displayName
+            }
 
-        val usersObject = users.filter { userId ->
-            userId.id in msg.message.body?.objectIds.orEmpty()
-        }.map { user ->
-            user.displayName
+            if (usersObject.size == body.objectIds?.size) {
+                usersObject.joinToString(", ") { it.toString() }
+            } else {
+                body.`object`?.joinToString(", ") { it }
+            }
         }
 
-        val objectUsers = if (usersObject.size == msg.message.body?.objectIds?.size) {
-            usersObject.joinToString(", ") { it.toString() }
-        } else {
-            msg.message.body?.`object`?.joinToString(", ") { it }
-        }
-
+        // We check the same for the subject
         val userSubject = users.firstOrNull { it.id == msg.message.body?.subjectId }?.displayName
             ?: msg.message.body?.subject
 
-        Timber.d("User object: $usersObject")
+        Timber.d("User object: $objectUsers")
 
-        tvMessage.text = buildString {
-            append(
-                SimpleDateFormat("HH:mm", Locale.getDefault()).format(
-                    msg.message.createdAt
-                ).toString()
-            )
-            append(" ")
-            append(
-                ChatAdapterHelper.formatSystemMessage(
-                    subjectName = userSubject.toString(),
-                    objectNames = objectUsers.toString(),
-                    systemObject = msg.message.body?.`object`.toString(),
-                    type = msg.message.body?.type.toString()
-                )
-            )
-        }
+        // We need to make a string like: message time + subject + action + object + (if any) additional action
+        val spannableStringBuilder = SpannableStringBuilder()
+
+        spannableStringBuilder.append(
+            SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+                msg.message.createdAt
+            ).toString()
+        )
+        spannableStringBuilder.append(" ")
+
+        val systemMessage = ChatAdapterHelper.formatSystemMessage(
+            context = context,
+            subjectName = userSubject.toString(),
+            objectNames = objectUsers.toString(),
+            systemObject = msg.message.body?.`object`.toString(),
+            type = msg.message.body?.type.toString()
+        )
+
+        spannableStringBuilder.append(systemMessage)
+
+        tvMessage.text = spannableStringBuilder
     }
 
     private fun bindAudio(

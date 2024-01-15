@@ -268,6 +268,7 @@ object ChatAdapterHelper {
     }
 
     fun formatSystemMessage(
+        context: Context,
         subjectName: String,
         objectNames: String?,
         systemObject: String,
@@ -284,52 +285,57 @@ object ChatAdapterHelper {
         val spannableSystemObject = SpannableString(systemObject).applyBold()
 
         text = when (type) {
+            // Subject + action + object
             Const.SystemMessages.UPDATED_NOTE, Const.SystemMessages.DELETED_NOTE,
-            Const.SystemMessages.CREATED_NOTE ->
-                SpannableString("$spannableSubject ${getAction(type)} $spannableSystemObject")
+            Const.SystemMessages.CREATED_NOTE, Const.SystemMessages.CREATED_GROUP,
+            Const.SystemMessages.UPDATED_GROUP_NAME, Const.SystemMessages.UPDATED_GROUP_MEMBERS ->
+                SpannableString(
+                    "$spannableSubject ${
+                        getAction(
+                            context = context,
+                            type = type
+                        )
+                    } $spannableSystemObject"
+                )
 
-            Const.SystemMessages.CREATED_GROUP, Const.SystemMessages.UPDATED_GROUP_AVATAR -> SpannableString(
-                "$spannableSubject ${getAction(type)}"
+            // Subject + action
+            Const.SystemMessages.UPDATED_GROUP_AVATAR, Const.SystemMessages.USER_LEFT_GROUP,
+            Const.SystemMessages.UPDATED_GROUP, Const.SystemMessages.UPDATED_GROUP_ADMINS -> SpannableString(
+                "$spannableSubject ${
+                    getAction(
+                        context = context,
+                        type = type
+                    )
+                }"
             )
 
-            Const.SystemMessages.UPDATED_GROUP_NAME -> {
-                SpannableString("$spannableSubject $systemObject")
-            }
-
-            Const.SystemMessages.UPDATED_GROUP_ADMINS, Const.SystemMessages.UPDATED_GROUP_MEMBERS -> {
-                SpannableString("")
-            }
-
-            Const.SystemMessages.USER_LEFT_GROUP, Const.SystemMessages.UPDATED_GROUP -> {
-                SpannableString("$spannableSubject ${getAction(type)}")
-            }
-
+            // Subject + action + object + additional action
             Const.SystemMessages.REMOVED_GROUP_MEMBERS -> SpannableString(
                 "$spannableSubject ${
                     getAction(
-                        type
+                        context = context,
+                        type = type
                     )
-                } $spannableObjectNames from the group"
+                } $spannableObjectNames ${context.getString(R.string.from_the_group)}"
             )
 
             Const.SystemMessages.ADDED_GROUP_MEMBERS -> SpannableString(
                 "$spannableSubject ${
                     getAction(
-                        type
+                        context = context,
+                        type = type
                     )
-                } $spannableObjectNames to the group"
+                } $spannableObjectNames ${context.getString(R.string.to_the_group)}"
             )
 
-            Const.SystemMessages.ADDED_GROUP_ADMINS -> SpannableString(
+            Const.SystemMessages.ADDED_GROUP_ADMINS, Const.SystemMessages.REMOVED_GROUP_ADMINS -> SpannableString(
                 "$spannableSubject ${
                     getAction(
-                        type
+                        context = context,
+                        type = type
                     )
-                } $spannableObjectNames as group admin"
+                } $spannableObjectNames ${context.getString(R.string.as_group_admin)}"
             )
-
-            Const.SystemMessages.REMOVED_GROUP_ADMINS ->
-                SpannableString("$spannableSubject ${getAction(type)} $spannableSystemObject as group admin")
 
             else -> SpannableString("Error")
         }
@@ -337,29 +343,36 @@ object ChatAdapterHelper {
         return text
     }
 
-    private fun SpannableString.applyBold(): SpannableString {
-        setSpan(StyleSpan(Typeface.BOLD), 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        return this
+    private fun CharSequence.applyBold(): SpannableString {
+        val spannable = SpannableString(this)
+        spannable.setSpan(StyleSpan(Typeface.BOLD), 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        return spannable
     }
 
-    private fun getAction(type: String): String {
+
+    private fun getAction(context: Context, type: String): String {
         return when (type) {
             // Notes
-            Const.SystemMessages.UPDATED_NOTE -> "updated note"
-            Const.SystemMessages.CREATED_NOTE -> "created note"
-            Const.SystemMessages.DELETED_NOTE -> "deleted note"
+            Const.SystemMessages.UPDATED_NOTE -> context.getString(R.string.updated_note)
+            Const.SystemMessages.CREATED_NOTE -> context.getString(R.string.created_note)
+            Const.SystemMessages.DELETED_NOTE -> context.getString(R.string.deleted_note)
 
             // Groups
-            Const.SystemMessages.UPDATED_GROUP -> "updated the group"
-            Const.SystemMessages.UPDATED_GROUP_NAME -> "changed the name of group to"
-            Const.SystemMessages.UPDATED_GROUP_AVATAR -> "updated the avatar of group"
-            Const.SystemMessages.USER_LEFT_GROUP -> "left the group"
+            Const.SystemMessages.UPDATED_GROUP -> context.getString(R.string.updated_group)
+            Const.SystemMessages.UPDATED_GROUP_NAME -> context.getString(R.string.updated_group_name)
+            Const.SystemMessages.UPDATED_GROUP_AVATAR -> context.getString(R.string.updated_group_avatar)
+            Const.SystemMessages.USER_LEFT_GROUP -> context.getString(R.string.user_left_group)
 
             // Users
-            Const.SystemMessages.ADDED_GROUP_ADMINS -> "added"
-            Const.SystemMessages.ADDED_GROUP_MEMBERS -> "added"
-            Const.SystemMessages.REMOVED_GROUP_ADMINS, Const.SystemMessages.REMOVED_GROUP_MEMBERS -> "removed"
-            else -> "Error"
+            Const.SystemMessages.ADDED_GROUP_ADMINS -> context.getString(R.string.added_group_admins)
+            Const.SystemMessages.ADDED_GROUP_MEMBERS -> context.getString(R.string.added_group_members)
+            Const.SystemMessages.REMOVED_GROUP_ADMINS, Const.SystemMessages.REMOVED_GROUP_MEMBERS ->
+                context.getString(R.string.removed_group_admins)
+
+            Const.SystemMessages.UPDATED_GROUP_ADMINS -> context.getString(R.string.updated_group_admins)
+            Const.SystemMessages.UPDATED_GROUP_MEMBERS -> context.getString(R.string.updated_group_members)
+
+            else -> context.getString(R.string.error)
         }
     }
 
