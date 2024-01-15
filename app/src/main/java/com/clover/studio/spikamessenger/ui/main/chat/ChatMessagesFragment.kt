@@ -210,10 +210,10 @@ class ChatMessagesFragment : BaseFragment() {
 
     private fun takePhoto() {
         photoImageUri = FileProvider.getUriForFile(
-            context!!,
+            requireContext(),
             BuildConfig.APPLICATION_ID + ".fileprovider",
             Tools.createImageFile(
-                (activity!!)
+                (requireActivity())
             )
         )
         takePhotoContract.launch(photoImageUri)
@@ -285,7 +285,7 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun initViews() = with(bindingSetup) {
-        directory = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        directory = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
         clRoomExit.visibility =
             if (roomWithUsers?.room?.roomExit == true || roomWithUsers?.room?.deleted == true) {
@@ -386,7 +386,7 @@ class ChatMessagesFragment : BaseFragment() {
         }
 
         ivCamera.setOnClickListener {
-            ChooserDialog.getInstance(context!!,
+            ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
                 getString(R.string.choose_from_gallery),
@@ -462,7 +462,7 @@ class ChatMessagesFragment : BaseFragment() {
             etMessage.setText("")
             hideSendButton()
             replyContainer?.closeBottomSheet()
-            clSendingArea.setBackgroundColor(android.R.color.transparent)
+            clSendingArea.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
         }
 
         tvUnblock.setOnClickListener {
@@ -854,7 +854,7 @@ class ChatMessagesFragment : BaseFragment() {
         itemTouchHelper?.attachToRecyclerView(null)
         val messageSwipeController =
             MessageSwipeController(
-                context!!,
+                requireContext(),
                 messagesRecords,
                 onSwipeAction = { action, position ->
                     when (action) {
@@ -895,7 +895,12 @@ class ChatMessagesFragment : BaseFragment() {
 
         replyContainer?.setReplyContainerListener(object : ReplyContainer.ReplyContainerListener {
             override fun closeSheet() {
-                clSendingArea.setBackgroundColor(android.R.color.transparent)
+                clSendingArea.setBackgroundColor(
+                    resources.getColor(
+                        android.R.color.transparent,
+                        null
+                    )
+                )
                 // We need to reset replyId in this case, otherwise it will just persist on the
                 // next message you're sending.
                 replyId = 0L
@@ -1103,7 +1108,7 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     private fun handleDownloadCancelFile(message: Message) {
-        DialogError.getInstance(activity!!,
+        DialogError.getInstance(requireActivity(),
             getString(R.string.warning),
             getString(R.string.cancel_upload),
             getString(R.string.back),
@@ -1319,7 +1324,7 @@ class ChatMessagesFragment : BaseFragment() {
     /** Files uploading */
     private fun handleUserSelectedFile(selectedFilesUris: MutableList<Uri>) {
         for (uri in selectedFilesUris) {
-            val fileMimeType = getFileMimeType(context, uri)
+            val fileMimeType = getFileMimeType(requireContext(), uri)
             if ((fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
                         fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) &&
                 !Tools.forbiddenMimeTypes(fileMimeType)
@@ -1373,19 +1378,19 @@ class ChatMessagesFragment : BaseFragment() {
             )
             val thumbnail =
                 ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
-            thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail)
+            thumbnailUri = Tools.convertBitmapToUri(requireActivity(), thumbnail)
             tempFilesToCreate.add(TempUri(thumbnailUri, Const.JsonFields.VIDEO_TYPE))
             uriPairList.add(Pair(uri, thumbnailUri))
 
             mmr.release()
         } else {
             val bitmap =
-                Tools.handleSamplingAndRotationBitmap(activity!!, uri, false)
-            fileUri = Tools.convertBitmapToUri(activity!!, bitmap!!)
+                Tools.handleSamplingAndRotationBitmap(requireActivity(), uri, false)
+            fileUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
             val thumbnail =
-                Tools.handleSamplingAndRotationBitmap(activity!!, fileUri, true)
-            thumbnailUri = Tools.convertBitmapToUri(activity!!, thumbnail!!)
+                Tools.handleSamplingAndRotationBitmap(requireActivity(), fileUri, true)
+            thumbnailUri = Tools.convertBitmapToUri(requireActivity(), thumbnail!!)
             tempFilesToCreate.add(TempUri(thumbnailUri, Const.JsonFields.IMAGE_TYPE))
         }
 
@@ -1491,7 +1496,7 @@ class ChatMessagesFragment : BaseFragment() {
                     message!!.message.uploadProgress = (progress * 100) / maxProgress
 
                     if (isVisible || isResumed) {
-                        activity!!.runOnUiThread {
+                        requireActivity().runOnUiThread {
                             chatAdapter.notifyItemChanged(
                                 messagesRecords.indexOf(
                                     message
@@ -1502,7 +1507,7 @@ class ChatMessagesFragment : BaseFragment() {
                 }
 
                 override fun uploadingFinished(uploadedFiles: MutableList<FileData>) {
-                    Tools.deleteTemporaryMedia(context!!)
+                    Tools.deleteTemporaryMedia(requireContext())
                     context?.cacheDir?.deleteRecursively()
 
                     if (uploadedFiles.isNotEmpty()) {

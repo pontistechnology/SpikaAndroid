@@ -402,11 +402,11 @@ class ChatDetailsFragment : BaseFragment() {
 //        tvSeeMoreLess.setOnClickListener {
 //            if (allUsers) {
 //                adapter.submitList(modifiedList.toList())
-//                tvSeeMoreLess.text = context!!.getString(R.string.see_less)
+//                tvSeeMoreLess.text = requireContext().getString(R.string.see_less)
 //                allUsers = false
 //            } else {
 //                adapter.submitList(modifiedList.subList(0, 3).toList())
-//                tvSeeMoreLess.text = context!!.getString(R.string.see_more)
+//                tvSeeMoreLess.text = requireContext().getString(R.string.see_more)
 //                allUsers = true
 //            }
 //        }

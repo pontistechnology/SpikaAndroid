@@ -77,7 +77,7 @@ class NotesFragment : BaseFragment() {
         if (itemTouchHelper == null) {
             val notesSwipeController =
                 NotesSwipeHelper(
-                    context!!,
+                    requireContext(),
                     onSwipeAction = { position ->
                         DialogError.getInstance(requireContext(),
                             getString(R.string.delete_note),
