@@ -263,9 +263,9 @@ class ContactDetailsFragment : BaseFragment() {
             } else {
                 DialogError.getInstance(requireContext(),
                     getString(R.string.unblock_user),
-                    getString(R.string.unblock_description, user?.userName),
-                    getString(R.string.no),
-                    getString(R.string.unblock),
+                    getString(R.string.unblock_description),
+                    getString(R.string.cancel),
+                    getString(R.string.yes),
                     object : DialogInteraction {
                         override fun onSecondOptionClicked() {
                             user?.userId?.let { viewModel.deleteBlockForSpecificUser(it) }

@@ -250,7 +250,7 @@
     <string name="block_user">Block user</string>
     <string name="block_user_description">Do you want to block this user?</string>
     <string name="unblock_user">Unblock user</string>
-    <string name="unblock_description">Are you sure you want to unblock %s</string>
+    <string name="unblock_description">Are you sure you want to unblock this contact?</string>
     <string name="blocked_users">Blocked Users</string>
     <string name="unblock">Unblock</string>
     <string name="block_contact_description">Do you want to receive messages from this contact?</string>
@@ -276,6 +276,7 @@
     <string name="failed_to_load_room_data">Failed to load room data</string>
     <string name="other_error">Other error</string>
     <string name="members">" members"</string>
+    <string name="members_number">"%s members"</string>
 
     <!-- Themes   -->
     <string name="theme_dark_marine">Dark marine</string>
