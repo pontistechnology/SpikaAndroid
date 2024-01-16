@@ -18,6 +18,7 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.AuthRes
 import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.DeleteUserResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.FileResponse
+import com.clover.studio.spikamessenger.data.models.networking.responses.ForwardMessagesResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.Settings
 import com.clover.studio.spikamessenger.data.repositories.data_sources.MainRemoteDataSource
@@ -232,8 +233,8 @@ class MainRepositoryImpl @Inject constructor(
         return data
     }
 
-    override suspend fun forwardMessages(jsonObject: JsonObject) {
-        performRestOperation(
+    override suspend fun forwardMessages(jsonObject: JsonObject) : Resource<ForwardMessagesResponse>{
+        val data = performRestOperation(
             networkCall = { mainRemoteDataSource.forwardMessages(jsonObject) },
             saveCallResult = {
                 val roomUsers = mutableListOf<RoomUser>()
@@ -258,6 +259,7 @@ class MainRepositoryImpl @Inject constructor(
                 )
             }
         )
+        return data
     }
 
     override suspend fun uploadFiles(jsonObject: JsonObject): Resource<FileResponse> {
@@ -425,7 +427,7 @@ interface MainRepository : BaseRepository {
     suspend fun getUserByID(id: Int): LiveData<Resource<User>>
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
-    suspend fun forwardMessages(jsonObject: JsonObject)
+    suspend fun forwardMessages(jsonObject: JsonObject) : Resource<ForwardMessagesResponse>
     fun getUserAndPhoneUserLiveData(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
     suspend fun getUserAndPhoneUser(localId: Int): Resource<List<UserAndPhoneUser>>
     suspend fun deleteUser(): Resource<DeleteUserResponse>
