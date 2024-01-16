@@ -2,7 +2,6 @@ package com.clover.studio.spikamessenger.ui.main.chat
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
-import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
@@ -12,6 +11,7 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.NewNote
+import com.clover.studio.spikamessenger.data.models.networking.responses.ForwardMessagesResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.MessageResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.NotesResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.UpdatedRoom
@@ -44,6 +44,7 @@ class ChatViewModel @Inject constructor(
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val noteDeletionListener = MutableLiveData<Event<NoteDeletion>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
+    val forwardListener = MutableLiveData<Event<Resource<ForwardMessagesResponse?>>>()
     val roomInfoUpdated = MutableLiveData<Event<UpdatedRoom>>()
     private val liveDataLimit = MutableLiveData(20)
     val messagesReceived = MutableLiveData<List<Message>>()
@@ -141,6 +142,8 @@ class ChatViewModel @Inject constructor(
 
         return isAdmin
     }
+
+    suspend fun getRoomUsers(roomId: Int): RoomWithUsers? = repository.getRoomUsers(roomId)
 
     fun getRoomAndUsers(roomId: Int) = repository.getRoomWithUsersLiveData(roomId)
 
@@ -274,9 +277,14 @@ class ChatViewModel @Inject constructor(
         mainRepository.updateUnreadCount(roomId)
     }
 
-    fun forwardMessage(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
-        mainRepository.forwardMessages(jsonObject)
-    }
+    fun forwardMessage(jsonObject: JsonObject, singleChat: Boolean) =
+        CoroutineScope(Dispatchers.IO).launch {
+            if (singleChat) {
+                resolveResponseStatus(forwardListener, mainRepository.forwardMessages(jsonObject))
+            } else {
+                mainRepository.forwardMessages(jsonObject)
+            }
+        }
 
     fun cancelUploadFile(messageId: String) = viewModelScope.launch {
         mainRepository.cancelUpload(messageId)

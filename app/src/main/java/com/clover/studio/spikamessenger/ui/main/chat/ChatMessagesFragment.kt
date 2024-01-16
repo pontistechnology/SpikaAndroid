@@ -84,6 +84,9 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 
@@ -672,6 +675,25 @@ class ChatMessagesFragment : BaseFragment() {
             }
         })
 
+        viewModel.forwardListener.observe(viewLifecycleOwner, EventObserver {
+            if (it.responseData?.data?.messages?.first()?.roomId != null) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val room = it.responseData.data.messages.first().roomId?.let { it1 ->
+                        viewModel.getRoomUsers(roomId = it1)
+                    }
+
+                    if (room != null) {
+                        startChatScreenActivity(
+                            requireActivity(),
+                            room,
+                            0
+                        )
+                        requireActivity().finish()
+                    }
+                }
+            }
+        })
+
         viewModel.sendMessagesSeen(roomId = roomWithUsers!!.room.roomId)
         viewModel.updateUnreadCount(roomId = roomWithUsers!!.room.roomId)
     }
@@ -1079,7 +1101,7 @@ class ChatMessagesFragment : BaseFragment() {
 
                         Timber.d("Json object: $jsonObject")
 
-                        viewModel.forwardMessage(jsonObject)
+                        viewModel.forwardMessage(jsonObject, roomIds.size == 1 || userIds.size == 1)
                     }
                 })
                 forwardBottomSheet.show(
@@ -1272,7 +1294,7 @@ class ChatMessagesFragment : BaseFragment() {
                     handleUserSelectedFile(selectedFiles)
                     viewModel.deleteLocalMessage(message)
                 } else {
-                    Toast.makeText(context, "Something went wrong", Toast.LENGTH_LONG)
+                    Toast.makeText(context, "Something went wrong", Toast.LENGTH_LONG).show()
                 }
             }
         }
