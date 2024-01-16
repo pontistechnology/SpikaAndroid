@@ -50,6 +50,7 @@ import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHide
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.vanniktech.emoji.EmojiTextView
 import com.vanniktech.emoji.isOnlyEmojis
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 

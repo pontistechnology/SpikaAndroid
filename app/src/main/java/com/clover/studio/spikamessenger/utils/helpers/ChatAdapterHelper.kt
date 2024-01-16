@@ -93,6 +93,7 @@ object ChatAdapterHelper {
 
         Glide.with(context)
             .load(mediaPath)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
@@ -120,7 +121,6 @@ object ChatAdapterHelper {
                     return false
                 }
             })
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(mediaImage)
     }
 

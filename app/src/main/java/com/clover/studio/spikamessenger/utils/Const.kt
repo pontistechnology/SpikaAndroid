@@ -64,6 +64,7 @@ class Const {
             const val MP3 = "mp3"
             const val WAW = "waw"
             const val JPG = "jpg"
+            const val GIF = "gif"
             const val AUDIO = "audio/mpeg"
         }
     }

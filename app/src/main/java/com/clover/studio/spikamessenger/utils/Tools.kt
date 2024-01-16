@@ -653,6 +653,12 @@ object Tools {
     }
 
     fun getMediaFile(context: Context, message: Message): String {
+        if (message.body?.file?.fileName?.contains(Const.FileExtensions.GIF) == true) {
+            return message.body.fileId?.let {
+                getFilePathUrl(it)
+            }.toString()
+        }
+
         val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
         val file = File(mediaPath)
@@ -848,7 +854,11 @@ object Tools {
             }
         }
     }
-    fun transformPrivateList(context: Context, list: List<UserAndPhoneUser>): MutableList<PrivateGroupChats> {
+
+    fun transformPrivateList(
+        context: Context,
+        list: List<UserAndPhoneUser>
+    ): MutableList<PrivateGroupChats> {
         return list.map {
             PrivateGroupChats(
                 userId = it.user.id,
@@ -865,55 +875,81 @@ object Tools {
         }.toMutableList().sortChats(context).toMutableList()
     }
 
-    fun transformGroupList(context: Context,list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
+    fun transformGroupList(
+        context: Context,
+        list: List<RoomWithUsers>
+    ): MutableList<PrivateGroupChats> {
         return list.map {
-                PrivateGroupChats(
-                    userId = 0,
-                    roomId = it.room.roomId,
-                    avatarId = it.room.avatarFileId ?: 0L,
-                    phoneNumber = null,
-                    userName = null,
-                    userPhoneName = null,
-                    roomName = it.room.name,
-                    isRecent = false,
-                    isBot = false,
-                    selected = false)
-            }.toMutableList().sortChats(context).toMutableList()
-    }
-
-    fun transformRecentContacts(localUserId: Int?, context: Context, list: List<RoomWithUsers>): MutableList<PrivateGroupChats> {
-        return list.flatMap { room ->
-            room.users.filter { it.id != localUserId && !it.formattedDisplayName.contains(context.getString(R.string.deleted_user))}
-                .map { user ->
-                PrivateGroupChats(
-                    userId = user.id,
-                    roomId = room.room.roomId,
-                    avatarId = user.avatarFileId ?: 0L,
-                    phoneNumber = user.telephoneNumber,
-                    userName =  user.formattedDisplayName,
-                    userPhoneName = null,
-                    roomName = null,
-                    isRecent = false,
-                    isBot = user.isBot,
-                    selected = false
-                )
-            }
+            PrivateGroupChats(
+                userId = 0,
+                roomId = it.room.roomId,
+                avatarId = it.room.avatarFileId ?: 0L,
+                phoneNumber = null,
+                userName = null,
+                userPhoneName = null,
+                roomName = it.room.name,
+                isRecent = false,
+                isBot = false,
+                selected = false
+            )
         }.toMutableList().sortChats(context).toMutableList()
     }
 
-    fun setUpSearchBar(context: Context, searchView: androidx.appcompat.widget.SearchView, hint: String){
+    fun transformRecentContacts(
+        localUserId: Int?,
+        context: Context,
+        list: List<RoomWithUsers>
+    ): MutableList<PrivateGroupChats> {
+        return list.flatMap { room ->
+            room.users.filter {
+                it.id != localUserId && !it.formattedDisplayName.contains(
+                    context.getString(
+                        R.string.deleted_user
+                    )
+                )
+            }
+                .map { user ->
+                    PrivateGroupChats(
+                        userId = user.id,
+                        roomId = room.room.roomId,
+                        avatarId = user.avatarFileId ?: 0L,
+                        phoneNumber = user.telephoneNumber,
+                        userName = user.formattedDisplayName,
+                        userPhoneName = null,
+                        roomName = null,
+                        isRecent = false,
+                        isBot = user.isBot,
+                        selected = false
+                    )
+                }
+        }.toMutableList().sortChats(context).toMutableList()
+    }
+
+    fun setUpSearchBar(
+        context: Context,
+        searchView: androidx.appcompat.widget.SearchView,
+        hint: String
+    ) {
         searchView.apply {
             queryHint = hint
             setBackgroundResource(R.drawable.bg_input)
-            backgroundTintList =  ColorStateList.valueOf(ColorHelper.getFourthAdditionalColorWithAlpha(context))
+            backgroundTintList =
+                ColorStateList.valueOf(ColorHelper.getFourthAdditionalColorWithAlpha(context))
             setIconifiedByDefault(false)
 
             val searchPlate =
                 this.findViewById<View>(androidx.appcompat.R.id.search_plate)
-            searchPlate.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent))
+            searchPlate.setBackgroundColor(
+                ContextCompat.getColor(
+                    context,
+                    android.R.color.transparent
+                )
+            )
 
-            val closeImageView = this.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
-            closeImageView.imageTintList = ColorStateList.valueOf(ColorHelper.getPrimaryTextColor(context))
+            val closeImageView =
+                this.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+            closeImageView.imageTintList =
+                ColorStateList.valueOf(ColorHelper.getPrimaryTextColor(context))
         }
     }
 
@@ -952,14 +988,16 @@ object Tools {
         return if (isPortrait) {
             // Resize for portrait, keeping original aspect ratio
             val ratio = correctedWidth.toDouble() / correctedHeight.toDouble()
-            val newHeight = if (isHeightAboveLimit) maxSizeLimit else minOf(maxSizeLimit, correctedHeight)
+            val newHeight =
+                if (isHeightAboveLimit) maxSizeLimit else minOf(maxSizeLimit, correctedHeight)
             val newWidth = (ratio * newHeight).toInt()
             Timber.d("Image resize resized 2 = $newWidth, $newHeight")
             Pair(newWidth, newHeight)
         } else {
             // Resize for landscape, keeping original aspect ratio
             val ratio = correctedHeight.toDouble() / correctedWidth.toDouble()
-            val newWidth = if (isWidthAboveLimit) maxSizeLimit else minOf(maxSizeLimit, correctedWidth)
+            val newWidth =
+                if (isWidthAboveLimit) maxSizeLimit else minOf(maxSizeLimit, correctedWidth)
             val newHeight = (ratio * newWidth).toInt()
             Timber.d("Image resize resized 3 = $newWidth, $newHeight")
             Pair(newWidth, newHeight)
