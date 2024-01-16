@@ -50,11 +50,13 @@ import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHide
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.vanniktech.emoji.EmojiTextView
 import com.vanniktech.emoji.isOnlyEmojis
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
+private const val VIEW_TYPE_SYSTEM_MESSAGE = 3
 private var oldPosition = -1
 private var firstPlay = true
 private var playerListener: Player.Listener? = null
@@ -341,14 +343,16 @@ class ChatAdapter(
                 }
 
                 /** Show edited layout: */
-                holder.binding.tvEdited.visibility = if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt){
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
+                holder.binding.tvEdited.visibility =
+                    if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
 
                 holder.binding.tvForward.visibility = if (it.message.isForwarded &&
-                    (it.message.deleted != null && !it.message.deleted)){
+                    (it.message.deleted != null && !it.message.deleted)
+                ) {
                     View.VISIBLE
                 } else {
                     View.GONE
@@ -500,18 +504,19 @@ class ChatAdapter(
                     onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it)
                 }
 
-                holder.binding.tvForward.visibility = if (it.message.isForwarded){
+                holder.binding.tvForward.visibility = if (it.message.isForwarded) {
                     View.VISIBLE
                 } else {
                     View.GONE
                 }
 
                 /** Show edited layout: */
-                holder.binding.tvEdited.visibility = if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
-                   View.VISIBLE
-                } else {
-                   View.GONE
-                }
+                holder.binding.tvEdited.visibility =
+                    if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
 
                 /** Show user names and avatars in group chat */
                 if (Const.JsonFields.PRIVATE == roomType) {
@@ -716,13 +721,19 @@ class ChatAdapter(
         ivLoadingImage: ImageView,
         clContainer: ConstraintLayout
     ) {
+        val imageResized = Tools.resizeImage(
+            chatMessage.message.body?.file?.metaData?.width,
+            chatMessage.message.body?.file?.metaData?.height
+        )
+
         val mediaPath = Tools.getMediaFile(context, chatMessage.message)
         loadMedia(
             context = context,
             mediaPath = mediaPath,
             mediaImage = ivChatImage,
             loadingImage = ivLoadingImage,
-            height = chatMessage.message.body?.file?.metaData?.height ?: 256,
+            height = imageResized.second,
+            width = imageResized.first,
             playButton = null
         )
 
@@ -753,13 +764,19 @@ class ChatAdapter(
         ivLoadingImage: ImageView,
         clContainer: ConstraintLayout
     ) {
+        val imageResized = Tools.resizeImage(
+            chatMessage.message.body?.file?.metaData?.width,
+            chatMessage.message.body?.file?.metaData?.height
+        )
+
         val mediaPath = Tools.getMediaFile(context, chatMessage.message)
         loadMedia(
             context = context,
             mediaPath = mediaPath,
             mediaImage = ivChatImage,
             loadingImage = ivLoadingImage,
-            height = chatMessage.message.body?.file?.metaData?.height ?: MAX_HEIGHT,
+            height = imageResized.second,
+            width = imageResized.first,
             playButton = null
         )
         when (chatMessage.message.messageStatus) {
@@ -820,13 +837,19 @@ class ChatAdapter(
                 tvVideoDuration.text = context.getString(R.string.audio_duration)
             }
 
+            val imageResized = Tools.resizeImage(
+                chatMessage.message.body?.file?.metaData?.width,
+                chatMessage.message.body?.file?.metaData?.height
+            )
+
             val mediaPath = Tools.getMediaFile(context, chatMessage.message)
             loadMedia(
                 context = context,
                 mediaPath = mediaPath,
                 mediaImage = ivVideoThumbnail,
                 loadingImage = ivVideoLoading,
-                height = chatMessage.message.body?.file?.metaData?.height ?: MAX_HEIGHT,
+                height = imageResized.second,
+                width = imageResized.first,
                 playButton = ivPlayButton
             )
             ivPlayButton.setOnClickListener {

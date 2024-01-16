@@ -72,17 +72,12 @@ object ChatAdapterHelper {
         mediaImage: ImageView,
         loadingImage: ImageView?,
         height: Int,
+        width: Int,
         playButton: ImageView?
     ) {
-        val maxHeight = convertToDp(context, HEIGHT)
-        val newHeight: Int = if (convertToDp(context, height) <= maxHeight) {
-            convertToDp(context, height)
-        } else {
-            maxHeight
-        }
-
         val params = mediaImage.layoutParams
-        params.height = newHeight
+        params.height = convertToDp(context, height)
+        params.width = convertToDp(context, width)
         mediaImage.layoutParams = params
 
         var rotationAnimator: ObjectAnimator? = null
@@ -98,6 +93,7 @@ object ChatAdapterHelper {
 
         Glide.with(context)
             .load(mediaPath)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
@@ -125,7 +121,6 @@ object ChatAdapterHelper {
                     return false
                 }
             })
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(mediaImage)
     }
 
