@@ -847,6 +847,20 @@ class ChatMessagesFragment : BaseFragment() {
                     }
                 }
             }
+
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                val scrollingIndex = positionStart + itemCount - 1
+                if (scrollingIndex >= 0) {
+                    Timber.d("Scrolling to bottom, new container added.")
+                    if (sendingScrollVisibility()) {
+                        rvChat.smoothScrollToPosition(0)
+                        scrollYDistance = 0
+                        cvBottomArrow.visibility = View.INVISIBLE
+                    } else {
+                        cvBottomArrow.visibility = View.VISIBLE
+                    }
+                }
+            }
         }
         chatAdapter.registerAdapterDataObserver(adapterDataObserver)
     }
