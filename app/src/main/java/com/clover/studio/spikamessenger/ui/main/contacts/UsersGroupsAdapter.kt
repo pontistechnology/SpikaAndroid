@@ -54,7 +54,7 @@ class UsersGroupsAdapter(
                 binding.tvTitle.text = it.phoneNumber ?: ""
 
                 // Avatar
-                val avatar = if (it.phoneNumber != null) {
+                val avatar = if (it.phoneNumber != null || it.isBot) {
                     R.drawable.img_user_avatar
                 } else {
                     R.drawable.img_group_avatar
