@@ -835,34 +835,27 @@ class ChatMessagesFragment : BaseFragment() {
     private fun setUpAdapterDataObserver() = with(bindingSetup) {
         val adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
-                val scrollingIndex = positionStart + itemCount - 1
-                if (scrollingIndex >= 0) {
-                    Timber.d("Scrolling to bottom, new container added.")
-                    if (sendingScrollVisibility()) {
-                        rvChat.smoothScrollToPosition(0)
-                        scrollYDistance = 0
-                        cvBottomArrow.visibility = View.INVISIBLE
-                    } else {
-                        cvBottomArrow.visibility = View.VISIBLE
-                    }
-                }
+                scrollToBottom(positionStart, itemCount)
             }
 
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                val scrollingIndex = positionStart + itemCount - 1
-                if (scrollingIndex >= 0) {
-                    Timber.d("Scrolling to bottom, new container added.")
-                    if (sendingScrollVisibility()) {
-                        rvChat.smoothScrollToPosition(0)
-                        scrollYDistance = 0
-                        cvBottomArrow.visibility = View.INVISIBLE
-                    } else {
-                        cvBottomArrow.visibility = View.VISIBLE
-                    }
-                }
+                scrollToBottom(positionStart, itemCount)
             }
         }
         chatAdapter.registerAdapterDataObserver(adapterDataObserver)
+    }
+
+    private fun scrollToBottom(positionStart: Int, itemCount: Int) = with(bindingSetup) {
+        val scrollingIndex = positionStart + itemCount - 1
+        if (scrollingIndex >= 0) {
+            if (sendingScrollVisibility()) {
+                rvChat.smoothScrollToPosition(0)
+                scrollYDistance = 0
+                cvBottomArrow.visibility = View.INVISIBLE
+            } else {
+                cvBottomArrow.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun updateSwipeController() {
