@@ -74,6 +74,7 @@
             android:fontFamily="@font/roboto_bold"
             android:gravity="center"
             android:text="@string/group_name"
+            android:gravity="center"
             android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/twenty_four_sp_text"
             android:visibility="visible"
