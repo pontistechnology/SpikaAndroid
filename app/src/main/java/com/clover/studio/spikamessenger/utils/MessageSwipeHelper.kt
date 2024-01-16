@@ -23,8 +23,8 @@ const val MIN_ALPHA = 0
 const val MIN_SCALE = 0f
 const val SMALL_MESSAGE_POSITIVE_SIZE_1 = 80
 const val SMALL_MESSAGE_POSITIVE_SIZE_2 = 250
-const val SMALL_MESSAGE_NEGATIVE_SIZE_1 = -10
-const val SMALL_MESSAGE_NEGATIVE_SIZE_2 = -200
+const val SMALL_MESSAGE_NEGATIVE_SIZE_1 = -90
+const val SMALL_MESSAGE_NEGATIVE_SIZE_2 = -260
 
 class MessageSwipeController(
     private val context: Context,
