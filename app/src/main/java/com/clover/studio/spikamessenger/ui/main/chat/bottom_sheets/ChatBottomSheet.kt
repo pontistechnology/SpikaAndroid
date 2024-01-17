@@ -1,5 +1,6 @@
 package com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -45,6 +46,7 @@ class ChatBottomSheet(
         fun actionAddCustomReaction()
         fun actionDownload()
         fun actionForward()
+        fun sheetDismissed()
     }
 
     fun setActionListener(listener: BottomSheetAction?) {
@@ -120,5 +122,10 @@ class ChatBottomSheet(
                 dismiss()
             }
         })
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        listener?.sheetDismissed()
     }
 }
