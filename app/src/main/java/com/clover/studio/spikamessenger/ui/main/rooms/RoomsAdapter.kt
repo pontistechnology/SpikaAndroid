@@ -79,7 +79,7 @@ class RoomsAdapter(
                         // We need to hide the username since it is prefixed to the last message
                         binding.tvUsername.visibility = View.GONE
                     } else {
-                        binding.tvUsername.text = if (user?.id.toString() == myUserId) {
+                        val usernamePlaceholder = if (user?.id.toString() == myUserId) {
                             context.getString(
                                 R.string.username_message,
                                 context.getString(R.string.you).trim()
@@ -90,6 +90,8 @@ class RoomsAdapter(
                                 user?.formattedDisplayName?.trim()
                             )
                         }
+                        binding.tvUsername.text =
+                            if (usernamePlaceholder.length > 20) "${roomName.take(20)}...:" else usernamePlaceholder
                         // RV fallback, so it doesn't recycle username hiding
                         binding.tvUsername.visibility = View.VISIBLE
                     }
