@@ -17,8 +17,6 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getRoomTime
 import com.vanniktech.emoji.EmojiTextView
-import timber.log.Timber
-
 class RoomsAdapter(
     private val context: Context,
     private val myUserId: String,
@@ -36,20 +34,16 @@ class RoomsAdapter(
     override fun onBindViewHolder(holder: RoomsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { roomItem ->
-                val userName: String
-                val avatarFileId: Long
+                val isPrivateRoom = Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type
 
-                if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
-                    val roomUser =
-                        roomItem.roomWithUsers.users.find { it.id.toString() != myUserId }
-                    userName = roomUser?.formattedDisplayName ?: ""
-                    avatarFileId = roomUser?.avatarFileId ?: 0L
-                } else {
-                    userName = roomItem.roomWithUsers.room.name.toString()
-                    avatarFileId = roomItem.roomWithUsers.room.avatarFileId ?: 0L
-                }
+                val roomUser =
+                    if (isPrivateRoom) roomItem.roomWithUsers.users.find { it.id.toString() != myUserId } else null
+                val roomName = if (isPrivateRoom) roomUser?.formattedDisplayName
+                    ?: "" else roomItem.roomWithUsers.room.name.toString()
+                val avatarFileId =
+                    if (isPrivateRoom) roomUser?.avatarFileId ?: 0L else roomItem.roomWithUsers.room.avatarFileId ?: 0L
 
-                binding.tvRoomName.text = userName
+                binding.tvRoomName.text = roomName
 
                 // Check if room is muted and add mute icon to the room item
                 binding.ivMuted.visibility = if (roomItem.roomWithUsers.room.muted) {
@@ -78,8 +72,6 @@ class RoomsAdapter(
                     val sortedList = roomItem.message
                     val lastMessage = sortedList.body
 
-                    Timber.d("Last message = $lastMessage")
-                    Timber.d("Last message2 = $sortedList")
                     val user =
                         roomItem.roomWithUsers.users.firstOrNull { it.id == sortedList.fromUserId }
 
@@ -87,7 +79,7 @@ class RoomsAdapter(
                         // We need to hide the username since it is prefixed to the last message
                         binding.tvUsername.visibility = View.GONE
                     } else {
-                        binding.tvUsername.text = if (user?.id.toString() == myUserId) {
+                        val usernamePlaceholder = if (user?.id.toString() == myUserId) {
                             context.getString(
                                 R.string.username_message,
                                 context.getString(R.string.you).trim()
@@ -98,6 +90,8 @@ class RoomsAdapter(
                                 user?.formattedDisplayName?.trim()
                             )
                         }
+                        binding.tvUsername.text =
+                            if (usernamePlaceholder.length > 20) "${roomName.take(20)}...:" else usernamePlaceholder
                         // RV fallback, so it doesn't recycle username hiding
                         binding.tvUsername.visibility = View.VISIBLE
                     }
