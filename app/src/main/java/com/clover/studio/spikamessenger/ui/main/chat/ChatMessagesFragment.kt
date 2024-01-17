@@ -998,6 +998,8 @@ class ChatMessagesFragment : BaseFragment() {
             return
         }
 
+        itemTouchHelper?.attachToRecyclerView(null)
+
         hideKeyboard(root)
 
         val bottomSheet = ChatBottomSheet(msg.message, localUserId)
@@ -1108,6 +1110,10 @@ class ChatMessagesFragment : BaseFragment() {
                     requireActivity().supportFragmentManager,
                     ForwardBottomSheet.TAG
                 )
+            }
+
+            override fun sheetDismissed() {
+                updateSwipeController()
             }
         })
         bottomSheet.show(requireActivity().supportFragmentManager, ChatBottomSheet.TAG)
