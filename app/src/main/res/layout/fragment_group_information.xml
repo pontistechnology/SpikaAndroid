@@ -57,6 +57,7 @@
         android:backgroundTint="?attr/secondaryColor"
         android:hint="@string/enter_group_name"
         android:padding="@dimen/sixteen_dp_margin"
+        android:maxLines="1"
         android:textAppearance="@style/CustomTextBody"
         android:textColor="?attr/primaryTextColor"
         android:textColorHint="?attr/primaryTextColor"

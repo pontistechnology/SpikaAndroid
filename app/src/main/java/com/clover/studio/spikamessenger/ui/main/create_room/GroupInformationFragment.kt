@@ -143,7 +143,7 @@ class GroupInformationFragment : BaseFragment() {
 
             jsonObject.addProperty(
                 Const.JsonFields.NAME,
-                binding.etEnterUsername.text.toString()
+                binding.etEnterUsername.text.toString().trim()
             )
             jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarFileId)
             jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
@@ -323,6 +323,7 @@ class GroupInformationFragment : BaseFragment() {
                 )
             )
             binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+            inputStream.close()
         }
     }
 
