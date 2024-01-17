@@ -219,6 +219,12 @@ class SSEManager @Inject constructor(
                                     Const.JsonFields.SEEN_ROOM -> {
                                         response.data?.roomId?.let { repo.resetUnreadCount(it) }
                                     }
+
+                                    Const.JsonFields.REMOVED_FROM_ROOM -> {
+                                        // Delete my room user from group where I was removed.
+                                        response.data?.roomId?.let { sharedPrefs.readUserId()
+                                            ?.let { userId -> repo.deleteRoomUser(userId, it) } }
+                                    }
                                 }
                             }
                         }

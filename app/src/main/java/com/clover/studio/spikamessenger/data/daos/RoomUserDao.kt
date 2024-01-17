@@ -8,6 +8,10 @@ interface RoomUserDao: BaseDao<RoomUser> {
 
     // Delete all room users with specified user_id
     @Transaction
+    @Query("DELETE FROM room_user WHERE user_id LIKE :userId AND room_id LIKE :roomId")
+    suspend fun deleteRoomUser(userId: Int, roomId: Int)
+
+    @Transaction
     @Query("DELETE FROM room_user WHERE user_id IN (:userIds) AND room_id LIKE :roomId")
     suspend fun deleteRoomUsers(userIds: List<Int>, roomId: Int)
 

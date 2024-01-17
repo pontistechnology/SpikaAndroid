@@ -474,7 +474,12 @@ class SSERepositoryImpl @Inject constructor(
                     )
                     if (filteredList?.isNotEmpty() == true) {
                         queryDatabaseCoreData(
-                            databaseQuery = { roomUserDao.deleteRoomUsers(filteredList, room.roomId) }
+                            databaseQuery = {
+                                roomUserDao.deleteRoomUsers(
+                                    filteredList,
+                                    room.roomId
+                                )
+                            }
                         )
                     }
                     queryDatabaseCoreData(
@@ -544,6 +549,16 @@ class SSERepositoryImpl @Inject constructor(
         return sharedPrefs.isTeamMode()
     }
 
+    override suspend fun deleteRoomUser(userId: Int, roomId: Int) {
+        queryDatabaseCoreData(
+            databaseQuery = { roomUserDao.deleteRoomUser(userId, roomId) }
+        )
+
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.updateRoomExit(roomId, true) }
+        )
+    }
+
     private suspend fun <A> syncNextBatch(
         lastUpdate: Long,
         networkCall: suspend (page: Int) -> Resource<A>,
@@ -597,6 +612,7 @@ interface SSERepository : BaseRepository {
     suspend fun resetUnreadCount(roomId: Int)
     suspend fun getUnreadCount()
     suspend fun getAppMode(): Boolean
+    suspend fun deleteRoomUser(userId: Int, roomId: Int)
 }
 
 private fun getMessageIdJson(messageIds: List<Int?>): JsonObject {

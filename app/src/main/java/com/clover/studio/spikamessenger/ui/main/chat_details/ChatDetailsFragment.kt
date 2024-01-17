@@ -49,7 +49,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -554,16 +553,13 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
     private fun updateRoomUserList(roomWithUsers: RoomWithUsers) {
         roomUsers.clear()
         roomUsers.addAll(roomWithUsers.users)
-        runBlocking {
-            for (user in roomUsers) {
-                if (roomId?.let { viewModel.isUserAdmin(it, user.id) } == true) {
-                    user.isAdmin = true
-                }
+        for (user in roomUsers) {
+            if (roomId?.let { viewModel.isUserAdmin(it, user.id) } == true) {
+                user.isAdmin = true
             }
-            modifiedList = roomUsers.sortedBy { user -> user.isAdmin }.reversed()
-            adapter.submitList(modifiedList.toList())
-
         }
+        modifiedList = roomUsers.sortedBy { user -> user.isAdmin }.reversed()
+        adapter.submitList(modifiedList.toList())
     }
 
     private fun updateGroupImage() {
