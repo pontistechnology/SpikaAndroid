@@ -971,7 +971,7 @@ class ChatAdapter(
     }
 
     private fun handleMediaResize(body: MessageBody?): Pair<Int, Int> {
-        val imageResized: Pair<Int, Int> = if (body?.thumb != null) {
+        val imageResized: Pair<Int, Int> = if (body?.thumb != null && body.thumb?.id != 0L) {
             Tools.resizeImage(
                 body.thumb?.metaData?.width,
                 body.thumb?.metaData?.height
