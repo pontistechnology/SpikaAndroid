@@ -12,8 +12,6 @@ import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
 import android.view.*
 import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -39,12 +37,10 @@ import com.clover.studio.spikamessenger.databinding.AudioLayoutBinding
 import com.clover.studio.spikamessenger.databinding.ItemMessageMeBinding
 import com.clover.studio.spikamessenger.databinding.ItemMessageOtherBinding
 import com.clover.studio.spikamessenger.databinding.ItemSystemMessageBinding
-import com.clover.studio.spikamessenger.databinding.VideoLayoutBinding
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getRelativeTimeSpan
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper
-import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.loadMedia
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHideUserInformation
 import com.clover.studio.spikamessenger.utils.helpers.Resource
@@ -176,67 +172,39 @@ class ChatAdapter(
                         }
 
                         Const.JsonFields.IMAGE_TYPE -> {
-                            setViewsVisibility(holder.binding.clImageChat, holder)
-                            bindLoadingImage(
+                            setViewsVisibility(holder.binding.cvImage, holder)
+                            setImageLayout(
                                 chatMessage = it,
-                                flProgressScreen = holder.binding.flLoadingScreen,
-                                pbImages = holder.binding.pbImages,
-                                ivCancelImage = holder.binding.ivCancelImage,
-                                ivChatImage = holder.binding.ivChatImage,
-                                ivImageFailed = holder.binding.ivImageFailed,
-                                ivLoadingImage = holder.binding.ivMediaLoading,
-                                clContainer = holder.binding.clContainer,
+                                container = holder.binding.flImageContainer,
+                                sender = true
                             )
                         }
 
                         Const.JsonFields.VIDEO_TYPE -> {
                             if (it.message.id < 0) {
-                                setViewsVisibility(holder.binding.clImageChat, holder)
-                                bindLoadingImage(
+                                setViewsVisibility(holder.binding.cvImage, holder)
+                                setImageLayout(
                                     chatMessage = it,
-                                    flProgressScreen = holder.binding.flLoadingScreen,
-                                    pbImages = holder.binding.pbImages,
-                                    ivCancelImage = holder.binding.ivCancelImage,
-                                    ivChatImage = holder.binding.ivChatImage,
-                                    ivImageFailed = holder.binding.ivImageFailed,
-                                    ivLoadingImage = holder.binding.ivMediaLoading,
-                                    clContainer = holder.binding.clContainer,
+                                    container = holder.binding.flImageContainer,
+                                    sender = true
                                 )
                             } else {
-                                with(holder.binding) {
-                                    setViewsVisibility(cvVideo, holder)
-                                    bindVideo(
-                                        chatMessage = it,
-                                        videoLayoutBinding = holder.binding.videoLayout
-                                    )
-                                }
-                                holder.binding.flLoadingScreen.visibility = View.GONE
+                                setViewsVisibility(holder.binding.cvVideo, holder)
+                                setVideoLayout(
+                                    chatMessage = it,
+                                    container = holder.binding.flVideoContainer,
+                                    sender = true
+                                )
                             }
                         }
 
                         Const.JsonFields.FILE_TYPE -> {
                             setViewsVisibility(holder.binding.cvFiles, holder)
-                            val fileLayout = FileLayout(context)
-                            fileLayout.setFileLayoutListener(object :
-                                FileLayout.FileLayoutListener {
-                                override fun downloadFile() {
-                                    onMessageInteraction.invoke(Const.UserActions.DOWNLOAD_FILE, it)
-                                }
-
-                                override fun resendFile() {
-                                    onMessageInteraction(Const.UserActions.RESEND_MESSAGE, it)
-                                }
-
-                                override fun cancelFileUpload() {
-                                    onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, it)
-                                }
-                            })
-                            fileLayout.bindFile(
+                            setFileLayout(
                                 chatMessage = it,
+                                container = holder.binding.flFileContainer,
                                 sender = true
                             )
-
-                            holder.binding.flFileContainer.addView(fileLayout)
                         }
 
                         Const.JsonFields.AUDIO_TYPE -> {
@@ -299,22 +267,15 @@ class ChatAdapter(
 
                     /** Show message reply: */
                     if (it.message.replyId != null && it.message.replyId != 0L && it.message.deleted == false) {
-                        holder.binding.flReplyContainer.visibility = View.VISIBLE
-                        val reply = ReplyLayout(context)
-                        reply.setReplyLayoutListener(object : ReplyLayout.ReplyLayoutListener {
-                            override fun replyLayoutClick() {
-                                onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it)
-                            }
-                        })
-                        reply.bindReply(
-                            context = context,
+                        setViewsVisibility(holder.binding.flReplyContainer, holder)
+                        holder.binding.tvMessage.visibility = View.VISIBLE
+
+                        setUpReplyLayout(
                             chatMessage = it,
-                            users = users,
-                            clContainer = holder.binding.clContainer,
-                            sender = true,
-                            roomType = roomType
+                            parentContainer = holder.binding.clContainer,
+                            replyContainer = holder.binding.flReplyContainer,
+                            sender = true
                         )
-                        holder.binding.flReplyContainer.addView(reply)
                     }
 
                     /** Show edited layout: */
@@ -405,50 +366,30 @@ class ChatAdapter(
                         }
 
                         Const.JsonFields.IMAGE_TYPE -> {
-                            setViewsVisibility(holder.binding.clImageChat, holder)
-                            bindImage(
+                            setViewsVisibility(holder.binding.cvImage, holder)
+                            setImageLayout(
                                 chatMessage = it,
-                                ivChatImage = holder.binding.ivChatImage,
-                                ivLoadingImage = holder.binding.ivMediaLoading,
-                                clContainer = holder.binding.clImageChat
+                                container = holder.binding.flImageContainer,
+                                sender = false
                             )
                         }
 
                         Const.JsonFields.VIDEO_TYPE -> {
-                            with(holder.binding) {
-                                setViewsVisibility(cvVideo, holder)
-                                bindVideo(
-                                    chatMessage = it,
-                                    videoLayoutBinding = holder.binding.videoLayout
-                                )
-                            }
+                            setViewsVisibility(holder.binding.cvVideo, holder)
+                            setVideoLayout(
+                                chatMessage = it,
+                                container = holder.binding.flVideoContainer,
+                                sender = false
+                            )
                         }
 
                         Const.JsonFields.FILE_TYPE -> {
                             setViewsVisibility(holder.binding.cvFiles, holder)
-                            val fileLayout = FileLayout(context)
-                            fileLayout.setFileLayoutListener(object :
-                                FileLayout.FileLayoutListener {
-                                override fun downloadFile() {
-                                    onMessageInteraction.invoke(Const.UserActions.DOWNLOAD_FILE, it)
-                                }
-
-                                override fun resendFile() {
-                                    // Ignore
-                                }
-
-                                override fun cancelFileUpload() {
-                                    // Ignore
-                                }
-                            })
-
-                            fileLayout.bindFile(
+                            setFileLayout(
                                 chatMessage = it,
+                                container = holder.binding.flFileContainer,
                                 sender = false
                             )
-
-                            holder.binding.flFileContainer.addView(fileLayout)
-
                         }
 
                         Const.JsonFields.AUDIO_TYPE -> {
@@ -467,22 +408,15 @@ class ChatAdapter(
 
                     /** Other: */
                     if (it.message.replyId != null && it.message.replyId != 0L && it.message.deleted == false) {
-                        holder.binding.flReplyContainer.visibility = View.VISIBLE
-                        val reply = ReplyLayout(context)
-                        reply.setReplyLayoutListener(object : ReplyLayout.ReplyLayoutListener {
-                            override fun replyLayoutClick() {
-                                onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, it)
-                            }
-                        })
-                        reply.bindReply(
-                            context = context,
+                        setViewsVisibility(holder.binding.flReplyContainer, holder)
+                        holder.binding.tvMessage.visibility = View.VISIBLE
+
+                        setUpReplyLayout(
                             chatMessage = it,
-                            users = users,
-                            clContainer = holder.binding.clContainer,
-                            sender = false,
-                            roomType = roomType
+                            parentContainer = holder.binding.clContainer,
+                            replyContainer = holder.binding.flReplyContainer,
+                            sender = false
                         )
-                        holder.binding.flReplyContainer.addView(reply)
                     }
 
                     holder.binding.tvForward.visibility = if (it.message.isForwarded) {
@@ -580,6 +514,91 @@ class ChatAdapter(
             }
         }
 
+    }
+
+    private fun setUpReplyLayout(chatMessage: MessageAndRecords, parentContainer: ConstraintLayout , replyContainer: FrameLayout, sender: Boolean) {
+        val reply = ReplyLayout(context)
+        reply.setReplyLayoutListener(object : ReplyLayout.ReplyLayoutListener {
+            override fun replyLayoutClick() {
+                onMessageInteraction.invoke(Const.UserActions.MESSAGE_REPLY, chatMessage)
+            }
+        })
+        reply.bindReply(
+            context = context,
+            chatMessage = chatMessage,
+            users = users,
+            clContainer = parentContainer,
+            sender = true,
+            roomType = roomType
+        )
+        replyContainer.addView(reply)
+    }
+
+    private fun setFileLayout(
+        chatMessage: MessageAndRecords,
+        container: FrameLayout,
+        sender: Boolean
+    ) {
+        val fileLayout = FileLayout(context)
+        fileLayout.setFileLayoutListener(object :
+            FileLayout.FileLayoutListener {
+            override fun downloadFile() {
+                onMessageInteraction.invoke(Const.UserActions.DOWNLOAD_FILE, chatMessage)
+            }
+
+            override fun resendFile() {
+                onMessageInteraction(Const.UserActions.RESEND_MESSAGE, chatMessage)
+            }
+
+            override fun cancelFileUpload() {
+                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, chatMessage)
+            }
+        })
+
+        fileLayout.bindFile(chatMessage = chatMessage, sender = true)
+        container.addView(fileLayout)
+    }
+
+    private fun setVideoLayout(
+        chatMessage: MessageAndRecords,
+        container: FrameLayout,
+        sender: Boolean
+    ) {
+        val video = VideoLayout(context)
+        video.setVideoLayoutListener(object : VideoLayout.VideoLayoutListener {
+            override fun mediaNavigation() {
+                onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
+            }
+        })
+        video.bindVideo(chatMessage = chatMessage)
+        container.addView(video)
+    }
+
+    private fun setImageLayout(
+        chatMessage: MessageAndRecords,
+        sender: Boolean,
+        container: FrameLayout
+    ) {
+        val image = ImageLayout(context)
+        image.setImageLayoutListener(object : ImageLayout.ImageLayoutListener {
+            override fun imageNavigation() {
+                onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
+            }
+
+            override fun imageResend() {
+                onMessageInteraction(Const.UserActions.RESEND_MESSAGE, chatMessage)
+            }
+
+            override fun imageCancelUpload() {
+                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, chatMessage)
+            }
+
+            override fun imageOptions() {
+                onMessageInteraction(Const.UserActions.MESSAGE_ACTION, chatMessage)
+            }
+        })
+        image.bindImage(chatMessage = chatMessage, sender = sender)
+        container.addView(image)
     }
 
     private fun addMargins(position: Int, sender: Boolean, clMessage: ConstraintLayout) {
@@ -705,140 +724,6 @@ class ChatAdapter(
             )
             append(" ")
             append(msg.message.body?.text.toString())
-        }
-    }
-
-    private fun bindImage(
-        chatMessage: MessageAndRecords,
-        ivChatImage: ImageView,
-        ivLoadingImage: ImageView,
-        clContainer: ConstraintLayout
-    ) {
-        val imageResized = handleMediaResize(chatMessage.message.body)
-
-        val mediaPath = Tools.getMediaFile(context, chatMessage.message)
-        loadMedia(
-            context = context,
-            mediaPath = mediaPath,
-            mediaImage = ivChatImage,
-            loadingImage = ivLoadingImage,
-            height = imageResized.second,
-            width = imageResized.first,
-            playButton = null
-        )
-
-        clContainer.apply {
-            setOnClickListener {
-                if (chatMessage.message.id > 0) {
-                    onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
-                }
-                if (chatMessage.message.messageStatus == Resource.Status.ERROR.toString()) {
-                    onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
-                }
-            }
-            setOnLongClickListener {
-                onMessageInteraction(Const.UserActions.MESSAGE_ACTION, chatMessage)
-                true
-            }
-        }
-        return
-    }
-
-    private fun bindLoadingImage(
-        chatMessage: MessageAndRecords,
-        flProgressScreen: FrameLayout,
-        pbImages: ProgressBar,
-        ivCancelImage: ImageView,
-        ivChatImage: ImageView,
-        ivImageFailed: ImageView,
-        ivLoadingImage: ImageView,
-        clContainer: ConstraintLayout
-    ) {
-        val imageResized = handleMediaResize(chatMessage.message.body)
-
-        val mediaPath = Tools.getMediaFile(context, chatMessage.message)
-        loadMedia(
-            context = context,
-            mediaPath = mediaPath,
-            mediaImage = ivChatImage,
-            loadingImage = ivLoadingImage,
-            height = imageResized.second,
-            width = imageResized.first,
-            playButton = null
-        )
-        when (chatMessage.message.messageStatus) {
-            Resource.Status.LOADING.toString() -> {
-                flProgressScreen.visibility = View.VISIBLE
-                ivImageFailed.visibility = View.GONE
-                pbImages.apply {
-                    visibility = View.VISIBLE
-                    secondaryProgress = chatMessage.message.uploadProgress
-                }
-                ivCancelImage.apply {
-                    visibility = View.VISIBLE
-                    setOnClickListener {
-                        onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, chatMessage)
-                    }
-                }
-            }
-
-            Resource.Status.ERROR.toString() -> {
-                flProgressScreen.visibility = View.VISIBLE
-                pbImages.visibility = View.GONE
-                ivCancelImage.visibility = View.GONE
-                ivImageFailed.apply {
-                    visibility = View.VISIBLE
-                    setOnClickListener {
-                        onMessageInteraction.invoke(Const.UserActions.RESEND_MESSAGE, chatMessage)
-                    }
-                }
-            }
-
-            Resource.Status.SUCCESS.toString(), null -> {
-                flProgressScreen.visibility = View.GONE
-                clContainer.apply {
-                    setOnClickListener {
-                        onMessageInteraction(
-                            Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT,
-                            chatMessage
-                        )
-                    }
-                    setOnLongClickListener {
-                        onMessageInteraction(Const.UserActions.MESSAGE_ACTION, chatMessage)
-                        true
-                    }
-                }
-            }
-        }
-    }
-
-    private fun bindVideo(
-        chatMessage: MessageAndRecords,
-        videoLayoutBinding: VideoLayoutBinding
-    ) {
-        with(videoLayoutBinding) {
-            if (chatMessage.message.body?.file?.metaData?.duration?.toLong() != null) {
-                tvVideoDuration.text =
-                    Tools.convertDurationInSeconds(chatMessage.message.body.file?.metaData?.duration!!.toLong())
-            } else {
-                tvVideoDuration.text = context.getString(R.string.audio_duration)
-            }
-
-            val imageResized = handleMediaResize(chatMessage.message.body)
-
-            val mediaPath = Tools.getMediaFile(context, chatMessage.message)
-            loadMedia(
-                context = context,
-                mediaPath = mediaPath,
-                mediaImage = ivVideoThumbnail,
-                loadingImage = ivVideoLoading,
-                height = imageResized.second,
-                width = imageResized.first,
-                playButton = ivPlayButton
-            )
-            ivPlayButton.setOnClickListener {
-                onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
-            }
         }
     }
 

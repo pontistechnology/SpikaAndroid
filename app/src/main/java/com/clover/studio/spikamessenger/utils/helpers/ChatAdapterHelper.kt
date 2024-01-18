@@ -12,7 +12,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -37,11 +36,17 @@ object ChatAdapterHelper {
     fun setViewsVisibility(viewToShow: View, holder: RecyclerView.ViewHolder) {
         val viewsToHide = listOf<View>(
             holder.itemView.findViewById<TextView>(R.id.tv_message),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.cl_image_chat),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.cv_files),
-            holder.itemView.findViewById<FrameLayout>(R.id.cv_video),
+            holder.itemView.findViewById<CardView>(R.id.cv_image),
+            holder.itemView.findViewById<CardView>(R.id.cv_files),
+            holder.itemView.findViewById<CardView>(R.id.cv_video),
             holder.itemView.findViewById<CardView>(R.id.cv_audio),
+            holder.itemView.findViewById<FrameLayout>(R.id.fl_reply_container),
         )
+
+        holder.itemView.findViewById<FrameLayout>(R.id.fl_reply_container).removeAllViews()
+        holder.itemView.findViewById<FrameLayout>(R.id.fl_image_container).removeAllViews()
+        holder.itemView.findViewById<FrameLayout>(R.id.fl_video_container).removeAllViews()
+        holder.itemView.findViewById<FrameLayout>(R.id.fl_file_container).removeAllViews()
 
         viewsToHide.forEach {
             it.visibility = if (it == viewToShow) View.VISIBLE else View.GONE
