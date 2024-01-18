@@ -33,6 +33,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
+import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.AudioLayoutBinding
 import com.clover.studio.spikamessenger.databinding.FileLayoutBinding
@@ -50,7 +51,6 @@ import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHide
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.vanniktech.emoji.EmojiTextView
 import com.vanniktech.emoji.isOnlyEmojis
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -721,10 +721,7 @@ class ChatAdapter(
         ivLoadingImage: ImageView,
         clContainer: ConstraintLayout
     ) {
-        val imageResized = Tools.resizeImage(
-            chatMessage.message.body?.file?.metaData?.width,
-            chatMessage.message.body?.file?.metaData?.height
-        )
+        val imageResized = handleMediaResize(chatMessage.message.body)
 
         val mediaPath = Tools.getMediaFile(context, chatMessage.message)
         loadMedia(
@@ -764,10 +761,7 @@ class ChatAdapter(
         ivLoadingImage: ImageView,
         clContainer: ConstraintLayout
     ) {
-        val imageResized = Tools.resizeImage(
-            chatMessage.message.body?.file?.metaData?.width,
-            chatMessage.message.body?.file?.metaData?.height
-        )
+        val imageResized = handleMediaResize(chatMessage.message.body)
 
         val mediaPath = Tools.getMediaFile(context, chatMessage.message)
         loadMedia(
@@ -837,10 +831,7 @@ class ChatAdapter(
                 tvVideoDuration.text = context.getString(R.string.audio_duration)
             }
 
-            val imageResized = Tools.resizeImage(
-                chatMessage.message.body?.file?.metaData?.width,
-                chatMessage.message.body?.file?.metaData?.height
-            )
+            val imageResized = handleMediaResize(chatMessage.message.body)
 
             val mediaPath = Tools.getMediaFile(context, chatMessage.message)
             loadMedia(
@@ -977,6 +968,22 @@ class ChatAdapter(
                 }
             })
         }
+    }
+
+    private fun handleMediaResize(body: MessageBody?): Pair<Int, Int> {
+        val imageResized: Pair<Int, Int> = if (body?.thumb != null) {
+            Tools.resizeImage(
+                body.thumb?.metaData?.width,
+                body.thumb?.metaData?.height
+            )
+        } else {
+            Tools.resizeImage(
+                body?.file?.metaData?.width,
+                body?.file?.metaData?.height
+            )
+        }
+
+        return imageResized
     }
 
     /** A method that sends a reaction to a message */

@@ -663,11 +663,17 @@ object Tools {
         var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
         val file = File(mediaPath)
         if (!file.exists()) {
-            mediaPath = message.body?.thumb?.id?.let { imagePath ->
-                getFilePathUrl(
-                    imagePath
-                )
-            }.toString()
+            mediaPath = if (message.body?.thumb != null) {
+                message.body.thumb?.id?.let { imagePath ->
+                    getFilePathUrl(
+                        imagePath
+                    )
+                }.toString()
+            } else {
+                message.body?.fileId?.let { fileId ->
+                    getFilePathUrl(fileId)
+                }.toString()
+            }
         }
         return mediaPath
     }
