@@ -43,13 +43,19 @@ object ChatAdapterHelper {
             holder.itemView.findViewById<FrameLayout>(R.id.fl_reply_container),
         )
 
-        holder.itemView.findViewById<FrameLayout>(R.id.fl_reply_container).removeAllViews()
-        holder.itemView.findViewById<FrameLayout>(R.id.fl_image_container).removeAllViews()
-        holder.itemView.findViewById<FrameLayout>(R.id.fl_video_container).removeAllViews()
-        holder.itemView.findViewById<FrameLayout>(R.id.fl_file_container).removeAllViews()
-
         viewsToHide.forEach {
             it.visibility = if (it == viewToShow) View.VISIBLE else View.GONE
+        }
+
+        val containerIds = listOf(
+            R.id.fl_reply_container,
+            R.id.fl_image_container,
+            R.id.fl_video_container,
+            R.id.fl_file_container
+        )
+
+        containerIds.forEach {
+            holder.itemView.findViewById<FrameLayout>(it).removeAllViews()
         }
     }
 

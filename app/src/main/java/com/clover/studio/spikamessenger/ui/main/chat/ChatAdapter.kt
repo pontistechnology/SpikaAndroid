@@ -37,6 +37,10 @@ import com.clover.studio.spikamessenger.databinding.AudioLayoutBinding
 import com.clover.studio.spikamessenger.databinding.ItemMessageMeBinding
 import com.clover.studio.spikamessenger.databinding.ItemMessageOtherBinding
 import com.clover.studio.spikamessenger.databinding.ItemSystemMessageBinding
+import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.FileLayout
+import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.ImageLayout
+import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.ReplyLayout
+import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.VideoLayout
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getRelativeTimeSpan
@@ -528,7 +532,7 @@ class ChatAdapter(
             chatMessage = chatMessage,
             users = users,
             clContainer = parentContainer,
-            sender = true,
+            sender = sender,
             roomType = roomType
         )
         replyContainer.addView(reply)
@@ -555,7 +559,7 @@ class ChatAdapter(
             }
         })
 
-        fileLayout.bindFile(chatMessage = chatMessage, sender = true)
+        fileLayout.bindFile(chatMessage = chatMessage, sender = sender)
         container.addView(fileLayout)
     }
 

@@ -1,4 +1,4 @@
-package com.clover.studio.spikamessenger.ui.main.chat
+package com.clover.studio.spikamessenger.ui.main.chat.chat_layouts
 
 import android.content.Context
 import android.content.res.ColorStateList
