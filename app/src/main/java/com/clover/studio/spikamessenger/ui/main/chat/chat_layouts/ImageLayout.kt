@@ -31,11 +31,7 @@ class ImageLayout(context: Context) :
         this.listener = listener
     }
 
-    fun bindImage(
-        chatMessage: MessageAndRecords,
-        sender: Boolean
-    ) = with(binding) {
-
+    fun bindImage(chatMessage: MessageAndRecords) = with(binding) {
         val imageResized = Tools.resizeImage(
             chatMessage.message.body?.file?.metaData?.width,
             chatMessage.message.body?.file?.metaData?.height
@@ -52,7 +48,7 @@ class ImageLayout(context: Context) :
             playButton = null
         )
 
-        if (sender){
+        if (chatMessage.message.id < 0){
             bindLoadingImage(chatMessage)
         } else {
             clImageChat.setOnLongClickListener {
@@ -68,7 +64,6 @@ class ImageLayout(context: Context) :
     private fun bindLoadingImage(
         chatMessage: MessageAndRecords,
     ) = with(binding) {
-
         when (chatMessage.message.messageStatus) {
             Resource.Status.LOADING.toString() -> {
                 flLoadingScreen.visibility = View.VISIBLE

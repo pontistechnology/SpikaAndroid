@@ -30,6 +30,7 @@
         android:max="100"
         android:min="0"
         android:progress="0"
+        android:layout_marginStart="@dimen/eight_dp_margin"
         android:progressBackgroundTint="?attr/primaryTextColor"
         android:progressTint="?attr/primaryTextColor"
         android:thumbTint="?attr/primaryTextColor"

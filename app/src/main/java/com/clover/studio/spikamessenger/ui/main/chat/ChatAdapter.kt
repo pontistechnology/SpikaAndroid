@@ -12,7 +12,6 @@ import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
 import android.view.*
 import android.widget.FrameLayout
-import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
@@ -33,10 +32,10 @@ import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.User
-import com.clover.studio.spikamessenger.databinding.AudioLayoutBinding
 import com.clover.studio.spikamessenger.databinding.ItemMessageMeBinding
 import com.clover.studio.spikamessenger.databinding.ItemMessageOtherBinding
 import com.clover.studio.spikamessenger.databinding.ItemSystemMessageBinding
+import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.AudioLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.FileLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.ImageLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.ReplyLayout
@@ -47,7 +46,6 @@ import com.clover.studio.spikamessenger.utils.Tools.getRelativeTimeSpan
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHideUserInformation
-import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.vanniktech.emoji.EmojiTextView
 import com.vanniktech.emoji.isOnlyEmojis
 import timber.log.Timber
@@ -176,90 +174,45 @@ class ChatAdapter(
                         }
 
                         Const.JsonFields.IMAGE_TYPE -> {
-                            setViewsVisibility(holder.binding.cvImage, holder)
+                            setViewsVisibility(holder.binding.cvMedia, holder)
                             setImageLayout(
                                 chatMessage = it,
-                                container = holder.binding.flImageContainer,
-                                sender = true
+                                container = holder.binding.flMediaContainer,
                             )
                         }
 
                         Const.JsonFields.VIDEO_TYPE -> {
                             if (it.message.id < 0) {
-                                setViewsVisibility(holder.binding.cvImage, holder)
+                                setViewsVisibility(holder.binding.cvMedia, holder)
                                 setImageLayout(
                                     chatMessage = it,
-                                    container = holder.binding.flImageContainer,
-                                    sender = true
+                                    container = holder.binding.flMediaContainer,
                                 )
                             } else {
-                                setViewsVisibility(holder.binding.cvVideo, holder)
+                                setViewsVisibility(holder.binding.cvMedia, holder)
                                 setVideoLayout(
                                     chatMessage = it,
-                                    container = holder.binding.flVideoContainer,
-                                    sender = true
+                                    container = holder.binding.flMediaContainer,
                                 )
                             }
                         }
 
                         Const.JsonFields.FILE_TYPE -> {
-                            setViewsVisibility(holder.binding.cvFiles, holder)
+                            setViewsVisibility(holder.binding.cvMedia, holder)
                             setFileLayout(
                                 chatMessage = it,
-                                container = holder.binding.flFileContainer,
+                                container = holder.binding.flMediaContainer,
                                 sender = true
                             )
                         }
 
                         Const.JsonFields.AUDIO_TYPE -> {
-                            setViewsVisibility(holder.binding.cvAudio, holder)
-
-                            /** Uploading audio: */
-                            holder.binding.audioLayout.apply {
-                                if (it.message.id < 0) {
-                                    if (Resource.Status.LOADING.toString() == it.message.messageStatus) {
-                                        ivPlayAudio.visibility = View.GONE
-                                        pbAudio.apply {
-                                            visibility = View.VISIBLE
-                                            secondaryProgress = it.message.uploadProgress
-                                        }
-                                        ivCancelAudio.apply {
-                                            visibility = View.VISIBLE
-                                            setOnClickListener { _ ->
-                                                onMessageInteraction(
-                                                    Const.UserActions.DOWNLOAD_CANCEL,
-                                                    it
-                                                )
-                                            }
-                                        }
-                                    } else {
-                                        ivCancelAudio.visibility = View.GONE
-                                        ivPlayAudio.visibility = View.GONE
-                                        pbAudio.apply {
-                                            visibility = View.GONE
-                                            secondaryProgress = 0
-                                        }
-                                        ivUploadFailed.apply {
-                                            visibility = View.VISIBLE
-                                            setOnClickListener { _ ->
-                                                onMessageInteraction(
-                                                    Const.UserActions.RESEND_MESSAGE,
-                                                    it
-                                                )
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    pbAudio.visibility = View.GONE
-                                    ivCancelAudio.visibility = View.GONE
-                                    ivUploadFailed.visibility = View.GONE
-                                    bindAudio(
-                                        holder = holder,
-                                        chatMessage = it,
-                                        audioLayoutBinding = holder.binding.audioLayout
-                                    )
-                                }
-                            }
+                            setViewsVisibility(holder.binding.cvMedia, holder)
+                            bindAudio(
+                                chatMessage = it,
+                                container = holder.binding.flMediaContainer,
+                                holder = holder
+                            )
                         }
 
                         else -> {
@@ -370,38 +323,36 @@ class ChatAdapter(
                         }
 
                         Const.JsonFields.IMAGE_TYPE -> {
-                            setViewsVisibility(holder.binding.cvImage, holder)
+                            setViewsVisibility(holder.binding.cvMedia, holder)
                             setImageLayout(
                                 chatMessage = it,
-                                container = holder.binding.flImageContainer,
-                                sender = false
+                                container = holder.binding.flMediaContainer,
                             )
                         }
 
                         Const.JsonFields.VIDEO_TYPE -> {
-                            setViewsVisibility(holder.binding.cvVideo, holder)
+                            setViewsVisibility(holder.binding.cvMedia, holder)
                             setVideoLayout(
                                 chatMessage = it,
-                                container = holder.binding.flVideoContainer,
-                                sender = false
+                                container = holder.binding.flMediaContainer,
                             )
                         }
 
                         Const.JsonFields.FILE_TYPE -> {
-                            setViewsVisibility(holder.binding.cvFiles, holder)
+                            setViewsVisibility(holder.binding.cvMedia, holder)
                             setFileLayout(
                                 chatMessage = it,
-                                container = holder.binding.flFileContainer,
+                                container = holder.binding.flMediaContainer,
                                 sender = false
                             )
                         }
 
                         Const.JsonFields.AUDIO_TYPE -> {
-                            setViewsVisibility(holder.binding.cvAudio, holder)
+                            setViewsVisibility(holder.binding.cvMedia, holder)
                             bindAudio(
-                                holder = holder,
                                 chatMessage = it,
-                                audioLayoutBinding = holder.binding.audioLayout
+                                container = holder.binding.flMediaContainer,
+                                holder = holder
                             )
                         }
 
@@ -520,7 +471,12 @@ class ChatAdapter(
 
     }
 
-    private fun setUpReplyLayout(chatMessage: MessageAndRecords, parentContainer: ConstraintLayout , replyContainer: FrameLayout, sender: Boolean) {
+    private fun setUpReplyLayout(
+        chatMessage: MessageAndRecords,
+        parentContainer: ConstraintLayout,
+        replyContainer: FrameLayout,
+        sender: Boolean
+    ) {
         val reply = ReplyLayout(context)
         reply.setReplyLayoutListener(object : ReplyLayout.ReplyLayoutListener {
             override fun replyLayoutClick() {
@@ -555,7 +511,7 @@ class ChatAdapter(
             }
 
             override fun cancelFileUpload() {
-                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, chatMessage)
+                onMessageInteraction(Const.UserActions.CANCEL_UPLOAD, chatMessage)
             }
         })
 
@@ -565,8 +521,7 @@ class ChatAdapter(
 
     private fun setVideoLayout(
         chatMessage: MessageAndRecords,
-        container: FrameLayout,
-        sender: Boolean
+        container: FrameLayout
     ) {
         val video = VideoLayout(context)
         video.setVideoLayoutListener(object : VideoLayout.VideoLayoutListener {
@@ -580,7 +535,6 @@ class ChatAdapter(
 
     private fun setImageLayout(
         chatMessage: MessageAndRecords,
-        sender: Boolean,
         container: FrameLayout
     ) {
         val image = ImageLayout(context)
@@ -594,14 +548,14 @@ class ChatAdapter(
             }
 
             override fun imageCancelUpload() {
-                onMessageInteraction(Const.UserActions.DOWNLOAD_CANCEL, chatMessage)
+                onMessageInteraction(Const.UserActions.CANCEL_UPLOAD, chatMessage)
             }
 
             override fun imageOptions() {
                 onMessageInteraction(Const.UserActions.MESSAGE_ACTION, chatMessage)
             }
         })
-        image.bindImage(chatMessage = chatMessage, sender = sender)
+        image.bindImage(chatMessage = chatMessage)
         container.addView(image)
     }
 
@@ -732,60 +686,66 @@ class ChatAdapter(
     }
 
     private fun bindAudio(
+        chatMessage: MessageAndRecords,
+        container: FrameLayout,
         holder: ViewHolder,
-        chatMessage: MessageAndRecords?,
-        audioLayoutBinding: AudioLayoutBinding
     ) {
-        with(audioLayoutBinding) {
-            ivPlayAudio.visibility = View.VISIBLE
-            val audioPath = chatMessage!!.message.body?.file?.id?.let { audioPath ->
-                Tools.getFilePathUrl(
-                    audioPath
-                )
+        val audio = AudioLayout(context)
+        audio.bindAudio(chatMessage = chatMessage)
+
+        val audioPath = chatMessage.message.body?.file?.id?.let { audioPath ->
+            Tools.getFilePathUrl(
+                audioPath
+            )
+        }
+
+        val mediaItem: MediaItem = MediaItem.fromUri(Uri.parse(audioPath))
+        exoPlayer.clearMediaItems()
+
+        audio.setProgress(0)
+
+        val runnable = object : Runnable {
+            override fun run() {
+                audio.setProgress(exoPlayer.currentPosition.toInt())
+                audio.setDuration(Tools.convertDurationMillis(exoPlayer.currentPosition))
+                handler.postDelayed(this, 100)
             }
+        }
 
-            val mediaItem: MediaItem = MediaItem.fromUri(Uri.parse(audioPath))
-            exoPlayer.clearMediaItems()
-            sbAudio.progress = 0
+        playerListener = object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                when (state) {
+                    Player.STATE_READY -> audio.setMaxProgress(exoPlayer.duration.toInt())
+                    Player.STATE_ENDED -> {
+                        audio.setPlayVisibility(View.VISIBLE)
 
-            val runnable = object : Runnable {
-                override fun run() {
-                    sbAudio.progress =
-                        exoPlayer.currentPosition.toInt()
-                    tvAudioDuration.text =
-                        Tools.convertDurationMillis(exoPlayer.currentPosition)
-                    handler.postDelayed(this, 100)
-                }
-            }
-
-            playerListener = object : Player.Listener {
-                override fun onPlaybackStateChanged(state: Int) {
-                    if (state == Player.STATE_READY) {
-                        sbAudio.max = exoPlayer.duration.toInt()
-                    }
-                    if (state == Player.STATE_ENDED) {
-                        ivPlayAudio.visibility = View.VISIBLE
                         firstPlay = true
                         exoPlayer.pause()
                         exoPlayer.clearMediaItems()
                         handler.removeCallbacks(runnable)
-                        tvAudioDuration.text =
-                            context.getString(R.string.audio_duration)
-                        ivPlayAudio.setImageResource(R.drawable.img_play_audio_button)
+
+                        audio.setDuration(context.getString(R.string.audio_duration))
+                        audio.setPlayImage(R.drawable.img_play_audio_button)
+
                     }
+
+                    else -> Timber.d("Other state: $state")
                 }
             }
+        }
 
-            exoPlayer.addListener(playerListener!!)
+        exoPlayer.addListener(playerListener!!)
 
-            ivPlayAudio.setOnClickListener {
+        audio.setupAudioLayoutListener(object : AudioLayout.AudioLayoutListener {
+            override fun audioPlayClicked() {
                 if (!exoPlayer.isPlaying) {
                     if (oldPosition != holder.absoluteAdapterPosition) {
                         firstPlay = true
                         exoPlayer.stop()
                         exoPlayer.clearMediaItems()
-                        tvAudioDuration.text =
-                            context.getString(R.string.audio_duration)
+
+                        audio.setDuration(context.getString(R.string.audio_duration))
+
                         handler.removeCallbacks(runnable)
                         notifyItemChanged(oldPosition)
                         oldPosition = holder.absoluteAdapterPosition
@@ -796,36 +756,30 @@ class ChatAdapter(
                     }
                     exoPlayer.play()
                     handler.postDelayed(runnable, 0)
-                    ivPlayAudio.setImageResource(R.drawable.img_pause_audio_button)
+
+                    audio.setPlayImage(R.drawable.img_pause_audio_button)
                 } else {
-                    ivPlayAudio.setImageResource(R.drawable.img_play_audio_button)
+                    audio.setPlayImage(R.drawable.img_play_audio_button)
+
                     exoPlayer.pause()
                     firstPlay = false
                     handler.removeCallbacks(runnable)
                 }
             }
 
-            sbAudio.setOnSeekBarChangeListener(object :
-                SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(
-                    seekBar: SeekBar,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    if (fromUser) {
-                        exoPlayer.seekTo(progress.toLong())
-                    }
-                }
+            override fun audioSeekBarPressed(progress: Int) {
+                exoPlayer.seekTo(progress.toLong())
+            }
 
-                override fun onStartTrackingTouch(seekBar: SeekBar) {
-                    // Ignore
-                }
+            override fun audioResend() {
+                onMessageInteraction(Const.UserActions.RESEND_MESSAGE, chatMessage)
+            }
 
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    // Ignore
-                }
-            })
-        }
+            override fun audioCancelUpload() {
+                onMessageInteraction(Const.UserActions.CANCEL_UPLOAD, chatMessage)
+            }
+        })
+        container.addView(audio)
     }
 
     private fun handleMediaResize(body: MessageBody?): Pair<Int, Int> {

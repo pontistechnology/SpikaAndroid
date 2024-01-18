@@ -794,7 +794,7 @@ class ChatMessagesFragment : BaseFragment() {
                     run {
                         when (event) {
                             Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                            Const.UserActions.DOWNLOAD_CANCEL -> handleDownloadCancelFile(message.message)
+                            Const.UserActions.CANCEL_UPLOAD -> handleDownloadCancelFile(message.message)
                             Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                             Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                             Const.UserActions.RESEND_MESSAGE -> handleMessageResend(message)

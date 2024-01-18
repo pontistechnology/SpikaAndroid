@@ -166,30 +166,10 @@
             app:layout_constraintWidth_min="156dp" />
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cv_audio"
+            android:id="@+id/cv_media"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="?attr/primaryColor"
-            android:saveEnabled="false"
-            android:visibility="gone"
-            app:cardElevation="0dp"
-            app:cardPreventCornerOverlap="false"
-            app:layout_constraintBottom_toTopOf="@+id/cv_reacted_emoji"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearance="@style/SenderBubbleStyle">
-
-            <include
-                android:id="@+id/audio_layout"
-                layout="@layout/audio_layout" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cv_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="?attr/secondaryColor"
             android:elevation="0dp"
             android:saveEnabled="false"
             android:visibility="gone"
@@ -202,48 +182,7 @@
             app:shapeAppearanceOverlay="@style/SenderBubbleStyle">
 
             <FrameLayout
-                android:id="@+id/fl_image_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cv_video"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="?attr/primaryColor"
-            android:saveEnabled="false"
-            android:visibility="gone"
-            app:cardPreventCornerOverlap="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearanceOverlay="@style/SenderBubbleStyle">
-
-            <FrameLayout
-                android:id="@+id/fl_video_container"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"/>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cv_files"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="?attr/primaryColor"
-            android:visibility="gone"
-            app:cardElevation="0dp"
-            app:cardPreventCornerOverlap="false"
-            app:layout_constraintBottom_toTopOf="@+id/cv_reacted_emoji"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearance="@style/SenderBubbleStyle"
-            app:layout_constraintHorizontal_bias="1.0" >
-
-            <FrameLayout
-                android:id="@+id/fl_file_container"
+                android:id="@+id/fl_media_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </com.google.android.material.card.MaterialCardView>

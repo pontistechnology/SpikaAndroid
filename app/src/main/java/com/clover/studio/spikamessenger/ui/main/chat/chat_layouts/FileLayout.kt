@@ -31,11 +31,7 @@ class FileLayout(context: Context) :
         this.listener = listener
     }
 
-    fun bindFile(
-        chatMessage: MessageAndRecords,
-        sender: Boolean
-    ) = with(binding) {
-
+    fun bindFile(chatMessage: MessageAndRecords, sender: Boolean) = with(binding) {
         addFiles(
             context = context,
             fileExtension = chatMessage.message.body?.file?.fileName?.substringAfterLast(
