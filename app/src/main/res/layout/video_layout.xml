@@ -35,8 +35,8 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv_video_thumbnail"
-        android:layout_width="@dimen/two_hundred_fifty_six_dp"
-        android:layout_height="@dimen/two_hundred_fifty_six_dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
@@ -58,10 +58,10 @@
         android:textSize="@dimen/twelve_sp_text"
         android:visibility="visible" />
 
-    <View
-        android:layout_width="256dp"
-        android:layout_height="62dp"
-        android:layout_gravity="top"
-        android:background="@drawable/bg_shadow"/>
+<!--    <View-->
+<!--        android:layout_width="256dp"-->
+<!--        android:layout_height="62dp"-->
+<!--        android:layout_gravity="top"-->
+<!--        android:background="@drawable/bg_shadow"/>-->
 
 </FrameLayout>
