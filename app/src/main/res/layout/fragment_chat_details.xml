@@ -43,8 +43,9 @@
             android:layout_marginTop="@dimen/sixteen_dp_margin"
             android:layout_marginEnd="@dimen/sixteen_dp_margin"
             android:background="@drawable/bg_text_field"
-            android:hint="@string/enter_username"
+            android:hint="@string/enter_group_name"
             android:inputType="text"
+            android:maxLength="70"
             android:padding="@dimen/sixteen_dp_margin"
             android:textAppearance="@style/CustomTextBody"
             android:textColor="?attr/primaryTextColor"
@@ -53,7 +54,8 @@
             android:visibility="invisible"
             app:layout_constraintEnd_toStartOf="@+id/iv_done"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/profile_picture" />
+            app:layout_constraintTop_toBottomOf="@id/profile_picture"
+            app:layout_constraintBottom_toTopOf="@id/tv_group_placeholder"/>
 
         <TextView
             android:id="@+id/tv_group_name"
@@ -77,7 +79,7 @@
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_enter_group_name" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_group_placeholder" />
 
         <ImageView
             android:id="@+id/iv_back"
@@ -97,6 +99,7 @@
             android:layout_height="wrap_content"
             android:letterSpacing="0.2"
             android:text="@string/group_label"
+            android:visibility="visible"
             android:textAppearance="@style/CustomTextBody"
             android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/twelve_sp_text"

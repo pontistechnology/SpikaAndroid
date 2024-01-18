@@ -351,7 +351,7 @@ class ChatDetailsFragment : BaseFragment() {
         tvGroupName.setOnClickListener {
             if (roomWithUsers.room.type.toString() == Const.JsonFields.GROUP && isAdmin) {
                 etEnterGroupName.visibility = View.VISIBLE
-                tvGroupPlaceholder.visibility = View.GONE
+                tvGroupPlaceholder.visibility = View.INVISIBLE
                 ivDone.visibility = View.VISIBLE
                 tvGroupName.visibility = View.INVISIBLE
             }

@@ -54,6 +54,8 @@
             android:fontFamily="@font/roboto_bold"
             android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/sixteen_sp_text"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintBottom_toTopOf="@+id/tv_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

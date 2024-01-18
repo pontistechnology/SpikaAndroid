@@ -56,6 +56,7 @@
         android:background="@drawable/bg_text_field"
         android:backgroundTint="?attr/secondaryColor"
         android:hint="@string/enter_group_name"
+        android:maxLength="70"
         android:padding="@dimen/sixteen_dp_margin"
         android:maxLines="1"
         android:textAppearance="@style/CustomTextBody"

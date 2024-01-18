@@ -2,7 +2,7 @@
     <!--Initial screens-->
     <string name="channel_description">Spika App</string>
     <string name="spika">Spika</string>
-    <string name="app_version">Version</string>
+    <string name="app_version">Version %s %s</string>
     <string name="no_calls_yet">No calls yet.</string>
     <string name="call_history">Call history</string>
     <string name="call_history_search_hint"><font size="14">Search for contact, message, file…</font></string>

@@ -35,12 +35,15 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/twenty_dp_margin"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:text="@string/enter_username"
         android:textAppearance="@style/CustomTextHeading"
         android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
-        android:layout_marginTop="@dimen/eight_dp_margin"
         app:layout_constraintEnd_toStartOf="@+id/iv_checked_user"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/iv_user_image"
         app:layout_constraintTop_toBottomOf="@+id/tv_header" />
 
