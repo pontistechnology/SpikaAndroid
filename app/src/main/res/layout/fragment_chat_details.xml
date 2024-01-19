@@ -17,7 +17,6 @@
             layout="@layout/profile_picture"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/tv_group_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -51,11 +50,11 @@
             android:textColor="?attr/primaryTextColor"
             android:textColorHint="?attr/secondaryTextColor"
             android:textSize="@dimen/fourteen_sp_text"
-            android:visibility="invisible"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/tv_group_name"
             app:layout_constraintEnd_toStartOf="@+id/iv_done"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/profile_picture"
-            app:layout_constraintBottom_toTopOf="@id/tv_group_placeholder"/>
+            app:layout_constraintTop_toBottomOf="@id/profile_picture" />
 
         <TextView
             android:id="@+id/tv_group_name"
@@ -63,13 +62,28 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/sixteen_dp_margin"
             android:fontFamily="@font/roboto_bold"
-            android:text="@string/group_name"
             android:gravity="center"
+            android:text="@string/group_name"
             android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/twenty_four_sp_text"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/profile_picture" />
+            app:layout_constraintTop_toBottomOf="@id/et_enter_group_name" />
+
+        <TextView
+            android:id="@+id/tv_group_placeholder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.2"
+            android:text="@string/group_label"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryTextColor"
+            android:textSize="@dimen/twelve_sp_text"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_group_name" />
 
         <FrameLayout
             android:id="@+id/fl_options_container"
@@ -92,20 +106,6 @@
             android:src="@drawable/img_arrow_back_chat"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_group_placeholder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:letterSpacing="0.2"
-            android:text="@string/group_label"
-            android:visibility="visible"
-            android:textAppearance="@style/CustomTextBody"
-            android:textColor="?attr/primaryTextColor"
-            android:textSize="@dimen/twelve_sp_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_group_name" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_member_list"
