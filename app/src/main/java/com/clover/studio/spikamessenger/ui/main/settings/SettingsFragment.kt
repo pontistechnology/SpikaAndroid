@@ -167,7 +167,7 @@ class SettingsFragment : BaseFragment() {
     private fun showUserDetails() = with(binding) {
         tvUsername.visibility = View.VISIBLE
         tvPhoneNumber.visibility = View.VISIBLE
-        etEnterUsername.visibility = View.INVISIBLE
+        tilEnterUsername.visibility = View.GONE
         ivDone.visibility = View.GONE
     }
 
@@ -366,15 +366,15 @@ class SettingsFragment : BaseFragment() {
             )
             viewModel.updateUserData(jsonObject)
         }
-        etEnterUsername.visibility = View.GONE
+        tilEnterUsername.visibility = View.GONE
         tvUsername.visibility = View.VISIBLE
         ivDone.visibility = View.GONE
     }
 
     private fun showUsernameUpdate() = with(binding) {
-        tvUsername.visibility = View.INVISIBLE
-        tvPhoneNumber.visibility = View.INVISIBLE
-        etEnterUsername.visibility = View.VISIBLE
+        tvUsername.visibility = View.GONE
+        tvPhoneNumber.visibility = View.GONE
+        tilEnterUsername.visibility = View.VISIBLE
         ivDone.visibility = View.VISIBLE
     }
 

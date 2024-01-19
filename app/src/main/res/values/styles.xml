@@ -186,6 +186,20 @@
         <item name="android:letterSpacing">0.03</item>
     </style>
 
+    <!-- Text Input Layout   -->
+    <style name="CustomEditTextLayout" parent="Widget.Design.TextInputLayout">
+        <item name="colorAccent">?attr/primaryColor</item>
+        <item name="android:colorAccent">?attr/primaryColor</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="counterEnabled">true</item>
+        <item name="counterTextColor">?attr/secondaryTextColor</item>
+        <item name="cursorColor">?attr/primaryColor</item>
+        <item name="hintTextColor">?attr/secondaryTextColor</item>
+        <item name="android:textColorHint">?attr/secondaryTextColor</item>
+        <item name="background">@null</item>
+    </style>
+
     <!--  Bottom sheet style  -->
     <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/ModalBottomSheetDialog</item>
