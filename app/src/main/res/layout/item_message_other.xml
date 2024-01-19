@@ -130,17 +130,22 @@
 
         <FrameLayout
             android:id="@+id/fl_reply_container"
-            android:visibility="gone"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
             android:layout_marginTop="@dimen/eight_dp_margin"
             android:layout_marginEnd="@dimen/eight_dp_margin"
+            android:background="@drawable/bg_message_received"
+            android:backgroundTint="?attr/primaryColor"
+            android:visibility="gone"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"  />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_min="156dp" >
+        </FrameLayout>
+
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cv_media"

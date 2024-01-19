@@ -2,12 +2,15 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cl_reply_message"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_message_received"
     android:backgroundTint="?attr/primaryColor"
     android:visibility="visible"
     app:layout_constrainedWidth="true"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="@+id/tv_message"
+    app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintWidth_min="156dp">
 
     <TextView
@@ -40,6 +43,7 @@
         android:lineSpacingMultiplier="1.5"
         android:maxLines="3"
         android:text="@string/some_message"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
         android:textAppearance="@style/CustomTextBody"
         android:textColor="?attr/primaryTextColor"
         android:textColorLink="?attr/tertiaryTextColor"
@@ -48,10 +52,8 @@
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_username_other"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_username_other" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv_reply_image"
@@ -59,7 +61,7 @@
         android:layout_height="0dp"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
-        android:visibility="visible"
+        android:visibility="gone"
         app:cardCornerRadius="@dimen/four_dp_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
