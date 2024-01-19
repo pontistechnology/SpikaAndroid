@@ -15,6 +15,7 @@ import com.clover.studio.spikamessenger.utils.CHANNEL_ID
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.UploadDownloadManager
+import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,11 +81,11 @@ class UploadService : Service() {
         startForeground(Const.Service.UPLOAD_SERVICE_ID, notification)
 
         // Continue with the upload process
-        uploadJob = CoroutineScope(Dispatchers.Default).launch {
-            items?.toList()?.let { uploadItems(it) }
-            stopForeground(STOP_FOREGROUND_REMOVE) // Stop the foreground service
-            stopSelf() // Stop the service after all items are uploaded
-        }
+//        uploadJob = CoroutineScope(Dispatchers.Default).launch {
+//            items?.toList()?.let { uploadItems(it) }
+//            stopForeground(STOP_FOREGROUND_REMOVE) // Stop the foreground service
+//            stopSelf() // Stop the service after all items are uploaded
+//        }
 
         return START_STICKY
     }
@@ -94,7 +95,55 @@ class UploadService : Service() {
         super.onDestroy()
     }
 
-    private suspend fun uploadItems(items: List<FileData>) {
+    suspend fun uploadAvatar(fileData: FileData, isGroup: Boolean) {
+        UploadDownloadManager(mainRepositoryImpl).uploadFile(
+            fileData,
+            object : FileUploadListener {
+                override fun filePieceUploaded() {
+                    // avatar upload doesn't use progress
+                }
+
+                override fun fileUploadError(description: String) {
+                    callbackListener?.uploadError(description)
+                    stopForeground(STOP_FOREGROUND_REMOVE) // Stop the foreground service
+                    stopSelf() // Stop the service if error occured
+                }
+
+                override fun fileUploadVerified(
+                    path: String,
+                    mimeType: String,
+                    thumbId: Long,
+                    fileId: Long,
+                    fileType: String,
+                    messageBody: MessageBody?
+                ) {
+                    val jsonObject = JsonObject()
+                    jsonObject.addProperty(Const.UserData.AVATAR_FILE_ID, fileId)
+
+                    CoroutineScope(Dispatchers.Default).launch {
+                        if (isGroup) {
+                            mainRepositoryImpl.updateRoom(
+                                jsonObject,
+                                fileData.roomId,
+                                0
+                            )
+                        } else {
+                            mainRepositoryImpl.updateUserData(jsonObject)
+                        }
+                    }
+                    callbackListener?.avatarUploadFinished()
+                    stopForeground(STOP_FOREGROUND_REMOVE) // Stop the foreground service
+                    stopSelf() // Stop the service after all items are uploaded
+                    return
+                }
+
+                override fun fileCanceledListener(messageId: String?) {
+                    // avatar upload cannot be cancelled
+                }
+            })
+    }
+
+    suspend fun uploadItems(items: List<FileData>) {
         uploadedFiles.addAll(items)
         coroutineScope {
             val thumbnailJobs = items.filter { it.isThumbnail }.map { item ->
@@ -225,7 +274,9 @@ class UploadService : Service() {
     }
 
     interface FileUploadCallback {
-        fun updateUploadProgressBar(progress: Int, maxProgress: Int, localId: String?)
-        fun uploadingFinished(uploadedFiles: MutableList<FileData>)
+        fun updateUploadProgressBar(progress: Int, maxProgress: Int, localId: String?) {}
+        fun uploadingFinished(uploadedFiles: MutableList<FileData>) {}
+        fun uploadError(description: String) {}
+        fun avatarUploadFinished() {}
     }
 }

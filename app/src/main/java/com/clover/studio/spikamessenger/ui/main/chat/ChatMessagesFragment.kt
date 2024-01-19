@@ -104,7 +104,7 @@ data class TempUri(
 )
 
 @AndroidEntryPoint
-class ChatMessagesFragment : BaseFragment() {
+class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private val viewModel: ChatViewModel by activityViewModels()
     private lateinit var bindingSetup: FragmentChatMessagesBinding
 
@@ -1368,9 +1368,8 @@ class ChatMessagesFragment : BaseFragment() {
         }
 
         sendFile()
-        startUploadService(uploadFiles)
+        startUploadService()
 
-        uploadFiles.clear()
         selectedFilesUris.clear()
         tempFilesToCreate.clear()
     }
@@ -1506,77 +1505,14 @@ class ChatMessagesFragment : BaseFragment() {
     }
 
     /** Upload service */
-    private fun startUploadService(files: ArrayList<FileData>) {
+    private fun startUploadService() {
         val intent = Intent(MainApplication.appContext, UploadService::class.java)
-        intent.putParcelableArrayListExtra(Const.IntentExtras.FILES_EXTRA, files)
         MainApplication.appContext.startService(intent)
         activity?.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
-    private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = service as UploadService.UploadServiceBinder
-            fileUploadService = binder.getService()
-            fileUploadService.setCallbackListener(object : UploadService.FileUploadCallback {
-                override fun updateUploadProgressBar(
-                    progress: Int,
-                    maxProgress: Int,
-                    localId: String?
-                ) {
-                    val message = messagesRecords.firstOrNull { it.message.localId == localId }
-                    message!!.message.uploadProgress = (progress * 100) / maxProgress
 
-                    if (isVisible || isResumed) {
-                        requireActivity().runOnUiThread {
-                            chatAdapter.notifyItemChanged(
-                                messagesRecords.indexOf(
-                                    message
-                                )
-                            )
-                        }
-                    }
-                }
-
-                override fun uploadingFinished(uploadedFiles: MutableList<FileData>) {
-                    Tools.deleteTemporaryMedia(requireContext())
-                    context?.cacheDir?.deleteRecursively()
-
-                    if (uploadedFiles.isNotEmpty()) {
-                        uploadedFiles.forEach { item ->
-                            if (item.messageStatus == Resource.Status.ERROR ||
-                                item.messageStatus == Resource.Status.LOADING ||
-                                item.messageStatus == null
-                            ) {
-                                if (!item.isThumbnail) {
-                                    viewModel.updateMessages(
-                                        messageStatus = Resource.Status.ERROR.toString(),
-                                        localId = item.localId.toString()
-                                    )
-                                } else {
-                                    val resendUri =
-                                        uriPairList.find { it.second == item.fileUri }
-                                    viewModel.updateLocalUri(
-                                        localId = item.localId.toString(),
-                                        uri = resendUri?.first.toString(),
-                                    )
-                                }
-                            } else {
-                                uriPairList.removeIf { it.second == item.fileUri }
-                            }
-                        }
-                        uriPairList.clear()
-                        uploadedFiles.clear()
-                        unsentMessages.clear()
-                        return
-                    }
-                }
-            })
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            Timber.d("Service disconnected")
-        }
-    }
+    private val serviceConnection = this
 
     private fun checkStoragePermission() {
         storagePermission =
@@ -1611,5 +1547,79 @@ class ChatMessagesFragment : BaseFragment() {
     override fun onPause() {
         super.onPause()
         listState = bindingSetup.rvChat.layoutManager?.onSaveInstanceState()
+    }
+
+    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        val binder = service as UploadService.UploadServiceBinder
+        fileUploadService = binder.getService()
+        fileUploadService.setCallbackListener(object : UploadService.FileUploadCallback {
+            override fun updateUploadProgressBar(
+                progress: Int,
+                maxProgress: Int,
+                localId: String?
+            ) {
+                val message = messagesRecords.firstOrNull { it.message.localId == localId }
+                message!!.message.uploadProgress = (progress * 100) / maxProgress
+
+                if (isVisible || isResumed) {
+                    requireActivity().runOnUiThread {
+                        chatAdapter.notifyItemChanged(
+                            messagesRecords.indexOf(
+                                message
+                            )
+                        )
+                    }
+                }
+            }
+
+            override fun uploadingFinished(uploadedFiles: MutableList<FileData>) {
+                Tools.deleteTemporaryMedia(requireContext())
+                context?.cacheDir?.deleteRecursively()
+
+                requireActivity().unbindService(serviceConnection)
+
+                if (uploadedFiles.isNotEmpty()) {
+                    uploadedFiles.forEach { item ->
+                        if (item.messageStatus == Resource.Status.ERROR ||
+                            item.messageStatus == Resource.Status.LOADING ||
+                            item.messageStatus == null
+                        ) {
+                            if (!item.isThumbnail) {
+                                viewModel.updateMessages(
+                                    messageStatus = Resource.Status.ERROR.toString(),
+                                    localId = item.localId.toString()
+                                )
+                            } else {
+                                val resendUri =
+                                    uriPairList.find { it.second == item.fileUri }
+                                viewModel.updateLocalUri(
+                                    localId = item.localId.toString(),
+                                    uri = resendUri?.first.toString(),
+                                )
+                            }
+                        } else {
+                            uriPairList.removeIf { it.second == item.fileUri }
+                        }
+                    }
+                    uriPairList.clear()
+                    uploadedFiles.clear()
+                    unsentMessages.clear()
+                    return
+                }
+            }
+
+            override fun uploadError(description: String) {
+                requireActivity().unbindService(serviceConnection)
+            }
+        })
+
+        CoroutineScope(Dispatchers.Default).launch {
+            fileUploadService.uploadItems(uploadFiles)
+            uploadFiles.clear()
+        }
+    }
+
+    override fun onServiceDisconnected(name: ComponentName?) {
+        Timber.d("Service disconnected")
     }
 }

@@ -1,7 +1,12 @@
 package com.clover.studio.spikamessenger.ui.main.settings
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.net.Uri
 import android.os.Bundle
+import android.os.IBinder
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -16,23 +21,22 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.clover.studio.spikamessenger.BuildConfig
+import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
-import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.databinding.FragmentSettingsBinding
 import com.clover.studio.spikamessenger.ui.main.MainFragmentDirections
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.utils.Const
-import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
-import com.clover.studio.spikamessenger.utils.UploadDownloadManager
 import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.getChunkSize
+import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,25 +44,23 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class SettingsFragment : BaseFragment() {
-    // TODO move this to viewModel
-    @Inject
-    lateinit var uploadDownloadManager: UploadDownloadManager
-
+class SettingsFragment : BaseFragment(), ServiceConnection {
     private val viewModel: MainViewModel by activityViewModels()
     private var bindingSetup: FragmentSettingsBinding? = null
     private var currentPhotoLocation: Uri = Uri.EMPTY
-    private var progress: Long = 1L
     private var avatarId: Long? = 0L
+    private var uploadPieces: Int = 0
+    private var avatarData: FileData? = null
 
     private var navOptionsBuilder: NavOptions? = null
     private var optionList: MutableList<UserOptionsData> = mutableListOf()
 
     private val binding get() = bindingSetup!!
+
+    private lateinit var fileUploadService: UploadService
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -286,70 +288,31 @@ class SettingsFragment : BaseFragment() {
                 inputStream!!,
                 activity?.contentResolver?.getType(currentPhotoLocation)!!
             )
-            val uploadPieces =
+
+            uploadPieces =
                 if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
                     (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
             binding.profilePicture.progressBar.max = uploadPieces
             Timber.d("File upload start")
-            CoroutineScope(Dispatchers.IO).launch {
-                uploadDownloadManager.uploadFile(
-                    FileData(
-                        currentPhotoLocation,
-                        Const.JsonFields.AVATAR_TYPE,
-                        uploadPieces,
-                        fileStream,
-                        null,
-                        false,
-                        null,
-                        0,
-                        null,
-                        null
-                    ),
-                    object :
-                        FileUploadListener {
-                        override fun filePieceUploaded() {
-                            if (progress <= uploadPieces) {
-                                binding.profilePicture.progressBar.secondaryProgress =
-                                    progress.toInt()
-                                progress++
-                            } else progress = 0
-                        }
 
-                        override fun fileUploadError(description: String) {
-                            Timber.d("Upload Error")
-                            requireActivity().runOnUiThread {
-                                showUploadError(description)
-                            }
-                        }
-
-                        override fun fileUploadVerified(
-                            path: String,
-                            mimeType: String,
-                            thumbId: Long,
-                            fileId: Long,
-                            fileType: String,
-                            messageBody: MessageBody?
-                        ) {
-                            Timber.d("Upload verified")
-                            requireActivity().runOnUiThread {
-                                binding.profilePicture.flProgressScreen.visibility = View.GONE
-                            }
-
-                            val jsonObject = JsonObject()
-                            jsonObject.addProperty(Const.UserData.AVATAR_FILE_ID, fileId)
-                            viewModel.updateUserData(jsonObject)
-                        }
-
-                        override fun fileCanceledListener(messageId: String?) {
-                            // Ignore
-                        }
-
-                    })
-            }
+            avatarData = FileData(
+                currentPhotoLocation,
+                Const.JsonFields.AVATAR_TYPE,
+                uploadPieces,
+                fileStream,
+                null,
+                false,
+                null,
+                0,
+                null,
+                null
+            )
             inputStream.close()
             binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+
+            startUploadService()
         }
     }
 
@@ -429,8 +392,47 @@ class SettingsFragment : BaseFragment() {
         )
     }
 
+    /** Upload service */
+    private fun startUploadService() {
+        val intent = Intent(MainApplication.appContext, UploadService::class.java)
+        MainApplication.appContext.startService(intent)
+        activity?.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
     override fun onPause() {
         showUserDetails()
         super.onPause()
+    }
+
+    private val serviceConnection = this
+    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        val binder = service as UploadService.UploadServiceBinder
+        fileUploadService = binder.getService()
+        fileUploadService.setCallbackListener(object : UploadService.FileUploadCallback {
+            override fun uploadError(description: String) {
+                Timber.d("Upload Error")
+                requireActivity().runOnUiThread {
+                    showUploadError(description)
+                }
+
+                requireActivity().unbindService(serviceConnection)
+            }
+
+            override fun avatarUploadFinished() {
+                requireActivity().runOnUiThread {
+                    binding.profilePicture.flProgressScreen.visibility = View.GONE
+                }
+
+                requireActivity().unbindService(serviceConnection)
+            }
+        })
+
+        CoroutineScope(Dispatchers.Default).launch {
+            fileUploadService.uploadAvatar(avatarData!!, isGroup = false)
+        }
+    }
+
+    override fun onServiceDisconnected(name: ComponentName?) {
+        Timber.d("Service disconnected")
     }
 }
