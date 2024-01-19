@@ -2,7 +2,7 @@
     <!--Initial screens-->
     <string name="channel_description">Spika App</string>
     <string name="spika">Spika</string>
-    <string name="app_version">Version</string>
+    <string name="app_version">Version %s %s</string>
     <string name="no_calls_yet">No calls yet.</string>
     <string name="call_history">Call history</string>
     <string name="call_history_search_hint"><font size="14">Search for contact, message, file…</font></string>
@@ -250,7 +250,7 @@
     <string name="block_user">Block user</string>
     <string name="block_user_description">Do you want to block this user?</string>
     <string name="unblock_user">Unblock user</string>
-    <string name="unblock_description">Are you sure you want to unblock %s</string>
+    <string name="unblock_description">Are you sure you want to unblock this contact?</string>
     <string name="blocked_users">Blocked Users</string>
     <string name="unblock">Unblock</string>
     <string name="block_contact_description">Do you want to receive messages from this contact?</string>
@@ -276,6 +276,7 @@
     <string name="failed_to_load_room_data">Failed to load room data</string>
     <string name="other_error">Other error</string>
     <string name="members">" members"</string>
+    <string name="members_number">"%s members"</string>
 
     <!-- Themes   -->
     <string name="theme_dark_marine">Dark marine</string>

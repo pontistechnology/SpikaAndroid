@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.fragment.app.activityViewModels
@@ -109,13 +110,11 @@ class SettingsFragment : BaseFragment() {
         // Display version code on bottom of the screen
         val packageInfo =
             requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
-        // Bug fix for older devices
-        binding.tvVersionNumber.text =
-            "${getString(R.string.app_version)} ${packageInfo.versionName} ${
-                PackageInfoCompat.getLongVersionCode(
-                    packageInfo
-                )
-            }"
+        binding.tvVersionNumber.text = requireContext().getString(
+            R.string.app_version,
+            packageInfo.versionName.toString(),
+            PackageInfoCompat.getLongVersionCode(packageInfo).toString()
+        )
 
         return binding.root
     }
@@ -163,22 +162,12 @@ class SettingsFragment : BaseFragment() {
                     .into(profilePicture.ivPickAvatar)
             }
         }
-
-        /*viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                UserUpdated -> {
-                    showUserDetails()
-                }
-                UserUpdateFailed -> Timber.d("User update failed")
-                else -> Timber.d("Other error")
-            }
-        })*/
     }
 
     private fun showUserDetails() = with(binding) {
         tvUsername.visibility = View.VISIBLE
         tvPhoneNumber.visibility = View.VISIBLE
-        etEnterUsername.visibility = View.INVISIBLE
+        tilEnterUsername.visibility = View.GONE
         ivDone.visibility = View.GONE
     }
 
@@ -215,36 +204,26 @@ class SettingsFragment : BaseFragment() {
         optionList = mutableListOf(
             UserOptionsData(
                 option = getString(R.string.appearance),
-                firstDrawable = requireContext().getDrawable(R.drawable.iv_edit_settings),
-                secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
+                firstDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.iv_edit_settings),
+                secondDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.img_arrow_forward),
                 switchOption = false,
                 isSwitched = false
             ),
             UserOptionsData(
                 option = getString(R.string.privacy),
-                firstDrawable = requireContext().getDrawable(R.drawable.iv_privacy),
-                secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
+                firstDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.iv_privacy),
+                secondDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.img_arrow_forward),
                 switchOption = false,
                 isSwitched = false
             ),
             UserOptionsData(
                 option = getString(R.string.delete),
-                firstDrawable = requireContext().getDrawable(R.drawable.iv_delete_settings),
+                firstDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.iv_delete_settings),
                 secondDrawable = null,
                 switchOption = false,
                 isSwitched = false
             ),
         )
-    }
-
-    private fun getTheme(): String {
-        return when (viewModel.getUserTheme()) {
-            Const.Themes.MINT_THEME -> getString(R.string.theme_light_green)
-            Const.Themes.NEON_THEME -> getString(R.string.theme_neon)
-            Const.Themes.BASIC_THEME_NIGHT -> getString(R.string.theme_dark_marine)
-            Const.Themes.BASIC_THEME -> getString(R.string.theme_light_marine)
-            else -> getString(R.string.theme_light_marine)
-        }
     }
 
     private fun deleteAccount() {
@@ -369,6 +348,7 @@ class SettingsFragment : BaseFragment() {
 
                     })
             }
+            inputStream.close()
             binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
         }
     }
@@ -386,15 +366,15 @@ class SettingsFragment : BaseFragment() {
             )
             viewModel.updateUserData(jsonObject)
         }
-        etEnterUsername.visibility = View.GONE
+        tilEnterUsername.visibility = View.GONE
         tvUsername.visibility = View.VISIBLE
         ivDone.visibility = View.GONE
     }
 
     private fun showUsernameUpdate() = with(binding) {
-        tvUsername.visibility = View.INVISIBLE
-        tvPhoneNumber.visibility = View.INVISIBLE
-        etEnterUsername.visibility = View.VISIBLE
+        tvUsername.visibility = View.GONE
+        tvPhoneNumber.visibility = View.GONE
+        tilEnterUsername.visibility = View.VISIBLE
         ivDone.visibility = View.VISIBLE
     }
 

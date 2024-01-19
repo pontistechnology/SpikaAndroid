@@ -318,8 +318,7 @@ class ChatMessagesFragment : BaseFragment() {
         } else {
             avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
             userName = roomWithUsers?.room?.name.toString()
-            chatHeader.tvTitle.text =
-                roomWithUsers?.users?.size.toString() + getString(R.string.members)
+            chatHeader.tvTitle.text = getString(R.string.members_number, roomWithUsers?.users?.size.toString())
         }
 
         // Clear notifications for this room
@@ -468,15 +467,12 @@ class ChatMessagesFragment : BaseFragment() {
             clSendingArea.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
         }
 
-        tvUnblock.setOnClickListener {
+        btnUnblock.setOnClickListener {
             DialogError.getInstance(requireContext(),
                 getString(R.string.unblock_user),
-                getString(
-                    R.string.unblock_description,
-                    chatHeader.tvChatName.text
-                ),
-                getString(R.string.no),
-                getString(R.string.unblock),
+                getString(R.string.unblock_description),
+                getString(R.string.cancel),
+                getString(R.string.yes),
                 object : DialogInteraction {
                     override fun onSecondOptionClicked() {
                         roomWithUsers?.users!!.firstOrNull { user -> user.id != localUserId }
@@ -669,8 +665,7 @@ class ChatMessagesFragment : BaseFragment() {
                     name = roomName
                 }
 
-                bindingSetup.chatHeader.tvTitle.text =
-                    it.userNumber.toString() + getString(R.string.members)
+                bindingSetup.chatHeader.tvTitle.text = getString(R.string.members_number, it.userNumber.toString())
                 setAvatarAndName(avatarFile, roomName)
             }
         })
