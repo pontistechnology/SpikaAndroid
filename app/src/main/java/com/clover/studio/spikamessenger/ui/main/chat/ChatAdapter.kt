@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.text.SpannableStringBuilder
 import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
 import android.view.*
@@ -40,6 +39,7 @@ import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.AudioLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.FileLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.ImageLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.ReplyLayout
+import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.SystemMessageLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.VideoLayout
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
@@ -669,51 +669,11 @@ class ChatAdapter(
         }
     }
 
-    private fun bindSystemMessage(tvMessage: EmojiTextView, msg: MessageAndRecords) {
-        // We check if the current list of users contains users who are in the objectIds field:
-        // if it contains (eg no user has been "removed" from the group) show the names as written in the database,
-        // otherwise show the entire message from the server
-        val objectUsers = msg.message.body?.let { body ->
-            val usersObject = users.filter { userId ->
-                userId.id in body.objectIds.orEmpty()
-            }.map { user ->
-                user.displayName
-            }
-
-            if (usersObject.size == body.objectIds?.size) {
-                usersObject.joinToString(", ") { it.toString() }
-            } else {
-                body.`object`?.joinToString(", ") { it }
-            }
-        }
-
-        // We check the same for the subject
-        val userSubject = users.firstOrNull { it.id == msg.message.body?.subjectId }?.displayName
-            ?: msg.message.body?.subject
-
-        Timber.d("User object: $objectUsers")
-
-        // We need to make a string like: message time + subject + action + object + (if any) additional action
-        val spannableStringBuilder = SpannableStringBuilder()
-
-        spannableStringBuilder.append(
-            SimpleDateFormat("HH:mm", Locale.getDefault()).format(
-                msg.message.createdAt
-            ).toString()
+    private fun bindSystemMessage(tvSystemMessage: TextView, msg: MessageAndRecords) {
+        tvSystemMessage.text = SystemMessageLayout(context).bindSystemMessage(
+            msg = msg,
+            users = users
         )
-        spannableStringBuilder.append(" ")
-
-        val systemMessage = ChatAdapterHelper.formatSystemMessage(
-            context = context,
-            subjectName = userSubject.toString(),
-            objectNames = objectUsers.toString(),
-            systemObject = msg.message.body?.`object`.toString(),
-            type = msg.message.body?.type.toString()
-        )
-
-        spannableStringBuilder.append(systemMessage)
-
-        tvMessage.text = spannableStringBuilder
     }
 
     private fun bindAudio(

@@ -41,7 +41,7 @@ object FilesHelper {
             subjectId = null,
             objectIds = null,
             type = "",
-            `object` = null,
+            objects = null,
             subject = ""
         )
         val inputStream =
@@ -129,7 +129,7 @@ object FilesHelper {
                 subjectId = null,
                 objectIds = null,
                 type = "",
-                `object` = null,
+                objects = null,
                 subject = ""
             )
         )

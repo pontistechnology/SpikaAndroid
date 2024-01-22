@@ -1351,7 +1351,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 subjectId = null,
                 objectIds = null,
                 type = "",
-                `object` = null,
+                objects = null,
                 subject = ""
             )
 

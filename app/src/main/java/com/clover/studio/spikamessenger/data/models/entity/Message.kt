@@ -118,7 +118,7 @@ data class MessageBody(
     val subjectId: Int?,
     val subject: String?,
     val objectIds: List<Int>?,
-    val `object`: List<String>?,
+    val objects: List<String>?,
 ) : Parcelable
 
 @Parcelize

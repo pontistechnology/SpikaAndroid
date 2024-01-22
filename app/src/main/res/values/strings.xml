@@ -296,6 +296,7 @@
         <string name="deleted_note">deleted note</string>
 
         <!-- Groups -->
+        <string name="created_group">created group</string>
         <string name="updated_group">updated the group</string>
         <string name="updated_group_name">changed the name of group to</string>
         <string name="updated_group_avatar">updated the avatar of group</string>

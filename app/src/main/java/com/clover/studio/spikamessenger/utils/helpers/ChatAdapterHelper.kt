@@ -2,13 +2,10 @@ package com.clover.studio.spikamessenger.utils.helpers
 
 import android.animation.ObjectAnimator
 import android.content.Context
-import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.text.Spannable
-import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
-import android.text.style.StyleSpan
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
@@ -266,114 +263,4 @@ object ChatAdapterHelper {
             Timber.d("Exception: $e")
         }
     }
-
-    fun formatSystemMessage(
-        context: Context,
-        subjectName: String,
-        objectNames: String?,
-        systemObject: String,
-        type: String
-    ): SpannableString {
-        val text: SpannableString
-
-        val spannableSubject = SpannableString(subjectName).applyBold()
-
-        val spannableObjectNames = objectNames?.let {
-            SpannableString(it).applyBold()
-        }
-
-        val spannableSystemObject = SpannableString(systemObject).applyBold()
-
-        text = when (type) {
-            // Subject + action + object
-            Const.SystemMessages.UPDATED_NOTE, Const.SystemMessages.DELETED_NOTE,
-            Const.SystemMessages.CREATED_NOTE, Const.SystemMessages.CREATED_GROUP,
-            Const.SystemMessages.UPDATED_GROUP_NAME, Const.SystemMessages.UPDATED_GROUP_MEMBERS ->
-                SpannableString(
-                    "$spannableSubject ${
-                        getAction(
-                            context = context,
-                            type = type
-                        )
-                    } $spannableSystemObject"
-                )
-
-            // Subject + action
-            Const.SystemMessages.UPDATED_GROUP_AVATAR, Const.SystemMessages.USER_LEFT_GROUP,
-            Const.SystemMessages.UPDATED_GROUP, Const.SystemMessages.UPDATED_GROUP_ADMINS -> SpannableString(
-                "$spannableSubject ${
-                    getAction(
-                        context = context,
-                        type = type
-                    )
-                }"
-            )
-
-            // Subject + action + object + additional action
-            Const.SystemMessages.REMOVED_GROUP_MEMBERS -> SpannableString(
-                "$spannableSubject ${
-                    getAction(
-                        context = context,
-                        type = type
-                    )
-                } $spannableObjectNames ${context.getString(R.string.from_the_group)}"
-            )
-
-            Const.SystemMessages.ADDED_GROUP_MEMBERS -> SpannableString(
-                "$spannableSubject ${
-                    getAction(
-                        context = context,
-                        type = type
-                    )
-                } $spannableObjectNames ${context.getString(R.string.to_the_group)}"
-            )
-
-            Const.SystemMessages.ADDED_GROUP_ADMINS, Const.SystemMessages.REMOVED_GROUP_ADMINS -> SpannableString(
-                "$spannableSubject ${
-                    getAction(
-                        context = context,
-                        type = type
-                    )
-                } $spannableObjectNames ${context.getString(R.string.as_group_admin)}"
-            )
-
-            else -> SpannableString("Error")
-        }
-
-        return text
-    }
-
-    private fun CharSequence.applyBold(): SpannableString {
-        val spannable = SpannableString(this)
-        spannable.setSpan(StyleSpan(Typeface.BOLD), 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        return spannable
-    }
-
-
-    private fun getAction(context: Context, type: String): String {
-        return when (type) {
-            // Notes
-            Const.SystemMessages.UPDATED_NOTE -> context.getString(R.string.updated_note)
-            Const.SystemMessages.CREATED_NOTE -> context.getString(R.string.created_note)
-            Const.SystemMessages.DELETED_NOTE -> context.getString(R.string.deleted_note)
-
-            // Groups
-            Const.SystemMessages.UPDATED_GROUP -> context.getString(R.string.updated_group)
-            Const.SystemMessages.UPDATED_GROUP_NAME -> context.getString(R.string.updated_group_name)
-            Const.SystemMessages.UPDATED_GROUP_AVATAR -> context.getString(R.string.updated_group_avatar)
-            Const.SystemMessages.USER_LEFT_GROUP -> context.getString(R.string.user_left_group)
-
-            // Users
-            Const.SystemMessages.ADDED_GROUP_ADMINS -> context.getString(R.string.added_group_admins)
-            Const.SystemMessages.ADDED_GROUP_MEMBERS -> context.getString(R.string.added_group_members)
-            Const.SystemMessages.REMOVED_GROUP_ADMINS, Const.SystemMessages.REMOVED_GROUP_MEMBERS ->
-                context.getString(R.string.removed_group_admins)
-
-            Const.SystemMessages.UPDATED_GROUP_ADMINS -> context.getString(R.string.updated_group_admins)
-            Const.SystemMessages.UPDATED_GROUP_MEMBERS -> context.getString(R.string.updated_group_members)
-
-            else -> context.getString(R.string.error)
-        }
-    }
-
 }
