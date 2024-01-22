@@ -12,8 +12,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -24,16 +22,11 @@ import com.bumptech.glide.request.target.Target
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
-import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.ui.main.chat.ChatAdapter
 import com.clover.studio.spikamessenger.utils.Const
-import com.clover.studio.spikamessenger.utils.Tools
-import com.google.android.material.imageview.ShapeableImageView
-import com.vanniktech.emoji.EmojiTextView
 import timber.log.Timber
 
 const val MAX_REACTIONS = 3
-const val HEIGHT = 256
 
 object ChatAdapterHelper {
 
@@ -41,24 +34,20 @@ object ChatAdapterHelper {
      * @param viewToShow - active view
      * @param holder -SentMessageHolder / ReceivedMessageHolder */
     fun setViewsVisibility(viewToShow: View, holder: RecyclerView.ViewHolder) {
-        val tvSystemMessage = holder.itemView.findViewById<TextView>(R.id.tv_system_message)
-
         val viewsToHide = listOf<View>(
             holder.itemView.findViewById<TextView>(R.id.tv_message),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.cl_image_chat),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.cv_files),
-            holder.itemView.findViewById<FrameLayout>(R.id.cv_video),
-            holder.itemView.findViewById<CardView>(R.id.cv_audio),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.cl_reply_message),
-            tvSystemMessage,
+            holder.itemView.findViewById<CardView>(R.id.cv_media),
+            holder.itemView.findViewById<FrameLayout>(R.id.fl_reply_msg_container),
         )
 
         viewsToHide.forEach {
             it.visibility = if (it == viewToShow) View.VISIBLE else View.GONE
         }
 
-        val clMessages = holder.itemView.findViewById<ConstraintLayout>(R.id.cl_container)
-        clMessages.visibility = if (tvSystemMessage.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        val containerIds = listOf(R.id.fl_reply_msg_container, R.id.fl_media_container)
+        containerIds.forEach {
+            holder.itemView.findViewById<FrameLayout>(it).removeAllViews()
+        }
     }
 
     /** A method that loads a media item into Glide
@@ -208,118 +197,6 @@ object ChatAdapterHelper {
         return reactionText.trim()
     }
 
-    /** A method that displays reply messages for all types of message types */
-    fun bindReply(
-        context: Context,
-        users: List<User>,
-        chatMessage: MessageAndRecords,
-        ivReplyImage: ShapeableImageView,
-        tvReplyMedia: TextView,
-        tvMessageReply: EmojiTextView,
-        clReplyMessage: ConstraintLayout,
-        clContainer: ConstraintLayout,
-        tvUsername: TextView,
-        sender: Boolean,
-        roomType: String?,
-    ) {
-        ivReplyImage.visibility = View.GONE
-        tvReplyMedia.visibility = View.GONE
-        tvMessageReply.visibility = View.GONE
-        clReplyMessage.visibility = View.VISIBLE
-
-        if (sender) {
-            clContainer.setBackgroundResource(R.drawable.bg_message_send)
-        } else {
-            clContainer.setBackgroundResource(R.drawable.bg_message_received)
-        }
-
-        if (roomType == Const.JsonFields.PRIVATE) {
-            tvUsername.visibility = View.GONE
-        } else {
-            tvUsername.visibility = View.VISIBLE
-            tvUsername.text =
-                users.firstOrNull { it.id == chatMessage.message.body?.referenceMessage?.fromUserId }?.formattedDisplayName
-        }
-
-        when (chatMessage.message.body?.referenceMessage?.type) {
-            /**Image or video type*/
-            Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                if (chatMessage.message.body.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
-                    tvReplyMedia.text = context.getString(
-                        R.string.media,
-                        context.getString(R.string.photo)
-                    )
-                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera_reply,
-                        0,
-                        0,
-                        0
-                    )
-                } else {
-                    tvReplyMedia.text = context.getString(
-                        R.string.media,
-                        context.getString(R.string.video)
-                    )
-                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_video_reply,
-                        0,
-                        0,
-                        0
-                    )
-                }
-
-                tvMessageReply.visibility = View.GONE
-                ivReplyImage.visibility = View.VISIBLE
-                tvReplyMedia.visibility = View.VISIBLE
-
-                val imagePath =
-                    chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
-                        Tools.getFilePathUrl(
-                            imagePath
-                        )
-                    }
-                Glide.with(context)
-                    .load(imagePath)
-                    .into(ivReplyImage)
-            }
-            /** Audio type */
-            Const.JsonFields.AUDIO_TYPE -> {
-                tvMessageReply.visibility = View.GONE
-                ivReplyImage.visibility = View.GONE
-                tvReplyMedia.visibility = View.VISIBLE
-                tvReplyMedia.text =
-                    context.getString(R.string.media, context.getString(R.string.audio))
-                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_audio_reply,
-                    0,
-                    0,
-                    0
-                )
-            }
-            /** File type */
-            Const.JsonFields.FILE_TYPE -> {
-                tvMessageReply.visibility = View.GONE
-                tvReplyMedia.visibility = View.VISIBLE
-                tvReplyMedia.text =
-                    context.getString(R.string.media, context.getString(R.string.file))
-                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_file_reply,
-                    0,
-                    0,
-                    0
-                )
-            }
-            /** Text type */
-            else -> {
-                tvMessageReply.visibility = View.VISIBLE
-                ivReplyImage.visibility = View.GONE
-                tvReplyMedia.visibility = View.GONE
-
-                tvMessageReply.text = chatMessage.message.body?.referenceMessage?.body?.text
-            }
-        }
-    }
-
     /** The method that displays the status of the message for the sender only - sending, sent, delivered */
     fun showMessageStatus(
         chatMessage: MessageAndRecords?,
@@ -347,24 +224,6 @@ object ChatAdapterHelper {
         }
     }
 
-    /** A method that displays a file icon depending on the file type */
-    fun addFiles(context: Context, ivFileType: ImageView, fileExtension: String) {
-        val drawableResId = when (fileExtension) {
-            Const.FileExtensions.PDF -> R.drawable.img_pdf_black
-            Const.FileExtensions.ZIP, Const.FileExtensions.RAR -> R.drawable.img_folder_zip
-            Const.FileExtensions.MP3, Const.FileExtensions.WAW -> R.drawable.img_audio_file
-            else -> R.drawable.img_file_black
-        }
-
-        ivFileType.setImageDrawable(
-            ResourcesCompat.getDrawable(
-                context.resources,
-                drawableResId,
-                null
-            )
-        )
-    }
-
     /** A method that shows/does not show the name and picture of another user if the messages are
      *  sent in sequence
      *  @param position - Position of current message
@@ -378,7 +237,8 @@ object ChatAdapterHelper {
     ) {
         try {
             val currentMessage = currentList[position].message
-            val nextMessage = if (position + 1 < currentList.size) currentList[position + 1].message else null
+            val nextMessage =
+                if (position + 1 < currentList.size) currentList[position + 1].message else null
             val previousMessage = if (position - 1 >= 0) currentList[position - 1].message else null
 
             if (Const.JsonFields.SYSTEM_TYPE == currentMessage.type) {

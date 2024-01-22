@@ -387,15 +387,19 @@ object Tools {
         return String.format("%02d:%02d", minutes, seconds)
     }
 
-    fun convertDurationInSeconds(time: Long): String {
-        val hours = time / TO_HOURS
-        val minutes = (time % TO_HOURS) / TO_MINUTES
-        val seconds = time % TO_MINUTES
+    fun convertDurationInSeconds(context: Context, time: Long?): String {
+        return if (time == null) {
+            context.getString(R.string.video_duration)
+        } else {
+            val hours = time / TO_HOURS
+            val minutes = (time % TO_HOURS) / TO_MINUTES
+            val seconds = time % TO_MINUTES
 
-        return when {
-            hours > 0 -> String.format("%2d h %2d min", hours, minutes)
-            minutes > 0 -> String.format("%2d min", minutes)
-            else -> String.format("%2d s", seconds)
+            when {
+                hours > 0 -> String.format("%2d h %2d min", hours, minutes)
+                minutes > 0 -> String.format("%2d min", minutes)
+                else -> String.format("%2d s", seconds)
+            }
         }
     }
 

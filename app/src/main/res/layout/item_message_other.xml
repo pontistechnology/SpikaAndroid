@@ -32,6 +32,7 @@
         android:layout_marginTop="@dimen/two_dp_margin"
         android:layout_marginEnd="@dimen/sixty_four_dp"
         android:layout_marginBottom="@dimen/two_dp_margin"
+        android:background="@drawable/bg_message_received"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,8 +40,7 @@
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toEndOf="@+id/iv_user_image"
         app:layout_constraintTop_toBottomOf="@+id/tv_username"
-        app:layout_constraintVertical_bias="0.0"
-        android:background="@drawable/bg_message_received">
+        app:layout_constraintVertical_bias="0.0">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cv_reacted_emoji"
@@ -94,11 +94,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cl_reply_message" />
+            app:layout_constraintTop_toBottomOf="@+id/fl_reply_msg_container" />
 
-
-        <!--   TODO redesign reply layout for other-->
-<!--   maybe make one layout and change in code background     -->
         <TextView
             android:id="@+id/tv_edited"
             android:layout_width="wrap_content"
@@ -131,8 +128,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/tv_message" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_reply_message"
+        <FrameLayout
+            android:id="@+id/fl_reply_msg_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
@@ -142,92 +139,16 @@
             android:backgroundTint="?attr/primaryColor"
             android:visibility="gone"
             app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toTopOf="@id/tv_message"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_min="156dp">
+            app:layout_constraintWidth_min="156dp" />
 
-            <TextView
-                android:id="@+id/tv_username_other"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/sixteen_dp_margin"
-                android:layout_marginTop="@dimen/four_dp_margin"
-                android:layout_marginEnd="@dimen/sixteen_dp_margin"
-                android:fontFamily="@font/roboto_bold"
-                android:text="@string/username"
-                android:textColor="?attr/primaryTextColor"
-                android:textSize="@dimen/fourteen_sp_text"
-                android:visibility="gone"
-                app:layout_constrainedWidth="true"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.vanniktech.emoji.EmojiTextView
-                android:id="@+id/tv_message_reply"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/sixteen_dp_margin"
-                android:layout_marginTop="@dimen/eight_dp_margin"
-                android:layout_marginBottom="@dimen/eight_dp_margin"
-                android:autoLink="all"
-                android:ellipsize="end"
-                android:lineSpacingMultiplier="1.5"
-                android:maxLines="3"
-                android:text="@string/some_message"
-                android:textAppearance="@style/CustomTextBody"
-                android:textColor="?attr/primaryTextColor"
-                android:textColorLink="?attr/tertiaryTextColor"
-                android:textSize="@dimen/fourteen_sp_text"
-                android:visibility="gone"
-                app:layout_constrainedWidth="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_username_other"
-                app:layout_constraintVertical_bias="0.0" />
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/iv_reply_image"
-                android:layout_width="@dimen/forty_two_dp"
-                android:layout_height="0dp"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
-                android:visibility="gone"
-                app:cardCornerRadius="@dimen/four_dp_margin"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearance="@style/reply_image_receiver" />
-
-            <TextView
-                android:id="@+id/tv_reply_media"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/sixteen_dp_margin"
-                android:layout_marginTop="@dimen/sixteen_dp_margin"
-                android:layout_marginEnd="@dimen/sixteen_dp_margin"
-                android:layout_marginBottom="@dimen/sixteen_dp_margin"
-                android:drawablePadding="@dimen/eight_dp_margin"
-                android:text="@string/media"
-                android:textAppearance="@style/CustomTextBody"
-                android:textColor="?attr/primaryTextColor"
-                android:textSize="@dimen/fourteen_sp_text"
-                android:visibility="gone"
-                app:drawableLeftCompat="@drawable/img_camera_reply"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/iv_reply_image"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_username_other" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cv_audio"
+            android:id="@+id/cv_media"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="?attr/secondaryColor"
@@ -236,104 +157,17 @@
             android:visibility="gone"
             app:cardElevation="0dp"
             app:cardPreventCornerOverlap="false"
-            app:layout_constraintBottom_toTopOf="@+id/cv_reacted_emoji"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearanceOverlay="@style/ReceiverBubbleStyle">
-
-            <include
-                android:id="@+id/audio_layout"
-                layout="@layout/audio_layout"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_image_chat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/iv_media_loading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:scaleType="centerInside"
-                android:src="@drawable/img_media_loading"
-                app:layout_constrainedHeight="true"
-                app:layout_constrainedWidth="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/iv_chat_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:scaleType="centerCrop"
-                android:visibility="visible"
-                app:layout_constrainedHeight="true"
-                app:layout_constrainedWidth="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearanceOverlay="@style/ReceiverBubbleStyle" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cv_video"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/two_dp_margin"
-            android:backgroundTint="?attr/primaryColor"
-            android:saveEnabled="false"
-            android:visibility="gone"
-            app:cardElevation="0dp"
-            app:cardPreventCornerOverlap="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/ReceiverBubbleStyle">
 
-            <include
-                android:id="@+id/video_layout"
-                layout="@layout/video_layout"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            <FrameLayout
+                android:id="@+id/fl_media_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cv_files"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="?attr/secondaryColor"
-            android:visibility="gone"
-            app:cardElevation="0dp"
-            app:cardPreventCornerOverlap="false"
-            app:layout_constraintBottom_toTopOf="@+id/cv_reacted_emoji"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearance="@style/ReceiverBubbleStyle">
-
-            <include
-                android:id="@+id/file_layout"
-                layout="@layout/file_layout" />
-        </com.google.android.material.card.MaterialCardView>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.imageview.ShapeableImageView
@@ -342,8 +176,8 @@
         android:layout_height="@dimen/twenty_four_dp_margin"
         android:layout_marginStart="@dimen/eight_dp_margin"
         android:layout_marginBottom="@dimen/two_dp_margin"
-        android:visibility="visible"
         android:scaleType="centerCrop"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/cl_container"
         app:layout_constraintStart_toStartOf="parent"
         app:shapeAppearanceOverlay="@style/circle"
@@ -354,8 +188,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/eight_dp_margin"
-        android:textAppearance="@style/CustomTextLightBody"
         android:text="@string/username"
+        android:textAppearance="@style/CustomTextLightBody"
         android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/twelve_sp_text"
         android:visibility="visible"
@@ -376,17 +210,4 @@
         app:layout_constraintStart_toEndOf="@+id/cl_container"
         app:layout_constraintTop_toTopOf="@+id/cl_container" />
 
-    <com.vanniktech.emoji.EmojiTextView
-        android:id="@+id/tv_system_message"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sixteen_dp_margin"
-        android:layout_marginTop="@dimen/sixteen_dp_margin"
-        android:layout_marginEnd="@dimen/sixteen_dp_margin"
-        android:gravity="center"
-        android:textAppearance="@style/CustomSystemBody"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_section_header" />
 </androidx.constraintlayout.widget.ConstraintLayout>
