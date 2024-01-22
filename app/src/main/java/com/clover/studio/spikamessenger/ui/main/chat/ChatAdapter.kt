@@ -224,13 +224,13 @@ class ChatAdapter(
 
                     /** Show message reply: */
                     if (it.message.replyId != null && it.message.replyId != 0L && it.message.deleted == false) {
-                        setViewsVisibility(holder.binding.flReplyContainer, holder)
+                        setViewsVisibility(holder.binding.flReplyMsgContainer, holder)
                         holder.binding.tvMessage.visibility = View.VISIBLE
 
                         setUpReplyLayout(
                             chatMessage = it,
                             parentContainer = holder.binding.clContainer,
-                            replyContainer = holder.binding.flReplyContainer,
+                            replyContainer = holder.binding.flReplyMsgContainer,
                             sender = true
                         )
                     }
@@ -363,13 +363,13 @@ class ChatAdapter(
 
                     /** Other: */
                     if (it.message.replyId != null && it.message.replyId != 0L && it.message.deleted == false) {
-                        setViewsVisibility(holder.binding.flReplyContainer, holder)
+                        setViewsVisibility(holder.binding.flReplyMsgContainer, holder)
                         holder.binding.tvMessage.visibility = View.VISIBLE
 
                         setUpReplyLayout(
                             chatMessage = it,
                             parentContainer = holder.binding.clContainer,
-                            replyContainer = holder.binding.flReplyContainer,
+                            replyContainer = holder.binding.flReplyMsgContainer,
                             sender = false
                         )
                     }

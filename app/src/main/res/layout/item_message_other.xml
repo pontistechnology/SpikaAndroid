@@ -32,6 +32,7 @@
         android:layout_marginTop="@dimen/two_dp_margin"
         android:layout_marginEnd="@dimen/sixty_four_dp"
         android:layout_marginBottom="@dimen/two_dp_margin"
+        android:background="@drawable/bg_message_received"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,8 +40,7 @@
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toEndOf="@+id/iv_user_image"
         app:layout_constraintTop_toBottomOf="@+id/tv_username"
-        app:layout_constraintVertical_bias="0.0"
-        android:background="@drawable/bg_message_received">
+        app:layout_constraintVertical_bias="0.0">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cv_reacted_emoji"
@@ -94,7 +94,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fl_reply_container" />
+            app:layout_constraintTop_toBottomOf="@+id/fl_reply_msg_container" />
 
         <TextView
             android:id="@+id/tv_edited"
@@ -129,7 +129,7 @@
             app:layout_constraintStart_toStartOf="@+id/tv_message" />
 
         <FrameLayout
-            android:id="@+id/fl_reply_container"
+            android:id="@+id/fl_reply_msg_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
@@ -139,12 +139,12 @@
             android:backgroundTint="?attr/primaryColor"
             android:visibility="gone"
             app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toTopOf="@id/tv_message"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_min="156dp" >
-        </FrameLayout>
+            app:layout_constraintWidth_min="156dp" />
 
 
         <com.google.android.material.card.MaterialCardView
@@ -176,8 +176,8 @@
         android:layout_height="@dimen/twenty_four_dp_margin"
         android:layout_marginStart="@dimen/eight_dp_margin"
         android:layout_marginBottom="@dimen/two_dp_margin"
-        android:visibility="visible"
         android:scaleType="centerCrop"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/cl_container"
         app:layout_constraintStart_toStartOf="parent"
         app:shapeAppearanceOverlay="@style/circle"
@@ -188,8 +188,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/eight_dp_margin"
-        android:textAppearance="@style/CustomTextLightBody"
         android:text="@string/username"
+        android:textAppearance="@style/CustomTextLightBody"
         android:textColor="?attr/primaryTextColor"
         android:textSize="@dimen/twelve_sp_text"
         android:visibility="visible"

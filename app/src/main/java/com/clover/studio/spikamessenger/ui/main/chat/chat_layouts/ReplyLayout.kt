@@ -13,6 +13,9 @@ import com.clover.studio.spikamessenger.databinding.ReplyLayoutBinding
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.shape.CornerFamily
+import com.google.android.material.shape.ShapeAppearanceModel
 
 
 class ReplyLayout(context: Context) :
@@ -102,7 +105,6 @@ class ReplyLayout(context: Context) :
                 ivReplyImage.visibility = View.VISIBLE
                 tvReplyMedia.visibility = View.VISIBLE
 
-                // TODO change corner inside image
                 val imagePath =
                     chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
                         Tools.getFilePathUrl(
@@ -112,6 +114,7 @@ class ReplyLayout(context: Context) :
                 Glide.with(context)
                     .load(imagePath)
                     .into(ivReplyImage)
+                setAppearanceModel(ivReplyImage, sender)
             }
             /** Audio type */
             Const.JsonFields.AUDIO_TYPE -> {
@@ -149,5 +152,27 @@ class ReplyLayout(context: Context) :
                 tvMessageReply.text = chatMessage.message.body?.referenceMessage?.body?.text
             }
         }
+    }
+
+    private fun setAppearanceModel(ivReplyImage: ShapeableImageView, sender: Boolean) {
+        val builder = ShapeAppearanceModel().toBuilder()
+
+        if (sender) {
+            builder.setTopRightCorner(
+                CornerFamily.ROUNDED,
+                resources.getDimension(R.dimen.eight_dp_margin)
+            )
+        } else {
+            builder.setTopRightCorner(
+                CornerFamily.ROUNDED,
+                resources.getDimension(R.dimen.eight_dp_margin)
+            )
+                .setBottomRightCorner(
+                    CornerFamily.ROUNDED,
+                    resources.getDimension(R.dimen.eight_dp_margin)
+                )
+        }
+
+        ivReplyImage.shapeAppearanceModel = builder.build()
     }
 }
