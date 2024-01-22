@@ -3,7 +3,6 @@ package com.clover.studio.spikamessenger.ui.main.chat.chat_layouts
 import android.content.Context
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.databinding.VideoLayoutBinding
 import com.clover.studio.spikamessenger.utils.Tools
@@ -26,15 +25,15 @@ class VideoLayout(context: Context) :
         this.listener = listener
     }
 
-     fun bindVideo(
+    fun bindVideo(
         chatMessage: MessageAndRecords
     ) = with(binding) {
-        if (chatMessage.message.body?.file?.metaData?.duration?.toLong() != null) {
-            tvVideoDuration.text =
-                Tools.convertDurationInSeconds(chatMessage.message.body.file?.metaData?.duration!!.toLong())
-        } else {
-            tvVideoDuration.text = context.getString(R.string.audio_duration)
-        }
+
+        tvVideoDuration.text =
+            Tools.convertDurationInSeconds(
+                context = context,
+                time = chatMessage.message.body?.file?.metaData?.duration?.toLong()
+            )
 
         val imageResized = Tools.resizeImage(
             chatMessage.message.body?.file?.metaData?.width,

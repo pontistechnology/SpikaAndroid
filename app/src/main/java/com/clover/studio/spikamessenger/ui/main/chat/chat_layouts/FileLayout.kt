@@ -34,13 +34,11 @@ class FileLayout(context: Context) :
     fun bindFile(chatMessage: MessageAndRecords, sender: Boolean) = with(binding) {
         addFiles(
             context = context,
-            fileExtension = chatMessage.message.body?.file?.fileName?.substringAfterLast(
-                "."
-            )!!
+            fileExtension = chatMessage.message.body?.file?.fileName?.substringAfterLast(".")
         )
 
         if (sender) {
-            val fileBody = chatMessage.message.body.file
+            val fileBody = chatMessage.message.body?.file
             tvFileTitle.text = fileBody?.fileName
             tvFileSize.text = Tools.calculateFileSize(fileBody?.size ?: 0)
 
@@ -92,7 +90,7 @@ class FileLayout(context: Context) :
         }
     }
 
-    private fun addFiles(context: Context, fileExtension: String) = with(binding) {
+    private fun addFiles(context: Context, fileExtension: String?) = with(binding) {
         val drawableResId = when (fileExtension) {
             Const.FileExtensions.PDF -> R.drawable.img_pdf_black
             Const.FileExtensions.ZIP, Const.FileExtensions.RAR -> R.drawable.img_folder_zip

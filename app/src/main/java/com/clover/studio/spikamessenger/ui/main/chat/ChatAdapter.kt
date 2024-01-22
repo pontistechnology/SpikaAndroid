@@ -395,12 +395,7 @@ class ChatAdapter(
                     } else {
                         val roomUser = users.find { user -> user.id == it.message.fromUserId }
                         if (roomUser != null) {
-                            holder.binding.tvUsername.text =
-                                if (roomUser.formattedDisplayName.length > 20) "${
-                                    roomUser.formattedDisplayName.take(
-                                        20
-                                    )
-                                }..." else roomUser.formattedDisplayName
+                            holder.binding.tvUsername.text = roomUser.formattedDisplayName
                             val userPath = roomUser.avatarFileId?.let { fileId ->
                                 Tools.getFilePathUrl(fileId)
                             }

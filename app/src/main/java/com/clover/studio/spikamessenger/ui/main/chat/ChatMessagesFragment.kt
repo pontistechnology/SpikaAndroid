@@ -794,7 +794,7 @@ class ChatMessagesFragment : BaseFragment() {
                     run {
                         when (event) {
                             Const.UserActions.DOWNLOAD_FILE -> handleDownloadFile(message)
-                            Const.UserActions.CANCEL_UPLOAD -> handleDownloadCancelFile(message.message)
+                            Const.UserActions.CANCEL_UPLOAD -> handleUploadCancel(message.message)
                             Const.UserActions.MESSAGE_ACTION -> handleMessageAction(message)
                             Const.UserActions.MESSAGE_REPLY -> handleMessageReplyClick(message)
                             Const.UserActions.RESEND_MESSAGE -> handleMessageResend(message)
@@ -1138,7 +1138,7 @@ class ChatMessagesFragment : BaseFragment() {
         } else downloadFile(requireContext(), message.message)
     }
 
-    private fun handleDownloadCancelFile(message: Message) {
+    private fun handleUploadCancel(message: Message) {
         DialogError.getInstance(requireActivity(),
             getString(R.string.warning),
             getString(R.string.cancel_upload),
