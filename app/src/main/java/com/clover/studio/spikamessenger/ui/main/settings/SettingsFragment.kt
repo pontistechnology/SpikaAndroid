@@ -61,6 +61,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
     private val binding get() = bindingSetup!!
 
     private lateinit var fileUploadService: UploadService
+    private var bound = false
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -312,7 +313,13 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
             inputStream.close()
             binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
 
-            startUploadService()
+            if (bound) {
+                CoroutineScope(Dispatchers.Default).launch {
+                    fileUploadService.uploadAvatar(avatarData!!, isGroup = false)
+                }
+            } else {
+                startUploadService()
+            }
         }
     }
 
@@ -404,8 +411,18 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
         super.onPause()
     }
 
+    override fun onStop() {
+        super.onStop()
+        if (bound) {
+            requireActivity().unbindService(serviceConnection)
+        }
+        bound = false
+    }
+
     private val serviceConnection = this
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        bound = true
+
         val binder = service as UploadService.UploadServiceBinder
         fileUploadService = binder.getService()
         fileUploadService.setCallbackListener(object : UploadService.FileUploadCallback {
@@ -414,16 +431,12 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                 requireActivity().runOnUiThread {
                     showUploadError(description)
                 }
-
-                requireActivity().unbindService(serviceConnection)
             }
 
             override fun avatarUploadFinished() {
                 requireActivity().runOnUiThread {
                     binding.profilePicture.flProgressScreen.visibility = View.GONE
                 }
-
-                requireActivity().unbindService(serviceConnection)
             }
         })
 

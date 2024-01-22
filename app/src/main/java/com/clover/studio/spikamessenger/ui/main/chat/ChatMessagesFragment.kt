@@ -130,6 +130,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private var uriPairList: MutableList<Pair<Uri, Uri>> = mutableListOf()
 
     private lateinit var fileUploadService: UploadService
+    private var bound = false
 
     private var photoImageUri: Uri? = null
     private var isFetching = false
@@ -1368,7 +1369,15 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         }
 
         sendFile()
-        startUploadService()
+
+        if (bound) {
+            CoroutineScope(Dispatchers.Default).launch {
+                fileUploadService.uploadItems(uploadFiles)
+                uploadFiles.clear()
+            }
+        } else {
+            startUploadService()
+        }
 
         selectedFilesUris.clear()
         tempFilesToCreate.clear()
@@ -1504,16 +1513,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         uploadFiles.addAll(uploadData)
     }
 
-    /** Upload service */
-    private fun startUploadService() {
-        val intent = Intent(MainApplication.appContext, UploadService::class.java)
-        MainApplication.appContext.startService(intent)
-        activity?.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
-    }
-
-
-    private val serviceConnection = this
-
     private fun checkStoragePermission() {
         storagePermission =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -1549,7 +1548,25 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         listState = bindingSetup.rvChat.layoutManager?.onSaveInstanceState()
     }
 
+    override fun onStop() {
+        super.onStop()
+        if (bound) {
+            requireActivity().unbindService(serviceConnection)
+        }
+        bound = false
+    }
+
+    /** Upload service */
+    private fun startUploadService() {
+        val intent = Intent(MainApplication.appContext, UploadService::class.java)
+        MainApplication.appContext.startService(intent)
+        activity?.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private val serviceConnection = this
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        bound = true
+
         val binder = service as UploadService.UploadServiceBinder
         fileUploadService = binder.getService()
         fileUploadService.setCallbackListener(object : UploadService.FileUploadCallback {
@@ -1575,8 +1592,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             override fun uploadingFinished(uploadedFiles: MutableList<FileData>) {
                 Tools.deleteTemporaryMedia(requireContext())
                 context?.cacheDir?.deleteRecursively()
-
-                requireActivity().unbindService(serviceConnection)
 
                 if (uploadedFiles.isNotEmpty()) {
                     uploadedFiles.forEach { item ->
@@ -1609,7 +1624,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
 
             override fun uploadError(description: String) {
-                requireActivity().unbindService(serviceConnection)
+                // TODO Something went wrong, maybe implement an error notification or dialog
             }
         })
 

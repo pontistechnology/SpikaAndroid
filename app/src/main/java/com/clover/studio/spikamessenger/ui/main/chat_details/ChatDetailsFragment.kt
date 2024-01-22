@@ -71,6 +71,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
     private var isAdmin = false
     private var localUserId: Int? = 0
     private lateinit var fileUploadService: UploadService
+    private var bound = false
 
     private var userName = ""
     private var avatarFileId = 0L
@@ -596,7 +597,13 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 null
             )
 
-            startUploadService()
+            if (bound) {
+                CoroutineScope(Dispatchers.Default).launch {
+                    fileUploadService.uploadAvatar(avatarData!!, isGroup = true)
+                }
+            } else {
+                startUploadService()
+            }
             binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
         }
     }
@@ -655,6 +662,14 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         roomId?.let { viewModel.updateRoom(jsonObject, it, idToRemove, roomUsers.size) }
     }
 
+    override fun onStop() {
+        super.onStop()
+        if (bound) {
+            requireActivity().unbindService(serviceConnection)
+        }
+        bound = false
+    }
+
     /** Upload service */
     private fun startUploadService() {
         val intent = Intent(MainApplication.appContext, UploadService::class.java)
@@ -664,6 +679,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
     private val serviceConnection = this
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        bound = true
+
         val binder = service as UploadService.UploadServiceBinder
         fileUploadService = binder.getService()
         fileUploadService.setCallbackListener(object : UploadService.FileUploadCallback {
@@ -672,16 +689,12 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 requireActivity().runOnUiThread {
                     showUploadError(description)
                 }
-
-                requireActivity().unbindService(serviceConnection)
             }
 
             override fun avatarUploadFinished() {
                 requireActivity().runOnUiThread {
                     binding.profilePicture.flProgressScreen.visibility = View.GONE
                 }
-
-                requireActivity().unbindService(serviceConnection)
             }
         })
 

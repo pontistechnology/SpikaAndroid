@@ -69,8 +69,6 @@ class UploadService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val items = intent?.getParcelableArrayListExtra<FileData>(Const.IntentExtras.FILES_EXTRA)
-
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.uploading_files))
             .setContentText(getString(R.string.upload_in_progress_notification))
@@ -79,13 +77,6 @@ class UploadService : Service() {
 
         // Start the foreground service with the notification
         startForeground(Const.Service.UPLOAD_SERVICE_ID, notification)
-
-        // Continue with the upload process
-//        uploadJob = CoroutineScope(Dispatchers.Default).launch {
-//            items?.toList()?.let { uploadItems(it) }
-//            stopForeground(STOP_FOREGROUND_REMOVE) // Stop the foreground service
-//            stopSelf() // Stop the service after all items are uploaded
-//        }
 
         return START_STICKY
     }
@@ -105,8 +96,6 @@ class UploadService : Service() {
 
                 override fun fileUploadError(description: String) {
                     callbackListener?.uploadError(description)
-                    stopForeground(STOP_FOREGROUND_REMOVE) // Stop the foreground service
-                    stopSelf() // Stop the service if error occured
                 }
 
                 override fun fileUploadVerified(
@@ -132,8 +121,8 @@ class UploadService : Service() {
                         }
                     }
                     callbackListener?.avatarUploadFinished()
-                    stopForeground(STOP_FOREGROUND_REMOVE) // Stop the foreground service
-                    stopSelf() // Stop the service after all items are uploaded
+                    stopForeground(STOP_FOREGROUND_REMOVE)
+                    stopSelf()
                     return
                 }
 
@@ -185,6 +174,8 @@ class UploadService : Service() {
         jobMap.clear()
         uploadingFinished(uploadedFiles)
         uploadedFiles.clear()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     private suspend fun uploadItem(item: FileData) {
