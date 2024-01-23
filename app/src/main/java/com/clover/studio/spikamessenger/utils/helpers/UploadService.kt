@@ -75,7 +75,7 @@ class UploadService : Service() {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.uploading_files))
             .setContentText(getString(R.string.upload_in_progress_notification))
-            .setSmallIcon(R.drawable.img_spika_push_black)
+            .setSmallIcon(R.drawable.spika_base_logo)
             .build()
 
         // Start the foreground service with the notification
