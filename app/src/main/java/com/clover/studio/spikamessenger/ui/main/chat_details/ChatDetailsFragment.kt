@@ -585,21 +585,26 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             isUploading = true
 
             avatarData = FileData(
-                currentPhotoLocation,
-                Const.JsonFields.AVATAR_TYPE,
-                uploadPieces,
-                fileStream,
-                null,
-                false,
-                null,
-                roomWithUsers.room.roomId,
-                null,
-                null
+                fileUri = currentPhotoLocation,
+                fileType = Const.JsonFields.AVATAR_TYPE,
+                filePieces = uploadPieces,
+                file = fileStream,
+                messageBody = null,
+                isThumbnail = false,
+                localId = null,
+                roomId = roomWithUsers.room.roomId,
+                messageStatus = null,
+                metadata = null
             )
 
             if (bound) {
                 CoroutineScope(Dispatchers.Default).launch {
-                    fileUploadService.uploadAvatar(avatarData!!, isGroup = true)
+                    avatarData?.let {
+                        fileUploadService.uploadAvatar(
+                            fileData = it,
+                            isGroup = true
+                        )
+                    }
                 }
             } else {
                 startUploadService()
@@ -699,7 +704,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         })
 
         CoroutineScope(Dispatchers.Default).launch {
-            fileUploadService.uploadAvatar(avatarData!!, isGroup = true)
+            avatarData?.let { fileUploadService.uploadAvatar(fileData = it, isGroup = true) }
         }
     }
 

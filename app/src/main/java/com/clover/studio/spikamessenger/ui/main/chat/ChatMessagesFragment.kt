@@ -319,7 +319,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         } else {
             avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
             userName = roomWithUsers?.room?.name.toString()
-            chatHeader.tvTitle.text = getString(R.string.members_number, roomWithUsers?.users?.size.toString())
+            chatHeader.tvTitle.text =
+                getString(R.string.members_number, roomWithUsers?.users?.size.toString())
         }
 
         // Clear notifications for this room
@@ -666,7 +667,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                     name = roomName
                 }
 
-                bindingSetup.chatHeader.tvTitle.text = getString(R.string.members_number, it.userNumber.toString())
+                bindingSetup.chatHeader.tvTitle.text =
+                    getString(R.string.members_number, it.userNumber.toString())
                 setAvatarAndName(avatarFile, roomName)
             }
         })
@@ -1621,10 +1623,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                     unsentMessages.clear()
                     return
                 }
-            }
-
-            override fun uploadError(description: String) {
-                // TODO Something went wrong, maybe implement an error notification or dialog
             }
         })
 

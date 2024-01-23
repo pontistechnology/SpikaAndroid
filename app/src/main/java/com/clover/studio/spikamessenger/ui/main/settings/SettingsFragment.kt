@@ -207,21 +207,36 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
         optionList = mutableListOf(
             UserOptionsData(
                 option = getString(R.string.appearance),
-                firstDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.iv_edit_settings),
-                secondDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.img_arrow_forward),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.iv_edit_settings
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_arrow_forward
+                ),
                 switchOption = false,
                 isSwitched = false
             ),
             UserOptionsData(
                 option = getString(R.string.privacy),
-                firstDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.iv_privacy),
-                secondDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.img_arrow_forward),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.iv_privacy
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_arrow_forward
+                ),
                 switchOption = false,
                 isSwitched = false
             ),
             UserOptionsData(
                 option = getString(R.string.delete),
-                firstDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.iv_delete_settings),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.iv_delete_settings
+                ),
                 secondDrawable = null,
                 switchOption = false,
                 isSwitched = false
@@ -296,26 +311,30 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
             binding.profilePicture.progressBar.max = uploadPieces
-            Timber.d("File upload start")
 
             avatarData = FileData(
-                currentPhotoLocation,
-                Const.JsonFields.AVATAR_TYPE,
-                uploadPieces,
-                fileStream,
-                null,
-                false,
-                null,
-                0,
-                null,
-                null
+                fileUri = currentPhotoLocation,
+                fileType = Const.JsonFields.AVATAR_TYPE,
+                filePieces = uploadPieces,
+                file = fileStream,
+                messageBody = null,
+                isThumbnail = false,
+                localId = null,
+                roomId = 0,
+                messageStatus = null,
+                metadata = null
             )
             inputStream.close()
             binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
 
             if (bound) {
                 CoroutineScope(Dispatchers.Default).launch {
-                    fileUploadService.uploadAvatar(avatarData!!, isGroup = false)
+                    avatarData?.let {
+                        fileUploadService.uploadAvatar(
+                            fileData = it,
+                            isGroup = false
+                        )
+                    }
                 }
             } else {
                 startUploadService()
@@ -441,7 +460,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
         })
 
         CoroutineScope(Dispatchers.Default).launch {
-            fileUploadService.uploadAvatar(avatarData!!, isGroup = false)
+            avatarData?.let { fileUploadService.uploadAvatar(fileData = it, isGroup = false) }
         }
     }
 
