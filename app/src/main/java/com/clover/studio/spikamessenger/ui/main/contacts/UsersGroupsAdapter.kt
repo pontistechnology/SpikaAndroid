@@ -13,6 +13,9 @@ import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.databinding.ItemContactBinding
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
 
+const val MAX_ALPHA = 1F
+const val SELECTED_ALPHA = 0.4F
+
 class UsersGroupsAdapter(
     private val context: Context,
     private val isGroupCreation: Boolean,
@@ -65,25 +68,21 @@ class UsersGroupsAdapter(
                     .error(avatar)
                     .into(binding.ivUserImage)
 
-                // Selected chats
+                // Selected chats - set transparent view to already selected chats
                 if (isForward || isGroupCreation) {
-                    val setCheck = if (it.selected) {
-                        View.VISIBLE
-                    } else {
-                        View.GONE
+                    val isSelected = userIdsInRoom?.contains(it.userId) == true
+                    binding.transparentView.visibility = if (isSelected) View.VISIBLE else View.GONE
+                    val alphaValue = if (isSelected) SELECTED_ALPHA else MAX_ALPHA
+                    with(binding) {
+                        ivUserImage.alpha = alphaValue
+                        tvUsername.alpha = alphaValue
+                        tvTitle.alpha = alphaValue
                     }
-                    binding.ivCheckedUser.visibility = setCheck
+                    binding.ivCheckedUser.visibility = if (it.selected) View.VISIBLE else View.GONE
                 } else {
                     binding.ivCheckedUser.visibility = View.GONE
                 }
 
-                if (it.phoneNumber != null) {
-                    if (userIdsInRoom?.contains(it.userId) == true) {
-                        binding.transparentView.visibility =
-                            View.VISIBLE
-                        it.selected = true
-                    } else binding.transparentView.visibility = View.GONE
-                }
 
                 if (it.isRecent) {
                     // Recent chats

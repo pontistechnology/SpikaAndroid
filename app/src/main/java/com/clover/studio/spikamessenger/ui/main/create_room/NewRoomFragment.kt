@@ -33,7 +33,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Arrays
-import kotlin.streams.toList
 
 class NewRoomFragment : BaseFragment() {
     private var args: NewRoomFragmentArgs? = null
@@ -114,7 +113,13 @@ class NewRoomFragment : BaseFragment() {
                 R.id.search_menu_icon -> {
                     ivCancel.visibility = View.GONE
                     val searchView = menuItem.actionView as SearchView
-                    searchView.let { Tools.setUpSearchBar(requireContext(), it, getString(R.string.search_contacts)) }
+                    searchView.let {
+                        Tools.setUpSearchBar(
+                            requireContext(),
+                            it,
+                            getString(R.string.search_contacts)
+                        )
+                    }
 
                     setupSearchView(searchView)
 
@@ -188,8 +193,8 @@ class NewRoomFragment : BaseFragment() {
                 isForward = false
             ) {
                 if (tvNewGroupChat.visibility == View.GONE) {
-                    if (selectedUsers.contains(it)) {
-                        selectedUsers.remove(it)
+                    if (selectedUsers.any { user -> user.userId == it.userId }) {
+                        selectedUsers.remove(selectedUsers.first { user -> user.userId == it.userId })
                         tvSelectedNumber.text =
                             getString(R.string.users_selected, selectedUsers.size)
                     } else {
@@ -235,7 +240,7 @@ class NewRoomFragment : BaseFragment() {
 
     private fun setUpSelectedContactsAdapter() {
         selectedContactsAdapter = UsersGroupsSelectedAdapter(requireContext()) {
-            if (selectedUsers.contains(it)) {
+            if (selectedUsers.any { user -> user.userId == it.userId }) {
                 selectedUsers.remove(it)
                 selectedContactsAdapter.submitList(selectedUsers)
                 binding.tvSelectedNumber.text =
@@ -249,11 +254,8 @@ class NewRoomFragment : BaseFragment() {
     }
 
     private fun handleSelectedUserList(userItem: PrivateGroupChats) {
-        for (user in userList) {
-            if (user.userId == userItem.userId) {
-                user.selected = !user.selected
-                break
-            }
+        userList.find { it.userId == userItem.userId }?.apply {
+            selected = !selected
         }
 
         contactsAdapter.submitList(userList)
