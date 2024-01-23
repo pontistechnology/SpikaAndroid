@@ -17,6 +17,9 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getRoomTime
 import com.vanniktech.emoji.EmojiTextView
+
+const val MAX_UNREAD_MESSAGES = 99
+
 class RoomsAdapter(
     private val context: Context,
     private val myUserId: String,
@@ -41,7 +44,8 @@ class RoomsAdapter(
                 val roomName = if (isPrivateRoom) roomUser?.formattedDisplayName
                     ?: "" else roomItem.roomWithUsers.room.name.toString()
                 val avatarFileId =
-                    if (isPrivateRoom) roomUser?.avatarFileId ?: 0L else roomItem.roomWithUsers.room.avatarFileId ?: 0L
+                    if (isPrivateRoom) roomUser?.avatarFileId
+                        ?: 0L else roomItem.roomWithUsers.room.avatarFileId ?: 0L
 
                 binding.tvRoomName.text = roomName
 
@@ -131,7 +135,14 @@ class RoomsAdapter(
                 }
 
                 if (roomItem.roomWithUsers.room.unreadCount > 0 && roomItem.message != null) {
-                    binding.tvNewMessages.text = roomItem.roomWithUsers.room.unreadCount.toString()
+                    val numberOfMessages = roomItem.roomWithUsers.room.unreadCount
+
+                    if (numberOfMessages > MAX_UNREAD_MESSAGES) {
+                        binding.tvNewMessages.text = context.getString(R.string.unread_limit);
+                    } else {
+                        binding.tvNewMessages.text =
+                            roomItem.roomWithUsers.room.unreadCount.toString()
+                    }
                     binding.tvNewMessages.visibility = View.VISIBLE
                 } else {
                     binding.tvNewMessages.visibility = View.GONE
