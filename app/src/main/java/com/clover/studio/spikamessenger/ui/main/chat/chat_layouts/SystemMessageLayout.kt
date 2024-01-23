@@ -10,7 +10,6 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.utils.Const
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -19,10 +18,7 @@ class SystemMessageLayout(private var context: Context) {
         // We check if the current list of users contains users who are in the objectIds field:
         // if it contains (eg no user has been "removed" from the group) show the names as written in the database,
         // otherwise show the entire message from the server
-        Timber.d("MSG BODY objids: ${msg.message.body?.objectIds}")
-        Timber.d("MSG BODY obj: ${msg.message.body?.objects}")
-
-        val objectUsers = msg.message.body?.let { body ->
+        var objectUsers = msg.message.body?.let { body ->
             val usersObject = users.filter { userId ->
                 userId.id in body.objectIds.orEmpty()
             }.map { user ->
@@ -36,13 +32,13 @@ class SystemMessageLayout(private var context: Context) {
             }
         }
 
-        Timber.d("User object: $objectUsers")
+        objectUsers = objectUsers.toString().removeSurrounding("[", "]")
 
         // We check the same for the subject
         val userSubject = users.firstOrNull { it.id == msg.message.body?.subjectId }?.displayName
             ?: msg.message.body?.subject
 
-        // We need to make a string like: message time + subject + action + object + (if any) additional action
+        // We need to make a string like: message time + subject + action + object +  (additional action)
         val spannableStringBuilder = SpannableStringBuilder()
 
         spannableStringBuilder.append(
@@ -55,8 +51,7 @@ class SystemMessageLayout(private var context: Context) {
         val systemMessage = formatSystemMessage(
             context = context,
             subjectName = userSubject.toString(),
-            objectNames = objectUsers.toString().replace("[", "").replace("]", ""),
-            systemObject = msg.message.body?.objects.toString(),
+            objectNames = objectUsers,
             type = msg.message.body?.type.toString()
         )
 
@@ -69,15 +64,10 @@ class SystemMessageLayout(private var context: Context) {
         context: Context,
         subjectName: String,
         objectNames: String?,
-        systemObject: String,
         type: String
     ): SpannableString {
-
         val spannableSubject = SpannableString(subjectName)
         val spannableObjectNames = SpannableString(objectNames)
-        val spannableSystemObject = SpannableString(systemObject)
-
-        Timber.d("Object users: $spannableObjectNames")
 
         val text = when (type) {
             // Subject + action + object
@@ -90,12 +80,11 @@ class SystemMessageLayout(private var context: Context) {
                             context = context,
                             type = type
                         )
-                    } $spannableSystemObject"
+                    } $spannableObjectNames"
                 )
 
             // Subject + action
-            Const.SystemMessages.UPDATED_GROUP_AVATAR, Const.SystemMessages.USER_LEFT_GROUP,
-            Const.SystemMessages.UPDATED_GROUP, Const.SystemMessages.UPDATED_GROUP_ADMINS -> SpannableString(
+            Const.SystemMessages.UPDATED_GROUP_AVATAR, Const.SystemMessages.USER_LEFT_GROUP -> SpannableString(
                 "$spannableSubject ${
                     getAction(
                         context = context,
@@ -132,26 +121,27 @@ class SystemMessageLayout(private var context: Context) {
                 } $spannableObjectNames ${context.getString(R.string.as_group_admin)}"
             )
 
-            else -> SpannableString("Error")
+            else -> SpannableString("")
         }
 
-        applyStyleSpan(text, subjectName, Typeface.BOLD)
-        applyStyleSpan(text, objectNames ?: "", Typeface.BOLD)
+        applyStyleSpan(text, subjectName)
+        applyStyleSpan(text, objectNames ?: "")
 
         return text
     }
 
-    private fun applyStyleSpan(text: SpannableString, target: String, style: Int) {
+    private fun applyStyleSpan(text: SpannableString, target: String) {
         val index = text.indexOf(target)
         if (index != -1) {
             text.setSpan(
-                StyleSpan(style),
+                StyleSpan(Typeface.BOLD),
                 index,
                 index + target.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
     }
+
     private fun getAction(context: Context, type: String): String {
         return when (type) {
             // Notes
@@ -161,7 +151,6 @@ class SystemMessageLayout(private var context: Context) {
 
             // Groups
             Const.SystemMessages.CREATED_GROUP -> context.getString(R.string.created_group)
-            Const.SystemMessages.UPDATED_GROUP -> context.getString(R.string.updated_group)
             Const.SystemMessages.UPDATED_GROUP_NAME -> context.getString(R.string.updated_group_name)
             Const.SystemMessages.UPDATED_GROUP_AVATAR -> context.getString(R.string.updated_group_avatar)
             Const.SystemMessages.USER_LEFT_GROUP -> context.getString(R.string.user_left_group)
@@ -171,9 +160,6 @@ class SystemMessageLayout(private var context: Context) {
             Const.SystemMessages.ADDED_GROUP_MEMBERS -> context.getString(R.string.added_group_members)
             Const.SystemMessages.REMOVED_GROUP_ADMINS, Const.SystemMessages.REMOVED_GROUP_MEMBERS ->
                 context.getString(R.string.removed_group_admins)
-
-            Const.SystemMessages.UPDATED_GROUP_ADMINS -> context.getString(R.string.updated_group_admins)
-            Const.SystemMessages.UPDATED_GROUP_MEMBERS -> context.getString(R.string.updated_group_members)
 
             else -> context.getString(R.string.error)
         }
