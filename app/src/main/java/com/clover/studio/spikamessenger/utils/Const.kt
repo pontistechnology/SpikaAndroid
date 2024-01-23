@@ -286,4 +286,22 @@ class Const {
             const val BASIC_THEME_NIGHT = "basic_night"
         }
     }
+
+    class SystemMessages {
+        companion object {
+            const val CREATED_NOTE = "created_note"
+            const val UPDATED_NOTE = "updated_note"
+            const val DELETED_NOTE = "deleted_note"
+
+            const val CREATED_GROUP = "created_group"
+            const val USER_LEFT_GROUP = "user_left_group"
+            const val UPDATED_GROUP_NAME = "updated_group_name"
+            const val UPDATED_GROUP_AVATAR = "updated_group_avatar"
+            const val UPDATED_GROUP_MEMBERS = "updated_group_members"
+            const val ADDED_GROUP_MEMBERS = "added_group_members"
+            const val REMOVED_GROUP_MEMBERS = "removed_group_members"
+            const val ADDED_GROUP_ADMINS = "added_group_admins"
+            const val REMOVED_GROUP_ADMINS = "removed_group_admins"
+        }
+    }
 }

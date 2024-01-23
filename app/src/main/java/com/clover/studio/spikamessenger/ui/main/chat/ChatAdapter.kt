@@ -39,6 +39,7 @@ import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.AudioLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.FileLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.ImageLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.ReplyLayout
+import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.SystemMessageLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.VideoLayout
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
@@ -668,16 +669,11 @@ class ChatAdapter(
         }
     }
 
-    private fun bindSystemMessage(tvMessage: EmojiTextView, msg: MessageAndRecords) {
-        tvMessage.text = buildString {
-            append(
-                SimpleDateFormat("HH:mm", Locale.getDefault()).format(
-                    msg.message.createdAt
-                ).toString()
-            )
-            append(" ")
-            append(msg.message.body?.text.toString())
-        }
+    private fun bindSystemMessage(tvSystemMessage: TextView, msg: MessageAndRecords) {
+        tvSystemMessage.text = SystemMessageLayout(context).bindSystemMessage(
+            msg = msg,
+            users = users
+        )
     }
 
     private fun bindAudio(

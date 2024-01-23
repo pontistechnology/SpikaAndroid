@@ -473,7 +473,7 @@ object Tools {
             generateRandomId(),
             Resource.Status.LOADING.toString(),
             null,
-            isForwarded = false
+            isForwarded = false,
         )
     }
 
