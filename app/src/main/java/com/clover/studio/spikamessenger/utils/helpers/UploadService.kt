@@ -24,7 +24,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -45,6 +44,10 @@ class UploadService : Service() {
 
     private var uploadCounterThumbnail = 0
     private var uploadCounterImage = 0
+
+    private var thumbnailJobs: List<Job> = mutableListOf()
+    private var imageJobs: List<Job> = mutableListOf()
+    private var filesWaiting: MutableList<FileData> = mutableListOf()
 
     private val jobMap: MutableMap<String?, Job> = mutableMapOf()
 
@@ -133,9 +136,14 @@ class UploadService : Service() {
     }
 
     suspend fun uploadItems(items: List<FileData>) {
+        if (thumbnailJobs.isNotEmpty() || imageJobs.isNotEmpty()) {
+            filesWaiting.addAll(items)
+            return
+        }
+
         uploadedFiles.addAll(items)
         coroutineScope {
-            val thumbnailJobs = items.filter { it.isThumbnail }.map { item ->
+            thumbnailJobs = items.filter { it.isThumbnail }.map { item ->
                 delay(500)
                 launch {
                     uploadItem(item)
@@ -152,7 +160,7 @@ class UploadService : Service() {
                 }
             }
 
-            val imageJobs = items.filter { !it.isThumbnail }.map { item ->
+            imageJobs = items.filter { !it.isThumbnail }.map { item ->
                 delay(500)
                 launch {
                     uploadItem(item)
@@ -170,8 +178,19 @@ class UploadService : Service() {
         }
     }
 
-    private fun resetUpload() {
+    private suspend fun resetUpload() {
         jobMap.clear()
+        thumbnailJobs = mutableListOf()
+        imageJobs = mutableListOf()
+
+        if (filesWaiting.isNotEmpty()) {
+            val filesToUpload: MutableList<FileData> = mutableListOf()
+            filesToUpload.addAll(filesWaiting)
+            filesWaiting.clear()
+            uploadItems(filesToUpload)
+            return
+        }
+
         uploadingFinished(uploadedFiles)
         uploadedFiles.clear()
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -258,7 +277,6 @@ class UploadService : Service() {
         )
 
         val jsonObject = jsonMessage.messageToJson()
-        Timber.d("Message object: $jsonObject")
         CoroutineScope(Dispatchers.Default).launch {
             chatRepositoryImpl.sendMessage(jsonObject)
         }

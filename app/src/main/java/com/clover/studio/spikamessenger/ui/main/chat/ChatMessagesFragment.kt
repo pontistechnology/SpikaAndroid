@@ -128,6 +128,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private var uploadFiles: ArrayList<FileData> = ArrayList()
     private var selectedFiles: MutableList<Uri> = ArrayList()
     private var uriPairList: MutableList<Pair<Uri, Uri>> = mutableListOf()
+    private var temporaryMessages: MutableList<Message> = mutableListOf()
 
     private lateinit var fileUploadService: UploadService
     private var bound = false
@@ -1447,8 +1448,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
             tempFilesToCreate.clear()
 
-            if (unsentMessages.isNotEmpty()) {
-                for (unsentMessage in unsentMessages) {
+            if (temporaryMessages.isNotEmpty()) {
+                for (unsentMessage in temporaryMessages) {
                     if (Const.JsonFields.IMAGE_TYPE == unsentMessage.type ||
                         Const.JsonFields.VIDEO_TYPE == unsentMessage.type
                     ) {
@@ -1479,6 +1480,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                         filesSelected.removeFirst()
                     }
                 }
+                temporaryMessages.clear()
             }
         }
     }
@@ -1492,6 +1494,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             unsentMessages = unsentMessages
         )
 
+        temporaryMessages.add(tempMessage)
         unsentMessages.add(tempMessage)
         viewModel.storeMessageLocally(tempMessage)
     }
@@ -1543,19 +1546,16 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             exoPlayer!!.release()
         }
         viewModel.unregisterSharedPrefsReceiver()
+
+        if (bound) {
+            requireActivity().unbindService(serviceConnection)
+        }
+        bound = false
     }
 
     override fun onPause() {
         super.onPause()
         listState = bindingSetup.rvChat.layoutManager?.onSaveInstanceState()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        if (bound) {
-            requireActivity().unbindService(serviceConnection)
-        }
-        bound = false
     }
 
     /** Upload service */
@@ -1597,8 +1597,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
                 if (uploadedFiles.isNotEmpty()) {
                     uploadedFiles.forEach { item ->
-                        if (item.messageStatus == Resource.Status.ERROR ||
-                            item.messageStatus == Resource.Status.LOADING ||
+                        if (Resource.Status.ERROR == item.messageStatus ||
+                            Resource.Status.LOADING == item.messageStatus ||
                             item.messageStatus == null
                         ) {
                             if (!item.isThumbnail) {
