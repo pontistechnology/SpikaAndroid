@@ -15,6 +15,7 @@ import com.clover.studio.spikamessenger.utils.CHANNEL_ID
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.UploadDownloadManager
+import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -44,6 +44,10 @@ class UploadService : Service() {
 
     private var uploadCounterThumbnail = 0
     private var uploadCounterImage = 0
+
+    private var thumbnailJobs: List<Job> = mutableListOf()
+    private var imageJobs: List<Job> = mutableListOf()
+    private var filesWaiting: MutableList<FileData> = mutableListOf()
 
     private val jobMap: MutableMap<String?, Job> = mutableMapOf()
 
@@ -68,8 +72,6 @@ class UploadService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val items = intent?.getParcelableArrayListExtra<FileData>(Const.IntentExtras.FILES_EXTRA)
-
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.uploading_files))
             .setContentText(getString(R.string.upload_in_progress_notification))
@@ -79,13 +81,6 @@ class UploadService : Service() {
         // Start the foreground service with the notification
         startForeground(Const.Service.UPLOAD_SERVICE_ID, notification)
 
-        // Continue with the upload process
-        uploadJob = CoroutineScope(Dispatchers.Default).launch {
-            items?.toList()?.let { uploadItems(it) }
-            stopForeground(STOP_FOREGROUND_REMOVE) // Stop the foreground service
-            stopSelf() // Stop the service after all items are uploaded
-        }
-
         return START_STICKY
     }
 
@@ -94,10 +89,61 @@ class UploadService : Service() {
         super.onDestroy()
     }
 
-    private suspend fun uploadItems(items: List<FileData>) {
+    suspend fun uploadAvatar(fileData: FileData, isGroup: Boolean) {
+        UploadDownloadManager(mainRepositoryImpl).uploadFile(
+            fileData,
+            object : FileUploadListener {
+                override fun filePieceUploaded() {
+                    // avatar upload doesn't use progress
+                }
+
+                override fun fileUploadError(description: String) {
+                    callbackListener?.uploadError(description)
+                }
+
+                override fun fileUploadVerified(
+                    path: String,
+                    mimeType: String,
+                    thumbId: Long,
+                    fileId: Long,
+                    fileType: String,
+                    messageBody: MessageBody?
+                ) {
+                    val jsonObject = JsonObject()
+                    jsonObject.addProperty(Const.UserData.AVATAR_FILE_ID, fileId)
+
+                    CoroutineScope(Dispatchers.Default).launch {
+                        if (isGroup) {
+                            mainRepositoryImpl.updateRoom(
+                                jsonObject,
+                                fileData.roomId,
+                                0
+                            )
+                        } else {
+                            mainRepositoryImpl.updateUserData(jsonObject)
+                        }
+                    }
+                    callbackListener?.avatarUploadFinished()
+                    stopForeground(STOP_FOREGROUND_REMOVE)
+                    stopSelf()
+                    return
+                }
+
+                override fun fileCanceledListener(messageId: String?) {
+                    // avatar upload cannot be cancelled
+                }
+            })
+    }
+
+    suspend fun uploadItems(items: List<FileData>) {
+        if (thumbnailJobs.isNotEmpty() || imageJobs.isNotEmpty()) {
+            filesWaiting.addAll(items)
+            return
+        }
+
         uploadedFiles.addAll(items)
         coroutineScope {
-            val thumbnailJobs = items.filter { it.isThumbnail }.map { item ->
+            thumbnailJobs = items.filter { it.isThumbnail }.map { item ->
                 delay(500)
                 launch {
                     uploadItem(item)
@@ -114,7 +160,7 @@ class UploadService : Service() {
                 }
             }
 
-            val imageJobs = items.filter { !it.isThumbnail }.map { item ->
+            imageJobs = items.filter { !it.isThumbnail }.map { item ->
                 delay(500)
                 launch {
                     uploadItem(item)
@@ -132,10 +178,23 @@ class UploadService : Service() {
         }
     }
 
-    private fun resetUpload() {
+    private suspend fun resetUpload() {
         jobMap.clear()
+        thumbnailJobs = mutableListOf()
+        imageJobs = mutableListOf()
+
+        if (filesWaiting.isNotEmpty()) {
+            val filesToUpload: MutableList<FileData> = mutableListOf()
+            filesToUpload.addAll(filesWaiting)
+            filesWaiting.clear()
+            uploadItems(filesToUpload)
+            return
+        }
+
         uploadingFinished(uploadedFiles)
         uploadedFiles.clear()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     private suspend fun uploadItem(item: FileData) {
@@ -218,14 +277,15 @@ class UploadService : Service() {
         )
 
         val jsonObject = jsonMessage.messageToJson()
-        Timber.d("Message object: $jsonObject")
         CoroutineScope(Dispatchers.Default).launch {
             chatRepositoryImpl.sendMessage(jsonObject)
         }
     }
 
     interface FileUploadCallback {
-        fun updateUploadProgressBar(progress: Int, maxProgress: Int, localId: String?)
-        fun uploadingFinished(uploadedFiles: MutableList<FileData>)
+        fun updateUploadProgressBar(progress: Int, maxProgress: Int, localId: String?) {}
+        fun uploadingFinished(uploadedFiles: MutableList<FileData>) {}
+        fun uploadError(description: String) {}
+        fun avatarUploadFinished() {}
     }
 }

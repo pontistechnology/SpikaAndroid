@@ -1,5 +1,6 @@
 package com.clover.studio.spikamessenger.ui.main
 
+import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -20,6 +21,7 @@ import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SSERepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.ui.main.chat.FileUploadVerified
+import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.SSEListener
@@ -290,7 +292,7 @@ class MainViewModel @Inject constructor(
                     }
 
                     override fun fileCanceledListener(messageId: String?) {
-
+                        // ignore
                     }
                 })
         } catch (ex: Exception) {
