@@ -107,6 +107,11 @@ class ForwardBottomSheet(
 
                 rvSelected.visibility = View.VISIBLE
                 fabForward.visibility = View.VISIBLE
+            } else {
+                selectedChats.remove(it)
+                selectedAdapter.submitList(selectedChats.toMutableList())
+
+                refreshAdapter(it, false)
             }
         }
 
