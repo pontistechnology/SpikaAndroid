@@ -295,32 +295,13 @@ class Const {
 
             const val CREATED_GROUP = "created_group"
             const val USER_LEFT_GROUP = "user_left_group"
-            const val UPDATED_GROUP = "updated_group"
             const val UPDATED_GROUP_NAME = "updated_group_name"
             const val UPDATED_GROUP_AVATAR = "updated_group_avatar"
-            const val UPDATED_GROUP_ADMINS = "updated_group_admins"
             const val UPDATED_GROUP_MEMBERS = "updated_group_members"
             const val ADDED_GROUP_MEMBERS = "added_group_members"
             const val REMOVED_GROUP_MEMBERS = "removed_group_members"
             const val ADDED_GROUP_ADMINS = "added_group_admins"
             const val REMOVED_GROUP_ADMINS = "removed_group_admins"
-
-//            val actionMap = mapOf(
-//                CREATED_NOTE to "created note",
-//                UPDATED_NOTE to "updated note",
-//                DELETED_NOTE to "deleted note",
-//                CREATED_GROUP to "created the group",
-//                USER_LEFT_GROUP to "left the group",
-//                UPDATED_GROUP to "updated the group",
-//                UPDATED_GROUP_NAME to "changed the name of group to",
-//                UPDATED_GROUP_AVATAR to "updated the avatar of group",
-//                UPDATED_GROUP_ADMINS to "updated the admin status of",
-//                UPDATED_GROUP_MEMBERS to "updated group member/s",
-//                ADDED_GROUP_MEMBERS to "added",
-//                REMOVED_GROUP_MEMBERS to "removed",
-//                ADDED_GROUP_ADMINS to "added",
-//                REMOVED_GROUP_ADMINS to "removed"
-//            )
         }
     }
 }
