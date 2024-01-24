@@ -130,8 +130,8 @@ class GroupInformationFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun initializeViews() {
-        binding.fabDone.setOnClickListener {
+    private fun initializeViews() = with(binding) {
+        fabDone.setOnClickListener {
             val jsonObject = JsonObject()
 
             val userIdsArray = JsonArray()
@@ -143,7 +143,7 @@ class GroupInformationFragment : BaseFragment() {
 
             jsonObject.addProperty(
                 Const.JsonFields.NAME,
-                binding.etEnterUsername.text.toString().trim()
+                etEnterUsername.text.toString().trim()
             )
             jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarFileId)
             jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
@@ -155,18 +155,18 @@ class GroupInformationFragment : BaseFragment() {
             viewModel.roomUsers.clear()
         }
 
-        binding.tvPeopleSelected.text = getString(R.string.s_people_selected, selectedUsers.size)
+        tvPeopleSelected.text = getString(R.string.s_people_selected, selectedUsers.size)
         adapter.submitList(selectedUsers)
 
-        binding.etEnterUsername.addTextChangedListener {
-            binding.fabDone.visibility = if (binding.etEnterUsername.text.isNotEmpty()) {
+        etEnterUsername.addTextChangedListener {
+            fabDone.visibility = if (etEnterUsername.text.isNotEmpty()) {
                 View.VISIBLE
             } else {
                 View.GONE
             }
         }
 
-        binding.etEnterUsername.setOnFocusChangeListener { view, hasFocus ->
+        etEnterUsername.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
                     hideKeyboard(view)
@@ -174,7 +174,7 @@ class GroupInformationFragment : BaseFragment() {
             }
         }
 
-        binding.profilePicture.ivPickAvatar.setOnClickListener {
+        profilePicture.ivPickAvatar.setOnClickListener {
             ChooserDialog.getInstance(requireContext(),
                 getString(R.string.placeholder_title),
                 null,
@@ -191,8 +191,12 @@ class GroupInformationFragment : BaseFragment() {
                 })
         }
 
-        binding.ivCancel.setOnClickListener {
-            activity?.onBackPressedDispatcher?.onBackPressed()
+        ivCancel.setOnClickListener {
+            goBack()
+        }
+
+        ivAddMoreUsers.setOnClickListener {
+            goBack()
         }
     }
 
@@ -364,5 +368,9 @@ class GroupInformationFragment : BaseFragment() {
             object : DialogInteraction {
                 // Ignore
             })
+    }
+
+    private fun goBack() {
+        activity?.onBackPressedDispatcher?.onBackPressed()
     }
 }
