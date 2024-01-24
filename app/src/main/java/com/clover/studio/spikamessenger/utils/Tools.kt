@@ -1018,14 +1018,18 @@ object Tools {
     }
 
     fun applyStyleSpan(text: SpannableString, target: String, style: Int) {
-        val index = text.toString().lowercase(Locale.ROOT).indexOf(target.lowercase(Locale.ROOT))
-        if (index != -1) {
+        val lowerCaseText = text.toString().lowercase(Locale.ROOT)
+        val lowerCaseTarget = target.lowercase(Locale.ROOT)
+
+        var index = lowerCaseText.indexOf(lowerCaseTarget)
+        while (index != -1) {
             text.setSpan(
                 StyleSpan(style),
                 index,
                 index + target.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
+            index = lowerCaseText.indexOf(lowerCaseTarget, index + 1)
         }
     }
 }
