@@ -81,7 +81,7 @@
                 android:layout_marginEnd="@dimen/four_dp_margin"
                 android:layout_weight="1"
                 android:backgroundTint="?attr/primaryColor"
-                android:text="@string/rooms"
+                android:text="@string/chats"
                 android:textAllCaps="false"
                 android:textAppearance="@style/CustomTextBody"
                 android:textColor="?attr/primaryTextColor" />
