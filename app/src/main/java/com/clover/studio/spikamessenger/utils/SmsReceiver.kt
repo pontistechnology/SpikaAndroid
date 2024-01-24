@@ -28,6 +28,7 @@ class SmsReceiver : BroadcastReceiver() {
                     mListener?.messageReceived(formattedMessage)
                     Timber.d("MESSAGE $message")
                 }
+
                 CommonStatusCodes.TIMEOUT -> {
                     Timber.d("MESSAGE TIMEOUT")
                 }

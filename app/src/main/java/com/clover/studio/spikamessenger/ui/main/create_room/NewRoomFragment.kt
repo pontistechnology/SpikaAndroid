@@ -154,7 +154,7 @@ class NewRoomFragment : BaseFragment() {
             userIds.add(data.userId)
         }
 
-        val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
+        val userIdsInRoom = args?.userIds?.map { it }
         if (userIdsInRoom?.isNotEmpty() == true) {
             for (id in userIdsInRoom) {
                 userIds.add(id)
@@ -183,7 +183,7 @@ class NewRoomFragment : BaseFragment() {
     private fun setupAdapter(isGroupCreation: Boolean) = with(binding) {
         // Check if there are some userIds already in Room if we are adding Room users
         // This is only for adding users to Room
-        val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
+        val userIdsInRoom = args?.userIds?.map { it }
 
         contactsAdapter =
             UsersGroupsAdapter(
