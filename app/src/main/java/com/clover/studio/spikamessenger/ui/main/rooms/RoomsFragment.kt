@@ -151,16 +151,18 @@ class RoomsFragment : BaseFragment() {
 
         viewModel.searchedMessageListener.observe(
             viewLifecycleOwner,
-            EventObserver { messagesWithRooms ->
-                when (messagesWithRooms.status) {
+            EventObserver { searchMessage ->
+                when (searchMessage.first.status) {
                     Resource.Status.SUCCESS -> {
                         // Sort searched messages by roomId and then by createdAt
-                        val sortedList = messagesWithRooms.responseData?.sortedWith(
+                        val sortedList = searchMessage.first.responseData?.sortedWith(
                             compareBy(
                                 { it.roomWithUsers?.room?.roomId },
                                 { it.message.createdAt }
                             )
                         )
+                        searchAdapter.setSearchedMessagesBold(searchMessage.second)
+                        searchAdapter.submitList(null)
                         searchAdapter.submitList(sortedList)
                     }
 

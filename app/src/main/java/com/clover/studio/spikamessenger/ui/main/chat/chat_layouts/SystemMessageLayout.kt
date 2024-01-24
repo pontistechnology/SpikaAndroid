@@ -2,14 +2,13 @@ package com.clover.studio.spikamessenger.ui.main.chat.chat_layouts
 
 import android.content.Context
 import android.graphics.Typeface
-import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
-import android.text.style.StyleSpan
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.Tools
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -124,22 +123,10 @@ class SystemMessageLayout(private var context: Context) {
             else -> SpannableString("")
         }
 
-        applyStyleSpan(text, subjectName)
-        applyStyleSpan(text, objectNames ?: "")
+        Tools.applyStyleSpan(text, subjectName, Typeface.BOLD)
+        Tools.applyStyleSpan(text, objectNames ?: "", Typeface.BOLD)
 
         return text
-    }
-
-    private fun applyStyleSpan(text: SpannableString, target: String) {
-        val index = text.indexOf(target)
-        if (index != -1) {
-            text.setSpan(
-                StyleSpan(Typeface.BOLD),
-                index,
-                index + target.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
     }
 
     private fun getAction(context: Context, type: String): String {
