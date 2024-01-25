@@ -1,6 +1,5 @@
 package com.clover.studio.spikamessenger.ui.main
 
-import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -21,7 +20,6 @@ import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SSERepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.ui.main.chat.FileUploadVerified
-import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.SSEListener
@@ -57,7 +55,8 @@ class MainViewModel @Inject constructor(
     val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
     val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
     val deleteUserListener = MutableLiveData<Event<Resource<DeleteUserResponse?>>>()
-    val searchedMessageListener = MutableLiveData<Event<Resource<List<MessageWithRoom>?>>>()
+    val searchedMessageListener =
+        MutableLiveData<Event<Pair<Resource<List<MessageWithRoom>?>, String>>>()
     val contactListener = MutableLiveData<Event<Resource<List<UserAndPhoneUser>?>>>()
     val recentContacts = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
     val allGroupsListener = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
@@ -135,7 +134,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun getSearchedMessages(query: String) = viewModelScope.launch {
-        resolveResponseStatus(searchedMessageListener, repository.getSearchedMessages(query))
+        searchedMessageListener.postValue(Event(Pair(repository.getSearchedMessages(query), query)))
     }
 
     fun getUserAndPhoneUserLiveData(localId: Int) = repository.getUserAndPhoneUserLiveData(localId)
@@ -155,12 +154,10 @@ class MainViewModel @Inject constructor(
     }
 
     fun getAllGroups() = viewModelScope.launch {
-        resolveResponseStatus(allGroupsListener, repository.getAllGroups()   )
+        resolveResponseStatus(allGroupsListener, repository.getAllGroups())
     }
 
     fun getRoomsLiveData() = repository.getRoomsUnreadCount()
-
-    fun getRoomByIdLiveData(roomId: Int) = repository.getRoomByIdLiveData(roomId)
 
     fun getRoomWithUsers(roomId: Int) =
         viewModelScope.launch {

@@ -24,8 +24,11 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.TextUtils
 import android.text.format.DateUtils
+import android.text.style.StyleSpan
 import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
@@ -1011,6 +1014,22 @@ object Tools {
             val newHeight = (ratio * newWidth).toInt()
             Timber.d("Image resize resized 3 = $newWidth, $newHeight")
             Pair(newWidth, newHeight)
+        }
+    }
+
+    fun applyStyleSpan(text: SpannableString, target: String, style: Int) {
+        val lowerCaseText = text.toString().lowercase(Locale.ROOT)
+        val lowerCaseTarget = target.lowercase(Locale.ROOT)
+
+        var index = lowerCaseText.indexOf(lowerCaseTarget)
+        while (index != -1) {
+            text.setSpan(
+                StyleSpan(style),
+                index,
+                index + target.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            index = lowerCaseText.indexOf(lowerCaseTarget, index + 1)
         }
     }
 }

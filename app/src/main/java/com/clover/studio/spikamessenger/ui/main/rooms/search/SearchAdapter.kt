@@ -1,5 +1,7 @@
 package com.clover.studio.spikamessenger.ui.main.rooms.search
 
+import android.graphics.Typeface
+import android.text.SpannableString
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +17,9 @@ class SearchAdapter(
     private val localUserId: String,
     private val onItemClick: ((messageWithRoom: MessageWithRoom) -> Unit)
 ) : ListAdapter<MessageWithRoom, SearchAdapter.SearchViewHolder>(SearchDiffCallback()) {
+
+    private var searchQuery = ""
+
     inner class SearchViewHolder(val binding: ItemMessageSearchBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -39,7 +44,14 @@ class SearchAdapter(
                         it
                     )
                 }
-                binding.tvMessageContent.text = item.message.body?.text
+
+                binding.tvMessageContent.text = if (searchQuery.isEmpty()) {
+                    item.message.body?.text
+                } else {
+                    val spannableText = SpannableString(item.message.body?.text)
+                    Tools.applyStyleSpan(spannableText, searchQuery, Typeface.BOLD)
+                    spannableText
+                }
 
                 // If private room, display the name of the other user in the room, no matter what
                 // the room name is
@@ -85,6 +97,9 @@ class SearchAdapter(
         }
     }
 
+    fun setSearchedMessagesBold(query: String) {
+        searchQuery = query
+    }
 
     private class SearchDiffCallback : DiffUtil.ItemCallback<MessageWithRoom>() {
 

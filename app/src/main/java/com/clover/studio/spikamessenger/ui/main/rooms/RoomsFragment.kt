@@ -3,6 +3,8 @@ package com.clover.studio.spikamessenger.ui.main.rooms
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.MenuItem.OnActionExpandListener
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
@@ -151,16 +153,18 @@ class RoomsFragment : BaseFragment() {
 
         viewModel.searchedMessageListener.observe(
             viewLifecycleOwner,
-            EventObserver { messagesWithRooms ->
-                when (messagesWithRooms.status) {
+            EventObserver { searchMessage ->
+                when (searchMessage.first.status) {
                     Resource.Status.SUCCESS -> {
                         // Sort searched messages by roomId and then by createdAt
-                        val sortedList = messagesWithRooms.responseData?.sortedWith(
+                        val sortedList = searchMessage.first.responseData?.sortedWith(
                             compareBy(
                                 { it.roomWithUsers?.room?.roomId },
                                 { it.message.createdAt }
                             )
                         )
+                        searchAdapter.setSearchedMessagesBold(searchMessage.second)
+                        searchAdapter.submitList(null)
                         searchAdapter.submitList(sortedList)
                     }
 
@@ -179,6 +183,32 @@ class RoomsFragment : BaseFragment() {
         }
 
         topAppBar.setOnMenuItemClickListener { menuItem ->
+            menuItem.setOnActionExpandListener(object : OnActionExpandListener {
+                override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                    // Handle views when search view is opened
+                    if (R.id.search_menu_icon == item.itemId) {
+                        llSearchRoomsMessages.visibility = View.VISIBLE
+                        fabNewRoom.visibility = View.GONE
+                    }
+                    return true
+                }
+
+                override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                    // Handle views when search view is collapsed
+                    if (R.id.search_menu_icon == item.itemId) {
+                        llSearchRoomsMessages.visibility = View.GONE
+                        rvMessages.visibility = View.GONE
+                        rvRooms.visibility = View.VISIBLE
+                        fabNewRoom.visibility = View.VISIBLE
+                        btnSearchRooms.isSelected = true
+                        btnSearchMessages.isSelected = false
+
+                        searchAdapter.submitList(ArrayList())
+                    }
+                    return true
+                }
+            })
+
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
                     searchView = menuItem.actionView as SearchView
@@ -191,10 +221,7 @@ class RoomsFragment : BaseFragment() {
                     }
 
                     setupSearchAdapter()
-                    setupSearchView(searchView)
                     setSearch(searchView)
-
-                    menuItem.expandActionView()
 
                     btnSearchRooms.backgroundTintList = primaryColor
                     btnSearchMessages.backgroundTintList = fourthAdditionalColor
@@ -243,27 +270,6 @@ class RoomsFragment : BaseFragment() {
             isMotionEventSplittingEnabled = false
             adapter = roomsAdapter
             layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        }
-    }
-
-    private fun setupSearchView(searchView: SearchView?) = with(binding) {
-        searchView?.setOnQueryTextFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                llSearchRoomsMessages.visibility = View.VISIBLE
-            } else {
-                llSearchRoomsMessages.visibility = View.GONE
-                rvMessages.visibility = View.GONE
-                rvRooms.visibility = View.VISIBLE
-                btnSearchRooms.isSelected = true
-                btnSearchMessages.isSelected = false
-
-                searchAdapter.submitList(ArrayList())
-
-                binding.topAppBar.menu.findItem(R.id.search_menu_icon).apply {
-                    collapseActionView()
-                    isVisible = true
-                }
-            }
         }
     }
 
