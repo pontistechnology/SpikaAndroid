@@ -114,9 +114,9 @@ class ChatViewModel @Inject constructor(
         repository.sendMessagesSeen(roomId)
     }
 
-    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int, roomSize: Int) =
+    fun updateRoom(jsonObject: JsonObject, roomId: Int, roomSize: Int) =
         viewModelScope.launch {
-            val response = repository.updateRoom(jsonObject, roomId, userId)
+            val response = repository.updateRoom(jsonObject, roomId)
 
             if (response.status == Resource.Status.SUCCESS) {
                 val updated = UpdatedRoom(
@@ -289,62 +289,6 @@ class ChatViewModel @Inject constructor(
     fun cancelUploadFile(messageId: String) = viewModelScope.launch {
         mainRepository.cancelUpload(messageId)
     }
-
-    fun uploadFile(
-        fileData: FileData
-    ) =
-        viewModelScope.launch {
-            try {
-                uploadDownloadManager.uploadFile(
-                    fileData,
-                    object : FileUploadListener {
-                        override fun filePieceUploaded() {
-                            resolveResponseStatus(
-                                fileUploadListener,
-                                Resource(Resource.Status.LOADING, null, "")
-                            )
-                        }
-
-                        override fun fileUploadError(description: String) {
-                            resolveResponseStatus(
-                                fileUploadListener,
-                                Resource(Resource.Status.ERROR, null, description)
-                            )
-                        }
-
-                        override fun fileUploadVerified(
-                            path: String,
-                            mimeType: String,
-                            thumbId: Long,
-                            fileId: Long,
-                            fileType: String,
-                            messageBody: MessageBody?
-                        ) {
-                            val response =
-                                FileUploadVerified(
-                                    path,
-                                    mimeType,
-                                    thumbId,
-                                    fileId,
-                                    messageBody,
-                                )
-                            resolveResponseStatus(
-                                fileUploadListener,
-                                Resource(Resource.Status.SUCCESS, response, "")
-                            )
-                        }
-
-                        override fun fileCanceledListener(messageId: String?) {
-                            // Ignore
-                        }
-                    })
-            } catch (ex: Exception) {
-                resolveResponseStatus(
-                    fileUploadListener,
-                    Resource(Resource.Status.ERROR, null, ex.message.toString())
-                )
-            }
-        }
 }
 
 class NoteDeletion(val response: Resource<NotesResponse>)

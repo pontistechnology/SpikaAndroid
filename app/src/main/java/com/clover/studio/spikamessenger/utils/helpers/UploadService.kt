@@ -114,10 +114,13 @@ class UploadService : Service() {
 
                     CoroutineScope(Dispatchers.Default).launch {
                         if (isGroup) {
+                            jsonObject.addProperty(
+                                Const.JsonFields.ACTION,
+                                Const.JsonFields.CHANGE_GROUP_AVATAR
+                            )
                             mainRepositoryImpl.updateRoom(
                                 jsonObject,
-                                fileData.roomId,
-                                0
+                                fileData.roomId
                             )
                         } else {
                             mainRepositoryImpl.updateUserData(jsonObject)

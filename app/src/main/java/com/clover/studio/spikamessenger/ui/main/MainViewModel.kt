@@ -188,14 +188,12 @@ class MainViewModel @Inject constructor(
         resolveResponseStatus(usersListener, repository.updateUserData(jsonObject))
     }
 
-    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
-        CoroutineScope(Dispatchers.IO).launch {
-            Timber.d("RoomDataCalled")
-            resolveResponseStatus(
-                createRoomListener,
-                repository.updateRoom(jsonObject, roomId, userId)
-            )
-        }
+    fun updateRoom(jsonObject: JsonObject, roomId: Int) = viewModelScope.launch {
+        resolveResponseStatus(
+            createRoomListener,
+            repository.updateRoom(jsonObject = jsonObject, roomId = roomId)
+        )
+    }
 
     fun unregisterSharedPrefsReceiver() = viewModelScope.launch {
         sharedPrefsRepo.unregisterSharedPrefsReceiver()

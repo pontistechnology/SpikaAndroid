@@ -139,8 +139,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun updateRoom(
         jsonObject: JsonObject,
-        roomId: Int,
-        userId: Int
+        roomId: Int
     ): Resource<RoomResponse> {
         val response = performRestOperation(
             networkCall = { chatRemoteDataSource.updateRoom(jsonObject, roomId) })
@@ -158,21 +157,6 @@ class ChatRepositoryImpl @Inject constructor(
                     val roomUsers: MutableList<RoomUser> = ArrayList()
                     if (response.responseData?.data?.room != null) {
                         val room = response.responseData.data.room
-
-                        // Delete Room User if id has been passed through
-                        if (userId != 0) {
-                            queryDatabaseCoreData(
-                                databaseQuery = {
-                                    roomUserDao.delete(
-                                        RoomUser(
-                                            roomId,
-                                            userId,
-                                            false
-                                        )
-                                    )
-                                }
-                            )
-                        }
 
                         for (user in room.users) {
                             user.user?.let { users.add(it) }
@@ -350,7 +334,7 @@ interface ChatRepository : BaseRepository {
     // Room calls
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     suspend fun getRoomWithUsers(roomId: Int): Resource<RoomWithUsers>
-    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int): Resource<RoomResponse>
+    suspend fun updateRoom(jsonObject: JsonObject, roomId: Int): Resource<RoomResponse>
     suspend fun getRoomUserById(roomId: Int, userId: Int): Boolean?
     suspend fun getSingleRoomData(roomId: Int): Resource<RoomAndMessageAndRecords>
     fun getChatRoomAndMessageAndRecordsById(roomId: Int): LiveData<Resource<RoomAndMessageAndRecords>>

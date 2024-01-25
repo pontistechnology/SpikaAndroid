@@ -313,4 +313,5 @@
         <string name="removed_group_members">removed</string>
         <string name="updated_group_admins">updated admin status of</string>
         <string name="updated_group_members">updated group member/s</string>
+    <string name="dismiss_as_admin">Dismiss as admin</string>
 </resources>

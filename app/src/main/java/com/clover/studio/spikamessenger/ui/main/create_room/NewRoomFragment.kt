@@ -159,7 +159,7 @@ class NewRoomFragment : BaseFragment() {
             jsonObject.add(Const.JsonFields.USER_IDS, userIds)
         }
 
-        args?.roomId?.let { viewModel.updateRoom(jsonObject, it, 0) }
+        args?.roomId?.let { viewModel.updateRoom(jsonObject, it) }
     }
 
     private fun handleGroupChat() = with(binding) {
