@@ -114,7 +114,7 @@ data class MessageBody(
     var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?,
-    val type: String,
+    val type: String?,
     val subjectId: Int?,
     val subject: String?,
     val objectIds: List<Int>?,
