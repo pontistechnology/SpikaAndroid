@@ -135,12 +135,21 @@ class Const {
             const val NAME = "name"
             const val AVATAR_FILE_ID = "avatarFileId"
             const val USER_IDS = "userIds"
+            const val ACTION = "action"
             const val ADMIN_USER_IDS = "adminUserIds"
             const val PRIVATE = "private"
             const val GROUP = "group"
             const val BODY = "body"
             const val MESSAGE_IDS = "messageIds"
             const val REACTION = "reaction"
+
+            // Room actions
+            const val ADD_GROUP_USERS = "addGroupUsers"
+            const val REMOVE_GROUP_USERS = "removeGroupUsers"
+            const val ADD_GROUP_ADMINS = "addGroupAdmins"
+            const val REMOVE_GROUP_ADMINS = "removeGroupAdmins"
+            const val CHANGE_GROUP_NAME = "changeGroupName"
+            const val CHANGE_GROUP_AVATAR = "changeGroupAvatar"
 
             // Reply
             const val REPLY_ID = "replyId"

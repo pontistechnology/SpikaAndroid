@@ -658,13 +658,11 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         val jsonObject = JsonObject()
         val userIds = JsonArray()
 
-        roomUsers.forEach {
-            userIds.add(it.id)
-        }
-
+        userIds.add(idToRemove)
+        jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.REMOVE_GROUP_USERS)
         jsonObject.add(Const.JsonFields.USER_IDS, userIds)
 
-        roomId?.let { viewModel.updateRoom(jsonObject, it, idToRemove, roomUsers.size) }
+        roomId?.let { viewModel.updateRoom(jsonObject, it, 0, roomUsers.size) }
     }
 
     override fun onStop() {
