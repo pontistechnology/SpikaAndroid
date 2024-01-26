@@ -352,8 +352,10 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private fun initListeners() = with(bindingSetup) {
         chatHeader.clHeader.setOnClickListener {
             if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
-                roomWithUsers?.users!!.firstOrNull { user -> user.id != localUserId }?.let {
-                    handleChatNavigation(it)
+                roomWithUsers?.let { roomUsers ->
+                    roomUsers.users.firstOrNull { user -> user.id != localUserId }?.let {
+                        handleChatNavigation(it)
+                    }
                 }
             } else {
                 val action =
@@ -1169,7 +1171,13 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun handleUserDetailsNavigation(message: Message) {
-        roomWithUsers!!.users.firstOrNull { it.id == message.fromUserId }?.let { handleChatNavigation(it) }
+        roomWithUsers?.let { roomWithUsers ->
+            roomWithUsers.users.firstOrNull { roomUser ->
+                roomUser.id == message.fromUserId
+            }?.let { user ->
+                handleChatNavigation(user)
+            }
+        }
     }
 
     private fun handleChatNavigation(user: User) {
@@ -1177,7 +1185,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         val bundle =
             bundleOf(
                 Const.Navigation.USER_PROFILE to privateGroupUser,
-                Const.Navigation.ROOM_ID to roomWithUsers!!.room.roomId,
+                Const.Navigation.ROOM_ID to roomWithUsers?.room?.roomId,
                 Const.Navigation.ROOM_DATA to roomWithUsers!!.room
             )
         findNavController().navigate(
