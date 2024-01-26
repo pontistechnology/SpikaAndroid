@@ -1186,7 +1186,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             bundleOf(
                 Const.Navigation.USER_PROFILE to privateGroupUser,
                 Const.Navigation.ROOM_ID to roomWithUsers?.room?.roomId,
-                Const.Navigation.ROOM_DATA to roomWithUsers!!.room
+                Const.Navigation.ROOM_DATA to roomWithUsers?.room
             )
         findNavController().navigate(
             R.id.action_chatMessagesFragment_to_contactDetailsFragment,
