@@ -154,17 +154,12 @@ class NewRoomFragment : BaseFragment() {
             userIds.add(data.userId)
         }
 
-        val userIdsInRoom = args?.userIds?.map { it }
-        if (userIdsInRoom?.isNotEmpty() == true) {
-            for (id in userIdsInRoom) {
-                userIds.add(id)
-            }
+        if (userIds.size() > 0) {
+            jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.ADD_GROUP_USERS)
+            jsonObject.add(Const.JsonFields.USER_IDS, userIds)
         }
 
-        if (userIds.size() > 0)
-            jsonObject.add(Const.JsonFields.USER_IDS, userIds)
-
-        args?.roomId?.let { viewModel.updateRoom(jsonObject, it, 0) }
+        args?.roomId?.let { viewModel.updateRoom(jsonObject, it) }
     }
 
     private fun handleGroupChat() = with(binding) {

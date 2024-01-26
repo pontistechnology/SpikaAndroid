@@ -233,7 +233,7 @@ class MainRepositoryImpl @Inject constructor(
         return data
     }
 
-    override suspend fun forwardMessages(jsonObject: JsonObject) : Resource<ForwardMessagesResponse>{
+    override suspend fun forwardMessages(jsonObject: JsonObject): Resource<ForwardMessagesResponse> {
         val data = performRestOperation(
             networkCall = { mainRemoteDataSource.forwardMessages(jsonObject) },
             saveCallResult = {
@@ -291,8 +291,7 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun updateRoom(
         jsonObject: JsonObject,
-        roomId: Int,
-        userId: Int
+        roomId: Int
     ): Resource<RoomResponse> {
         val response = performRestOperation(
             networkCall = { mainRemoteDataSource.updateRoom(jsonObject, roomId) },
@@ -301,11 +300,6 @@ class MainRepositoryImpl @Inject constructor(
 
         if (response.responseData?.data?.room != null) {
             val room = response.responseData.data.room
-
-            // Delete Room User if id has been passed through
-            if (userId != 0) {
-                roomUserDao.delete(RoomUser(roomId, userId, false))
-            }
 
             CoroutineScope(Dispatchers.IO).launch {
                 appDatabase.runInTransaction {
@@ -427,7 +421,7 @@ interface MainRepository : BaseRepository {
     suspend fun getUserByID(id: Int): LiveData<Resource<User>>
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
-    suspend fun forwardMessages(jsonObject: JsonObject) : Resource<ForwardMessagesResponse>
+    suspend fun forwardMessages(jsonObject: JsonObject): Resource<ForwardMessagesResponse>
     fun getUserAndPhoneUserLiveData(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
     suspend fun getUserAndPhoneUser(localId: Int): Resource<List<UserAndPhoneUser>>
     suspend fun deleteUser(): Resource<DeleteUserResponse>
@@ -449,8 +443,7 @@ interface MainRepository : BaseRepository {
     suspend fun getAllGroups(): Resource<List<RoomWithUsers>>
     suspend fun updateRoom(
         jsonObject: JsonObject,
-        roomId: Int,
-        userId: Int
+        roomId: Int
     ): Resource<RoomResponse>
 
     suspend fun getUnreadCount()

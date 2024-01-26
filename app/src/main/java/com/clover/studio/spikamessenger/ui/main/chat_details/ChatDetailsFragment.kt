@@ -65,7 +65,6 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
     private var currentPhotoLocation: Uri = Uri.EMPTY
     private var roomUsers: MutableList<User> = ArrayList()
     private lateinit var roomWithUsers: RoomWithUsers
-    private var progress: Long = 1L
     private var uploadPieces: Int = 0
     private var roomId: Int? = null
     private var isAdmin = false
@@ -357,6 +356,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         tvGroupName.setOnClickListener {
             if (roomWithUsers.room.type.toString() == Const.JsonFields.GROUP && isAdmin) {
                 tilEnterGroupName.visibility = View.VISIBLE
+                etEnterGroupName.setText(tvGroupName.text)
+                showKeyboard(etEnterGroupName)
                 tvGroupPlaceholder.visibility = View.GONE
                 ivDone.visibility = View.VISIBLE
                 tvGroupName.visibility = View.GONE
@@ -370,7 +371,9 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 jsonObject.addProperty(Const.JsonFields.NAME, roomName)
             }
 
-            viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, 0, roomWithUsers.users.size)
+            jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.CHANGE_GROUP_NAME)
+
+            viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, roomWithUsers.users.size)
 
             ivDone.visibility = View.GONE
             tilEnterGroupName.visibility = View.GONE
@@ -486,6 +489,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         val adminText = if (Const.JsonFields.GROUP == roomType) {
             if (isAdmin && !user.isAdmin) {
                 getString(R.string.make_group_admin)
+            } else if (isAdmin) {
+                getString(R.string.dismiss_as_admin)
             } else {
                 null
             }
@@ -505,8 +510,14 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                     }
 
                     override fun onSecondOptionClicked() {
-                        user.isAdmin = true
-                        makeAdmin()
+                        if (getString(R.string.dismiss_as_admin) == adminText) {
+                            user.isAdmin = false
+                            removeAdmin(user.id)
+                        } else {
+                            user.isAdmin = true
+                            makeAdmin(user.id)
+                        }
+
                         modifiedList =
                             roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
                         adapter.submitList(modifiedList.toList())
@@ -535,20 +546,32 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             })
     }
 
-    private fun makeAdmin() {
+    private fun makeAdmin(userId: Int) {
         val jsonObject = JsonObject()
         val adminIds = JsonArray()
 
-        for (user in roomUsers) {
-            if (user.isAdmin)
-                adminIds.add(user.id)
+        adminIds.add(userId)
+
+        if (adminIds.size() > 0) {
+            jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.ADD_GROUP_ADMINS)
+            jsonObject.add(Const.JsonFields.USER_IDS, adminIds)
         }
 
-        if (adminIds.size() > 0)
-            jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminIds)
+        roomId?.let { viewModel.updateRoom(jsonObject, it, roomUsers.size) }
+    }
 
-        roomId?.let { viewModel.updateRoom(jsonObject, it, 0, roomUsers.size) }
+    private fun removeAdmin(userId: Int) {
+        val jsonObject = JsonObject()
+        val adminIds = JsonArray()
 
+        adminIds.add(userId)
+
+        if (adminIds.size() > 0) {
+            jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.REMOVE_GROUP_ADMINS)
+            jsonObject.add(Const.JsonFields.USER_IDS, adminIds)
+        }
+
+        roomId?.let { viewModel.updateRoom(jsonObject, it, roomUsers.size) }
     }
 
     private fun updateRoomUserList(roomWithUsers: RoomWithUsers) {
@@ -658,13 +681,11 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         val jsonObject = JsonObject()
         val userIds = JsonArray()
 
-        roomUsers.forEach {
-            userIds.add(it.id)
-        }
-
+        userIds.add(idToRemove)
+        jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.REMOVE_GROUP_USERS)
         jsonObject.add(Const.JsonFields.USER_IDS, userIds)
 
-        roomId?.let { viewModel.updateRoom(jsonObject, it, idToRemove, roomUsers.size) }
+        roomId?.let { viewModel.updateRoom(jsonObject, it, roomUsers.size) }
     }
 
     override fun onStop() {
