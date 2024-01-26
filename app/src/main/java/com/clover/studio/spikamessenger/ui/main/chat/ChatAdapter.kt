@@ -30,7 +30,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
-import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.ItemMessageMeBinding
 import com.clover.studio.spikamessenger.databinding.ItemMessageOtherBinding
@@ -434,7 +433,7 @@ class ChatAdapter(
                             holder.binding.tvUsername.visibility = View.VISIBLE
                             holder.binding.ivUserImage.apply {
                                 visibility = View.VISIBLE
-                                setOnClickListener {  }
+                                setOnClickListener { }
                             }
                         }
                     }
@@ -782,22 +781,6 @@ class ChatAdapter(
             }
         })
         container.addView(audio)
-    }
-
-    private fun handleMediaResize(body: MessageBody?): Pair<Int, Int> {
-        val imageResized: Pair<Int, Int> = if (body?.thumb != null && body.thumb?.id != 0L) {
-            Tools.resizeImage(
-                body.thumb?.metaData?.width,
-                body.thumb?.metaData?.height
-            )
-        } else {
-            Tools.resizeImage(
-                body?.file?.metaData?.width,
-                body?.file?.metaData?.height
-            )
-        }
-
-        return imageResized
     }
 
     /** A method that sends a reaction to a message */
