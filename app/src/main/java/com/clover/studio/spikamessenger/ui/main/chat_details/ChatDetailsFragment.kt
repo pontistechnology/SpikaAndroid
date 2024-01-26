@@ -356,6 +356,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         tvGroupName.setOnClickListener {
             if (roomWithUsers.room.type.toString() == Const.JsonFields.GROUP && isAdmin) {
                 tilEnterGroupName.visibility = View.VISIBLE
+                etEnterGroupName.setText(tvGroupName.text)
+                showKeyboard(etEnterGroupName)
                 tvGroupPlaceholder.visibility = View.GONE
                 ivDone.visibility = View.VISIBLE
                 tvGroupName.visibility = View.GONE
@@ -552,7 +554,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
         if (adminIds.size() > 0) {
             jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.ADD_GROUP_ADMINS)
-            jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminIds)
+            jsonObject.add(Const.JsonFields.USER_IDS, adminIds)
         }
 
         roomId?.let { viewModel.updateRoom(jsonObject, it, roomUsers.size) }
@@ -566,7 +568,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
         if (adminIds.size() > 0) {
             jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.REMOVE_GROUP_ADMINS)
-            jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminIds)
+            jsonObject.add(Const.JsonFields.USER_IDS, adminIds)
         }
 
         roomId?.let { viewModel.updateRoom(jsonObject, it, roomUsers.size) }

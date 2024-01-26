@@ -189,10 +189,12 @@ class MainViewModel @Inject constructor(
     }
 
     fun updateRoom(jsonObject: JsonObject, roomId: Int) = viewModelScope.launch {
-        resolveResponseStatus(
-            createRoomListener,
-            repository.updateRoom(jsonObject = jsonObject, roomId = roomId)
-        )
+        CoroutineScope(Dispatchers.Default).launch {
+            resolveResponseStatus(
+                createRoomListener,
+                repository.updateRoom(jsonObject = jsonObject, roomId = roomId)
+            )
+        }
     }
 
     fun unregisterSharedPrefsReceiver() = viewModelScope.launch {
