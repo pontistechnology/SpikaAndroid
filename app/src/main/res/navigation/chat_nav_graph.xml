@@ -35,6 +35,9 @@
         <action
             android:id="@+id/action_chatDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />
+        <action
+            android:id="@+id/action_chatDetailsFragment_to_contactDetailsFragment"
+            app:destination="@id/contactDetailsFragment" />
     </fragment>
 
     <fragment

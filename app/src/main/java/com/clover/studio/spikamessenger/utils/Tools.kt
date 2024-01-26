@@ -49,6 +49,7 @@ import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
+import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
@@ -893,18 +894,7 @@ object Tools {
         list: List<RoomWithUsers>
     ): MutableList<PrivateGroupChats> {
         return list.map {
-            PrivateGroupChats(
-                userId = 0,
-                roomId = it.room.roomId,
-                avatarId = it.room.avatarFileId ?: 0L,
-                phoneNumber = null,
-                userName = null,
-                userPhoneName = null,
-                roomName = it.room.name,
-                isRecent = false,
-                isBot = false,
-                selected = false
-            )
+            transformRoomToPrivateGroupChat(it)
         }.toMutableList().sortChats(context).toMutableList()
     }
 
@@ -920,22 +910,38 @@ object Tools {
                         R.string.deleted_user
                     )
                 )
-            }
-                .map { user ->
-                    PrivateGroupChats(
-                        userId = user.id,
-                        roomId = room.room.roomId,
-                        avatarId = user.avatarFileId ?: 0L,
-                        phoneNumber = user.telephoneNumber,
-                        userName = user.formattedDisplayName,
-                        userPhoneName = null,
-                        roomName = null,
-                        isRecent = false,
-                        isBot = user.isBot,
-                        selected = false
-                    )
-                }
+            }.map { user -> transformUserToPrivateGroupChat(user) }
         }.toMutableList().sortChats(context).toMutableList()
+    }
+
+    fun transformUserToPrivateGroupChat(user: User): PrivateGroupChats {
+        return PrivateGroupChats(
+            userId = user.id,
+            userPhoneName = user.displayName ?: "",
+            avatarId = user.avatarFileId ?: 0L,
+            userName = user.formattedDisplayName,
+            phoneNumber = user.telephoneNumber ?: "",
+            roomId = null,
+            roomName = null,
+            isBot = user.isBot,
+            isRecent = false,
+            selected = false
+        )
+    }
+
+    private fun transformRoomToPrivateGroupChat(roomWithUsers: RoomWithUsers) : PrivateGroupChats {
+        return PrivateGroupChats(
+            userId = 0,
+            roomId = roomWithUsers.room.roomId,
+            avatarId = roomWithUsers.room.avatarFileId ?: 0L,
+            phoneNumber = null,
+            userName = null,
+            userPhoneName = null,
+            roomName = roomWithUsers.room.name,
+            isRecent = false,
+            isBot = false,
+            selected = false
+        )
     }
 
     fun setUpSearchBar(

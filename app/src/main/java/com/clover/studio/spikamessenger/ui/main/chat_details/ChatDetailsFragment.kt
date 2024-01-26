@@ -16,7 +16,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -85,6 +87,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
     private var muteSwitch: Drawable? = null
     private var avatarData: FileData? = null
 
+    private var navOptionsBuilder: NavOptions? = null
+
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
             if (it != null) {
@@ -137,6 +141,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         bindingSetup = FragmentChatDetailsBinding.inflate(inflater, container, false)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        navOptionsBuilder = Tools.createCustomNavOptions()
+
         handleUserStatusViews(isAdmin)
         initializeViews(roomWithUsers)
 
@@ -150,7 +156,6 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                     getString(R.string.notes) -> goToNotes()
                     getString(R.string.delete_chat) -> goToDeleteChat()
                     getString(R.string.exit_group) -> goToExitGroup()
-
                 }
             }
 
@@ -159,7 +164,6 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             }
         })
         binding.flOptionsContainer.addView(userOptions)
-
 
         initializeObservers()
 
@@ -403,18 +407,6 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         binding.ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
-
-//        tvSeeMoreLess.setOnClickListener {
-//            if (allUsers) {
-//                adapter.submitList(modifiedList.toList())
-//                tvSeeMoreLess.text = requireContext().getString(R.string.see_less)
-//                allUsers = false
-//            } else {
-//                adapter.submitList(modifiedList.subList(0, 3).toList())
-//                tvSeeMoreLess.text = requireContext().getString(R.string.see_more)
-//                allUsers = true
-//            }
-//        }
     }
 
     private fun goToNotes() {
@@ -499,32 +491,45 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         }
 
         user.formattedDisplayName.let {
-            ChooserDialog.getInstance(requireContext(),
-                it,
-                null,
-                getString(R.string.info),
-                adminText,
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        // TODO("Not yet implemented")
-                    }
-
-                    override fun onSecondOptionClicked() {
-                        if (getString(R.string.dismiss_as_admin) == adminText) {
-                            user.isAdmin = false
-                            removeAdmin(user.id)
-                        } else {
-                            user.isAdmin = true
-                            makeAdmin(user.id)
+            if (user.id != localUserId) {
+                ChooserDialog.getInstance(requireContext(),
+                    it,
+                    null,
+                    getString(R.string.info),
+                    adminText,
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            val privateGroupUser = Tools.transformUserToPrivateGroupChat(user)
+                            val bundle =
+                                bundleOf(
+                                    Const.Navigation.USER_PROFILE to privateGroupUser,
+                                    Const.Navigation.ROOM_ID to roomWithUsers.room.roomId,
+                                    Const.Navigation.ROOM_DATA to roomWithUsers.room
+                                )
+                            findNavController().navigate(
+                                R.id.action_chatDetailsFragment_to_contactDetailsFragment,
+                                bundle,
+                                navOptionsBuilder
+                            )
                         }
 
-                        modifiedList =
-                            roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
-                        adapter.submitList(modifiedList.toList())
-                        adapter.notifyDataSetChanged()
-                    }
+                        override fun onSecondOptionClicked() {
+                            if (getString(R.string.dismiss_as_admin) == adminText) {
+                                user.isAdmin = false
+                                removeAdmin(user.id)
+                            } else {
+                                user.isAdmin = true
+                                makeAdmin(user.id)
+                            }
 
-                })
+                            modifiedList =
+                                roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
+                            adapter.submitList(modifiedList.toList())
+                            adapter.notifyDataSetChanged()
+                        }
+
+                    })
+            }
         }
     }
 
