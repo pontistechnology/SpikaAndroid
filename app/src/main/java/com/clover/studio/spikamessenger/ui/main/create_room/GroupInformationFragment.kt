@@ -101,15 +101,7 @@ class GroupInformationFragment : BaseFragment() {
                 getString(R.string.failed_user_data),
                 null,
                 getString(R.string.ok),
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        // Ignore
-                    }
-
-                    override fun onSecondOptionClicked() {
-                        // Ignore
-                    }
-                })
+                object : DialogInteraction {})
             Timber.d("Failed to fetch user data")
         } else {
             selectedUsers =

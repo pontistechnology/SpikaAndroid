@@ -408,8 +408,16 @@ class ChatAdapter(
                                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .into(holder.binding.ivUserImage)
 
-                            holder.binding.ivUserImage.visibility = View.VISIBLE
                             holder.binding.tvUsername.visibility = View.VISIBLE
+                            holder.binding.ivUserImage.apply {
+                                visibility = View.VISIBLE
+                                setOnClickListener { _ ->
+                                    onMessageInteraction.invoke(
+                                        Const.UserActions.NAVIGATE_TO_USER_DETAILS,
+                                        it
+                                    )
+                                }
+                            }
                         } else {
                             // User probably doesn't exist in the room anymore
                             holder.binding.tvUsername.text =
@@ -423,8 +431,11 @@ class ChatAdapter(
                                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .into(holder.binding.ivUserImage)
 
-                            holder.binding.ivUserImage.visibility = View.VISIBLE
                             holder.binding.tvUsername.visibility = View.VISIBLE
+                            holder.binding.ivUserImage.apply {
+                                visibility = View.VISIBLE
+                                setOnClickListener {  }
+                            }
                         }
                     }
 

@@ -44,6 +44,7 @@ class Const {
             const val USER_OPTIONS = "user_options"
             const val SHOW_MESSAGE_REACTIONS = "show_message_reactions"
             const val NAVIGATE_TO_MEDIA_FRAGMENT = "navigate_to_media_fragment"
+            const val NAVIGATE_TO_USER_DETAILS = "navigate_to_user_details"
             const val ACTION_LEFT = "left"
             const val ACTION_RIGHT = "right"
         }
@@ -52,7 +53,6 @@ class Const {
     class IntentExtras {
         companion object {
             const val ROOM_ID_EXTRA = "room_id_extra"
-            const val FILES_EXTRA = "files"
         }
     }
 
