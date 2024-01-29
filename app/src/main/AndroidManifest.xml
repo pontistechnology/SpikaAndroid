@@ -89,6 +89,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name="com.clover.studio.spikamessenger.utils.ReplyReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.clover.studio.spikamessenger.REPLY_ACTION" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".utils.helpers.PhonebookService"
             android:enabled="true"
