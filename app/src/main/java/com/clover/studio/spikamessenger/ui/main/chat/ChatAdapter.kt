@@ -645,8 +645,9 @@ class ChatAdapter(
                 context,
                 if (sender) R.drawable.bg_message_send else R.drawable.bg_message_received
             )
+            Timber.d("Message: ${tvMessage.text}, size: ${tvMessage.getEmojiSize()} ")
+            tvMessage.setEmojiSize(0)
         }
-
         tvMessage.text = messageText
 
         tvMessage.apply {
