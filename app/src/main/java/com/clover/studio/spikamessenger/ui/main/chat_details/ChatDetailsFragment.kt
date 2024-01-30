@@ -55,6 +55,8 @@ import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import javax.inject.Inject
 
+const val MIN_ADMIN_NUMBER = 1
+
 @AndroidEntryPoint
 class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
@@ -180,7 +182,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         // Exit condition:
         // If current user is not admin
         // Or current user is admin and and there are other admins
-        if (!isAdmin || (adminIds.size > 1) && isAdmin) {
+        if (!isAdmin || (adminIds.size > MIN_ADMIN_NUMBER) && isAdmin) {
             DialogError.getInstance(requireActivity(),
                 getString(R.string.exit_group),
                 getString(R.string.exit_group_description),
@@ -478,58 +480,53 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun userActions(user: User, roomType: String) {
-        val adminText = if (Const.JsonFields.GROUP == roomType) {
-            if (isAdmin && !user.isAdmin) {
-                getString(R.string.make_group_admin)
-            } else if (isAdmin) {
-                getString(R.string.dismiss_as_admin)
-            } else {
-                null
-            }
-        } else {
-            null
+        val adminText = when {
+            Const.JsonFields.GROUP == roomType && isAdmin && !user.isAdmin -> getString(R.string.make_group_admin)
+            Const.JsonFields.GROUP == roomType && isAdmin && roomUsers.count { it.isAdmin } > MIN_ADMIN_NUMBER -> getString(
+                R.string.dismiss_as_admin
+            )
+
+            else -> null
         }
 
         user.formattedDisplayName.let {
-            if (user.id != localUserId) {
-                ChooserDialog.getInstance(requireContext(),
-                    it,
-                    null,
-                    getString(R.string.info),
-                    adminText,
-                    object : DialogInteraction {
-                        override fun onFirstOptionClicked() {
-                            val privateGroupUser = Tools.transformUserToPrivateGroupChat(user)
-                            val bundle =
-                                bundleOf(
-                                    Const.Navigation.USER_PROFILE to privateGroupUser,
-                                    Const.Navigation.ROOM_ID to roomWithUsers.room.roomId,
-                                    Const.Navigation.ROOM_DATA to roomWithUsers.room
-                                )
-                            findNavController().navigate(
-                                R.id.action_chatDetailsFragment_to_contactDetailsFragment,
-                                bundle,
-                                navOptionsBuilder
+            ChooserDialog.getInstance(requireContext(),
+                it,
+                null,
+                getString(R.string.info),
+                adminText,
+                object : DialogInteraction {
+                    override fun onFirstOptionClicked() {
+                        val privateGroupUser = Tools.transformUserToPrivateGroupChat(user)
+                        val bundle =
+                            bundleOf(
+                                Const.Navigation.USER_PROFILE to privateGroupUser,
+                                Const.Navigation.ROOM_ID to roomWithUsers.room.roomId,
+                                Const.Navigation.ROOM_DATA to roomWithUsers.room
                             )
+                        findNavController().navigate(
+                            R.id.action_chatDetailsFragment_to_contactDetailsFragment,
+                            bundle,
+                            navOptionsBuilder
+                        )
+                    }
+
+                    override fun onSecondOptionClicked() {
+                        if (getString(R.string.dismiss_as_admin) == adminText) {
+                            user.isAdmin = false
+                            removeAdmin(user.id)
+                        } else {
+                            user.isAdmin = true
+                            makeAdmin(user.id)
                         }
 
-                        override fun onSecondOptionClicked() {
-                            if (getString(R.string.dismiss_as_admin) == adminText) {
-                                user.isAdmin = false
-                                removeAdmin(user.id)
-                            } else {
-                                user.isAdmin = true
-                                makeAdmin(user.id)
-                            }
+                        modifiedList =
+                            roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
+                        adapter.submitList(modifiedList.toList())
+                        adapter.notifyDataSetChanged()
+                    }
+                })
 
-                            modifiedList =
-                                roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
-                            adapter.submitList(modifiedList.toList())
-                            adapter.notifyDataSetChanged()
-                        }
-
-                    })
-            }
         }
     }
 
