@@ -1,26 +1,23 @@
 package com.clover.studio.spikamessenger.utils
 
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.Message
-import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
-import com.clover.studio.spikamessenger.utils.helpers.FilesHelper
+import com.clover.studio.spikamessenger.utils.helpers.MessageHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ReplyReceiver : BroadcastReceiver() {
+class NotificationReplyReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var chatRepo: ChatRepositoryImpl
@@ -31,15 +28,12 @@ class ReplyReceiver : BroadcastReceiver() {
     private val replyMessage: MutableList<Message> = mutableListOf()
 
     override fun onReceive(context: Context?, intent: Intent) {
-        val text = RemoteInput.getResultsFromIntent(intent)?.getCharSequence("key_text_reply")
-        val data = intent.getParcelableExtra("data") as RoomWithUsers?
+        val text = RemoteInput.getResultsFromIntent(intent)
+            ?.getCharSequence(Const.PrefsData.NOTIFICATION_REPLY_KEY)
+        val data =
+            intent.getParcelableExtra(Const.PrefsData.NOTIFICATION_REPLY_DATA) as RoomWithUsers?
 
         if (text != null && data != null) {
-            val notificationManager =
-                context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(data.room.roomId.hashCode())
-            Timber.d("Notification map: ${data.room.roomId.hashCode()}")
-
             CoroutineScope(Dispatchers.IO).launch {
                 createTempTextMessage(text.toString(), data)
                 sendMessage(data, text.toString())
@@ -74,33 +68,18 @@ class ReplyReceiver : BroadcastReceiver() {
         text: String,
         data: RoomWithUsers,
     ) {
-        val messageBody =
-            MessageBody(
-                referenceMessage = null,
+        val tempMessage = sharedPrefs.readUserId()?.let { userId ->
+            MessageHelper.createTempTextMessage(
                 text = text,
-                fileId = 1,
-                thumbId = 1,
-                file = null,
-                thumb = null,
-                subjectId = null,
-                objectIds = null,
-                type = "",
-                objects = null,
-                subject = ""
+                roomId = data.room.roomId,
+                unsentMessages = replyMessage,
+                localUserId = userId
             )
+        }
 
-        val tempMessage = Tools.createTemporaryMessage(
-            id = FilesHelper.getUniqueRandomId(replyMessage),
-            localUserId = sharedPrefs.readUserId(),
-            roomId = data.room.roomId,
-            messageType = Const.JsonFields.TEXT_TYPE,
-            messageBody = messageBody
-        )
-
-        replyMessage.add(tempMessage)
-
-        Timber.d("temp message:::::::::::::::: ${tempMessage}")
-
-        chatRepo.storeMessageLocally(tempMessage)
+        tempMessage?.let {
+            replyMessage.add(tempMessage)
+            chatRepo.storeMessageLocally(tempMessage)
+        }
     }
 }

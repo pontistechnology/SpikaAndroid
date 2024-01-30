@@ -271,6 +271,9 @@ class Const {
 
             // Theme
             const val THEMES = "themes"
+
+            const val NOTIFICATION_REPLY_KEY = "key_text_reply"
+            const val NOTIFICATION_REPLY_DATA = "reply_data"
         }
     }
 

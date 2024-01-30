@@ -90,9 +90,10 @@
         </receiver>
 
         <receiver
-            android:name="com.clover.studio.spikamessenger.utils.ReplyReceiver"
+            android:name="com.clover.studio.spikamessenger.utils.NotificationReplyReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"
+            android:permission="com.clover.studio.spikamessenger.permission.REPLY_PERMISSION">
             <intent-filter>
                 <action android:name="com.clover.studio.spikamessenger.REPLY_ACTION" />
             </intent-filter>

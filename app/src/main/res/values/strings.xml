@@ -14,12 +14,14 @@
     <string name="privacy_explanation">See and share when messages have been read. This applies to all chats.</string>
     <string name="no_username">No Username</string>
     <string name="username">Username</string>
-    <string name="notifications">Notifications</string>
     <string name="search">Search</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="show_notifications">Show Notifications</string>
     <string name="favourite_messages">Favourite Messages</string>
     <string name="type_here">message…</string>
+
+    <!--Notification-->
+    <string name="notifications">Notifications</string>
+    <string name="show_notifications">Show Notifications</string>
 
     <!--Contacts-->
     <string name="contacts">Contacts</string>

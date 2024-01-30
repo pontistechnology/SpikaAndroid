@@ -1,12 +1,15 @@
 package com.clover.studio.spikamessenger.utils.helpers
 
+import android.app.DownloadManager
 import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
+import android.widget.Toast
 import com.clover.studio.spikamessenger.MainApplication
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.entity.Message
@@ -107,31 +110,21 @@ object FilesHelper {
             Tools.getMetadata(uri, type, true)
         Timber.d("File metadata: $fileMetadata")
 
-        val tempMessage = Tools.createTemporaryMessage(
-            id = getUniqueRandomId(unsentMessages),
-            localUserId = localUserId,
+        val file = MessageFile(
+            id = 1,
+            fileName = fileName,
+            mimeType = "",
+            size = size,
+            metaData = fileMetadata,
+            uri = uri.toString()
+        )
+
+        val tempMessage = MessageHelper.createTempFileMessage(
             roomId = roomId,
+            localUserId = localUserId,
             messageType = typeMedia,
-            messageBody = MessageBody(
-                referenceMessage = null,
-                text = null,
-                fileId = 1,
-                thumbId = 1,
-                file = MessageFile(
-                    id = 1,
-                    fileName = fileName,
-                    mimeType = "",
-                    size = size,
-                    metaData = fileMetadata,
-                    uri = uri.toString()
-                ),
-                thumb = null,
-                subjectId = null,
-                objectIds = null,
-                type = "",
-                objects = null,
-                subject = ""
-            )
+            unsentMessages = unsentMessages,
+            file = file
         )
 
         if (typeMedia == Const.JsonFields.IMAGE_TYPE || typeMedia == Const.JsonFields.VIDEO_TYPE) {
@@ -195,6 +188,37 @@ object FilesHelper {
         }
 
         return imagePath
+    }
+
+    fun downloadFile(context: Context, message: Message) {
+        try {
+            val tmp = Tools.getFilePathUrl(message.body!!.fileId!!)
+            val request = DownloadManager.Request(Uri.parse(tmp))
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+            request.setTitle(
+                message.body.file?.fileName ?: "${
+                    MainApplication.appContext.getString(
+                        R.string.spika
+                    )
+                }.jpg"
+            )
+            request.setDescription(context.getString(R.string.file_is_downloading))
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS,
+                message.body.file!!.fileName
+            )
+            val manager =
+                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            manager.enqueue(request)
+            Toast.makeText(
+                context,
+                context.getString(R.string.file_is_downloading),
+                Toast.LENGTH_LONG
+            ).show()
+        } catch (e: Exception) {
+            Timber.d("$e")
+        }
     }
 
 }

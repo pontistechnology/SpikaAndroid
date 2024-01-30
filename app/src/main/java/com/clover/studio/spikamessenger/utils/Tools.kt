@@ -3,7 +3,6 @@ package com.clover.studio.spikamessenger.utils
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.DownloadManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentResolver
@@ -46,7 +45,6 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.AppDatabase
 import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.entity.Message
-import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
@@ -56,7 +54,6 @@ import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepos
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
 import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortChats
-import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.vanniktech.emoji.EmojiTheming
 import com.vanniktech.emoji.emojisCount
 import retrofit2.HttpException
@@ -416,70 +413,11 @@ object Tools {
         return Random.nextInt(Int.MIN_VALUE, 0)
     }
 
-    fun downloadFile(context: Context, message: Message) {
-        try {
-            val tmp = this.getFilePathUrl(message.body!!.fileId!!)
-            val request = DownloadManager.Request(Uri.parse(tmp))
-            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-            request.setTitle(
-                message.body.file?.fileName ?: "${
-                    MainApplication.appContext.getString(
-                        R.string.spika
-                    )
-                }.jpg"
-            )
-            request.setDescription(context.getString(R.string.file_is_downloading))
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            request.setDestinationInExternalPublicDir(
-                Environment.DIRECTORY_DOWNLOADS,
-                message.body.file!!.fileName
-            )
-            val manager =
-                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            manager.enqueue(request)
-            Toast.makeText(
-                context,
-                context.getString(R.string.file_is_downloading),
-                Toast.LENGTH_LONG
-            ).show()
-        } catch (e: Exception) {
-            Timber.d("$e")
-        }
-    }
-
     fun navigateToAppSettings() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         val uri = Uri.fromParts("package", MainApplication.appContext.packageName, null)
         intent.data = uri
         MainApplication.appContext.startActivity(intent)
-    }
-
-    fun createTemporaryMessage(
-        id: Int,
-        localUserId: Int?,
-        roomId: Int,
-        messageType: String,
-        messageBody: MessageBody
-    ): Message {
-        return Message(
-            id,
-            localUserId,
-            0,
-            -1,
-            0,
-            roomId,
-            messageType,
-            messageBody,
-            messageBody.referenceMessage,
-            System.currentTimeMillis(),
-            null,
-            null,
-            null,
-            generateRandomId(),
-            Resource.Status.LOADING.toString(),
-            null,
-            isForwarded = false,
-        )
     }
 
     fun fullDateFormat(dateTime: Long): String? {
@@ -932,7 +870,7 @@ object Tools {
         )
     }
 
-    private fun transformRoomToPrivateGroupChat(roomWithUsers: RoomWithUsers) : PrivateGroupChats {
+    private fun transformRoomToPrivateGroupChat(roomWithUsers: RoomWithUsers): PrivateGroupChats {
         return PrivateGroupChats(
             userId = 0,
             roomId = roomWithUsers.room.roomId,

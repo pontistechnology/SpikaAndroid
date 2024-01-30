@@ -53,7 +53,6 @@ import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
-import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -69,7 +68,6 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.MessageSwipeController
 import com.clover.studio.spikamessenger.utils.Tools
-import com.clover.studio.spikamessenger.utils.Tools.downloadFile
 import com.clover.studio.spikamessenger.utils.Tools.getFileMimeType
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
@@ -77,7 +75,8 @@ import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
 import com.clover.studio.spikamessenger.utils.helpers.FilesHelper
-import com.clover.studio.spikamessenger.utils.helpers.FilesHelper.getUniqueRandomId
+import com.clover.studio.spikamessenger.utils.helpers.FilesHelper.downloadFile
+import com.clover.studio.spikamessenger.utils.helpers.MessageHelper
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.UploadService
 import com.google.gson.JsonArray
@@ -1351,32 +1350,19 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun createTempTextMessage() {
-        val messageBody =
-            MessageBody(
-                referenceMessage = null,
+        val tempMessage = roomWithUsers?.let {
+            MessageHelper.createTempTextMessage(
                 text = bindingSetup.etMessage.text.toString().trim(),
-                fileId = 1,
-                thumbId = 1,
-                file = null,
-                thumb = null,
-                subjectId = null,
-                objectIds = null,
-                type = "",
-                objects = null,
-                subject = ""
+                roomId = it.room.roomId,
+                localUserId = localUserId,
+                unsentMessages = unsentMessages
             )
+        }
 
-        val tempMessage = Tools.createTemporaryMessage(
-            getUniqueRandomId(unsentMessages),
-            localUserId,
-            roomWithUsers!!.room.roomId,
-            Const.JsonFields.TEXT_TYPE,
-            messageBody
-        )
-
-        Timber.d("Temporary message: $tempMessage")
-        unsentMessages.add(0, tempMessage)
-        viewModel.storeMessageLocally(tempMessage)
+        tempMessage?.let {
+            unsentMessages.add(0, tempMessage)
+            viewModel.storeMessageLocally(tempMessage)
+        }
     }
 
     /** Files uploading */

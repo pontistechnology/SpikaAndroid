@@ -1,11 +1,14 @@
 package com.clover.studio.spikamessenger.utils
 
+import android.Manifest
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_MUTABLE
 import android.app.TaskStackBuilder
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.text.TextUtils
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
@@ -42,9 +45,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     @Inject
     lateinit var sharedPrefs: SharedPreferencesRepository
-
-    // Key for the string that's delivered in the action's intent.
-    private val KEY_TEXT_REPLY = "key_text_reply"
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -194,6 +194,20 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
                         with(NotificationManagerCompat.from(baseContext)) {
                             // notificationId is a unique int for each notification that you must define
+                            if (ActivityCompat.checkSelfPermission(
+                                    baseContext,
+                                    Manifest.permission.POST_NOTIFICATIONS
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                // TODO: Consider calling
+                                //    ActivityCompat#requestPermissions
+                                // here to request the missing permissions, and then overriding
+                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                //                                          int[] grantResults)
+                                // to handle the case where the user grants the permission. See the documentation
+                                // for ActivityCompat#requestPermissions for more details.
+                                return@launch
+                            }
                             notify(
                                 response.message.roomId.hashCode(),
                                 notificationMap[response.message.roomId]!!
@@ -241,9 +255,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun setNotificationReplyAction(data: RoomWithUsers?): NotificationCompat.Action {
-        // // Build a PendingIntent for the reply action to trigger.
-        val remoteInput = RemoteInput.Builder(KEY_TEXT_REPLY)
-            .setLabel("Reply")
+        val remoteInput = RemoteInput.Builder(Const.PrefsData.NOTIFICATION_REPLY_KEY)
+            .setLabel(baseContext.getString(R.string.reply))
             .build()
 
         val replyPendingIntent: PendingIntent? =
@@ -251,15 +264,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 PendingIntent.getBroadcast(
                     baseContext,
                     it,
-                    Intent(baseContext, ReplyReceiver::class.java)
-                        .putExtra("data", data),
+                    Intent(baseContext, NotificationReplyReceiver::class.java)
+                        .putExtra(Const.PrefsData.NOTIFICATION_REPLY_DATA, data),
                     PendingIntent.FLAG_UPDATE_CURRENT or FLAG_MUTABLE
                 )
             }
 
         return NotificationCompat.Action.Builder(
             R.drawable.img_reply,
-            "Reply",
+            baseContext.getString(R.string.reply),
             replyPendingIntent
         )
             .addRemoteInput(remoteInput)
