@@ -35,6 +35,7 @@ import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepos
 import com.clover.studio.spikamessenger.databinding.FragmentChatDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
@@ -250,6 +251,10 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         tvMembersNumber.text =
             getString(R.string.number_of_members, roomWithUsers.users.size)
 
+        if (roomWithUsers.users.size != viewModel.roomNumberUpdated.value){
+            viewModel.roomNumberUpdated.postValue(roomWithUsers.users.size)
+        }
+
         // This will stop image file changes while file is uploading via LiveData
         if (!isUploading && ivDone.visibility == View.GONE) {
             setAvatarAndUsername(avatarFileId, userName)
@@ -379,7 +384,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
             jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.CHANGE_GROUP_NAME)
 
-            viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, roomWithUsers.users.size)
+            viewModel.updateRoom(jsonObject = jsonObject, roomId = roomWithUsers.room.roomId)
 
             ivDone.visibility = View.GONE
             tilEnterGroupName.visibility = View.GONE
@@ -425,12 +430,14 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
     private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
         if (avatarFileId != 0L) {
             Glide.with(this)
-                .load(avatarFileId.let { Tools.getFilePathUrl(it) })
+                .load(Tools.getFilePathUrl(avatarFileId))
                 .centerCrop()
-                .placeholder(R.drawable.img_group_avatar)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .into(binding.profilePicture.ivPickAvatar)
+        } else {
+            binding.profilePicture.ivPickAvatar.setImageResource(R.drawable.img_group_avatar)
         }
+
         binding.tvGroupName.text = username
     }
 
@@ -559,7 +566,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             jsonObject.add(Const.JsonFields.USER_IDS, adminIds)
         }
 
-        roomId?.let { viewModel.updateRoom(jsonObject, it, roomUsers.size) }
+        roomId?.let { viewModel.updateRoom(jsonObject = jsonObject, roomId = it) }
     }
 
     private fun removeAdmin(userId: Int) {
@@ -573,7 +580,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             jsonObject.add(Const.JsonFields.USER_IDS, adminIds)
         }
 
-        roomId?.let { viewModel.updateRoom(jsonObject, it, roomUsers.size) }
+        roomId?.let { viewModel.updateRoom(jsonObject = jsonObject, roomId = it) }
     }
 
     private fun updateRoomUserList(roomWithUsers: RoomWithUsers) {
@@ -606,7 +613,6 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
             binding.profilePicture.progressBar.max = uploadPieces
-            Timber.d("File upload start")
             isUploading = true
 
             avatarData = FileData(
@@ -635,6 +641,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 startUploadService()
             }
             binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+            inputStream.close()
         }
     }
 
@@ -660,7 +667,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         binding.profilePicture.ivPickAvatar.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
-                R.drawable.img_camera
+                R.drawable.img_group_avatar
             )
         )
     }
@@ -687,7 +694,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.REMOVE_GROUP_USERS)
         jsonObject.add(Const.JsonFields.USER_IDS, userIds)
 
-        roomId?.let { viewModel.updateRoom(jsonObject, it, roomUsers.size) }
+        roomId?.let { viewModel.updateRoom(jsonObject = jsonObject, roomId = it) }
     }
 
     override fun onStop() {
@@ -719,10 +726,11 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 }
             }
 
-            override fun avatarUploadFinished() {
+            override fun avatarUploadFinished(fileId: Long) {
                 requireActivity().runOnUiThread {
                     binding.profilePicture.flProgressScreen.visibility = View.GONE
                 }
+                viewModel.roomAvatarUploaded.postValue(Event(fileId))
             }
         })
 

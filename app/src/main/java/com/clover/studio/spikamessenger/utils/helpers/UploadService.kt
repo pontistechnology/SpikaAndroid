@@ -126,7 +126,7 @@ class UploadService : Service() {
                             mainRepositoryImpl.updateUserData(jsonObject)
                         }
                     }
-                    callbackListener?.avatarUploadFinished()
+                    callbackListener?.avatarUploadFinished(fileId)
                     stopForeground(STOP_FOREGROUND_REMOVE)
                     stopSelf()
                     return
@@ -289,6 +289,6 @@ class UploadService : Service() {
         fun updateUploadProgressBar(progress: Int, maxProgress: Int, localId: String?) {}
         fun uploadingFinished(uploadedFiles: MutableList<FileData>) {}
         fun uploadError(description: String) {}
-        fun avatarUploadFinished() {}
+        fun avatarUploadFinished(fileId: Long) {}
     }
 }

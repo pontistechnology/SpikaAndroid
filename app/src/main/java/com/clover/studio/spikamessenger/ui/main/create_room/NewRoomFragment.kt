@@ -32,13 +32,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.Arrays
 
 class NewRoomFragment : BaseFragment() {
     private var args: NewRoomFragmentArgs? = null
     private val viewModel: MainViewModel by activityViewModels()
-    private lateinit var contactsAdapter: UsersGroupsAdapter
-    private lateinit var selectedContactsAdapter: UsersGroupsSelectedAdapter
+    private var contactsAdapter: UsersGroupsAdapter? = null
+    private var selectedContactsAdapter: UsersGroupsSelectedAdapter? = null
     private var userList: MutableList<PrivateGroupChats> = mutableListOf()
     private var selectedUsers: MutableList<PrivateGroupChats> = ArrayList()
     private var filteredList: MutableList<PrivateGroupChats> = ArrayList()
@@ -66,7 +65,7 @@ class NewRoomFragment : BaseFragment() {
 
         if (viewModel.roomUsers.isNotEmpty() && args?.userIds == null) {
             selectedUsers = viewModel.roomUsers
-            selectedContactsAdapter.submitList(selectedUsers)
+            selectedContactsAdapter?.submitList(selectedUsers)
             handleGroupChat()
             handleNextTextView()
         } else {
@@ -198,7 +197,7 @@ class NewRoomFragment : BaseFragment() {
                             getString(R.string.users_selected, selectedUsers.size)
                     }
 
-                    selectedContactsAdapter.notifyDataSetChanged()
+                    selectedContactsAdapter?.notifyDataSetChanged()
 
                     handleNextTextView()
                     handleSelectedUserList(it)
@@ -227,7 +226,7 @@ class NewRoomFragment : BaseFragment() {
 
         setUpSelectedContactsAdapter()
 
-        selectedContactsAdapter.submitList(selectedUsers)
+        selectedContactsAdapter?.submitList(selectedUsers)
         binding.rvSelected.adapter = selectedContactsAdapter
         binding.rvSelected.layoutManager =
             LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
@@ -237,10 +236,10 @@ class NewRoomFragment : BaseFragment() {
         selectedContactsAdapter = UsersGroupsSelectedAdapter(requireContext()) {
             if (selectedUsers.any { user -> user.userId == it.userId }) {
                 selectedUsers.remove(it)
-                selectedContactsAdapter.submitList(selectedUsers)
+                selectedContactsAdapter?.submitList(selectedUsers)
                 binding.tvSelectedNumber.text =
                     getString(R.string.users_selected, selectedUsers.size)
-                selectedContactsAdapter.notifyDataSetChanged()
+                selectedContactsAdapter?.notifyDataSetChanged()
             }
 
             handleNextTextView()
@@ -253,8 +252,8 @@ class NewRoomFragment : BaseFragment() {
             selected = !selected
         }
 
-        contactsAdapter.submitList(userList)
-        contactsAdapter.notifyDataSetChanged()
+        contactsAdapter?.submitList(userList)
+        contactsAdapter?.notifyDataSetChanged()
     }
 
     private fun handleNextTextView() {
@@ -283,7 +282,7 @@ class NewRoomFragment : BaseFragment() {
                 }
 
                 userList = users.toMutableList()
-                contactsAdapter.submitList(userList)
+                contactsAdapter?.submitList(userList)
             }
         }
 
@@ -408,8 +407,8 @@ class NewRoomFragment : BaseFragment() {
                 }
             }
             val users = filteredList.sortChats(requireContext())
-            contactsAdapter.submitList(null)
-            contactsAdapter.submitList(ArrayList(users)) {
+            contactsAdapter?.submitList(null)
+            contactsAdapter?.submitList(ArrayList(users)) {
                 binding.rvContacts.scrollToPosition(0)
             }
             filteredList.clear()

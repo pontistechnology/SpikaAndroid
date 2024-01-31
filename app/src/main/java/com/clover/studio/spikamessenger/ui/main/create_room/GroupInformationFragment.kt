@@ -123,6 +123,12 @@ class GroupInformationFragment : BaseFragment() {
     }
 
     private fun initializeViews() = with(binding) {
+        binding.profilePicture.ivPickAvatar.setImageDrawable(
+            ContextCompat.getDrawable(
+                requireContext(),
+                R.drawable.img_group_avatar
+            )
+        )
         setUpDoneButton(uploading = false)
 
         tvPeopleSelected.text = getString(R.string.s_people_selected, selectedUsers.size)
@@ -364,12 +370,6 @@ class GroupInformationFragment : BaseFragment() {
         binding.profilePicture.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
         Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
-        binding.profilePicture.ivPickAvatar.setImageDrawable(
-            ContextCompat.getDrawable(
-                requireContext(),
-                R.drawable.img_group_avatar
-            )
-        )
     }
 
     private fun showRoomCreationError(description: String) {

@@ -5,7 +5,6 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
-import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.User
@@ -14,15 +13,12 @@ import com.clover.studio.spikamessenger.data.models.networking.NewNote
 import com.clover.studio.spikamessenger.data.models.networking.responses.ForwardMessagesResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.MessageResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.NotesResponse
-import com.clover.studio.spikamessenger.data.models.networking.responses.UpdatedRoom
 import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.utils.Event
-import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.SSEListener
 import com.clover.studio.spikamessenger.utils.SSEManager
 import com.clover.studio.spikamessenger.utils.Tools
-import com.clover.studio.spikamessenger.utils.UploadDownloadManager
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,15 +33,15 @@ class ChatViewModel @Inject constructor(
     private val repository: ChatRepositoryImpl,
     private val mainRepository: MainRepositoryImpl,
     sseManager: SSEManager,
-    private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel(), SSEListener {
     val messageSendListener = MutableLiveData<Event<Resource<MessageResponse?>>>()
-    val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val noteDeletionListener = MutableLiveData<Event<NoteDeletion>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val forwardListener = MutableLiveData<Event<Resource<ForwardMessagesResponse?>>>()
-    val roomInfoUpdated = MutableLiveData<Event<UpdatedRoom>>()
+    val roomNameUpdated = MutableLiveData<Event<String?>>()
+    val roomNumberUpdated = MutableLiveData<Int>()
+    val roomAvatarUploaded = MutableLiveData<Event<Long>>()
     private val liveDataLimit = MutableLiveData(20)
     val messagesReceived = MutableLiveData<List<Message>>()
     val searchMessageId = MutableLiveData(0)
@@ -114,18 +110,11 @@ class ChatViewModel @Inject constructor(
         repository.sendMessagesSeen(roomId)
     }
 
-    fun updateRoom(jsonObject: JsonObject, roomId: Int, roomSize: Int) =
+    fun updateRoom(jsonObject: JsonObject, roomId: Int) =
         viewModelScope.launch {
             val response = repository.updateRoom(jsonObject, roomId)
-
-            if (response.status == Resource.Status.SUCCESS) {
-                val updated = UpdatedRoom(
-                    roomId = roomId,
-                    groupName = response.responseData?.data?.room?.name.toString(),
-                    avatarId = response.responseData?.data?.room?.avatarFileId ?: 0L,
-                    userNumber = roomSize
-                )
-                roomInfoUpdated.postValue(Event(updated))
+            if (Resource.Status.SUCCESS == response.status && response.responseData != null) {
+                roomNameUpdated.postValue(Event(response.responseData.data?.room?.name.toString()))
             }
         }
 
