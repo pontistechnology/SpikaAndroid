@@ -308,7 +308,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             userName = roomWithUsers?.room?.name.toString()
         }
 
-        setAvatarAndName(avatarFileId, userName)
+        setUserName(userName = userName)
+        setUserAvatar(avatarFileId = avatarFileId)
 
         if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
             user =
@@ -330,24 +331,23 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         }
     }
 
-    private fun setAvatarAndName(avatarFileId: Long, userName: String) =
-        with(bindingSetup.chatHeader) {
-            tvChatName.text = userName
+    private fun setUserAvatar(avatarFileId: Long) = with(bindingSetup.chatHeader) {
+        Glide.with(this@ChatMessagesFragment)
+            .load(avatarFileId.let { Tools.getFilePathUrl(it) })
+            .placeholder(
+                roomWithUsers?.room?.type?.let { Tools.getPlaceholderImage(it) }?.let {
+                    AppCompatResources.getDrawable(
+                        requireContext(),
+                        it
+                    )
+                }
+            )
+            .centerCrop()
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .into(ivUserImage)
+    }
 
-            Glide.with(this@ChatMessagesFragment)
-                .load(avatarFileId.let { Tools.getFilePathUrl(it) })
-                .placeholder(
-                    roomWithUsers?.room?.type?.let { Tools.getPlaceholderImage(it) }?.let {
-                        AppCompatResources.getDrawable(
-                            requireContext(),
-                            it
-                        )
-                    }
-                )
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(ivUserImage)
-        }
+    private fun setUserName(userName: String) { bindingSetup.chatHeader.tvChatName.text = userName }
 
     private fun initListeners() = with(bindingSetup) {
         chatHeader.clHeader.setOnClickListener {
@@ -638,21 +638,19 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             })
         }
 
-        viewModel.roomInfoUpdated.observe(viewLifecycleOwner, EventObserver {
-            if (it.roomId == roomWithUsers!!.room.roomId) {
-                val avatarFile = it.avatarId
-                val roomName = it.groupName
-
-                roomWithUsers!!.room.apply {
-                    avatarFileId = avatarFile
-                    name = roomName
-                }
-
-                bindingSetup.chatHeader.tvTitle.text =
-                    getString(R.string.members_number, it.userNumber.toString())
-                setAvatarAndName(avatarFile, roomName)
-            }
+        viewModel.roomNameUpdated.observe(viewLifecycleOwner, EventObserver {
+            if (it != null) setUserName(userName = it)
+            roomWithUsers?.room?.name = it
         })
+
+        viewModel.roomAvatarUploaded.observe(viewLifecycleOwner, EventObserver {
+            if (it != 0L) setUserAvatar(avatarFileId = it)
+            roomWithUsers?.room?.avatarFileId = it
+        })
+
+        viewModel.roomNumberUpdated.observe(viewLifecycleOwner){
+            if (it != 0) bindingSetup.chatHeader.tvTitle.text = getString(R.string.members_number, it.toString())
+        }
 
         viewModel.forwardListener.observe(viewLifecycleOwner, EventObserver {
             if (it.responseData?.data?.messages?.first()?.roomId != null) {

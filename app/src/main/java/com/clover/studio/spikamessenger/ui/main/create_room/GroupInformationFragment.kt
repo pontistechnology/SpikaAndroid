@@ -123,29 +123,13 @@ class GroupInformationFragment : BaseFragment() {
     }
 
     private fun initializeViews() = with(binding) {
-        fabDone.setOnClickListener {
-            val jsonObject = JsonObject()
-
-            val userIdsArray = JsonArray()
-            for (user in selectedUsers) {
-                userIdsArray.add(user.userId)
-            }
-            val adminUserIds = JsonArray()
-            adminUserIds.add(viewModel.getLocalUserId())
-
-            jsonObject.addProperty(
-                Const.JsonFields.NAME,
-                etEnterUsername.text.toString().trim()
+        binding.profilePicture.ivPickAvatar.setImageDrawable(
+            ContextCompat.getDrawable(
+                requireContext(),
+                R.drawable.img_group_avatar
             )
-            jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarFileId)
-            jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
-            jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
-            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.GROUP)
-
-            showProgress(false)
-            viewModel.createNewRoom(jsonObject)
-            viewModel.roomUsers.clear()
-        }
+        )
+        setUpDoneButton(uploading = false)
 
         tvPeopleSelected.text = getString(R.string.s_people_selected, selectedUsers.size)
         adapter.submitList(selectedUsers)
@@ -199,6 +183,39 @@ class GroupInformationFragment : BaseFragment() {
         }
     }
 
+    private fun setUpDoneButton(uploading: Boolean) = with(binding) {
+        fabDone.isEnabled = !uploading
+        if (uploading) fabDone.alpha = 0.5f else fabDone.alpha = 1f
+
+        Timber.d("Is enabled: ${fabDone.isEnabled}")
+
+        if (fabDone.isEnabled) {
+            fabDone.setOnClickListener {
+                val jsonObject = JsonObject()
+
+                val userIdsArray = JsonArray()
+                for (user in selectedUsers) {
+                    userIdsArray.add(user.userId)
+                }
+                val adminUserIds = JsonArray()
+                adminUserIds.add(viewModel.getLocalUserId())
+
+                jsonObject.addProperty(
+                    Const.JsonFields.NAME,
+                    etEnterUsername.text.toString().trim()
+                )
+                jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarFileId)
+                jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
+                jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
+                jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.GROUP)
+
+                showProgress(false)
+                viewModel.createNewRoom(jsonObject)
+                viewModel.roomUsers.clear()
+            }
+        }
+    }
+
     private fun initializeObservers() {
         viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
@@ -240,6 +257,7 @@ class GroupInformationFragment : BaseFragment() {
                         binding.profilePicture.progressBar.secondaryProgress = progress.toInt()
                         progress++
                     } else progress = 0
+                    setUpDoneButton(uploading = true)
                 }
 
                 Resource.Status.SUCCESS -> {
@@ -248,6 +266,7 @@ class GroupInformationFragment : BaseFragment() {
                         binding.profilePicture.flProgressScreen.visibility = View.GONE
                     }
                     avatarFileId = it.responseData?.fileId
+                    setUpDoneButton(uploading = false)
                 }
 
                 Resource.Status.ERROR -> {
@@ -255,6 +274,7 @@ class GroupInformationFragment : BaseFragment() {
                     requireActivity().runOnUiThread {
                         showUploadError(it.message!!)
                     }
+                    setUpDoneButton(uploading = false)
                 }
 
                 else -> Toast.makeText(
@@ -296,6 +316,7 @@ class GroupInformationFragment : BaseFragment() {
     }
 
     private fun updateGroupImage() {
+        setUpDoneButton(uploading = true)
         if (currentPhotoLocation != Uri.EMPTY) {
             val inputStream =
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
@@ -349,12 +370,6 @@ class GroupInformationFragment : BaseFragment() {
         binding.profilePicture.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
         Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
-        binding.profilePicture.ivPickAvatar.setImageDrawable(
-            ContextCompat.getDrawable(
-                requireContext(),
-                R.drawable.img_group_avatar
-            )
-        )
     }
 
     private fun showRoomCreationError(description: String) {

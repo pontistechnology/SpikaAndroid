@@ -152,12 +152,11 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_group_members"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/eight_dp_margin"
                 android:layout_marginBottom="@dimen/twenty_four_dp_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHeight_percent="0.8"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_members_number"
                 tools:listitem="@layout/item_people_selected" />

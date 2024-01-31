@@ -35,6 +35,7 @@ import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepos
 import com.clover.studio.spikamessenger.databinding.FragmentChatDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
@@ -65,25 +66,27 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
     private val viewModel: ChatViewModel by activityViewModels()
     private val args: ChatDetailsFragmentArgs by navArgs()
-    private lateinit var adapter: ChatDetailsAdapter
+    private var adapter: ChatDetailsAdapter? = null
+
+    private var roomUsers: MutableList<User> = mutableListOf()
+    private var modifiedList: List<User> = mutableListOf()
+    private var roomWithUsers: RoomWithUsers? = null
+
     private var currentPhotoLocation: Uri = Uri.EMPTY
-    private var roomUsers: MutableList<User> = ArrayList()
-    private lateinit var roomWithUsers: RoomWithUsers
     private var uploadPieces: Int = 0
+    private lateinit var fileUploadService: UploadService
+    private var bound = false
+    private var isUploading = false
+
     private var roomId: Int? = null
     private var isAdmin = false
     private var localUserId: Int? = 0
-    private lateinit var fileUploadService: UploadService
-    private var bound = false
-
     private var userName = ""
     private var avatarFileId = 0L
-    private var isUploading = false
 
     private var bindingSetup: FragmentChatDetailsBinding? = null
     private val binding get() = bindingSetup!!
 
-    private var modifiedList: List<User> = mutableListOf()
     private var optionList: MutableList<UserOptionsData> = mutableListOf()
     private var pinSwitch: Drawable? = null
     private var muteSwitch: Drawable? = null
@@ -130,10 +133,10 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         // Fetch room data sent from previous fragment
         roomWithUsers = args.roomWithUsers
         localUserId = viewModel.getLocalUserId()
-        isAdmin = roomWithUsers.users.any { user ->
-            user.id == localUserId && viewModel.isUserAdmin(roomWithUsers.room.roomId, user.id)
-        }
-        roomId = roomWithUsers.room.roomId
+        isAdmin = roomWithUsers?.users?.any { user ->
+            user.id == localUserId && roomWithUsers?.room?.roomId?.let { viewModel.isUserAdmin(it, user.id) } == true
+        } == true
+        roomId = roomWithUsers?.room?.roomId
     }
 
     override fun onCreateView(
@@ -149,23 +152,6 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         initializeViews(roomWithUsers)
 
         setOptionList()
-
-        val userOptions = UserOptions(requireContext())
-        userOptions.setOptions(optionList)
-        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
-            override fun clickedOption(option: Int, optionName: String) {
-                when (optionName) {
-                    getString(R.string.notes) -> goToNotes()
-                    getString(R.string.delete_chat) -> goToDeleteChat()
-                    getString(R.string.exit_group) -> goToExitGroup()
-                }
-            }
-
-            override fun switchOption(optionName: String, isSwitched: Boolean) {
-                switchPinMuteOptions(optionName, isSwitched)
-            }
-        })
-        binding.flOptionsContainer.addView(userOptions)
 
         initializeObservers()
 
@@ -241,14 +227,19 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         }
     }
 
-    private fun initializeViews(roomWithUsers: RoomWithUsers) = with(binding) {
-        setupAdapter(isAdmin, roomWithUsers.room.type.toString())
+    private fun initializeViews(roomWithUsers: RoomWithUsers?) = with(binding) {
+        setupAdapter(isAdmin = isAdmin, roomType = roomWithUsers?.room?.type.toString())
+
         clMemberList.visibility = View.VISIBLE
-        userName = roomWithUsers.room.name.toString()
-        avatarFileId = roomWithUsers.room.avatarFileId!!
+        userName = roomWithUsers?.room?.name.toString()
+        avatarFileId = roomWithUsers?.room?.avatarFileId!!
 
         tvMembersNumber.text =
             getString(R.string.number_of_members, roomWithUsers.users.size)
+
+        if (roomWithUsers.users.size != viewModel.roomNumberUpdated.value) {
+            viewModel.roomNumberUpdated.postValue(roomWithUsers.users.size)
+        }
 
         // This will stop image file changes while file is uploading via LiveData
         if (!isUploading && ivDone.visibility == View.GONE) {
@@ -259,18 +250,19 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun switchPinMuteOptions(optionName: String, isSwitched: Boolean) {
-        if (optionName == getString(R.string.pin_chat)) {
-            viewModel.handleRoomPin(roomWithUsers.room.roomId, isSwitched)
-        } else {
-            viewModel.handleRoomMute(roomWithUsers.room.roomId, isSwitched)
+        roomWithUsers?.room?.roomId?.let { roomId ->
+            when (optionName) {
+                getString(R.string.pin_chat) -> viewModel.handleRoomPin(roomId, isSwitched)
+                else -> viewModel.handleRoomMute(roomId, isSwitched)
+            }
         }
     }
 
     private fun setOptionList() = with(binding) {
         val pinId =
-            if (roomWithUsers.room.pinned) R.drawable.img_switch else R.drawable.img_switch_left
+            if (roomWithUsers?.room?.pinned == true) R.drawable.img_switch else R.drawable.img_switch_left
         val muteId =
-            if (roomWithUsers.room.muted) R.drawable.img_switch else R.drawable.img_switch_left
+            if (roomWithUsers?.room?.muted == true) R.drawable.img_switch else R.drawable.img_switch_left
 
         pinSwitch = AppCompatResources.getDrawable(requireContext(), pinId)
         muteSwitch = AppCompatResources.getDrawable(requireContext(), muteId)
@@ -297,7 +289,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 ),
                 secondDrawable = pinSwitch,
                 switchOption = true,
-                isSwitched = roomWithUsers.room.pinned
+                isSwitched = roomWithUsers?.room?.pinned ?: false
             ),
             UserOptionsData(
                 option = getString(R.string.mute),
@@ -307,7 +299,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 ),
                 secondDrawable = muteSwitch,
                 switchOption = true,
-                isSwitched = roomWithUsers.room.pinned
+                isSwitched = roomWithUsers?.room?.pinned ?: false
             ),
         )
 
@@ -328,7 +320,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
         }
 
-        if (!roomWithUsers.room.roomExit) {
+        if (roomWithUsers?.room?.roomExit == false) {
             optionList.add(
                 UserOptionsData(
                     option = getString(R.string.exit_group),
@@ -342,6 +334,26 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 )
             )
         }
+        setOptionContainer()
+    }
+
+    private fun setOptionContainer() {
+        val userOptions = UserOptions(requireContext())
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(option: Int, optionName: String) {
+                when (optionName) {
+                    getString(R.string.notes) -> goToNotes()
+                    getString(R.string.delete_chat) -> goToDeleteChat()
+                    getString(R.string.exit_group) -> goToExitGroup()
+                }
+            }
+
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
+                switchPinMuteOptions(optionName, isSwitched)
+            }
+        })
+        binding.flOptionsContainer.addView(userOptions)
     }
 
     private fun initializeListeners(roomWithUsers: RoomWithUsers) = with(binding) {
@@ -355,7 +367,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 ChatDetailsFragmentDirections.actionChatDetailsFragmentToNewRoomFragment(
                     userIds.stream().mapToInt { i -> i }.toArray(),
                     roomWithUsers.room.roomId
-                )
+                ),
+                navOptionsBuilder
             )
         }
 
@@ -379,7 +392,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
             jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.CHANGE_GROUP_NAME)
 
-            viewModel.updateRoom(jsonObject, roomWithUsers.room.roomId, roomWithUsers.users.size)
+            viewModel.updateRoom(jsonObject = jsonObject, roomId = roomWithUsers.room.roomId)
 
             ivDone.visibility = View.GONE
             tilEnterGroupName.visibility = View.GONE
@@ -425,12 +438,14 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
     private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
         if (avatarFileId != 0L) {
             Glide.with(this)
-                .load(avatarFileId.let { Tools.getFilePathUrl(it) })
+                .load(Tools.getFilePathUrl(avatarFileId))
                 .centerCrop()
-                .placeholder(R.drawable.img_group_avatar)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .into(binding.profilePicture.ivPickAvatar)
+        } else {
+            binding.profilePicture.ivPickAvatar.setImageResource(R.drawable.img_group_avatar)
         }
+
         binding.tvGroupName.text = username
     }
 
@@ -501,8 +516,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                         val bundle =
                             bundleOf(
                                 Const.Navigation.USER_PROFILE to privateGroupUser,
-                                Const.Navigation.ROOM_ID to roomWithUsers.room.roomId,
-                                Const.Navigation.ROOM_DATA to roomWithUsers.room
+                                Const.Navigation.ROOM_ID to roomWithUsers?.room?.roomId,
+                                Const.Navigation.ROOM_DATA to roomWithUsers?.room
                             )
                         findNavController().navigate(
                             R.id.action_chatDetailsFragment_to_contactDetailsFragment,
@@ -522,11 +537,11 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
                         modifiedList =
                             roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
-                        adapter.submitList(modifiedList.toList())
-                        adapter.notifyDataSetChanged()
+                        adapter?.submitList(modifiedList.toList())
+
+                        adapter?.notifyItemChanged(modifiedList.indexOf(user))
                     }
                 })
-
         }
     }
 
@@ -540,10 +555,6 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 override fun onSecondOptionClicked() {
                     roomUsers.remove(user)
                     updateRoomUsers(user.id)
-                    modifiedList =
-                        roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
-                    adapter.submitList(modifiedList.toList())
-                    adapter.notifyDataSetChanged()
                 }
             })
     }
@@ -559,7 +570,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             jsonObject.add(Const.JsonFields.USER_IDS, adminIds)
         }
 
-        roomId?.let { viewModel.updateRoom(jsonObject, it, roomUsers.size) }
+        roomId?.let { viewModel.updateRoom(jsonObject = jsonObject, roomId = it) }
     }
 
     private fun removeAdmin(userId: Int) {
@@ -573,7 +584,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             jsonObject.add(Const.JsonFields.USER_IDS, adminIds)
         }
 
-        roomId?.let { viewModel.updateRoom(jsonObject, it, roomUsers.size) }
+        roomId?.let { viewModel.updateRoom(jsonObject = jsonObject, roomId = it) }
     }
 
     private fun updateRoomUserList(roomWithUsers: RoomWithUsers) {
@@ -586,7 +597,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 }
             }
             modifiedList = roomUsers.sortedBy { user -> user.isAdmin }.reversed()
-            adapter.submitList(modifiedList.toList())
+            adapter?.submitList(modifiedList.toList())
 
         }
     }
@@ -606,7 +617,6 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
             binding.profilePicture.progressBar.max = uploadPieces
-            Timber.d("File upload start")
             isUploading = true
 
             avatarData = FileData(
@@ -617,7 +627,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 messageBody = null,
                 isThumbnail = false,
                 localId = null,
-                roomId = roomWithUsers.room.roomId,
+                roomId = roomWithUsers?.room?.roomId ?: 0,
                 messageStatus = null,
                 metadata = null
             )
@@ -635,6 +645,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 startUploadService()
             }
             binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+            inputStream.close()
         }
     }
 
@@ -660,7 +671,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         binding.profilePicture.ivPickAvatar.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
-                R.drawable.img_camera
+                R.drawable.img_group_avatar
             )
         )
     }
@@ -687,7 +698,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.REMOVE_GROUP_USERS)
         jsonObject.add(Const.JsonFields.USER_IDS, userIds)
 
-        roomId?.let { viewModel.updateRoom(jsonObject, it, roomUsers.size) }
+        roomId?.let { viewModel.updateRoom(jsonObject = jsonObject, roomId = it) }
     }
 
     override fun onStop() {
@@ -719,10 +730,11 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 }
             }
 
-            override fun avatarUploadFinished() {
+            override fun avatarUploadFinished(fileId: Long) {
                 requireActivity().runOnUiThread {
                     binding.profilePicture.flProgressScreen.visibility = View.GONE
                 }
+                viewModel.roomAvatarUploaded.postValue(Event(fileId))
             }
         })
 
