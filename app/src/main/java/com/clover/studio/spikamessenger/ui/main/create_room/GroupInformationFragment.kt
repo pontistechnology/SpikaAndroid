@@ -156,6 +156,13 @@ class GroupInformationFragment : BaseFragment() {
             } else {
                 View.GONE
             }
+
+            // Set title of the screen to room name if not empty.
+            tvTitle.text = if (etEnterUsername.text.isNotEmpty()) {
+                etEnterUsername.text.toString()
+            } else {
+                getString(R.string.name_the_group)
+            }
         }
 
         etEnterUsername.setOnFocusChangeListener { view, hasFocus ->
