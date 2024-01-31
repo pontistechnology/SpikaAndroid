@@ -459,7 +459,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                 }
             }
 
-            override fun avatarUploadFinished() {
+            override fun avatarUploadFinished(fileId: Long) {
                 requireActivity().runOnUiThread {
                     binding.profilePicture.flProgressScreen.visibility = View.GONE
                 }
