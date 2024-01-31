@@ -63,6 +63,7 @@
         android:textColor="?attr/primaryTextColor"
         android:textColorHint="?attr/primaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
+        android:singleLine="true"
         app:layout_constraintBottom_toTopOf="@id/tv_people_selected"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
