@@ -134,7 +134,12 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         roomWithUsers = args.roomWithUsers
         localUserId = viewModel.getLocalUserId()
         isAdmin = roomWithUsers?.users?.any { user ->
-            user.id == localUserId && roomWithUsers?.room?.roomId?.let { viewModel.isUserAdmin(it, user.id) } == true
+            user.id == localUserId && roomWithUsers?.room?.roomId?.let {
+                viewModel.isUserAdmin(
+                    it,
+                    user.id
+                )
+            } == true
         } == true
         roomId = roomWithUsers?.room?.roomId
     }
@@ -228,7 +233,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun initializeViews(roomWithUsers: RoomWithUsers?) = with(binding) {
-        setupAdapter(isAdmin = isAdmin, roomType =  roomWithUsers?.room?.type.toString())
+        setupAdapter(isAdmin = isAdmin, roomType = roomWithUsers?.room?.type.toString())
 
         clMemberList.visibility = View.VISIBLE
         userName = roomWithUsers?.room?.name.toString()
@@ -237,7 +242,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         tvMembersNumber.text =
             getString(R.string.number_of_members, roomWithUsers.users.size)
 
-        if (roomWithUsers.users.size != viewModel.roomNumberUpdated.value){
+        if (roomWithUsers.users.size != viewModel.roomNumberUpdated.value) {
             viewModel.roomNumberUpdated.postValue(roomWithUsers.users.size)
         }
 
@@ -337,7 +342,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         setOptionContainer()
     }
 
-    private fun setOptionContainer(){
+    private fun setOptionContainer() {
         val userOptions = UserOptions(requireContext())
         userOptions.setOptions(optionList)
         userOptions.setOptionsListener(object : UserOptions.OptionsListener {
@@ -516,8 +521,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                         val bundle =
                             bundleOf(
                                 Const.Navigation.USER_PROFILE to privateGroupUser,
-                                Const.Navigation.ROOM_ID to roomWithUsers.room.roomId,
-                                Const.Navigation.ROOM_DATA to roomWithUsers.room
+                                Const.Navigation.ROOM_ID to roomWithUsers?.room?.roomId,
+                                Const.Navigation.ROOM_DATA to roomWithUsers?.room
                             )
                         findNavController().navigate(
                             R.id.action_chatDetailsFragment_to_contactDetailsFragment,
@@ -535,14 +540,13 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                             makeAdmin(user.id)
                         }
 
-                            modifiedList =
-                                roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
-                            adapter?.submitList(modifiedList.toList())
-                            adapter?.notifyDataSetChanged()
-                        }
+                        modifiedList =
+                            roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
+                        adapter?.submitList(modifiedList.toList())
 
-                    })
-            }
+                        adapter?.notifyItemChanged(modifiedList.indexOf(user))
+                    }
+                })
         }
     }
 
