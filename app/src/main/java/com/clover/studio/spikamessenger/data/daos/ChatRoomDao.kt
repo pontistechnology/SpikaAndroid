@@ -120,6 +120,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("UPDATE room SET deleted =:deleted WHERE room_id LIKE :roomId")
     suspend fun updateRoomDeleted(roomId: Int, deleted: Boolean)
 
+    // TODO we need to remove searching through reply messages {reference_messages: {text: ...
     @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
