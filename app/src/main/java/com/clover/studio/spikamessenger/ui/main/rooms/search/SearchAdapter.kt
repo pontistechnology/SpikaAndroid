@@ -32,12 +32,10 @@ class SearchAdapter(
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { item ->
-                for (user in item.roomWithUsers?.users!!) {
-                    if (user.id == item.message.fromUserId) {
-                        binding.tvUsername.text = user.displayName
-                        break
-                    }
-                }
+                binding.tvUsername.text = item.roomWithUsers?.users
+                    ?.firstOrNull { it.id == item.message.fromUserId }
+                    ?.displayName
+                    .orEmpty()
 
                 binding.tvMessageDate.text = item.message.createdAt?.let {
                     Tools.fullDateFormat(
@@ -55,7 +53,7 @@ class SearchAdapter(
 
                 // If private room, display the name of the other user in the room, no matter what
                 // the room name is
-                if (Const.JsonFields.PRIVATE == item.roomWithUsers.room.type) {
+                if (Const.JsonFields.PRIVATE == item.roomWithUsers?.room?.type) {
                     for (user in item.roomWithUsers.users) {
                         if (user.id.toString() != localUserId) {
                             binding.tvHeader.text = user.displayName
@@ -63,14 +61,14 @@ class SearchAdapter(
                         }
                     }
                 } else {
-                    binding.tvHeader.text = item.roomWithUsers.room.name
+                    binding.tvHeader.text = item.roomWithUsers?.room?.name
                 }
 
                 // if not first item, check if item above has the same header
                 if (position > 0) {
                     if (getItem(position - 1).roomWithUsers?.room?.name?.lowercase()
                             ?.isNotEmpty() == true
-                        && item.roomWithUsers.room.name?.lowercase()?.isNotEmpty() == true
+                        && item.roomWithUsers?.room?.name?.lowercase()?.isNotEmpty() == true
                     ) {
                         val previousItem =
                             getItem(position - 1).roomWithUsers?.room?.name?.lowercase()
