@@ -357,6 +357,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
         }
         tilEnterUsername.visibility = View.GONE
         tvUsername.visibility = View.VISIBLE
+        tvPhoneNumber.visibility = View.VISIBLE
         ivDone.visibility = View.GONE
     }
 
@@ -365,6 +366,12 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
         tvPhoneNumber.visibility = View.GONE
         tilEnterUsername.visibility = View.VISIBLE
         ivDone.visibility = View.VISIBLE
+
+        if (tvUsername.text.isNotEmpty()) {
+            etEnterUsername.setText(tvUsername.text)
+        }
+
+        showKeyboard(etEnterUsername)
     }
 
     private fun chooseImage() {
