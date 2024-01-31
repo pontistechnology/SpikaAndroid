@@ -134,12 +134,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         roomWithUsers = args.roomWithUsers
         localUserId = viewModel.getLocalUserId()
         isAdmin = roomWithUsers?.users?.any { user ->
-            user.id == localUserId && roomWithUsers?.room?.roomId?.let {
-                viewModel.isUserAdmin(
-                    it,
-                    user.id
-                )
-            } == true
+            user.id == localUserId && roomWithUsers?.room?.roomId?.let { viewModel.isUserAdmin(it, user.id) } == true
         } == true
         roomId = roomWithUsers?.room?.roomId
     }
@@ -325,7 +320,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
         }
 
-        if (!roomWithUsers?.room?.roomExit!!) {
+        if (roomWithUsers?.room?.roomExit == false) {
             optionList.add(
                 UserOptionsData(
                     option = getString(R.string.exit_group),
