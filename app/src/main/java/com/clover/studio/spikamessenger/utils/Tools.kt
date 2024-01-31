@@ -849,7 +849,9 @@ object Tools {
         return EmojiTheming(
             primaryColor = ColorHelper.getPrimaryColor(context),
             secondaryColor = ColorHelper.getPrimaryTextColor(context),
-            backgroundColor = ColorHelper.getSecondaryColor(context)
+            backgroundColor = ColorHelper.getSecondaryColor(context),
+            textColor = ColorHelper.getPrimaryTextColor(context)
+
         )
     }
 
