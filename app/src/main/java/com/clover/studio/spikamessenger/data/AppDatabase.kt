@@ -140,9 +140,9 @@ abstract class AppDatabase : RoomDatabase() {
 
         private val MIGRATION7_8: Migration = object : Migration(7, 8) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE message ADD COLUMN reference_message TEXT")
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN reference_message TEXT")
 
-                val cursor = db.query("SELECT * FROM message")
+                val cursor = db.query("SELECT * FROM " + TablesInfo.TABLE_MESSAGE)
                 cursor.moveToFirst()
                 while (!cursor.isAfterLast) {
                     val jsonString = cursor.getString(cursor.getColumnIndex("body"))
@@ -154,7 +154,7 @@ abstract class AppDatabase : RoomDatabase() {
                         val values = ContentValues()
                         values.put("reference_message", referenceMessage)
                         db.update(
-                            "message",
+                            TablesInfo.TABLE_MESSAGE,
                             SQLiteDatabase.CONFLICT_REPLACE,
                             values,
                             "body = ?",
@@ -167,7 +167,7 @@ abstract class AppDatabase : RoomDatabase() {
                         val updatedValues = ContentValues()
                         updatedValues.put("body", updatedJsonString)
                         db.update(
-                            "message",
+                            TablesInfo.TABLE_MESSAGE,
                             SQLiteDatabase.CONFLICT_REPLACE,
                             updatedValues,
                             "body = ?",
