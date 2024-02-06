@@ -64,6 +64,7 @@ import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.DetailsBottom
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ForwardBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.MediaBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ReactionsBottomSheet
+import com.clover.studio.spikamessenger.ui.main.startMainActivity
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.MessageSwipeController
@@ -347,7 +348,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             .into(ivUserImage)
     }
 
-    private fun setUserName(userName: String) { bindingSetup.chatHeader.tvChatName.text = userName }
+    private fun setUserName(userName: String) {
+        bindingSetup.chatHeader.tvChatName.text = userName
+    }
 
     private fun initListeners() = with(bindingSetup) {
         chatHeader.clHeader.setOnClickListener {
@@ -648,8 +651,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             roomWithUsers?.room?.avatarFileId = it
         })
 
-        viewModel.roomNumberUpdated.observe(viewLifecycleOwner){
-            if (it != 0) bindingSetup.chatHeader.tvTitle.text = getString(R.string.members_number, it.toString())
+        viewModel.roomNumberUpdated.observe(viewLifecycleOwner) {
+            if (it != 0) bindingSetup.chatHeader.tvTitle.text =
+                getString(R.string.members_number, it.toString())
         }
 
         viewModel.forwardListener.observe(viewLifecycleOwner, EventObserver {
@@ -659,7 +663,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                         viewModel.getRoomUsers(roomId = it1)
                     }
 
-                    if (room != null) {
+                    if (room != null && room.room.roomId != roomWithUsers?.room?.roomId) {
                         startChatScreenActivity(
                             requireActivity(),
                             room,
@@ -1552,6 +1556,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         viewModel.updateUnreadCount(roomId = roomWithUsers!!.room.roomId)
         activity?.onBackPressedDispatcher?.onBackPressed()
         activity?.finish()
+
+        startMainActivity(requireActivity())
     }
 
     override fun onResume() {
