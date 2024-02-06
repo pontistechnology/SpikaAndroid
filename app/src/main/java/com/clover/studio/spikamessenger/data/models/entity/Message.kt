@@ -45,6 +45,10 @@ data class Message @JvmOverloads constructor(
     @TypeConverters(TypeConverter::class)
     val body: MessageBody?,
 
+    @ColumnInfo("reference_message")
+    @TypeConverters(TypeConverter::class)
+    var referenceMessage: ReferenceMessage?,
+
     @SerializedName("createdAt")
     @ColumnInfo(name = "created_at_message")
     val createdAt: Long?,
@@ -101,8 +105,21 @@ data class Message @JvmOverloads constructor(
     // @Ignore
     // var roomUser: String = ""
 ) : Parcelable {
+    init {
+        handleReferenceMessage()
+    }
+
     fun canDelete(): Boolean {
         return deleted == null || deleted == true || Const.JsonFields.SYSTEM_TYPE == type
+    }
+
+    fun handleReferenceMessage(): Message {
+        if (body?.referenceMessage != null) {
+            referenceMessage = body.referenceMessage
+            body.referenceMessage = null
+        }
+
+        return this@Message
     }
 }
 

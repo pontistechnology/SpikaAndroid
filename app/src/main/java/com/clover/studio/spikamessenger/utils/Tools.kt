@@ -470,6 +470,7 @@ object Tools {
             roomId,
             messageType,
             messageBody,
+            messageBody.referenceMessage,
             System.currentTimeMillis(),
             null,
             null,

@@ -5,6 +5,7 @@ import androidx.room.*
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
+import com.clover.studio.spikamessenger.data.models.entity.ReferenceMessage
 
 @Dao
 interface MessageDao : BaseDao<Message> {
@@ -13,7 +14,7 @@ interface MessageDao : BaseDao<Message> {
         "UPDATE message SET id = :id, from_user_id = :fromUserId, total_user_count = :totalUserCount," +
                 " delivered_count = :deliveredCount, seen_count = :seenCount, type_message = :type, body = :body," +
                 " created_at_message = :createdAt, modified_at_message = :modifiedAt, deleted_message = :deleted," +
-                " reply_id = :replyId, message_status=:status WHERE local_id = :localId"
+                " reply_id = :replyId, reference_message = :referenceMessage, message_status=:status WHERE local_id = :localId"
     )
     suspend fun updateMessage(
         id: Int,
@@ -23,6 +24,7 @@ interface MessageDao : BaseDao<Message> {
         seenCount: Int,
         type: String,
         body: MessageBody,
+        referenceMessage: ReferenceMessage?,
         createdAt: Long,
         modifiedAt: Long,
         deleted: Boolean,

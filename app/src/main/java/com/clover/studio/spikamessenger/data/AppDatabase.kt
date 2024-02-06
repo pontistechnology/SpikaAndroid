@@ -50,7 +50,7 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     companion object {
-        const val DATABASE_VERSION = 7
+        const val DATABASE_VERSION = 8
 
         @Volatile
         private var instance: AppDatabase? = null
@@ -70,7 +70,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_3_4,
                     MIGRATION_4_5,
                     MIGRATION_5_6,
-                    MIGRATION_6_7
+                    MIGRATION_6_7,
+                    MIGRATION7_8
                 )
                 .fallbackToDestructiveMigration()
                 .build()
@@ -127,6 +128,13 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         private val MIGRATION_6_7: Migration = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN is_forwarded INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        // TODO MIGRATION IS STILL MISSING
+        private val MIGRATION7_8: Migration = object : Migration(6, 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN is_forwarded INTEGER NOT NULL DEFAULT 0")
             }
