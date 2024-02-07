@@ -44,6 +44,12 @@ class ChatRepositoryImpl @Inject constructor(
         performRestOperation(
             networkCall = { chatRemoteDataSource.sendMessage(jsonObject) })
 
+    suspend fun sendMessageNotificationReply(jsonObject: JsonObject, localId: String) {
+        val response = performRestOperation(
+            networkCall = { chatRemoteDataSource.sendMessage(jsonObject) })
+        updateMessageStatus(response.status.toString(), localId)
+    }
+
     override suspend fun storeMessageLocally(message: Message) {
         val response = queryDatabaseCoreData(
             databaseQuery = { messageDao.getMessageByLocalId(message.localId.toString()) }
