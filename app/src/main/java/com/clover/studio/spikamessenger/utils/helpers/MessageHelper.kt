@@ -77,7 +77,8 @@ object MessageHelper {
             localId = Tools.generateRandomId(),
             messageStatus = Resource.Status.LOADING.toString(),
             originalUri = null,
-            isForwarded = false
+            isForwarded = false,
+            referenceMessage = null
         )
     }
 }
