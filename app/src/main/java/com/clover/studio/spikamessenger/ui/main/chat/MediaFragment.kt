@@ -19,6 +19,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
 import androidx.core.content.ContextCompat.registerReceiver
+import androidx.fragment.app.activityViewModels
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -35,11 +36,14 @@ import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.databinding.FragmentMediaBinding
 import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.MediaPlayer
+import com.clover.studio.spikamessenger.utils.helpers.Resource
+import timber.log.Timber
 import java.io.File
 
 const val BAR_ANIMATION = 500L
@@ -48,6 +52,7 @@ class MediaFragment : BaseFragment() {
 
     private var bindingSetup: FragmentMediaBinding? = null
     private val binding get() = bindingSetup!!
+    private val viewModel: ChatViewModel by activityViewModels()
     private val args: MediaFragmentArgs by navArgs()
 
     private var player: ExoPlayer? = null
@@ -59,11 +64,15 @@ class MediaFragment : BaseFragment() {
 
     private var mediaInfo: String? = null
     private var message: Message? = null
+    private var roomId: Int = 0
+
+    private var mediaList : List<Message> = arrayListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mediaInfo = args.mediaInfo
         message = args.message
+        roomId = message?.roomId ?: 0
     }
 
     override fun onCreateView(
@@ -74,6 +83,7 @@ class MediaFragment : BaseFragment() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         initializeViews()
         initializeListeners()
+        getAllPhotos()
 
         if (message?.type == Const.JsonFields.IMAGE_TYPE) {
             initializePicture()
@@ -123,6 +133,19 @@ class MediaFragment : BaseFragment() {
                 }
             )
         }
+    }
+
+    private fun getAllPhotos() {
+        viewModel.getAllMedia(roomId = roomId)
+        viewModel.allMediaListener.observe(viewLifecycleOwner, EventObserver {
+            Timber.d("Here:::::::::::::::: $it")
+            if (Resource.Status.SUCCESS == it.status){
+                if (it.responseData != null){
+                    mediaList = it.responseData
+                    Timber.d("Response data: $mediaList")
+                }
+            }
+        })
     }
 
     private fun showBar() = with(binding) {

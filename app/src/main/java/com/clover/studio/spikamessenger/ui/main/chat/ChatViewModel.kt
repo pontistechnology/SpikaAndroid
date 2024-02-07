@@ -46,6 +46,7 @@ class ChatViewModel @Inject constructor(
     val messagesReceived = MutableLiveData<List<Message>>()
     val searchMessageId = MutableLiveData(0)
     val roomWithUsers = MutableLiveData<RoomWithUsers>()
+    val allMediaListener = MutableLiveData<Event<Resource<List<Message>?>>>()
 
     init {
         sseManager.setupListener(this)
@@ -277,6 +278,10 @@ class ChatViewModel @Inject constructor(
 
     fun cancelUploadFile(messageId: String) = viewModelScope.launch {
         mainRepository.cancelUpload(messageId)
+    }
+
+    fun getAllMedia(roomId: Int) = viewModelScope.launch {
+        resolveResponseStatus(allMediaListener, mainRepository.getAllMedia(roomId))
     }
 }
 

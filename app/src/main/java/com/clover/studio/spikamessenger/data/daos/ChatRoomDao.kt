@@ -3,6 +3,7 @@ package com.clover.studio.spikamessenger.data.daos
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
+import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
@@ -130,4 +131,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
                 "AND type_message = 'text'"
     )
     suspend fun getSearchMessages(text: String): List<MessageWithRoom>
+
+    @Query("SELECT * FROM message WHERE message.room_id_message = :roomId AND type_message = 'image'")
+    suspend fun getAllMedia(roomId: Int) : List<Message>
 }
