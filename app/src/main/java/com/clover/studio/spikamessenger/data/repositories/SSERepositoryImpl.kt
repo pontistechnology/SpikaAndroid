@@ -168,7 +168,11 @@ class SSERepositoryImpl @Inject constructor(
             lastUpdate = messageTimestamp,
             networkCall = { sseRemoteDataSource.syncMessages(messageTimestamp, it) },
             saveCallResult = {
-                it.data?.list?.let { messages -> messageDao.upsert(messages) }
+                it.data?.list?.let { messages ->
+                    for (message in messages) {
+                        message.handleReferenceMessage()
+                    }
+                    messageDao.upsert(messages) }
             },
             shouldSyncMore = {
                 it.data?.hasNext == true
@@ -303,6 +307,7 @@ class SSERepositoryImpl @Inject constructor(
     }
 
     override suspend fun writeMessages(message: Message) {
+        message.handleReferenceMessage()
         messageDao.updateMessage(
             message.id,
             message.fromUserId!!,
@@ -311,6 +316,7 @@ class SSERepositoryImpl @Inject constructor(
             message.seenCount!!,
             message.type!!,
             message.body!!,
+            message.referenceMessage,
             message.createdAt!!,
             message.modifiedAt!!,
             message.deleted!!,

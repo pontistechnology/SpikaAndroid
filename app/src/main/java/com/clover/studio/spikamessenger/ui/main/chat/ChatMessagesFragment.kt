@@ -931,9 +931,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun handleMessageReplyClick(msg: MessageAndRecords) {
-        replySearchId = msg.message.body?.referenceMessage?.id
+        replySearchId = msg.message.referenceMessage?.id
         replyPosition =
-            messagesRecords.indexOfFirst { it.message.id == msg.message.body?.referenceMessage?.id }
+            messagesRecords.indexOfFirst { it.message.id == msg.message.referenceMessage?.id }
 
         if (replyPosition == -1) {
             viewModel.fetchNextSet(roomWithUsers!!.room.roomId)

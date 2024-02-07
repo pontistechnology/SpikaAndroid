@@ -50,6 +50,7 @@ class ChatRepositoryImpl @Inject constructor(
         ).responseData
 
         if (response == null) {
+            message.handleReferenceMessage()
             messageDao.insert(message)
         }
     }

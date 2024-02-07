@@ -1,6 +1,8 @@
 package com.clover.studio.spikamessenger.data
 
+import android.content.ContentValues
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -11,6 +13,9 @@ import com.clover.studio.spikamessenger.data.models.*
 import com.clover.studio.spikamessenger.data.models.entity.*
 import com.clover.studio.spikamessenger.data.models.junction.RoomUser
 import com.clover.studio.spikamessenger.utils.helpers.TypeConverter
+import org.json.JSONException
+import org.json.JSONObject
+
 
 @Database(
     entities = [User::class, Reaction::class, Message::class, PhoneUser::class, ChatRoom::class, MessageRecords::class, RoomUser::class, Note::class],
@@ -50,7 +55,7 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     companion object {
-        const val DATABASE_VERSION = 7
+        const val DATABASE_VERSION = 8
 
         @Volatile
         private var instance: AppDatabase? = null
@@ -70,7 +75,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_3_4,
                     MIGRATION_4_5,
                     MIGRATION_5_6,
-                    MIGRATION_6_7
+                    MIGRATION_6_7,
+                    MIGRATION7_8
                 )
                 .fallbackToDestructiveMigration()
                 .build()
@@ -129,6 +135,50 @@ abstract class AppDatabase : RoomDatabase() {
         private val MIGRATION_6_7: Migration = object : Migration(6, 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN is_forwarded INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        private val MIGRATION7_8: Migration = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN reference_message TEXT")
+
+                val cursor = db.query("SELECT * FROM " + TablesInfo.TABLE_MESSAGE)
+                cursor.moveToFirst()
+                while (!cursor.isAfterLast) {
+                    val jsonString = cursor.getString(cursor.getColumnIndex("body"))
+                    try {
+                        val jsonObject = JSONObject(jsonString)
+                        val referenceMessage =
+                            jsonObject.getJSONObject("referenceMessage").toString()
+
+                        val values = ContentValues()
+                        values.put("reference_message", referenceMessage)
+                        db.update(
+                            TablesInfo.TABLE_MESSAGE,
+                            SQLiteDatabase.CONFLICT_REPLACE,
+                            values,
+                            "body = ?",
+                            arrayOf(jsonString)
+                        )
+
+                        jsonObject.remove("referenceMessage")
+                        val updatedJsonString = jsonObject.toString()
+
+                        val updatedValues = ContentValues()
+                        updatedValues.put("body", updatedJsonString)
+                        db.update(
+                            TablesInfo.TABLE_MESSAGE,
+                            SQLiteDatabase.CONFLICT_REPLACE,
+                            updatedValues,
+                            "body = ?",
+                            arrayOf(jsonString)
+                        )
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                    cursor.moveToNext()
+                }
+                cursor.close()
             }
         }
     }

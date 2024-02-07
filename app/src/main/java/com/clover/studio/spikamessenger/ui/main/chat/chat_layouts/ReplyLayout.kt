@@ -71,13 +71,13 @@ class ReplyLayout(context: Context) :
         } else {
             tvUsernameOther.visibility = View.VISIBLE
             tvUsernameOther.text =
-                users.firstOrNull { it.id == chatMessage.message.body?.referenceMessage?.fromUserId }?.formattedDisplayName
+                users.firstOrNull { it.id == chatMessage.message.referenceMessage?.fromUserId }?.formattedDisplayName
         }
 
-        when (chatMessage.message.body?.referenceMessage?.type) {
+        when (chatMessage.message.referenceMessage?.type) {
             /**Image or video type*/
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                if (chatMessage.message.body.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
+                if (chatMessage.message.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
                     tvReplyMedia.text = context.getString(
                         R.string.media,
                         context.getString(R.string.photo)
@@ -106,7 +106,7 @@ class ReplyLayout(context: Context) :
                 tvReplyMedia.visibility = View.VISIBLE
 
                 val imagePath =
-                    chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
+                    chatMessage.message.referenceMessage?.body?.thumbId?.let { imagePath ->
                         Tools.getFilePathUrl(
                             imagePath
                         )
@@ -149,7 +149,7 @@ class ReplyLayout(context: Context) :
                 ivReplyImage.visibility = View.GONE
                 tvReplyMedia.visibility = View.GONE
 
-                tvMessageReply.text = chatMessage.message.body?.referenceMessage?.body?.text
+                tvMessageReply.text = chatMessage.message.referenceMessage?.body?.text
             }
         }
     }
