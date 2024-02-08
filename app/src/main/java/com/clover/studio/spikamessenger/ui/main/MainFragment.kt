@@ -53,7 +53,6 @@ class MainFragment : BaseFragment() {
         }
     }
 
-    // TODO - CallHistoryFragment be implemented later
     private fun initializePager() {
         val fragmentList = arrayListOf(
             RoomsFragment(),

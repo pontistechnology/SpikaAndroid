@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -20,22 +19,18 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
 import androidx.core.content.ContextCompat.registerReceiver
 import androidx.fragment.app.activityViewModels
-import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.fragment.navArgs
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
+import androidx.viewpager2.widget.ViewPager2
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.databinding.FragmentMediaBinding
 import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.Const.MediaActions.Companion.MEDIA_DOWNLOAD
+import com.clover.studio.spikamessenger.utils.Const.MediaActions.Companion.MEDIA_SHOW_BARS
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
@@ -68,6 +63,9 @@ class MediaFragment : BaseFragment() {
 
     private var mediaList : List<Message> = arrayListOf()
 
+    private var viewPager: ViewPager2? = null
+    private var mediaPagerAdapter: MediaPagerAdapter? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mediaInfo = args.mediaInfo
@@ -85,12 +83,6 @@ class MediaFragment : BaseFragment() {
         initializeListeners()
         getAllPhotos()
 
-        if (message?.type == Const.JsonFields.IMAGE_TYPE) {
-            initializePicture()
-        } else {
-            initializeVideo()
-        }
-
         return binding.root
     }
 
@@ -103,18 +95,6 @@ class MediaFragment : BaseFragment() {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        ivFullImage.setOnClickListener {
-            showBar()
-        }
-
-        clMedia.setOnClickListener {
-            showBar()
-        }
-
-        vvVideo.setOnClickListener {
-            showBar()
-        }
-
         tvMoreMedia.setOnClickListener {
             ChooserDialog.getInstance(
                 requireContext(),
@@ -124,7 +104,7 @@ class MediaFragment : BaseFragment() {
                 null,
                 object : DialogInteraction {
                     override fun onFirstOptionClicked() {
-                        downloadMedia()
+                        downloadMedia(mediaList[viewPager.currentItem])
                     }
 
                     override fun onSecondOptionClicked() {
@@ -138,14 +118,28 @@ class MediaFragment : BaseFragment() {
     private fun getAllPhotos() {
         viewModel.getAllMedia(roomId = roomId)
         viewModel.allMediaListener.observe(viewLifecycleOwner, EventObserver {
-            Timber.d("Here:::::::::::::::: $it")
             if (Resource.Status.SUCCESS == it.status){
                 if (it.responseData != null){
                     mediaList = it.responseData
-                    Timber.d("Response data: $mediaList")
+                    initializePagerAdapter()
                 }
             }
         })
+    }
+
+    private fun initializePagerAdapter() {
+        mediaPagerAdapter = MediaPagerAdapter(requireContext(), mediaList, onItemClicked = {  event, message ->
+            when(event){
+                MEDIA_SHOW_BARS -> showBar()
+                MEDIA_DOWNLOAD -> downloadMedia(message)
+            }
+        })
+
+        viewPager?.adapter = mediaPagerAdapter
+        binding.viewPager.adapter = mediaPagerAdapter
+
+        val index = mediaList.indexOf(message)
+        binding.viewPager.setCurrentItem(index, false)
     }
 
     private fun showBar() = with(binding) {
@@ -160,74 +154,6 @@ class MediaFragment : BaseFragment() {
             .withEndAction {
                 flBottomBar.visibility = if (showBars) View.VISIBLE else View.GONE
             }.start()
-    }
-
-    private fun initializePicture() = with(binding) {
-        val imagePath = message?.body?.fileId?.let {
-            Tools.getFilePathUrl(it)
-        }.toString()
-
-        clVideoContainer.visibility = View.GONE
-        clImageContainer.visibility = View.VISIBLE
-
-        Glide.with(this@MediaFragment)
-            .load(imagePath)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .listener(object : RequestListener<Drawable> {
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    // Ignore
-                    return false
-                }
-
-                override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    pbMediaImage.visibility = View.GONE
-                    return false
-                }
-            })
-            .into(ivFullImage)
-
-    }
-
-    private fun initializeVideo() = with(binding) {
-        val videoPath = message?.body?.file?.id.let {
-            Tools.getFilePathUrl(
-                it!!
-            )
-        }.toString()
-
-        clImageContainer.visibility = View.GONE
-
-        player = context?.let {
-            MediaPlayer.getInstance(it)
-                .also { exoPlayer ->
-                    binding.vvVideo.player = exoPlayer
-
-                    // TODO adaptive streaming, look at this later
-//                    val mediaItem = MediaItem.Builder()
-//                        .setUri(Uri.parse(videoPath))
-//                        .setMimeType(MimeTypes.APPLICATION_MPD)
-//                        .build()
-
-                    val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
-                    exoPlayer.setMediaItem(mediaItem)
-                    exoPlayer.playWhenReady = playWhenReady
-                    exoPlayer.seekTo(currentItem, playbackPosition)
-                    exoPlayer.addListener(playbackStateListener)
-                    exoPlayer.prepare()
-                }
-        }
-        clVideoContainer.visibility = View.VISIBLE
     }
 
     private fun releasePlayer() {
@@ -247,16 +173,10 @@ class MediaFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
-        if (Const.JsonFields.VIDEO_TYPE == message?.type) {
-            initializeVideo()
-        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (Const.JsonFields.VIDEO_TYPE == message?.type) {
-            initializeVideo()
-        }
     }
 
     override fun onPause() {
@@ -267,15 +187,14 @@ class MediaFragment : BaseFragment() {
     override fun onStop() {
         super.onStop()
         releasePlayer()
-    }
-
-    private fun downloadMedia() {
+    }private fun downloadMedia(message: Message) {
+        Timber.d("Message: ${message.body?.file}")
         val appName =
             context?.applicationInfo?.loadLabel(requireContext().packageManager).toString()
-        val tmp = Tools.getFilePathUrl(message?.body!!.fileId!!)
+        val tmp = Tools.getFilePathUrl(message.body!!.fileId!!)
         val request = DownloadManager.Request(Uri.parse(tmp))
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-        request.setTitle(message?.body?.file?.fileName)
+        request.setTitle(message.body.file?.fileName)
         request.setDescription(MainApplication.appContext.getString(R.string.file_is_downloading))
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
 
@@ -287,7 +206,7 @@ class MediaFragment : BaseFragment() {
                 }
                 request.setDestinationInExternalPublicDir(
                     subdirectory.path,
-                    message?.body?.file!!.fileName
+                    message.body.file!!.fileName
                 )
             } else {
                 Toast.makeText(
@@ -395,6 +314,37 @@ class MediaFragment : BaseFragment() {
         }
         Toast.makeText(context, getString(R.string.saved_to_gallery), Toast.LENGTH_LONG).show()
     }
+
+//    private fun initializeVideo() = with(binding) {
+//        val videoPath = message?.body?.file?.id.let {
+//            Tools.getFilePathUrl(
+//                it!!
+//            )
+//        }.toString()
+//
+//        clImageContainer.visibility = View.GONE
+//
+//        player = context?.let {
+//            MediaPlayer.getInstance(it)
+//                .also { exoPlayer ->
+//                    binding.vvVideo.player = exoPlayer
+//
+//                    // TODO adaptive streaming, look at this later
+////                    val mediaItem = MediaItem.Builder()
+////                        .setUri(Uri.parse(videoPath))
+////                        .setMimeType(MimeTypes.APPLICATION_MPD)
+////                        .build()
+//
+//                    val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
+//                    exoPlayer.setMediaItem(mediaItem)
+//                    exoPlayer.playWhenReady = playWhenReady
+//                    exoPlayer.seekTo(currentItem, playbackPosition)
+//                    exoPlayer.addListener(playbackStateListener)
+//                    exoPlayer.prepare()
+//                }
+//        }
+//        clVideoContainer.visibility = View.VISIBLE
+//    }
 }
 
 private fun playbackStateListener() = object : Player.Listener {

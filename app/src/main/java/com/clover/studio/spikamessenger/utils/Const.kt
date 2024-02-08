@@ -50,6 +50,13 @@ class Const {
         }
     }
 
+    class MediaActions {
+        companion object {
+            const val MEDIA_SHOW_BARS = "media_show_bars"
+            const val MEDIA_DOWNLOAD = "media_download"
+        }
+    }
+
     class IntentExtras {
         companion object {
             const val ROOM_ID_EXTRA = "room_id_extra"
