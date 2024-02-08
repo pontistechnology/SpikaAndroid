@@ -8,7 +8,7 @@
     android:background="@color/black"
     android:clickable="true"
     android:focusable="true"
-    tools:context=".ui.main.chat.MediaFragment"
+    tools:context=".ui.main.chat.media.MediaFragment"
     tools:ignore="contentDescription">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -37,6 +37,7 @@
         <TextView
             android:id="@+id/tv_media_info"
             android:layout_width="0dp"
+            android:visibility="gone"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
             android:layout_marginEnd="@dimen/eight_dp_margin"
@@ -80,4 +81,14 @@
             android:text="@string/more"
             android:textColor="?attr/primaryColor" />
     </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_small_media"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/sixty_four_dp"
+        app:layout_constraintBottom_toTopOf="@+id/fl_bottom_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="horizontal"
+        tools:listitem="@layout/item_media_small" />
 </androidx.constraintlayout.widget.ConstraintLayout>
