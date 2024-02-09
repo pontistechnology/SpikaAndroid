@@ -65,6 +65,7 @@
             android:drawablePadding="@dimen/eight_dp_margin"
             android:ellipsize="end"
             android:maxLines="3"
+            android:padding="@dimen/four_dp_margin"
             android:text="@string/media"
             android:textAppearance="@style/CustomTextBody"
             android:textSize="@dimen/fourteen_sp_text"
