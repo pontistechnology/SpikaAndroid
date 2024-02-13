@@ -21,6 +21,7 @@ import com.clover.studio.spikamessenger.databinding.ItemMediaBinding
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.helpers.MediaPlayer
+import timber.log.Timber
 
 class MediaPagerAdapter(
     private val context: Context,
@@ -30,10 +31,7 @@ class MediaPagerAdapter(
     RecyclerView.Adapter<MediaPagerAdapter.MediaViewHolder>() {
 
     private var player: ExoPlayer? = null
-    private var playWhenReady = true
-    private var currentItem = 0
-    private var playbackPosition = 0L
-    private val playbackStateListener: Player.Listener = playbackStateListener()
+    private var playbackStateListener: Player.Listener = playbackStateListener()
 
     inner class MediaViewHolder(val binding: ItemMediaBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -46,8 +44,8 @@ class MediaPagerAdapter(
     override fun getItemCount(): Int = mediaList.size
 
     override fun onBindViewHolder(holder: MediaViewHolder, position: Int) {
-        if (player != null) releasePlayer()
-
+        Timber.d("Here 1")
+        Timber.d("Player::::::::: $playbackStateListener")
         if (Const.JsonFields.IMAGE_TYPE == mediaList[position].type) {
             bindMediaImage(holder.binding, position)
             holder.binding.clVideoContainer.visibility = View.GONE
@@ -57,32 +55,45 @@ class MediaPagerAdapter(
         }
     }
 
+    override fun onViewAttachedToWindow(holder: MediaViewHolder) {
+        super.onViewAttachedToWindow(holder)
+        val position = holder.absoluteAdapterPosition
+        Timber.d("Attached::: $position")
+
+        if (Const.JsonFields.VIDEO_TYPE == mediaList[position].type) {
+            bindMediaVideo(holder.binding, position)
+        }
+    }
+
     private fun bindMediaVideo(binding: ItemMediaBinding, position: Int) {
-        val videoPath = mediaList[position].body?.file?.id.let {
-            Tools.getFilePathUrl(
-                it!!
-            )
-        }.toString()
+        Timber.d("Here:::::::::::::")
+        Timber.d("Player:::::::: $player")
+
+        releasePlayer()
+
+        player = MediaPlayer.getInstance(context)
+            .also { exoPlayer ->
+                binding.vvVideo.player = exoPlayer
+
+                val videoPath = mediaList[position].body?.file?.id.let {
+                    Tools.getFilePathUrl(
+                        it ?: 0L
+                    )
+                }.toString()
+
+                val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
+
+                exoPlayer.apply {
+                    setMediaItem(mediaItem)
+                    playWhenReady = true
+                    addListener(playbackStateListener())
+                    prepare()
+                }
+
+                Timber.d("ExoPlayer: $exoPlayer")
+            }
 
         binding.clImageContainer.visibility = View.GONE
-
-        player = context.let {
-            MediaPlayer.getInstance(it)
-                .also { exoPlayer ->
-                    binding.vvVideo.player = exoPlayer
-
-                    val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
-
-                    exoPlayer.apply {
-                        setMediaItem(mediaItem)
-                        playWhenReady = playWhenReady
-                        seekTo(currentItem, playbackPosition)
-                        addListener(playbackStateListener)
-                        prepare()
-                    }
-                }
-        }
-
         binding.clVideoContainer.visibility = View.VISIBLE
     }
 
@@ -127,27 +138,24 @@ class MediaPagerAdapter(
     private fun playbackStateListener() = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
             val stateString: String = when (playbackState) {
-                ExoPlayer.STATE_IDLE -> "ExoPlayer.STATE_IDLE      -"
-                ExoPlayer.STATE_BUFFERING -> "ExoPlayer.STATE_BUFFERING -"
-                ExoPlayer.STATE_READY -> "ExoPlayer.STATE_READY     -"
-                ExoPlayer.STATE_ENDED -> "ExoPlayer.STATE_ENDED     -"
-                else -> "UNKNOWN_STATE             -"
+                ExoPlayer.STATE_IDLE -> "ExoPlayer.STATE_IDLE"
+                ExoPlayer.STATE_BUFFERING -> "ExoPlayer.STATE_BUFFERING"
+                ExoPlayer.STATE_READY -> "ExoPlayer.STATE_READY"
+                ExoPlayer.STATE_ENDED -> "ExoPlayer.STATE_ENDED"
+                else -> "UNKNOWN_STATE"
             }
+            Timber.d("State:: $stateString")
         }
     }
 
     private fun releasePlayer() {
         player?.let { exoPlayer ->
             exoPlayer.stop()
-            playbackPosition = exoPlayer.currentPosition
-            currentItem = exoPlayer.currentMediaItemIndex
-            playWhenReady = exoPlayer.playWhenReady
             exoPlayer.removeListener(playbackStateListener)
             exoPlayer.release()
 
-            // Since ExoPlayer is released, we need to reset the singleton instance to null. Instead
-            // we won't be able to use ExoPlayer instance anymore since it is released.
             MediaPlayer.resetPlayer()
+            Timber.d("Player released")
         }
     }
 }

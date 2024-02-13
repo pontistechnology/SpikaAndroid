@@ -26,6 +26,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Message
+import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentMediaBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.utils.AppPermissions
@@ -49,10 +50,10 @@ class MediaFragment : BaseFragment() {
     private val viewModel: ChatViewModel by activityViewModels()
     private val args: MediaFragmentArgs by navArgs()
 
-
-    private var mediaInfo: String? = null
     private var message: Message? = null
     private var roomId: Int = 0
+    private var roomUsers: List<User>? = null
+    private var localUserId: Int = 0
 
     private var mediaList: List<Message> = arrayListOf()
 
@@ -62,9 +63,11 @@ class MediaFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mediaInfo = args.mediaInfo
+
         message = args.message
         roomId = message?.roomId ?: 0
+        roomUsers = args.roomWithUsers?.users
+        localUserId = args.localUserId
     }
 
     override fun onCreateView(
@@ -73,16 +76,12 @@ class MediaFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentMediaBinding.inflate(inflater, container, false)
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        initializeViews()
+
         initializeListeners()
         getAllPhotos()
+        message?.let { setMediaInfo(it) }
 
         return binding.root
-    }
-
-    private fun initializeViews() {
-        // TODO - discuss media info
-        binding.tvMediaInfo.text = mediaInfo
     }
 
     private fun initializeListeners() = with(binding) {
@@ -90,7 +89,7 @@ class MediaFragment : BaseFragment() {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        tvMoreMedia.setOnClickListener {
+        ivMoreMedia.setOnClickListener {
             ChooserDialog.getInstance(
                 requireContext(),
                 null,
@@ -136,14 +135,33 @@ class MediaFragment : BaseFragment() {
         binding.viewPager.adapter = mediaPagerAdapter
 
         binding.viewPager.setCurrentItem(mediaList.indexOf(message), false)
-
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 setUpSelectedSmallMedia(mediaList[position])
+
+                setMediaInfo(mediaList[position])
             }
         })
 
+    }
+
+    private fun setMediaInfo(chatMessage: Message) {
+        val mediaInfo: String = if (chatMessage.fromUserId == localUserId) {
+            requireContext().getString(
+                R.string.you_sent_on,
+                Tools.fullDateFormat(chatMessage.createdAt!!)
+            )
+        } else {
+            val userName =
+                roomUsers?.firstOrNull { it.id == chatMessage.fromUserId }?.formattedDisplayName
+            requireContext().getString(
+                R.string.user_sent_on,
+                userName,
+                Tools.fullDateFormat(chatMessage.createdAt ?: 0L)
+            )
+        }
+        binding.tvMediaInfo.text = mediaInfo
     }
 
     private fun setUpSmallMediaAdapter() {
@@ -163,10 +181,11 @@ class MediaFragment : BaseFragment() {
     }
 
     private fun setUpSelectedSmallMedia(selectedMessage: Message) {
-        smallMediaAdapter?.setSelectedSmallMedia(
-            mediaList.indexOf(selectedMessage)
-        )
-        smallMediaAdapter?.submitList(mediaList)
+        smallMediaAdapter?.apply {
+            setSelectedSmallMedia(mediaList.indexOf(selectedMessage))
+            submitList(mediaList)
+        }
+        binding.rvSmallMedia.scrollToPosition(mediaList.indexOf(selectedMessage))
     }
 
     private fun showBar() = with(binding) {

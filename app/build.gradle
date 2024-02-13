@@ -229,7 +229,7 @@ dependencies {
     implementation 'com.github.MikeOrtiz:TouchImageView:1.4.1'
 
     // Exo Player
-    def mediaVersion = "1.2.0"
+    def mediaVersion = "1.2.1"
     dependencies {
         implementation "androidx.media3:media3-exoplayer:$mediaVersion"
         implementation "androidx.media3:media3-ui:$mediaVersion"

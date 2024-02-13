@@ -1147,27 +1147,12 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun handleMediaNavigation(chatMessage: MessageAndRecords) {
-        val mediaInfo: String = if (chatMessage.message.fromUserId == localUserId) {
-            requireContext().getString(
-                R.string.you_sent_on,
-                Tools.fullDateFormat(chatMessage.message.createdAt!!)
-            )
-        } else {
-            val userName =
-                roomWithUsers!!.users.firstOrNull { it.id == chatMessage.message.fromUserId }!!.formattedDisplayName
-            requireContext().getString(
-                R.string.user_sent_on,
-                userName,
-                Tools.fullDateFormat(chatMessage.message.createdAt!!)
-            )
-        }
-
         val action =
             ChatMessagesFragmentDirections.actionChatMessagesFragmentToMediaFragment(
-                mediaInfo = mediaInfo,
-                message = chatMessage.message
+                message = chatMessage.message,
+                localUserId = localUserId,
+                roomWithUsers = roomWithUsers
             )
-
         findNavController().navigate(action, navOptionsBuilder)
     }
 

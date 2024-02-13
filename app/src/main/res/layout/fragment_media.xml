@@ -34,17 +34,26 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/iv_more_media"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/eight_dp_margin"
+            android:src="@drawable/img_more_media"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/tv_media_info"
             android:layout_width="0dp"
-            android:visibility="gone"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/eight_dp_margin"
-            android:layout_marginEnd="@dimen/eight_dp_margin"
             android:textColor="@color/white"
             android:textSize="@dimen/fourteen_sp_text"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="@+id/iv_back_to_chat"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_more_media"
             app:layout_constraintStart_toEndOf="@+id/iv_back_to_chat"
             app:layout_constraintTop_toTopOf="@+id/iv_back_to_chat" />
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -56,11 +65,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" >
+    </androidx.viewpager2.widget.ViewPager2>
 
     <FrameLayout
         android:id="@+id/fl_bottom_bar"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/dark_background_transp"
         android:visibility="visible"
@@ -68,27 +78,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
-            android:id="@+id/tv_more_media"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_small_media"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="@dimen/eight_dp_margin"
-            android:layout_marginEnd="@dimen/sixteen_dp_margin"
-            android:layout_marginBottom="@dimen/eight_dp_margin"
-            android:fontFamily="@font/roboto_bold"
-            android:padding="@dimen/five_dp_margin"
-            android:text="@string/more"
-            android:textColor="?attr/primaryColor" />
-    </FrameLayout>
+            android:layout_height="@dimen/sixty_four_dp"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            tools:listitem="@layout/item_media_small" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_small_media"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/sixty_four_dp"
-        app:layout_constraintBottom_toTopOf="@+id/fl_bottom_bar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:orientation="horizontal"
-        tools:listitem="@layout/item_media_small" />
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

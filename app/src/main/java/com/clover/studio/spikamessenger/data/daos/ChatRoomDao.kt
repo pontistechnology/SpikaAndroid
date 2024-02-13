@@ -132,7 +132,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     )
     suspend fun getSearchMessages(text: String): List<MessageWithRoom>
 
-    @Query("SELECT * FROM message WHERE message.room_id_message = :roomId AND type_message = 'image'" +
-            "OR type_message = 'video'")
-    suspend fun getAllMedia(roomId: Int) : List<Message>
+    @Query("SELECT * FROM message WHERE message.room_id_message = :roomId AND (type_message = 'image' OR type_message = 'video')")
+    suspend fun getAllMedia(roomId: Int): List<Message>
+
 }
