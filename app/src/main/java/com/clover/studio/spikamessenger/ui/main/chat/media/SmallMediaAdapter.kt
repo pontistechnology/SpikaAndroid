@@ -24,6 +24,7 @@ class SmallMediaAdapter(
 ) : ListAdapter<Message, SmallMediaAdapter.SmallMediaViewHolder>(SmallMediaDiffCallback()) {
 
     private var selectedPosition = 0
+    private var previousPosition = 0
 
     inner class SmallMediaViewHolder(val binding: ItemMediaSmallBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -35,8 +36,11 @@ class SmallMediaAdapter(
     }
 
     fun setSelectedSmallMedia(index: Int) {
+        previousPosition = selectedPosition
         selectedPosition = index
-        notifyDataSetChanged()
+
+        notifyItemChanged(previousPosition)
+        notifyItemChanged(selectedPosition)
     }
 
     override fun onBindViewHolder(holder: SmallMediaViewHolder, position: Int) {

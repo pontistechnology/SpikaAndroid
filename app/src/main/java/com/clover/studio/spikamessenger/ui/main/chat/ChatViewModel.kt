@@ -43,10 +43,10 @@ class ChatViewModel @Inject constructor(
     val roomNumberUpdated = MutableLiveData<Int>()
     val roomAvatarUploaded = MutableLiveData<Event<Long>>()
     private val liveDataLimit = MutableLiveData(20)
+    private val mediaItemsLimit = MutableLiveData(10)
     val messagesReceived = MutableLiveData<List<Message>>()
     val searchMessageId = MutableLiveData(0)
     val roomWithUsers = MutableLiveData<RoomWithUsers>()
-    val allMediaListener = MutableLiveData<Event<Resource<List<Message>?>>>()
 
     init {
         sseManager.setupListener(this)
@@ -153,6 +153,7 @@ class ChatViewModel @Inject constructor(
         runBlocking {
             messageCount = repository.getMessageCount(roomId)
         }
+
         return messageCount
     }
 
@@ -280,8 +281,23 @@ class ChatViewModel @Inject constructor(
         mainRepository.cancelUpload(messageId)
     }
 
-    fun getAllMedia(roomId: Int) = viewModelScope.launch {
-        resolveResponseStatus(allMediaListener, mainRepository.getAllMedia(roomId))
+    fun getAllMediaWithOffset(roomId: Int) = mediaItemsLimit.switchMap {
+        mainRepository.getAllMediaWithOffset(roomId = roomId, limit = it, offset = 0)
+    }
+
+    fun fetchNextMediaSet(roomId: Int) {
+        val currentLimit = mediaItemsLimit.value ?: 0
+        if (getMediaCount(roomId) > currentLimit) mediaItemsLimit.value = currentLimit + 5
+    }
+
+    private fun getMediaCount(roomId: Int): Int {
+        var mediaCount: Int
+
+        runBlocking {
+            mediaCount = mainRepository.getMediaCount(roomId)
+        }
+
+        return mediaCount
     }
 }
 

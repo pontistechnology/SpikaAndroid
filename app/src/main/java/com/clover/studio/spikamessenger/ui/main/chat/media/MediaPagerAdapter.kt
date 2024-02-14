@@ -44,8 +44,6 @@ class MediaPagerAdapter(
     override fun getItemCount(): Int = mediaList.size
 
     override fun onBindViewHolder(holder: MediaViewHolder, position: Int) {
-        Timber.d("Here 1")
-        Timber.d("Player::::::::: $playbackStateListener")
         if (Const.JsonFields.IMAGE_TYPE == mediaList[position].type) {
             bindMediaImage(holder.binding, position)
             holder.binding.clVideoContainer.visibility = View.GONE
@@ -58,7 +56,6 @@ class MediaPagerAdapter(
     override fun onViewAttachedToWindow(holder: MediaViewHolder) {
         super.onViewAttachedToWindow(holder)
         val position = holder.absoluteAdapterPosition
-        Timber.d("Attached::: $position")
 
         if (Const.JsonFields.VIDEO_TYPE == mediaList[position].type) {
             bindMediaVideo(holder.binding, position)
@@ -66,9 +63,6 @@ class MediaPagerAdapter(
     }
 
     private fun bindMediaVideo(binding: ItemMediaBinding, position: Int) {
-        Timber.d("Here:::::::::::::")
-        Timber.d("Player:::::::: $player")
-
         releasePlayer()
 
         player = MediaPlayer.getInstance(context)
@@ -89,12 +83,14 @@ class MediaPagerAdapter(
                     addListener(playbackStateListener())
                     prepare()
                 }
-
-                Timber.d("ExoPlayer: $exoPlayer")
             }
 
         binding.clImageContainer.visibility = View.GONE
         binding.clVideoContainer.visibility = View.VISIBLE
+
+        binding.clVideoContainer.setOnClickListener { _ ->
+            onItemClicked.invoke(Const.MediaActions.MEDIA_SHOW_BARS, mediaList[position])
+        }
     }
 
     private fun bindMediaImage(binding: ItemMediaBinding, position: Int) {

@@ -278,11 +278,16 @@ class MainRepositoryImpl @Inject constructor(
         uploadCanceled.postValue(Pair(messageId, true))
     }
 
-    override suspend fun getAllMedia(roomId: Int): Resource<List<Message>> {
-        return queryDatabaseCoreData(
-            databaseQuery = { chatRoomDao.getAllMedia(roomId) }
+    override fun getAllMediaWithOffset(
+        roomId: Int,
+        limit: Int,
+        offset: Int
+    ) =
+        queryDatabase(
+            databaseQuery = { chatRoomDao.getAllMediaWithOffset(roomId, limit, offset) }
         )
-    }
+
+    override suspend fun getMediaCount(roomId: Int) = chatRoomDao.getMediaCount(roomId)
 
     override suspend fun getSearchedMessages(query: String) =
         queryDatabaseCoreData(
@@ -446,7 +451,8 @@ interface MainRepository : BaseRepository {
     suspend fun getRecentContacts(): Resource<List<RoomWithUsers>>
     suspend fun getRecentGroups(): Resource<List<RoomWithUsers>>
     suspend fun getAllGroups(): Resource<List<RoomWithUsers>>
-    suspend fun getAllMedia(roomId: Int): Resource<List<Message>>
+    fun getAllMediaWithOffset(roomId: Int, limit: Int, offset: Int): LiveData<Resource<List<Message>>>
+    suspend fun getMediaCount(roomId: Int): Int
     suspend fun updateRoom(
         jsonObject: JsonObject,
         roomId: Int

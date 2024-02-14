@@ -33,7 +33,6 @@ import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Const.MediaActions.Companion.MEDIA_DOWNLOAD
 import com.clover.studio.spikamessenger.utils.Const.MediaActions.Companion.MEDIA_SHOW_BARS
-import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
@@ -54,6 +53,7 @@ class MediaFragment : BaseFragment() {
     private var roomId: Int = 0
     private var roomUsers: List<User>? = null
     private var localUserId: Int = 0
+    private var isFetching = false
 
     private var mediaList: List<Message> = arrayListOf()
 
@@ -110,16 +110,20 @@ class MediaFragment : BaseFragment() {
     }
 
     private fun getAllPhotos() {
-        viewModel.getAllMedia(roomId = roomId)
-        viewModel.allMediaListener.observe(viewLifecycleOwner, EventObserver {
+        viewModel.getAllMediaWithOffset(roomId = roomId).observe(viewLifecycleOwner) {
             if (Resource.Status.SUCCESS == it.status) {
                 if (it.responseData != null) {
                     mediaList = it.responseData
-                    initializePagerAdapter()
-                    setUpSmallMediaAdapter()
+
+                    if (!mediaList.contains(message)) {
+                        viewModel.fetchNextMediaSet(roomId)
+                    } else {
+                        initializePagerAdapter()
+                        setUpSmallMediaAdapter()
+                    }
                 }
             }
-        })
+        }
     }
 
     private fun initializePagerAdapter() {
@@ -139,6 +143,12 @@ class MediaFragment : BaseFragment() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 setUpSelectedSmallMedia(mediaList[position])
+
+                message = mediaList[position]
+
+                if (position == smallMediaAdapter?.itemCount) {
+                    viewModel.fetchNextMediaSet(roomId = roomId)
+                }
 
                 setMediaInfo(mediaList[position])
             }
@@ -169,15 +179,32 @@ class MediaFragment : BaseFragment() {
             binding.viewPager.setCurrentItem(mediaList.indexOf(it), false)
         }
 
+        val linearLayoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
         binding.rvSmallMedia.apply {
             itemAnimator = null
             adapter = smallMediaAdapter
-            layoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
+            layoutManager = linearLayoutManager
+
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+
+                    val lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition()
+                    val totalItemCount = linearLayoutManager.itemCount
+
+                    if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
+
+                        viewModel.fetchNextMediaSet(roomId = roomId)
+                        isFetching = true
+
+                    } else if (lastVisiblePosition != totalItemCount - 1) {
+                        isFetching = false
+                    }
+                }
+            })
         }
 
         message?.let { setUpSelectedSmallMedia(it) }
-
-        smallMediaAdapter?.submitList(mediaList)
     }
 
     private fun setUpSelectedSmallMedia(selectedMessage: Message) {

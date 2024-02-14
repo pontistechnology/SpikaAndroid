@@ -132,7 +132,13 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     )
     suspend fun getSearchMessages(text: String): List<MessageWithRoom>
 
-    @Query("SELECT * FROM message WHERE message.room_id_message = :roomId AND (type_message = 'image' OR type_message = 'video')")
-    suspend fun getAllMedia(roomId: Int): List<Message>
+    @Query(
+        "SELECT * FROM message WHERE message.room_id_message = :roomId AND (type_message = 'image' OR type_message = 'video') " +
+                "LIMIT :limit OFFSET :offset"
+    )
+    fun getAllMediaWithOffset(roomId: Int, limit: Int, offset: Int): LiveData<List<Message>>
+
+    @Query("SELECT COUNT(*) FROM message WHERE room_id_message= :roomId AND (type_message = 'image' OR type_message = 'video')")
+    suspend fun getMediaCount(roomId: Int): Int
 
 }
