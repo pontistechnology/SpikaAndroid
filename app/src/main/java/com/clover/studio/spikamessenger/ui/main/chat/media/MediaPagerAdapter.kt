@@ -140,7 +140,7 @@ class MediaPagerAdapter(
                 ExoPlayer.STATE_ENDED -> "ExoPlayer.STATE_ENDED"
                 else -> "UNKNOWN_STATE"
             }
-            Timber.d("State:: $stateString")
+            Timber.d("State: $stateString")
         }
     }
 
@@ -151,7 +151,6 @@ class MediaPagerAdapter(
             exoPlayer.release()
 
             MediaPlayer.resetPlayer()
-            Timber.d("Player released")
         }
     }
 }
