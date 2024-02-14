@@ -51,9 +51,9 @@ class SmallMediaAdapter(
                 } else {
                     View.GONE
                 }
+                binding.pbSmallMedia.visibility = View.VISIBLE
 
                 val imagePath = Tools.getMediaFile(context, message)
-
                 Glide.with(context)
                     .load(imagePath)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -75,6 +75,7 @@ class SmallMediaAdapter(
                             dataSource: DataSource?,
                             isFirstResource: Boolean
                         ): Boolean {
+                            binding.pbSmallMedia.visibility = View.GONE
                             return false
                         }
                     })

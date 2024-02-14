@@ -26,4 +26,11 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars"
         app:shapeAppearanceOverlay="@style/round"/>
+
+    <ProgressBar
+        android:id="@+id/pb_small_media"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="@dimen/forty_dp_margin"
+        android:layout_height="@dimen/forty_dp_margin"
+        android:layout_gravity="center"/>
 </FrameLayout>
