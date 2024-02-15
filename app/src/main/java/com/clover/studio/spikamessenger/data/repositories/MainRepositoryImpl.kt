@@ -7,6 +7,7 @@ import com.clover.studio.spikamessenger.data.daos.ChatRoomDao
 import com.clover.studio.spikamessenger.data.daos.RoomUserDao
 import com.clover.studio.spikamessenger.data.daos.UserDao
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
+import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
@@ -30,7 +31,6 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -275,9 +275,19 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun cancelUpload(messageId: String) {
-        Timber.d("Message id: $messageId")
         uploadCanceled.postValue(Pair(messageId, true))
     }
+
+    override fun getAllMediaWithOffset(
+        roomId: Int,
+        limit: Int,
+        offset: Int
+    ) =
+        queryDatabase(
+            databaseQuery = { chatRoomDao.getAllMediaWithOffset(roomId, limit, offset) }
+        )
+
+    override suspend fun getMediaCount(roomId: Int) = chatRoomDao.getMediaCount(roomId)
 
     override suspend fun getSearchedMessages(query: String) =
         queryDatabaseCoreData(
@@ -441,6 +451,8 @@ interface MainRepository : BaseRepository {
     suspend fun getRecentContacts(): Resource<List<RoomWithUsers>>
     suspend fun getRecentGroups(): Resource<List<RoomWithUsers>>
     suspend fun getAllGroups(): Resource<List<RoomWithUsers>>
+    fun getAllMediaWithOffset(roomId: Int, limit: Int, offset: Int): LiveData<Resource<List<Message>>>
+    suspend fun getMediaCount(roomId: Int): Int
     suspend fun updateRoom(
         jsonObject: JsonObject,
         roomId: Int
