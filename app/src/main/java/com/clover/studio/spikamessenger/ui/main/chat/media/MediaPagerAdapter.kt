@@ -62,40 +62,39 @@ class MediaPagerAdapter(
         }
     }
 
-    private fun bindMediaVideo(binding: ItemMediaBinding, position: Int) {
+    private fun bindMediaVideo(binding: ItemMediaBinding, position: Int) = with(binding) {
         releasePlayer()
 
         player = MediaPlayer.getInstance(context)
             .also { exoPlayer ->
-                binding.vvVideo.player = exoPlayer
+                vvVideo.player = exoPlayer
 
-                val videoPath = mediaList[position].body?.file?.id.let {
-                    Tools.getFilePathUrl(
-                        it ?: 0L
-                    )
-                }.toString()
+                val fileId = mediaList[position].body?.file?.id
+                if (fileId != null) {
+                    val videoPath = Tools.getFilePathUrl(fileId)
 
-                val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
+                    val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
 
-                exoPlayer.apply {
-                    setMediaItem(mediaItem)
-                    playWhenReady = true
-                    addListener(playbackStateListener())
-                    prepare()
+                    exoPlayer.apply {
+                        setMediaItem(mediaItem)
+                        playWhenReady = true
+                        addListener(playbackStateListener())
+                        prepare()
+                    }
                 }
             }
 
-        binding.clImageContainer.visibility = View.GONE
-        binding.clVideoContainer.visibility = View.VISIBLE
+        clImageContainer.visibility = View.GONE
+        clVideoContainer.visibility = View.VISIBLE
 
-        binding.clVideoContainer.setOnClickListener { _ ->
+        clVideoContainer.setOnClickListener { _ ->
             onItemClicked.invoke(Const.MediaActions.MEDIA_SHOW_BARS, mediaList[position])
         }
     }
 
-    private fun bindMediaImage(binding: ItemMediaBinding, position: Int) {
-        binding.clImageContainer.visibility = View.VISIBLE
-        binding.ivFullImage.setOnClickListener { _ ->
+    private fun bindMediaImage(binding: ItemMediaBinding, position: Int) = with(binding){
+        clImageContainer.visibility = View.VISIBLE
+        ivFullImage.setOnClickListener { _ ->
             onItemClicked.invoke(Const.MediaActions.MEDIA_SHOW_BARS, mediaList[position])
         }
 
@@ -124,11 +123,11 @@ class MediaPagerAdapter(
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    binding.pbMediaImage.visibility = View.GONE
+                    pbMediaImage.visibility = View.GONE
                     return false
                 }
             })
-            .into(binding.ivFullImage)
+            .into(ivFullImage)
     }
 
     private fun playbackStateListener() = object : Player.Listener {

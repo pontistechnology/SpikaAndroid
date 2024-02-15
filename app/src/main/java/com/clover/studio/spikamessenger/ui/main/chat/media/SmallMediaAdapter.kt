@@ -46,43 +46,45 @@ class SmallMediaAdapter(
     override fun onBindViewHolder(holder: SmallMediaViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { message ->
-                binding.vSelectedMedia.visibility = if (position == selectedPosition) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
-                binding.pbSmallMedia.visibility = View.VISIBLE
+                binding.apply {
+                    vSelectedMedia.visibility = if (position == selectedPosition) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
+                    pbSmallMedia.visibility = View.VISIBLE
 
-                val imagePath = Tools.getMediaFile(context, message)
-                Glide.with(context)
-                    .load(imagePath)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .listener(object : RequestListener<Drawable> {
-                        override fun onLoadFailed(
-                            e: GlideException?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            // Ignore
-                            return false
-                        }
+                    val imagePath = Tools.getMediaFile(context, message)
+                    Glide.with(context)
+                        .load(imagePath)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .listener(object : RequestListener<Drawable> {
+                            override fun onLoadFailed(
+                                e: GlideException?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                // Ignore
+                                return false
+                            }
 
-                        override fun onResourceReady(
-                            resource: Drawable?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            dataSource: DataSource?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            binding.pbSmallMedia.visibility = View.GONE
-                            return false
-                        }
-                    })
-                    .into(binding.ivSmallMedia)
+                            override fun onResourceReady(
+                                resource: Drawable?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                dataSource: DataSource?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                pbSmallMedia.visibility = View.GONE
+                                return false
+                            }
+                        })
+                        .into(ivSmallMedia)
 
-                binding.ivSmallMedia.setOnClickListener { _ ->
-                    onItemClick.invoke(message)
+                    ivSmallMedia.setOnClickListener { _ ->
+                        onItemClick.invoke(message)
+                    }
                 }
             }
         }

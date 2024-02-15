@@ -57,7 +57,7 @@ class MediaFragment : BaseFragment() {
 
     private var mediaList: List<Message> = arrayListOf()
 
-    private var viewPager: ViewPager2? = null
+    private var viewPager2: ViewPager2? = null
     private var mediaPagerAdapter: MediaPagerAdapter? = null
     private var smallMediaAdapter: SmallMediaAdapter? = null
 
@@ -126,7 +126,7 @@ class MediaFragment : BaseFragment() {
         }
     }
 
-    private fun initializePagerAdapter() {
+    private fun initializePagerAdapter() = with(binding){
         mediaPagerAdapter =
             MediaPagerAdapter(requireContext(), mediaList, onItemClicked = { event, message ->
                 when (event) {
@@ -135,11 +135,11 @@ class MediaFragment : BaseFragment() {
                 }
             })
 
-        viewPager?.adapter = mediaPagerAdapter
-        binding.viewPager.adapter = mediaPagerAdapter
+        viewPager2?.adapter = mediaPagerAdapter
+        viewPager.adapter = mediaPagerAdapter
 
-        binding.viewPager.setCurrentItem(mediaList.indexOf(message), false)
-        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        viewPager.setCurrentItem(mediaList.indexOf(message), false)
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 setUpSelectedSmallMedia(mediaList[position])
@@ -160,7 +160,7 @@ class MediaFragment : BaseFragment() {
         val mediaInfo: String = if (chatMessage.fromUserId == localUserId) {
             requireContext().getString(
                 R.string.you_sent_on,
-                Tools.fullDateFormat(chatMessage.createdAt!!)
+                Tools.fullDateFormat(chatMessage.createdAt ?: 0L)
             )
         } else {
             val userName =
@@ -174,13 +174,13 @@ class MediaFragment : BaseFragment() {
         binding.tvMediaInfo.text = mediaInfo
     }
 
-    private fun setUpSmallMediaAdapter() {
+    private fun setUpSmallMediaAdapter() = with(binding) {
         smallMediaAdapter = SmallMediaAdapter(context = requireContext()) {
-            binding.viewPager.setCurrentItem(mediaList.indexOf(it), false)
+            viewPager.setCurrentItem(mediaList.indexOf(it), false)
         }
 
         val linearLayoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
-        binding.rvSmallMedia.apply {
+        rvSmallMedia.apply {
             itemAnimator = null
             adapter = smallMediaAdapter
             layoutManager = linearLayoutManager
@@ -232,10 +232,10 @@ class MediaFragment : BaseFragment() {
     private fun downloadMedia(message: Message) {
         val appName =
             context?.applicationInfo?.loadLabel(requireContext().packageManager).toString()
-        val tmp = Tools.getFilePathUrl(message.body!!.fileId!!)
+        val tmp = message.body?.fileId?.let { Tools.getFilePathUrl(it)}
         val request = DownloadManager.Request(Uri.parse(tmp))
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-        request.setTitle(message.body.file?.fileName)
+        request.setTitle(message.body?.file?.fileName)
         request.setDescription(MainApplication.appContext.getString(R.string.file_is_downloading))
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
 
@@ -247,7 +247,7 @@ class MediaFragment : BaseFragment() {
                 }
                 request.setDestinationInExternalPublicDir(
                     subdirectory.path,
-                    message.body.file!!.fileName
+                    message.body?.file?.fileName
                 )
             } else {
                 Toast.makeText(
