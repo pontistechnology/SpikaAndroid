@@ -66,7 +66,7 @@ class ChooserDialog(
             )
 
             val marginInPixels = context.resources.getDimensionPixelSize(R.dimen.four_dp_margin)
-            layoutParams.setMargins(0, 0, 0, marginInPixels)
+            layoutParams.setMargins(0, marginInPixels, 0, marginInPixels)
 
             newView.layoutParams = layoutParams
 

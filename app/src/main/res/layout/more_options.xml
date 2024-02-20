@@ -7,8 +7,6 @@
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/sixteen_dp_margin"
     android:orientation="vertical"
-    app:cardCornerRadius="@dimen/ten_dp_margin"
-    app:cardElevation="0dp"
     tools:ignore="contentDescription">
 
     <com.google.android.material.card.MaterialCardView
@@ -61,6 +59,7 @@
         android:orientation="vertical"
         app:cardBackgroundColor="?attr/primaryColor"
         app:cardElevation="0dp"
+        android:layout_marginTop="@dimen/four_dp_margin"
         app:cardPreventCornerOverlap="false"
         app:shapeAppearanceOverlay="@style/LastOptionStyle"
         tools:ignore="contentDescription"
