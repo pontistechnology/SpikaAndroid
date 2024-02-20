@@ -197,24 +197,24 @@ class ContactDetailsFragment : BaseFragment() {
             tvUsername.text = user?.userName
             tvNumber.text = user?.phoneNumber
 
-            val listOptions = mutableListOf(getString(R.string.copy), getString(R.string.save_contact), getString(R.string.cancel))
             ivAddContact.setOnClickListener {
+                val listOptions = mutableListOf(
+                    getString(R.string.copy) to { copyNumber(user?.phoneNumber.toString()) },
+                    getString(R.string.save_contact) to {
+                        saveContactToPhone(
+                            phoneNumber = user?.phoneNumber.toString(),
+                            phoneName = user?.userName.toString()
+                        )
+                    },
+                    getString(R.string.cancel) to {}
+                )
+
                 ChooserDialog.getInstance(
                     context = requireContext(),
-                    listChooseOptions = listOptions,
+                    listChooseOptions = listOptions.map { it.first }.toMutableList(),
                     object : DialogInteraction {
                         override fun onOptionClicked(optionName: String) {
-                            when (optionName) {
-                                getString(R.string.copy) -> copyNumber(user?.phoneNumber.toString())
-                                getString(R.string.save_contact) -> {
-                                    saveContactToPhone(
-                                        user?.phoneNumber.toString(),
-                                        user?.userName.toString()
-                                    )
-                                }
-
-                                getString(R.string.cancel) -> {}
-                            }
+                            listOptions.find { it.first == optionName }?.second?.invoke()
                         }
                     }
                 )

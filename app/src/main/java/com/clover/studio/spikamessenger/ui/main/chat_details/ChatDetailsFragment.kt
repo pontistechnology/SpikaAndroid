@@ -408,21 +408,17 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         profilePicture.ivPickAvatar.setOnClickListener {
             if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && isAdmin) {
                 val listOptions = mutableListOf(
-                    getString(R.string.choose_from_gallery),
-                    getString(R.string.take_photo),
-                    getString(R.string.cancel)
+                    getString(R.string.choose_from_gallery) to { chooseImage() },
+                    getString(R.string.take_photo) to { takePhoto() },
+                    getString(R.string.cancel) to {}
                 )
 
                 ChooserDialog.getInstance(
                     context = requireContext(),
-                    listChooseOptions = listOptions,
+                    listChooseOptions = listOptions.map { it.first }.toMutableList(),
                     object : DialogInteraction {
                         override fun onOptionClicked(optionName: String) {
-                            when (optionName) {
-                                getString(R.string.choose_from_gallery) -> chooseImage()
-                                getString(R.string.take_photo) -> takePhoto()
-                                getString(R.string.cancel) -> {}
-                            }
+                            listOptions.find { it.first == optionName }?.second?.invoke()
                         }
                     }
                 )
@@ -515,57 +511,59 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         }
 
         user.formattedDisplayName.let {
-            val listOptions = mutableListOf<String>()
-            if (adminText != null) listOptions.add(adminText)
-            if (user.id != localUserId) listOptions.add(getString(R.string.info))
+            val listOptions = mutableListOf<Pair<String, () -> Unit>>()
+
+            if (adminText != null)
+                listOptions.add(adminText to { checkAdmin(user = user, adminText = adminText) })
+
+            if (user.id != localUserId)
+                listOptions.add(getString(R.string.info) to { userProfileNavigation(user = user) })
 
             if (listOptions.size < 1) return
 
-            listOptions.add(getString(R.string.cancel))
+            listOptions.add(getString(R.string.cancel) to {})
 
             ChooserDialog.getInstance(
                 context = requireContext(),
-                listChooseOptions = listOptions,
+                listChooseOptions = listOptions.map { it.first }.toMutableList(),
                 object : DialogInteraction {
                     override fun onOptionClicked(optionName: String) {
-                        when (optionName) {
-                            getString(R.string.info) -> {
-                                val privateGroupUser = Tools.transformUserToPrivateGroupChat(user)
-                                val bundle =
-                                    bundleOf(
-                                        Const.Navigation.USER_PROFILE to privateGroupUser,
-                                        Const.Navigation.ROOM_ID to roomWithUsers?.room?.roomId,
-                                        Const.Navigation.ROOM_DATA to roomWithUsers?.room
-                                    )
-                                findNavController().navigate(
-                                    R.id.action_chatDetailsFragment_to_contactDetailsFragment,
-                                    bundle,
-                                    navOptionsBuilder
-                                )
-                            }
-
-                            adminText -> {
-                                if (getString(R.string.dismiss_as_admin) == adminText) {
-                                    user.isAdmin = false
-                                    removeAdmin(user.id)
-                                } else {
-                                    user.isAdmin = true
-                                    makeAdmin(user.id)
-                                }
-
-                                modifiedList =
-                                    roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
-                                adapter?.submitList(modifiedList.toList())
-
-                                adapter?.notifyItemChanged(modifiedList.indexOf(user))
-                            }
-
-                            getString(R.string.cancel) -> {}
-                        }
+                        listOptions.find { it.first == optionName }?.second?.invoke()
                     }
                 }
             )
         }
+    }
+
+    private fun userProfileNavigation(user: User) {
+        val privateGroupUser = Tools.transformUserToPrivateGroupChat(user)
+        val bundle =
+            bundleOf(
+                Const.Navigation.USER_PROFILE to privateGroupUser,
+                Const.Navigation.ROOM_ID to roomWithUsers?.room?.roomId,
+                Const.Navigation.ROOM_DATA to roomWithUsers?.room
+            )
+        findNavController().navigate(
+            R.id.action_chatDetailsFragment_to_contactDetailsFragment,
+            bundle,
+            navOptionsBuilder
+        )
+    }
+
+    private fun checkAdmin(user: User, adminText: String) {
+        if (getString(R.string.dismiss_as_admin) == adminText) {
+            user.isAdmin = false
+            removeAdmin(user.id)
+        } else {
+            user.isAdmin = true
+            makeAdmin(user.id)
+        }
+
+        modifiedList =
+            roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
+        adapter?.submitList(modifiedList.toList())
+
+        adapter?.notifyItemChanged(modifiedList.indexOf(user))
     }
 
     private fun removeUser(user: User) {

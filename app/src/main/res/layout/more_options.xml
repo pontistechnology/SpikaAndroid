@@ -15,7 +15,7 @@
         android:id="@+id/cv_first_option"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/eight_dp_margin"
+        android:layout_marginBottom="@dimen/four_dp_margin"
         android:orientation="vertical"
         app:cardBackgroundColor="?attr/primaryColor"
         app:cardElevation="0dp"

@@ -89,18 +89,18 @@ class MediaFragment : BaseFragment() {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
+        val listOptions = mutableListOf(
+            getString(R.string.download_media) to { downloadMedia(mediaList[viewPager.currentItem]) },
+            getString(R.string.cancel) to {}
+        )
+
         ivMoreMedia.setOnClickListener {
-            val listOptions =
-                mutableListOf(getString(R.string.download_media), getString(R.string.cancel))
             ChooserDialog.getInstance(
                 context = requireContext(),
-                listChooseOptions = listOptions,
+                listChooseOptions = listOptions.map { it.first }.toMutableList(),
                 object : DialogInteraction {
                     override fun onOptionClicked(optionName: String) {
-                        when (optionName) {
-                            getString(R.string.download_media) -> downloadMedia(mediaList[viewPager.currentItem])
-                            getString(R.string.cancel) -> {}
-                        }
+                        listOptions.find { it.first == optionName }?.second?.invoke()
                     }
                 }
             )

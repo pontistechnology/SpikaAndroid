@@ -373,21 +373,18 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         }
 
         val listOptions = mutableListOf(
-            getString(R.string.choose_from_gallery),
-            getString(R.string.take_photo),
-            getString(R.string.cancel)
+            getString(R.string.choose_from_gallery) to { chooseImage() },
+            getString(R.string.take_photo) to { takePhoto() },
+            getString(R.string.cancel) to {}
         )
+
         ivCamera.setOnClickListener {
             ChooserDialog.getInstance(
                 context = requireContext(),
-                listChooseOptions = listOptions,
+                listChooseOptions = listOptions.map { it.first }.toMutableList(),
                 object : DialogInteraction {
                     override fun onOptionClicked(optionName: String) {
-                        when (optionName) {
-                            getString(R.string.choose_from_gallery) -> chooseImage()
-                            getString(R.string.take_photo) -> takePhoto()
-                            getString(R.string.cancel) -> {}
-                        }
+                        listOptions.find { it.first == optionName }?.second?.invoke()
                     }
                 }
             )
@@ -951,16 +948,17 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun handleMessageResend(message: MessageAndRecords) {
-        val listOptions = mutableListOf(getString(R.string.resend_message), getString(R.string.cancel))
+        val listOptions = mutableListOf(
+            getString(R.string.resend_message) to { resendMessage(message = message.message) },
+            getString(R.string.cancel) to { }
+        )
+
         ChooserDialog.getInstance(
             context = requireContext(),
-            listChooseOptions = listOptions,
+            listChooseOptions = listOptions.map { it.first }.toMutableList(),
             object : DialogInteraction {
                 override fun onOptionClicked(optionName: String) {
-                    when(optionName) {
-                        getString(R.string.resend_message) -> resendMessage(message = message.message)
-                        getString(R.string.cancel) -> {}
-                    }
+                    listOptions.find { it.first == optionName }?.second?.invoke()
                 }
             }
         )
@@ -1235,17 +1233,28 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun showDeleteMessageDialog(message: Message) {
-        val listOptions = mutableListOf(getString(R.string.delete_for_everyone), getString(R.string.delete_for_me), getString(R.string.cancel))
+        val listOptions = mutableListOf(
+            getString(R.string.delete_for_everyone) to {
+                deleteMessage(
+                    message,
+                    Const.UserActions.DELETE_MESSAGE_ALL
+                )
+            },
+            getString(R.string.delete_for_me) to {
+                deleteMessage(
+                    message,
+                    Const.UserActions.DELETE_MESSAGE_ME
+                )
+            },
+            getString(R.string.cancel) to { }
+        )
+
         ChooserDialog.getInstance(
             context = requireContext(),
-            listChooseOptions = listOptions,
+            listChooseOptions = listOptions.map { it.first }.toMutableList(),
             object : DialogInteraction {
                 override fun onOptionClicked(optionName: String) {
-                    when(optionName) {
-                        getString(R.string.delete_for_everyone) -> deleteMessage(message, Const.UserActions.DELETE_MESSAGE_ALL)
-                        getString(R.string.delete_for_me) -> deleteMessage(message, Const.UserActions.DELETE_MESSAGE_ME)
-                        getString(R.string.cancel) -> {}
-                    }
+                    listOptions.find { it.first == optionName }?.second?.invoke()
                 }
             }
         )
