@@ -266,20 +266,24 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
         // Removed and waiting for each respective screen to be implemented
 
         profilePicture.ivPickAvatar.setOnClickListener {
-            ChooserDialog.getInstance(requireContext(),
-                getString(R.string.placeholder_title),
-                null,
+            val listOptions = mutableListOf(
                 getString(R.string.choose_from_gallery),
                 getString(R.string.take_photo),
+                getString(R.string.cancel)
+            )
+            ChooserDialog.getInstance(
+                context = requireContext(),
+                listChooseOptions = listOptions,
                 object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        chooseImage()
+                    override fun onOptionClicked(optionName: String) {
+                        when (optionName) {
+                            getString(R.string.choose_from_gallery) -> chooseImage()
+                            getString(R.string.take_photo) -> takePhoto()
+                            getString(R.string.cancel) -> {}
+                        }
                     }
-
-                    override fun onSecondOptionClicked() {
-                        takePhoto()
-                    }
-                })
+                }
+            )
         }
 
         tvUsername.setOnClickListener {

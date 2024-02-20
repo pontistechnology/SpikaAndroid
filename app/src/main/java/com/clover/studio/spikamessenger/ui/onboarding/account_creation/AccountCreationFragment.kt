@@ -141,20 +141,19 @@ class AccountCreationFragment : BaseFragment() {
         }
 
         binding.profilePicture.ivPickAvatar.setOnClickListener {
-            ChooserDialog.getInstance(requireContext(),
-                getString(R.string.placeholder_title),
-                null,
-                getString(R.string.choose_from_gallery),
-                getString(R.string.take_photo),
+            val listOptions = mutableListOf(getString(R.string.choose_from_gallery),getString(R.string.take_photo))
+            ChooserDialog.getInstance(
+                context = requireContext(),
+                listChooseOptions = listOptions,
                 object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        chooseImage()
+                    override fun onOptionClicked(optionName: String) {
+                        when(optionName) {
+                            getString(R.string.choose_from_gallery) -> chooseImage()
+                            getString(R.string.take_photo) -> takePhoto()
+                        }
                     }
-
-                    override fun onSecondOptionClicked() {
-                        takePhoto()
-                    }
-                })
+                }
+            )
         }
     }
 

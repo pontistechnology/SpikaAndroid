@@ -134,7 +134,12 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         roomWithUsers = args.roomWithUsers
         localUserId = viewModel.getLocalUserId()
         isAdmin = roomWithUsers?.users?.any { user ->
-            user.id == localUserId && roomWithUsers?.room?.roomId?.let { viewModel.isUserAdmin(it, user.id) } == true
+            user.id == localUserId && roomWithUsers?.room?.roomId?.let {
+                viewModel.isUserAdmin(
+                    it,
+                    user.id
+                )
+            } == true
         } == true
         roomId = roomWithUsers?.room?.roomId
     }
@@ -402,20 +407,25 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
         profilePicture.ivPickAvatar.setOnClickListener {
             if ((Const.JsonFields.GROUP == roomWithUsers.room.type) && isAdmin) {
-                ChooserDialog.getInstance(requireContext(),
-                    getString(R.string.placeholder_title),
-                    null,
+                val listOptions = mutableListOf(
                     getString(R.string.choose_from_gallery),
                     getString(R.string.take_photo),
-                    object : DialogInteraction {
-                        override fun onFirstOptionClicked() {
-                            chooseImage()
-                        }
+                    getString(R.string.cancel)
+                )
 
-                        override fun onSecondOptionClicked() {
-                            takePhoto()
+                ChooserDialog.getInstance(
+                    context = requireContext(),
+                    listChooseOptions = listOptions,
+                    object : DialogInteraction {
+                        override fun onOptionClicked(optionName: String) {
+                            when (optionName) {
+                                getString(R.string.choose_from_gallery) -> chooseImage()
+                                getString(R.string.take_photo) -> takePhoto()
+                                getString(R.string.cancel) -> {}
+                            }
                         }
-                    })
+                    }
+                )
             }
         }
 
@@ -505,43 +515,56 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         }
 
         user.formattedDisplayName.let {
-            ChooserDialog.getInstance(requireContext(),
-                it,
-                null,
-                getString(R.string.info),
-                adminText,
+            val listOptions = mutableListOf<String>()
+            if (adminText != null) listOptions.add(adminText)
+            if (user.id != localUserId) listOptions.add(getString(R.string.info))
+
+            if (listOptions.size < 1) return
+
+            listOptions.add(getString(R.string.cancel))
+
+            ChooserDialog.getInstance(
+                context = requireContext(),
+                listChooseOptions = listOptions,
                 object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        val privateGroupUser = Tools.transformUserToPrivateGroupChat(user)
-                        val bundle =
-                            bundleOf(
-                                Const.Navigation.USER_PROFILE to privateGroupUser,
-                                Const.Navigation.ROOM_ID to roomWithUsers?.room?.roomId,
-                                Const.Navigation.ROOM_DATA to roomWithUsers?.room
-                            )
-                        findNavController().navigate(
-                            R.id.action_chatDetailsFragment_to_contactDetailsFragment,
-                            bundle,
-                            navOptionsBuilder
-                        )
-                    }
+                    override fun onOptionClicked(optionName: String) {
+                        when (optionName) {
+                            getString(R.string.info) -> {
+                                val privateGroupUser = Tools.transformUserToPrivateGroupChat(user)
+                                val bundle =
+                                    bundleOf(
+                                        Const.Navigation.USER_PROFILE to privateGroupUser,
+                                        Const.Navigation.ROOM_ID to roomWithUsers?.room?.roomId,
+                                        Const.Navigation.ROOM_DATA to roomWithUsers?.room
+                                    )
+                                findNavController().navigate(
+                                    R.id.action_chatDetailsFragment_to_contactDetailsFragment,
+                                    bundle,
+                                    navOptionsBuilder
+                                )
+                            }
 
-                    override fun onSecondOptionClicked() {
-                        if (getString(R.string.dismiss_as_admin) == adminText) {
-                            user.isAdmin = false
-                            removeAdmin(user.id)
-                        } else {
-                            user.isAdmin = true
-                            makeAdmin(user.id)
+                            adminText -> {
+                                if (getString(R.string.dismiss_as_admin) == adminText) {
+                                    user.isAdmin = false
+                                    removeAdmin(user.id)
+                                } else {
+                                    user.isAdmin = true
+                                    makeAdmin(user.id)
+                                }
+
+                                modifiedList =
+                                    roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
+                                adapter?.submitList(modifiedList.toList())
+
+                                adapter?.notifyItemChanged(modifiedList.indexOf(user))
+                            }
+
+                            getString(R.string.cancel) -> {}
                         }
-
-                        modifiedList =
-                            roomUsers.sortedBy { roomUser -> roomUser.isAdmin }.reversed()
-                        adapter?.submitList(modifiedList.toList())
-
-                        adapter?.notifyItemChanged(modifiedList.indexOf(user))
                     }
-                })
+                }
+            )
         }
     }
 

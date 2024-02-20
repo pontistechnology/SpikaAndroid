@@ -372,21 +372,25 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             onBackArrowPressed()
         }
 
+        val listOptions = mutableListOf(
+            getString(R.string.choose_from_gallery),
+            getString(R.string.take_photo),
+            getString(R.string.cancel)
+        )
         ivCamera.setOnClickListener {
-            ChooserDialog.getInstance(requireContext(),
-                getString(R.string.placeholder_title),
-                null,
-                getString(R.string.choose_from_gallery),
-                getString(R.string.take_photo),
+            ChooserDialog.getInstance(
+                context = requireContext(),
+                listChooseOptions = listOptions,
                 object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        chooseImage()
+                    override fun onOptionClicked(optionName: String) {
+                        when (optionName) {
+                            getString(R.string.choose_from_gallery) -> chooseImage()
+                            getString(R.string.take_photo) -> takePhoto()
+                            getString(R.string.cancel) -> {}
+                        }
                     }
-
-                    override fun onSecondOptionClicked() {
-                        takePhoto()
-                    }
-                })
+                }
+            )
         }
 
         ivBtnEmoji.setOnClickListener {
@@ -947,20 +951,19 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun handleMessageResend(message: MessageAndRecords) {
-        ChooserDialog.getInstance(requireContext(),
-            getString(R.string.resend),
-            null,
-            getString(R.string.resend_message),
-            "",
+        val listOptions = mutableListOf(getString(R.string.resend_message), getString(R.string.cancel))
+        ChooserDialog.getInstance(
+            context = requireContext(),
+            listChooseOptions = listOptions,
             object : DialogInteraction {
-                override fun onFirstOptionClicked() {
-                    resendMessage(message.message)
+                override fun onOptionClicked(optionName: String) {
+                    when(optionName) {
+                        getString(R.string.resend_message) -> resendMessage(message = message.message)
+                        getString(R.string.cancel) -> {}
+                    }
                 }
-
-                override fun onSecondOptionClicked() {
-                    // Ignore
-                }
-            })
+            }
+        )
     }
 
     private fun handleShowReactions(msg: MessageAndRecords) {
@@ -1232,20 +1235,20 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun showDeleteMessageDialog(message: Message) {
-        ChooserDialog.getInstance(requireContext(),
-            getString(R.string.delete),
-            null,
-            getString(R.string.delete_for_everyone),
-            getString(R.string.delete_for_me),
+        val listOptions = mutableListOf(getString(R.string.delete_for_everyone), getString(R.string.delete_for_me), getString(R.string.cancel))
+        ChooserDialog.getInstance(
+            context = requireContext(),
+            listChooseOptions = listOptions,
             object : DialogInteraction {
-                override fun onFirstOptionClicked() {
-                    deleteMessage(message, Const.UserActions.DELETE_MESSAGE_ALL)
+                override fun onOptionClicked(optionName: String) {
+                    when(optionName) {
+                        getString(R.string.delete_for_everyone) -> deleteMessage(message, Const.UserActions.DELETE_MESSAGE_ALL)
+                        getString(R.string.delete_for_me) -> deleteMessage(message, Const.UserActions.DELETE_MESSAGE_ME)
+                        getString(R.string.cancel) -> {}
+                    }
                 }
-
-                override fun onSecondOptionClicked() {
-                    deleteMessage(message, Const.UserActions.DELETE_MESSAGE_ME)
-                }
-            })
+            }
+        )
     }
 
     private fun deleteMessage(message: Message, target: String) {

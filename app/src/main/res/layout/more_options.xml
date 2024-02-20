@@ -63,7 +63,8 @@
         app:cardElevation="0dp"
         app:cardPreventCornerOverlap="false"
         app:shapeAppearanceOverlay="@style/LastOptionStyle"
-        tools:ignore="contentDescription">
+        tools:ignore="contentDescription"
+        android:layout_marginBottom="@dimen/four_dp_margin">
 
         <FrameLayout
             android:id="@+id/fl_last_item"

@@ -11,4 +11,5 @@ open class BaseDialog(context: Context?, themeResId: Int?) : AlertDialog(context
 interface DialogInteraction {
     fun onFirstOptionClicked() {}
     fun onSecondOptionClicked() {}
+    fun onOptionClicked(optionName: String){}
 }

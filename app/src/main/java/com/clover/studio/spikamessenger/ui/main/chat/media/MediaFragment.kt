@@ -90,19 +90,17 @@ class MediaFragment : BaseFragment() {
         }
 
         ivMoreMedia.setOnClickListener {
+            val listOptions =
+                mutableListOf(getString(R.string.download_media), getString(R.string.cancel))
             ChooserDialog.getInstance(
-                requireContext(),
-                null,
-                null,
-                getString(R.string.save),
-                null,
+                context = requireContext(),
+                listChooseOptions = listOptions,
                 object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        downloadMedia(mediaList[viewPager.currentItem])
-                    }
-
-                    override fun onSecondOptionClicked() {
-                        // Ignore
+                    override fun onOptionClicked(optionName: String) {
+                        when (optionName) {
+                            getString(R.string.download_media) -> downloadMedia(mediaList[viewPager.currentItem])
+                            getString(R.string.cancel) -> {}
+                        }
                     }
                 }
             )
@@ -126,7 +124,7 @@ class MediaFragment : BaseFragment() {
         }
     }
 
-    private fun initializePagerAdapter() = with(binding){
+    private fun initializePagerAdapter() = with(binding) {
         mediaPagerAdapter =
             MediaPagerAdapter(requireContext(), mediaList, onItemClicked = { event, message ->
                 when (event) {
@@ -232,7 +230,7 @@ class MediaFragment : BaseFragment() {
     private fun downloadMedia(message: Message) {
         val appName =
             context?.applicationInfo?.loadLabel(requireContext().packageManager).toString()
-        val tmp = message.body?.fileId?.let { Tools.getFilePathUrl(it)}
+        val tmp = message.body?.fileId?.let { Tools.getFilePathUrl(it) }
         val request = DownloadManager.Request(Uri.parse(tmp))
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
         request.setTitle(message.body?.file?.fileName)
