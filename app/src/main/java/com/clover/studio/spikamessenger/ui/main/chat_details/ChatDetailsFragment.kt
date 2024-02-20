@@ -510,6 +510,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             else -> null
         }
 
+        if (adminText == null && user.id == localUserId) return
+
         user.formattedDisplayName.let {
             val listOptions = mutableListOf<Pair<String, () -> Unit>>()
 
@@ -518,8 +520,6 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
             if (user.id != localUserId)
                 listOptions.add(getString(R.string.info) to { userProfileNavigation(user = user) })
-
-            if (listOptions.size < 1) return
 
             listOptions.add(getString(R.string.cancel) to {})
 
