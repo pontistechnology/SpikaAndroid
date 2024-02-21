@@ -79,6 +79,12 @@ import com.clover.studio.spikamessenger.utils.helpers.FilesHelper.downloadFile
 import com.clover.studio.spikamessenger.utils.helpers.MessageHelper
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.UploadService
+import com.giphy.sdk.core.models.Media
+import com.giphy.sdk.ui.GPHContentType
+import com.giphy.sdk.ui.GPHSettings
+import com.giphy.sdk.ui.Giphy
+import com.giphy.sdk.ui.themes.GPHTheme
+import com.giphy.sdk.ui.views.GiphyDialogFragment
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.vanniktech.emoji.EmojiPopup
@@ -88,6 +94,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 
 private const val SCROLL_DISTANCE_NEGATIVE = -300
@@ -395,6 +405,33 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             ivAdd.rotation = ROTATION_OFF
         }
 
+        ivGif.setOnClickListener {
+            Giphy.configure(requireContext(), "wn3NzsyZqat2TypLrlaEUWlzUl0tqkME")
+
+            val settings = GPHSettings(theme = GPHTheme.Custom)
+            val dialog = GiphyDialogFragment.newInstance(settings)
+            dialog.show(requireActivity().supportFragmentManager, "gifs_dialog")
+
+            dialog.gifSelectionListener = object : GiphyDialogFragment.GifSelectionListener {
+                override fun didSearchTerm(term: String) {
+                    // Ignore
+                }
+
+                override fun onDismissed(selectedContentType: GPHContentType) {
+                    // Ignore
+                }
+
+                override fun onGifSelected(
+                    media: Media,
+                    searchTerm: String?,
+                    selectedContentType: GPHContentType
+                ) {
+                    val gifUrl = media.images.original?.gifUrl.toString()
+                    handleGifClick(requireContext(), gifUrl)
+                }
+            }
+        }
+
         etMessage.setOnClickListener {
             if (emojiPopup.isShowing) emojiPopup.dismiss()
         }
@@ -491,6 +528,46 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
         }
     }
+
+    fun handleGifClick(context: Context, urlString: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val url = URL(urlString)
+                val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
+                connection.doInput = true
+                connection.connect()
+
+                val inputStream: InputStream = connection.inputStream
+
+                val gifName = "gif_${System.currentTimeMillis()}.gif"
+                val file = saveFile(context, inputStream, gifName)
+
+                selectedFiles.add(Uri.fromFile(file))
+                handleUserSelectedFile(selectedFiles)
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun saveFile(context: Context, inputStream: InputStream, fileName: String): File {
+        // Adjust directory according to your needs
+        val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val file = File(directory, fileName)
+
+        FileOutputStream(file).use { output ->
+            val buffer = ByteArray(4 * 1024) // or other buffer size
+            var read: Int
+            while (inputStream.read(buffer).also { read = it } != -1) {
+                output.write(buffer, 0, read)
+            }
+            output.flush()
+        }
+
+        return file
+    }
+
 
     private fun initializeObservers() {
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
@@ -1352,16 +1429,17 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
     /** Files uploading */
     private fun handleUserSelectedFile(selectedFilesUris: MutableList<Uri>) {
-        for (uri in selectedFilesUris) {
+        selectedFiles.forEach {  uri ->
             val fileMimeType = getFileMimeType(requireContext(), uri)
-            if ((fileMimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true ||
-                        fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) &&
-                !Tools.forbiddenMimeTypes(fileMimeType)
+            if (fileMimeType.contains(Const.JsonFields.GIF) || fileMimeType.contains(Const.JsonFields.FILE_TYPE)) {
+                filesSelected.add(uri)
+                tempFilesToCreate.add(TempUri(uri, fileMimeType))
+            } else if ((fileMimeType.contains(Const.JsonFields.IMAGE_TYPE) || fileMimeType.contains(Const.JsonFields.VIDEO_TYPE))
+                && !Tools.forbiddenMimeTypes(fileMimeType)
             ) {
                 convertMedia(uri, fileMimeType)
             } else {
-                filesSelected.add(uri)
-                tempFilesToCreate.add(TempUri(uri, Const.JsonFields.FILE_TYPE))
+                Timber.d("Not implemented")
             }
         }
 
@@ -1380,11 +1458,11 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         tempFilesToCreate.clear()
     }
 
-    private fun convertMedia(uri: Uri, fileMimeType: String?) {
+    private fun convertMedia(uri: Uri, fileMimeType: String) {
         val thumbnailUri: Uri
         val fileUri: Uri
 
-        if (fileMimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true) {
+        if (fileMimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
             val mmr = MediaMetadataRetriever()
             mmr.setDataSource(context, uri)
 

@@ -42,7 +42,7 @@ class UploadDownloadManager constructor(
         fileData: FileData,
         fileUploadListener: FileUploadListener,
     ) {
-        var mimeType = MainApplication.appContext.contentResolver.getType(fileData.fileUri)!!
+        var mimeType = MainApplication.appContext.contentResolver.getType(fileData.fileUri) ?: "image/gif"
         cancelUpload = false
 
         if (Tools.forbiddenMimeTypes(mimeType)) {

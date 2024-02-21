@@ -652,7 +652,7 @@ object Tools {
 
         val fileStream = copyStreamToFile(
             inputStream = inputStream!!,
-            getFileMimeType(MainApplication.appContext, mediaUri)!!
+            getFileMimeType(MainApplication.appContext, mediaUri)
         )
 
         if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || isThumbnail) {
@@ -702,12 +702,13 @@ object Tools {
     fun getFileType(uri: Uri): String {
         val mimeType = getFileMimeType(MainApplication.appContext, uri)
         return when {
-            mimeType?.contains(Const.JsonFields.SVG_TYPE) == true -> Const.JsonFields.FILE_TYPE
-            mimeType?.contains(Const.JsonFields.AVI_TYPE) == true -> Const.JsonFields.FILE_TYPE
-            mimeType?.contains(Const.JsonFields.MOV_TYPE) == true -> Const.JsonFields.FILE_TYPE
-            mimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true -> Const.JsonFields.IMAGE_TYPE
-            mimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true -> Const.JsonFields.VIDEO_TYPE
-            mimeType?.contains(Const.JsonFields.AUDIO_TYPE) == true -> Const.JsonFields.AUDIO_TYPE
+            mimeType.contains(Const.JsonFields.SVG_TYPE) -> Const.JsonFields.FILE_TYPE
+            mimeType.contains(Const.JsonFields.AVI_TYPE) -> Const.JsonFields.FILE_TYPE
+            mimeType.contains(Const.JsonFields.MOV_TYPE) -> Const.JsonFields.FILE_TYPE
+            mimeType.contains(Const.JsonFields.IMAGE_TYPE) -> Const.JsonFields.IMAGE_TYPE
+            mimeType.contains(Const.JsonFields.VIDEO_TYPE) -> Const.JsonFields.VIDEO_TYPE
+            mimeType.contains(Const.JsonFields.AUDIO_TYPE) -> Const.JsonFields.AUDIO_TYPE
+            // TODO add gif
             else -> Const.JsonFields.FILE_TYPE
         }
     }
@@ -718,9 +719,15 @@ object Tools {
                 fileMimeType.contains(Const.JsonFields.MOV_TYPE)
     }
 
-    fun getFileMimeType(context: Context, uri: Uri): String? {
-        val cR: ContentResolver = context.contentResolver
-        return cR.getType(uri)
+    fun getFileMimeType(context: Context, uri: Uri): String {
+        val type = if (uri.toString().contains(Const.JsonFields.GIF)){
+            Const.JsonFields.GIF_TYPE
+        } else {
+            val cR: ContentResolver = context.contentResolver
+            cR.getType(uri).toString()
+        }
+
+        return type
     }
 
     fun getFileNameFromUri(uri: Uri): String {

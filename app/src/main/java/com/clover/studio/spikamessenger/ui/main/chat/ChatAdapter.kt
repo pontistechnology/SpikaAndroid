@@ -173,13 +173,19 @@ class ChatAdapter(
                             )
                         }
 
-                        Const.JsonFields.IMAGE_TYPE -> {
+                        Const.JsonFields.IMAGE_TYPE, "image/gif" -> {
                             setViewsVisibility(holder.binding.cvMedia, holder)
                             setImageLayout(
                                 chatMessage = it,
                                 container = holder.binding.flMediaContainer,
                             )
                         }
+
+                        // TODO add for gifs
+//                        Const.JsonFields.GIF_TYPE -> {
+//
+//                        }
+
 
                         Const.JsonFields.VIDEO_TYPE -> {
                             if (it.message.id < 0) {

@@ -134,8 +134,19 @@
                 android:background="@android:color/transparent"
                 android:src="@drawable/img_sticker"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/iv_gif"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/iv_gif"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/eight_dp_margin"
+                android:layout_marginBottom="9dp"
+                android:src="@drawable/img_gif"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_btn_emoji"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/iv_btn_emoji" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView

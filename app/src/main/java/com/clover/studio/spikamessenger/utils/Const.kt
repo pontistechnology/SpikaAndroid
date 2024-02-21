@@ -113,6 +113,8 @@ class Const {
             const val VIDEO_TYPE = "video"
             const val TEXT_TYPE = "text"
             const val IMAGE_TYPE = "image"
+            const val GIF_TYPE = "image/gif"
+            const val GIF = "gif"
             const val SYSTEM_TYPE = "system"
             const val SVG_TYPE = "svg"
             const val AVI_TYPE = "avi"

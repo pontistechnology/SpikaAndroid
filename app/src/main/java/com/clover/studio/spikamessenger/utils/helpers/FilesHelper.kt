@@ -53,7 +53,7 @@ object FilesHelper {
         val fileName = Tools.getFileNameFromUri(uri)
         val fileStream = Tools.copyStreamToFile(
             inputStream = inputStream!!,
-            extension = Tools.getFileMimeType(MainApplication.appContext, uri)!!,
+            extension = Tools.getFileMimeType(MainApplication.appContext, uri),
             fileName = fileName
         )
         val uploadPieces =
@@ -93,12 +93,14 @@ object FilesHelper {
             val inputStream =
                 MainApplication.appContext.contentResolver.openInputStream(uri)
             size = Tools.copyStreamToFile(
-                inputStream!!,
-                MainApplication.appContext.contentResolver.getType(uri)!!,
-                fileName
+                inputStream = inputStream!!,
+                extension = Tools.getFileMimeType(MainApplication.appContext, uri),
+                fileName = fileName
             ).length()
             inputStream.close()
         }
+
+        Timber.d("Extension:::: ${MainApplication.appContext.contentResolver.getType(uri) ?: Const.JsonFields.GIF_TYPE}")
 
         val typeMedia =
             if (MainApplication.appContext.contentResolver.getType(uri) == Const.FileExtensions.AUDIO)

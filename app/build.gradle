@@ -238,4 +238,7 @@ dependencies {
 
     // Markdown
     implementation "io.noties.markwon:core:4.6.2"
+
+    // Gifs
+    implementation 'com.giphy.sdk:ui:2.3.13'
 }
