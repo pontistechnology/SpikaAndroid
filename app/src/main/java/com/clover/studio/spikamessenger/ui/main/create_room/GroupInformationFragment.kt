@@ -158,20 +158,21 @@ class GroupInformationFragment : BaseFragment() {
         }
 
         profilePicture.ivPickAvatar.setOnClickListener {
-            ChooserDialog.getInstance(requireContext(),
-                getString(R.string.placeholder_title),
-                null,
-                getString(R.string.choose_from_gallery),
-                getString(R.string.take_photo),
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        chooseImage()
-                    }
+            val listOptions = mutableListOf(
+                getString(R.string.choose_from_gallery) to { chooseImage() },
+                getString(R.string.take_photo) to { takePhoto() },
+                getString(R.string.cancel) to {}
+            )
 
-                    override fun onSecondOptionClicked() {
-                        takePhoto()
+            ChooserDialog.getInstance(
+                context = requireContext(),
+                listChooseOptions = listOptions.map { it.first }.toMutableList(),
+                object : DialogInteraction {
+                    override fun onOptionClicked(optionName: String) {
+                        listOptions.find { it.first == optionName }?.second?.invoke()
                     }
-                })
+                }
+            )
         }
 
         ivCancel.setOnClickListener {

@@ -48,8 +48,8 @@ class UserOptions(context: Context) :
                 LinearLayout.LayoutParams.WRAP_CONTENT,
             )
 
-            val marginInPixels = resources.getDimensionPixelSize(R.dimen.eight_dp_margin)
-            layoutParams.setMargins(0, 0, 0, marginInPixels)
+            val marginInPixels = resources.getDimensionPixelSize(R.dimen.four_dp_margin)
+            layoutParams.setMargins(0, marginInPixels, 0, marginInPixels)
             newView.layoutParams = layoutParams
 
             val newViewBinding = ChatOptionItemBinding.bind(newView)

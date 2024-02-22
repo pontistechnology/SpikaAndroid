@@ -7,15 +7,13 @@
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/sixteen_dp_margin"
     android:orientation="vertical"
-    app:cardCornerRadius="@dimen/ten_dp_margin"
-    app:cardElevation="0dp"
     tools:ignore="contentDescription">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_first_option"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/eight_dp_margin"
+        android:layout_marginBottom="@dimen/four_dp_margin"
         android:orientation="vertical"
         app:cardBackgroundColor="?attr/primaryColor"
         app:cardElevation="0dp"
@@ -61,9 +59,11 @@
         android:orientation="vertical"
         app:cardBackgroundColor="?attr/primaryColor"
         app:cardElevation="0dp"
+        android:layout_marginTop="@dimen/four_dp_margin"
         app:cardPreventCornerOverlap="false"
         app:shapeAppearanceOverlay="@style/LastOptionStyle"
-        tools:ignore="contentDescription">
+        tools:ignore="contentDescription"
+        android:layout_marginBottom="@dimen/four_dp_margin">
 
         <FrameLayout
             android:id="@+id/fl_last_item"
