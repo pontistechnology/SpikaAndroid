@@ -62,7 +62,7 @@ object ChatAdapterHelper {
         loadingImage: ImageView?,
         height: Int,
         width: Int,
-        playButton: ImageView?
+        playButton: ImageView? = null
     ) {
         val params = mediaImage.layoutParams
         params.height = convertToDp(context, height)

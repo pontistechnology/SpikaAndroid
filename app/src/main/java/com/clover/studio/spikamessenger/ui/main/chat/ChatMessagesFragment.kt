@@ -169,6 +169,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
     private lateinit var emojiPopup: EmojiPopup
     private var replyContainer: ReplyContainer? = null
+    private var giphyDialog: GiphyDialogFragment? = null
 
     private var navOptionsBuilder: NavOptions? = null
 
@@ -255,6 +256,12 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }.resourceId
         )
         activity?.window?.setBackgroundDrawable(drawable)
+
+        // Giphy
+        Giphy.configure(requireContext(), BuildConfig.GIPHY_API_KEY)
+        Tools.giphyTheme(requireContext())
+        val settings = GPHSettings(theme = GPHTheme.Custom)
+        giphyDialog = GiphyDialogFragment.newInstance(settings)
 
         postponeEnterTransition()
 
@@ -406,13 +413,11 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         }
 
         ivGif.setOnClickListener {
-            Giphy.configure(requireContext(), "wn3NzsyZqat2TypLrlaEUWlzUl0tqkME")
-
-            val settings = GPHSettings(theme = GPHTheme.Custom)
-            val dialog = GiphyDialogFragment.newInstance(settings)
-            dialog.show(requireActivity().supportFragmentManager, "gifs_dialog")
-
-            dialog.gifSelectionListener = object : GiphyDialogFragment.GifSelectionListener {
+            giphyDialog?.show(
+                requireActivity().supportFragmentManager,
+                Const.Giphy.GIPHY_BOTTOM_SHEET_TAG
+            )
+            giphyDialog?.gifSelectionListener = object : GiphyDialogFragment.GifSelectionListener {
                 override fun didSearchTerm(term: String) {
                     // Ignore
                 }
@@ -552,12 +557,11 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun saveFile(context: Context, inputStream: InputStream, fileName: String): File {
-        // Adjust directory according to your needs
         val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         val file = File(directory, fileName)
 
         FileOutputStream(file).use { output ->
-            val buffer = ByteArray(4 * 1024) // or other buffer size
+            val buffer = ByteArray(4 * 1024)
             var read: Int
             while (inputStream.read(buffer).also { read = it } != -1) {
                 output.write(buffer, 0, read)
@@ -1393,13 +1397,13 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         localId: String,
     ) {
         val jsonMessage = JsonMessage(
-            text,
-            Const.JsonFields.TEXT_TYPE,
-            0,
-            0,
-            roomWithUsers!!.room.roomId,
-            localId,
-            replyId
+            msgText = text,
+            mimeType = Const.JsonFields.TEXT_TYPE,
+            fileId = 0,
+            thumbId = 0,
+            roomId = roomWithUsers!!.room.roomId,
+            localId = localId,
+            replyId = replyId
         )
 
         val jsonObject = jsonMessage.messageToJson()
@@ -1429,17 +1433,24 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
     /** Files uploading */
     private fun handleUserSelectedFile(selectedFilesUris: MutableList<Uri>) {
-        selectedFiles.forEach {  uri ->
+        selectedFiles.forEach { uri ->
             val fileMimeType = getFileMimeType(requireContext(), uri)
-            if (fileMimeType.contains(Const.JsonFields.GIF) || fileMimeType.contains(Const.JsonFields.FILE_TYPE)) {
-                filesSelected.add(uri)
-                tempFilesToCreate.add(TempUri(uri, fileMimeType))
-            } else if ((fileMimeType.contains(Const.JsonFields.IMAGE_TYPE) || fileMimeType.contains(Const.JsonFields.VIDEO_TYPE))
-                && !Tools.forbiddenMimeTypes(fileMimeType)
-            ) {
-                convertMedia(uri, fileMimeType)
-            } else {
-                Timber.d("Not implemented")
+            when {
+                fileMimeType.contains(Const.JsonFields.GIF) -> {
+                    filesSelected.add(uri)
+                    tempFilesToCreate.add(TempUri(uri, fileMimeType))
+                }
+
+                fileMimeType.contains(Const.JsonFields.IMAGE_TYPE) ||
+                        fileMimeType.contains(Const.JsonFields.VIDEO_TYPE) &&
+                        !Tools.forbiddenMimeTypes(fileMimeType) -> {
+                    convertMedia(uri, fileMimeType)
+                }
+
+                else -> {
+                    filesSelected.add(uri)
+                    tempFilesToCreate.add(TempUri(uri, Const.JsonFields.FILE_TYPE))
+                }
             }
         }
 
@@ -1515,7 +1526,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
     private fun sendFile() {
         if (tempFilesToCreate.isNotEmpty()) {
-            for (tempFile in tempFilesToCreate) {
+            tempFilesToCreate.forEach { tempFile ->
                 createTempFileMessage(tempFile.uri, tempFile.type)
             }
             tempFilesToCreate.clear()
@@ -1542,10 +1553,21 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                         currentMediaLocation.removeFirst()
                         thumbnailUris.removeFirst()
                     } else if (filesSelected.isNotEmpty()) {
-                        // Send file
+                        // Send file or gif
+                        val uri = if (Const.JsonFields.GIF_TYPE == unsentMessage.type) {
+                            unsentMessage.localId?.let {
+                                Tools.renameGif(
+                                    filesSelected.first(),
+                                    it
+                                )
+                            } ?: filesSelected.first()
+                        } else {
+                            filesSelected.first()
+                        }
+
                         uploadFiles(
                             isThumbnail = false,
-                            uri = filesSelected.first(),
+                            uri = uri,
                             localId = unsentMessage.localId!!,
                             metadata = null
                         )
@@ -1580,11 +1602,11 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         val uploadData: MutableList<FileData> = ArrayList()
         uploadData.add(
             FilesHelper.uploadFile(
-                isThumbnail,
-                uri,
-                localId,
-                roomWithUsers!!.room.roomId,
-                metadata
+                isThumbnail = isThumbnail,
+                uri = uri,
+                localId = localId,
+                roomId = roomWithUsers!!.room.roomId,
+                metadata = metadata
             )
         )
         uploadFiles.addAll(uploadData)

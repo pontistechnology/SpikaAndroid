@@ -42,7 +42,12 @@ class UploadDownloadManager constructor(
         fileData: FileData,
         fileUploadListener: FileUploadListener,
     ) {
-        var mimeType = MainApplication.appContext.contentResolver.getType(fileData.fileUri) ?: "image/gif"
+        var mimeType = MainApplication.appContext.contentResolver.getType(fileData.fileUri)
+            ?.takeIf { it.isNotEmpty() }
+            ?: if (fileData.fileUri.toString().contains(Const.JsonFields.GIF)) Const.JsonFields.IMAGE_TYPE else ""
+
+        Timber.d("MIME TYPE:::: $mimeType")
+
         cancelUpload = false
 
         if (Tools.forbiddenMimeTypes(mimeType)) {
@@ -84,12 +89,12 @@ class UploadDownloadManager constructor(
 
                 Timber.d("Chunk count $chunkCount")
                 startUploadAPI(
-                    uploadFile,
-                    mimeType,
-                    fileData.filePieces,
-                    fileData.isThumbnail,
-                    fileData.messageBody,
-                    fileUploadListener,
+                    uploadFile = uploadFile,
+                    mimeType = mimeType,
+                    chunks = fileData.filePieces,
+                    isThumbnail = fileData.isThumbnail,
+                    messageBody = fileData.messageBody,
+                    fileUploadListener = fileUploadListener,
                 )
                 piece++
             }
@@ -141,22 +146,22 @@ class UploadDownloadManager constructor(
             if (file != null) {
                 if (isThumbnail) file.path?.let {
                     fileUploadListener.fileUploadVerified(
-                        it,
-                        mimeType,
-                        file.id.toLong(),
-                        0,
-                        file.type!!,
-                        messageBody
+                        path = it,
+                        mimeType = mimeType,
+                        thumbId = file.id.toLong(),
+                        fileId = 0,
+                        fileType = file.type!!,
+                        messageBody = messageBody
                     )
                 }
                 else file.path?.let {
                     fileUploadListener.fileUploadVerified(
-                        it,
-                        mimeType,
-                        0,
-                        file.id.toLong(),
-                        file.type!!,
-                        messageBody
+                        path = it,
+                        mimeType = mimeType,
+                        thumbId = 0,
+                        fileId = file.id.toLong(),
+                        fileType = file.type!!,
+                        messageBody = messageBody
                     )
                 }
             } else fileUploadListener.fileUploadError("Some error")

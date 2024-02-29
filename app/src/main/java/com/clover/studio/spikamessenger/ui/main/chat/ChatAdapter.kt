@@ -150,6 +150,7 @@ class ChatAdapter(
 
                     // The line below sets each adapter item to be unique (uses more memory)
                     // holder.setIsRecyclable(false)
+
                     // System messages are displaying time so we don't need this interaction
                     it.message.type?.let { type ->
                         bindMessageTime(
@@ -173,19 +174,13 @@ class ChatAdapter(
                             )
                         }
 
-                        Const.JsonFields.IMAGE_TYPE, "image/gif" -> {
+                        Const.JsonFields.IMAGE_TYPE, Const.JsonFields.GIF_TYPE -> {
                             setViewsVisibility(holder.binding.cvMedia, holder)
                             setImageLayout(
                                 chatMessage = it,
                                 container = holder.binding.flMediaContainer,
                             )
                         }
-
-                        // TODO add for gifs
-//                        Const.JsonFields.GIF_TYPE -> {
-//
-//                        }
-
 
                         Const.JsonFields.VIDEO_TYPE -> {
                             if (it.message.id < 0) {
@@ -567,7 +562,7 @@ class ChatAdapter(
                 onMessageInteraction(Const.UserActions.MESSAGE_ACTION, chatMessage)
             }
         })
-        image.bindImage(chatMessage = chatMessage)
+        image.bindImage(chatMessage = chatMessage.message)
         container.addView(image)
     }
 

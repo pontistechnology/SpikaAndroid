@@ -100,8 +100,6 @@ object FilesHelper {
             inputStream.close()
         }
 
-        Timber.d("Extension:::: ${MainApplication.appContext.contentResolver.getType(uri) ?: Const.JsonFields.GIF_TYPE}")
-
         val typeMedia =
             if (MainApplication.appContext.contentResolver.getType(uri) == Const.FileExtensions.AUDIO)
                 Const.JsonFields.AUDIO_TYPE
@@ -131,10 +129,10 @@ object FilesHelper {
 
         if (typeMedia == Const.JsonFields.IMAGE_TYPE || typeMedia == Const.JsonFields.VIDEO_TYPE) {
             saveMediaToStorage(
-                MainApplication.appContext,
-                MainApplication.appContext.contentResolver,
-                uri,
-                tempMessage.localId
+                context = MainApplication.appContext,
+                contentResolver = MainApplication.appContext.contentResolver,
+                mediaUri = uri,
+                id = tempMessage.localId
             )
         }
 

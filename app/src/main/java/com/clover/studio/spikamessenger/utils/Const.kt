@@ -325,4 +325,10 @@ class Const {
             const val REMOVED_GROUP_ADMINS = "removed_group_admins"
         }
     }
+
+    class Giphy {
+        companion object {
+            const val GIPHY_BOTTOM_SHEET_TAG = "gifs_dialog"
+        }
+    }
 }

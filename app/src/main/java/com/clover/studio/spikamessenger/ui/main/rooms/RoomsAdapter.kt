@@ -138,7 +138,7 @@ class RoomsAdapter(
                     val numberOfMessages = roomItem.roomWithUsers.room.unreadCount
 
                     if (numberOfMessages > MAX_UNREAD_MESSAGES) {
-                        binding.tvNewMessages.text = context.getString(R.string.unread_limit);
+                        binding.tvNewMessages.text = context.getString(R.string.unread_limit)
                     } else {
                         binding.tvNewMessages.text =
                             roomItem.roomWithUsers.room.unreadCount.toString()
@@ -159,43 +159,23 @@ class RoomsAdapter(
 
     private fun setMediaItemText(sortedList: Message?, tvLastMessage: EmojiTextView) {
         tvLastMessage.apply {
-            when (sortedList?.type) {
-                Const.JsonFields.IMAGE_TYPE -> {
-                    setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera_small,
-                        0,
-                        0,
-                        0
-                    )
-                }
-
-                Const.JsonFields.VIDEO_TYPE -> {
-                    setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_video_small,
-                        0,
-                        0,
-                        0
-                    )
-                }
-
-                Const.JsonFields.AUDIO_TYPE -> {
-                    setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_microphone_small,
-                        0,
-                        0,
-                        0
-                    )
-                }
-
-                Const.JsonFields.FILE_TYPE -> {
-                    setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_file_small,
-                        0,
-                        0,
-                        0
-                    )
-                }
+            val mimeType = sortedList?.body?.file?.mimeType
+            val drawableResId = when {
+                mimeType?.contains(Const.JsonFields.GIF_TYPE) == true -> R.drawable.img_gif_small
+                mimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true -> R.drawable.img_camera_small
+                mimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true -> R.drawable.img_video_small
+                mimeType?.contains(Const.JsonFields.AUDIO_TYPE) == true -> R.drawable.img_microphone_small
+                mimeType?.contains(Const.JsonFields.FILE_TYPE) == true -> R.drawable.img_file_small
+                else -> 0
             }
+
+            setCompoundDrawablesWithIntrinsicBounds(
+                drawableResId,
+                0,
+                0,
+                0
+            )
+
             text = sortedList?.type.toString().replaceFirstChar { it.uppercase() }
         }
     }

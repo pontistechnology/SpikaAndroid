@@ -32,6 +32,7 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.collection.ArraySet
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
@@ -54,6 +55,7 @@ import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepos
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
 import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortChats
+import com.giphy.sdk.ui.themes.GPHCustomTheme
 import com.vanniktech.emoji.EmojiTheming
 import com.vanniktech.emoji.emojisCount
 import retrofit2.HttpException
@@ -600,14 +602,9 @@ object Tools {
     }
 
     fun getMediaFile(context: Context, message: Message): String {
-        if (message.body?.file?.fileName?.contains(Const.FileExtensions.GIF) == true) {
-            return message.body.fileId?.let {
-                getFilePathUrl(it)
-            }.toString()
-        }
-
         val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
+
         val file = File(mediaPath)
         if (!file.exists()) {
             mediaPath = if (message.body?.thumb != null) {
@@ -624,6 +621,39 @@ object Tools {
         }
         return mediaPath
     }
+
+    fun getGifFile(context: Context?, message: Message): String {
+        val directory = context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.GIF}"
+
+        val file = File(mediaPath)
+        if (!file.exists()) {
+            mediaPath = message.body?.fileId?.let {
+                getFilePathUrl(it)
+            }.toString()
+        }
+
+        return mediaPath
+    }
+
+    fun renameGif(uri: Uri, localId: String): Uri? {
+        val filePath = uri.path
+
+        if (filePath != null) {
+            val originalFile = File(filePath)
+            val newFile = File(originalFile.parent, "${localId}.gif")
+            if (originalFile.renameTo(newFile)) {
+                return FileProvider.getUriForFile(
+                    MainApplication.appContext,
+                    BuildConfig.APPLICATION_ID + ".fileprovider",
+                    newFile
+                )
+            }
+        }
+
+        return null
+    }
+
 
     fun deleteTemporaryMedia(context: Context) {
         val imagesDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -708,7 +738,6 @@ object Tools {
             mimeType.contains(Const.JsonFields.IMAGE_TYPE) -> Const.JsonFields.IMAGE_TYPE
             mimeType.contains(Const.JsonFields.VIDEO_TYPE) -> Const.JsonFields.VIDEO_TYPE
             mimeType.contains(Const.JsonFields.AUDIO_TYPE) -> Const.JsonFields.AUDIO_TYPE
-            // TODO add gif
             else -> Const.JsonFields.FILE_TYPE
         }
     }
@@ -720,12 +749,14 @@ object Tools {
     }
 
     fun getFileMimeType(context: Context, uri: Uri): String {
-        val type = if (uri.toString().contains(Const.JsonFields.GIF)){
+        val type = if (uri.toString().contains(Const.JsonFields.GIF)) {
             Const.JsonFields.GIF_TYPE
         } else {
             val cR: ContentResolver = context.contentResolver
             cR.getType(uri).toString()
         }
+
+        Timber.d("TYPE::::::::: $type")
 
         return type
     }
@@ -922,7 +953,6 @@ object Tools {
 
     fun resizeImage(width: Int?, height: Int?): Pair<Int, Int> {
 
-        Timber.d("Image resize original = $width, $height")
         val correctedWidth = width ?: MAX_IMAGE_SIZE
         val correctedHeight = height ?: MAX_IMAGE_SIZE
 
@@ -944,11 +974,9 @@ object Tools {
                 // If new height is still above the limit, resize height and update width accordingly
                 val adjustedHeight = minOf(maxSizeLimit, correctedHeight)
                 val adjustedWidth = (adjustedHeight * ratio).toInt()
-                Timber.d("Image resize resized 4 = $adjustedWidth, $adjustedHeight")
                 return Pair(adjustedWidth, adjustedHeight)
             }
 
-            Timber.d("Image resize resized 1 = $newWidth, $newHeight")
             return Pair(newWidth, newHeight)
         }
 
@@ -958,7 +986,6 @@ object Tools {
             val newHeight =
                 if (isHeightAboveLimit) maxSizeLimit else minOf(maxSizeLimit, correctedHeight)
             val newWidth = (ratio * newHeight).toInt()
-            Timber.d("Image resize resized 2 = $newWidth, $newHeight")
             Pair(newWidth, newHeight)
         } else {
             // Resize for landscape, keeping original aspect ratio
@@ -966,7 +993,6 @@ object Tools {
             val newWidth =
                 if (isWidthAboveLimit) maxSizeLimit else minOf(maxSizeLimit, correctedWidth)
             val newHeight = (ratio * newWidth).toInt()
-            Timber.d("Image resize resized 3 = $newWidth, $newHeight")
             Pair(newWidth, newHeight)
         }
     }
@@ -984,6 +1010,23 @@ object Tools {
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             index = lowerCaseText.indexOf(lowerCaseTarget, index + 1)
+        }
+    }
+
+    fun giphyTheme(context: Context) {
+        GPHCustomTheme.apply {
+            backgroundColor = ColorHelper.getSecondaryColor(context)
+            handleBarColor = ColorHelper.getThirdAdditionalColor(context)
+            searchBarBackgroundColor = ColorHelper.getThirdAdditionalColor(context)
+            searchButtonIcon = AppCompatResources.getDrawable(context, R.drawable.img_search)
+            searchPlaceholderTextColor = ColorHelper.getSecondaryTextColor(context)
+            suggestionCellTextColor = ColorHelper.getPrimaryTextColor(context)
+            tabBarSwitchSelectedColor = ColorHelper.getPrimaryTextColor(context)
+            tabBarSwitchDefaultColor = ColorHelper.getPrimaryColor(context)
+            searchTextColor = ColorHelper.getPrimaryTextColor(context)
+            suggestionCellBackgroundColor = ColorHelper.getThirdAdditionalColor(context)
+            defaultTextColor = ColorHelper.getPrimaryTextColor(context)
+            searchBackButtonColor = ColorHelper.getPrimaryColor(context)
         }
     }
 }
