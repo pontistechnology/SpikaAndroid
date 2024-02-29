@@ -601,6 +601,16 @@ object Tools {
 
     }
 
+    fun getMediaPath(context: Context, message: Message): String {
+        return if (message.body?.file?.mimeType?.contains(Const.JsonFields.GIF) == true ||
+            Const.JsonFields.GIF_TYPE == message.type
+        ) {
+            getGifFile(context, message)
+        } else {
+            getMediaFile(context, message)
+        }
+    }
+
     fun getMediaFile(context: Context, message: Message): String {
         val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
@@ -622,7 +632,7 @@ object Tools {
         return mediaPath
     }
 
-    fun getGifFile(context: Context?, message: Message): String {
+    private fun getGifFile(context: Context?, message: Message): String {
         val directory = context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.GIF}"
 

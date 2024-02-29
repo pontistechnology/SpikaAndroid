@@ -6,7 +6,6 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.databinding.ImageLayoutBinding
-import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper
 import com.clover.studio.spikamessenger.utils.helpers.Resource
@@ -38,14 +37,7 @@ class ImageLayout(context: Context) :
             chatMessage.body?.file?.metaData?.height
         )
 
-        val mediaPath =
-            if (chatMessage.body?.file?.mimeType?.contains(Const.JsonFields.GIF) == true ||
-                Const.JsonFields.GIF_TYPE == chatMessage.type
-            ) {
-                Tools.getGifFile(context, chatMessage)
-            } else {
-                Tools.getMediaFile(context, chatMessage)
-            }
+        val mediaPath = Tools.getMediaPath(context, chatMessage)
 
         ChatAdapterHelper.loadMedia(
             context = context,
