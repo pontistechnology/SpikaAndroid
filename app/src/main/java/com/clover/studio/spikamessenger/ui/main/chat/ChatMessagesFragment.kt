@@ -65,6 +65,7 @@ import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.MediaBottomSh
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ReactionsBottomSheet
 import com.clover.studio.spikamessenger.ui.main.startMainActivity
 import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.MessageSwipeController
 import com.clover.studio.spikamessenger.utils.Tools
@@ -631,6 +632,18 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 else -> Timber.d("Other error")
             }
         })
+
+        viewModel.thumbnailData.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    Timber.d("Thumbnail data = ${it.responseData?.data}")
+                }
+                Resource.Status.ERROR -> {}
+                else -> {}
+            }
+        })
+        // TODO placeholder, move this when creating link preview message
+        viewModel.getPageMetadata("https://youtube.hr")
 
         viewModel.getMessageAndRecords(roomId = roomWithUsers!!.room.roomId)
             .observe(viewLifecycleOwner) {

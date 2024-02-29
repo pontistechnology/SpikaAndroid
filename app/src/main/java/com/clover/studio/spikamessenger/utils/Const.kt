@@ -200,6 +200,7 @@ class Const {
             // Messages
             const val API_POST_MESSAGE = "api/messenger/messages"
             const val API_MESSAGE_DELIVERED = "api/messenger/messages/delivered" // Fix
+            const val API_GET_PAGE_METADATA = "api/messenger/messages/get-thumbnail"
 
             // Room
             const val API_GET_ROOM_BY_ID = "api/messenger/rooms/users/{userId}"
@@ -236,6 +237,7 @@ class Const {
             const val TARGET = "target"
             const val IS_LAST_PAGE = "isLastPage"
             const val PAGE = "page"
+            const val URL = "url"
         }
     }
 

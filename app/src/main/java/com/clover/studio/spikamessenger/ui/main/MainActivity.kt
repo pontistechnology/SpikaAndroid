@@ -31,7 +31,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 
 
 fun startMainActivity(fromActivity: Activity) = fromActivity.apply {
@@ -172,6 +177,27 @@ class MainActivity : BaseActivity() {
         }
 
         viewModel.getUnreadCount()
+        getPageContent()
+    }
+
+    private fun getPageContent() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val connection = withContext(Dispatchers.IO) {
+                URL("https://www.youtube.hr").openConnection()
+            } as HttpURLConnection
+            connection.requestMethod = "GET"
+
+            val inputStream = connection.inputStream
+            val reader = BufferedReader(InputStreamReader(inputStream))
+            val stringBuilder = StringBuilder()
+            var line: String?
+            while (reader.readLine().also { line = it } != null) {
+                stringBuilder.append(line).append("\n")
+            }
+            reader.close()
+            connection.disconnect()
+            Timber.d("Page data = $stringBuilder")
+        }
     }
 
     override fun onDestroy() {
