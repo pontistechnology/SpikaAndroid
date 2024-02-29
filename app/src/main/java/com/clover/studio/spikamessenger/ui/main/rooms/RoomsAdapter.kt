@@ -165,8 +165,7 @@ class RoomsAdapter(
                 mimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true -> R.drawable.img_camera_small
                 mimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true -> R.drawable.img_video_small
                 mimeType?.contains(Const.JsonFields.AUDIO_TYPE) == true -> R.drawable.img_microphone_small
-                mimeType?.contains(Const.JsonFields.FILE_TYPE) == true -> R.drawable.img_file_small
-                else -> 0
+                else -> R.drawable.img_file_small
             }
 
             setCompoundDrawablesWithIntrinsicBounds(
@@ -176,7 +175,11 @@ class RoomsAdapter(
                 0
             )
 
-            text = sortedList?.type.toString().replaceFirstChar { it.uppercase() }
+            text = if (sortedList?.body?.file?.mimeType.toString().contains(Const.JsonFields.GIF)){
+                Const.JsonFields.GIF.replaceFirstChar { it.uppercase() }
+            } else {
+                sortedList?.type.toString().replaceFirstChar { it.uppercase() }
+            }
         }
     }
 
