@@ -766,8 +766,6 @@ object Tools {
             cR.getType(uri).toString()
         }
 
-        Timber.d("TYPE::::::::: $type")
-
         return type
     }
 

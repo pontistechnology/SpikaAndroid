@@ -92,6 +92,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -536,10 +537,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
     fun handleGifClick(context: Context, urlString: String) {
         Toast.makeText(context, getString(R.string.preparing_gifs), Toast.LENGTH_LONG).show()
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val url = URL(urlString)
-                val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
+                val connection = withContext(Dispatchers.IO) {
+                    url.openConnection()
+                } as HttpURLConnection
+
                 connection.doInput = true
                 connection.connect()
 
@@ -1361,23 +1366,28 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 }
             }
 
+            Const.JsonFields.GIF_TYPE -> {
+                val resendUri = message.originalUri?.toUri() ?: return
+                selectedFiles.add(resendUri)
+                handleUserSelectedFile(selectedFiles)
+
+                viewModel.deleteLocalMessage(message)
+            }
+
             Const.JsonFields.FILE_TYPE, Const.JsonFields.AUDIO_TYPE -> {
-                val resendMessage = message.body?.file?.uri?.toUri()
-                if (resendMessage != null) {
-                    selectedFiles.add(resendMessage)
-                    handleUserSelectedFile(selectedFiles)
-                }
+                val resendUri = message.body?.file?.uri?.toUri() ?: return
+                selectedFiles.add(resendUri)
+                handleUserSelectedFile(selectedFiles)
+
                 viewModel.deleteLocalMessage(message)
             }
 
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                if (message.originalUri != null) {
-                    selectedFiles.add(message.originalUri!!.toUri())
-                    handleUserSelectedFile(selectedFiles)
-                    viewModel.deleteLocalMessage(message)
-                } else {
-                    Toast.makeText(context, "Something went wrong", Toast.LENGTH_LONG).show()
-                }
+                val resendUri = message.originalUri?.toUri() ?: return
+                selectedFiles.add(resendUri)
+                handleUserSelectedFile(selectedFiles)
+
+                viewModel.deleteLocalMessage(message)
             }
         }
     }
@@ -1402,7 +1412,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             mimeType = Const.JsonFields.TEXT_TYPE,
             fileId = 0,
             thumbId = 0,
-            roomId = roomWithUsers!!.room.roomId,
+            roomId = roomWithUsers?.room?.roomId,
             localId = localId,
             replyId = replyId
         )
@@ -1566,12 +1576,15 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                             filesSelected.first()
                         }
 
-                        uploadFiles(
-                            isThumbnail = false,
-                            uri = uri,
-                            localId = unsentMessage.localId!!,
-                            metadata = null
-                        )
+                        unsentMessage.localId?.let {
+                            uploadFiles(
+                                isThumbnail = false,
+                                uri = uri,
+                                localId = it,
+                                metadata = null
+                            )
+                        }
+
                         filesSelected.removeFirst()
                     }
                 }
@@ -1581,17 +1594,21 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun createTempFileMessage(uri: Uri, type: String) {
-        val tempMessage = FilesHelper.createTempFile(
-            uri = uri,
-            type = type,
-            localUserId = localUserId,
-            roomId = roomWithUsers!!.room.roomId,
-            unsentMessages = unsentMessages
-        )
+        val tempMessage = roomWithUsers?.room?.let {
+            FilesHelper.createTempFile(
+                uri = uri,
+                type = type,
+                localUserId = localUserId,
+                roomId = it.roomId,
+                unsentMessages = unsentMessages
+            )
+        }
 
-        temporaryMessages.add(tempMessage)
-        unsentMessages.add(tempMessage)
-        viewModel.storeMessageLocally(tempMessage)
+        if (tempMessage != null) {
+            temporaryMessages.add(tempMessage)
+            unsentMessages.add(tempMessage)
+            viewModel.storeMessageLocally(tempMessage)
+        }
     }
 
     private fun uploadFiles(
@@ -1601,16 +1618,20 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         metadata: FileMetadata?,
     ) {
         val uploadData: MutableList<FileData> = ArrayList()
-        uploadData.add(
+        roomWithUsers?.let {
             FilesHelper.uploadFile(
                 isThumbnail = isThumbnail,
                 uri = uri,
                 localId = localId,
-                roomId = roomWithUsers!!.room.roomId,
+                roomId = it.room.roomId,
                 metadata = metadata
-            )
-        )
-        uploadFiles.addAll(uploadData)
+            )?.let { fileData ->
+                uploadData.add(
+                    fileData
+                )
+            }
+            uploadFiles.addAll(uploadData)
+        }
     }
 
     private fun checkStoragePermission() {
@@ -1694,8 +1715,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
                 if (uploadedFiles.isNotEmpty()) {
                     uploadedFiles.forEach { item ->
-                        if (Resource.Status.ERROR == item.messageStatus ||
-                            Resource.Status.LOADING == item.messageStatus ||
+                        if (Resource.Status.ERROR == item.messageStatus || Resource.Status.LOADING == item.messageStatus ||
                             item.messageStatus == null
                         ) {
                             if (!item.isThumbnail) {
@@ -1703,9 +1723,15 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                                     messageStatus = Resource.Status.ERROR.toString(),
                                     localId = item.localId.toString()
                                 )
+
+                                if (item.fileUri.toString().contains(Const.JsonFields.GIF)) {
+                                    viewModel.updateLocalUri(
+                                        localId = item.localId.toString(),
+                                        uri = item.fileUri.toString()
+                                    )
+                                }
                             } else {
-                                val resendUri =
-                                    uriPairList.find { it.second == item.fileUri }
+                                val resendUri = uriPairList.find { it.second == item.fileUri }
                                 viewModel.updateLocalUri(
                                     localId = item.localId.toString(),
                                     uri = resendUri?.first.toString(),
