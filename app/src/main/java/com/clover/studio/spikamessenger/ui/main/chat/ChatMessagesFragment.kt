@@ -535,6 +535,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     fun handleGifClick(context: Context, urlString: String) {
+        Toast.makeText(context, getString(R.string.preparing_gifs), Toast.LENGTH_LONG).show()
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val url = URL(urlString)
