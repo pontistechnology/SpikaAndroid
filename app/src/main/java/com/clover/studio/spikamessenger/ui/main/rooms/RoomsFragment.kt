@@ -15,7 +15,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
+import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentRoomsBinding
 import com.clover.studio.spikamessenger.ui.main.MainFragmentDirections
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
@@ -42,6 +44,10 @@ class RoomsFragment : BaseFragment() {
     private var userSearching = false
     private var searchView: SearchView? = null
     private var searchQuery: String = ""
+    private var isMessageDataIn = false
+    private var isRoomDataIn = false
+    private var tempMessages: MutableList<Message> = arrayListOf()
+    private var tempRoomWithUsers: MutableList<RoomWithUsers> = arrayListOf()
 
     private var primaryColor = ColorStateList.valueOf(0)
     private var fourthAdditionalColor = ColorStateList.valueOf(0)
@@ -73,57 +79,44 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.getChatRoomsWithLatestMessage().observe(viewLifecycleOwner) {
+        viewModel.getAllMessagesLivedata().observe(viewLifecycleOwner) {
             when (it.status) {
-                Resource.Status.SUCCESS -> {
-                    if (!it.responseData.isNullOrEmpty()) {
-                        binding.tvNoChats.visibility = View.GONE
-
-                        roomList = it.responseData.toMutableList()
-
-                        val nonEmptyRoomList = it.responseData.filter { roomData ->
-                            Const.JsonFields.GROUP == roomData.roomWithUsers.room.type || roomData.message != null
-                        }
-
-                        val pinnedRooms =
-                            roomList.filter { roomItem -> roomItem.roomWithUsers.room.pinned }
-                                .sortedBy { pinnedRoom -> pinnedRoom.message?.createdAt }.reversed()
-
-                        try {
-                            sortedList =
-                                nonEmptyRoomList.sortedWith(compareBy(nullsFirst()) { roomItem ->
-                                    if (roomItem.message != null) {
-                                        roomItem.message.createdAt
-                                    } else null
-                                }).reversed().toMutableList()
-                        } catch (ex: Exception) {
-                            Tools.checkError(ex)
-                        }
-
-                        if (sortedList.isEmpty()) {
-                            sortedList = it.responseData.toMutableList()
-                        }
-
-                        // Calling .toSet() here caused a crash in the app, so don't add it.
-                        sortedList = (pinnedRooms + (sortedList - pinnedRooms)).toMutableList()
-
-                        if (!userSearching) {
-                            roomsAdapter.submitList(sortedList)
-                        }
-                    } else {
-                        binding.tvNoChats.visibility = View.VISIBLE
-                    }
-                }
-
-                Resource.Status.LOADING -> Timber.d("Rooms loading")
-                Resource.Status.ERROR -> {
-                    binding.tvNoChats.visibility = View.VISIBLE
-                    Timber.d("Rooms Error")
-                }
-
-                else -> Timber.d("Rooms unknown state")
+                Resource.Status.SUCCESS -> viewModel.getAllMessages()
+                Resource.Status.LOADING -> Timber.d("Loading")
+                else -> Timber.d("Something else happened")
             }
         }
+
+        viewModel.messages.observe(viewLifecycleOwner, EventObserver {
+            Timber.d("Submitting messages to adapter")
+            submitToAdapter(messages = it)
+        })
+
+        viewModel.getAllRoomsLiveData().observe(viewLifecycleOwner) {
+            when (it.status) {
+                Resource.Status.SUCCESS -> viewModel.getAllRooms()
+                Resource.Status.LOADING -> Timber.d("Loading")
+                else -> Timber.d("Something else happened")
+            }
+        }
+
+        viewModel.rooms.observe(viewLifecycleOwner, EventObserver {
+            Timber.d("Submitting rooms to adapter")
+            submitToAdapter(roomData = it)
+        })
+
+        viewModel.getAllUsersLiveData().observe(viewLifecycleOwner) {
+            when (it.status) {
+                Resource.Status.SUCCESS -> viewModel.getAllUsers()
+                Resource.Status.LOADING -> Timber.d("Loading")
+                else -> Timber.d("Something else happened")
+            }
+        }
+
+        viewModel.users.observe(viewLifecycleOwner, EventObserver {
+            Timber.d("Submitting users to adapter")
+            submitToAdapter(roomData = it)
+        })
 
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
@@ -241,6 +234,86 @@ class RoomsFragment : BaseFragment() {
         }
 
         viewModel.roomUsers.clear()
+    }
+
+    private fun submitToAdapter(
+        messages: List<Message>? = null,
+        roomData: List<RoomWithUsers>? = null
+    ) {
+        if (messages != null) {
+            tempMessages.clear()
+            isMessageDataIn = true
+            tempMessages.addAll(messages)
+        }
+
+        if (roomData != null) {
+            tempRoomWithUsers.clear()
+            isRoomDataIn = true
+            tempRoomWithUsers.addAll(roomData)
+        }
+
+        Timber.d("Is all data in?")
+        if (!isRoomDataIn || !isMessageDataIn) return
+
+        Timber.d("All data is in")
+        // All data is in, combine list and send to adapter
+        val tempRoomList: MutableList<RoomWithMessage> = arrayListOf()
+        if (tempMessages.isEmpty()) {
+            for (room in tempRoomWithUsers) {
+                tempRoomList.add(RoomWithMessage(room, null))
+            }
+        } else {
+            val sortedMessages = tempMessages.sortedByDescending { it.modifiedAt }
+            var roomFound = false
+
+            for (room in tempRoomWithUsers) {
+                for (message in sortedMessages) {
+                    if (room.room.roomId == message.roomId) {
+                        tempRoomList.add(RoomWithMessage(room, message))
+                        roomFound = true
+                        break
+                    }
+                }
+                if (!roomFound) {
+                    tempRoomList.add(RoomWithMessage(room, null))
+                } else {
+                    roomFound = false
+                }
+            }
+        }
+
+        roomList = tempRoomList.toMutableList()
+
+        //  Handle room list
+        val nonEmptyRoomList = roomList.filter { room ->
+            Const.JsonFields.GROUP == room.roomWithUsers.room.type || room.message != null
+        }
+
+        val pinnedRooms =
+            roomList.filter { roomItem -> roomItem.roomWithUsers.room.pinned }
+                .sortedBy { pinnedRoom -> pinnedRoom.message?.createdAt }.reversed()
+
+        try {
+            sortedList =
+                nonEmptyRoomList.sortedWith(compareBy(nullsFirst()) { roomItem ->
+                    if (roomItem.message != null) {
+                        roomItem.message.createdAt
+                    } else null
+                }).reversed().toMutableList()
+        } catch (ex: Exception) {
+            Tools.checkError(ex)
+        }
+
+        if (sortedList.isEmpty()) {
+            sortedList = roomList.toMutableList()
+        }
+
+        // Calling .toSet() here caused a crash in the app, so don't add it.
+        sortedList = (pinnedRooms + (sortedList - pinnedRooms)).toMutableList()
+
+        if (!userSearching) {
+            roomsAdapter.submitList(sortedList)
+        }
     }
 
     private fun setUpButtons(

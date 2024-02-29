@@ -287,6 +287,23 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getAllMediaWithOffset(roomId, limit, offset) }
         )
 
+    override fun getAllRoomsLiveData(): LiveData<Resource<List<ChatRoom>>> =
+        queryDatabase { chatRoomDao.getAllRoomsLiveData() }
+
+
+    override fun getAllUsersLiveData(): LiveData<Resource<List<User>>> =
+        queryDatabase { chatRoomDao.getAllUsersLiveData() }
+
+    override suspend fun getAllMessages(): List<Message> = chatRoomDao.getAllMessages()
+
+
+    override suspend fun getAllRooms(): List<RoomWithUsers> = chatRoomDao.getAllRoomsWithUsers()
+
+    override suspend fun getAllUsers(): List<User> = chatRoomDao.getAllUsers()
+
+    override fun getAllMessagesLiveData(): LiveData<Resource<List<Message>>> =
+        queryDatabase { chatRoomDao.getAllMessagesLiveData() }
+
     override suspend fun getMediaCount(roomId: Int) = chatRoomDao.getMediaCount(roomId)
 
     override suspend fun getSearchedMessages(query: String) =
@@ -451,7 +468,20 @@ interface MainRepository : BaseRepository {
     suspend fun getRecentContacts(): Resource<List<RoomWithUsers>>
     suspend fun getRecentGroups(): Resource<List<RoomWithUsers>>
     suspend fun getAllGroups(): Resource<List<RoomWithUsers>>
-    fun getAllMediaWithOffset(roomId: Int, limit: Int, offset: Int): LiveData<Resource<List<Message>>>
+    fun getAllMediaWithOffset(
+        roomId: Int,
+        limit: Int,
+        offset: Int
+    ): LiveData<Resource<List<Message>>>
+
+    fun getAllMessagesLiveData(): LiveData<Resource<List<Message>>>
+    fun getAllRoomsLiveData(): LiveData<Resource<List<ChatRoom>>>
+    fun getAllUsersLiveData(): LiveData<Resource<List<User>>>
+
+    suspend fun getAllMessages(): List<Message>
+    suspend fun getAllRooms(): List<RoomWithUsers>
+    suspend fun getAllUsers(): List<User>
+
     suspend fun getMediaCount(roomId: Int): Int
     suspend fun updateRoom(
         jsonObject: JsonObject,

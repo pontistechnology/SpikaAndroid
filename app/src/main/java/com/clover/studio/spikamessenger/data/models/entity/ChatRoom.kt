@@ -60,5 +60,5 @@ data class ChatRoom @JvmOverloads constructor(
 
     @Ignore
     @IgnoredOnParcel
-    var selected : Boolean = false
+    var selected: Boolean = false
 }

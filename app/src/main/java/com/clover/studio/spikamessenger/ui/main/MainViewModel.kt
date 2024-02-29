@@ -62,6 +62,9 @@ class MainViewModel @Inject constructor(
     val allGroupsListener = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
     val recentGroupsListener = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
     val roomUsers: MutableList<PrivateGroupChats> = ArrayList()
+    val messages = MutableLiveData<Event<List<Message>>>()
+    val users = MutableLiveData<Event<List<RoomWithUsers>>>()
+    val rooms = MutableLiveData<Event<List<RoomWithUsers>>>()
 
     init {
         sseManager.setupListener(this)
@@ -144,6 +147,27 @@ class MainViewModel @Inject constructor(
     }
 
     fun getChatRoomsWithLatestMessage() = repository.getChatRoomsWithLatestMessage()
+
+    fun getAllMessagesLivedata() = repository.getAllMessagesLiveData()
+
+    fun getAllRoomsLiveData() = repository.getAllRoomsLiveData()
+
+    fun getAllUsersLiveData() = repository.getAllUsersLiveData()
+
+    fun getAllMessages() = viewModelScope.launch {
+        val response = repository.getAllMessages()
+        messages.postValue(Event(response))
+    }
+
+    fun getAllUsers() = viewModelScope.launch {
+        val response = repository.getAllRooms()
+        users.postValue(Event(response))
+    }
+
+    fun getAllRooms() = viewModelScope.launch {
+        val response = repository.getAllRooms()
+        rooms.postValue(Event(response))
+    }
 
     fun getRecentContacts() = viewModelScope.launch {
         resolveResponseStatus(recentContacts, repository.getRecentContacts())

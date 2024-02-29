@@ -76,7 +76,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_4_5,
                     MIGRATION_5_6,
                     MIGRATION_6_7,
-                    MIGRATION7_8
+                    MIGRATION_7_8
                 )
                 .fallbackToDestructiveMigration()
                 .build()
@@ -138,7 +138,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        private val MIGRATION7_8: Migration = object : Migration(7, 8) {
+        private val MIGRATION_7_8: Migration = object : Migration(7, 8) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN reference_message TEXT")
 

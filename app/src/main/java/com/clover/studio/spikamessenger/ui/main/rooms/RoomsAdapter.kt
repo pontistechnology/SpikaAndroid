@@ -17,6 +17,7 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getRoomTime
 import com.vanniktech.emoji.EmojiTextView
+import timber.log.Timber
 
 const val MAX_UNREAD_MESSAGES = 99
 
@@ -114,9 +115,10 @@ class RoomsAdapter(
                         getRoomTime(it)
                     }
 
+                    Timber.d("Current time = $time")
                     // Check for the first digit in the relative time span, if it is a '0' we will
                     // write "Now" instead of the returned time value
-                    if (time.toString() == context.getString(R.string.zero_minutes_ago)) {
+                    if (time.toString() == context.getString(R.string.in_zero_minutes) || time.toString() == context.getString(R.string.zero_minutes_ago)) {
                         binding.tvMessageTime.text = context.getString(R.string.now)
                     } else {
                         binding.tvMessageTime.text = time

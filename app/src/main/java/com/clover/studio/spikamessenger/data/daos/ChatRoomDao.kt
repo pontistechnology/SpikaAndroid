@@ -7,14 +7,12 @@ import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
+import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.utils.helpers.Extensions.getDistinct
 
 @Dao
 interface ChatRoomDao : BaseDao<ChatRoom> {
-
-    @Query("SELECT * FROM room")
-    fun getAllRooms(): List<ChatRoom>
 
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     suspend fun getRoomById(roomId: Int): ChatRoom
@@ -121,7 +119,6 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("UPDATE room SET deleted =:deleted WHERE room_id LIKE :roomId")
     suspend fun updateRoomDeleted(roomId: Int, deleted: Boolean)
 
-    // TODO we need to remove searching through reply messages {reference_messages: {text: ...
     @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
@@ -141,4 +138,24 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("SELECT COUNT(*) FROM message WHERE room_id_message= :roomId AND (type_message = 'image' OR type_message = 'video')")
     suspend fun getMediaCount(roomId: Int): Int
 
+    @Query("SELECT * FROM room ORDER BY modified_at DESC LIMIT 1")
+    fun getAllRoomsLiveData(): LiveData<List<ChatRoom>>
+
+    @Query("SELECT * FROM user ORDER BY modified_at DESC LIMIT 1")
+    fun getAllUsersLiveData(): LiveData<List<User>>
+
+    @Query("SELECT * FROM message ORDER BY modified_at_message DESC LIMIT 1")
+    fun getAllMessagesLiveData(): LiveData<List<Message>>
+
+    @Query("SELECT * FROM message ")
+    suspend fun getAllMessages(): List<Message>
+
+    @Query("SELECT * FROM room")
+    suspend fun getAllRooms(): List<ChatRoom>
+
+    @Query("SELECT * FROM room")
+    suspend fun getAllRoomsWithUsers(): List<RoomWithUsers>
+
+    @Query("SELECT * FROM user")
+    suspend fun getAllUsers(): List<User>
 }
