@@ -28,7 +28,7 @@ data class RoomWithUsers(
         entityColumn = "user_id",
         associateBy = Junction(RoomUser::class)
     )
-    val users: List<User>
+    var users: List<User>
 ) : Parcelable
 
 @Parcelize

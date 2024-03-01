@@ -512,11 +512,15 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                             }
                         }
 
-                        bindingSetup.chatHeader.tvTitle.text =
-                            getString(
-                                R.string.members_number,
-                                room.responseData?.users?.size.toString()
-                            )
+                        if (roomWithUsers?.users?.size != room.responseData?.users?.size) {
+                            bindingSetup.chatHeader.tvTitle.text =
+                                getString(
+                                    R.string.members_number,
+                                    room.responseData?.users?.size.toString()
+                                )
+
+                            room.responseData?.users?.let { users -> roomWithUsers?.users = users }
+                        }
                     }
 
                     Resource.Status.LOADING -> Timber.d("Room get loading")
