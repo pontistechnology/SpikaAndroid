@@ -55,7 +55,7 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     companion object {
-        const val DATABASE_VERSION = 8
+        const val DATABASE_VERSION = 9
 
         @Volatile
         private var instance: AppDatabase? = null

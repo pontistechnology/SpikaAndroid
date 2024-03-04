@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.room.*
 import com.clover.studio.spikamessenger.data.AppDatabase
 import com.clover.studio.spikamessenger.data.models.FileMetadata
+import com.clover.studio.spikamessenger.data.models.networking.responses.ThumbnailData
 import com.clover.studio.spikamessenger.utils.Const
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
@@ -136,6 +137,7 @@ data class MessageBody(
     val subject: String?,
     val objectIds: List<Int>?,
     val objects: List<String>?,
+    var thumbnailData: ThumbnailData? = null
 ) : Parcelable
 
 @Parcelize

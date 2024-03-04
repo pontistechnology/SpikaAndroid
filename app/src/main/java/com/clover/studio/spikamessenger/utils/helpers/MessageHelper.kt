@@ -3,6 +3,7 @@ package com.clover.studio.spikamessenger.utils.helpers
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.MessageFile
+import com.clover.studio.spikamessenger.data.models.networking.responses.ThumbnailData
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 
@@ -12,14 +13,16 @@ object MessageHelper {
         text: String?,
         roomId: Int,
         unsentMessages: MutableList<Message>,
-        localUserId: Int
+        localUserId: Int,
+        thumbnailData: ThumbnailData? = null
     ): Message {
         return createTempMessage(
             roomId = roomId,
             unsentMessages = unsentMessages,
             localUserId = localUserId,
             messageType = Const.JsonFields.TEXT_TYPE,
-            text = text
+            text = text,
+            thumbnailData = thumbnailData
         )
     }
 
@@ -45,7 +48,8 @@ object MessageHelper {
         localUserId: Int,
         messageType: String,
         text: String? = null,
-        file: MessageFile? = null
+        file: MessageFile? = null,
+        thumbnailData: ThumbnailData? = null
     ): Message {
         val messageBody = MessageBody(
             referenceMessage = null,
@@ -58,7 +62,8 @@ object MessageHelper {
             objectIds = null,
             type = "",
             objects = null,
-            subject = ""
+            subject = "",
+            thumbnailData = thumbnailData
         )
 
         return Message(

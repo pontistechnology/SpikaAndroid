@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.webkit.URLUtil
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -56,6 +57,7 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
+import com.clover.studio.spikamessenger.data.models.networking.responses.ThumbnailData
 import com.clover.studio.spikamessenger.databinding.FragmentChatMessagesBinding
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ChatBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.CustomReactionBottomSheet
@@ -65,7 +67,6 @@ import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.MediaBottomSh
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ReactionsBottomSheet
 import com.clover.studio.spikamessenger.ui.main.startMainActivity
 import com.clover.studio.spikamessenger.utils.Const
-import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.MessageSwipeController
 import com.clover.studio.spikamessenger.utils.Tools
@@ -168,6 +169,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private var replyId = 0L
     private var replyPosition = 0
     private var replySearchId: Int? = 0
+    private var thumbnailData: ThumbnailData? = null
 
     private lateinit var emojiPopup: EmojiPopup
     private var replyContainer: ReplyContainer? = null
@@ -488,10 +490,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         ivButtonSend.setOnClickListener {
             vTransparent.visibility = View.GONE
             if (etMessage.text?.trim().toString().isNotEmpty()) {
-                createTempTextMessage()
-                sendMessage()
+                if (URLUtil.isValidUrl(etMessage.text?.trim().toString())) {
+                    viewModel.getPageMetadata(etMessage.text?.trim().toString())
+                } else {
+                    createTempTextMessage()
+                    sendMessage()
+                    etMessage.setText("")
+                }
             }
-            etMessage.setText("")
             hideSendButton()
             replyContainer?.closeBottomSheet()
             clSendingArea.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
@@ -626,6 +632,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                             unsentMessages.find { msg -> msg.localId == it.responseData?.data?.message?.localId }
                         unsentMessages.remove(message)
                     }
+
+                    thumbnailData = null
                 }
 
                 Resource.Status.ERROR -> Timber.d("Message send fail: $it")
@@ -636,14 +644,20 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         viewModel.thumbnailData.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    Timber.d("Thumbnail data = ${it.responseData?.data}")
+                    thumbnailData = it.responseData?.data
+                    createTempTextMessage()
+                    sendMessage()
+                    bindingSetup.etMessage.setText("")
                 }
-                Resource.Status.ERROR -> {}
-                else -> {}
+
+                Resource.Status.ERROR -> {
+                    bindingSetup.etMessage.setText("")
+                }
+                else -> {
+                    bindingSetup.etMessage.setText("")
+                }
             }
         })
-        // TODO placeholder, move this when creating link preview message
-        viewModel.getPageMetadata("https://youtube.hr")
 
         viewModel.getMessageAndRecords(roomId = roomWithUsers!!.room.roomId)
             .observe(viewLifecycleOwner) {
@@ -1459,7 +1473,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             thumbId = 0,
             roomId = roomWithUsers?.room?.roomId,
             localId = localId,
-            replyId = replyId
+            replyId = replyId,
+            thumbnailData = thumbnailData
         )
 
         val jsonObject = jsonMessage.messageToJson()
@@ -1477,7 +1492,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 text = bindingSetup.etMessage.text.toString().trim(),
                 roomId = it.room.roomId,
                 localUserId = localUserId,
-                unsentMessages = unsentMessages
+                unsentMessages = unsentMessages,
+                thumbnailData = thumbnailData
             )
         }
 

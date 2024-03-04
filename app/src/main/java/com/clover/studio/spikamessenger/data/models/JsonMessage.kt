@@ -1,6 +1,8 @@
 package com.clover.studio.spikamessenger.data.models
 
+import com.clover.studio.spikamessenger.data.models.networking.responses.ThumbnailData
 import com.clover.studio.spikamessenger.utils.Const
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 
 data class JsonMessage(
@@ -11,6 +13,7 @@ data class JsonMessage(
     val roomId: Int?,
     val localId: String?,
     var replyId: Long?,
+    var thumbnailData: ThumbnailData? = null
 ) {
     fun messageToJson(): JsonObject {
         val jsonObject = JsonObject()
@@ -38,12 +41,24 @@ data class JsonMessage(
             replyId = null
         }
 
+        if (thumbnailData != null) {
+            innerObject.add(Const.JsonFields.THUMBNAIL_DATA, thumbnailData?.toJsonObject())
+        }
+
         jsonObject.addProperty(Const.JsonFields.REPLY_ID, replyId)
         jsonObject.addProperty(Const.JsonFields.LOCAL_ID, localId)
         jsonObject.addProperty(Const.JsonFields.ROOM_ID, roomId)
 
         jsonObject.add(Const.JsonFields.BODY, innerObject)
 
+        return jsonObject
+    }
+
+    private fun ThumbnailData.toJsonObject(): JsonObject {
+        val gson = Gson()
+        val jsonString = gson.toJson(this)
+        val jsonObject = gson.fromJson(jsonString, JsonObject::class.java)
+        jsonObject.addProperty(Const.JsonFields.THUMBNAIL_DATA, jsonString)
         return jsonObject
     }
 }

@@ -151,6 +151,7 @@ class Const {
             const val BODY = "body"
             const val MESSAGE_IDS = "messageIds"
             const val REACTION = "reaction"
+            const val THUMBNAIL_DATA = "thumbnailData"
 
             // Room actions
             const val ADD_GROUP_USERS = "addGroupUsers"
