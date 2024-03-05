@@ -39,6 +39,7 @@ class Const {
             const val CANCEL_UPLOAD = "upload_cancel"
             const val MESSAGE_ACTION = "action"
             const val MESSAGE_REPLY = "reply"
+            const val MESSAGE_PREVIEW = "preview"
             const val RESEND_MESSAGE = "resend"
             const val USER_REMOVE = "remove_user"
             const val USER_OPTIONS = "user_options"
