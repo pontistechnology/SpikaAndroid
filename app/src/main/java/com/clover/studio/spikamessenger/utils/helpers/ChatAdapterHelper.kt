@@ -43,7 +43,7 @@ object ChatAdapterHelper {
         )
 
         viewsToHide.forEach {
-            it.visibility = if (it == viewToShow || it.isVisible) View.VISIBLE else View.GONE
+            it.visibility = if (it == viewToShow) View.VISIBLE else View.GONE
         }
 
         val containerIds = listOf(
