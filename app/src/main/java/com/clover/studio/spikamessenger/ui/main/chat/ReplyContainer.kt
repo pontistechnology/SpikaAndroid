@@ -65,17 +65,18 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
             }
         }
 
+        val mediaPath = Tools.getMediaPath(context, message)
         when (message.type) {
             Const.JsonFields.IMAGE_TYPE -> setupMediaType(
                 R.string.photo,
                 R.drawable.img_camera,
-                Tools.getMediaFile(context, message)
+                mediaPath
             )
 
             Const.JsonFields.VIDEO_TYPE -> setupMediaType(
                 R.string.video,
                 R.drawable.img_video_reply,
-                Tools.getMediaFile(context, message)
+                mediaPath
             )
 
             Const.JsonFields.AUDIO_TYPE -> setupMediaType(

@@ -293,27 +293,30 @@
     <string name="unread_limit">99+</string>
 
     <!-- System messages-->
-        <!-- Notes -->
-        <string name="updated_note">updated note</string>
-        <string name="created_note">created note</string>
-        <string name="deleted_note">deleted note</string>
+    <!-- Notes -->
+    <string name="updated_note">updated note</string>
+    <string name="created_note">created note</string>
+    <string name="deleted_note">deleted note</string>
 
-        <!-- Groups -->
-        <string name="created_group">created group</string>
-        <string name="updated_group">updated the group</string>
-        <string name="updated_group_name">changed the name of group to</string>
-        <string name="updated_group_avatar">updated the avatar of group</string>
-        <string name="user_left_group">left the group</string>
-        <string name="from_the_group">from the group</string>
-        <string name="to_the_group">to the group</string>
-        <string name="as_group_admin">as group admin</string>
+    <!-- Groups -->
+    <string name="created_group">created group</string>
+    <string name="updated_group">updated the group</string>
+    <string name="updated_group_name">changed the name of group to</string>
+    <string name="updated_group_avatar">updated the avatar of group</string>
+    <string name="user_left_group">left the group</string>
+    <string name="from_the_group">from the group</string>
+    <string name="to_the_group">to the group</string>
+    <string name="as_group_admin">as group admin</string>
 
     <!-- Users -->
-        <string name="added_group_admins">added</string>
-        <string name="added_group_members">added</string>
-        <string name="removed_group_admins">removed</string>
-        <string name="removed_group_members">removed</string>
-        <string name="updated_group_admins">updated admin status of</string>
-        <string name="updated_group_members">updated group member/s</string>
+    <string name="added_group_admins">added</string>
+    <string name="added_group_members">added</string>
+    <string name="removed_group_admins">removed</string>
+    <string name="removed_group_members">removed</string>
+    <string name="updated_group_admins">updated admin status of</string>
+    <string name="updated_group_members">updated group member/s</string>
     <string name="dismiss_as_admin">Dismiss as admin</string>
+
+    <!-- Gifs -->
+    <string name="preparing_gifs">Preparing gif</string>
 </resources>

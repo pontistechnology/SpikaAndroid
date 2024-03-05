@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
+import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.databinding.ImageLayoutBinding
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper
@@ -31,13 +31,14 @@ class ImageLayout(context: Context) :
         this.listener = listener
     }
 
-    fun bindImage(chatMessage: MessageAndRecords) = with(binding) {
+    fun bindImage(chatMessage: Message) = with(binding) {
         val imageResized = Tools.resizeImage(
-            chatMessage.message.body?.file?.metaData?.width,
-            chatMessage.message.body?.file?.metaData?.height
+            chatMessage.body?.file?.metaData?.width,
+            chatMessage.body?.file?.metaData?.height
         )
 
-        val mediaPath = Tools.getMediaFile(context, chatMessage.message)
+        val mediaPath = Tools.getMediaPath(context, chatMessage)
+
         ChatAdapterHelper.loadMedia(
             context = context,
             mediaPath = mediaPath,
@@ -45,12 +46,22 @@ class ImageLayout(context: Context) :
             loadingImage = ivMediaLoading,
             height = imageResized.second,
             width = imageResized.first,
-            playButton = null
         )
 
-        if (chatMessage.message.id < 0){
+        if (chatMessage.id < 0) {
             bindLoadingImage(chatMessage)
         } else {
+            flLoadingScreen.visibility = View.GONE
+            clImageChat.apply {
+                setOnClickListener {
+                    listener?.imageNavigation()
+                }
+                setOnLongClickListener {
+                    listener?.imageOptions()
+                    true
+                }
+            }
+
             clImageChat.setOnLongClickListener {
                 listener?.imageOptions()
                 true
@@ -62,15 +73,15 @@ class ImageLayout(context: Context) :
     }
 
     private fun bindLoadingImage(
-        chatMessage: MessageAndRecords,
+        chatMessage: Message,
     ) = with(binding) {
-        when (chatMessage.message.messageStatus) {
+        when (chatMessage.messageStatus) {
             Resource.Status.LOADING.toString() -> {
                 flLoadingScreen.visibility = View.VISIBLE
                 ivImageFailed.visibility = View.GONE
                 pbImages.apply {
                     visibility = View.VISIBLE
-                    secondaryProgress = chatMessage.message.uploadProgress
+                    secondaryProgress = chatMessage.uploadProgress
                 }
                 ivCancelImage.apply {
                     visibility = View.VISIBLE
@@ -92,21 +103,8 @@ class ImageLayout(context: Context) :
                 }
             }
 
-            Resource.Status.SUCCESS.toString(), null -> {
-                flLoadingScreen.visibility = View.GONE
-                clImageChat.apply {
-                    setOnClickListener {
-                        listener?.imageNavigation()
-                    }
-                    setOnLongClickListener {
-                        listener?.imageOptions()
-                        true
-                    }
-                }
-            }
-
             else -> {
-                Timber.d("Error")
+                Timber.d("Other error")
             }
         }
     }

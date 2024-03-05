@@ -54,7 +54,7 @@ class SmallMediaAdapter(
                     }
                     pbSmallMedia.visibility = View.VISIBLE
 
-                    val imagePath = Tools.getMediaFile(context, message)
+                    val imagePath = Tools.getMediaPath(context, message)
                     Glide.with(context)
                         .load(imagePath)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)

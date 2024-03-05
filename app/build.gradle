@@ -72,6 +72,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika3 Dev"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
+            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
 
             signingConfig signingConfigs.debug
         }
@@ -84,6 +85,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika3 Dev"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
+            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
 
             signingConfig signingConfigs.debug
         }
@@ -97,6 +99,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
+            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
 
             signingConfig signingConfigs.debug
         }
@@ -111,6 +114,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
+            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
 
             signingConfig signingConfigs.release
         }
@@ -124,6 +128,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika Messenger Dev"
             buildConfigField("String", "SERVER_URL", "\"https://messenger.spika.chat/\"")
+            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
 
             signingConfig signingConfigs.debug
         }
@@ -138,6 +143,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika"
             buildConfigField("String", "SERVER_URL", "\"https://messenger.spika.chat/\"")
+            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
 
             signingConfig signingConfigs.messenger
         }
@@ -238,4 +244,7 @@ dependencies {
 
     // Markdown
     implementation "io.noties.markwon:core:4.6.2"
+
+    // Gifs
+    implementation 'com.giphy.sdk:ui:2.3.13'
 }

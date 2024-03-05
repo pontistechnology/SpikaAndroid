@@ -113,6 +113,8 @@ class Const {
             const val VIDEO_TYPE = "video"
             const val TEXT_TYPE = "text"
             const val IMAGE_TYPE = "image"
+            const val GIF_TYPE = "image/gif"
+            const val GIF = "gif"
             const val SYSTEM_TYPE = "system"
             const val SVG_TYPE = "svg"
             const val AVI_TYPE = "avi"
@@ -321,6 +323,12 @@ class Const {
             const val REMOVED_GROUP_MEMBERS = "removed_group_members"
             const val ADDED_GROUP_ADMINS = "added_group_admins"
             const val REMOVED_GROUP_ADMINS = "removed_group_admins"
+        }
+    }
+
+    class Giphy {
+        companion object {
+            const val GIPHY_BOTTOM_SHEET_TAG = "gifs_dialog"
         }
     }
 }

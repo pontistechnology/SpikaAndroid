@@ -105,15 +105,14 @@ class ReplyLayout(context: Context) :
                 ivReplyImage.visibility = View.VISIBLE
                 tvReplyMedia.visibility = View.VISIBLE
 
-                val imagePath =
-                    chatMessage.message.referenceMessage?.body?.thumbId?.let { imagePath ->
-                        Tools.getFilePathUrl(
-                            imagePath
-                        )
-                    }
+                val mediaPath = chatMessage.message.referenceMessage?.body?.fileId?.let {
+                    Tools.getFilePathUrl(it)
+                }
+
                 Glide.with(context)
-                    .load(imagePath)
+                    .load(mediaPath)
                     .into(ivReplyImage)
+
                 setAppearanceModel(ivReplyImage, sender)
             }
             /** Audio type */

@@ -32,7 +32,7 @@ object FilesHelper {
         localId: String,
         roomId: Int,
         metadata: FileMetadata?
-    ): FileData {
+    ): FileData? {
 
         val messageBody = MessageBody(
             referenceMessage = null,
@@ -48,12 +48,12 @@ object FilesHelper {
             subject = ""
         )
         val inputStream =
-            MainApplication.appContext.contentResolver.openInputStream(uri)
+            MainApplication.appContext.contentResolver.openInputStream(uri) ?: return null
 
         val fileName = Tools.getFileNameFromUri(uri)
         val fileStream = Tools.copyStreamToFile(
-            inputStream = inputStream!!,
-            extension = Tools.getFileMimeType(MainApplication.appContext, uri)!!,
+            inputStream = inputStream,
+            extension = Tools.getFileMimeType(MainApplication.appContext, uri),
             fileName = fileName
         )
         val uploadPieces =
@@ -92,12 +92,14 @@ object FilesHelper {
         if (type == Const.JsonFields.FILE_TYPE) {
             val inputStream =
                 MainApplication.appContext.contentResolver.openInputStream(uri)
-            size = Tools.copyStreamToFile(
-                inputStream!!,
-                MainApplication.appContext.contentResolver.getType(uri)!!,
-                fileName
-            ).length()
-            inputStream.close()
+            if (inputStream != null){
+                size = Tools.copyStreamToFile(
+                    inputStream = inputStream,
+                    extension = Tools.getFileMimeType(MainApplication.appContext, uri),
+                    fileName = fileName
+                ).length()
+                inputStream.close()
+            }
         }
 
         val typeMedia =
@@ -129,10 +131,10 @@ object FilesHelper {
 
         if (typeMedia == Const.JsonFields.IMAGE_TYPE || typeMedia == Const.JsonFields.VIDEO_TYPE) {
             saveMediaToStorage(
-                MainApplication.appContext,
-                MainApplication.appContext.contentResolver,
-                uri,
-                tempMessage.localId
+                context = MainApplication.appContext,
+                contentResolver = MainApplication.appContext.contentResolver,
+                mediaUri = uri,
+                id = tempMessage.localId
             )
         }
 
@@ -192,11 +194,11 @@ object FilesHelper {
 
     fun downloadFile(context: Context, message: Message) {
         try {
-            val tmp = Tools.getFilePathUrl(message.body!!.fileId!!)
+            val tmp = message.body?.fileId?.let { Tools.getFilePathUrl(it) }
             val request = DownloadManager.Request(Uri.parse(tmp))
             request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
             request.setTitle(
-                message.body.file?.fileName ?: "${
+                message.body?.file?.fileName ?: "${
                     MainApplication.appContext.getString(
                         R.string.spika
                     )
@@ -206,7 +208,7 @@ object FilesHelper {
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             request.setDestinationInExternalPublicDir(
                 Environment.DIRECTORY_DOWNLOADS,
-                message.body.file!!.fileName
+                message.body?.file!!.fileName
             )
             val manager =
                 context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
@@ -220,5 +222,4 @@ object FilesHelper {
             Timber.d("$e")
         }
     }
-
 }
