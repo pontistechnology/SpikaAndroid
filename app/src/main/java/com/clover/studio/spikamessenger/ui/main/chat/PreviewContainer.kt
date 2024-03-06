@@ -3,6 +3,7 @@ package com.clover.studio.spikamessenger.ui.main.chat
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -13,7 +14,6 @@ import com.clover.studio.spikamessenger.databinding.PreviewActionBinding
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
 import com.google.android.material.shape.ShapeAppearanceModel
-import timber.log.Timber
 
 class PreviewContainer(context: Context) : ConstraintLayout(context) {
     private var bindingSetup =
@@ -46,11 +46,23 @@ class PreviewContainer(context: Context) : ConstraintLayout(context) {
         return binding.clMessagePreview.visibility == View.VISIBLE
     }
 
+    fun setLoadingPreviewContainer(title: String) = with(binding) {
+        tvTitle.text = title
+        tvDescription.visibility = GONE
+
+        ivPreviewImage.scaleType = ImageView.ScaleType.CENTER_INSIDE
+        Glide.with(context)
+            .load(R.drawable.img_link)
+            .into(ivPreviewImage)
+    }
+
     fun setPreviewContainer(thumbnailData: ThumbnailData) = with(binding) {
-        Timber.d("Thumb data = ${thumbnailData.title}, ${thumbnailData.description}, ${thumbnailData.image}")
         tvTitle.text = thumbnailData.title
         tvDescription.text = thumbnailData.description
 
+        tvDescription.visibility = VISIBLE
+
+        ivPreviewImage.scaleType = ImageView.ScaleType.CENTER_CROP
         Glide.with(context)
             .load(thumbnailData.image)
             .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)

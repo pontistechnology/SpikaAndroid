@@ -475,11 +475,11 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             scrollYDistance = 0
         }
 
-        // TODO check URL when finished writing
         etMessage.addTextChangedListener {
             if (!isEditing) {
                 if (it?.isNotEmpty() == true) {
                     if (Patterns.WEB_URL.matcher(it.trim().toString()).matches()) {
+                        handleMessagePreview(null, it.trim().toString())
                         viewModel.getPageMetadata(URLUtil.guessUrl(it.trim().toString()))
                     }
 
@@ -504,6 +504,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
             hideSendButton()
             replyContainer?.closeBottomSheet()
+            previewContainer?.closeBottomSheet()
             clSendingArea.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
         }
 
@@ -1037,33 +1038,38 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         )
     }
 
-    private fun handleMessagePreview(thumbnailData: ThumbnailData) = with(bindingSetup) {
-        if (isEditing) {
-            resetEditingFields()
-        }
-
-        llEverythingEverywhereAllAtOnce.visibility = View.VISIBLE
-        flPreviewContainer.removeAllViews()
-        flPreviewContainer.addView(previewContainer)
-
-        previewContainer?.setPreviewContainerListener(object :
-            PreviewContainer.PreviewContainerListener {
-            override fun closeSheet() {
-                clSendingArea.setBackgroundColor(
-                    resources.getColor(
-                        android.R.color.transparent,
-                        null
-                    )
-                )
+    private fun handleMessagePreview(thumbnailData: ThumbnailData?, loadingTitle: String = "") =
+        with(bindingSetup) {
+            if (isEditing) {
+                resetEditingFields()
             }
 
-        })
+            llEverythingEverywhereAllAtOnce.visibility = View.VISIBLE
+            flPreviewContainer.removeAllViews()
+            flPreviewContainer.addView(previewContainer)
 
-        previewContainer?.setPreviewContainer(thumbnailData)
+            previewContainer?.setPreviewContainerListener(object :
+                PreviewContainer.PreviewContainerListener {
+                override fun closeSheet() {
+                    clSendingArea.setBackgroundColor(
+                        resources.getColor(
+                            android.R.color.transparent,
+                            null
+                        )
+                    )
+                }
 
-        flPreviewContainer.visibility = View.VISIBLE
-        clSendingArea.setBackgroundColor(ColorHelper.getSecondAdditionalColor(requireContext()))
-    }
+            })
+
+            if (thumbnailData == null) {
+                previewContainer?.setLoadingPreviewContainer(loadingTitle)
+            } else {
+                previewContainer?.setPreviewContainer(thumbnailData)
+            }
+
+            flPreviewContainer.visibility = View.VISIBLE
+            clSendingArea.setBackgroundColor(ColorHelper.getSecondAdditionalColor(requireContext()))
+        }
 
     private fun handleMessageReply(message: Message) = with(bindingSetup) {
         if (isEditing) {
