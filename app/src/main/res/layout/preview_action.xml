@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_message_preview"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/secondAdditionalColor"
+    android:paddingBottom="@dimen/ten_dp_margin"
+    tools:ignore="contentDescription">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_preview_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:background="@drawable/bg_message_received"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/iv_remove"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
+            android:paddingTop="@dimen/four_dp_margin"
+            android:ellipsize="end"
+            android:fontFamily="@font/roboto_bold"
+            android:maxLines="2"
+            android:text="@string/placeholder_title"
+            android:textAppearance="@style/CustomTextBody"
+            android:lineHeight="10dp"
+            android:textColor="?attr/primaryTextColor"
+            android:textSize="@dimen/twelve_sp_text"
+            android:visibility="visible"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toTopOf="@id/tv_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/iv_preview_image"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:ellipsize="end"
+            android:lineHeight="10dp"
+            android:fontFamily="@font/roboto_bold"
+            android:maxLines="2"
+            android:text="@string/placeholder_description"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryTextColor"
+            android:textSize="10sp"
+            app:layout_constrainedWidth="true"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
+            android:visibility="visible"
+            android:paddingBottom="@dimen/four_dp_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/iv_preview_image"
+            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_preview_image"
+            android:layout_width="@dimen/forty_two_dp"
+            android:layout_height="0dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@drawable/img_link"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/iv_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/eight_dp_margin"
+        android:padding="@dimen/eight_dp_margin"
+        android:src="@drawable/img_close"
+        app:layout_constraintBottom_toBottomOf="@+id/cl_preview_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/cl_preview_container"
+        app:tint="?attr/primaryColor" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

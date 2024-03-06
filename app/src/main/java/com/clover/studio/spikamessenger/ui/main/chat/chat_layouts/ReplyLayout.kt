@@ -144,6 +144,10 @@ class ReplyLayout(context: Context) :
             }
             /** Text type */
             else -> {
+                if (chatMessage.message.body?.thumbnailData != null) {
+
+                }
+
                 tvMessageReply.visibility = View.VISIBLE
                 ivReplyImage.visibility = View.GONE
                 tvReplyMedia.visibility = View.GONE

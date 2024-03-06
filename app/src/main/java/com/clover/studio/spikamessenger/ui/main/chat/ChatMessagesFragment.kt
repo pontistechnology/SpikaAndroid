@@ -17,6 +17,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.IBinder
 import android.os.Parcelable
+import android.util.Patterns
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -173,6 +174,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
     private lateinit var emojiPopup: EmojiPopup
     private var replyContainer: ReplyContainer? = null
+    private var previewContainer: PreviewContainer? = null
     private var giphyDialog: GiphyDialogFragment? = null
 
     private var navOptionsBuilder: NavOptions? = null
@@ -282,6 +284,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         )
 
         replyContainer = ReplyContainer(requireContext(), null)
+        previewContainer = PreviewContainer(requireContext())
         navOptionsBuilder = Tools.createCustomNavOptions()
 
         return bindingSetup.root
@@ -472,9 +475,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             scrollYDistance = 0
         }
 
+        // TODO check URL when finished writing
         etMessage.addTextChangedListener {
             if (!isEditing) {
                 if (it?.isNotEmpty() == true) {
+                    if (Patterns.WEB_URL.matcher(it.trim().toString()).matches()) {
+                        viewModel.getPageMetadata(URLUtil.guessUrl(it.trim().toString()))
+                    }
+
                     showSendButton()
                     ivAdd.rotation = ROTATION_OFF
                 } else {
@@ -490,13 +498,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         ivButtonSend.setOnClickListener {
             vTransparent.visibility = View.GONE
             if (etMessage.text?.trim().toString().isNotEmpty()) {
-                if (URLUtil.isValidUrl(etMessage.text?.trim().toString())) {
-                    viewModel.getPageMetadata(etMessage.text?.trim().toString())
-                } else {
-                    createTempTextMessage()
-                    sendMessage()
-                    etMessage.setText("")
-                }
+                createTempTextMessage()
+                sendMessage()
+                etMessage.setText("")
             }
             hideSendButton()
             replyContainer?.closeBottomSheet()
@@ -645,16 +649,15 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     thumbnailData = it.responseData?.data
-                    createTempTextMessage()
-                    sendMessage()
-                    bindingSetup.etMessage.setText("")
+                    thumbnailData?.let { data -> handleMessagePreview(data) }
                 }
 
                 Resource.Status.ERROR -> {
-                    bindingSetup.etMessage.setText("")
+//                    bindingSetup.etMessage.setText("")
                 }
+
                 else -> {
-                    bindingSetup.etMessage.setText("")
+//                    bindingSetup.etMessage.setText("")
                 }
             }
         })
@@ -1034,11 +1037,40 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         )
     }
 
+    private fun handleMessagePreview(thumbnailData: ThumbnailData) = with(bindingSetup) {
+        if (isEditing) {
+            resetEditingFields()
+        }
+
+        llEverythingEverywhereAllAtOnce.visibility = View.VISIBLE
+        flPreviewContainer.removeAllViews()
+        flPreviewContainer.addView(previewContainer)
+
+        previewContainer?.setPreviewContainerListener(object :
+            PreviewContainer.PreviewContainerListener {
+            override fun closeSheet() {
+                clSendingArea.setBackgroundColor(
+                    resources.getColor(
+                        android.R.color.transparent,
+                        null
+                    )
+                )
+            }
+
+        })
+
+        previewContainer?.setPreviewContainer(thumbnailData)
+
+        flPreviewContainer.visibility = View.VISIBLE
+        clSendingArea.setBackgroundColor(ColorHelper.getSecondAdditionalColor(requireContext()))
+    }
+
     private fun handleMessageReply(message: Message) = with(bindingSetup) {
         if (isEditing) {
             resetEditingFields()
         }
 
+        llEverythingEverywhereAllAtOnce.visibility = View.VISIBLE
         flReplyContainer.removeAllViews()
         flReplyContainer.addView(replyContainer)
 
@@ -1065,6 +1097,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
         }
 
+        flReplyContainer.visibility = View.VISIBLE
         clSendingArea.setBackgroundColor(ColorHelper.getSecondAdditionalColor(requireContext()))
     }
 
