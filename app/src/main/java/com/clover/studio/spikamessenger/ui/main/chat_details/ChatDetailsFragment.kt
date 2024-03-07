@@ -242,10 +242,6 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         tvMembersNumber.text =
             getString(R.string.number_of_members, roomWithUsers.users.size)
 
-        if (roomWithUsers.users.size != viewModel.roomNumberUpdated.value) {
-            viewModel.roomNumberUpdated.postValue(roomWithUsers.users.size)
-        }
-
         // This will stop image file changes while file is uploading via LiveData
         if (!isUploading && ivDone.visibility == View.GONE) {
             setAvatarAndUsername(avatarFileId, userName)
@@ -755,7 +751,6 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 requireActivity().runOnUiThread {
                     binding.profilePicture.flProgressScreen.visibility = View.GONE
                 }
-                viewModel.roomAvatarUploaded.postValue(Event(fileId))
             }
         })
 

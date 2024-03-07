@@ -581,6 +581,41 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
 
     private fun initializeObservers() {
+        roomWithUsers?.room?.roomId?.let {
+            viewModel.getRoomAndUsers(roomId = it).observe(viewLifecycleOwner) { room ->
+                when (room.status) {
+                    Resource.Status.SUCCESS -> {
+                        if (roomWithUsers?.room?.name?.equals(room.responseData?.room?.name) == false) {
+                            room.responseData?.room?.name?.let { roomName ->
+                                setUserName(userName = roomName)
+                                roomWithUsers?.room?.name = roomName
+                            }
+                        }
+
+                        if (roomWithUsers?.room?.avatarFileId != room.responseData?.room?.avatarFileId) {
+                            room.responseData?.room?.avatarFileId?.let { avatarId ->
+                                setUserAvatar(avatarFileId = avatarId)
+                                roomWithUsers?.room?.avatarFileId = avatarId
+                            }
+                        }
+
+                        if (roomWithUsers?.users?.size != room.responseData?.users?.size) {
+                            bindingSetup.chatHeader.tvTitle.text =
+                                getString(
+                                    R.string.members_number,
+                                    room.responseData?.users?.size.toString()
+                                )
+
+                            room.responseData?.users?.let { users -> roomWithUsers?.users = users }
+                        }
+                    }
+
+                    Resource.Status.LOADING -> Timber.d("Room get loading")
+                    else -> Timber.d("Room get error")
+                }
+            }
+        }
+
         viewModel.messageSendListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
@@ -726,21 +761,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                     else -> Timber.d("Other error")
                 }
             })
-        }
-
-        viewModel.roomNameUpdated.observe(viewLifecycleOwner, EventObserver {
-            if (it != null) setUserName(userName = it)
-            roomWithUsers?.room?.name = it
-        })
-
-        viewModel.roomAvatarUploaded.observe(viewLifecycleOwner, EventObserver {
-            if (it != 0L) setUserAvatar(avatarFileId = it)
-            roomWithUsers?.room?.avatarFileId = it
-        })
-
-        viewModel.roomNumberUpdated.observe(viewLifecycleOwner) {
-            if (it != 0) bindingSetup.chatHeader.tvTitle.text =
-                getString(R.string.members_number, it.toString())
         }
 
         viewModel.forwardListener.observe(viewLifecycleOwner, EventObserver {

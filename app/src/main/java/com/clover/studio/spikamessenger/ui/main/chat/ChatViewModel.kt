@@ -39,9 +39,6 @@ class ChatViewModel @Inject constructor(
     val noteDeletionListener = MutableLiveData<Event<NoteDeletion>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val forwardListener = MutableLiveData<Event<Resource<ForwardMessagesResponse?>>>()
-    val roomNameUpdated = MutableLiveData<Event<String?>>()
-    val roomNumberUpdated = MutableLiveData<Int>()
-    val roomAvatarUploaded = MutableLiveData<Event<Long>>()
     private val liveDataLimit = MutableLiveData(20)
     private val mediaItemsLimit = MutableLiveData(10)
     val messagesReceived = MutableLiveData<List<Message>>()
@@ -111,13 +108,9 @@ class ChatViewModel @Inject constructor(
         repository.sendMessagesSeen(roomId)
     }
 
-    fun updateRoom(jsonObject: JsonObject, roomId: Int) =
-        viewModelScope.launch {
-            val response = repository.updateRoom(jsonObject, roomId)
-            if (Resource.Status.SUCCESS == response.status && response.responseData != null) {
-                roomNameUpdated.postValue(Event(response.responseData.data?.room?.name.toString()))
-            }
-        }
+    fun updateRoom(jsonObject: JsonObject, roomId: Int) = viewModelScope.launch {
+        repository.updateRoom(jsonObject, roomId)
+    }
 
     fun isUserAdmin(roomId: Int, userId: Int): Boolean {
         var isAdmin = false
