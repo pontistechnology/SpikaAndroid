@@ -1038,7 +1038,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         )
     }
 
-    private fun handleMessagePreview(thumbnailData: ThumbnailData?, loadingTitle: String = "") =
+    private fun handleMessagePreview(previewData: ThumbnailData?, loadingTitle: String = "") =
         with(bindingSetup) {
             if (isEditing) {
                 resetEditingFields()
@@ -1057,14 +1057,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                             null
                         )
                     )
+                    thumbnailData = null
                 }
-
             })
 
-            if (thumbnailData == null) {
+            if (previewData == null) {
                 previewContainer?.setLoadingPreviewContainer(loadingTitle)
             } else {
-                previewContainer?.setPreviewContainer(thumbnailData)
+                previewContainer?.setPreviewContainer(previewData)
             }
 
             flPreviewContainer.visibility = View.VISIBLE

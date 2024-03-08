@@ -47,6 +47,8 @@ class PreviewContainer(context: Context) : ConstraintLayout(context) {
     }
 
     fun setLoadingPreviewContainer(title: String) = with(binding) {
+        clMessagePreview.visibility = VISIBLE
+
         tvTitle.text = title
         tvDescription.visibility = GONE
 
