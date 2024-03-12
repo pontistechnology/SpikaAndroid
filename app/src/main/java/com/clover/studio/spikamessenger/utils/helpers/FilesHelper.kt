@@ -5,9 +5,13 @@ import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
+import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Environment
 import android.widget.Toast
+import androidx.core.content.FileProvider
+import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
@@ -25,6 +29,50 @@ import java.io.IOException
 import java.io.OutputStream
 
 object FilesHelper {
+
+    fun convertVideoItem(context: Context, uri: Uri): Bitmap? {
+        var thumbnail : Bitmap? = null
+        val mmr = MediaMetadataRetriever()
+        mmr.setDataSource(context, uri)
+
+        val duration =
+            mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
+        val bitRate =
+            mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toLong() ?: 0
+
+        if (Tools.getVideoSize(duration, bitRate)) {
+            Toast.makeText(context, context.getString(R.string.video_error), Toast.LENGTH_LONG)
+                .show()
+            return null
+        }
+
+        val bitmap =  mmr.frameAtTime
+        mmr.release()
+
+        bitmap?.let {
+            thumbnail =
+                ThumbnailUtils.extractThumbnail(bitmap, bitmap.width, bitmap.height)
+        }
+
+        return thumbnail
+    }
+
+    fun generateFilePath(context: Context, uri: Uri) : Uri{
+        val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
+        val file =
+            File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
+
+        file.createNewFile()
+
+        val filePath = file.absolutePath
+
+        Tools.genVideoUsingMuxer(uri, filePath)
+        return FileProvider.getUriForFile(
+            MainApplication.appContext,
+            BuildConfig.APPLICATION_ID + ".fileprovider",
+            file
+        )
+    }
 
     fun uploadFile(
         isThumbnail: Boolean,

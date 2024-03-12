@@ -9,8 +9,6 @@ import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
-import android.media.MediaMetadataRetriever
-import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -130,7 +128,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private lateinit var storedMessage: Message
     private var localUserId: Int = 0
 
-    private lateinit var chatAdapter: ChatAdapter
+    private var chatAdapter: ChatAdapter? = null
     private var itemTouchHelper: ItemTouchHelper? = null
     private var valueAnimator: ValueAnimator? = null
 
@@ -233,9 +231,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         photoImageUri = FileProvider.getUriForFile(
             requireContext(),
             BuildConfig.APPLICATION_ID + ".fileprovider",
-            Tools.createImageFile(
-                (requireActivity())
-            )
+            Tools.createImageFile((requireActivity()))
         )
         takePhotoContract.launch(photoImageUri)
     }
@@ -673,15 +669,15 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                                 messagesRecords.add(msg)
                             }
 
-                            chatAdapter.submitList(messagesRecords.toList())
+                            chatAdapter?.submitList(messagesRecords.toList())
                             updateSwipeController()
 
                             if (listState == null && scrollYDistance == 0) {
                                 bindingSetup.rvChat.scrollToPosition(0)
                             }
-                        } else chatAdapter.submitList(messagesRecords.toList())
+                        } else chatAdapter?.submitList(messagesRecords.toList())
 
-                        chatAdapter.notifyItemRangeChanged(0, messagesRecords.size)
+                        chatAdapter?.notifyItemRangeChanged(0, messagesRecords.size)
 
                         (view?.parent as? ViewGroup)?.doOnPreDraw {
                             startPostponedEnterTransition()
@@ -702,7 +698,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                                 scrollToPosition = position
                                 if (position != -1) {
                                     bindingSetup.rvChat.smoothScrollToPosition(position)
-                                    chatAdapter.setSelectedPosition(position)
+                                    chatAdapter?.setSelectedPosition(position)
                                 }
 
                                 replySearchId = 0
@@ -722,7 +718,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                                 scrollToPosition = position
                                 if (position != -1) {
                                     bindingSetup.rvChat.smoothScrollToPosition(position)
-                                    chatAdapter.setSelectedPosition(position)
+                                    chatAdapter?.setSelectedPosition(position)
                                 }
 
                                 messageSearchId = 0
@@ -977,7 +973,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         setUpAdapterDataObserver()
     }
 
-    private fun setUpAdapterDataObserver() = with(bindingSetup) {
+    private fun setUpAdapterDataObserver() {
         val adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
                 scrollToBottom(positionStart, itemCount)
@@ -987,7 +983,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 scrollToBottom(positionStart, itemCount)
             }
         }
-        chatAdapter.registerAdapterDataObserver(adapterDataObserver)
+        chatAdapter?.registerAdapterDataObserver(adapterDataObserver)
     }
 
     private fun scrollToBottom(positionStart: Int, itemCount: Int) = with(bindingSetup) {
@@ -1116,7 +1112,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             viewModel.fetchNextSet(roomWithUsers!!.room.roomId)
         } else {
             bindingSetup.rvChat.smoothScrollToPosition(replyPosition)
-            chatAdapter.setSelectedPosition(replyPosition)
+            chatAdapter?.setSelectedPosition(replyPosition)
         }
     }
 
@@ -1214,7 +1210,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 if (reaction.isNotEmpty()) {
                     msg.message.reaction = reaction
                     addReaction(msg.message)
-                    chatAdapter.notifyItemChanged(msg.message.messagePosition)
+                    chatAdapter?.notifyItemChanged(msg.message.messagePosition)
                 }
             }
 
@@ -1365,9 +1361,11 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
     private fun addReaction(message: Message) {
         val jsonObject = JsonObject()
-        jsonObject.addProperty(Const.Networking.MESSAGE_ID, message.id)
-        jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
-        jsonObject.addProperty(Const.JsonFields.REACTION, message.reaction)
+        jsonObject.apply {
+            addProperty(Const.Networking.MESSAGE_ID, message.id)
+            addProperty(Const.JsonFields.TYPE, Const.JsonFields.REACTION)
+            addProperty(Const.JsonFields.REACTION, message.reaction)
+        }
         viewModel.sendReaction(jsonObject)
     }
 
@@ -1409,14 +1407,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         val listOptions = mutableListOf(
             getString(R.string.delete_for_everyone) to {
                 deleteMessage(
-                    message,
-                    Const.UserActions.DELETE_MESSAGE_ALL
+                    message = message,
+                    target = Const.UserActions.DELETE_MESSAGE_ALL
                 )
             },
             getString(R.string.delete_for_me) to {
                 deleteMessage(
-                    message,
-                    Const.UserActions.DELETE_MESSAGE_ME
+                    message = message,
+                    target = Const.UserActions.DELETE_MESSAGE_ME
                 )
             },
             getString(R.string.cancel) to { }
@@ -1437,7 +1435,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         viewModel.deleteMessage(message.id, target)
         val deletedMessage =
             messagesRecords.firstOrNull { it.message.localId == message.localId }
-        chatAdapter.notifyItemChanged(messagesRecords.indexOf(deletedMessage))
+        chatAdapter?.notifyItemChanged(messagesRecords.indexOf(deletedMessage))
     }
 
     private fun editMessage() {
@@ -1467,7 +1465,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             Const.JsonFields.GIF_TYPE -> {
                 val resendUri = message.originalUri?.toUri() ?: return
                 selectedFiles.add(resendUri)
-                handleUserSelectedFile(selectedFiles)
+                handleUserSelectedFile(selectedFilesUris = selectedFiles)
 
                 viewModel.deleteLocalMessage(message)
             }
@@ -1475,7 +1473,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             Const.JsonFields.FILE_TYPE, Const.JsonFields.AUDIO_TYPE -> {
                 val resendUri = message.body?.file?.uri?.toUri() ?: return
                 selectedFiles.add(resendUri)
-                handleUserSelectedFile(selectedFiles)
+                handleUserSelectedFile(selectedFilesUris = selectedFiles)
 
                 viewModel.deleteLocalMessage(message)
             }
@@ -1555,7 +1553,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 fileMimeType.contains(Const.JsonFields.IMAGE_TYPE) ||
                         fileMimeType.contains(Const.JsonFields.VIDEO_TYPE) &&
                         !Tools.forbiddenMimeTypes(fileMimeType) -> {
-                    convertMedia(uri, fileMimeType)
+                    convertMedia(
+                        uri = uri,
+                        fileMimeType = fileMimeType)
                 }
 
                 else -> {
@@ -1584,55 +1584,59 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         val thumbnailUri: Uri
         val fileUri: Uri
 
+        // TODO generate image with local id
+
         if (fileMimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
-            val mmr = MediaMetadataRetriever()
-            mmr.setDataSource(context, uri)
-
-            val duration =
-                mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
-            val bitRate =
-                mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toLong() ?: 0
-
-            if (Tools.getVideoSize(duration, bitRate)) {
-                Toast.makeText(context, getString(R.string.video_error), Toast.LENGTH_LONG).show()
-                return
-            }
-
-            val bitmap = mmr.frameAtTime
-            val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
-            val file =
-                File(context?.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
-
-            file.createNewFile()
-
-            val filePath = file.absolutePath
-            Tools.genVideoUsingMuxer(uri, filePath)
-            fileUri = FileProvider.getUriForFile(
-                MainApplication.appContext,
-                BuildConfig.APPLICATION_ID + ".fileprovider",
-                file
+            val thumbnail = FilesHelper.convertVideoItem(
+                context = requireContext(),
+                uri = uri
             )
-            val thumbnail =
-                ThumbnailUtils.extractThumbnail(bitmap, bitmap!!.width, bitmap.height)
-            thumbnailUri = Tools.convertBitmapToUri(requireActivity(), thumbnail)
-            tempFilesToCreate.add(TempUri(thumbnailUri, Const.JsonFields.VIDEO_TYPE))
-            uriPairList.add(Pair(uri, thumbnailUri))
-
-            mmr.release()
+            thumbnail?.let {
+                fileUri = FilesHelper.generateFilePath(
+                    context = requireContext(),
+                    uri = uri
+                )
+                thumbnailUri = Tools.convertBitmapToUri(
+                    activity = requireActivity(),
+                    bitmap = thumbnail
+                )
+                tempFilesToCreate.add(TempUri(thumbnailUri, Const.JsonFields.VIDEO_TYPE))
+                uriPairList.add(Pair(uri, thumbnailUri))
+                thumbnailUris.add(thumbnailUri)
+                currentMediaLocation.add(fileUri)
+            }
         } else {
-            val bitmap =
-                Tools.handleSamplingAndRotationBitmap(requireActivity(), uri, false)
-            fileUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
+            val bitmap = Tools.handleSamplingAndRotationBitmap(
+                context = requireActivity(),
+                selectedImage = uri,
+                thumbnail = false
+            )
+            if (bitmap != null) {
+                fileUri = Tools.convertBitmapToUri(
+                    activity = requireActivity(),
+                    bitmap = bitmap
+                )
 
-            val thumbnail =
-                Tools.handleSamplingAndRotationBitmap(requireActivity(), fileUri, true)
-            thumbnailUri = Tools.convertBitmapToUri(requireActivity(), thumbnail!!)
-            tempFilesToCreate.add(TempUri(thumbnailUri, Const.JsonFields.IMAGE_TYPE))
+                val thumbnail =
+                    Tools.handleSamplingAndRotationBitmap(
+                        context = requireActivity(),
+                        selectedImage = fileUri,
+                        thumbnail = true
+                    )
+
+                thumbnail?.let {
+                    thumbnailUri = Tools.convertBitmapToUri(
+                        activity = requireActivity(),
+                        bitmap = thumbnail
+                    )
+
+                    tempFilesToCreate.add(TempUri(thumbnailUri, Const.JsonFields.IMAGE_TYPE))
+                    uriPairList.add(Pair(uri, thumbnailUri))
+                    thumbnailUris.add(thumbnailUri)
+                    currentMediaLocation.add(fileUri)
+                }
+            }
         }
-
-        uriPairList.add(Pair(uri, thumbnailUri))
-        thumbnailUris.add(thumbnailUri)
-        currentMediaLocation.add(fileUri)
     }
 
     private fun sendFile() {
@@ -1648,19 +1652,34 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                         Const.JsonFields.VIDEO_TYPE == unsentMessage.type
                     ) {
                         // Send thumbnail
-                        uploadFiles(
-                            isThumbnail = true,
-                            uri = thumbnailUris.first(),
-                            localId = unsentMessage.localId!!,
-                            metadata = unsentMessage.body?.file?.metaData
-                        )
+                        // TODO maybe we can save image with local id without renaming
+                        unsentMessage.localId?.let {
+                            val uri = Tools.renameGif(
+                                uri = currentMediaLocation.first(),
+                                localId = unsentMessage.localId,
+                                type = Const.JsonFields.IMAGE_TYPE)
+
+                            uploadFiles(
+                                isThumbnail = true,
+                                uri = uri ?: thumbnailUris.first(),
+                                localId = it,
+                                metadata = unsentMessage.body?.file?.metaData
+                            )
+                        }
                         // Send original image
-                        uploadFiles(
-                            isThumbnail = false,
-                            uri = currentMediaLocation.first(),
-                            localId = unsentMessage.localId,
-                            metadata = unsentMessage.body?.file?.metaData
-                        )
+                        unsentMessage.localId?.let {
+                            val uri = Tools.renameGif(
+                                uri = currentMediaLocation.first(),
+                                localId = unsentMessage.localId,
+                                type = Const.JsonFields.IMAGE_TYPE)
+
+                            uploadFiles(
+                                isThumbnail = false,
+                                uri = uri ?: currentMediaLocation.first(),
+                                localId = it,
+                                metadata = unsentMessage.body?.file?.metaData
+                            )
+                        }
                         currentMediaLocation.removeFirst()
                         thumbnailUris.removeFirst()
                     } else if (filesSelected.isNotEmpty()) {
@@ -1668,8 +1687,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                         val uri = if (Const.JsonFields.GIF_TYPE == unsentMessage.type) {
                             unsentMessage.localId?.let {
                                 Tools.renameGif(
-                                    filesSelected.first(),
-                                    it
+                                    uri = filesSelected.first(),
+                                    localId = it,
+                                    type = Const.JsonFields.GIF_TYPE
                                 )
                             } ?: filesSelected.first()
                         } else {
@@ -1726,9 +1746,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 roomId = it.room.roomId,
                 metadata = metadata
             )?.let { fileData ->
-                uploadData.add(
-                    fileData
-                )
+                uploadData.add(fileData)
             }
             uploadFiles.addAll(uploadData)
         }
@@ -1800,7 +1818,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
                 if (isVisible || isResumed) {
                     requireActivity().runOnUiThread {
-                        chatAdapter.notifyItemChanged(
+                        chatAdapter?.notifyItemChanged(
                             messagesRecords.indexOf(
                                 message
                             )
@@ -1810,7 +1828,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
 
             override fun uploadingFinished(uploadedFiles: MutableList<FileData>) {
-                Tools.deleteTemporaryMedia(requireContext())
+//                Tools.deleteTemporaryMedia(requireContext())
                 context?.cacheDir?.deleteRecursively()
 
                 if (uploadedFiles.isNotEmpty()) {

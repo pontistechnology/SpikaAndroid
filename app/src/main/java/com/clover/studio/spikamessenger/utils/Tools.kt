@@ -646,12 +646,19 @@ object Tools {
         return mediaPath
     }
 
-    fun renameGif(uri: Uri, localId: String): Uri? {
+    fun renameGif(uri: Uri, localId: String, type: String): Uri? {
         val filePath = uri.path
+
+        // TODO
+        val extension = if (type.contains("gif")){
+            "gif"
+        } else {
+            "jpg"
+        }
 
         if (filePath != null) {
             val originalFile = File(filePath)
-            val newFile = File(originalFile.parent, "${localId}.gif")
+            val newFile = File(originalFile.parent, "${localId}.$extension")
             if (originalFile.renameTo(newFile)) {
                 return FileProvider.getUriForFile(
                     MainApplication.appContext,
@@ -665,17 +672,17 @@ object Tools {
     }
 
 
-    fun deleteTemporaryMedia(context: Context) {
-        val imagesDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        imagesDirectory?.listFiles { _, name -> name.startsWith("JPEG") }?.forEach { file ->
-            file.delete()
-        }
-
-        val videoDirectory = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
-        videoDirectory?.listFiles { _, name -> name.startsWith("VIDEO") }?.forEach { file ->
-            file.delete()
-        }
-    }
+//    fun deleteTemporaryMedia(context: Context) {
+//        val imagesDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+//        imagesDirectory?.listFiles { _, name -> name.startsWith("JPEG") }?.forEach { file ->
+//            file.delete()
+//        }
+//
+//        val videoDirectory = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+//        videoDirectory?.listFiles { _, name -> name.startsWith("VIDEO") }?.forEach { file ->
+//            file.delete()
+//        }
+//    }
 
     fun getMetadata(
         mediaUri: Uri,
@@ -735,7 +742,7 @@ object Tools {
         val sharedPrefs = SharedPreferencesRepositoryImpl(MainApplication.appContext)
         sharedPrefs.clearSharedPrefs()
         AppDatabase.nukeDb()
-        deleteTemporaryMedia(MainApplication.appContext)
+//        deleteTemporaryMedia(MainApplication.appContext)
         startOnboardingActivity(activity, false)
     }
 
