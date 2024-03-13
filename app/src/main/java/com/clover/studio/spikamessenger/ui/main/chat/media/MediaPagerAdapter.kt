@@ -100,10 +100,7 @@ class MediaPagerAdapter(
             onItemClicked.invoke(Const.MediaActions.MEDIA_SHOW_BARS, mediaList[position])
         }
 
-        val imagePath = mediaList[position].body?.fileId?.let {
-            Tools.getFilePathUrl(it)
-        }.toString()
-
+        val imagePath = Tools.getMediaPath(context, mediaList[position])
         Glide.with(context)
             .load(imagePath)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
