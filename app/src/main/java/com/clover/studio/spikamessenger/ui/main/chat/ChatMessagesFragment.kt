@@ -323,19 +323,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
             avatarFileId = user?.avatarFileId ?: 0
             userName = user?.formattedDisplayName.toString()
-        } else {
-            avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
-            userName = roomWithUsers?.room?.name.toString()
-        }
-
-        setUserName(userName = userName)
-        setUserAvatar(avatarFileId = avatarFileId)
-
-        if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
-            user =
-                roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
-            avatarFileId = user?.avatarFileId ?: 0
-            userName = user?.formattedDisplayName.toString()
             chatHeader.tvTitle.text = user?.telephoneNumber
         } else {
             avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
@@ -343,6 +330,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             chatHeader.tvTitle.text =
                 getString(R.string.members_number, roomWithUsers?.users?.size.toString())
         }
+
+        setUserName(userName = userName)
+        setUserAvatar(avatarFileId = avatarFileId)
 
         // Clear notifications for this room
         roomWithUsers?.room?.roomId?.let {
@@ -1450,6 +1440,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun resendMessage(message: Message) {
+        var resendUri: Uri? = null
         when (message.type) {
             Const.JsonFields.TEXT_TYPE -> {
                 try {
@@ -1463,32 +1454,29 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
 
             Const.JsonFields.GIF_TYPE -> {
-                val resendUri = message.originalUri?.toUri() ?: return
-                selectedFiles.add(resendUri)
-                handleUserSelectedFile(selectedFilesUris = selectedFiles, isResend = true)
-
-                temporaryMessages.add(message)
-                unsentMessages.add(message)
+                resendUri = message.originalUri?.toUri() ?: return
             }
 
             Const.JsonFields.FILE_TYPE, Const.JsonFields.AUDIO_TYPE -> {
-                val resendUri = message.body?.file?.uri?.toUri() ?: return
-                selectedFiles.add(resendUri)
-                handleUserSelectedFile(selectedFilesUris = selectedFiles, isResend = true)
-
-                temporaryMessages.add(message)
-                unsentMessages.add(message)
+                resendUri = message.body?.file?.uri?.toUri() ?: return
             }
 
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                val resendUri = message.originalUri?.toUri() ?: return
-                selectedFiles.add(resendUri)
-                handleUserSelectedFile(selectedFilesUris = selectedFiles, isResend = true)
-
-                temporaryMessages.add(message)
-                unsentMessages.add(message)
+                resendUri = message.originalUri?.toUri() ?: return
             }
         }
+
+        resendUri?.let { selectedFiles.add(it) }
+
+        temporaryMessages.add(message)
+        handleUserSelectedFile(selectedFilesUris = selectedFiles, isResend = true)
+
+        viewModel.updateMessages(
+            messageStatus = Resource.Status.LOADING.toString(),
+            localId = message.localId.toString()
+        )
+
+        unsentMessages.add(message)
     }
 
     private fun sendMessage() {
@@ -1561,7 +1549,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                         !Tools.forbiddenMimeTypes(fileMimeType) -> {
                     convertMedia(
                         uri = uri,
-                        fileMimeType = fileMimeType)
+                        fileMimeType = fileMimeType
+                    )
                 }
 
                 else -> {
@@ -1589,8 +1578,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private fun convertMedia(uri: Uri, fileMimeType: String) {
         val thumbnailUri: Uri
         val fileUri: Uri
-
-        // TODO generate image with local id
 
         if (fileMimeType.contains(Const.JsonFields.VIDEO_TYPE)) {
             val thumbnail = FilesHelper.convertVideoItem(
@@ -1646,78 +1633,67 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun sendFile(isResend: Boolean) {
-        if (tempFilesToCreate.isNotEmpty()) {
-            if (!isResend) {
+        if (!isResend) {
+            if (tempFilesToCreate.isNotEmpty()) {
                 tempFilesToCreate.forEach { tempFile ->
                     createTempFileMessage(tempFile.uri, tempFile.type)
                 }
                 tempFilesToCreate.clear()
             }
+        }
 
-            if (temporaryMessages.isNotEmpty()) {
-                for (unsentMessage in temporaryMessages) {
-                    if (Const.JsonFields.IMAGE_TYPE == unsentMessage.type ||
-                        Const.JsonFields.VIDEO_TYPE == unsentMessage.type
-                    ) {
-                        // Send thumbnail
-                        // TODO maybe we can save image with local id without renaming
-                        unsentMessage.localId?.let {
-                            val uri = Tools.renameGif(
-                                uri = currentMediaLocation.first(),
-                                localId = unsentMessage.localId,
-                                type = Const.JsonFields.IMAGE_TYPE)
-
-                            uploadFiles(
-                                isThumbnail = true,
-                                uri = uri ?: thumbnailUris.first(),
-                                localId = it,
-                                metadata = unsentMessage.body?.file?.metaData
-                            )
-                        }
-                        // Send original image
-                        unsentMessage.localId?.let {
-                            val uri = Tools.renameGif(
-                                uri = currentMediaLocation.first(),
-                                localId = unsentMessage.localId,
-                                type = Const.JsonFields.IMAGE_TYPE)
-
-                            uploadFiles(
-                                isThumbnail = false,
-                                uri = uri ?: currentMediaLocation.first(),
-                                localId = it,
-                                metadata = unsentMessage.body?.file?.metaData
-                            )
-                        }
-                        currentMediaLocation.removeFirst()
-                        thumbnailUris.removeFirst()
-                    } else if (filesSelected.isNotEmpty()) {
-                        // Send file or gif
-                        val uri = if (Const.JsonFields.GIF_TYPE == unsentMessage.type) {
-                            unsentMessage.localId?.let {
-                                Tools.renameGif(
-                                    uri = filesSelected.first(),
-                                    localId = it,
-                                    type = Const.JsonFields.GIF_TYPE
-                                )
-                            } ?: filesSelected.first()
-                        } else {
-                            filesSelected.first()
-                        }
-
-                        unsentMessage.localId?.let {
-                            uploadFiles(
-                                isThumbnail = false,
-                                uri = uri,
-                                localId = it,
-                                metadata = null
-                            )
-                        }
-
-                        filesSelected.removeFirst()
+        if (temporaryMessages.isNotEmpty()) {
+            for (unsentMessage in temporaryMessages) {
+                if (Const.JsonFields.IMAGE_TYPE == unsentMessage.type ||
+                    Const.JsonFields.VIDEO_TYPE == unsentMessage.type
+                ) {
+                    // Send thumbnail
+                    unsentMessage.localId?.let {
+                        uploadFiles(
+                            isThumbnail = true,
+                            uri = thumbnailUris.first(),
+                            localId = it,
+                            metadata = unsentMessage.body?.file?.metaData
+                        )
                     }
+                    // Send original image
+                    unsentMessage.localId?.let {
+                        uploadFiles(
+                            isThumbnail = false,
+                            uri = currentMediaLocation.first(),
+                            localId = it,
+                            metadata = unsentMessage.body?.file?.metaData
+                        )
+                    }
+                    currentMediaLocation.removeFirst()
+                    thumbnailUris.removeFirst()
+                } else if (filesSelected.isNotEmpty()) {
+                    // Send file or gif
+                    val uri = if (Const.JsonFields.GIF_TYPE == unsentMessage.type) {
+                        unsentMessage.localId?.let {
+                            Tools.renameGif(
+                                uri = filesSelected.first(),
+                                localId = it,
+                                type = Const.JsonFields.GIF_TYPE
+                            )
+                        } ?: filesSelected.first()
+                    } else {
+                        filesSelected.first()
+                    }
+
+                    unsentMessage.localId?.let {
+                        uploadFiles(
+                            isThumbnail = false,
+                            uri = uri,
+                            localId = it,
+                            metadata = null
+                        )
+                    }
+
+                    filesSelected.removeFirst()
                 }
-                temporaryMessages.clear()
             }
+            temporaryMessages.clear()
         }
     }
 
@@ -1841,12 +1817,19 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
                 if (uploadedFiles.isNotEmpty()) {
                     uploadedFiles.forEach { item ->
-                        if (Resource.Status.ERROR == item.messageStatus || Resource.Status.LOADING == item.messageStatus ||
-                            item.messageStatus == null
-                        ) {
+                        if (Resource.Status.SUCCESS == item.messageStatus) {
+                            updateMessageState(
+                                state = Resource.Status.SUCCESS.toString(),
+                                localId = item.localId.toString()
+                            )
+
+                            uriPairList.removeIf { it.second == item.fileUri }
+
+                        } else {
+                            // Errors
                             if (!item.isThumbnail) {
-                                viewModel.updateMessages(
-                                    messageStatus = Resource.Status.ERROR.toString(),
+                                updateMessageState(
+                                    state = Resource.Status.ERROR.toString(),
                                     localId = item.localId.toString()
                                 )
 
@@ -1863,14 +1846,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                                     uri = resendUri?.first.toString(),
                                 )
                             }
-                        } else {
-                            uriPairList.removeIf { it.second == item.fileUri }
                         }
                     }
-                    uriPairList.clear()
-                    uploadedFiles.clear()
-                    unsentMessages.clear()
-                    return
                 }
             }
         })
@@ -1879,6 +1856,13 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             fileUploadService.uploadItems(uploadFiles)
             uploadFiles.clear()
         }
+    }
+
+    private fun updateMessageState(state: String, localId: String) {
+        viewModel.updateMessages(
+            messageStatus = state,
+            localId = localId
+        )
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {

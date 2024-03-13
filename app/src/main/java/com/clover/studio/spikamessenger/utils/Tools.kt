@@ -649,16 +649,9 @@ object Tools {
     fun renameGif(uri: Uri, localId: String, type: String): Uri? {
         val filePath = uri.path
 
-        // TODO
-        val extension = if (type.contains("gif")) {
-            "gif"
-        } else {
-            "jpg"
-        }
-
         if (filePath != null) {
             val originalFile = File(filePath)
-            val newFile = File(originalFile.parent, "${localId}.$extension")
+            val newFile = File(originalFile.parent, "${localId}.gif")
             if (originalFile.renameTo(newFile)) {
                 return FileProvider.getUriForFile(
                     MainApplication.appContext,
