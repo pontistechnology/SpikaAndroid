@@ -1465,25 +1465,28 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             Const.JsonFields.GIF_TYPE -> {
                 val resendUri = message.originalUri?.toUri() ?: return
                 selectedFiles.add(resendUri)
-                handleUserSelectedFile(selectedFilesUris = selectedFiles)
+                handleUserSelectedFile(selectedFilesUris = selectedFiles, isResend = true)
 
-                viewModel.deleteLocalMessage(message)
+                temporaryMessages.add(message)
+                unsentMessages.add(message)
             }
 
             Const.JsonFields.FILE_TYPE, Const.JsonFields.AUDIO_TYPE -> {
                 val resendUri = message.body?.file?.uri?.toUri() ?: return
                 selectedFiles.add(resendUri)
-                handleUserSelectedFile(selectedFilesUris = selectedFiles)
+                handleUserSelectedFile(selectedFilesUris = selectedFiles, isResend = true)
 
-                viewModel.deleteLocalMessage(message)
+                temporaryMessages.add(message)
+                unsentMessages.add(message)
             }
 
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
                 val resendUri = message.originalUri?.toUri() ?: return
                 selectedFiles.add(resendUri)
-                handleUserSelectedFile(selectedFiles)
+                handleUserSelectedFile(selectedFilesUris = selectedFiles, isResend = true)
 
-                viewModel.deleteLocalMessage(message)
+                temporaryMessages.add(message)
+                unsentMessages.add(message)
             }
         }
     }
@@ -1541,7 +1544,10 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     /** Files uploading */
-    private fun handleUserSelectedFile(selectedFilesUris: MutableList<Uri>) {
+    private fun handleUserSelectedFile(
+        selectedFilesUris: MutableList<Uri>,
+        isResend: Boolean = false
+    ) {
         selectedFiles.forEach { uri ->
             val fileMimeType = getFileMimeType(requireContext(), uri)
             when {
@@ -1565,7 +1571,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
         }
 
-        sendFile()
+        sendFile(isResend)
 
         if (bound) {
             CoroutineScope(Dispatchers.Default).launch {
@@ -1639,12 +1645,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         }
     }
 
-    private fun sendFile() {
+    private fun sendFile(isResend: Boolean) {
         if (tempFilesToCreate.isNotEmpty()) {
-            tempFilesToCreate.forEach { tempFile ->
-                createTempFileMessage(tempFile.uri, tempFile.type)
+            if (!isResend) {
+                tempFilesToCreate.forEach { tempFile ->
+                    createTempFileMessage(tempFile.uri, tempFile.type)
+                }
+                tempFilesToCreate.clear()
             }
-            tempFilesToCreate.clear()
 
             if (temporaryMessages.isNotEmpty()) {
                 for (unsentMessage in temporaryMessages) {
@@ -1828,7 +1836,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
 
             override fun uploadingFinished(uploadedFiles: MutableList<FileData>) {
-//                Tools.deleteTemporaryMedia(requireContext())
+                Tools.deleteTemporaryMedia(requireContext())
                 context?.cacheDir?.deleteRecursively()
 
                 if (uploadedFiles.isNotEmpty()) {

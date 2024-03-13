@@ -650,7 +650,7 @@ object Tools {
         val filePath = uri.path
 
         // TODO
-        val extension = if (type.contains("gif")){
+        val extension = if (type.contains("gif")) {
             "gif"
         } else {
             "jpg"
@@ -672,17 +672,17 @@ object Tools {
     }
 
 
-//    fun deleteTemporaryMedia(context: Context) {
-//        val imagesDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-//        imagesDirectory?.listFiles { _, name -> name.startsWith("JPEG") }?.forEach { file ->
-//            file.delete()
-//        }
-//
-//        val videoDirectory = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
-//        videoDirectory?.listFiles { _, name -> name.startsWith("VIDEO") }?.forEach { file ->
-//            file.delete()
-//        }
-//    }
+    fun deleteTemporaryMedia(context: Context) {
+        val imagesDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        imagesDirectory?.listFiles { _, name -> name.startsWith("JPEG") }?.forEach { file ->
+            file.delete()
+        }
+
+        val videoDirectory = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+        videoDirectory?.listFiles { _, name -> name.startsWith("VIDEO") }?.forEach { file ->
+            file.delete()
+        }
+    }
 
     fun getMetadata(
         mediaUri: Uri,
@@ -742,7 +742,7 @@ object Tools {
         val sharedPrefs = SharedPreferencesRepositoryImpl(MainApplication.appContext)
         sharedPrefs.clearSharedPrefs()
         AppDatabase.nukeDb()
-//        deleteTemporaryMedia(MainApplication.appContext)
+        deleteTemporaryMedia(MainApplication.appContext)
         startOnboardingActivity(activity, false)
     }
 
