@@ -6,6 +6,7 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -16,6 +17,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.databinding.ItemMediaBinding
 import com.clover.studio.spikamessenger.utils.Const
@@ -105,6 +107,7 @@ class MediaPagerAdapter(
         Glide.with(context)
             .load(imagePath)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .error(AppCompatResources.getDrawable(context, R.drawable.img_media_placeholder_error))
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
@@ -112,7 +115,7 @@ class MediaPagerAdapter(
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    // Ignore
+                    pbMediaImage.visibility = View.GONE
                     return false
                 }
 

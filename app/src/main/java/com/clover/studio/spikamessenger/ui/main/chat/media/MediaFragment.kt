@@ -155,20 +155,20 @@ class MediaFragment : BaseFragment() {
     }
 
     private fun setMediaInfo(chatMessage: Message) {
-        val mediaInfo: String = if (chatMessage.fromUserId == localUserId) {
-            requireContext().getString(
-                R.string.you_sent_on,
-                Tools.fullDateFormat(chatMessage.createdAt ?: 0L)
-            )
-        } else {
-            val userName =
+        val mediaInfo: String = chatMessage.createdAt?.let { createdAt ->
+            val senderName = if (chatMessage.fromUserId == localUserId) {
+                requireContext().getString(R.string.you)
+            } else {
                 roomUsers?.firstOrNull { it.id == chatMessage.fromUserId }?.formattedDisplayName
-            requireContext().getString(
-                R.string.user_sent_on,
-                userName,
-                Tools.fullDateFormat(chatMessage.createdAt ?: 0L)
-            )
-        }
+            }
+            val formattedDateTime = Tools.fullDateFormat(createdAt)
+            if (senderName != null) {
+                requireContext().getString(R.string.user_sent_on, senderName, formattedDateTime)
+            } else {
+                ""
+            }
+        } ?: ""
+
         binding.tvMediaInfo.text = mediaInfo
     }
 
