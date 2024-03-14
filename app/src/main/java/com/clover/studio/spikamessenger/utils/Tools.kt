@@ -1035,6 +1035,8 @@ object Tools {
             suggestionCellBackgroundColor = ColorHelper.getThirdAdditionalColor(context)
             defaultTextColor = ColorHelper.getPrimaryTextColor(context)
             searchBackButtonColor = ColorHelper.getPrimaryColor(context)
+            retryButtonTextColor = ColorHelper.getPrimaryTextColor(context)
+            retryButtonBackgroundColor = ColorHelper.getPrimaryColor(context)
         }
     }
 }

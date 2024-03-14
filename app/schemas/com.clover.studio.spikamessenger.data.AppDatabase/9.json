@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 9,
-    "identityHash": "215555bf4c06863a1650e4cb3072131f",
+    "identityHash": "08d0868602404e4e2701fe5e9fc65595",
     "entities": [
       {
         "tableName": "user",
@@ -136,7 +136,7 @@
       },
       {
         "tableName": "message",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `from_user_id` INTEGER, `total_user_count` INTEGER, `delivered_count` INTEGER, `seen_count` INTEGER, `room_id_message` INTEGER, `type_message` TEXT, `body` TEXT, `reference_message` TEXT, `created_at_message` INTEGER, `modified_at_message` INTEGER, `deleted_message` INTEGER, `reply_id` INTEGER, `local_id` TEXT, `message_status` TEXT, `uri` TEXT, `is_forwarded` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `from_user_id` INTEGER, `total_user_count` INTEGER, `delivered_count` INTEGER, `seen_count` INTEGER, `room_id_message` INTEGER, `type_message` TEXT, `body` TEXT, `reference_message` TEXT, `created_at_message` INTEGER, `modified_at_message` INTEGER, `deleted_message` INTEGER, `reply_id` INTEGER, `local_id` TEXT, `message_status` TEXT, `uri` TEXT, `thumb_uri` TEXT, `is_forwarded` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -229,8 +229,14 @@
             "notNull": false
           },
           {
-            "fieldPath": "originalUri",
+            "fieldPath": "uri",
             "columnName": "uri",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "thumbUri",
+            "columnName": "thumb_uri",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -511,7 +517,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '215555bf4c06863a1650e4cb3072131f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '08d0868602404e4e2701fe5e9fc65595')"
     ]
   }
 }

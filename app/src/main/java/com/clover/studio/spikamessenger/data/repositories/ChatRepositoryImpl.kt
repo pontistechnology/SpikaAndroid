@@ -111,6 +111,12 @@ class ChatRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun updateThumbUri(localId: String, uri: String) {
+        queryDatabaseCoreData(
+            databaseQuery = { messageDao.updateThumbUri(localId, uri) }
+        )
+    }
+
     override suspend fun editMessage(messageId: Int, jsonObject: JsonObject) {
         performRestOperation(
             networkCall = { chatRemoteDataSource.editMessage(messageId, jsonObject) },
@@ -341,6 +347,7 @@ interface ChatRepository : BaseRepository {
     suspend fun getMessageCount(roomId: Int): Int
     suspend fun updateMessageStatus(messageStatus: String, localId: String)
     suspend fun updateLocalUri(localId: String, uri: String)
+    suspend fun updateThumbUri(localId: String, uri: String)
 
     // Room calls
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>

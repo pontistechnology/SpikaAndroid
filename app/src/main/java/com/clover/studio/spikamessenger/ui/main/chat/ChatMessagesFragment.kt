@@ -93,13 +93,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
 
 
 private const val SCROLL_DISTANCE_NEGATIVE = -300
@@ -125,7 +120,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private var user: User? = null
     private var messagesRecords: MutableList<MessageAndRecords> = mutableListOf()
     private var unsentMessages: MutableList<Message> = ArrayList()
-    private lateinit var storedMessage: Message
+    private var storedMessage: Message? = null
     private var localUserId: Int = 0
 
     private var chatAdapter: ChatAdapter? = null
@@ -141,14 +136,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private var uriPairList: MutableList<Pair<Uri, Uri>> = mutableListOf()
     private var temporaryMessages: MutableList<Message> = mutableListOf()
 
-    private lateinit var fileUploadService: UploadService
+    private var fileUploadService: UploadService? = null
     private var bound = false
 
     private var photoImageUri: Uri? = null
     private var isFetching = false
     private var directory: File? = null
 
-    private lateinit var storagePermission: ActivityResultLauncher<String>
+    private var storagePermission: ActivityResultLauncher<String>? = null
     private var exoPlayer: ExoPlayer? = null
 
     private var shouldScroll: Boolean = false
@@ -170,7 +165,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private var replySearchId: Int? = 0
     private var thumbnailData: ThumbnailData? = null
 
-    private lateinit var emojiPopup: EmojiPopup
+    private var emojiPopup: EmojiPopup? = null
     private var replyContainer: ReplyContainer? = null
     private var previewContainer: PreviewContainer? = null
     private var giphyDialog: GiphyDialogFragment? = null
@@ -219,13 +214,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             } else Timber.d("Photo error")
         }
 
-    private fun chooseFile() {
-        chooseFileContract.launch(arrayOf(Const.JsonFields.FILE))
-    }
+    private fun chooseFile() = chooseFileContract.launch(arrayOf(Const.JsonFields.FILE))
 
-    private fun chooseImage() {
-        chooseImageContract.launch(arrayOf(Const.JsonFields.FILE))
-    }
+    private fun chooseImage() = chooseImageContract.launch(arrayOf(Const.JsonFields.FILE))
 
     private fun takePhoto() {
         photoImageUri = FileProvider.getUriForFile(
@@ -401,8 +392,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         }
 
         ivBtnEmoji.setOnClickListener {
-            emojiPopup.toggle()
-            emojiPopup.dismiss()
+            emojiPopup?.toggle()
+            emojiPopup?.dismiss()
             ivAdd.rotation = ROTATION_OFF
         }
 
@@ -432,7 +423,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         }
 
         etMessage.setOnClickListener {
-            if (emojiPopup.isShowing) emojiPopup.dismiss()
+            if (emojiPopup?.isShowing == true) emojiPopup?.dismiss()
         }
 
         // This listener is for keyboard opening
@@ -538,45 +529,13 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         Toast.makeText(context, getString(R.string.preparing_gifs), Toast.LENGTH_LONG).show()
 
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val url = URL(urlString)
-                val connection = withContext(Dispatchers.IO) {
-                    url.openConnection()
-                } as HttpURLConnection
-
-                connection.doInput = true
-                connection.connect()
-
-                val inputStream: InputStream = connection.inputStream
-
-                val gifName = "gif_${System.currentTimeMillis()}.gif"
-                val file = saveFile(context, inputStream, gifName)
-
-                selectedFiles.add(Uri.fromFile(file))
+            val file = FilesHelper.saveGifToStorage(context, urlString)
+            file?.let {
+                selectedFiles.add(Uri.fromFile(it))
                 handleUserSelectedFile(selectedFiles)
-
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }
-
-    private fun saveFile(context: Context, inputStream: InputStream, fileName: String): File {
-        val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val file = File(directory, fileName)
-
-        FileOutputStream(file).use { output ->
-            val buffer = ByteArray(4 * 1024)
-            var read: Int
-            while (inputStream.read(buffer).also { read = it } != -1) {
-                output.write(buffer, 0, read)
-            }
-            output.flush()
-        }
-
-        return file
-    }
-
 
     private fun initializeObservers() {
         roomWithUsers?.room?.roomId?.let {
@@ -1281,7 +1240,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
                 else -> {
                     storedMessage = message.message
-                    storagePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    storagePermission?.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 }
             }
         } else downloadFile(requireContext(), message.message)
@@ -1441,6 +1400,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
     private fun resendMessage(message: Message) {
         var resendUri: Uri? = null
+        var isMedia = false
         when (message.type) {
             Const.JsonFields.TEXT_TYPE -> {
                 try {
@@ -1454,7 +1414,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
 
             Const.JsonFields.GIF_TYPE -> {
-                resendUri = message.originalUri?.toUri() ?: return
+                resendUri = message.uri?.toUri() ?: return
             }
 
             Const.JsonFields.FILE_TYPE, Const.JsonFields.AUDIO_TYPE -> {
@@ -1462,11 +1422,23 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
 
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                resendUri = message.originalUri?.toUri() ?: return
+                isMedia = true
+                resendUri = message.uri?.toUri() ?: return
             }
         }
 
-        resendUri?.let { selectedFiles.add(it) }
+        resendUri?.let { originalUri ->
+            selectedFiles.add(originalUri)
+
+            if (isMedia) {
+                message.thumbUri?.let { thumbUri ->
+                    tempFilesToCreate.add(TempUri(thumbUri.toUri(), message.type.toString()))
+                    uriPairList.add(Pair(originalUri, thumbUri.toUri()))
+                    thumbnailUris.add(thumbUri.toUri())
+                    currentMediaLocation.add(originalUri)
+                }
+            }
+        }
 
         temporaryMessages.add(message)
         handleUserSelectedFile(selectedFilesUris = selectedFiles, isResend = true)
@@ -1547,10 +1519,12 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 fileMimeType.contains(Const.JsonFields.IMAGE_TYPE) ||
                         fileMimeType.contains(Const.JsonFields.VIDEO_TYPE) &&
                         !Tools.forbiddenMimeTypes(fileMimeType) -> {
-                    convertMedia(
-                        uri = uri,
-                        fileMimeType = fileMimeType
-                    )
+                    if (!isResend) {
+                        convertMedia(
+                            uri = uri,
+                            fileMimeType = fileMimeType
+                        )
+                    }
                 }
 
                 else -> {
@@ -1564,7 +1538,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
         if (bound) {
             CoroutineScope(Dispatchers.Default).launch {
-                fileUploadService.uploadItems(uploadFiles)
+                fileUploadService?.uploadItems(uploadFiles)
                 uploadFiles.clear()
             }
         } else {
@@ -1643,7 +1617,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         }
 
         if (temporaryMessages.isNotEmpty()) {
-            for (unsentMessage in temporaryMessages) {
+            temporaryMessages.forEach { unsentMessage ->
                 if (Const.JsonFields.IMAGE_TYPE == unsentMessage.type ||
                     Const.JsonFields.VIDEO_TYPE == unsentMessage.type
                 ) {
@@ -1654,6 +1628,10 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                             uri = thumbnailUris.first(),
                             localId = it,
                             metadata = unsentMessage.body?.file?.metaData
+                        )
+                        viewModel.updateThumbUri(
+                            localId = it,
+                            uri = thumbnailUris.first().toString()
                         )
                     }
                     // Send original image
@@ -1708,7 +1686,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             )
         }
 
-        if (tempMessage != null) {
+        tempMessage?.let {
             temporaryMessages.add(tempMessage)
             unsentMessages.add(tempMessage)
             viewModel.storeMessageLocally(tempMessage)
@@ -1740,7 +1718,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         storagePermission =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) {
                 if (it) {
-                    context?.let { context -> downloadFile(context, storedMessage) }
+                    context?.let { context ->
+                        storedMessage?.let { message ->
+                            downloadFile(
+                                context,
+                                message
+                            )
+                        }
+                    }
                 } else {
                     Timber.d("Couldn't download file. No permission granted.")
                 }
@@ -1791,14 +1776,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
         val binder = service as UploadService.UploadServiceBinder
         fileUploadService = binder.getService()
-        fileUploadService.setCallbackListener(object : UploadService.FileUploadCallback {
+        fileUploadService?.setCallbackListener(object : UploadService.FileUploadCallback {
             override fun updateUploadProgressBar(
                 progress: Int,
                 maxProgress: Int,
                 localId: String?
             ) {
                 val message = messagesRecords.firstOrNull { it.message.localId == localId }
-                message!!.message.uploadProgress = (progress * 100) / maxProgress
+                message?.message?.uploadProgress = (progress * 100) / maxProgress
 
                 if (isVisible || isResumed) {
                     requireActivity().runOnUiThread {
@@ -1812,7 +1797,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
 
             override fun uploadingFinished(uploadedFiles: MutableList<FileData>) {
-                Tools.deleteTemporaryMedia(requireContext())
                 context?.cacheDir?.deleteRecursively()
 
                 if (uploadedFiles.isNotEmpty()) {
@@ -1824,6 +1808,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                             )
 
                             uriPairList.removeIf { it.second == item.fileUri }
+                            Tools.deleteTemporaryMedia(requireContext())
 
                         } else {
                             // Errors
@@ -1853,7 +1838,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         })
 
         CoroutineScope(Dispatchers.Default).launch {
-            fileUploadService.uploadItems(uploadFiles)
+            fileUploadService?.uploadItems(uploadFiles)
             uploadFiles.clear()
         }
     }

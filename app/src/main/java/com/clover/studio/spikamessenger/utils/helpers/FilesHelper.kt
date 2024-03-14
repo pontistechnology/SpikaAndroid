@@ -22,11 +22,16 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageFile
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.getChunkSize
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.io.OutputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 object FilesHelper {
 
@@ -238,6 +243,49 @@ object FilesHelper {
         }
 
         return imagePath
+    }
+
+    suspend fun saveGifToStorage(context: Context, urlString: String) : File? {
+        var file : File? = null
+
+        try {
+            val url = URL(urlString)
+            val connection = withContext(Dispatchers.IO) {
+                url.openConnection()
+            } as HttpURLConnection
+
+            connection.doInput = true
+
+            withContext(Dispatchers.IO) {
+                connection.connect()
+            }
+
+            val inputStream: InputStream = connection.inputStream
+
+            val gifName = "gif_${System.currentTimeMillis()}.gif"
+
+            file = saveFile(context, inputStream, gifName)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return file
+    }
+
+    private fun saveFile(context: Context, inputStream: InputStream, fileName: String): File {
+        val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val file = File(directory, fileName)
+
+        FileOutputStream(file).use { output ->
+            val buffer = ByteArray(4 * 1024)
+            var read: Int
+            while (inputStream.read(buffer).also { read = it } != -1) {
+                output.write(buffer, 0, read)
+            }
+            output.flush()
+        }
+
+        return file
     }
 
     fun downloadFile(context: Context, message: Message) {

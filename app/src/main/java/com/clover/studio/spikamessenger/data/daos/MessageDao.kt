@@ -75,4 +75,7 @@ interface MessageDao : BaseDao<Message> {
 
     @Query("UPDATE message SET uri=:uri WHERE local_id=:localId ")
     suspend fun updateLocalUri(localId: String, uri: String)
+
+    @Query("UPDATE message SET thumb_uri=:uri WHERE local_id=:localId ")
+    suspend fun updateThumbUri(localId: String, uri: String)
 }

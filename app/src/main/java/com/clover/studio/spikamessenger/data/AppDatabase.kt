@@ -3,14 +3,29 @@ package com.clover.studio.spikamessenger.data
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
-import androidx.room.*
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.data.AppDatabase.Companion.DATABASE_VERSION
-import com.clover.studio.spikamessenger.data.daos.*
-import com.clover.studio.spikamessenger.data.models.*
-import com.clover.studio.spikamessenger.data.models.entity.*
+import com.clover.studio.spikamessenger.data.daos.ChatRoomDao
+import com.clover.studio.spikamessenger.data.daos.MessageDao
+import com.clover.studio.spikamessenger.data.daos.MessageRecordsDao
+import com.clover.studio.spikamessenger.data.daos.NotesDao
+import com.clover.studio.spikamessenger.data.daos.PhoneUserDao
+import com.clover.studio.spikamessenger.data.daos.ReactionDao
+import com.clover.studio.spikamessenger.data.daos.RoomUserDao
+import com.clover.studio.spikamessenger.data.daos.UserDao
+import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
+import com.clover.studio.spikamessenger.data.models.entity.Message
+import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
+import com.clover.studio.spikamessenger.data.models.entity.Note
+import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
+import com.clover.studio.spikamessenger.data.models.entity.Reaction
+import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomUser
 import com.clover.studio.spikamessenger.utils.helpers.TypeConverter
 import org.json.JSONException
@@ -76,7 +91,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_4_5,
                     MIGRATION_5_6,
                     MIGRATION_6_7,
-                    MIGRATION7_8
+                    MIGRATION7_8,
+                    MIGRATION_8_9
                 )
                 .fallbackToDestructiveMigration()
                 .build()
@@ -179,6 +195,12 @@ abstract class AppDatabase : RoomDatabase() {
                     cursor.moveToNext()
                 }
                 cursor.close()
+            }
+        }
+
+        private val MIGRATION_8_9: Migration = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN thumb_uri TEXT")
             }
         }
     }
