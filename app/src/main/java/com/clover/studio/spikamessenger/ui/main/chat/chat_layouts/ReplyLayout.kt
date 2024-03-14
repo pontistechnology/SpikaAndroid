@@ -144,13 +144,20 @@ class ReplyLayout(context: Context) :
             }
             /** Text type */
             else -> {
-                if (chatMessage.message.body?.thumbnailData != null) {
+                if (chatMessage.message.referenceMessage?.body?.thumbnailData != null) {
+                    ivReplyImage.visibility = View.VISIBLE
+                    tvMessageReply.text = chatMessage.message.referenceMessage?.body?.text
 
+                    Glide.with(context)
+                        .load(chatMessage.message.referenceMessage?.body?.thumbnailData?.image)
+                        .into(ivReplyImage)
+                    setAppearanceModel(ivReplyImage, sender)
+                } else {
+                    ivReplyImage.visibility = View.GONE
+                    tvReplyMedia.visibility = View.GONE
                 }
 
                 tvMessageReply.visibility = View.VISIBLE
-                ivReplyImage.visibility = View.GONE
-                tvReplyMedia.visibility = View.GONE
 
                 tvMessageReply.text = chatMessage.message.referenceMessage?.body?.text
             }

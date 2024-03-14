@@ -153,7 +153,7 @@ data class ReferenceMessage(
     var createdAt: Long?,
     val modifiedAt: Long?,
     val deleted: Boolean?,
-    val reply: Boolean?,
+    val reply: Boolean?
 ) : Parcelable
 
 @Parcelize
@@ -163,6 +163,7 @@ data class ReplyBody(
     var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?,
+    var thumbnailData: ThumbnailData?
 ) : Parcelable
 
 @Parcelize

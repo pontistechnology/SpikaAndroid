@@ -1,65 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cl_preview"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_message_preview"
+    android:backgroundTint="?attr/additionalColor"
     android:clickable="true"
     android:focusable="true"
-    android:visibility="visible">
+    android:visibility="visible"
+    app:cardPreventCornerOverlap="false"
+    app:shapeAppearanceOverlay="@style/SenderBubbleStyle">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/iv_preview_image"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:cardCornerRadius="@dimen/four_dp_margin"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/tv_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:src="@tools:sample/avatars"/>
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sixteen_dp_margin"
-        android:layout_marginTop="@dimen/eight_dp_margin"
-        android:layout_marginEnd="@dimen/sixteen_dp_margin"
-        android:text="@string/enter_title"
-        android:textAppearance="@style/CustomTextHeading"
-        android:textColor="?attr/primaryTextColor"
-        android:textSize="@dimen/twelve_sp_text"
-        android:visibility="visible"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_preview_image" />
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_preview_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:shapeAppearanceOverlay="@style/PreviewBubbleStyle"
+            tools:src="@tools:sample/avatars" />
 
-    <TextView
-        android:id="@+id/tv_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sixteen_dp_margin"
-        android:layout_marginTop="@dimen/eight_dp_margin"
-        android:layout_marginBottom="@dimen/eight_dp_margin"
-        android:layout_marginEnd="@dimen/sixteen_dp_margin"
-        android:text="@string/username"
-        android:maxLines="2"
-        android:ellipsize="end"
-        android:textAppearance="@style/CustomTextHeading"
-        android:textColor="?attr/primaryTextColor"
-        android:textSize="10sp"
-        android:visibility="visible"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title" />
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginTop="@dimen/eight_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
+            android:text="@string/enter_title"
+            android:textAppearance="@style/CustomTextHeading"
+            android:textColor="?attr/primaryTextColor"
+            android:textSize="@dimen/twelve_sp_text"
+            android:visibility="visible"
+            app:layout_constrainedWidth="true" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/tv_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginTop="@dimen/eight_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
+            android:layout_marginBottom="@dimen/eight_dp_margin"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@string/username"
+            android:textAppearance="@style/CustomTextHeading"
+            android:textColor="?attr/primaryTextColor"
+            android:textSize="10sp"
+            android:visibility="visible"
+            app:layout_constrainedWidth="true" />
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

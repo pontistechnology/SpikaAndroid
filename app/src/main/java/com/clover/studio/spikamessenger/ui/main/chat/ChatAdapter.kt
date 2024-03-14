@@ -240,14 +240,17 @@ class ChatAdapter(
                     /** Show message preview: */
                     if (it.message.body?.thumbnailData != null && it.message.body.thumbnailData?.title?.isNotEmpty() == true && it.message.deleted == false) {
 //                        setViewsVisibility(holder.binding.flPreviewMsgContainer, holder)
+                        holder.binding.flPreviewMsgContainer.visibility = View.VISIBLE
                         holder.binding.tvMessage.visibility = View.VISIBLE
 
                         setUpPreviewLayout(
                             chatMessage = it,
-                            parentContainer = holder.binding.clContainer,
                             previewContainer = holder.binding.flPreviewMsgContainer,
                             sender = true
                         )
+                    } else {
+                        holder.binding.flPreviewMsgContainer.visibility = View.GONE
+                        holder.binding.flPreviewMsgContainer.removeAllViews()
                     }
 
                     /** Show edited layout: */
@@ -393,13 +396,16 @@ class ChatAdapter(
                     if (it.message.body?.thumbnailData != null && it.message.body.thumbnailData?.title?.isNotEmpty() == true && it.message.deleted == false) {
 //                        setViewsVisibility(holder.binding.flPreviewMsgContainer, holder)
                         holder.binding.tvMessage.visibility = View.VISIBLE
+                        holder.binding.flPreviewMsgContainer.visibility = View.VISIBLE
 
                         setUpPreviewLayout(
                             chatMessage = it,
-                            parentContainer = holder.binding.clContainer,
                             previewContainer = holder.binding.flPreviewMsgContainer,
                             sender = false
                         )
+                    } else {
+                        holder.binding.flPreviewMsgContainer.visibility = View.GONE
+                        holder.binding.flPreviewMsgContainer.removeAllViews()
                     }
 
                     holder.binding.tvForward.visibility = if (it.message.isForwarded) {
@@ -530,7 +536,6 @@ class ChatAdapter(
 
     private fun setUpPreviewLayout(
         chatMessage: MessageAndRecords,
-        parentContainer: ConstraintLayout,
         previewContainer: FrameLayout,
         sender: Boolean
     ) {
@@ -543,7 +548,6 @@ class ChatAdapter(
         preview.bindPreview(
             context = context,
             chatMessage = chatMessage,
-            clContainer = parentContainer,
             sender = sender
         )
         previewContainer.addView(preview)
