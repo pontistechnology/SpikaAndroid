@@ -239,7 +239,6 @@ class ChatAdapter(
 
                     /** Show message preview: */
                     if (it.message.body?.thumbnailData != null && it.message.body.thumbnailData?.title?.isNotEmpty() == true && it.message.deleted == false) {
-//                        setViewsVisibility(holder.binding.flPreviewMsgContainer, holder)
                         holder.binding.flPreviewMsgContainer.visibility = View.VISIBLE
                         holder.binding.tvMessage.visibility = View.VISIBLE
 
@@ -394,7 +393,6 @@ class ChatAdapter(
 
                     /** Show message preview: */
                     if (it.message.body?.thumbnailData != null && it.message.body.thumbnailData?.title?.isNotEmpty() == true && it.message.deleted == false) {
-//                        setViewsVisibility(holder.binding.flPreviewMsgContainer, holder)
                         holder.binding.tvMessage.visibility = View.VISIBLE
                         holder.binding.flPreviewMsgContainer.visibility = View.VISIBLE
 

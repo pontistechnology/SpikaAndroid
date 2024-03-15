@@ -35,15 +35,10 @@ class PreviewContainer(context: Context) : ConstraintLayout(context) {
             binding.clMessagePreview.visibility = View.GONE
             listener?.closeSheet()
         }
-//        binding.clMessagePreview.visibility = View.GONE
     }
 
     fun closeBottomSheet() {
         binding.clMessagePreview.visibility = View.GONE
-    }
-
-    fun isPreviewBottomSheetVisible(): Boolean {
-        return binding.clMessagePreview.visibility == View.VISIBLE
     }
 
     fun setLoadingPreviewContainer(title: String) = with(binding) {
@@ -53,9 +48,6 @@ class PreviewContainer(context: Context) : ConstraintLayout(context) {
         tvDescription.visibility = GONE
 
         ivPreviewImage.scaleType = ImageView.ScaleType.CENTER_INSIDE
-        Glide.with(context)
-            .load(R.drawable.img_link)
-            .into(ivPreviewImage)
     }
 
     fun setPreviewContainer(thumbnailData: ThumbnailData) = with(binding) {
@@ -70,6 +62,7 @@ class PreviewContainer(context: Context) : ConstraintLayout(context) {
             .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
             .placeholder(R.drawable.img_image_placeholder)
             .dontTransform()
+            .error(R.drawable.img_image_placeholder)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(ivPreviewImage)
         setAppearanceModel(ivPreviewImage)

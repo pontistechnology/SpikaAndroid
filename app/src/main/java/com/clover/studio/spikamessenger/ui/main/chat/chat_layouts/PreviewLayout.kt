@@ -39,6 +39,7 @@ class PreviewLayout(context: Context) : ConstraintLayout(context) {
         if (chatMessage.message.body?.thumbnailData?.image?.isNotEmpty() == true) {
             Glide.with(context)
                 .load(chatMessage.message.body.thumbnailData?.image)
+                .error(R.drawable.img_image_placeholder)
                 .into(ivPreviewImage)
         }
 
@@ -52,33 +53,25 @@ class PreviewLayout(context: Context) : ConstraintLayout(context) {
     private fun setAppearanceModel(clPreview: MaterialCardView, sender: Boolean) {
         val builder = ShapeAppearanceModel().toBuilder()
 
-        if (sender) {
-            builder.setTopRightCorner(
+        builder.setTopRightCorner(
+            CornerFamily.ROUNDED,
+            resources.getDimension(R.dimen.eight_dp_margin)
+        )
+            .setTopLeftCorner(
                 CornerFamily.ROUNDED,
                 resources.getDimension(R.dimen.eight_dp_margin)
             )
-                .setTopLeftCorner(
-                    CornerFamily.ROUNDED,
-                    resources.getDimension(R.dimen.eight_dp_margin)
-                )
-                .setBottomLeftCorner(
-                    CornerFamily.ROUNDED,
-                    resources.getDimension(R.dimen.eight_dp_margin)
-                )
-        } else {
-            builder.setTopRightCorner(
+
+        if (sender)
+            builder.setBottomLeftCorner(
                 CornerFamily.ROUNDED,
                 resources.getDimension(R.dimen.eight_dp_margin)
             )
-                .setTopLeftCorner(
-                    CornerFamily.ROUNDED,
-                    resources.getDimension(R.dimen.eight_dp_margin)
-                )
-                .setBottomRightCorner(
-                    CornerFamily.ROUNDED,
-                    resources.getDimension(R.dimen.eight_dp_margin)
-                )
-        }
+        else
+            builder.setBottomRightCorner(
+                CornerFamily.ROUNDED,
+                resources.getDimension(R.dimen.eight_dp_margin)
+            )
 
         clPreview.shapeAppearanceModel = builder.build()
     }

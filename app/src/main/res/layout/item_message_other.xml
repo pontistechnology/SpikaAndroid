@@ -147,7 +147,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_min="156dp" />
+            app:layout_constraintWidth_min="@dimen/one_hundred_fifty_six" />
 
         <FrameLayout
             android:id="@+id/fl_preview_msg_container"

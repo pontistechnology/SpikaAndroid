@@ -150,6 +150,7 @@ class ReplyLayout(context: Context) :
 
                     Glide.with(context)
                         .load(chatMessage.message.referenceMessage?.body?.thumbnailData?.image)
+                        .error(R.drawable.img_image_placeholder)
                         .into(ivReplyImage)
                     setAppearanceModel(ivReplyImage, sender)
                 } else {

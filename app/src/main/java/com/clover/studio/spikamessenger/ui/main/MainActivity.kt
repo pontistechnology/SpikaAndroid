@@ -177,27 +177,6 @@ class MainActivity : BaseActivity() {
         }
 
         viewModel.getUnreadCount()
-        getPageContent()
-    }
-
-    private fun getPageContent() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val connection = withContext(Dispatchers.IO) {
-                URL("https://www.youtube.hr").openConnection()
-            } as HttpURLConnection
-            connection.requestMethod = "GET"
-
-            val inputStream = connection.inputStream
-            val reader = BufferedReader(InputStreamReader(inputStream))
-            val stringBuilder = StringBuilder()
-            var line: String?
-            while (reader.readLine().also { line = it } != null) {
-                stringBuilder.append(line).append("\n")
-            }
-            reader.close()
-            connection.disconnect()
-            Timber.d("Page data = $stringBuilder")
-        }
     }
 
     override fun onDestroy() {

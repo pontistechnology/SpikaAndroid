@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/secondAdditionalColor"
-    android:paddingBottom="@dimen/ten_dp_margin"
+    android:paddingBottom="@dimen/eight_dp_margin"
     tools:ignore="contentDescription">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -36,7 +36,7 @@
             android:maxLines="2"
             android:text="@string/placeholder_title"
             android:textAppearance="@style/CustomTextBody"
-            android:lineHeight="10dp"
+            android:lineHeight="@dimen/ten_dp_margin"
             android:textColor="?attr/primaryTextColor"
             android:textSize="@dimen/twelve_sp_text"
             android:visibility="visible"
@@ -53,13 +53,13 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/sixteen_dp_margin"
             android:ellipsize="end"
-            android:lineHeight="10dp"
+            android:lineHeight="@dimen/ten_dp_margin"
             android:fontFamily="@font/roboto_bold"
             android:maxLines="2"
             android:text="@string/placeholder_description"
             android:textAppearance="@style/CustomTextBody"
             android:textColor="?attr/primaryTextColor"
-            android:textSize="10sp"
+            android:textSize="@dimen/ten_sp_text"
             app:layout_constrainedWidth="true"
             android:layout_marginEnd="@dimen/sixteen_dp_margin"
             android:visibility="gone"

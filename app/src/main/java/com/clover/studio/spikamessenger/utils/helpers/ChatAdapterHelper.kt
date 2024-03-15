@@ -12,7 +12,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -43,7 +42,7 @@ object ChatAdapterHelper {
         )
 
         viewsToHide.forEach {
-            it.visibility = if (it == viewToShow || it.isVisible) View.VISIBLE else View.GONE
+            it.visibility = if (it == viewToShow) View.VISIBLE else View.GONE
         }
 
         val containerIds = listOf(

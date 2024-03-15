@@ -100,6 +100,7 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
                         .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                         .placeholder(R.drawable.img_image_placeholder)
                         .dontTransform()
+                        .error(R.drawable.img_image_placeholder)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(ivReplyImage)
                     ivReplyImage.visibility = View.VISIBLE
