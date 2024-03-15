@@ -19,6 +19,7 @@ import com.clover.studio.spikamessenger.data.models.networking.NewNote
 import com.clover.studio.spikamessenger.data.models.networking.responses.MessageResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.NotesResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
+import com.clover.studio.spikamessenger.data.models.networking.responses.ThumbnailDataResponse
 import com.clover.studio.spikamessenger.data.repositories.data_sources.ChatRemoteDataSource
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.helpers.Resource
@@ -317,6 +318,9 @@ class ChatRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun getPageMetadata(url: String): Resource<ThumbnailDataResponse> =
+        performRestOperation(networkCall = { chatRemoteDataSource.getPageMetadata(url) })
 }
 
 interface ChatRepository : BaseRepository {
@@ -365,4 +369,5 @@ interface ChatRepository : BaseRepository {
     suspend fun deleteNote(noteId: Int): Resource<NotesResponse>
 
     suspend fun getUnreadCount()
+    suspend fun getPageMetadata(url: String): Resource<ThumbnailDataResponse>
 }

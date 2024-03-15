@@ -37,6 +37,7 @@ import com.clover.studio.spikamessenger.databinding.ItemSystemMessageBinding
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.AudioLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.FileLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.ImageLayout
+import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.PreviewLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.ReplyLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.SystemMessageLayout
 import com.clover.studio.spikamessenger.ui.main.chat.chat_layouts.VideoLayout
@@ -236,6 +237,21 @@ class ChatAdapter(
                         )
                     }
 
+                    /** Show message preview: */
+                    if (it.message.body?.thumbnailData != null && it.message.body.thumbnailData?.title?.isNotEmpty() == true && it.message.deleted == false) {
+                        holder.binding.flPreviewMsgContainer.visibility = View.VISIBLE
+                        holder.binding.tvMessage.visibility = View.VISIBLE
+
+                        setUpPreviewLayout(
+                            chatMessage = it,
+                            previewContainer = holder.binding.flPreviewMsgContainer,
+                            sender = true
+                        )
+                    } else {
+                        holder.binding.flPreviewMsgContainer.visibility = View.GONE
+                        holder.binding.flPreviewMsgContainer.removeAllViews()
+                    }
+
                     /** Show edited layout: */
                     holder.binding.tvEdited.visibility =
                         if (it.message.deleted == false && it.message.createdAt != it.message.modifiedAt) {
@@ -375,6 +391,21 @@ class ChatAdapter(
                         )
                     }
 
+                    /** Show message preview: */
+                    if (it.message.body?.thumbnailData != null && it.message.body.thumbnailData?.title?.isNotEmpty() == true && it.message.deleted == false) {
+                        holder.binding.tvMessage.visibility = View.VISIBLE
+                        holder.binding.flPreviewMsgContainer.visibility = View.VISIBLE
+
+                        setUpPreviewLayout(
+                            chatMessage = it,
+                            previewContainer = holder.binding.flPreviewMsgContainer,
+                            sender = false
+                        )
+                    } else {
+                        holder.binding.flPreviewMsgContainer.visibility = View.GONE
+                        holder.binding.flPreviewMsgContainer.removeAllViews()
+                    }
+
                     holder.binding.tvForward.visibility = if (it.message.isForwarded) {
                         View.VISIBLE
                     } else {
@@ -499,6 +530,25 @@ class ChatAdapter(
             roomType = roomType
         )
         replyContainer.addView(reply)
+    }
+
+    private fun setUpPreviewLayout(
+        chatMessage: MessageAndRecords,
+        previewContainer: FrameLayout,
+        sender: Boolean
+    ) {
+        val preview = PreviewLayout(context)
+        preview.setPreviewLayoutListener(object : PreviewLayout.PreviewLayoutListener {
+            override fun previewLayoutClicked() {
+                onMessageInteraction.invoke(Const.UserActions.MESSAGE_PREVIEW, chatMessage)
+            }
+        })
+        preview.bindPreview(
+            context = context,
+            chatMessage = chatMessage,
+            sender = sender
+        )
+        previewContainer.addView(preview)
     }
 
     private fun setFileLayout(

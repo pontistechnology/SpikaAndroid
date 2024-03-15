@@ -62,5 +62,6 @@
     <!-- Reply layout  -->
     <dimen name="reply_layout_dimen">128dp</dimen>
     <dimen name="one_hundred_fifty_six">156dp</dimen>
+    <dimen name="ten_sp_text">10sp</dimen>
 
 </resources>

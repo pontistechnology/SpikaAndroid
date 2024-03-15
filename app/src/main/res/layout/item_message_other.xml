@@ -94,7 +94,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fl_reply_msg_container" />
+            app:layout_constraintTop_toBottomOf="@+id/fl_preview_msg_container" />
 
         <TextView
             android:id="@+id/tv_edited"
@@ -142,12 +142,28 @@
             android:backgroundTint="?attr/primaryColor"
             android:visibility="gone"
             app:layout_constrainedWidth="true"
-            app:layout_constraintBottom_toTopOf="@id/tv_message"
+            app:layout_constraintBottom_toTopOf="@id/fl_preview_msg_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_min="156dp" />
+            app:layout_constraintWidth_min="@dimen/one_hundred_fifty_six" />
+
+        <FrameLayout
+            android:id="@+id/fl_preview_msg_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/eight_dp_margin"
+            android:layout_marginTop="@dimen/eight_dp_margin"
+            android:layout_marginEnd="@dimen/eight_dp_margin"
+            android:background="@drawable/bg_message_received"
+            android:visibility="gone"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toTopOf="@id/tv_message"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fl_reply_msg_container"
+            app:layout_constraintWidth_min="@dimen/one_hundred_fifty_six" />
 
 
         <com.google.android.material.card.MaterialCardView

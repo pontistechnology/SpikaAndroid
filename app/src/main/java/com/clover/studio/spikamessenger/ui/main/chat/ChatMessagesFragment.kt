@@ -17,12 +17,14 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.IBinder
 import android.os.Parcelable
+import android.util.Patterns
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.webkit.URLUtil
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -56,6 +58,7 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
+import com.clover.studio.spikamessenger.data.models.networking.responses.ThumbnailData
 import com.clover.studio.spikamessenger.databinding.FragmentChatMessagesBinding
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.ChatBottomSheet
 import com.clover.studio.spikamessenger.ui.main.chat.bottom_sheets.CustomReactionBottomSheet
@@ -167,9 +170,11 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private var replyId = 0L
     private var replyPosition = 0
     private var replySearchId: Int? = 0
+    private var thumbnailData: ThumbnailData? = null
 
     private lateinit var emojiPopup: EmojiPopup
     private var replyContainer: ReplyContainer? = null
+    private var previewContainer: PreviewContainer? = null
     private var giphyDialog: GiphyDialogFragment? = null
 
     private var navOptionsBuilder: NavOptions? = null
@@ -279,6 +284,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         )
 
         replyContainer = ReplyContainer(requireContext(), null)
+        previewContainer = PreviewContainer(requireContext())
         navOptionsBuilder = Tools.createCustomNavOptions()
 
         return bindingSetup.root
@@ -472,6 +478,11 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         etMessage.addTextChangedListener {
             if (!isEditing) {
                 if (it?.isNotEmpty() == true) {
+                    if (Patterns.WEB_URL.matcher(it.trim().toString()).matches()) {
+                        handleMessagePreview(null, it.trim().toString())
+                        viewModel.getPageMetadata(URLUtil.guessUrl(it.trim().toString()))
+                    }
+
                     showSendButton()
                     ivAdd.rotation = ROTATION_OFF
                 } else {
@@ -489,10 +500,11 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             if (etMessage.text?.trim().toString().isNotEmpty()) {
                 createTempTextMessage()
                 sendMessage()
+                etMessage.setText("")
             }
-            etMessage.setText("")
             hideSendButton()
             replyContainer?.closeBottomSheet()
+            previewContainer?.closeBottomSheet()
             clSendingArea.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
         }
 
@@ -625,10 +637,29 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                             unsentMessages.find { msg -> msg.localId == it.responseData?.data?.message?.localId }
                         unsentMessages.remove(message)
                     }
+
+                    thumbnailData = null
                 }
 
                 Resource.Status.ERROR -> Timber.d("Message send fail: $it")
                 else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.thumbnailData.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    thumbnailData = it.responseData?.data
+                    thumbnailData?.let { data -> handleMessagePreview(data) }
+                }
+
+                Resource.Status.ERROR -> {
+//                    bindingSetup.etMessage.setText("")
+                }
+
+                else -> {
+//                    bindingSetup.etMessage.setText("")
+                }
             }
         })
 
@@ -1007,11 +1038,45 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         )
     }
 
+    private fun handleMessagePreview(previewData: ThumbnailData?, loadingTitle: String = "") =
+        with(bindingSetup) {
+            if (isEditing) {
+                resetEditingFields()
+            }
+
+            llEverythingEverywhereAllAtOnce.visibility = View.VISIBLE
+            flPreviewContainer.removeAllViews()
+            flPreviewContainer.addView(previewContainer)
+
+            previewContainer?.setPreviewContainerListener(object :
+                PreviewContainer.PreviewContainerListener {
+                override fun closeSheet() {
+                    clSendingArea.setBackgroundColor(
+                        resources.getColor(
+                            android.R.color.transparent,
+                            null
+                        )
+                    )
+                    thumbnailData = null
+                }
+            })
+
+            if (previewData == null) {
+                previewContainer?.setLoadingPreviewContainer(loadingTitle)
+            } else {
+                previewContainer?.setPreviewContainer(previewData)
+            }
+
+            flPreviewContainer.visibility = View.VISIBLE
+            clSendingArea.setBackgroundColor(ColorHelper.getSecondAdditionalColor(requireContext()))
+        }
+
     private fun handleMessageReply(message: Message) = with(bindingSetup) {
         if (isEditing) {
             resetEditingFields()
         }
 
+        llEverythingEverywhereAllAtOnce.visibility = View.VISIBLE
         flReplyContainer.removeAllViews()
         flReplyContainer.addView(replyContainer)
 
@@ -1038,6 +1103,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             }
         }
 
+        flReplyContainer.visibility = View.VISIBLE
         clSendingArea.setBackgroundColor(ColorHelper.getSecondAdditionalColor(requireContext()))
     }
 
@@ -1446,7 +1512,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             thumbId = 0,
             roomId = roomWithUsers?.room?.roomId,
             localId = localId,
-            replyId = replyId
+            replyId = replyId,
+            thumbnailData = thumbnailData
         )
 
         val jsonObject = jsonMessage.messageToJson()
@@ -1464,7 +1531,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 text = bindingSetup.etMessage.text.toString().trim(),
                 roomId = it.room.roomId,
                 localUserId = localUserId,
-                unsentMessages = unsentMessages
+                unsentMessages = unsentMessages,
+                thumbnailData = thumbnailData
             )
         }
 

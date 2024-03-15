@@ -91,6 +91,10 @@ class ChatRemoteDataSource @Inject constructor(
         retrofitService.getUnreadCount(getHeaderMap(sharedPrefs.readToken()))
     }
 
+    suspend fun getPageMetadata(url: String) = getResult {
+        retrofitService.getPageMetadata(getHeaderMap(sharedPrefs.readToken()), url)
+    }
+
     override suspend fun syncContacts(
         contacts: List<String>,
         isLastPage: Boolean

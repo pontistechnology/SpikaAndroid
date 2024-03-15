@@ -39,6 +39,7 @@ class Const {
             const val CANCEL_UPLOAD = "upload_cancel"
             const val MESSAGE_ACTION = "action"
             const val MESSAGE_REPLY = "reply"
+            const val MESSAGE_PREVIEW = "preview"
             const val RESEND_MESSAGE = "resend"
             const val USER_REMOVE = "remove_user"
             const val USER_OPTIONS = "user_options"
@@ -151,6 +152,7 @@ class Const {
             const val BODY = "body"
             const val MESSAGE_IDS = "messageIds"
             const val REACTION = "reaction"
+            const val THUMBNAIL_DATA = "thumbnailData"
 
             // Room actions
             const val ADD_GROUP_USERS = "addGroupUsers"
@@ -200,6 +202,7 @@ class Const {
             // Messages
             const val API_POST_MESSAGE = "api/messenger/messages"
             const val API_MESSAGE_DELIVERED = "api/messenger/messages/delivered" // Fix
+            const val API_GET_PAGE_METADATA = "api/messenger/messages/get-thumbnail"
 
             // Room
             const val API_GET_ROOM_BY_ID = "api/messenger/rooms/users/{userId}"
@@ -236,6 +239,7 @@ class Const {
             const val TARGET = "target"
             const val IS_LAST_PAGE = "isLastPage"
             const val PAGE = "page"
+            const val URL = "url"
         }
     }
 

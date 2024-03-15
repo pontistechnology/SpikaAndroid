@@ -92,7 +92,20 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
             )
 
             else -> {
-                ivReplyImage.visibility = View.GONE
+                if (message.body?.thumbnailData != null) {
+                    val image = message.body.thumbnailData?.image
+
+                    Glide.with(context)
+                        .load(image)
+                        .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                        .placeholder(R.drawable.img_image_placeholder)
+                        .dontTransform()
+                        .error(R.drawable.img_image_placeholder)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(ivReplyImage)
+                    ivReplyImage.visibility = View.VISIBLE
+                } else  ivReplyImage.visibility = View.GONE
+
                 tvReplyMedia.visibility = View.VISIBLE
                 tvReplyMedia.text = message.body?.text
                 tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)

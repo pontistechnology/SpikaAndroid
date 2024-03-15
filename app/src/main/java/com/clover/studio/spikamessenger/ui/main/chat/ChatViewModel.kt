@@ -13,6 +13,7 @@ import com.clover.studio.spikamessenger.data.models.networking.NewNote
 import com.clover.studio.spikamessenger.data.models.networking.responses.ForwardMessagesResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.MessageResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.NotesResponse
+import com.clover.studio.spikamessenger.data.models.networking.responses.ThumbnailDataResponse
 import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
 import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
 import com.clover.studio.spikamessenger.utils.Event
@@ -44,6 +45,7 @@ class ChatViewModel @Inject constructor(
     val messagesReceived = MutableLiveData<List<Message>>()
     val searchMessageId = MutableLiveData(0)
     val roomWithUsers = MutableLiveData<RoomWithUsers>()
+    val thumbnailData = MutableLiveData<Event<Resource<ThumbnailDataResponse?>>>()
 
     init {
         sseManager.setupListener(this)
@@ -291,6 +293,11 @@ class ChatViewModel @Inject constructor(
         }
 
         return mediaCount
+    }
+
+    fun getPageMetadata(url: String) = viewModelScope.launch {
+        val response = repository.getPageMetadata(url)
+        resolveResponseStatus(thumbnailData, response)
     }
 }
 
