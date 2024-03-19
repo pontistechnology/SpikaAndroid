@@ -22,6 +22,7 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.FileRes
 import com.clover.studio.spikamessenger.data.models.networking.responses.ForwardMessagesResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.Settings
+import com.clover.studio.spikamessenger.data.models.networking.responses.ShareMediaResponse
 import com.clover.studio.spikamessenger.data.repositories.data_sources.MainRemoteDataSource
 import com.clover.studio.spikamessenger.ui.main.chat.MediaType
 import com.clover.studio.spikamessenger.utils.helpers.Resource
@@ -263,6 +264,16 @@ class MainRepositoryImpl @Inject constructor(
         return data
     }
 
+    override suspend fun shareMedia(jsonObject: JsonObject): Resource<ShareMediaResponse> {
+        val data = performRestOperation(
+            networkCall = { mainRemoteDataSource.shareMedia(jsonObject = jsonObject) },
+            saveCallResult = {
+                // TODO
+            }
+        )
+        return data
+    }
+
     override suspend fun uploadFiles(jsonObject: JsonObject): Resource<FileResponse> {
         val response: Resource<FileResponse> = if (uploadCanceled.value?.second == false) {
             performRestOperation(
@@ -449,6 +460,7 @@ interface MainRepository : BaseRepository {
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
     suspend fun forwardMessages(jsonObject: JsonObject): Resource<ForwardMessagesResponse>
+    suspend fun shareMedia(jsonObject: JsonObject): Resource<ShareMediaResponse>
     fun getUserAndPhoneUserLiveData(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
     suspend fun getUserAndPhoneUser(localId: Int): Resource<List<UserAndPhoneUser>>
     suspend fun deleteUser(): Resource<DeleteUserResponse>
