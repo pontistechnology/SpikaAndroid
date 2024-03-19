@@ -81,9 +81,10 @@ object MessageHelper {
             replyId = null,
             localId = Tools.generateRandomId(),
             messageStatus = Resource.Status.LOADING.toString(),
-            originalUri = null,
             isForwarded = false,
-            referenceMessage = null
+            referenceMessage = null,
+            uri = null,
+            thumbUri = null
         )
     }
 }

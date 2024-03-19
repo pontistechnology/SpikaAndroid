@@ -74,7 +74,10 @@ data class Message @JvmOverloads constructor(
     var messageStatus: String?,
 
     @ColumnInfo("uri")
-    var originalUri: String?,
+    var uri: String?,
+
+    @ColumnInfo("thumb_uri")
+    val thumbUri: String?,
 
     @Ignore
     val unreadCount: Int = 0,

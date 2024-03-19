@@ -646,7 +646,7 @@ object Tools {
         return mediaPath
     }
 
-    fun renameGif(uri: Uri, localId: String): Uri? {
+    fun renameGif(uri: Uri, localId: String, type: String): Uri? {
         val filePath = uri.path
 
         if (filePath != null) {
@@ -1035,6 +1035,8 @@ object Tools {
             suggestionCellBackgroundColor = ColorHelper.getThirdAdditionalColor(context)
             defaultTextColor = ColorHelper.getPrimaryTextColor(context)
             searchBackButtonColor = ColorHelper.getPrimaryColor(context)
+            retryButtonTextColor = ColorHelper.getPrimaryTextColor(context)
+            retryButtonBackgroundColor = ColorHelper.getPrimaryColor(context)
         }
     }
 }

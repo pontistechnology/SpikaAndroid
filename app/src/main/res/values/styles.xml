@@ -266,6 +266,4 @@
         <item name="colorSurface">@color/secondWarningColor</item>
         <item name="colorOnSurface">?attr/primaryColor</item>
     </style>
-
-
 </resources>
