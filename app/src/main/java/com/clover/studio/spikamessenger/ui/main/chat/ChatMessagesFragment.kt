@@ -1226,9 +1226,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                     localId = localUserId,
                     title = getString(R.string.forward_messages)
                 )
-                chatSelectorBottomSheet.setForwardListener(object :
+                chatSelectorBottomSheet.setForwardShareListener(object :
                     ChatSelectorBottomSheet.BottomSheetForwardAction {
-                    override fun forward(userIds: ArrayList<Int>, roomIds: ArrayList<Int>) {
+                    override fun forwardShare(userIds: ArrayList<Int>, roomIds: ArrayList<Int>) {
                         val jsonObject = JsonObject()
 
                         val rooms = JsonArray()
@@ -1837,7 +1837,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 }
             }
 
-            override fun uploadingFinished(uploadedFiles: MutableList<FileData>) {
+            override fun uploadingFinished(uploadedFiles: MutableList<FileData>, sharedFiles: MutableList<JsonObject>) {
                 context?.cacheDir?.deleteRecursively()
 
                 if (uploadedFiles.isNotEmpty()) {
@@ -1850,7 +1850,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
                             uriPairList.removeIf { it.second == item.fileUri }
                             Tools.deleteTemporaryMedia(requireContext())
-
                         } else {
                             // Errors
                             if (!item.isThumbnail) {

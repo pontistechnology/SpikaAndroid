@@ -65,6 +65,9 @@ class MainViewModel @Inject constructor(
     val recentGroupsListener = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
     val roomUsers: MutableList<PrivateGroupChats> = ArrayList()
 
+    val shareRoomId : ArrayList<Int> = arrayListOf()
+    val shareUserId : ArrayList<Int> = arrayListOf()
+
     private val _isRoomRefreshing = MutableSharedFlow<Boolean>()
     val isRoomRefreshing = _isRoomRefreshing.asSharedFlow()
 
