@@ -9,6 +9,7 @@ import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -92,7 +93,6 @@ import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -172,6 +172,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private var giphyDialog: GiphyDialogFragment? = null
 
     private var navOptionsBuilder: NavOptions? = null
+
+    private var progressAnimation: AnimationDrawable? = null
 
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
@@ -292,6 +294,16 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
         localUserId = viewModel.getLocalUserId()!!
         messageSearchId = viewModel.searchMessageId.value
+
+        bindingSetup.imgSearchLoading.apply {
+            setBackgroundResource(R.drawable.drawable_progress_animation)
+            progressAnimation = background as AnimationDrawable
+        }
+
+        if (messageSearchId != 0) {
+            bindingSetup.flLoadingScreen.visibility = View.VISIBLE
+            progressAnimation?.start()
+        }
 
         setUpAdapter()
         initializeObservers()
@@ -474,7 +486,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         }
 
         ivButtonSend.setOnClickListener {
-            vTransparent.visibility = View.GONE
             if (etMessage.text?.trim().toString().isNotEmpty()) {
                 createTempTextMessage()
                 sendMessage()
@@ -641,51 +652,35 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                         // If the reply is reply id != 0, it means that the search for the reply message was started and
                         // was not found in the first set of 20 messages.
                         // Other messages should be searched.
-                        Timber.d("Reply position: $replyPosition")
-                        if (replyPosition == -1) {
-                            val messageFound =
-                                messagesRecords.any { msg -> msg.message.id == replySearchId }
-                            if (messageFound) {
-                                val position =
-                                    messagesRecords.indexOfFirst { msg -> msg.message.id == replySearchId }
-                                if (position != -1) {
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        delay(1000)
-                                        bindingSetup.rvChat.smoothScrollToPosition(position)
-                                        delay(500)
-                                        Timber.d("Here")
-                                        chatAdapter?.setSelectedPosition(position)
-                                    }.invokeOnCompletion {
-                                        replySearchId = 0
-                                        replyPosition = 0
-                                        Timber.d("Reset: $replySearchId, ${viewModel.searchMessageId.value}, $replyPosition")
-                                    }
-                                }
-                            } else {
-                                roomWithUsers?.room?.roomId?.let { it1 -> viewModel.fetchNextSet(it1) }
-                            }
-                        }
 
                         // If messageSearchId is not 0, it means the user navigated via message
                         // search. For now, we will just fetch next sets of data until we find
                         // the correct message id in the adapter to navigate to.
-                        Timber.d("messageSearchId: $messageSearchId")
-                        if (messageSearchId != 0) {
-                            if (messagesRecords.firstOrNull { messageAndRecords -> messageAndRecords.message.id == messageSearchId } != null) {
+                        Timber.d("Reply position: $replyPosition, messageSearchId: $messageSearchId")
+                        if (replyPosition == -1 || messageSearchId != 0) {
+                            val searchId =
+                                if (replyPosition == -1) replySearchId else messageSearchId
+                            val messageFound =
+                                messagesRecords.any { msg -> msg.message.id == searchId }
+                            if (messageFound) {
                                 val position =
-                                    messagesRecords.indexOfFirst { messageAndRecords -> messageAndRecords.message.id == messageSearchId }
-                                Timber.d("message search position: $position")
+                                    messagesRecords.indexOfFirst { msg -> msg.message.id == searchId }
                                 if (position != -1) {
                                     CoroutineScope(Dispatchers.Main).launch {
                                         delay(1000)
                                         bindingSetup.rvChat.smoothScrollToPosition(position)
                                         delay(500)
                                         chatAdapter?.setSelectedPosition(position)
-                                        delay(500)
-                                        cancel()
                                     }.invokeOnCompletion {
-                                        messageSearchId = 0
-                                        viewModel.searchMessageId.value = 0
+                                        if (replyPosition == -1) {
+                                            replySearchId = 0
+                                            replyPosition = 0
+                                        } else {
+                                            messageSearchId = 0
+                                            viewModel.searchMessageId.value = 0
+                                        }
+                                        bindingSetup.flLoadingScreen.visibility = View.GONE
+                                        progressAnimation?.stop()
                                     }
                                 }
                             } else {
@@ -694,7 +689,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                         }
                     }
 
-                    Resource.Status.LOADING -> Timber.d("")
+                    Resource.Status.LOADING -> Timber.d("Messages loading")
                     else -> Timber.d("Message get error")
                 }
             }
@@ -1076,8 +1071,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         Timber.d("replySearchId:: $replySearchId, replyPosition: $replyPosition")
 
         if (replyPosition == -1) {
+            bindingSetup.flLoadingScreen.visibility = View.VISIBLE
+            progressAnimation?.start()
             roomWithUsers?.room?.roomId?.let { viewModel.fetchNextSet(it) }
-            Timber.d("Here fetchNextSet")
         } else {
             bindingSetup.rvChat.scrollToPosition(replyPosition)
             chatAdapter?.setSelectedPosition(replyPosition)
@@ -1353,7 +1349,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun rotationAnimation() = with(bindingSetup) {
-        vTransparent.visibility = View.GONE
         ivAdd.rotation = ROTATION_OFF
     }
 

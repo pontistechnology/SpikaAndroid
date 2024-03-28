@@ -7,8 +7,8 @@
     tools:context=".ui.main.chat.ChatMessagesFragment"
     tools:ignore="contentDescription">
 
-    <View
-        android:id="@+id/v_transparent"
+    <FrameLayout
+        android:id="@+id/fl_loading_screen"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/dark_background_transp"
@@ -19,7 +19,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/img_search_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:elevation="@dimen/eight_dp_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+    </FrameLayout>
 
     <include
         android:id="@+id/chat_header"
