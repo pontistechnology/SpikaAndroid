@@ -75,7 +75,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tv_file_title"
         app:layout_constraintTop_toTopOf="@+id/tv_file_title"
-        app:srcCompat="@drawable/img_upload_failed" />
+        app:srcCompat="@drawable/img_media_error"
+        app:tint="?attr/primaryTextColor"/>
 
     <ProgressBar
         android:id="@+id/pb_file"

@@ -31,7 +31,7 @@ class ImageLayout(context: Context) :
         this.listener = listener
     }
 
-    fun bindImage(chatMessage: Message) = with(binding) {
+    fun bindImage(chatMessage: Message, sender: Boolean) = with(binding) {
         val imageResized = Tools.resizeImage(
             chatMessage.body?.file?.metaData?.width,
             chatMessage.body?.file?.metaData?.height
@@ -46,6 +46,7 @@ class ImageLayout(context: Context) :
             loadingProgress = pbMediaLoading,
             height = imageResized.second,
             width = imageResized.first,
+            sender = sender
         )
 
         if (chatMessage.id < 0) {

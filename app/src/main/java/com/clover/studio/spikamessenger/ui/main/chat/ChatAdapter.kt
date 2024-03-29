@@ -10,7 +10,9 @@ import android.os.Handler
 import android.os.Looper
 import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -51,7 +53,8 @@ import com.vanniktech.emoji.EmojiTextView
 import com.vanniktech.emoji.isOnlyEmojis
 import timber.log.Timber
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 
 private const val VIEW_TYPE_MESSAGE_SENT = 1
 private const val VIEW_TYPE_MESSAGE_RECEIVED = 2
@@ -180,6 +183,7 @@ class ChatAdapter(
                             setImageLayout(
                                 chatMessage = it,
                                 container = holder.binding.flMediaContainer,
+                                sender = true
                             )
                         }
 
@@ -189,12 +193,14 @@ class ChatAdapter(
                                 setImageLayout(
                                     chatMessage = it,
                                     container = holder.binding.flMediaContainer,
+                                    sender = true
                                 )
                             } else {
                                 setViewsVisibility(holder.binding.cvMedia, holder)
                                 setVideoLayout(
                                     chatMessage = it,
                                     container = holder.binding.flMediaContainer,
+                                    sender = true
                                 )
                             }
                         }
@@ -254,13 +260,15 @@ class ChatAdapter(
 
                     /** Show edited/forwarded layout: */
                     holder.binding.tvMessageAction.visibility = View.GONE
-                    if (it.message.deleted == false){
-                        if (it.message.isForwarded){
-                            holder.binding.tvMessageAction.text = context.getString(R.string.forwarded)
+                    if (it.message.deleted == false) {
+                        if (it.message.isForwarded) {
+                            holder.binding.tvMessageAction.text =
+                                context.getString(R.string.forwarded)
                             holder.binding.tvMessageAction.visibility = View.VISIBLE
                         } else {
-                            if (it.message.createdAt != it.message.modifiedAt){
-                                holder.binding.tvMessageAction.text = context.getString(R.string.edited)
+                            if (it.message.createdAt != it.message.modifiedAt) {
+                                holder.binding.tvMessageAction.text =
+                                    context.getString(R.string.edited)
                                 holder.binding.tvMessageAction.visibility = View.VISIBLE
                             }
                         }
@@ -342,6 +350,7 @@ class ChatAdapter(
                             setImageLayout(
                                 chatMessage = it,
                                 container = holder.binding.flMediaContainer,
+                                sender = false
                             )
                         }
 
@@ -350,6 +359,7 @@ class ChatAdapter(
                             setVideoLayout(
                                 chatMessage = it,
                                 container = holder.binding.flMediaContainer,
+                                sender = false
                             )
                         }
 
@@ -406,13 +416,15 @@ class ChatAdapter(
 
                     /** Show edited/forwarded layout: */
                     holder.binding.tvMessageAction.visibility = View.GONE
-                    if (it.message.deleted == false){
-                        if (it.message.isForwarded){
-                            holder.binding.tvMessageAction.text = context.getString(R.string.forwarded)
+                    if (it.message.deleted == false) {
+                        if (it.message.isForwarded) {
+                            holder.binding.tvMessageAction.text =
+                                context.getString(R.string.forwarded)
                             holder.binding.tvMessageAction.visibility = View.VISIBLE
                         } else {
-                            if (it.message.createdAt != it.message.modifiedAt){
-                                holder.binding.tvMessageAction.text = context.getString(R.string.edited)
+                            if (it.message.createdAt != it.message.modifiedAt) {
+                                holder.binding.tvMessageAction.text =
+                                    context.getString(R.string.edited)
                                 holder.binding.tvMessageAction.visibility = View.VISIBLE
                             }
                         }
@@ -576,7 +588,8 @@ class ChatAdapter(
 
     private fun setVideoLayout(
         chatMessage: MessageAndRecords,
-        container: FrameLayout
+        container: FrameLayout,
+        sender: Boolean
     ) {
         val video = VideoLayout(context)
         video.setVideoLayoutListener(object : VideoLayout.VideoLayoutListener {
@@ -584,13 +597,14 @@ class ChatAdapter(
                 onMessageInteraction(Const.UserActions.NAVIGATE_TO_MEDIA_FRAGMENT, chatMessage)
             }
         })
-        video.bindVideo(chatMessage = chatMessage)
+        video.bindVideo(chatMessage = chatMessage, sender = sender)
         container.addView(video)
     }
 
     private fun setImageLayout(
         chatMessage: MessageAndRecords,
-        container: FrameLayout
+        container: FrameLayout,
+        sender: Boolean
     ) {
         val image = ImageLayout(context)
         image.setImageLayoutListener(object : ImageLayout.ImageLayoutListener {
@@ -610,7 +624,7 @@ class ChatAdapter(
                 onMessageInteraction(Const.UserActions.MESSAGE_ACTION, chatMessage)
             }
         })
-        image.bindImage(chatMessage = chatMessage.message)
+        image.bindImage(chatMessage = chatMessage.message, sender = sender)
         container.addView(image)
     }
 

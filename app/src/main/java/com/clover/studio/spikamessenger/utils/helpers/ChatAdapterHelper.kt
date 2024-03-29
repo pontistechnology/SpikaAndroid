@@ -1,6 +1,7 @@
 package com.clover.studio.spikamessenger.utils.helpers
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -66,14 +67,21 @@ object ChatAdapterHelper {
         loadingProgress: ProgressBar?,
         height: Int,
         width: Int,
-        playButton: ImageView? = null
+        playButton: ImageView? = null,
+        sender: Boolean
     ) {
         val params = mediaImage.layoutParams
         params.height = convertToDp(context, height)
         params.width = convertToDp(context, width)
         mediaImage.layoutParams = params
 
-        Timber.d("Loading progress visibility: ${loadingProgress?.visibility}")
+        val color = if (sender) {
+            ColorHelper.getSecondaryColor(context)
+        } else {
+            ColorHelper.getPrimaryColor(context)
+        }
+
+        loadingProgress?.indeterminateTintList = ColorStateList.valueOf(color)
 
         Glide.with(context)
             .load(mediaPath)
@@ -85,7 +93,6 @@ object ChatAdapterHelper {
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    Timber.d("Load Failed")
                     return false
                 }
 

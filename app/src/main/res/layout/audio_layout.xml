@@ -62,7 +62,8 @@
         app:layout_constraintEnd_toStartOf="@+id/sb_audio"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/img_upload_failed" />
+        app:srcCompat="@drawable/img_media_error"
+        app:tint="?attr/primaryTextColor" />
 
     <ProgressBar
         android:id="@+id/pb_audio"

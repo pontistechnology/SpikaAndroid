@@ -31,8 +31,7 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:indeterminateTint="@color/gph_dark_red"/>
+        android:layout_gravity="center" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv_video_thumbnail"
@@ -58,5 +57,4 @@
         android:textColor="@color/white"
         android:textSize="@dimen/twelve_sp_text"
         android:visibility="visible" />
-
 </FrameLayout>

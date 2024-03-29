@@ -47,6 +47,7 @@ class ChatViewModel @Inject constructor(
     val searchMessageId = MutableLiveData(0)
     val roomWithUsers = MutableLiveData<RoomWithUsers>()
     val thumbnailData = MutableLiveData<Event<Resource<ThumbnailDataResponse?>>>()
+    val mediaListener = MutableLiveData<Event<Resource<List<Message>?>>>()
 
     init {
         sseManager.setupListener(this)
@@ -211,7 +212,7 @@ class ChatViewModel @Inject constructor(
         }
     }
     fun updateThumbUri(localId: String, uri: String) = viewModelScope.launch {
-            repository.updateThumbUri(localId, uri)
+        repository.updateThumbUri(localId, uri)
     }
 
     fun editMessage(messageId: Int, jsonObject: JsonObject) =
@@ -282,8 +283,20 @@ class ChatViewModel @Inject constructor(
         mainRepository.cancelUpload(messageId)
     }
 
-    fun getAllMediaWithOffset(roomId: Int) = mediaItemsLimit.switchMap {
-        mainRepository.getAllMediaWithOffset(roomId = roomId, limit = it, offset = 0)
+    fun getAllMediaWithOffset(roomId: Int) {
+        mediaItemsLimit.switchMap { limit ->
+            liveData {
+                emit(
+                    mainRepository.getAllMediaWithOffset(
+                        roomId = roomId,
+                        limit = limit,
+                        offset = 0
+                    )
+                )
+            }
+        }.observeForever { result ->
+            mediaListener.postValue(Event(result))
+        }
     }
 
     fun fetchNextMediaSet(roomId: Int) {

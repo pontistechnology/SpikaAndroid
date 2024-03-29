@@ -56,7 +56,6 @@
             android:elevation="@dimen/five_dp_margin"
             android:indeterminate="false"
             android:progressDrawable="@drawable/custom_circular_progress"
-            android:progressTint="?attr/primaryColor"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -76,7 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:src="@drawable/img_upload_failed"
+            android:src="@drawable/img_media_error"
             android:visibility="gone" />
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

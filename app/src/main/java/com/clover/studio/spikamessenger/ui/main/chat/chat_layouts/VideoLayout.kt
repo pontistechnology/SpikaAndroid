@@ -26,7 +26,8 @@ class VideoLayout(context: Context) :
     }
 
     fun bindVideo(
-        chatMessage: MessageAndRecords
+        chatMessage: MessageAndRecords,
+        sender: Boolean
     ) = with(binding) {
 
         tvVideoDuration.text =
@@ -48,7 +49,8 @@ class VideoLayout(context: Context) :
             loadingProgress = pbMediaLoading,
             height = imageResized.second,
             width = imageResized.first,
-            playButton = ivPlayButton
+            playButton = ivPlayButton,
+            sender = sender
         )
         ivPlayButton.setOnClickListener {
             listener?.mediaNavigation()

@@ -33,11 +33,13 @@ import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Const.MediaActions.Companion.MEDIA_DOWNLOAD
 import com.clover.studio.spikamessenger.utils.Const.MediaActions.Companion.MEDIA_SHOW_BARS
+import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import timber.log.Timber
 import java.io.File
 
 const val BAR_ANIMATION = 500L
@@ -57,7 +59,6 @@ class MediaFragment : BaseFragment() {
 
     private var mediaList: List<Message> = arrayListOf()
 
-    private var viewPager2: ViewPager2? = null
     private var mediaPagerAdapter: MediaPagerAdapter? = null
     private var smallMediaAdapter: SmallMediaAdapter? = null
 
@@ -68,6 +69,8 @@ class MediaFragment : BaseFragment() {
         roomId = message?.roomId ?: 0
         roomUsers = args.roomWithUsers?.users
         localUserId = args.localUserId
+
+        viewModel.getAllMediaWithOffset(roomId = roomId)
     }
 
     override fun onCreateView(
@@ -108,20 +111,26 @@ class MediaFragment : BaseFragment() {
     }
 
     private fun getAllPhotos() {
-        viewModel.getAllMediaWithOffset(roomId = roomId).observe(viewLifecycleOwner) {
-            if (Resource.Status.SUCCESS == it.status) {
-                if (it.responseData != null) {
-                    mediaList = it.responseData
+        viewModel.mediaListener.observe(viewLifecycleOwner,
+            EventObserver { media ->
+                when (media.status) {
+                    Resource.Status.SUCCESS -> {
+                        if (media.responseData != null) {
+                            mediaList = media.responseData
 
-                    if (!mediaList.contains(message)) {
-                        viewModel.fetchNextMediaSet(roomId)
-                    } else {
-                        initializePagerAdapter()
-                        setUpSmallMediaAdapter()
+                            if (!mediaList.contains(message)) {
+                                viewModel.fetchNextMediaSet(roomId)
+                            } else {
+                                initializePagerAdapter()
+                                setUpSmallMediaAdapter()
+                            }
+                        }
                     }
+
+                    else -> Timber.d("Media error")
                 }
             }
-        }
+        )
     }
 
     private fun initializePagerAdapter() = with(binding) {
@@ -133,7 +142,6 @@ class MediaFragment : BaseFragment() {
                 }
             })
 
-        viewPager2?.adapter = mediaPagerAdapter
         viewPager.adapter = mediaPagerAdapter
 
         viewPager.setCurrentItem(mediaList.indexOf(message), false)
@@ -354,5 +362,3 @@ class MediaFragment : BaseFragment() {
         Toast.makeText(context, getString(R.string.saved_to_gallery), Toast.LENGTH_LONG).show()
     }
 }
-
-
