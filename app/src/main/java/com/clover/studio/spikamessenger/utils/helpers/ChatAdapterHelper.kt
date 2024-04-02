@@ -1,15 +1,15 @@
 package com.clover.studio.spikamessenger.utils.helpers
 
-import android.animation.ObjectAnimator
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
 import android.view.View
-import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
@@ -64,26 +64,24 @@ object ChatAdapterHelper {
         context: Context,
         mediaPath: String,
         mediaImage: ImageView,
-        loadingImage: ImageView?,
+        loadingProgress: ProgressBar?,
         height: Int,
         width: Int,
-        playButton: ImageView? = null
+        playButton: ImageView? = null,
+        sender: Boolean
     ) {
         val params = mediaImage.layoutParams
         params.height = convertToDp(context, height)
         params.width = convertToDp(context, width)
         mediaImage.layoutParams = params
 
-        var rotationAnimator: ObjectAnimator? = null
-        if (loadingImage != null && loadingImage.visibility == View.VISIBLE) {
-            rotationAnimator = ObjectAnimator.ofFloat(loadingImage, "rotation", 0f, 360f)
-            rotationAnimator.apply {
-                repeatCount = ObjectAnimator.INFINITE
-                duration = 2000
-                interpolator = LinearInterpolator()
-                start()
-            }
+        val color = if (sender) {
+            ColorHelper.getSecondaryColor(context)
+        } else {
+            ColorHelper.getPrimaryColor(context)
         }
+
+        loadingProgress?.indeterminateTintList = ColorStateList.valueOf(color)
 
         Glide.with(context)
             .load(mediaPath)
@@ -95,7 +93,6 @@ object ChatAdapterHelper {
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    Timber.d("Load Failed")
                     return false
                 }
 
@@ -106,12 +103,11 @@ object ChatAdapterHelper {
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    loadingImage?.visibility = View.GONE
+                    loadingProgress?.visibility = View.GONE
                     mediaImage.visibility = View.VISIBLE
                     if (playButton != null) {
                         playButton.visibility = View.VISIBLE
                     }
-                    rotationAnimator?.end()
                     return false
                 }
             })

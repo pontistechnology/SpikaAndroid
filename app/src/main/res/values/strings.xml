@@ -105,6 +105,7 @@
     <string name="you">You</string>
     <string name="storage_permission">Please add storage permission manually</string>
     <string name="saved_to_gallery">Saved to gallery</string>
+    <string name="media_error">Unable to fetch images</string>
 
     <!--Chat creation-->
     <string name="select_members">Select members</string>
@@ -155,6 +156,7 @@
     <string name="no_messages_yet">No messages yet.</string>
     <string name="some_message">Some message</string>
     <string name="resend_message">Resend message</string>
+    <string name="message_not_found">Message not found</string>
 
     <!--Files - upload, cancel, resend-->
     <string name="uploading_files">Uploading files</string>
