@@ -27,5 +27,4 @@
         android:drawable="@drawable/img_loading_spin_8"
         android:duration="150" />
 
-
 </animation-list>

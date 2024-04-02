@@ -27,7 +27,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,6 +42,7 @@ class ChatViewModel @Inject constructor(
     val forwardListener = MutableLiveData<Event<Resource<ForwardMessagesResponse?>>>()
     private val liveDataLimit = MutableLiveData(20)
     private val mediaItemsLimit = MutableLiveData(10)
+    val messageNotFound = MutableLiveData(false)
     val messagesReceived = MutableLiveData<List<Message>>()
     val searchMessageId = MutableLiveData(0)
     val roomWithUsers = MutableLiveData<RoomWithUsers>()
@@ -140,10 +140,9 @@ class ChatViewModel @Inject constructor(
 
     fun fetchNextSet(roomId: Int) {
         val currentLimit = liveDataLimit.value ?: 0
-        Timber.d("Current limit 1: $currentLimit, ${liveDataLimit.value}")
         if (getMessageCount(roomId = roomId) > currentLimit)
             liveDataLimit.value = currentLimit + 20
-        Timber.d("Current limit 2: $currentLimit, ${liveDataLimit.value}")
+        else messageNotFound.value = true
     }
 
     private fun getMessageCount(roomId: Int): Int {
@@ -211,6 +210,7 @@ class ChatViewModel @Inject constructor(
             repository.updateLocalUri(localId, uri)
         }
     }
+
     fun updateThumbUri(localId: String, uri: String) = viewModelScope.launch {
         repository.updateThumbUri(localId, uri)
     }
