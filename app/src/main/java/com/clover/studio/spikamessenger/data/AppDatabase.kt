@@ -104,14 +104,14 @@ abstract class AppDatabase : RoomDatabase() {
             buildDatabase(MainApplication.appContext).clearAllTables()
         }
 
-        private val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+        val MIGRATION_1_2: Migration = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE_RECORDS + " ADD COLUMN record_message TEXT")
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0")
             }
         }
 
-        private val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_CHAT_ROOM + " ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0")
                 db.execSQL("CREATE TABLE IF NOT EXISTS " + TablesInfo.TABLE_CHAT_ROOM_NEW + " (`room_id` INTEGER NOT NULL, `name` TEXT, `type` TEXT, `avatar_file_id` INTEGER, `created_at` INTEGER, `modified_at` INTEGER, `muted` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `room_exit` INTEGER NOT NULL, `deleted` INTEGER NOT NULL, `unread_count` INTEGER NOT NULL, PRIMARY KEY(`room_id`))")
@@ -127,13 +127,13 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        private val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+        val MIGRATION_3_4: Migration = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_USER + " ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0")
             }
         }
 
-        private val MIGRATION_4_5: Migration = object : Migration(4, 5) {
+        val MIGRATION_4_5: Migration = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN message_status TEXT")
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN uri TEXT")
@@ -142,19 +142,19 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        private val MIGRATION_5_6: Migration = object : Migration(5, 6) {
+        val MIGRATION_5_6: Migration = object : Migration(5, 6) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE_RECORDS + " ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0")
             }
         }
 
-        private val MIGRATION_6_7: Migration = object : Migration(6, 7) {
+        val MIGRATION_6_7: Migration = object : Migration(6, 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN is_forwarded INTEGER NOT NULL DEFAULT 0")
             }
         }
 
-        private val MIGRATION7_8: Migration = object : Migration(7, 8) {
+        val MIGRATION7_8: Migration = object : Migration(7, 8) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN reference_message TEXT")
 
@@ -198,7 +198,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        private val MIGRATION_8_9: Migration = object : Migration(8, 9) {
+        val MIGRATION_8_9: Migration = object : Migration(8, 9) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE " + TablesInfo.TABLE_MESSAGE + " ADD COLUMN thumb_uri TEXT")
             }

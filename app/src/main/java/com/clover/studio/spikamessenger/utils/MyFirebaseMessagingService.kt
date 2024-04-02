@@ -16,7 +16,7 @@ import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.responses.FirebaseResponse
-import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.ChatRepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.main.MainActivity
@@ -41,7 +41,7 @@ private val notificationMap = mutableMapOf<Int, Notification>()
 @AndroidEntryPoint
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     @Inject
-    lateinit var chatRepo: ChatRepositoryImpl
+    lateinit var chatRepo: ChatRepository
 
     @Inject
     lateinit var sharedPrefs: SharedPreferencesRepository

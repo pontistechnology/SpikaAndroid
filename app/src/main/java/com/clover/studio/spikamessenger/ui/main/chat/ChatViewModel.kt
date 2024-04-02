@@ -14,8 +14,8 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.Forward
 import com.clover.studio.spikamessenger.data.models.networking.responses.MessageResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.NotesResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.ThumbnailDataResponse
-import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
-import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.ChatRepository
+import com.clover.studio.spikamessenger.data.repositories.MainRepository
 import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.SSEListener
 import com.clover.studio.spikamessenger.utils.SSEManager
@@ -25,14 +25,17 @@ import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val repository: ChatRepositoryImpl,
-    private val mainRepository: MainRepositoryImpl,
+    private val repository: ChatRepository,
+    private val mainRepository: MainRepository,
     sseManager: SSEManager,
 ) : BaseViewModel(), SSEListener {
     val messageSendListener = MutableLiveData<Event<Resource<MessageResponse?>>>()
@@ -47,7 +50,10 @@ class ChatViewModel @Inject constructor(
     val searchMessageId = MutableLiveData(0)
     val roomWithUsers = MutableLiveData<RoomWithUsers>()
     val thumbnailData = MutableLiveData<Event<Resource<ThumbnailDataResponse?>>>()
-    val mediaListener = MutableLiveData<Event<Resource<List<Message>?>>>()
+
+    private val _mediaState: MutableStateFlow<MediaScreenState> =
+        MutableStateFlow(MediaScreenState.Loading)
+    val mediaState = _mediaState.asStateFlow()
 
     init {
         sseManager.setupListener(this)
@@ -283,25 +289,28 @@ class ChatViewModel @Inject constructor(
         mainRepository.cancelUpload(messageId)
     }
 
-    fun getAllMediaWithOffset(roomId: Int) {
-        mediaItemsLimit.switchMap { limit ->
-            liveData {
-                emit(
-                    mainRepository.getAllMediaWithOffset(
-                        roomId = roomId,
-                        limit = limit,
-                        offset = 0
-                    )
-                )
-            }
-        }.observeForever { result ->
-            mediaListener.postValue(Event(result))
+    fun getAllMediaWithOffset(roomId: Int) = viewModelScope.launch {
+        val response = mainRepository.getAllMediaWithOffset(
+            roomId = roomId,
+            limit = mediaItemsLimit.value ?: 0,
+            offset = 0
+        )
+
+        when (response.status) {
+            Resource.Status.SUCCESS -> _mediaState.value =
+                MediaScreenState.Success(response.responseData)
+
+            Resource.Status.ERROR -> _mediaState.value = MediaScreenState.Error(response.message)
+            Resource.Status.LOADING -> _mediaState.value = MediaScreenState.Loading
+            else -> Timber.d("Other error")
         }
     }
 
     fun fetchNextMediaSet(roomId: Int) {
         val currentLimit = mediaItemsLimit.value ?: 0
         if (getMediaCount(roomId) > currentLimit) mediaItemsLimit.value = currentLimit + 5
+
+        getAllMediaWithOffset(roomId = roomId)
     }
 
     private fun getMediaCount(roomId: Int): Int {
@@ -328,3 +337,9 @@ class FileUploadVerified(
     val fileId: Long,
     val messageBody: MessageBody?,
 )
+
+sealed class MediaScreenState {
+    data object Loading : MediaScreenState()
+    data class Success(val media: List<Message>?) : MediaScreenState()
+    data class Error(val message: String?) : MediaScreenState()
+}

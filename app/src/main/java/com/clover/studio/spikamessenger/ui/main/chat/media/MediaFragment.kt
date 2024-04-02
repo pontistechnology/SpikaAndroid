@@ -19,6 +19,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
 import androidx.core.content.ContextCompat.registerReceiver
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,17 +30,16 @@ import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentMediaBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
+import com.clover.studio.spikamessenger.ui.main.chat.MediaScreenState
 import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Const.MediaActions.Companion.MEDIA_DOWNLOAD
 import com.clover.studio.spikamessenger.utils.Const.MediaActions.Companion.MEDIA_SHOW_BARS
-import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
-import com.clover.studio.spikamessenger.utils.helpers.Resource
-import timber.log.Timber
+import kotlinx.coroutines.launch
 import java.io.File
 
 const val BAR_ANIMATION = 500L
@@ -111,12 +111,14 @@ class MediaFragment : BaseFragment() {
     }
 
     private fun getAllPhotos() {
-        viewModel.mediaListener.observe(viewLifecycleOwner,
-            EventObserver { media ->
-                when (media.status) {
-                    Resource.Status.SUCCESS -> {
-                        if (media.responseData != null) {
-                            mediaList = media.responseData
+        lifecycleScope.launch {
+            // Use this below if you need to reload state when app gets back into focus
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.mediaState.collect { state ->
+                when (state) {
+                    is MediaScreenState.Success -> {
+                        if (state.media != null) {
+                            mediaList = state.media
 
                             if (!mediaList.contains(message)) {
                                 viewModel.fetchNextMediaSet(roomId)
@@ -127,10 +129,18 @@ class MediaFragment : BaseFragment() {
                         }
                     }
 
-                    else -> Timber.d("Media error")
+                    is MediaScreenState.Error -> {
+                        // Ignore
+                    }
+
+                    is MediaScreenState.Loading -> {
+                        // ignore
+                    }
+
                 }
+//                }
             }
-        )
+        }
     }
 
     private fun initializePagerAdapter() = with(binding) {
@@ -152,7 +162,7 @@ class MediaFragment : BaseFragment() {
 
                 message = mediaList[position]
 
-                if (position == smallMediaAdapter?.itemCount) {
+                if (position == smallMediaAdapter?.itemCount?.minus(1)) {
                     viewModel.fetchNextMediaSet(roomId = roomId)
                 }
 
@@ -199,7 +209,6 @@ class MediaFragment : BaseFragment() {
                     val totalItemCount = linearLayoutManager.itemCount
 
                     if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
-
                         viewModel.fetchNextMediaSet(roomId = roomId)
                         isFetching = true
 

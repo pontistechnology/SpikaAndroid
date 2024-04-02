@@ -7,7 +7,7 @@ import androidx.core.app.RemoteInput
 import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
-import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.ChatRepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.utils.helpers.MessageHelper
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class NotificationReplyReceiver : BroadcastReceiver() {
 
     @Inject
-    lateinit var chatRepo: ChatRepositoryImpl
+    lateinit var chatRepo: ChatRepository
 
     @Inject
     lateinit var sharedPrefs: SharedPreferencesRepository

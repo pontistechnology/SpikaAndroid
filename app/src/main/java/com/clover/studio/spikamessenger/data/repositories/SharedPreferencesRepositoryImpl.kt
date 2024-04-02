@@ -12,9 +12,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.reflect.Type
+import javax.inject.Inject
 
 
-class SharedPreferencesRepositoryImpl(
+class SharedPreferencesRepositoryImpl @Inject constructor(
     private val context: Context
 ) : SharedPreferencesRepository {
     private val liveDataList: MutableLiveData<List<Int>?> = MutableLiveData()

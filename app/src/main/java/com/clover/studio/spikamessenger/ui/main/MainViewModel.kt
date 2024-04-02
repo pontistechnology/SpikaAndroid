@@ -16,8 +16,8 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.AuthRes
 import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.DeleteUserResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
-import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
-import com.clover.studio.spikamessenger.data.repositories.SSERepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.MainRepository
+import com.clover.studio.spikamessenger.data.repositories.SSERepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.ui.main.chat.FileUploadVerified
 import com.clover.studio.spikamessenger.utils.Event
@@ -39,10 +39,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: MainRepositoryImpl,
+    private val repository: MainRepository,
     private val sharedPrefsRepo: SharedPreferencesRepository,
     private val sseManager: SSEManager,
-    private val sseRepository: SSERepositoryImpl,
+    private val sseRepository: SSERepository,
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel(), SSEListener {
     val usersListener = MutableLiveData<Event<Resource<AuthResponse?>>>()

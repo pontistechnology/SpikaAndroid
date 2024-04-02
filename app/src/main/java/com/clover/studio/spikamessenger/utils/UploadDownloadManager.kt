@@ -8,7 +8,7 @@ import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.UploadFile
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
-import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.MainRepository
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import timber.log.Timber
 import java.io.BufferedInputStream
@@ -27,7 +27,7 @@ const val ONE_GB = 1024 * 1024 * 1024
  * can update the status based on pieces sent or final file verification.
  */
 class UploadDownloadManager constructor(
-    private val repository: MainRepositoryImpl
+    private val repository: MainRepository
 ) {
     private var chunkCount = 0
     private var cancelUpload = false

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.models.networking.responses.AuthResponse
+import com.clover.studio.spikamessenger.data.repositories.OnboardingRepository
 import com.clover.studio.spikamessenger.data.repositories.OnboardingRepositoryImpl
 import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.Tools
@@ -20,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val onboardingRepository: OnboardingRepositoryImpl,
+    private val onboardingRepository: OnboardingRepository,
 ) : BaseViewModel() {
 
     var codeVerificationListener = MutableLiveData<Event<Resource<AuthResponse?>>>()

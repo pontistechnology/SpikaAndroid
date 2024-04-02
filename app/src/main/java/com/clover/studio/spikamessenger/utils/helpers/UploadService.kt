@@ -9,8 +9,8 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.JsonMessage
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
-import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
-import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.ChatRepository
+import com.clover.studio.spikamessenger.data.repositories.MainRepository
 import com.clover.studio.spikamessenger.utils.CHANNEL_ID
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.FileUploadListener
@@ -29,10 +29,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class UploadService : Service() {
     @Inject
-    lateinit var mainRepositoryImpl: MainRepositoryImpl
+    lateinit var mainRepository: MainRepository
 
     @Inject
-    lateinit var chatRepositoryImpl: ChatRepositoryImpl
+    lateinit var ChatRepository: ChatRepository
 
     private var uploadJob: Job? = null
     private var localIdMap: MutableMap<String, Long> = mutableMapOf()
@@ -90,7 +90,7 @@ class UploadService : Service() {
     }
 
     suspend fun uploadAvatar(fileData: FileData, isGroup: Boolean) {
-        UploadDownloadManager(mainRepositoryImpl).uploadFile(
+        UploadDownloadManager(mainRepository).uploadFile(
             fileData,
             object : FileUploadListener {
                 override fun filePieceUploaded() {
@@ -118,12 +118,12 @@ class UploadService : Service() {
                                 Const.JsonFields.ACTION,
                                 Const.JsonFields.CHANGE_GROUP_AVATAR
                             )
-                            mainRepositoryImpl.updateRoom(
+                            mainRepository.updateRoom(
                                 jsonObject,
                                 fileData.roomId
                             )
                         } else {
-                            mainRepositoryImpl.updateUserData(jsonObject)
+                            mainRepository.updateUserData(jsonObject)
                         }
                     }
                     callbackListener?.avatarUploadFinished(fileId)
@@ -201,7 +201,7 @@ class UploadService : Service() {
     }
 
     private suspend fun uploadItem(item: FileData) {
-        UploadDownloadManager(mainRepositoryImpl).uploadFile(item, object : FileUploadListener {
+        UploadDownloadManager(mainRepository).uploadFile(item, object : FileUploadListener {
             override fun filePieceUploaded() {
                 if (!item.isThumbnail) {
                     count += 1
@@ -281,7 +281,7 @@ class UploadService : Service() {
 
         val jsonObject = jsonMessage.messageToJson()
         CoroutineScope(Dispatchers.Default).launch {
-            chatRepositoryImpl.sendMessage(jsonObject)
+            ChatRepository.sendMessage(jsonObject)
         }
     }
 
