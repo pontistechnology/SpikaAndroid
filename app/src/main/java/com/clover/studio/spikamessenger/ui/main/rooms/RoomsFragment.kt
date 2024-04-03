@@ -73,6 +73,12 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
+        viewModel.isRoomRefreshing.observe(viewLifecycleOwner){
+            if (it && userSearching){
+                binding.topAppBar.collapseActionView()
+            }
+        }
+
         viewModel.getChatRoomsWithLatestMessage().observe(viewLifecycleOwner) {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
