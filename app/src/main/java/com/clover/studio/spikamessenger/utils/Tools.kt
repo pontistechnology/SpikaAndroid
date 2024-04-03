@@ -32,6 +32,7 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.collection.ArraySet
 import androidx.core.content.ContextCompat
@@ -63,6 +64,7 @@ import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
 import java.nio.ByteBuffer
+import java.nio.file.Files
 import java.security.MessageDigest
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -650,6 +652,7 @@ object Tools {
     fun renameGif(uri: Uri, localId: String, type: String): Uri? {
         val filePath = uri.path
 
+        Timber.d("Gif media: $filePath")
         if (filePath != null) {
             val originalFile = File(filePath)
             val newFile = File(originalFile.parent, "${localId}.gif")
@@ -665,6 +668,31 @@ object Tools {
         return null
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun renameVideo(path: String, localId: String): Uri? {
+        val existingFilePath = path
+        val newPath =
+            "/storage/emulated/0/Android/data/com.clover.studio.spikamessenger.dev/files/Movies/"
+
+        // Read content of existing file
+        val existingFile = File(existingFilePath)
+        val fileContent = existingFile.readBytes()
+
+        // Create new file
+        val newFile = File(newPath, "${localId}.mp4")
+        newFile.createNewFile()
+
+        // Write content to new file
+        Files.write(newFile.toPath(), fileContent)
+
+        println("New file created at $newPath")
+
+        return FileProvider.getUriForFile(
+            MainApplication.appContext,
+            BuildConfig.APPLICATION_ID + ".fileprovider",
+            newFile
+        )
+    }
 
     fun deleteTemporaryMedia(context: Context) {
         val imagesDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)

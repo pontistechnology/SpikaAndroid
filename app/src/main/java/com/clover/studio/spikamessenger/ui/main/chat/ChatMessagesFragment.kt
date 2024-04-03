@@ -45,6 +45,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.abedelazizshe.lightcompressorlibrary.CompressionListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.BuildConfig
@@ -72,6 +73,7 @@ import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.MessageSwipeController
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getFileMimeType
+import com.clover.studio.spikamessenger.utils.VideoCompression
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
@@ -1665,8 +1667,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
         if (temporaryMessages.isNotEmpty()) {
             temporaryMessages.forEach { unsentMessage ->
-                if (Const.JsonFields.IMAGE_TYPE == unsentMessage.type ||
-                    Const.JsonFields.VIDEO_TYPE == unsentMessage.type
+                if (Const.JsonFields.IMAGE_TYPE == unsentMessage.type
                 ) {
                     // Send thumbnail
                     unsentMessage.localId?.let {
@@ -1692,6 +1693,60 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                     }
                     currentMediaLocation.removeFirst()
                     thumbnailUris.removeFirst()
+                } else if (Const.JsonFields.VIDEO_TYPE == unsentMessage.type) {
+                    Timber.d("Current media: $currentMediaLocation")
+                    unsentMessage.localId?.let {
+                        VideoCompression.compressVideoFile(
+                            currentMediaLocation,
+                            object : CompressionListener {
+                                override fun onCancelled(index: Int) {
+                                    // ignore
+                                }
+
+                                override fun onFailure(index: Int, failureMessage: String) {
+                                    // ignore
+                                }
+
+                                override fun onProgress(index: Int, percent: Float) {
+                                    // ignore
+                                }
+
+                                override fun onStart(index: Int) {
+                                    // ignore
+                                }
+
+                                override fun onSuccess(index: Int, size: Long, path: String?) {
+                                    Timber.d("Current media: $path")
+                                    Timber.d("Video compression success")
+
+                                    uploadFiles(
+                                        isThumbnail = true,
+                                        uri = thumbnailUris.first(),
+                                        localId = it,
+                                        metadata = unsentMessage.body?.file?.metaData
+                                    )
+                                    viewModel.updateThumbUri(
+                                        localId = it,
+                                        uri = thumbnailUris.first().toString()
+                                    )
+                                    // Send original image
+                                    path?.let {
+                                        val mediaPath = Tools.renameVideo(it, unsentMessage.localId)
+                                        Timber.d("Current media: $mediaPath")
+                                        if (mediaPath != null) {
+                                            uploadFiles(
+                                                isThumbnail = false,
+                                                uri = mediaPath,
+                                                localId = unsentMessage.localId,
+                                                metadata = unsentMessage.body?.file?.metaData
+                                            )
+                                        }
+                                    }
+                                    currentMediaLocation.removeFirst()
+                                    thumbnailUris.removeFirst()
+                                }
+                            })
+                    }
                 } else if (filesSelected.isNotEmpty()) {
                     // Send file or gif
                     val uri = if (Const.JsonFields.GIF_TYPE == unsentMessage.type) {
@@ -1757,6 +1812,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             )?.let { fileData ->
                 uploadData.add(fileData)
             }
+
             uploadFiles.addAll(uploadData)
         }
     }

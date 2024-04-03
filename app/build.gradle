@@ -248,4 +248,7 @@ dependencies {
 
     // Gifs
     implementation 'com.giphy.sdk:ui:2.3.13'
+
+    // LightCompressor
+    implementation 'com.github.AbedElazizShe:LightCompressor:1.3.2'
 }
