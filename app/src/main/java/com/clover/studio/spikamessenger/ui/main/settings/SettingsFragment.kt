@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
@@ -20,6 +21,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
@@ -63,6 +65,9 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
     private lateinit var fileUploadService: UploadService
     private var bound = false
 
+    private var progressAnimation: AnimationDrawable? = null
+    private var uploadingInProgress = false
+
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
             if (it != null) {
@@ -70,7 +75,8 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.profilePicture.ivPickAvatar)
+                Glide.with(this).load(bitmap).diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateUserImage()
             } else {
@@ -158,11 +164,16 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                 tvPhoneNumber.text = response.telephoneNumber
                 avatarId = response.avatarFileId
 
-                Glide.with(requireActivity())
-                    .load(response.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
-                    .placeholder(R.drawable.img_user_avatar)
-                    .centerCrop()
-                    .into(profilePicture.ivPickAvatar)
+                if (!uploadingInProgress) {
+                    response.avatarFileId?.let { fileId ->
+                        Glide.with(requireActivity())
+                            .load(getFilePathUrl(fileId))
+                            .placeholder(R.drawable.img_user_avatar)
+                            .centerCrop()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .into(profilePicture.ivPickAvatar)
+                    }
+                }
             }
         }
     }
@@ -175,6 +186,11 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun initializeViews() = with(binding) {
+        profilePicture.ivProgressBar.apply {
+            setBackgroundResource(R.drawable.drawable_progress_animation)
+            progressAnimation = background as AnimationDrawable
+        }
+
         setOptionList()
 
         val userOptions = UserOptions(requireContext())
@@ -200,7 +216,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                 // Ignore
             }
         })
-        binding.flOptionsContainer.addView(userOptions)
+        flOptionsContainer.addView(userOptions)
     }
 
     private fun setOptionList() {
@@ -262,9 +278,6 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun setupClickListeners() = with(binding) {
-
-        // Removed and waiting for each respective screen to be implemented
-
         profilePicture.ivPickAvatar.setOnClickListener {
             val listOptions = mutableListOf(
                 getString(R.string.choose_from_gallery) to { chooseImage() },
@@ -311,7 +324,6 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                     (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-            binding.profilePicture.progressBar.max = uploadPieces
 
             avatarData = FileData(
                 fileUri = currentPhotoLocation,
@@ -325,8 +337,11 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                 messageStatus = null,
                 metadata = null
             )
-            inputStream.close()
+
             binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+            progressAnimation?.start()
+            uploadingInProgress = true
+            inputStream.close()
 
             if (bound) {
                 CoroutineScope(Dispatchers.Default).launch {
@@ -405,13 +420,12 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                 }
             })
         profilePicture.flProgressScreen.visibility = View.GONE
-        profilePicture.progressBar.secondaryProgress = 0
+        progressAnimation?.stop()
         currentPhotoLocation = Uri.EMPTY
         Glide.with(this@SettingsFragment).clear(profilePicture.ivPickAvatar)
     }
 
-    // Below navigation methods are unused until we implement all other functionality of settings
-    // screens
+
     private fun goToPrivacySettings() {
         findNavController().navigate(
             MainFragmentDirections.actionMainFragmentToPrivacySettingsFragment(),
@@ -435,6 +449,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
 
     override fun onPause() {
         showUserDetails()
+        uploadingInProgress = false
         super.onPause()
     }
 
@@ -463,6 +478,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
             override fun avatarUploadFinished(fileId: Long) {
                 requireActivity().runOnUiThread {
                     binding.profilePicture.flProgressScreen.visibility = View.GONE
+                    progressAnimation?.stop()
                 }
             }
         })

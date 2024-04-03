@@ -1,6 +1,7 @@
 package com.clover.studio.spikamessenger.ui.onboarding.account_creation
 
 import android.app.Activity
+import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -49,7 +50,8 @@ class AccountCreationFragment : BaseFragment() {
 
     private val viewModel: OnboardingViewModel by activityViewModels()
     private var currentPhotoLocation: Uri = Uri.EMPTY
-    private var progress: Long = 1L
+
+    private var progressAnimation: AnimationDrawable? = null
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -101,15 +103,23 @@ class AccountCreationFragment : BaseFragment() {
         // Inflate the layout for this fragment
         bindingSetup = FragmentAccountCreationBinding.inflate(inflater, container, false)
 
+        initializeViews()
         addTextListeners()
         addClickListeners()
-        addObservers()
+        initializeObservers()
 
         viewModel.sendContacts()
         return binding.root
     }
 
-    private fun addObservers() {
+    private fun initializeViews() {
+        binding.profilePicture.ivProgressBar.apply {
+            setBackgroundResource(R.drawable.drawable_progress_animation)
+            progressAnimation = background as AnimationDrawable
+        }
+    }
+
+    private fun initializeObservers() {
         viewModel.accountCreationListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> Timber.d("Contacts sent successfully")
@@ -205,7 +215,8 @@ class AccountCreationFragment : BaseFragment() {
                 }
             })
         binding.profilePicture.flProgressScreen.visibility = View.GONE
-        binding.profilePicture.progressBar.secondaryProgress = 0
+        progressAnimation?.stop()
+
         currentPhotoLocation = Uri.EMPTY
         Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
         binding.profilePicture.ivPickAvatar.setImageDrawable(
@@ -233,7 +244,7 @@ class AccountCreationFragment : BaseFragment() {
                         (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                     else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-                binding.profilePicture.progressBar.max = uploadPieces
+
                 Timber.d("File upload start")
                 CoroutineScope(Dispatchers.IO).launch {
                     uploadDownloadManager.uploadFile(
@@ -250,13 +261,7 @@ class AccountCreationFragment : BaseFragment() {
                             null
                         ),
                         object : FileUploadListener {
-                            override fun filePieceUploaded() {
-                                if (progress <= uploadPieces) {
-                                    binding.profilePicture.progressBar.secondaryProgress =
-                                        progress.toInt()
-                                    progress++
-                                } else progress = 0
-                            }
+                            override fun filePieceUploaded() {}
 
                             override fun fileUploadError(description: String) {
                                 Timber.d("Upload Error")
@@ -275,6 +280,7 @@ class AccountCreationFragment : BaseFragment() {
                             ) {
                                 requireActivity().runOnUiThread {
                                     binding.profilePicture.flProgressScreen.visibility = View.GONE
+                                    progressAnimation?.stop()
                                 }
 
                                 val jsonObject = JsonObject()
@@ -293,6 +299,7 @@ class AccountCreationFragment : BaseFragment() {
                         })
                 }
                 binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+                progressAnimation?.start()
             } else {
                 val jsonObject = JsonObject()
                 jsonObject.addProperty(

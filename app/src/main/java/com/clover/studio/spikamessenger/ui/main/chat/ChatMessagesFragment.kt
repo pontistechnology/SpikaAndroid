@@ -610,13 +610,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                     thumbnailData?.let { data -> handleMessagePreview(data) }
                 }
 
-                Resource.Status.ERROR -> {
-//                    bindingSetup.etMessage.setText("")
-                }
+                Resource.Status.LOADING -> Timber.d("Loading thumbnailData")
 
-                else -> {
-//                    bindingSetup.etMessage.setText("")
-                }
+                else -> Timber.d("Other error thumbnailData")
             }
         })
 

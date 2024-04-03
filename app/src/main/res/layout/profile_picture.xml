@@ -2,13 +2,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:backgroundTint="@android:color/transparent">
+    android:backgroundTint="@android:color/transparent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="contentDescription">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv_pick_avatar"
         android:layout_width="match_parent"
-        android:layout_height="395dp"
-        android:scaleType="fitXY"
+        android:layout_height="@dimen/three_hundred_ninety_five"
+        android:scaleType="centerCrop"
         android:src="@drawable/img_user_avatar"
         app:layout_constraintBottom_toTopOf="@id/tv_group_name"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,13 +33,13 @@
         app:layout_constraintTop_toTopOf="@id/iv_pick_avatar"
         app:shapeAppearanceOverlay="@style/big_profile_picture">
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="@dimen/seventy_dp"
-            android:layout_height="@dimen/seventy_dp"
+        <ImageView
+            android:id="@+id/iv_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:indeterminateOnly="true"
-            android:indeterminateTint="?attr/primaryColor"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:visibility="visible"
+            android:elevation="@dimen/eight_dp_margin" />
+
     </com.google.android.material.card.MaterialCardView>
 </FrameLayout>

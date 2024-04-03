@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
+import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
@@ -35,7 +36,6 @@ import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepos
 import com.clover.studio.spikamessenger.databinding.FragmentChatDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.utils.Const
-import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
@@ -94,6 +94,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
     private var navOptionsBuilder: NavOptions? = null
 
+    private var progressAnimation: AnimationDrawable? = null
+
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
             if (it != null) {
@@ -101,7 +103,10 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.profilePicture.ivPickAvatar)
+                Glide.with(this)
+                    .load(bitmap)
+                    .centerCrop()
+                    .into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
             } else {
@@ -234,6 +239,11 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
     private fun initializeViews(roomWithUsers: RoomWithUsers?) = with(binding) {
         setupAdapter(isAdmin = isAdmin, roomType = roomWithUsers?.room?.type.toString())
+
+        profilePicture.ivProgressBar.apply {
+            setBackgroundResource(R.drawable.drawable_progress_animation)
+            progressAnimation = background as AnimationDrawable
+        }
 
         clMemberList.visibility = View.VISIBLE
         userName = roomWithUsers?.room?.name.toString()
@@ -633,7 +643,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                     (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-            binding.profilePicture.progressBar.max = uploadPieces
+            progressAnimation?.start()
             isUploading = true
 
             avatarData = FileData(
@@ -662,6 +672,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 startUploadService()
             }
             binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+            progressAnimation?.start()
             inputStream.close()
         }
     }
@@ -682,7 +693,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 }
             })
         binding.profilePicture.flProgressScreen.visibility = View.GONE
-        binding.profilePicture.progressBar.secondaryProgress = 0
+        progressAnimation?.stop()
+
         currentPhotoLocation = Uri.EMPTY
         Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
         binding.profilePicture.ivPickAvatar.setImageDrawable(
@@ -750,6 +762,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             override fun avatarUploadFinished(fileId: Long) {
                 requireActivity().runOnUiThread {
                     binding.profilePicture.flProgressScreen.visibility = View.GONE
+                    progressAnimation?.stop()
                 }
             }
         })

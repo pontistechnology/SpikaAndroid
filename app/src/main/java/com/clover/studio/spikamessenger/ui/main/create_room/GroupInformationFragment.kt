@@ -1,5 +1,6 @@
 package com.clover.studio.spikamessenger.ui.main.create_room
 
+import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -46,15 +47,15 @@ class GroupInformationFragment : BaseFragment() {
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
 
+    private var bindingSetup: FragmentGroupInformationBinding? = null
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var adapter: GroupInformationAdapter
     private var selectedUsers: MutableList<PrivateGroupChats> = ArrayList()
     private var currentPhotoLocation: Uri = Uri.EMPTY
-    private var progress: Long = 1L
     private var uploadPieces: Int = 0
     private var avatarFileId: Long? = null
 
-    private var bindingSetup: FragmentGroupInformationBinding? = null
+    private var progressAnimation: AnimationDrawable? = null
 
     private val binding get() = bindingSetup!!
 
@@ -123,7 +124,12 @@ class GroupInformationFragment : BaseFragment() {
     }
 
     private fun initializeViews() = with(binding) {
-        binding.profilePicture.ivPickAvatar.setImageDrawable(
+        profilePicture.ivProgressBar.apply {
+            setBackgroundResource(R.drawable.drawable_progress_animation)
+            progressAnimation = background as AnimationDrawable
+        }
+
+        profilePicture.ivPickAvatar.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
                 R.drawable.img_group_avatar
@@ -254,10 +260,6 @@ class GroupInformationFragment : BaseFragment() {
         viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.LOADING -> {
-                    if (progress <= uploadPieces) {
-                        binding.profilePicture.progressBar.secondaryProgress = progress.toInt()
-                        progress++
-                    } else progress = 0
                     setUpDoneButton(uploading = true)
                 }
 
@@ -331,7 +333,6 @@ class GroupInformationFragment : BaseFragment() {
                     (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-            binding.profilePicture.progressBar.max = uploadPieces
             Timber.d("File upload start")
             viewModel.uploadMedia(
                 FileData(
@@ -348,6 +349,7 @@ class GroupInformationFragment : BaseFragment() {
                 )
             )
             binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+            progressAnimation?.start()
             inputStream.close()
         }
     }
@@ -368,7 +370,6 @@ class GroupInformationFragment : BaseFragment() {
                 }
             })
         binding.profilePicture.flProgressScreen.visibility = View.GONE
-        binding.profilePicture.progressBar.secondaryProgress = 0
         currentPhotoLocation = Uri.EMPTY
         Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
     }
