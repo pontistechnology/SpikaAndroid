@@ -44,7 +44,7 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
         binding.clMessageReply.visibility = View.GONE
     }
 
-    fun isReplyBottomSheetVisible() : Boolean {
+    fun isReplyBottomSheetVisible(): Boolean {
         return binding.clMessageReply.visibility == View.VISIBLE
     }
 
@@ -67,11 +67,21 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
 
         val mediaPath = Tools.getMediaPath(context, message)
         when (message.type) {
-            Const.JsonFields.IMAGE_TYPE -> setupMediaType(
-                R.string.photo,
-                R.drawable.img_camera,
-                mediaPath
-            )
+            Const.JsonFields.IMAGE_TYPE -> {
+                if (message.body?.file?.mimeType?.contains(Const.FileExtensions.GIF) == true) {
+                    setupMediaType(
+                        R.string.gif,
+                        R.drawable.img_gif_small,
+                        mediaPath
+                    )
+                } else {
+                    setupMediaType(
+                        R.string.photo,
+                        R.drawable.img_camera,
+                        mediaPath
+                    )
+                }
+            }
 
             Const.JsonFields.VIDEO_TYPE -> setupMediaType(
                 R.string.video,
@@ -104,7 +114,7 @@ class ReplyContainer(context: Context, attrs: AttributeSet?) :
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(ivReplyImage)
                     ivReplyImage.visibility = View.VISIBLE
-                } else  ivReplyImage.visibility = View.GONE
+                } else ivReplyImage.visibility = View.GONE
 
                 tvReplyMedia.visibility = View.VISIBLE
                 tvReplyMedia.text = message.body?.text

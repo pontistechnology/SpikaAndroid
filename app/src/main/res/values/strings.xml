@@ -84,6 +84,7 @@
     <string name="documents">Documents</string>
     <string name="gallery">Gallery</string>
     <string name="photo">Photo</string>
+    <string name="gif">Gif</string>
     <string name="media">%s</string>
     <string name="files">Files</string>
     <string name="file">File</string>
