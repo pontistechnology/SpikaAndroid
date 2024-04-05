@@ -77,7 +77,7 @@ class ReplyLayout(context: Context) :
         when (chatMessage.message.referenceMessage?.type) {
             /**Image, gif or video type*/
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                if (chatMessage.message.referenceMessage?.body?.file?.mimeType?.contains(Const.FileExtensions.GIF) == true){
+                if (chatMessage.message.referenceMessage?.body?.file?.mimeType?.contains(Const.FileExtensions.GIF) == true) {
                     tvReplyMedia.text = context.getString(
                         R.string.media,
                         context.getString(R.string.gif)
@@ -88,31 +88,28 @@ class ReplyLayout(context: Context) :
                         0,
                         0
                     )
+                } else if (chatMessage.message.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
+                    tvReplyMedia.text = context.getString(
+                        R.string.media,
+                        context.getString(R.string.photo)
+                    )
+                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_camera_reply,
+                        0,
+                        0,
+                        0
+                    )
                 } else {
-
-                    if (chatMessage.message.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
-                        tvReplyMedia.text = context.getString(
-                            R.string.media,
-                            context.getString(R.string.photo)
-                        )
-                        tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                            R.drawable.img_camera_reply,
-                            0,
-                            0,
-                            0
-                        )
-                    } else {
-                        tvReplyMedia.text = context.getString(
-                            R.string.media,
-                            context.getString(R.string.video)
-                        )
-                        tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                            R.drawable.img_video_reply,
-                            0,
-                            0,
-                            0
-                        )
-                    }
+                    tvReplyMedia.text = context.getString(
+                        R.string.media,
+                        context.getString(R.string.video)
+                    )
+                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_video_reply,
+                        0,
+                        0,
+                        0
+                    )
                 }
 
                 tvMessageReply.visibility = View.GONE
