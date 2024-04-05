@@ -32,6 +32,9 @@ import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import javax.inject.Inject
 
+const val MEDIA_LIMIT = 50
+const val MESSAGE_LIMIT = 20
+
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val repository: ChatRepository,
@@ -43,8 +46,8 @@ class ChatViewModel @Inject constructor(
     val noteDeletionListener = MutableLiveData<Event<NoteDeletion>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val forwardListener = MutableLiveData<Event<Resource<ForwardMessagesResponse?>>>()
-    private val liveDataLimit = MutableLiveData(20)
-    private val mediaItemsLimit = MutableLiveData(50)
+    private val liveDataLimit = MutableLiveData(MESSAGE_LIMIT)
+    private val mediaItemsLimit = MutableLiveData(MEDIA_LIMIT)
     val messageNotFound = MutableLiveData(false)
     val messagesReceived = MutableLiveData<List<Message>>()
     val searchMessageId = MutableLiveData(0)
@@ -147,7 +150,7 @@ class ChatViewModel @Inject constructor(
     fun fetchNextSet(roomId: Int) {
         val currentLimit = liveDataLimit.value ?: 0
         if (getMessageCount(roomId = roomId) > currentLimit)
-            liveDataLimit.value = currentLimit + 20
+            liveDataLimit.value = currentLimit + MESSAGE_LIMIT
         else messageNotFound.value = true
     }
 
@@ -308,7 +311,7 @@ class ChatViewModel @Inject constructor(
 
     fun fetchNextMediaSet(roomId: Int) {
         val currentLimit = mediaItemsLimit.value ?: 0
-        if (getMediaCount(roomId) > currentLimit) mediaItemsLimit.value = currentLimit + 50
+        if (getMediaCount(roomId) > currentLimit) mediaItemsLimit.value = currentLimit + MEDIA_LIMIT
 
         getAllMediaWithOffset(roomId = roomId)
     }

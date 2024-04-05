@@ -19,7 +19,9 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
 import androidx.core.content.ContextCompat.registerReceiver
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -120,33 +122,32 @@ class MediaFragment : BaseFragment() {
 
     private fun getAllPhotos() {
         lifecycleScope.launch {
-            // Use this below if you need to reload state when app gets back into focus
-//            repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.mediaState.collect { state ->
-                when (state) {
-                    is MediaScreenState.Success -> {
-                        if (state.media != null) {
-                            mediaList = state.media
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.mediaState.collect { state ->
+                    when (state) {
+                        is MediaScreenState.Success -> {
+                            if (state.media != null) {
+                                mediaList = state.media
 
-                            if (!mediaList.contains(message)) {
-                                viewModel.fetchNextMediaSet(roomId)
-                            } else {
-                                initializePagerAdapter()
-                                message?.let { setUpSelectedSmallMedia(it) }
+                                if (!mediaList.contains(message)) {
+                                    viewModel.fetchNextMediaSet(roomId)
+                                } else {
+                                    initializePagerAdapter()
+                                    message?.let { setUpSelectedSmallMedia(it) }
+                                }
                             }
                         }
-                    }
 
-                    is MediaScreenState.Error -> {
-                        // Ignore
-                    }
+                        is MediaScreenState.Error -> {
+                            // Ignore
+                        }
 
-                    is MediaScreenState.Loading -> {
-                        // ignore
-                    }
+                        is MediaScreenState.Loading -> {
+                            // ignore
+                        }
 
+                    }
                 }
-//                }
             }
         }
     }
