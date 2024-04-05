@@ -24,6 +24,9 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.ui.main.chat.ChatAdapter
 import com.clover.studio.spikamessenger.utils.Const
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.shape.CornerFamily
+import com.google.android.material.shape.ShapeAppearanceModel
 import timber.log.Timber
 
 const val MAX_REACTIONS = 3
@@ -63,7 +66,7 @@ object ChatAdapterHelper {
     fun loadMedia(
         context: Context,
         mediaPath: String,
-        mediaImage: ImageView,
+        mediaImage: ShapeableImageView,
         loadingProgress: ProgressBar?,
         height: Int,
         width: Int,
@@ -82,6 +85,8 @@ object ChatAdapterHelper {
         }
 
         loadingProgress?.indeterminateTintList = ColorStateList.valueOf(color)
+
+        setAppearanceModel(imageView = mediaImage, context = context, sender = sender)
 
         Glide.with(context)
             .load(mediaPath)
@@ -112,6 +117,25 @@ object ChatAdapterHelper {
                 }
             })
             .into(mediaImage)
+    }
+
+    private fun setAppearanceModel(
+        imageView: ShapeableImageView,
+        context: Context,
+        sender: Boolean
+    ) {
+        val shape = ShapeAppearanceModel().toBuilder()
+
+        val cornerRadius = context.resources.getDimension(R.dimen.eight_dp_margin)
+        shape.setAllCorners(CornerFamily.ROUNDED, cornerRadius)
+
+        if (sender) {
+            shape.setBottomRightCornerSize(0f)
+        } else {
+            shape.setBottomLeftCornerSize(0f)
+        }
+
+        imageView.shapeAppearanceModel = shape.build()
     }
 
     private fun convertToDp(context: Context, dp: Int): Int {

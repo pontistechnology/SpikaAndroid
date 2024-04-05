@@ -75,9 +75,20 @@ class ReplyLayout(context: Context) :
         }
 
         when (chatMessage.message.referenceMessage?.type) {
-            /**Image or video type*/
+            /**Image, gif or video type*/
             Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                if (chatMessage.message.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
+                if (chatMessage.message.referenceMessage?.body?.file?.mimeType?.contains(Const.FileExtensions.GIF) == true) {
+                    tvReplyMedia.text = context.getString(
+                        R.string.media,
+                        context.getString(R.string.gif)
+                    )
+                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.img_gif_small,
+                        0,
+                        0,
+                        0
+                    )
+                } else if (chatMessage.message.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
                     tvReplyMedia.text = context.getString(
                         R.string.media,
                         context.getString(R.string.photo)

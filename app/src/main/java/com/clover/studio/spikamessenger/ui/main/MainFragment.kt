@@ -14,6 +14,7 @@ import com.clover.studio.spikamessenger.ui.main.rooms.RoomsFragment
 import com.clover.studio.spikamessenger.ui.main.settings.SettingsFragment
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 
@@ -91,5 +92,20 @@ class MainFragment : BaseFragment() {
         for (i in icons.indices) {
             binding.tabLayout.getTabAt(i)?.setIcon(icons[i])
         }
+
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                // Ignore
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+                // Ignore
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                val position = tab?.position ?: return
+                viewModel.setIsRoomRefreshing(position == 0)
+            }
+        })
     }
 }

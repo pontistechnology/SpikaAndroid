@@ -2,8 +2,10 @@ package com.clover.studio.spikamessenger.ui.main.chat.chat_layouts
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.databinding.PreviewLayoutBinding
@@ -39,8 +41,10 @@ class PreviewLayout(context: Context) : ConstraintLayout(context) {
         if (chatMessage.message.body?.thumbnailData?.image?.isNotEmpty() == true) {
             Glide.with(context)
                 .load(chatMessage.message.body.thumbnailData?.image)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(R.drawable.img_image_placeholder)
                 .into(ivPreviewImage)
+            ivPreviewImage.visibility = View.VISIBLE
         }
 
         tvTitle.text = chatMessage.message.body?.thumbnailData?.title

@@ -39,10 +39,10 @@ class AppearanceSettings : BaseFragment() {
         )
 
         optionList = mutableListOf(
-            UserOptionsData(getString(R.string.theme_dark_marine), null, null, false, false),
-            UserOptionsData(getString(R.string.theme_light_marine), null, null, false, false),
-            UserOptionsData(getString(R.string.theme_neon), null, null, false, false),
-            UserOptionsData(getString(R.string.theme_light_green), null, null, false, false)
+            UserOptionsData(getString(R.string.theme_dark_marine)),
+            UserOptionsData(getString(R.string.theme_light_marine)),
+            UserOptionsData(getString(R.string.theme_neon)),
+            UserOptionsData(getString(R.string.theme_light_green))
         )
 
         initializeViews()
@@ -51,7 +51,7 @@ class AppearanceSettings : BaseFragment() {
     }
 
     private fun initializeViews() = with(binding) {
-        binding.ivBack.setOnClickListener {
+        ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
@@ -77,7 +77,6 @@ class AppearanceSettings : BaseFragment() {
     }
 
     private fun getActiveTheme() {
-        // TODO maybe extract this in Tools
         val theme = when (viewModel.getUserTheme()) {
             Const.Themes.MINT_THEME -> getString(R.string.theme_light_green)
             Const.Themes.NEON_THEME -> getString(R.string.theme_neon)
