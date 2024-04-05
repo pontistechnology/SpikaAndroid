@@ -104,7 +104,7 @@ class MainFragment : BaseFragment() {
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
                 val position = tab?.position ?: return
-                viewModel.isRoomRefreshing.value = position == 0
+                viewModel.setIsRoomRefreshing(position == 0)
             }
         })
     }

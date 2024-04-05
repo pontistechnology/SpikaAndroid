@@ -10,6 +10,9 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,6 +30,7 @@ import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class RoomsFragment : BaseFragment() {
@@ -73,9 +77,11 @@ class RoomsFragment : BaseFragment() {
     }
 
     private fun initializeObservers() {
-        viewModel.isRoomRefreshing.observe(viewLifecycleOwner){
-            if (it && userSearching){
-                binding.topAppBar.collapseActionView()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isRoomRefreshing.collect {
+                    if (it && userSearching) binding.topAppBar.collapseActionView()
+                }
             }
         }
 

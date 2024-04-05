@@ -32,6 +32,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -63,10 +65,17 @@ class MainViewModel @Inject constructor(
     val recentGroupsListener = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
     val roomUsers: MutableList<PrivateGroupChats> = ArrayList()
 
-    val isRoomRefreshing = MutableLiveData(false)
+    private val _isRoomRefreshing = MutableSharedFlow<Boolean>()
+    val isRoomRefreshing = _isRoomRefreshing.asSharedFlow()
 
     init {
         sseManager.setupListener(this)
+    }
+
+    fun setIsRoomRefreshing(isActive: Boolean) {
+        viewModelScope.launch {
+            _isRoomRefreshing.emit(isActive)
+        }
     }
 
     fun getLocalUser() = liveData {
