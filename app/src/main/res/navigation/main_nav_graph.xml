@@ -66,6 +66,9 @@
         <action
             android:id="@+id/action_contactDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />
+        <action
+            android:id="@+id/action_contactDetailsFragment_to_mediaLinksDocsFragment"
+            app:destination="@id/mediaLinksDocsFragment" />
     </fragment>
 
     <fragment
@@ -122,4 +125,13 @@
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.AppearanceSettings"
         android:label="fragment_appearance_settings"
         tools:layout="@layout/fragment_appearance_settings" />
+    <fragment
+        android:id="@+id/mediaLinksDocsFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.chat.media_links_docs.MediaLinksDocsFragment"
+        android:label="fragment_media_links_docs"
+        tools:layout="@layout/fragment_media_links_docs" >
+        <argument
+            android:name="roomWithUsers"
+            app:argType="com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers" />
+    </fragment>
 </navigation>

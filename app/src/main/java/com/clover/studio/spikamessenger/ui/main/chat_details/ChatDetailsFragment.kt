@@ -280,6 +280,19 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
         optionList = mutableListOf(
             UserOptionsData(
+                option = getString(R.string.media_links_docs),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_media_links_docs
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_arrow_forward
+                ),
+                switchOption = false,
+                isSwitched = false,
+            ),
+            UserOptionsData(
                 option = getString(R.string.notes),
                 firstDrawable = AppCompatResources.getDrawable(
                     requireContext(),
@@ -354,6 +367,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         userOptions.setOptionsListener(object : UserOptions.OptionsListener {
             override fun clickedOption(option: Int, optionName: String) {
                 when (optionName) {
+                    getString(R.string.media_links_docs) -> goToMediaLinksDocs()
                     getString(R.string.notes) -> goToNotes()
                     getString(R.string.delete_chat) -> goToDeleteChat()
                     getString(R.string.exit_group) -> goToExitGroup()
@@ -435,6 +449,8 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
     }
+
+    private fun goToMediaLinksDocs() = roomId?.let { roomWithUsers?.let { it1 -> ChatDetailsFragmentDirections.actionChatDetailsFragmentToMediaLinksDocsFragment(roomWithUsers = it1) } }
 
     private fun goToNotes() {
         val action = roomId?.let { id ->
