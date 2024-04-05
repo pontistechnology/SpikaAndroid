@@ -39,6 +39,10 @@ import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -55,12 +59,15 @@ class MediaFragment : BaseFragment() {
     private var roomId: Int = 0
     private var roomUsers: List<User>? = null
     private var localUserId: Int = 0
-    private var isFetching = false
 
     private var mediaList: List<Message> = arrayListOf()
 
     private var mediaPagerAdapter: MediaPagerAdapter? = null
     private var smallMediaAdapter: SmallMediaAdapter? = null
+
+    private val linearLayoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
+
+    private var scrollJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +88,7 @@ class MediaFragment : BaseFragment() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
         initializeListeners()
+        setUpSmallMediaAdapter()
         getAllPhotos()
         message?.let { setMediaInfo(it) }
 
@@ -124,7 +132,7 @@ class MediaFragment : BaseFragment() {
                                 viewModel.fetchNextMediaSet(roomId)
                             } else {
                                 initializePagerAdapter()
-                                setUpSmallMediaAdapter()
+                                message?.let { setUpSelectedSmallMedia(it) }
                             }
                         }
                     }
@@ -169,7 +177,6 @@ class MediaFragment : BaseFragment() {
                 setMediaInfo(mediaList[position])
             }
         })
-
     }
 
     private fun setMediaInfo(chatMessage: Message) {
@@ -195,7 +202,6 @@ class MediaFragment : BaseFragment() {
             viewPager.setCurrentItem(mediaList.indexOf(it), false)
         }
 
-        val linearLayoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
         rvSmallMedia.apply {
             itemAnimator = null
             adapter = smallMediaAdapter
@@ -205,21 +211,19 @@ class MediaFragment : BaseFragment() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
 
-                    val lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition()
-                    val totalItemCount = linearLayoutManager.itemCount
+                    scrollJob?.cancel()
+                    scrollJob = CoroutineScope(Dispatchers.Main).launch {
+                        delay(500)
+                        val lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition()
+                        val totalItemCount = linearLayoutManager.itemCount
 
-                    if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
-                        viewModel.fetchNextMediaSet(roomId = roomId)
-                        isFetching = true
-
-                    } else if (lastVisiblePosition != totalItemCount - 1) {
-                        isFetching = false
+                        if (lastVisiblePosition > 0 && lastVisiblePosition == totalItemCount - 1) {
+                            viewModel.fetchNextMediaSet(roomId = roomId)
+                        }
                     }
                 }
             })
         }
-
-        message?.let { setUpSelectedSmallMedia(it) }
     }
 
     private fun setUpSelectedSmallMedia(selectedMessage: Message) {
@@ -227,6 +231,7 @@ class MediaFragment : BaseFragment() {
             setSelectedSmallMedia(mediaList.indexOf(selectedMessage))
             submitList(mediaList)
         }
+
         binding.rvSmallMedia.scrollToPosition(mediaList.indexOf(selectedMessage))
     }
 

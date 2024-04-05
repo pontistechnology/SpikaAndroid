@@ -44,7 +44,7 @@ class ChatViewModel @Inject constructor(
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val forwardListener = MutableLiveData<Event<Resource<ForwardMessagesResponse?>>>()
     private val liveDataLimit = MutableLiveData(20)
-    private val mediaItemsLimit = MutableLiveData(10)
+    private val mediaItemsLimit = MutableLiveData(50)
     val messageNotFound = MutableLiveData(false)
     val messagesReceived = MutableLiveData<List<Message>>()
     val searchMessageId = MutableLiveData(0)
@@ -308,7 +308,7 @@ class ChatViewModel @Inject constructor(
 
     fun fetchNextMediaSet(roomId: Int) {
         val currentLimit = mediaItemsLimit.value ?: 0
-        if (getMediaCount(roomId) > currentLimit) mediaItemsLimit.value = currentLimit + 5
+        if (getMediaCount(roomId) > currentLimit) mediaItemsLimit.value = currentLimit + 50
 
         getAllMediaWithOffset(roomId = roomId)
     }
