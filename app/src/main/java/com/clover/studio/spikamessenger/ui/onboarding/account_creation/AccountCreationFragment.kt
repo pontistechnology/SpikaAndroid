@@ -261,7 +261,9 @@ class AccountCreationFragment : BaseFragment() {
                             null
                         ),
                         object : FileUploadListener {
-                            override fun filePieceUploaded() {}
+                            override fun filePieceUploaded() {
+                                Timber.d("File piece uploaded")
+                            }
 
                             override fun fileUploadError(description: String) {
                                 Timber.d("Upload Error")

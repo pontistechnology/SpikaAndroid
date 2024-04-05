@@ -449,7 +449,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
 
     override fun onPause() {
         showUserDetails()
-        uploadingInProgress = false
+        if (!bound) uploadingInProgress = false
         super.onPause()
     }
 
@@ -473,6 +473,10 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                 requireActivity().runOnUiThread {
                     showUploadError(description)
                 }
+                Glide.with(this@SettingsFragment)
+                    .load(R.drawable.img_user_avatar)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(binding.profilePicture.ivPickAvatar)
             }
 
             override fun avatarUploadFinished(fileId: Long) {

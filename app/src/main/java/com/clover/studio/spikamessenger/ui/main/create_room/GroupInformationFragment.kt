@@ -267,6 +267,7 @@ class GroupInformationFragment : BaseFragment() {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
                         binding.profilePicture.flProgressScreen.visibility = View.GONE
+                        progressAnimation?.stop()
                     }
                     avatarFileId = it.responseData?.fileId
                     setUpDoneButton(uploading = false)
@@ -370,6 +371,7 @@ class GroupInformationFragment : BaseFragment() {
                 }
             })
         binding.profilePicture.flProgressScreen.visibility = View.GONE
+        progressAnimation?.stop()
         currentPhotoLocation = Uri.EMPTY
         Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
     }
