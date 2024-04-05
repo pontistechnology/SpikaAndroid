@@ -45,7 +45,7 @@ class ChatRepositoryImpl @Inject constructor(
         performRestOperation(
             networkCall = { chatRemoteDataSource.sendMessage(jsonObject) })
 
-    suspend fun sendMessageNotificationReply(jsonObject: JsonObject, localId: String) {
+    override suspend fun sendMessageNotificationReply(jsonObject: JsonObject, localId: String) {
         val response = performRestOperation(
             networkCall = { chatRemoteDataSource.sendMessage(jsonObject) })
         updateMessageStatus(response.status.toString(), localId)
@@ -338,6 +338,7 @@ interface ChatRepository : BaseRepository {
     suspend fun sendMessagesSeen(roomId: Int)
     suspend fun deleteMessage(messageId: Int, target: String)
     suspend fun editMessage(messageId: Int, jsonObject: JsonObject)
+    suspend fun sendMessageNotificationReply(jsonObject: JsonObject, localId: String)
     fun getMessagesAndRecords(
         roomId: Int,
         limit: Int,

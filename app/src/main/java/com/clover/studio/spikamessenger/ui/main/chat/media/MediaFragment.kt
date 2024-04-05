@@ -19,6 +19,9 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
 import androidx.core.content.ContextCompat.registerReceiver
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,17 +32,20 @@ import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentMediaBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
+import com.clover.studio.spikamessenger.ui.main.chat.MediaScreenState
 import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Const.MediaActions.Companion.MEDIA_DOWNLOAD
 import com.clover.studio.spikamessenger.utils.Const.MediaActions.Companion.MEDIA_SHOW_BARS
-import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
-import com.clover.studio.spikamessenger.utils.helpers.Resource
-import timber.log.Timber
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 
 const val BAR_ANIMATION = 500L
@@ -55,12 +61,15 @@ class MediaFragment : BaseFragment() {
     private var roomId: Int = 0
     private var roomUsers: List<User>? = null
     private var localUserId: Int = 0
-    private var isFetching = false
 
     private var mediaList: List<Message> = arrayListOf()
 
     private var mediaPagerAdapter: MediaPagerAdapter? = null
     private var smallMediaAdapter: SmallMediaAdapter? = null
+
+    private val linearLayoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
+
+    private var scrollJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +90,7 @@ class MediaFragment : BaseFragment() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
         initializeListeners()
+        setUpSmallMediaAdapter()
         getAllPhotos()
         message?.let { setMediaInfo(it) }
 
@@ -111,26 +121,35 @@ class MediaFragment : BaseFragment() {
     }
 
     private fun getAllPhotos() {
-        viewModel.mediaListener.observe(viewLifecycleOwner,
-            EventObserver { media ->
-                when (media.status) {
-                    Resource.Status.SUCCESS -> {
-                        if (media.responseData != null) {
-                            mediaList = media.responseData
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.mediaState.collect { state ->
+                    when (state) {
+                        is MediaScreenState.Success -> {
+                            if (state.media != null) {
+                                mediaList = state.media
 
-                            if (!mediaList.contains(message)) {
-                                viewModel.fetchNextMediaSet(roomId)
-                            } else {
-                                initializePagerAdapter()
-                                setUpSmallMediaAdapter()
+                                if (!mediaList.contains(message)) {
+                                    viewModel.fetchNextMediaSet(roomId)
+                                } else {
+                                    initializePagerAdapter()
+                                    message?.let { setUpSelectedSmallMedia(it) }
+                                }
                             }
                         }
-                    }
 
-                    else -> Timber.d("Media error")
+                        is MediaScreenState.Error -> {
+                            // Ignore
+                        }
+
+                        is MediaScreenState.Loading -> {
+                            // ignore
+                        }
+
+                    }
                 }
             }
-        )
+        }
     }
 
     private fun initializePagerAdapter() = with(binding) {
@@ -152,14 +171,13 @@ class MediaFragment : BaseFragment() {
 
                 message = mediaList[position]
 
-                if (position == smallMediaAdapter?.itemCount) {
+                if (position == smallMediaAdapter?.itemCount?.minus(1)) {
                     viewModel.fetchNextMediaSet(roomId = roomId)
                 }
 
                 setMediaInfo(mediaList[position])
             }
         })
-
     }
 
     private fun setMediaInfo(chatMessage: Message) {
@@ -185,7 +203,6 @@ class MediaFragment : BaseFragment() {
             viewPager.setCurrentItem(mediaList.indexOf(it), false)
         }
 
-        val linearLayoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
         rvSmallMedia.apply {
             itemAnimator = null
             adapter = smallMediaAdapter
@@ -195,22 +212,19 @@ class MediaFragment : BaseFragment() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
 
-                    val lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition()
-                    val totalItemCount = linearLayoutManager.itemCount
+                    scrollJob?.cancel()
+                    scrollJob = CoroutineScope(Dispatchers.Main).launch {
+                        delay(500)
+                        val lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition()
+                        val totalItemCount = linearLayoutManager.itemCount
 
-                    if (lastVisiblePosition == totalItemCount - 1 && !isFetching) {
-
-                        viewModel.fetchNextMediaSet(roomId = roomId)
-                        isFetching = true
-
-                    } else if (lastVisiblePosition != totalItemCount - 1) {
-                        isFetching = false
+                        if (lastVisiblePosition > 0 && lastVisiblePosition == totalItemCount - 1) {
+                            viewModel.fetchNextMediaSet(roomId = roomId)
+                        }
                     }
                 }
             })
         }
-
-        message?.let { setUpSelectedSmallMedia(it) }
     }
 
     private fun setUpSelectedSmallMedia(selectedMessage: Message) {
@@ -218,6 +232,7 @@ class MediaFragment : BaseFragment() {
             setSelectedSmallMedia(mediaList.indexOf(selectedMessage))
             submitList(mediaList)
         }
+
         binding.rvSmallMedia.scrollToPosition(mediaList.indexOf(selectedMessage))
     }
 

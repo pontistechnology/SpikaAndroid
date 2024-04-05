@@ -126,7 +126,7 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getDistinctRoomsUnreadCount() }
         )
 
-    suspend fun syncContacts(shouldRefresh: Boolean): Resource<ContactsSyncResponse> {
+    override suspend fun syncContacts(shouldRefresh: Boolean): Resource<ContactsSyncResponse> {
         return syncContacts(
             userDao,
             shouldRefresh,
@@ -283,7 +283,7 @@ class MainRepositoryImpl @Inject constructor(
         limit: Int,
         offset: Int
     ) =
-        queryDatabaseCoreData (
+        queryDatabaseCoreData(
             databaseQuery = { chatRoomDao.getAllMediaWithOffset(roomId, limit, offset) }
         )
 
@@ -480,4 +480,7 @@ interface MainRepository : BaseRepository {
 
     // Search calls
     suspend fun getSearchedMessages(query: String): Resource<List<MessageWithRoom>>
+
+    // Sync calls
+    suspend fun syncContacts(shouldRefresh: Boolean): Resource<ContactsSyncResponse>
 }

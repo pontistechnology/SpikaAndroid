@@ -172,7 +172,8 @@ class SSERepositoryImpl @Inject constructor(
                     for (message in messages) {
                         message.handleReferenceMessage()
                     }
-                    messageDao.upsert(messages) }
+                    messageDao.upsert(messages)
+                }
             },
             shouldSyncMore = {
                 it.data?.hasNext == true
@@ -288,7 +289,7 @@ class SSERepositoryImpl @Inject constructor(
         )
     }
 
-    suspend fun syncContacts(shouldRefresh: Boolean = false) {
+    override suspend fun syncContacts(shouldRefresh: Boolean) {
         syncContacts(userDao, shouldRefresh, sharedPrefs, sseRemoteDataSource)
     }
 
@@ -480,7 +481,12 @@ class SSERepositoryImpl @Inject constructor(
                     )
                     if (filteredList?.isNotEmpty() == true) {
                         queryDatabaseCoreData(
-                            databaseQuery = { roomUserDao.deleteRoomUsers(filteredList, room.roomId) }
+                            databaseQuery = {
+                                roomUserDao.deleteRoomUsers(
+                                    filteredList,
+                                    room.roomId
+                                )
+                            }
                         )
                     }
                     queryDatabaseCoreData(
@@ -591,6 +597,7 @@ class SSERepositoryImpl @Inject constructor(
 interface SSERepository : BaseRepository {
     suspend fun syncMessageRecords()
     suspend fun syncMessages()
+    suspend fun syncContacts(shouldRefresh: Boolean = false)
     suspend fun syncUsers()
     suspend fun syncRooms()
     suspend fun sendMessageDelivered(messageId: Int)

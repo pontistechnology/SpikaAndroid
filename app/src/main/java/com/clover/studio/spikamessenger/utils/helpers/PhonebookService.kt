@@ -9,7 +9,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.ContactsContract
-import com.clover.studio.spikamessenger.data.repositories.SSERepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.SSERepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +20,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class PhonebookService : Service() {
     @Inject
-    lateinit var sseRepository: SSERepositoryImpl
+    lateinit var sseRepository: SSERepository
 
     private lateinit var phonebookObserver: PhonebookObserver
 

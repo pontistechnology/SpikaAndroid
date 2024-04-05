@@ -12,7 +12,7 @@ import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.entity.RecordMessage
 import com.clover.studio.spikamessenger.data.models.networking.responses.StreamingResponse
-import com.clover.studio.spikamessenger.data.repositories.SSERepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.SSERepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.utils.helpers.GsonProvider
 import kotlinx.coroutines.*
@@ -25,7 +25,7 @@ import javax.inject.Inject
 import javax.net.ssl.HttpsURLConnection
 
 class SSEManager @Inject constructor(
-    private val repo: SSERepositoryImpl,
+    private val repo: SSERepository,
     private val sharedPrefs: SharedPreferencesRepository,
 ) {
     private var job: Job? = null
