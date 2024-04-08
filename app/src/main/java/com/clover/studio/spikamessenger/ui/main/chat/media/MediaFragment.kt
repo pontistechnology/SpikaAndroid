@@ -90,6 +90,7 @@ class MediaFragment : BaseFragment() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
         initializeListeners()
+        initializePagerAdapter()
         setUpSmallMediaAdapter()
         getAllPhotos()
         message?.let { setMediaInfo(it) }
@@ -132,7 +133,8 @@ class MediaFragment : BaseFragment() {
                                 if (!mediaList.contains(message)) {
                                     viewModel.fetchNextMediaSet(roomId)
                                 } else {
-                                    initializePagerAdapter()
+                                    mediaPagerAdapter?.submitNewList(mediaList)
+                                    binding.viewPager.setCurrentItem(mediaList.indexOf(message), false)
                                     message?.let { setUpSelectedSmallMedia(it) }
                                 }
                             }
@@ -154,16 +156,21 @@ class MediaFragment : BaseFragment() {
 
     private fun initializePagerAdapter() = with(binding) {
         mediaPagerAdapter =
-            MediaPagerAdapter(requireContext(), mediaList, onItemClicked = { event, message ->
-                when (event) {
-                    MEDIA_SHOW_BARS -> showBar()
-                    MEDIA_DOWNLOAD -> downloadMedia(message)
-                }
-            })
+            MediaPagerAdapter(
+                requireContext(),
+                mediaList.toMutableList(),
+                onItemClicked = { event, message ->
+                    when (event) {
+                        MEDIA_SHOW_BARS -> showBar()
+                        MEDIA_DOWNLOAD -> downloadMedia(message)
+                    }
+                })
 
         viewPager.adapter = mediaPagerAdapter
 
-        viewPager.setCurrentItem(mediaList.indexOf(message), false)
+        // This line stops item animation when a new list is being added to the adapter
+        viewPager.setPageTransformer { _, _ -> }
+
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)

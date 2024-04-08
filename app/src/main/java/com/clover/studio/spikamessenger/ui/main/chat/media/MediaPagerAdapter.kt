@@ -27,13 +27,23 @@ import timber.log.Timber
 
 class MediaPagerAdapter(
     private val context: Context,
-    private val mediaList: List<Message>,
+    private val mediaList: MutableList<Message>,
     private val onItemClicked: (event: String, message: Message) -> Unit
 ) :
     RecyclerView.Adapter<MediaPagerAdapter.MediaViewHolder>() {
 
     private var player: ExoPlayer? = null
     private var playbackStateListener: Player.Listener = playbackStateListener()
+
+    // The new list will always contain all of the previous and new images. Therefore, we are
+    // first clearing the list of all data and then submitting a new one.
+    fun submitNewList(media: List<Message>) {
+        if (media.isNotEmpty()) {
+            mediaList.clear()
+            mediaList.addAll(media)
+        }
+        notifyItemRangeChanged(0, media.size)
+    }
 
     inner class MediaViewHolder(val binding: ItemMediaBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -94,7 +104,7 @@ class MediaPagerAdapter(
         }
     }
 
-    private fun bindMediaImage(binding: ItemMediaBinding, position: Int) = with(binding){
+    private fun bindMediaImage(binding: ItemMediaBinding, position: Int) = with(binding) {
         clImageContainer.visibility = View.VISIBLE
         ivFullImage.setOnClickListener { _ ->
             onItemClicked.invoke(Const.MediaActions.MEDIA_SHOW_BARS, mediaList[position])
