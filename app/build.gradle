@@ -45,7 +45,7 @@ android {
         applicationId "com.clover.studio.spikamessenger"
         minSdk 24
         targetSdk 34
-        versionCode 121007
+        versionCode 121008
         versionName "1.2.1"
 
         kapt {
