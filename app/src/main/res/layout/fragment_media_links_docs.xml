@@ -14,8 +14,10 @@
         android:padding="@dimen/sixteen_dp_margin">
 
         <ImageView
+            android:id="@+id/iv_back_arrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="@dimen/ten_dp_margin"
             android:src="@drawable/img_arrow_back_chat" />
 
         <TextView
@@ -23,8 +25,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center_horizontal"
+            android:gravity="center"
             android:text="@string/username"
+            android:padding="@dimen/ten_dp_margin"
             android:textAppearance="@style/CustomTextBody"
             android:textSize="22sp" />
 

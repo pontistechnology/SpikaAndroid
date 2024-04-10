@@ -450,7 +450,9 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         }
     }
 
-    private fun goToMediaLinksDocs() = roomId?.let { roomWithUsers?.let { it1 -> ChatDetailsFragmentDirections.actionChatDetailsFragmentToMediaLinksDocsFragment(roomWithUsers = it1) } }
+    private fun goToMediaLinksDocs()  {
+        roomId?.let { roomWithUsers?.let { it1 -> findNavController().navigate(ChatDetailsFragmentDirections.actionChatDetailsFragmentToMediaLinksDocsFragment(roomWithUsers = it1)) } }
+    }
 
     private fun goToNotes() {
         val action = roomId?.let { id ->

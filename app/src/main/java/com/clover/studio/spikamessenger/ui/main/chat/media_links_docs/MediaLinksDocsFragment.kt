@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentMediaLinksDocsBinding
@@ -16,7 +17,6 @@ class MediaLinksDocsFragment : Fragment() {
     private lateinit var binding: FragmentMediaLinksDocsBinding
     private var roomsWithUsers : RoomWithUsers? = null
     private val args: MediaLinksDocsFragmentArgs by navArgs()
-
 
     private val tabNames = arrayOf("Media", "Links", "Docs")
 
@@ -45,6 +45,9 @@ class MediaLinksDocsFragment : Fragment() {
 
     private fun initializeViews() {
         binding.tvTitle.text = roomsWithUsers?.room?.name
+        binding.ivBackArrow.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 
     private fun initializePager() {
