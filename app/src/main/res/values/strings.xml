@@ -331,4 +331,5 @@
 
     <!-- Gifs -->
     <string name="preparing_gifs">Preparing gif</string>
+    <string name="add_a_caption">Add a caption…</string>
 </resources>

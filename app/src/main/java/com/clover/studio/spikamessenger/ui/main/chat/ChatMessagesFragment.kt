@@ -1554,6 +1554,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     // TODO @Matko this needs to be called after we are done with media manipulation
+    // TODO @Matko think about sending the list too
     /** Files uploading */
     private fun handleUserSelectedFile(
         selectedFilesUris: MutableList<Uri>,
