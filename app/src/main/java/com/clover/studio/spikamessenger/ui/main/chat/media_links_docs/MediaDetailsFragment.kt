@@ -8,6 +8,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.data.models.entity.Message
@@ -19,7 +20,6 @@ import com.clover.studio.spikamessenger.ui.main.chat.MediaScreenState
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
 
@@ -47,13 +47,18 @@ class MediaDetailsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFra
         setUpAdapter()
         initializeListeners()
         getAllPhotos()
-        Timber.d("Media details: $roomsWithUsers")
     }
 
     private fun setUpAdapter() {
         gridLayoutManager = GridLayoutManager(activity, 3)
+
         mediaAdapter = MediaAdapter(requireContext()) {
-            // On click open image
+            findNavController().navigate(
+                MediaLinksDocsFragmentDirections.actionMediaLinksDocsFragmentToMediaFragment(
+                    message = it,
+                    roomWithUsers = roomsWithUsers
+                )
+            )
         }
 
         binding.rvMediaItems.apply {

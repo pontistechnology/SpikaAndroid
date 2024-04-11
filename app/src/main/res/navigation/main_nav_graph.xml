@@ -133,5 +133,26 @@
         <argument
             android:name="roomWithUsers"
             app:argType="com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers" />
+        <action
+            android:id="@+id/action_mediaLinksDocsFragment_to_mediaFragment"
+            app:destination="@id/mediaFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mediaFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.chat.media.MediaFragment"
+        android:label="fragment_media"
+        tools:layout="@layout/fragment_media">
+        <argument
+            android:name="message"
+            app:argType="com.clover.studio.spikamessenger.data.models.entity.Message" />
+        <argument
+            android:name="localUserId"
+            android:defaultValue="0"
+            app:argType="integer" />
+        <argument
+            android:name="roomWithUsers"
+            android:defaultValue="@null"
+            app:argType="com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers"
+            app:nullable="true" />
     </fragment>
 </navigation>

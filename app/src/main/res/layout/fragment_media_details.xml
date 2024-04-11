@@ -12,5 +12,7 @@
         android:layout_height="match_parent"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:spanCount="3"
-        tools:listitem="@layout/media_items" />
+        tools:listitem="@layout/media_items"
+        android:layout_marginStart="@dimen/two_dp_margin"
+        android:layout_marginEnd="@dimen/two_dp_margin"/>
 </FrameLayout>

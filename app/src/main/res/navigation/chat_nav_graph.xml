@@ -144,5 +144,8 @@
         <argument
             android:name="roomWithUsers"
             app:argType="com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers" />
+        <action
+            android:id="@+id/action_mediaLinksDocsFragment_to_mediaFragment"
+            app:destination="@id/mediaFragment" />
     </fragment>
 </navigation>
