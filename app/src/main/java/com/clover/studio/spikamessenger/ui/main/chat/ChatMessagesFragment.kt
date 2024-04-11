@@ -178,6 +178,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
 
     private var progressAnimation: AnimationDrawable? = null
 
+    // TODO @Matko these contracts need to open new medial media manipulation screen
     private val chooseFileContract =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
             if (!it.isNullOrEmpty()) {
@@ -1552,6 +1553,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         }
     }
 
+    // TODO @Matko this needs to be called after we are done with media manipulation
     /** Files uploading */
     private fun handleUserSelectedFile(
         selectedFilesUris: MutableList<Uri>,
@@ -1695,58 +1697,60 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                     thumbnailUris.removeFirst()
                 } else if (Const.JsonFields.VIDEO_TYPE == unsentMessage.type) {
                     Timber.d("Current media: $currentMediaLocation")
-                    unsentMessage.localId?.let {
-                        VideoCompression.compressVideoFile(
-                            currentMediaLocation,
-                            object : CompressionListener {
-                                override fun onCancelled(index: Int) {
-                                    // ignore
-                                }
 
-                                override fun onFailure(index: Int, failureMessage: String) {
-                                    // ignore
-                                }
-
-                                override fun onProgress(index: Int, percent: Float) {
-                                    // ignore
-                                }
-
-                                override fun onStart(index: Int) {
-                                    // ignore
-                                }
-
-                                override fun onSuccess(index: Int, size: Long, path: String?) {
-                                    Timber.d("Current media: $path")
-                                    Timber.d("Video compression success")
-
-                                    uploadFiles(
-                                        isThumbnail = true,
-                                        uri = thumbnailUris.first(),
-                                        localId = it,
-                                        metadata = unsentMessage.body?.file?.metaData
-                                    )
-                                    viewModel.updateThumbUri(
-                                        localId = it,
-                                        uri = thumbnailUris.first().toString()
-                                    )
-                                    // Send original image
-                                    path?.let {
-                                        val mediaPath = Tools.renameVideo(it, unsentMessage.localId)
-                                        Timber.d("Current media: $mediaPath")
-                                        if (mediaPath != null) {
-                                            uploadFiles(
-                                                isThumbnail = false,
-                                                uri = mediaPath,
-                                                localId = unsentMessage.localId,
-                                                metadata = unsentMessage.body?.file?.metaData
-                                            )
-                                        }
-                                    }
-                                    currentMediaLocation.removeFirst()
-                                    thumbnailUris.removeFirst()
-                                }
-                            })
-                    }
+                    // TODO @Matko return to this later
+//                    unsentMessage.localId?.let {
+//                        VideoCompression.compressVideoFile(
+//                            currentMediaLocation,
+//                            object : CompressionListener {
+//                                override fun onCancelled(index: Int) {
+//                                    // ignore
+//                                }
+//
+//                                override fun onFailure(index: Int, failureMessage: String) {
+//                                    // ignore
+//                                }
+//
+//                                override fun onProgress(index: Int, percent: Float) {
+//                                    // ignore
+//                                }
+//
+//                                override fun onStart(index: Int) {
+//                                    // ignore
+//                                }
+//
+//                                override fun onSuccess(index: Int, size: Long, path: String?) {
+//                                    Timber.d("Current media: $path")
+//                                    Timber.d("Video compression success")
+//
+//                                    uploadFiles(
+//                                        isThumbnail = true,
+//                                        uri = thumbnailUris.first(),
+//                                        localId = it,
+//                                        metadata = unsentMessage.body?.file?.metaData
+//                                    )
+//                                    viewModel.updateThumbUri(
+//                                        localId = it,
+//                                        uri = thumbnailUris.first().toString()
+//                                    )
+//                                    // Send original image
+//                                    path?.let {
+//                                        val mediaPath = Tools.renameVideo(it, unsentMessage.localId)
+//                                        Timber.d("Current media: $mediaPath")
+//                                        if (mediaPath != null) {
+//                                            uploadFiles(
+//                                                isThumbnail = false,
+//                                                uri = mediaPath,
+//                                                localId = unsentMessage.localId,
+//                                                metadata = unsentMessage.body?.file?.metaData
+//                                            )
+//                                        }
+//                                    }
+//                                    currentMediaLocation.removeFirst()
+//                                    thumbnailUris.removeFirst()
+//                                }
+//                            })
+//                    }
                 } else if (filesSelected.isNotEmpty()) {
                     // Send file or gif
                     val uri = if (Const.JsonFields.GIF_TYPE == unsentMessage.type) {
