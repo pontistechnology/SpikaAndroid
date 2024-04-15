@@ -287,6 +287,24 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getAllMediaWithOffset(roomId, limit, offset) }
         )
 
+    override suspend fun getAllLinksWithOffset(
+        roomId: Int,
+        limit: Int,
+        offset: Int
+    ) =
+        queryDatabaseCoreData (
+            databaseQuery = { chatRoomDao.getAllLinksWithOffset(roomId, limit, offset) }
+        )
+    override suspend fun getAllFilesWithOffset(
+        roomId: Int,
+        limit: Int,
+        offset: Int
+    ) =
+        queryDatabaseCoreData (
+            databaseQuery = { chatRoomDao.getAllFilesWithOffset(roomId, limit, offset) }
+        )
+
+
     override suspend fun getMediaCount(roomId: Int) = chatRoomDao.getMediaCount(roomId)
 
     override suspend fun getSearchedMessages(query: String) =
@@ -452,6 +470,8 @@ interface MainRepository : BaseRepository {
     suspend fun getRecentGroups(): Resource<List<RoomWithUsers>>
     suspend fun getAllGroups(): Resource<List<RoomWithUsers>>
     suspend fun getAllMediaWithOffset(roomId: Int, limit: Int, offset: Int): Resource<List<Message>>
+    suspend fun getAllLinksWithOffset(roomId: Int, limit: Int, offset: Int): Resource<List<Message>>
+    suspend fun getAllFilesWithOffset(roomId: Int, limit: Int, offset: Int): Resource<List<Message>>
     suspend fun getMediaCount(roomId: Int): Int
     suspend fun updateRoom(
         jsonObject: JsonObject,

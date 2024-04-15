@@ -5,13 +5,16 @@
 
     <TextView
         android:id="@+id/tv_title"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="?attr/primaryColor"
+        android:textColor="@color/white"
         android:gravity="start"
         android:padding="@dimen/eight_dp_margin"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:layout_marginBottom="@dimen/eight_dp_margin"
         android:textSize="@dimen/sixteen_sp_text"
         style="@style/CustomTitleBold"
-        android:text="Month date"/>
+        android:background="@drawable/bg_message_received"
+        android:backgroundTint="#40000000" />
 
 </FrameLayout>

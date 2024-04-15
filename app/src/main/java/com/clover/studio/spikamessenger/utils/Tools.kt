@@ -46,6 +46,7 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.AppDatabase
 import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.entity.Message
+import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
@@ -1038,5 +1039,51 @@ object Tools {
             retryButtonTextColor = ColorHelper.getPrimaryTextColor(context)
             retryButtonBackgroundColor = ColorHelper.getPrimaryColor(context)
         }
+    }
+
+    fun makeDateMessage(month: String): Message {
+        return Message(
+            id = 0,
+            fromUserId = null,
+            totalUserCount = null,
+            deliveredCount = null,
+            seenCount = null,
+            roomId = null,
+            type = Const.JsonFields.TEXT_TYPE,
+            body = MessageBody(
+                referenceMessage = null,
+                text = month,
+                thumbId = null,
+                fileId = null,
+                file = null,
+                thumb = null,
+                thumbnailData = null,
+                type = Const.JsonFields.TEXT_TYPE,
+                subject = null,
+                subjectId = null,
+                objectIds = null,
+                objects = null
+            ),
+            referenceMessage = null,
+            createdAt = null,
+            modifiedAt = null,
+            deleted = null,
+            replyId = null,
+            localId = null,
+            messageStatus = null,
+            uri = null,
+            thumbUri = null,
+            unreadCount = 0,
+            userName = "",
+            isForwarded = false
+        )
+    }
+
+    fun getMonthFromTimestamp(timestamp: Long): String {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timestamp
+        val month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())
+        val year = calendar.get(Calendar.YEAR)
+        return "$month $year"
     }
 }

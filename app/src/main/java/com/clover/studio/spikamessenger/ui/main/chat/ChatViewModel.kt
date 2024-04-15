@@ -58,6 +58,14 @@ class ChatViewModel @Inject constructor(
         MutableStateFlow(MediaScreenState.Loading)
     val mediaState = _mediaState.asStateFlow()
 
+    private val _linksState: MutableStateFlow<MediaScreenState> =
+        MutableStateFlow(MediaScreenState.Loading)
+    val linksState = _linksState.asStateFlow()
+
+    private val _filesState: MutableStateFlow<MediaScreenState> =
+        MutableStateFlow(MediaScreenState.Loading)
+    val filesState = _filesState.asStateFlow()
+
     init {
         sseManager.setupListener(this)
     }
@@ -292,28 +300,44 @@ class ChatViewModel @Inject constructor(
         mainRepository.cancelUpload(messageId)
     }
 
-    fun getAllMediaWithOffset(roomId: Int) = viewModelScope.launch {
-        val response = mainRepository.getAllMediaWithOffset(
-            roomId = roomId,
-            limit = mediaItemsLimit.value ?: 0,
-            offset = 0
-        )
+    fun getAllMediaItemsWithOffset(roomId: Int, mediaType: MediaType) = viewModelScope.launch {
+        val response = when (mediaType) {
+            MediaType.MEDIA -> mainRepository.getAllMediaWithOffset(roomId, mediaItemsLimit.value ?: 0, 0)
+            MediaType.LINKS -> mainRepository.getAllLinksWithOffset(roomId, mediaItemsLimit.value ?: 0, 0)
+            MediaType.FILES -> mainRepository.getAllFilesWithOffset(roomId, mediaItemsLimit.value ?: 0, 0)
+        }
 
         when (response.status) {
-            Resource.Status.SUCCESS -> _mediaState.value =
-                MediaScreenState.Success(response.responseData)
-
-            Resource.Status.ERROR -> _mediaState.value = MediaScreenState.Error(response.message)
-            Resource.Status.LOADING -> _mediaState.value = MediaScreenState.Loading
+            Resource.Status.SUCCESS -> {
+                when (mediaType) {
+                    MediaType.MEDIA -> _mediaState.value = MediaScreenState.Success(response.responseData)
+                    MediaType.LINKS -> _linksState.value = MediaScreenState.Success(response.responseData)
+                    MediaType.FILES -> _filesState.value = MediaScreenState.Success(response.responseData)
+                }
+            }
+            Resource.Status.ERROR -> {
+                when (mediaType) {
+                    MediaType.MEDIA -> _mediaState.value = MediaScreenState.Error(response.message)
+                    MediaType.LINKS -> _linksState.value = MediaScreenState.Error(response.message)
+                    MediaType.FILES -> _filesState.value = MediaScreenState.Error(response.message)
+                }
+            }
+            Resource.Status.LOADING -> {
+                when (mediaType) {
+                    MediaType.MEDIA -> _mediaState.value = MediaScreenState.Loading
+                    MediaType.LINKS -> _linksState.value = MediaScreenState.Loading
+                    MediaType.FILES -> _filesState.value = MediaScreenState.Loading
+                }
+            }
             else -> Timber.d("Other error")
         }
     }
 
-    fun fetchNextMediaSet(roomId: Int) {
+    fun fetchNextMediaSet(roomId: Int, mediaType: MediaType) {
         val currentLimit = mediaItemsLimit.value ?: 0
         if (getMediaCount(roomId) > currentLimit) mediaItemsLimit.value = currentLimit + MEDIA_LIMIT
 
-        getAllMediaWithOffset(roomId = roomId)
+        getAllMediaItemsWithOffset(roomId = roomId, mediaType = mediaType)
     }
 
     private fun getMediaCount(roomId: Int): Int {
@@ -340,6 +364,12 @@ class FileUploadVerified(
     val fileId: Long,
     val messageBody: MessageBody?,
 )
+
+enum class MediaType {
+    MEDIA,
+    LINKS,
+    FILES
+}
 
 sealed class MediaScreenState {
     data object Loading : MediaScreenState()
