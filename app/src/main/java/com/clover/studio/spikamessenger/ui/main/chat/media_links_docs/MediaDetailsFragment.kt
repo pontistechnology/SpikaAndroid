@@ -11,7 +11,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentMediaDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
@@ -55,7 +54,11 @@ class MediaDetailsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFra
     private fun setUpAdapter() {
         gridLayoutManager = GridLayoutManager(activity, 3)
 
-        mediaAdapter = MediaAdapter(requireContext()) {
+        mediaAdapter = MediaAdapter(
+            context = requireContext(),
+            mediaType = MediaType.MEDIA,
+            roomWithUsers = roomsWithUsers
+        ) {
             findNavController().navigate(
                 MediaLinksDocsFragmentDirections.actionMediaLinksDocsFragmentToMediaFragment(
                     message = it,
@@ -116,16 +119,7 @@ class MediaDetailsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFra
                     when (state) {
                         is MediaScreenState.Success -> {
                             if (state.media != null) {
-                                val groupedMediaList = mutableListOf<Message>()
-
-                                state.media
-                                    .sortedByDescending { it.createdAt }
-                                    .groupBy { Tools.getMonthFromTimestamp(it.createdAt ?: 0) }
-                                    .forEach { (month, mediaItems) ->
-                                        groupedMediaList.add(Tools.makeDateMessage(month))
-                                        groupedMediaList.addAll(mediaItems)
-                                    }
-
+                                val groupedMediaList = Tools.sortMediaItems(state.media)
                                 mediaAdapter?.submitList(groupedMediaList)
                             }
                         }
@@ -143,14 +137,4 @@ class MediaDetailsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFra
             }
         }
     }
-
-    // For testing
-//    private fun getMonthAndDayFromTimestamp(timestamp: Long): String {
-//        val calendar = Calendar.getInstance()
-//        calendar.timeInMillis = timestamp
-//        val month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())
-//        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
-//        val year = calendar.get(Calendar.YEAR)
-//        return "$month $dayOfMonth, $year"
-//    }
 }

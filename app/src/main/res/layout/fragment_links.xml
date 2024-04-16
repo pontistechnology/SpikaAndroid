@@ -5,10 +5,11 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.chat.media_links_docs.LinksFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_links"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
-
+        android:layout_marginStart="@dimen/two_dp_margin"
+        android:layout_marginEnd="@dimen/two_dp_margin"
+        tools:listitem="@layout/link_item" />
 </FrameLayout>

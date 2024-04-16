@@ -1041,7 +1041,21 @@ object Tools {
         }
     }
 
-    fun makeDateMessage(month: String): Message {
+    fun sortMediaItems(messages: List<Message>) : MutableList<Message>{
+        val groupedMediaList = mutableListOf<Message>()
+
+        messages
+            .sortedByDescending { it.createdAt }
+            .groupBy { getMonthAndDayFromTimestamp(it.createdAt ?: 0) }
+            .forEach { (month, mediaItems) ->
+                groupedMediaList.add(makeDateMessage(month))
+                groupedMediaList.addAll(mediaItems)
+            }
+
+        return groupedMediaList
+    }
+
+    private fun makeDateMessage(month: String): Message {
         return Message(
             id = 0,
             fromUserId = null,
@@ -1079,11 +1093,21 @@ object Tools {
         )
     }
 
-    fun getMonthFromTimestamp(timestamp: Long): String {
+    private fun getMonthFromTimestamp(timestamp: Long): String {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = timestamp
         val month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())
         val year = calendar.get(Calendar.YEAR)
         return "$month $year"
+    }
+
+    // For testing
+    private fun getMonthAndDayFromTimestamp(timestamp: Long): String {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timestamp
+        val month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())
+        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+        val year = calendar.get(Calendar.YEAR)
+        return "$month $dayOfMonth, $year"
     }
 }

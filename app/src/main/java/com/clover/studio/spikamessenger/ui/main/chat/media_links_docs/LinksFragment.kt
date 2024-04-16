@@ -8,14 +8,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.clover.studio.spikamessenger.data.models.entity.Message
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentLinksBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.MediaScreenState
 import com.clover.studio.spikamessenger.ui.main.chat.MediaType
-import com.clover.studio.spikamessenger.utils.Tools.getMonthFromTimestamp
-import com.clover.studio.spikamessenger.utils.Tools.makeDateMessage
+import com.clover.studio.spikamessenger.utils.Tools.sortMediaItems
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -24,13 +24,19 @@ class LinksFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment()
 
     private lateinit var binding: FragmentLinksBinding
     private val viewModel: ChatViewModel by activityViewModels()
+    private var mediaAdapter: MediaAdapter? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentLinksBinding.inflate(layoutInflater)
 
-        roomsWithUsers?.room?.roomId?.let { viewModel.getAllMediaItemsWithOffset(roomId = it, MediaType.LINKS) }
+        roomsWithUsers?.room?.roomId?.let {
+            viewModel.getAllMediaItemsWithOffset(
+                roomId = it,
+                MediaType.LINKS
+            )
+        }
 
         return binding.root
     }
@@ -40,6 +46,7 @@ class LinksFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment()
 
         Timber.d("Links details: $roomsWithUsers")
         getAllLinks()
+        setUpAdapter()
     }
 
     private fun getAllLinks() {
@@ -49,15 +56,8 @@ class LinksFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment()
                     when (state) {
                         is MediaScreenState.Success -> {
                             if (state.media != null) {
-                                val groupedMediaList = mutableListOf<Message>()
-
-                                state.media
-                                    .sortedByDescending { it.createdAt }
-                                    .groupBy { getMonthFromTimestamp(it.createdAt ?: 0) }
-                                    .forEach { (month, mediaItems) ->
-                                        groupedMediaList.add(makeDateMessage(month))
-                                        groupedMediaList.addAll(mediaItems)
-                                    }
+                                val groupedMediaList = sortMediaItems(state.media)
+                                mediaAdapter?.submitList(groupedMediaList)
                             }
                         }
 
@@ -70,8 +70,31 @@ class LinksFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment()
                         }
                     }
 
-                    }
                 }
             }
+        }
+    }
+
+    private fun setUpAdapter() {
+        mediaAdapter = MediaAdapter(
+            requireContext(),
+            roomWithUsers = roomsWithUsers,
+            mediaType = MediaType.LINKS
+        ) {
+            Timber.d("Clicked link")
+        }
+
+        binding.rvLinks.apply {
+            itemAnimator = null
+            isMotionEventSplittingEnabled = false
+            adapter = mediaAdapter
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            addItemDecoration(
+                StickyHeaderDecoration(
+                    parent = this,
+                    isHeader = { position -> mediaAdapter?.getItemViewType(position) == VIEW_TYPE_DATE_ITEM }
+                )
+            )
+        }
     }
 }
