@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/four_dp_margin"
+    android:padding="@dimen/two_dp_margin"
     android:background="?attr/secondaryColor">
 
     <TextView
@@ -10,8 +10,8 @@
         style="@style/CustomTitleBold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/eight_dp_margin"
-        android:layout_marginBottom="@dimen/eight_dp_margin"
+        android:layout_marginTop="@dimen/four_dp_margin"
+        android:layout_marginBottom="@dimen/four_dp_margin"
         android:gravity="start"
         android:padding="@dimen/eight_dp_margin"
         android:textColor="@color/white"

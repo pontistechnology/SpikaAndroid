@@ -8,6 +8,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -17,8 +18,8 @@ import com.clover.studio.spikamessenger.ui.main.chat.MediaScreenState
 import com.clover.studio.spikamessenger.ui.main.chat.MediaType
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
+import com.clover.studio.spikamessenger.utils.helpers.FilesHelper
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class DocsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment() {
 
@@ -79,8 +80,13 @@ class DocsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment() 
             context = requireContext(),
             mediaType = MediaType.FILES,
             roomWithUsers = roomsWithUsers
-        ) {
-            Timber.d("Clicked link")
+        ) { message, action ->
+            if (action.isNotEmpty()) {
+                FilesHelper.downloadFile(requireContext(), message = message)
+            } else {
+                viewModel.searchMessageId.value = message.id
+                findNavController().navigate(MediaLinksDocsFragmentDirections.actionMediaLinksDocsFragmentToChatMessagesFragment())
+            }
         }
 
         binding.rvFiles.apply {

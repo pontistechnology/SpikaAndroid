@@ -58,10 +58,10 @@ class MediaDetailsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFra
             context = requireContext(),
             mediaType = MediaType.MEDIA,
             roomWithUsers = roomsWithUsers
-        ) {
+        ) { message, _ ->
             findNavController().navigate(
                 MediaLinksDocsFragmentDirections.actionMediaLinksDocsFragmentToMediaFragment(
-                    message = it,
+                    message = message,
                     roomWithUsers = roomsWithUsers
                 )
             )

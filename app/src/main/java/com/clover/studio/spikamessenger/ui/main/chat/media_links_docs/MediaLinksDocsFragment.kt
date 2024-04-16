@@ -69,7 +69,5 @@ class MediaLinksDocsFragment : Fragment() {
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = tabNames[position]
         }.attach()
-
-
     }
 }

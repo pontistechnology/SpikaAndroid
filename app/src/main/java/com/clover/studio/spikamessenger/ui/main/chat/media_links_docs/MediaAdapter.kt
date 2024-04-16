@@ -23,6 +23,7 @@ import com.clover.studio.spikamessenger.databinding.LinkItemBinding
 import com.clover.studio.spikamessenger.databinding.MediaItemsBinding
 import com.clover.studio.spikamessenger.databinding.MonthDateBinding
 import com.clover.studio.spikamessenger.ui.main.chat.MediaType
+import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 
 const val VIEW_TYPE_MEDIA_ITEM = 1
@@ -34,7 +35,7 @@ class MediaAdapter(
     private val context: Context,
     private val mediaType: MediaType,
     private val roomWithUsers: RoomWithUsers?,
-    private val onItemClick: (message: Message) -> Unit
+    private val onItemClick: (message: Message, action: String) -> Unit
 ) : ListAdapter<Message, ViewHolder>(MediaDiffCallback()) {
     inner class MediaViewHolder(val binding: MediaItemsBinding) :
         ViewHolder(binding.root)
@@ -110,8 +111,12 @@ class MediaAdapter(
                 it.id == message.fromUserId
             }?.displayName.toString()
 
-            ivDownloadFile.setOnClickListener {
+            clFileMessage.setOnClickListener {
+                onItemClick.invoke(message, "")
+            }
 
+            ivDownloadFile.setOnClickListener {
+                onItemClick.invoke(message, Const.UserActions.DOWNLOAD_FILE)
             }
         }
     }
@@ -140,7 +145,7 @@ class MediaAdapter(
             }?.displayName.toString()
 
             llLinkItem.setOnClickListener {
-                onItemClick.invoke(message)
+                onItemClick.invoke(message, "")
             }
         }
     }
@@ -184,7 +189,7 @@ class MediaAdapter(
                 .into(ivMediaItem)
 
             ivMediaItem.setOnClickListener { _ ->
-                onItemClick.invoke(message)
+                onItemClick.invoke(message, "")
             }
         }
     }

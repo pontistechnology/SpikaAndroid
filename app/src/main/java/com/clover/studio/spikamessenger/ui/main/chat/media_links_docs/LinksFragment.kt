@@ -19,7 +19,6 @@ import com.clover.studio.spikamessenger.ui.main.chat.MediaType
 import com.clover.studio.spikamessenger.utils.Tools.sortMediaItems
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class LinksFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment() {
 
@@ -45,7 +44,6 @@ class LinksFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Timber.d("Links details: $roomsWithUsers")
         getAllLinks()
         setUpAdapter()
     }
@@ -81,7 +79,7 @@ class LinksFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment()
             requireContext(),
             roomWithUsers = roomsWithUsers,
             mediaType = MediaType.LINKS
-        ) { message ->
+        ) { message, _ ->
             viewModel.searchMessageId.value = message.id
             findNavController().navigate(MediaLinksDocsFragmentDirections.actionMediaLinksDocsFragmentToChatMessagesFragment())
         }
