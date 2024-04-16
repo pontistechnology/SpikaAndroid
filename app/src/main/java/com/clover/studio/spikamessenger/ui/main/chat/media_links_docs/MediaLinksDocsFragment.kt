@@ -1,30 +1,26 @@
 package com.clover.studio.spikamessenger.ui.main.chat.media_links_docs
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentMediaLinksDocsBinding
 import com.clover.studio.spikamessenger.ui.main.MainPagerAdapter
+import com.clover.studio.spikamessenger.utils.Const
 import com.google.android.material.tabs.TabLayoutMediator
-import timber.log.Timber
 
 class MediaLinksDocsFragment : Fragment() {
     private lateinit var binding: FragmentMediaLinksDocsBinding
-    private var roomsWithUsers : RoomWithUsers? = null
-    private val args: MediaLinksDocsFragmentArgs by navArgs()
+    private var roomsWithUsers: RoomWithUsers? = null
 
     private val tabNames = arrayOf("Media", "Links", "Docs")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        roomsWithUsers = args.roomWithUsers
-
-        Timber.d("Room with users: $roomsWithUsers")
+        roomsWithUsers = arguments?.getParcelable(Const.Navigation.ROOM_DATA)
     }
 
     override fun onCreateView(

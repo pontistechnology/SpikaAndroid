@@ -138,6 +138,10 @@ class MediaAdapter(
             tvUsername.text = roomWithUsers?.users?.find {
                 it.id == message.fromUserId
             }?.displayName.toString()
+
+            llLinkItem.setOnClickListener {
+                onItemClick.invoke(message)
+            }
         }
     }
 

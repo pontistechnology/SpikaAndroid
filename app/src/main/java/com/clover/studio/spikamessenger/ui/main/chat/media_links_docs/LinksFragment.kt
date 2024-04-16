@@ -8,6 +8,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -80,8 +81,9 @@ class LinksFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment()
             requireContext(),
             roomWithUsers = roomsWithUsers,
             mediaType = MediaType.LINKS
-        ) {
-            Timber.d("Clicked link")
+        ) { message ->
+            viewModel.searchMessageId.value = message.id
+            findNavController().navigate(MediaLinksDocsFragmentDirections.actionMediaLinksDocsFragmentToChatMessagesFragment())
         }
 
         binding.rvLinks.apply {

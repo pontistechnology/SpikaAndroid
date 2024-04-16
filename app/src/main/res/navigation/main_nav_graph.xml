@@ -66,9 +66,6 @@
         <action
             android:id="@+id/action_contactDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />
-        <action
-            android:id="@+id/action_contactDetailsFragment_to_mediaLinksDocsFragment"
-            app:destination="@id/mediaLinksDocsFragment" />
     </fragment>
 
     <fragment
@@ -126,33 +123,8 @@
         android:label="fragment_appearance_settings"
         tools:layout="@layout/fragment_appearance_settings" />
     <fragment
-        android:id="@+id/mediaLinksDocsFragment"
-        android:name="com.clover.studio.spikamessenger.ui.main.chat.media_links_docs.MediaLinksDocsFragment"
-        android:label="fragment_media_links_docs"
-        tools:layout="@layout/fragment_media_links_docs" >
-        <argument
-            android:name="roomWithUsers"
-            app:argType="com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers" />
-        <action
-            android:id="@+id/action_mediaLinksDocsFragment_to_mediaFragment"
-            app:destination="@id/mediaFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/mediaFragment"
-        android:name="com.clover.studio.spikamessenger.ui.main.chat.media.MediaFragment"
-        android:label="fragment_media"
-        tools:layout="@layout/fragment_media">
-        <argument
-            android:name="message"
-            app:argType="com.clover.studio.spikamessenger.data.models.entity.Message" />
-        <argument
-            android:name="localUserId"
-            android:defaultValue="0"
-            app:argType="integer" />
-        <argument
-            android:name="roomWithUsers"
-            android:defaultValue="@null"
-            app:argType="com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers"
-            app:nullable="true" />
-    </fragment>
+        android:id="@+id/chatMessagesFragment2"
+        android:name="com.clover.studio.spikamessenger.ui.main.chat.ChatMessagesFragment"
+        android:label="fragment_chat_messages"
+        tools:layout="@layout/fragment_chat_messages" />
 </navigation>

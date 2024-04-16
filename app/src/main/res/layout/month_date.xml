@@ -2,7 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/four_dp_margin">
+    android:padding="@dimen/four_dp_margin"
+    android:background="?attr/secondaryColor">
 
     <TextView
         android:id="@+id/tv_title"
@@ -11,8 +12,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/eight_dp_margin"
         android:layout_marginBottom="@dimen/eight_dp_margin"
-        android:background="@drawable/bg_message_received"
-        android:backgroundTint="#40000000"
         android:gravity="start"
         android:padding="@dimen/eight_dp_margin"
         android:textColor="@color/white"

@@ -147,5 +147,8 @@
         <action
             android:id="@+id/action_mediaLinksDocsFragment_to_mediaFragment"
             app:destination="@id/mediaFragment" />
+        <action
+            android:id="@+id/action_mediaLinksDocsFragment_to_chatMessagesFragment"
+            app:destination="@id/chatMessagesFragment" />
     </fragment>
 </navigation>
