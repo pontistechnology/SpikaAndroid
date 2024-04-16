@@ -57,6 +57,9 @@
         <action
             android:id="@+id/action_chatMessagesFragment_to_contactDetailsFragment"
             app:destination="@id/contactDetailsFragment" />
+        <action
+            android:id="@+id/action_chatMessagesFragment_to_mediaPreparationFragment"
+            app:destination="@id/mediaPreparationFragment" />
     </fragment>
 
     <fragment
@@ -149,6 +152,15 @@
             app:destination="@id/mediaFragment" />
         <action
             android:id="@+id/action_mediaLinksDocsFragment_to_chatMessagesFragment"
+            app:destination="@id/chatMessagesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mediaPreparationFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.chat.media.MediaPreparationFragment"
+        android:label="fragment_media_preparation"
+        tools:layout="@layout/fragment_media_preparation" >
+        <action
+            android:id="@+id/action_mediaPreparationFragment_to_chatMessagesFragment"
             app:destination="@id/chatMessagesFragment" />
     </fragment>
 </navigation>

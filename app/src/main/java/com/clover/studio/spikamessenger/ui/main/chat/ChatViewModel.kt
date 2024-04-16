@@ -1,5 +1,6 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
+import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
@@ -53,6 +54,8 @@ class ChatViewModel @Inject constructor(
     val searchMessageId = MutableLiveData(0)
     val roomWithUsers = MutableLiveData<RoomWithUsers>()
     val thumbnailData = MutableLiveData<Event<Resource<ThumbnailDataResponse?>>>()
+    val mediaListener = MutableLiveData<Event<Resource<List<Message>?>>>()
+    val mediaUri = MutableLiveData<List<Uri>>()
 
     private val _mediaState: MutableStateFlow<MediaScreenState> =
         MutableStateFlow(MediaScreenState.Loading)

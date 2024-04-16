@@ -7,14 +7,13 @@ import com.abedelazizshe.lightcompressorlibrary.VideoQuality
 import com.abedelazizshe.lightcompressorlibrary.config.Configuration
 import com.abedelazizshe.lightcompressorlibrary.config.SharedStorageConfiguration
 import com.clover.studio.spikamessenger.MainApplication
-import com.clover.studio.spikamessenger.data.models.FileMetadata
 
 object VideoCompression {
     fun compressVideoFile(
         uris: List<Uri>,
         muteAudio: Boolean,
         videoQuality: VideoQuality,
-        metadata: FileMetadata,
+//        metadata: FileMetadata,
         listener: CompressionListener
     ) {
         VideoCompressor.start(
@@ -36,8 +35,8 @@ object VideoCompression {
                 videoBitrateInMbps = 5, /*Int, ignore, or null*/
                 disableAudio = muteAudio,
                 keepOriginalResolution = false, /*Boolean, or ignore*/
-                videoWidth = metadata.width?.toDouble(),
-                videoHeight = metadata.height?.toDouble(),
+                videoWidth = null,
+                videoHeight = null,
             ),
             listener = listener
         )

@@ -36,7 +36,7 @@ import java.net.URL
 object FilesHelper {
 
     fun convertVideoItem(context: Context, uri: Uri): Bitmap? {
-        var thumbnail : Bitmap? = null
+        var thumbnail: Bitmap? = null
         val mmr = MediaMetadataRetriever()
         mmr.setDataSource(context, uri)
 
@@ -51,7 +51,7 @@ object FilesHelper {
             return null
         }
 
-        val bitmap =  mmr.frameAtTime
+        val bitmap = mmr.frameAtTime
         mmr.release()
 
         bitmap?.let {
@@ -62,7 +62,7 @@ object FilesHelper {
         return thumbnail
     }
 
-    fun generateFilePath(context: Context, uri: Uri) : Uri{
+    fun generateFilePath(context: Context, uri: Uri): Uri {
         val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
         val file =
             File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
@@ -145,7 +145,7 @@ object FilesHelper {
         if (type == Const.JsonFields.FILE_TYPE) {
             val inputStream =
                 MainApplication.appContext.contentResolver.openInputStream(uri)
-            if (inputStream != null){
+            if (inputStream != null) {
                 size = Tools.copyStreamToFile(
                     inputStream = inputStream,
                     extension = Tools.getFileMimeType(MainApplication.appContext, uri),
@@ -245,8 +245,8 @@ object FilesHelper {
         return imagePath
     }
 
-    suspend fun saveGifToStorage(context: Context, urlString: String) : File? {
-        var file : File? = null
+    suspend fun saveGifToStorage(context: Context, urlString: String): File? {
+        var file: File? = null
 
         try {
             val url = URL(urlString)

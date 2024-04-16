@@ -45,7 +45,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.abedelazizshe.lightcompressorlibrary.CompressionListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.BuildConfig
@@ -73,7 +72,6 @@ import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.MessageSwipeController
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getFileMimeType
-import com.clover.studio.spikamessenger.utils.VideoCompression
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
@@ -1560,6 +1558,13 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         selectedFilesUris: MutableList<Uri>,
         isResend: Boolean = false
     ) {
+
+        viewModel.mediaUri.value = selectedFilesUris
+        findNavController().navigate(
+            ChatMessagesFragmentDirections.actionChatMessagesFragmentToMediaPreparationFragment(),
+            navOptionsBuilder
+        )
+        return
         selectedFiles.forEach { uri ->
             val fileMimeType = getFileMimeType(requireContext(), uri)
             when {
