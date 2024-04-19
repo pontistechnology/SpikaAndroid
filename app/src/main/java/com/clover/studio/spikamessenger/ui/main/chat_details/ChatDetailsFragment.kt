@@ -450,8 +450,14 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         }
     }
 
-    private fun goToMediaLinksDocs()  {
-        roomId?.let { roomWithUsers?.let { it1 -> findNavController().navigate(ChatDetailsFragmentDirections.actionChatDetailsFragmentToMediaLinksDocsFragment(roomWithUsers = it1)) } }
+    private fun goToMediaLinksDocs() {
+        roomWithUsers?.let {
+            findNavController().navigate(
+                R.id.action_chatDetailsFragment_to_mediaLinksDocsFragment,
+                bundleOf(Const.Navigation.ROOM_DATA to roomWithUsers),
+                navOptionsBuilder
+            )
+        }
     }
 
     private fun goToNotes() {

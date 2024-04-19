@@ -25,6 +25,9 @@ import com.clover.studio.spikamessenger.databinding.MonthDateBinding
 import com.clover.studio.spikamessenger.ui.main.chat.MediaType
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 const val VIEW_TYPE_MEDIA_ITEM = 1
 const val VIEW_TYPE_DATE_ITEM = 2
@@ -110,6 +113,11 @@ class MediaAdapter(
             tvSender.text = roomWithUsers?.users?.find {
                 it.id == message.fromUserId
             }?.displayName.toString()
+            tvMessageDate.text = message.createdAt?.let {
+                SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()).format(
+                    Date(message.createdAt)
+                )
+            }
 
             clFileMessage.setOnClickListener {
                 onItemClick.invoke(message, "")
@@ -143,6 +151,11 @@ class MediaAdapter(
             tvUsername.text = roomWithUsers?.users?.find {
                 it.id == message.fromUserId
             }?.displayName.toString()
+            tvMessageDate.text = message.createdAt?.let {
+                SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()).format(
+                    Date(message.createdAt)
+                )
+            }
 
             llLinkItem.setOnClickListener {
                 onItemClick.invoke(message, "")

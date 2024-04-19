@@ -20,12 +20,12 @@ import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.helpers.FilesHelper
 import kotlinx.coroutines.launch
-
 class DocsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment() {
 
     private lateinit var binding: FragmentDocsBinding
     private val viewModel: ChatViewModel by activityViewModels()
     private var mediaAdapter: MediaAdapter? = null
+    private var linearLayoutManager: LinearLayoutManager? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,6 +47,7 @@ class DocsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment() 
 
         getAllFiles()
         setUpAdapter()
+        initializeListeners()
     }
 
     private fun getAllFiles() {
@@ -76,6 +77,7 @@ class DocsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment() 
     }
 
     private fun setUpAdapter() {
+        linearLayoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         mediaAdapter = MediaAdapter(
             context = requireContext(),
             mediaType = MediaType.FILES,
@@ -93,7 +95,7 @@ class DocsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment() 
             itemAnimator = null
             isMotionEventSplittingEnabled = false
             adapter = mediaAdapter
-            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            layoutManager = linearLayoutManager
             addItemDecoration(
                 StickyHeaderDecoration(
                     parent = this,
@@ -101,5 +103,26 @@ class DocsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment() 
                 )
             )
         }
+    }
+
+    private fun initializeListeners() {
+        binding.rvFiles.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val lastVisiblePosition = linearLayoutManager?.findLastVisibleItemPosition()
+                val totalItemCount = linearLayoutManager?.itemCount
+                if (lastVisiblePosition != null && totalItemCount != null) {
+                    if (lastVisiblePosition == totalItemCount.minus(1)) {
+                        roomsWithUsers?.room?.roomId?.let {
+                            viewModel.fetchNextMediaSet(
+                                roomId = it,
+                                mediaType = MediaType.FILES
+                            )
+                        }
+                    }
+                }
+            }
+        })
     }
 }

@@ -26,10 +26,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/username"
             android:padding="@dimen/ten_dp_margin"
+            android:text="@string/username"
             android:textAppearance="@style/CustomTextBody"
-            android:textSize="22sp" />
+            android:textSize="@dimen/twenty_sp_text" />
 
     </LinearLayout>
 
@@ -48,6 +48,7 @@
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/eight_dp_margin"
         android:layout_weight="1" />
 
 </LinearLayout>

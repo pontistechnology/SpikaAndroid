@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/two_dp_margin"
-    android:background="?attr/secondaryColor">
+    android:background="?attr/primaryColor">
 
     <TextView
         android:id="@+id/tv_title"
@@ -13,7 +13,7 @@
         android:layout_marginTop="@dimen/four_dp_margin"
         android:layout_marginBottom="@dimen/four_dp_margin"
         android:gravity="start"
-        android:padding="@dimen/eight_dp_margin"
+        android:paddingStart="@dimen/four_dp_margin"
         android:textColor="@color/white"
         android:textSize="@dimen/sixteen_sp_text" />
 </FrameLayout>

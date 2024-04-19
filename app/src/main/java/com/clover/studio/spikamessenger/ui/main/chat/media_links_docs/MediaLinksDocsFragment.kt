@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentMediaLinksDocsBinding
 import com.clover.studio.spikamessenger.ui.main.MainPagerAdapter
@@ -16,7 +17,7 @@ class MediaLinksDocsFragment : Fragment() {
     private lateinit var binding: FragmentMediaLinksDocsBinding
     private var roomsWithUsers: RoomWithUsers? = null
 
-    private val tabNames = arrayOf("Media", "Links", "Docs")
+    private val tabNames: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +36,13 @@ class MediaLinksDocsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        tabNames.addAll(
+            listOf(
+                getString(R.string.media_items),
+                getString(R.string.link_items),
+                getString(R.string.doc_items)
+            )
+        )
         initializePager()
         initializeViews()
     }

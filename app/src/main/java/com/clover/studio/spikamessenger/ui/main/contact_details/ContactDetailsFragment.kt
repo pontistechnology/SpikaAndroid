@@ -304,15 +304,10 @@ class ContactDetailsFragment : BaseFragment() {
     }
 
     private fun goToMediaLinksDocs() {
-        val bundle =
-            bundleOf(
-                Const.Navigation.ROOM_DATA to roomWithUsers
-            )
-
         roomWithUsers?.let {
             findNavController().navigate(
                 R.id.action_contactDetailsFragment_to_mediaLinksDocsFragment,
-                bundle,
+                bundleOf(Const.Navigation.ROOM_DATA to roomWithUsers),
                 navOptionsBuilder
             )
         }
