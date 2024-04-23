@@ -23,6 +23,7 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.Forward
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.Settings
 import com.clover.studio.spikamessenger.data.repositories.data_sources.MainRemoteDataSource
+import com.clover.studio.spikamessenger.ui.main.chat.MediaType
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.RestOperations.performRestOperation
 import com.clover.studio.spikamessenger.utils.helpers.RestOperations.queryDatabase
@@ -281,29 +282,27 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun getAllMediaWithOffset(
         roomId: Int,
         limit: Int,
-        offset: Int
-    ) =
-        queryDatabaseCoreData(
-            databaseQuery = { chatRoomDao.getAllMediaWithOffset(roomId, limit, offset) }
-        )
-
-    override suspend fun getAllLinksWithOffset(
-        roomId: Int,
-        limit: Int,
-        offset: Int
-    ) =
-        queryDatabaseCoreData (
-            databaseQuery = { chatRoomDao.getAllLinksWithOffset(roomId, limit, offset) }
-        )
-    override suspend fun getAllFilesWithOffset(
-        roomId: Int,
-        limit: Int,
-        offset: Int
-    ) =
-        queryDatabaseCoreData (
-            databaseQuery = { chatRoomDao.getAllFilesWithOffset(roomId, limit, offset) }
-        )
-
+        offset: Int,
+        mediaType: MediaType
+    ): Resource<List<Message>> {
+        return when (mediaType) {
+            MediaType.MEDIA -> {
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.getAllMediaWithOffset(roomId, limit, offset)}
+                )
+            }
+            MediaType.LINKS -> {
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.getAllLinksWithOffset(roomId, limit, offset)}
+                )
+            }
+            MediaType.FILES -> {
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.getAllFilesWithOffset(roomId, limit, offset)}
+                )
+            }
+        }
+    }
 
     override suspend fun getMediaCount(roomId: Int) = chatRoomDao.getMediaCount(roomId)
 
@@ -469,9 +468,7 @@ interface MainRepository : BaseRepository {
     suspend fun getRecentContacts(): Resource<List<RoomWithUsers>>
     suspend fun getRecentGroups(): Resource<List<RoomWithUsers>>
     suspend fun getAllGroups(): Resource<List<RoomWithUsers>>
-    suspend fun getAllMediaWithOffset(roomId: Int, limit: Int, offset: Int): Resource<List<Message>>
-    suspend fun getAllLinksWithOffset(roomId: Int, limit: Int, offset: Int): Resource<List<Message>>
-    suspend fun getAllFilesWithOffset(roomId: Int, limit: Int, offset: Int): Resource<List<Message>>
+    suspend fun getAllMediaWithOffset(roomId: Int, limit: Int, offset: Int, mediaType: MediaType): Resource<List<Message>>
     suspend fun getMediaCount(roomId: Int): Int
     suspend fun updateRoom(
         jsonObject: JsonObject,

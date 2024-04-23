@@ -5,11 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentMediaLinksDocsBinding
 import com.clover.studio.spikamessenger.ui.main.MainPagerAdapter
+import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.utils.Const
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -18,6 +20,7 @@ class MediaLinksDocsFragment : Fragment() {
     private var roomsWithUsers: RoomWithUsers? = null
 
     private val tabNames: MutableList<String> = mutableListOf()
+    private val viewModel: ChatViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +51,12 @@ class MediaLinksDocsFragment : Fragment() {
     }
 
     private fun initializeViews() {
-        binding.tvTitle.text = roomsWithUsers?.room?.name
+        binding.tvTitle.text = if (roomsWithUsers?.room?.type == Const.JsonFields.PRIVATE){
+            roomsWithUsers?.room?.name
+        } else {
+            roomsWithUsers?.users?.find { it.id != viewModel.getLocalUserId() }?.displayName.toString()
+        }
+
         binding.ivBackArrow.setOnClickListener {
             findNavController().popBackStack()
         }

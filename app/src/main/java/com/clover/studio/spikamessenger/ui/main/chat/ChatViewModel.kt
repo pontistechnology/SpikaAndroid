@@ -301,11 +301,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun getAllMediaItemsWithOffset(roomId: Int, mediaType: MediaType) = viewModelScope.launch {
-        val response = when (mediaType) {
-            MediaType.MEDIA -> mainRepository.getAllMediaWithOffset(roomId, mediaItemsLimit.value ?: 0, 0)
-            MediaType.LINKS -> mainRepository.getAllLinksWithOffset(roomId, mediaItemsLimit.value ?: 0, 0)
-            MediaType.FILES -> mainRepository.getAllFilesWithOffset(roomId, mediaItemsLimit.value ?: 0, 0)
-        }
+        val response = mainRepository.getAllMediaWithOffset(roomId, mediaItemsLimit.value ?: 0, 0, mediaType)
 
         when (response.status) {
             Resource.Status.SUCCESS -> {

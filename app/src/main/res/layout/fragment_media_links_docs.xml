@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:background="@null"
         app:tabIndicatorColor="?attr/primaryColor"
-        app:tabIndicatorHeight="4dp"
+        app:tabIndicatorHeight="@dimen/four_dp_margin"
         app:tabMode="fixed"
         app:tabTextColor="?attr/primaryTextColor" />
 

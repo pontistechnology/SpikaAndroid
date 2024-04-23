@@ -15,15 +15,15 @@
 
     <FrameLayout
         android:id="@+id/fl_loading_screen"
-        android:layout_width="156dp"
-        android:layout_height="156dp"
+        android:layout_width="@dimen/one_hundred_fifty_six"
+        android:layout_height="@dimen/one_hundred_fifty_six"
         android:background="?attr/secondaryColor" />
 
     <ImageView
         android:id="@+id/iv_media_item"
         android:layout_margin="@dimen/two_dp_margin"
-        android:layout_width="156dp"
-        android:layout_height="156dp"
+        android:layout_width="@dimen/one_hundred_fifty_six"
+        android:layout_height="@dimen/one_hundred_fifty_six"
         android:visibility="gone"
         tools:srcCompat="@tools:sample/avatars" />
 </FrameLayout>

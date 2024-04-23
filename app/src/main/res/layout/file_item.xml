@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_message_received"
-    android:layout_margin="@dimen/four_dp_margin">
+    android:layout_marginBottom="@dimen/four_dp_margin">
 
     <TextView
         android:id="@+id/tv_sender"
