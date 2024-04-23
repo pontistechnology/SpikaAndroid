@@ -135,7 +135,10 @@ class MediaFragment : BaseFragment() {
                                     viewModel.fetchNextMediaSet(roomId, mediaType = MediaType.MEDIA)
                                 } else {
                                     mediaPagerAdapter?.submitNewList(mediaList)
-                                    binding.viewPager.setCurrentItem(mediaList.indexOf(message), false)
+                                    binding.viewPager.setCurrentItem(
+                                        mediaList.indexOf(message),
+                                        false
+                                    )
                                     message?.let { setUpSelectedSmallMedia(it) }
                                 }
                             }
@@ -227,7 +230,10 @@ class MediaFragment : BaseFragment() {
                         val totalItemCount = linearLayoutManager.itemCount
 
                         if (lastVisiblePosition > 0 && lastVisiblePosition == totalItemCount - 1) {
-                            viewModel.fetchNextMediaSet(roomId = roomId, mediaType = MediaType.MEDIA)
+                            viewModel.fetchNextMediaSet(
+                                roomId = roomId,
+                                mediaType = MediaType.MEDIA
+                            )
                         }
                     }
                 }

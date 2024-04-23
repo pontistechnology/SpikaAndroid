@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
@@ -20,7 +20,7 @@ class MediaLinksDocsFragment : Fragment() {
     private var roomsWithUsers: RoomWithUsers? = null
 
     private val tabNames: MutableList<String> = mutableListOf()
-    private val viewModel: ChatViewModel by viewModels()
+    private val viewModel: ChatViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +51,7 @@ class MediaLinksDocsFragment : Fragment() {
     }
 
     private fun initializeViews() {
-        binding.tvTitle.text = if (roomsWithUsers?.room?.type == Const.JsonFields.PRIVATE){
+        binding.tvTitle.text = if (roomsWithUsers?.room?.type == Const.JsonFields.PRIVATE) {
             roomsWithUsers?.room?.name
         } else {
             roomsWithUsers?.users?.find { it.id != viewModel.getLocalUserId() }?.displayName.toString()
