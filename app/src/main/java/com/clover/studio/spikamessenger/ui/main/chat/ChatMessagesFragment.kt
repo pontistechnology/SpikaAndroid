@@ -1776,7 +1776,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private fun onBackArrowPressed() {
         roomWithUsers?.room?.roomId?.let { viewModel.updateUnreadCount(roomId = it) }
         startMainActivity(requireActivity())
-        activity?.finish()
     }
 
     override fun onResume() {
