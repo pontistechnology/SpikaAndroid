@@ -38,6 +38,9 @@
         <action
             android:id="@+id/action_chatDetailsFragment_to_contactDetailsFragment"
             app:destination="@id/contactDetailsFragment" />
+        <action
+            android:id="@+id/action_chatDetailsFragment_to_mediaLinksDocsFragment"
+            app:destination="@id/mediaLinksDocsFragment" />
     </fragment>
 
     <fragment
@@ -66,13 +69,13 @@
             app:argType="com.clover.studio.spikamessenger.data.models.entity.Message" />
         <argument
             android:name="localUserId"
-            app:argType="integer"
-            android:defaultValue="0" />
+            android:defaultValue="0"
+            app:argType="integer" />
         <argument
             android:name="roomWithUsers"
+            android:defaultValue="@null"
             app:argType="com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:nullable="true" />
     </fragment>
 
     <fragment
@@ -129,5 +132,23 @@
         <action
             android:id="@+id/action_contactDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />
+        <action
+            android:id="@+id/action_contactDetailsFragment_to_mediaLinksDocsFragment"
+            app:destination="@id/mediaLinksDocsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mediaLinksDocsFragment"
+        android:name="com.clover.studio.spikamessenger.ui.main.chat.media_links_docs.MediaLinksDocsFragment"
+        android:label="fragment_media_links_docs"
+        tools:layout="@layout/fragment_media_links_docs">
+        <argument
+            android:name="roomWithUsers"
+            app:argType="com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers" />
+        <action
+            android:id="@+id/action_mediaLinksDocsFragment_to_mediaFragment"
+            app:destination="@id/mediaFragment" />
+        <action
+            android:id="@+id/action_mediaLinksDocsFragment_to_chatMessagesFragment"
+            app:destination="@id/chatMessagesFragment" />
     </fragment>
 </navigation>

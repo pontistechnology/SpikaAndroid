@@ -33,6 +33,7 @@ import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentMediaBinding
 import com.clover.studio.spikamessenger.ui.main.chat.ChatViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.MediaScreenState
+import com.clover.studio.spikamessenger.ui.main.chat.MediaType
 import com.clover.studio.spikamessenger.utils.AppPermissions
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Const.MediaActions.Companion.MEDIA_DOWNLOAD
@@ -79,7 +80,7 @@ class MediaFragment : BaseFragment() {
         roomUsers = args.roomWithUsers?.users
         localUserId = args.localUserId
 
-        viewModel.getAllMediaWithOffset(roomId = roomId)
+        viewModel.getAllMediaItemsWithOffset(roomId = roomId, mediaType = MediaType.MEDIA)
     }
 
     override fun onCreateView(
@@ -131,10 +132,13 @@ class MediaFragment : BaseFragment() {
                                 mediaList = state.media
 
                                 if (!mediaList.contains(message)) {
-                                    viewModel.fetchNextMediaSet(roomId)
+                                    viewModel.fetchNextMediaSet(roomId, mediaType = MediaType.MEDIA)
                                 } else {
                                     mediaPagerAdapter?.submitNewList(mediaList)
-                                    binding.viewPager.setCurrentItem(mediaList.indexOf(message), false)
+                                    binding.viewPager.setCurrentItem(
+                                        mediaList.indexOf(message),
+                                        false
+                                    )
                                     message?.let { setUpSelectedSmallMedia(it) }
                                 }
                             }
@@ -179,7 +183,7 @@ class MediaFragment : BaseFragment() {
                 message = mediaList[position]
 
                 if (position == smallMediaAdapter?.itemCount?.minus(1)) {
-                    viewModel.fetchNextMediaSet(roomId = roomId)
+                    viewModel.fetchNextMediaSet(roomId = roomId, mediaType = MediaType.MEDIA)
                 }
 
                 setMediaInfo(mediaList[position])
@@ -226,7 +230,10 @@ class MediaFragment : BaseFragment() {
                         val totalItemCount = linearLayoutManager.itemCount
 
                         if (lastVisiblePosition > 0 && lastVisiblePosition == totalItemCount - 1) {
-                            viewModel.fetchNextMediaSet(roomId = roomId)
+                            viewModel.fetchNextMediaSet(
+                                roomId = roomId,
+                                mediaType = MediaType.MEDIA
+                            )
                         }
                     }
                 }

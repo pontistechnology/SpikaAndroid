@@ -107,6 +107,10 @@
     <string name="storage_permission">Please add storage permission manually</string>
     <string name="saved_to_gallery">Saved to gallery</string>
     <string name="media_error">Unable to fetch images</string>
+    <string name="media_links_docs">Media, Links and Docs</string>
+    <string name="media_items">Media</string>
+    <string name="link_items">Links</string>
+    <string name="doc_items">Docs</string>
 
     <!--Chat creation-->
     <string name="select_members">Select members</string>

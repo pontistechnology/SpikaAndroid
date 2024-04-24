@@ -19,9 +19,9 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
-import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
 import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
+import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentContactDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.MainActivity
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
@@ -48,7 +48,7 @@ class ContactDetailsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
 
     private var user: PrivateGroupChats? = null
-    private var room: ChatRoom? = null
+    private var roomWithUsers: RoomWithUsers? = null
 
     private var roomId = 0
 
@@ -81,8 +81,7 @@ class ContactDetailsFragment : BaseFragment() {
             Timber.d("Failed to fetch user data")
         } else {
             user = requireArguments().getParcelable(Const.Navigation.USER_PROFILE)
-            roomId = requireArguments().getInt(Const.Navigation.ROOM_ID)
-            room = requireArguments().getParcelable(Const.Navigation.ROOM_DATA)
+            roomWithUsers = requireArguments().getParcelable(Const.Navigation.ROOM_DATA)
         }
 
         navOptionsBuilder = Tools.createCustomNavOptions()
@@ -284,9 +283,8 @@ class ContactDetailsFragment : BaseFragment() {
         userOptions.setOptionsListener(object : UserOptions.OptionsListener {
             override fun clickedOption(option: Int, optionName: String) {
                 when (optionName) {
-                    getString(R.string.notes) -> {
-                        goToNotes()
-                    }
+                    getString(R.string.media_links_docs) -> goToMediaLinksDocs()
+                    getString(R.string.notes) -> goToNotes()
                 }
             }
 
@@ -302,6 +300,16 @@ class ContactDetailsFragment : BaseFragment() {
             viewModel.handleRoomPin(roomId, isSwitched)
         } else {
             viewModel.handleRoomMute(roomId, isSwitched)
+        }
+    }
+
+    private fun goToMediaLinksDocs() {
+        roomWithUsers?.let {
+            findNavController().navigate(
+                R.id.action_contactDetailsFragment_to_mediaLinksDocsFragment,
+                bundleOf(Const.Navigation.ROOM_DATA to roomWithUsers),
+                navOptionsBuilder
+            )
         }
     }
 
@@ -322,13 +330,26 @@ class ContactDetailsFragment : BaseFragment() {
     }
 
     private fun setOptionList() {
-        val pinId = if (room?.pinned == true) R.drawable.img_switch else R.drawable.img_switch_left
-        val muteId = if (room?.muted == true) R.drawable.img_switch else R.drawable.img_switch_left
+        val pinId = if (roomWithUsers?.room?.pinned == true) R.drawable.img_switch else R.drawable.img_switch_left
+        val muteId = if (roomWithUsers?.room?.muted == true) R.drawable.img_switch else R.drawable.img_switch_left
 
         pinSwitch = AppCompatResources.getDrawable(requireContext(), pinId)
         muteSwitch = AppCompatResources.getDrawable(requireContext(), muteId)
 
         optionList = mutableListOf(
+            UserOptionsData(
+                option = getString(R.string.media_links_docs),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_media_links_docs
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_arrow_forward
+                ),
+                switchOption = false,
+                isSwitched = false,
+            ),
             UserOptionsData(
                 option = getString(R.string.notes),
                 firstDrawable = AppCompatResources.getDrawable(
@@ -350,7 +371,7 @@ class ContactDetailsFragment : BaseFragment() {
                 ),
                 secondDrawable = pinSwitch,
                 switchOption = true,
-                isSwitched = room?.pinned == true,
+                isSwitched = roomWithUsers?.room?.pinned == true,
             ),
             UserOptionsData(
                 option = getString(R.string.mute),
@@ -360,7 +381,7 @@ class ContactDetailsFragment : BaseFragment() {
                 ),
                 secondDrawable = muteSwitch,
                 switchOption = true,
-                isSwitched = room?.muted == true,
+                isSwitched = roomWithUsers?.room?.muted == true,
             )
         )
     }

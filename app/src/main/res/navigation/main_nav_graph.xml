@@ -122,4 +122,9 @@
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.AppearanceSettings"
         android:label="fragment_appearance_settings"
         tools:layout="@layout/fragment_appearance_settings" />
+    <fragment
+        android:id="@+id/chatMessagesFragment2"
+        android:name="com.clover.studio.spikamessenger.ui.main.chat.ChatMessagesFragment"
+        android:label="fragment_chat_messages"
+        tools:layout="@layout/fragment_chat_messages" />
 </navigation>

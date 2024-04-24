@@ -25,6 +25,7 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.webkit.URLUtil
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
@@ -237,6 +238,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     ): View {
         super.onCreate(savedInstanceState)
         bindingSetup = FragmentChatMessagesBinding.inflate(layoutInflater)
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    onBackArrowPressed()
+                }
+            })
 
         // Code below will handle an issue with system keyboard squeezing the background image
         // when opened. We are setting the background programmatically instead of using the
@@ -1324,8 +1333,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         val bundle =
             bundleOf(
                 Const.Navigation.USER_PROFILE to privateGroupUser,
-                Const.Navigation.ROOM_ID to roomWithUsers?.room?.roomId,
-                Const.Navigation.ROOM_DATA to roomWithUsers?.room
+                Const.Navigation.ROOM_DATA to roomWithUsers
             )
         findNavController().navigate(
             R.id.action_chatMessagesFragment_to_contactDetailsFragment,
@@ -1766,10 +1774,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun onBackArrowPressed() {
-        viewModel.updateUnreadCount(roomId = roomWithUsers!!.room.roomId)
-        activity?.onBackPressedDispatcher?.onBackPressed()
-        activity?.finish()
-
+        roomWithUsers?.room?.roomId?.let { viewModel.updateUnreadCount(roomId = it) }
         startMainActivity(requireActivity())
     }
 
