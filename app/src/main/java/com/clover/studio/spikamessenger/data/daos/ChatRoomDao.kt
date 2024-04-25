@@ -138,7 +138,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     )
     fun getAllMediaWithOffset(roomId: Int, limit: Int, offset: Int): List<Message>
 
-    @Query("SELECT * FROM message WHERE message.room_id_message = :roomId AND type_message = 'text' AND json_extract(message.body, '$.thumbnailData') IS NOT NULL LIMIT :limit OFFSET :offset")
+    @Query("SELECT * FROM message WHERE message.room_id_message = :roomId AND type_message = 'text' AND message.body LIKE '%\"thumbnailData\"%' LIMIT :limit OFFSET :offset")
     fun getAllLinksWithOffset(roomId: Int, limit: Int, offset: Int): List<Message>
 
     @Query("SELECT * FROM message WHERE message.room_id_message = :roomId AND type_message = 'file' LIMIT :limit OFFSET :offset")
