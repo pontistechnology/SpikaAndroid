@@ -6,22 +6,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.databinding.FragmentContactsBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
+import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -73,7 +74,13 @@ class ContactsFragment : BaseFragment() {
             when (menuItem.itemId) {
                 R.id.search_menu_icon -> {
                     val searchView = menuItem.actionView as SearchView
-                    searchView.let { Tools.setUpSearchBar(requireContext(), it, getString(R.string.search_contacts)) }
+                    searchView.let {
+                        Tools.setUpSearchBar(
+                            requireContext(),
+                            it,
+                            getString(R.string.search_contacts)
+                        )
+                    }
                     setupSearchView(searchView)
 
                     menuItem.expandActionView()
@@ -104,37 +111,69 @@ class ContactsFragment : BaseFragment() {
             }
         }
 
-        // Listener will check if the selected user has a room open with you. If he does
-        // the method will send the user to the room with the roomId which is required to
-        // handle mute and pin logic. If the user has no room open the roomId will be 0
+        viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    activity?.let { parent ->
+                        it.responseData?.let { roomWithUsers ->
+                            startChatScreenActivity(
+                                parent,
+                                roomWithUsers
+                            )
+                        }
+                    }
+                }
+
+                else -> Timber.d("Other error")
+            }
+        })
+
         viewModel.checkRoomExistsListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    if (selectedUser != null) {
-                        val bundle = bundleOf(
-                            Const.Navigation.USER_PROFILE to selectedUser,
-                            Const.Navigation.ROOM_ID to it.responseData?.data?.room?.roomId,
-                            Const.Navigation.ROOM_DATA to it.responseData?.data?.room
-                        )
-                        findNavController().navigate(
-                            R.id.action_mainFragment_to_contactDetailsFragment,
-                            bundle,
-                            navOptionsBuilder
+                    Timber.d("Room already exists")
+                    it.responseData?.data?.room?.roomId?.let { roomId ->
+                        viewModel.getRoomWithUsers(
+                            roomId
                         )
                     }
                 }
 
                 Resource.Status.ERROR -> {
-                    if (selectedUser != null) {
-                        val bundle = bundleOf(Const.Navigation.USER_PROFILE to selectedUser)
-                        findNavController().navigate(
-                            R.id.action_mainFragment_to_contactDetailsFragment,
-                            bundle,
-                            navOptionsBuilder
+                    Timber.d("Room not found, creating new one")
+                    val jsonObject = JsonObject()
+                    val userIdsArray = JsonArray()
+                    userIdsArray.add(selectedUser?.userId)
+
+                    jsonObject.addProperty(Const.JsonFields.NAME, selectedUser?.userName)
+                    jsonObject.addProperty(
+                        Const.JsonFields.AVATAR_FILE_ID,
+                        selectedUser?.avatarId
+                    )
+                    jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
+                    jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
+
+                    Timber.d("Json object: $jsonObject")
+
+                    viewModel.createNewRoom(jsonObject)
+                }
+
+                else -> Timber.d("Other error")
+            }
+        })
+
+        viewModel.createRoomListener.observe(viewLifecycleOwner, EventObserver {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    Timber.d("Room data = ${it.responseData!!.data}")
+                    it.responseData.data?.room?.roomId?.let { roomId ->
+                        viewModel.getRoomWithUsers(
+                            roomId
                         )
                     }
                 }
 
+                Resource.Status.ERROR -> Timber.d("Failed to create room")
                 else -> Timber.d("Other error")
             }
         })
@@ -164,32 +203,26 @@ class ContactsFragment : BaseFragment() {
     private fun setupAdapter() {
         contactsAdapter = UsersGroupsAdapter(requireContext(), false, null, isForward = false) {
             selectedUser = it
-            CoroutineScope(Dispatchers.IO).launch {
-                Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(it.userId)}")
-                val roomId = viewModel.checkIfUserInPrivateRoom(it.userId)
-                if (roomId != null) {
-                    if (selectedUser != null) {
-                        val bundle = bundleOf(
-                            Const.Navigation.USER_PROFILE to selectedUser,
-                            Const.Navigation.ROOM_ID to roomId
-                        )
-                        activity?.runOnUiThread {
-                            findNavController().navigate(
-                                R.id.action_mainFragment_to_contactDetailsFragment,
-                                bundle,
-                                navOptionsBuilder
-                            )
-                        }
+            it.userId.let { id ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
+                    val roomId = viewModel.checkIfUserInPrivateRoom(id)
+                    if (roomId != null) {
+                        viewModel.getRoomWithUsers(roomId)
+                    } else {
+                        viewModel.checkIfRoomExists(id)
                     }
-                } else {
-                    viewModel.checkIfRoomExists(it.userId)
                 }
+
             }
         }
 
-        binding.rvContacts.adapter = contactsAdapter
-        val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        binding.rvContacts.layoutManager = layoutManager
+        val linearLayoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+        binding.rvContacts.apply {
+            adapter = contactsAdapter
+            itemAnimator = null
+            layoutManager = linearLayoutManager
+        }
     }
 
     private fun setupSearchView(searchView: SearchView) {

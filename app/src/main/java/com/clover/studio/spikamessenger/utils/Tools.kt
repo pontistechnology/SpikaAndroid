@@ -424,7 +424,7 @@ object Tools {
     }
 
     fun fullDateFormat(dateTime: Long): String? {
-        val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy. HH:mm aa", Locale.getDefault())
+        val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy. HH:mm", Locale.getDefault())
         return simpleDateFormat.format(dateTime)
     }
 

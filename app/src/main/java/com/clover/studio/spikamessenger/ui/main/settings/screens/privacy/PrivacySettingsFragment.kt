@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
@@ -72,7 +73,8 @@ class PrivacySettingsFragment : BaseFragment() {
 
     private fun setupAdapter() {
         blockedUserAdapter = BlockedUserAdapter(requireContext()) {
-            val bundle = bundleOf(Const.Navigation.USER_PROFILE to it)
+            val privateGroupUser = Tools.transformUserToPrivateGroupChat(it)
+            val bundle = bundleOf(Const.Navigation.USER_PROFILE to privateGroupUser)
             findNavController().navigate(
                 R.id.action_privacySettingsFragment_to_contactDetailsFragment,
                 bundle,
@@ -122,7 +124,7 @@ class PrivacySettingsFragment : BaseFragment() {
             UserOptionsData(
                 option = getString(R.string.blocked_users),
                 firstDrawable = null,
-                secondDrawable = requireContext().getDrawable(R.drawable.img_arrow_forward),
+                secondDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.img_arrow_forward),
                 switchOption = false,
                 isSwitched = false
             ),

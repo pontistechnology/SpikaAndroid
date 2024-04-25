@@ -39,9 +39,6 @@ import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ContactDetailsFragment : BaseFragment() {
@@ -99,7 +96,7 @@ class ContactDetailsFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun initializeObservers() = with(binding) {
+    private fun initializeObservers() {
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
@@ -219,22 +216,6 @@ class ContactDetailsFragment : BaseFragment() {
                 )
             }
 
-            ivChat.setOnClickListener {
-                user?.userId?.let { id ->
-                    run {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
-                            val roomId = viewModel.checkIfUserInPrivateRoom(id)
-                            if (roomId != null) {
-                                viewModel.getRoomWithUsers(roomId)
-                            } else {
-                                viewModel.checkIfRoomExists(id)
-                            }
-                        }
-                    }
-                }
-            }
-
             Glide.with(this@ContactDetailsFragment)
                 .load(user?.avatarId?.let { getFilePathUrl(it) })
                 .placeholder(R.drawable.img_user_avatar)
@@ -330,8 +311,10 @@ class ContactDetailsFragment : BaseFragment() {
     }
 
     private fun setOptionList() {
-        val pinId = if (roomWithUsers?.room?.pinned == true) R.drawable.img_switch else R.drawable.img_switch_left
-        val muteId = if (roomWithUsers?.room?.muted == true) R.drawable.img_switch else R.drawable.img_switch_left
+        val pinId =
+            if (roomWithUsers?.room?.pinned == true) R.drawable.img_switch else R.drawable.img_switch_left
+        val muteId =
+            if (roomWithUsers?.room?.muted == true) R.drawable.img_switch else R.drawable.img_switch_left
 
         pinSwitch = AppCompatResources.getDrawable(requireContext(), pinId)
         muteSwitch = AppCompatResources.getDrawable(requireContext(), muteId)
