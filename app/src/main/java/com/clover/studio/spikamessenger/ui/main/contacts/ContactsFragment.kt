@@ -218,9 +218,12 @@ class ContactsFragment : BaseFragment() {
             }
         }
 
-        binding.rvContacts.adapter = contactsAdapter
-        val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        binding.rvContacts.layoutManager = layoutManager
+        val linearLayoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+        binding.rvContacts.apply {
+            adapter = contactsAdapter
+            itemAnimator = null
+            layoutManager = linearLayoutManager
+        }
     }
 
     private fun setupSearchView(searchView: SearchView) {
