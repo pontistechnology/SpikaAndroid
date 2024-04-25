@@ -204,17 +204,16 @@ class ContactsFragment : BaseFragment() {
         contactsAdapter = UsersGroupsAdapter(requireContext(), false, null, isForward = false) {
             selectedUser = it
             it.userId.let { id ->
-                run {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
-                        val roomId = viewModel.checkIfUserInPrivateRoom(id)
-                        if (roomId != null) {
-                            viewModel.getRoomWithUsers(roomId)
-                        } else {
-                            viewModel.checkIfRoomExists(id)
-                        }
+                CoroutineScope(Dispatchers.IO).launch {
+                    Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
+                    val roomId = viewModel.checkIfUserInPrivateRoom(id)
+                    if (roomId != null) {
+                        viewModel.getRoomWithUsers(roomId)
+                    } else {
+                        viewModel.checkIfRoomExists(id)
                     }
                 }
+
             }
         }
 
