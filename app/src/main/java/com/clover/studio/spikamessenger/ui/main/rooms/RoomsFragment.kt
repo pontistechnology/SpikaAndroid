@@ -273,7 +273,6 @@ class RoomsFragment : BaseFragment() {
 
     private fun setupAdapter() {
         roomsAdapter = RoomsAdapter(requireContext(), viewModel.getLocalUserId().toString()) {
-            // TODO fetch room data for selected room and then navigate to it
             viewModel.getRoomWithUsers(it.roomWithUsers.room.roomId)
         }
 
@@ -403,6 +402,11 @@ class RoomsFragment : BaseFragment() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.rvRooms.scrollToPosition(0)
     }
 
     override fun onPause() {
