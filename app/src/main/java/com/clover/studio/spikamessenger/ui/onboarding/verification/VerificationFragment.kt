@@ -450,12 +450,12 @@ class VerificationFragment : BaseFragment() {
         ) = with(binding.verificationInputFields) {
             // This logic handles copying codes from clipboard and pasting them into the code field.
             if (sequence.length > 1) {
-                etInputOne.setText(sequence.get(0).toString())
-                etInputTwo.setText(sequence.get(1).toString())
-                etInputThree.setText(sequence.get(2).toString())
-                etInputFour.setText(sequence.get(3).toString())
-                etInputFive.setText(sequence.get(4).toString())
-                etInputSix.setText(sequence.get(5).toString())
+                etInputOne.setText(sequence[0].toString())
+                etInputTwo.setText(sequence[1].toString())
+                etInputThree.setText(sequence[2].toString())
+                etInputFour.setText(sequence[3].toString())
+                etInputFive.setText(sequence[4].toString())
+                etInputSix.setText(sequence[5].toString())
             }
         }
     }
