@@ -1,6 +1,5 @@
 package com.clover.studio.spikamessenger.ui.onboarding.verification
 
-import android.content.Context
 import android.content.IntentFilter
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -99,7 +98,12 @@ class VerificationFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        ContextCompat.registerReceiver(requireContext(), smsReceiver, intentFilter, RECEIVER_EXPORTED)
+        ContextCompat.registerReceiver(
+            requireContext(),
+            smsReceiver,
+            intentFilter,
+            RECEIVER_EXPORTED
+        )
     }
 
     override fun onPause() {
@@ -215,7 +219,6 @@ class VerificationFragment : BaseFragment() {
         timer.start()
     }
 
-    // TODO maybe implement this in custom class?
     private fun setupTextWatchers() = with(binding.verificationInputFields) {
         //GenericTextWatcher here works only for moving to next EditText when a number is entered
         //first parameter is the current EditText and second parameter is next EditText
@@ -440,11 +443,19 @@ class VerificationFragment : BaseFragment() {
         }
 
         override fun onTextChanged(
-            arg0: CharSequence,
+            sequence: CharSequence,
             arg1: Int,
             arg2: Int,
             arg3: Int
-        ) { // TODO Auto-generated method stub
+        ) = with(binding.verificationInputFields) {
+            if (sequence.length >= 6) {
+                etInputOne.setText(sequence.get(0).toString())
+                etInputTwo.setText(sequence.get(1).toString())
+                etInputThree.setText(sequence.get(2).toString())
+                etInputFour.setText(sequence.get(3).toString())
+                etInputFive.setText(sequence.get(4).toString())
+                etInputSix.setText(sequence.get(5).toString())
+            }
         }
     }
 
