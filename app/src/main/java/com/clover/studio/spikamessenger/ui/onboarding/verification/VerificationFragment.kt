@@ -449,7 +449,7 @@ class VerificationFragment : BaseFragment() {
             arg3: Int
         ) = with(binding.verificationInputFields) {
             // This logic handles copying codes from clipboard and pasting them into the code field.
-            if (sequence.length >= 6) {
+            if (sequence.length > 1) {
                 etInputOne.setText(sequence.get(0).toString())
                 etInputTwo.setText(sequence.get(1).toString())
                 etInputThree.setText(sequence.get(2).toString())
