@@ -59,6 +59,7 @@ class SmallMediaAdapter(
                     val imagePath = Tools.getMediaPath(context, message)
                     Glide.with(context)
                         .load(imagePath)
+                        .dontAnimate()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .error(AppCompatResources.getDrawable(context, R.drawable.img_media_placeholder_error))
                         .listener(object : RequestListener<Drawable> {
