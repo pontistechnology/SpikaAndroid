@@ -4,7 +4,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.Bitmap
 import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
@@ -21,7 +23,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
@@ -56,6 +63,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
     private var avatarId: Long? = 0L
     private var uploadPieces: Int = 0
     private var avatarData: FileData? = null
+    private var currentBitmap: Bitmap? = null
 
     private var navOptionsBuilder: NavOptions? = null
     private var optionList: MutableList<UserOptionsData> = mutableListOf()
@@ -75,6 +83,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
+                currentBitmap = bitmap
                 Glide.with(this).load(bitmap).diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
@@ -95,6 +104,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                     )
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
+                currentBitmap = bitmap
                 Glide.with(this).load(bitmap).into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateUserImage()
@@ -112,8 +122,8 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
         navOptionsBuilder = Tools.createCustomNavOptions()
 
         setupClickListeners()
-        initializeObservers()
         initializeViews()
+        initializeObservers()
         addTextListeners()
 
         // Display version code on bottom of the screen
@@ -160,6 +170,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
             val response = it.responseData
             if (response != null) {
+                progressAnimation?.start()
                 tvUsername.text = response.formattedDisplayName
                 tvPhoneNumber.text = response.telephoneNumber
                 avatarId = response.avatarFileId
@@ -168,8 +179,33 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                     response.avatarFileId?.let { fileId ->
                         Glide.with(requireActivity())
                             .load(getFilePathUrl(fileId))
-                            .placeholder(R.drawable.img_user_avatar)
+                            .thumbnail(Glide.with(requireContext()).load(currentBitmap))
+//                            .placeholder(R.drawable.img_user_avatar)
                             .centerCrop()
+                            .listener(object : RequestListener<Drawable> {
+                                override fun onLoadFailed(
+                                    e: GlideException?,
+                                    model: Any?,
+                                    target: Target<Drawable>,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    binding.profilePicture.flProgressScreen.visibility = View.GONE
+                                    progressAnimation?.stop()
+                                    return false
+                                }
+
+                                override fun onResourceReady(
+                                    resource: Drawable,
+                                    model: Any,
+                                    target: Target<Drawable>?,
+                                    dataSource: DataSource,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    binding.profilePicture.flProgressScreen.visibility = View.GONE
+                                    progressAnimation?.stop()
+                                    return false
+                                }
+                            })
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .into(profilePicture.ivPickAvatar)
                     }
@@ -472,17 +508,19 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                 Timber.d("Upload Error")
                 requireActivity().runOnUiThread {
                     showUploadError(description)
+                    Glide.with(this@SettingsFragment)
+                        .load(R.drawable.img_user_avatar)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(binding.profilePicture.ivPickAvatar)
+                    uploadingInProgress = false
                 }
-                Glide.with(this@SettingsFragment)
-                    .load(R.drawable.img_user_avatar)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(binding.profilePicture.ivPickAvatar)
             }
 
             override fun avatarUploadFinished(fileId: Long) {
                 requireActivity().runOnUiThread {
                     binding.profilePicture.flProgressScreen.visibility = View.GONE
                     progressAnimation?.stop()
+                    uploadingInProgress = false
                 }
             }
         })
