@@ -100,6 +100,7 @@ class RegisterNumberFragment : BaseFragment() {
                         Const.Navigation.DEVICE_ID to deviceId
                     )
                     viewModel.registerFlag(true)
+                    viewModel.writeDeviceId(deviceId.toString())
                     viewModel.writeFirstAppStart()
                     findNavController().navigate(
                         R.id.action_registerNumberFragment_to_verificationFragment,
