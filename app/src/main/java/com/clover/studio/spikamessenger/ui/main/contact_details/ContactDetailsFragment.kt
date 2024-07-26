@@ -219,7 +219,7 @@ class ContactDetailsFragment : BaseFragment() {
                 )
             }
 
-            ivMessage.setOnClickListener {
+            ivOpenChat.setOnClickListener {
                 user?.userId?.let { id ->
                     run {
                         CoroutineScope(Dispatchers.IO).launch {
