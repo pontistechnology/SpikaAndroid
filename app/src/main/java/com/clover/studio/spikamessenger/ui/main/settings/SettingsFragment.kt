@@ -180,7 +180,6 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                         Glide.with(requireActivity())
                             .load(getFilePathUrl(fileId))
                             .thumbnail(Glide.with(requireContext()).load(currentBitmap))
-//                            .placeholder(R.drawable.img_user_avatar)
                             .centerCrop()
                             .listener(object : RequestListener<Drawable> {
                                 override fun onLoadFailed(
