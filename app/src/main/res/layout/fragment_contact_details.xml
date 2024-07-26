@@ -73,16 +73,29 @@
             app:layout_constraintTop_toBottomOf="@+id/tv_number" />
 
         <ImageView
-            android:id="@+id/iv_telephone"
+            android:id="@+id/iv_open_chat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/sixteen_dp_margin"
-            android:src="@drawable/img_phone_filled"
+            android:src="@drawable/img_open_chat"
             app:layout_constraintEnd_toStartOf="@+id/iv_add_contact"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_private_label" />
+
+        <!-- Feature is currently not in app, we can return this when calls get implemented-->
+<!--        <ImageView-->
+<!--            android:id="@+id/iv_telephone"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="@dimen/sixteen_dp_margin"-->
+<!--            android:src="@drawable/img_phone_filled"-->
+<!--            app:layout_constraintEnd_toStartOf="@+id/iv_add_contact"-->
+<!--            app:layout_constraintHorizontal_bias="0.5"-->
+<!--            app:layout_constraintHorizontal_chainStyle="packed"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tv_private_label" />-->
 
         <ImageView
             android:id="@+id/iv_add_contact"
@@ -93,7 +106,7 @@
             android:src="@drawable/img_add_contact"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/iv_telephone"
+            app:layout_constraintStart_toEndOf="@+id/iv_open_chat"
             app:layout_constraintTop_toBottomOf="@+id/tv_private_label" />
 
         <FrameLayout
@@ -104,7 +117,7 @@
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_telephone" />
+            app:layout_constraintTop_toBottomOf="@+id/iv_open_chat" />
 
         <TextView
             android:id="@+id/tv_blocked"

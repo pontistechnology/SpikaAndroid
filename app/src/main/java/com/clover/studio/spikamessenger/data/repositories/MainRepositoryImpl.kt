@@ -75,7 +75,7 @@ class MainRepositoryImpl @Inject constructor(
                 CoroutineScope(Dispatchers.IO).launch {
                     val users: MutableList<User> = ArrayList()
                     val roomUsers: MutableList<RoomUser> = ArrayList()
-                    for (user in response.responseData?.data?.room?.users!!) {
+                    response.responseData?.data?.room?.users?.forEach { user ->
                         user.user?.let { users.add(it) }
                         roomUsers.add(
                             RoomUser(
