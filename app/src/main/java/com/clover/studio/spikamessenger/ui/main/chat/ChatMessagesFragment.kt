@@ -419,30 +419,31 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             ivAdd.rotation = ROTATION_OFF
         }
 
-        ivGif.setOnClickListener {
-            giphyDialog?.show(
-                requireActivity().supportFragmentManager,
-                Const.Giphy.GIPHY_BOTTOM_SHEET_TAG
-            )
-            giphyDialog?.gifSelectionListener = object : GiphyDialogFragment.GifSelectionListener {
-                override fun didSearchTerm(term: String) {
-                    // Ignore
-                }
-
-                override fun onDismissed(selectedContentType: GPHContentType) {
-                    // Ignore
-                }
-
-                override fun onGifSelected(
-                    media: Media,
-                    searchTerm: String?,
-                    selectedContentType: GPHContentType
-                ) {
-                    val gifUrl = media.images.original?.gifUrl.toString()
-                    handleGifClick(requireContext(), gifUrl)
-                }
-            }
-        }
+        // Gif view has been removed in version 1.2.1. It might return later.
+//        ivGif.setOnClickListener {
+//            giphyDialog?.show(
+//                requireActivity().supportFragmentManager,
+//                Const.Giphy.GIPHY_BOTTOM_SHEET_TAG
+//            )
+//            giphyDialog?.gifSelectionListener = object : GiphyDialogFragment.GifSelectionListener {
+//                override fun didSearchTerm(term: String) {
+//                    // Ignore
+//                }
+//
+//                override fun onDismissed(selectedContentType: GPHContentType) {
+//                    // Ignore
+//                }
+//
+//                override fun onGifSelected(
+//                    media: Media,
+//                    searchTerm: String?,
+//                    selectedContentType: GPHContentType
+//                ) {
+//                    val gifUrl = media.images.original?.gifUrl.toString()
+//                    handleGifClick(requireContext(), gifUrl)
+//                }
+//            }
+//        }
 
         etMessage.setOnClickListener {
             if (emojiPopup?.isShowing == true) emojiPopup?.dismiss()
