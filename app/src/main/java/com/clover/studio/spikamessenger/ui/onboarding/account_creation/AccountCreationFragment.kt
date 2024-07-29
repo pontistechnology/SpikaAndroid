@@ -123,7 +123,18 @@ class AccountCreationFragment : BaseFragment() {
         viewModel.accountCreationListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> Timber.d("Contacts sent successfully")
-                Resource.Status.ERROR -> Timber.d("Failed to send contacts")
+                Resource.Status.ERROR -> DialogError.getInstance(requireContext(),
+                    getString(R.string.error),
+                    getString(
+                        R.string.failed_to_send_contacts
+                    ),
+                    getString(R.string.send_again),
+                    getString(R.string.ok),
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            viewModel.sendContacts()
+                        }
+                    })
                 else -> Timber.d("Other error")
             }
         })
