@@ -326,4 +326,6 @@
 
     <!-- Gifs -->
     <string name="preparing_gifs">Preparing gif</string>
+    <string name="failed_to_send_contacts">Failed to send contacts</string>
+    <string name="send_again">Send again</string>
 </resources>

@@ -6,7 +6,6 @@ import com.clover.studio.spikamessenger.BaseViewModel
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.models.networking.responses.AuthResponse
 import com.clover.studio.spikamessenger.data.repositories.OnboardingRepository
-import com.clover.studio.spikamessenger.data.repositories.OnboardingRepositoryImpl
 import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.helpers.Resource
@@ -93,9 +92,14 @@ class OnboardingViewModel @Inject constructor(
                 return@launch
             }
             Timber.d("$contacts")
-            resolveResponseStatus(
+            contacts?.let {
+                resolveResponseStatus(
+                    accountCreationListener,
+                    onboardingRepository.sendUserContacts(contacts)
+                )
+            } ?: resolveResponseStatus(
                 accountCreationListener,
-                onboardingRepository.sendUserContacts(contacts!!)
+                Resource(Resource.Status.ERROR, null, "")
             )
         }
     }
