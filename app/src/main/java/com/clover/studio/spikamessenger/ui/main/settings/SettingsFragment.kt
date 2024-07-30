@@ -170,6 +170,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
             val response = it.responseData
             if (response != null) {
+                binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
                 progressAnimation?.start()
                 tvUsername.text = response.formattedDisplayName
                 tvPhoneNumber.text = response.telephoneNumber

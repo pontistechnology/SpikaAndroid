@@ -25,7 +25,11 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
@@ -473,9 +477,37 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
     private fun setAvatarAndUsername(avatarFileId: Long, username: String) {
         if (avatarFileId != 0L) {
+            binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+            progressAnimation?.start()
             Glide.with(this)
                 .load(Tools.getFilePathUrl(avatarFileId))
+                .placeholder(R.drawable.img_user_avatar)
+                .error(R.drawable.img_user_avatar)
                 .centerCrop()
+                .listener(object : RequestListener<Drawable> {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Drawable>,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        binding.profilePicture.flProgressScreen.visibility = View.GONE
+                        progressAnimation?.stop()
+                        return false
+                    }
+
+                    override fun onResourceReady(
+                        resource: Drawable,
+                        model: Any,
+                        target: Target<Drawable>?,
+                        dataSource: DataSource,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        binding.profilePicture.flProgressScreen.visibility = View.GONE
+                        progressAnimation?.stop()
+                        return false
+                    }
+                })
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .into(binding.profilePicture.ivPickAvatar)
         } else {
