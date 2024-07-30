@@ -77,6 +77,7 @@
     <style name="HalfButtonLeft" parent="CustomButton">
         <item name="shapeAppearanceOverlay">@style/LeftButtonShapeAppearance</item>
     </style>
+
     <style name="LeftButtonShapeAppearance">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSizeTopLeft">0dp</item>
@@ -121,12 +122,12 @@
         <item name="cornerSizeBottomRight">0dp</item>
     </style>
 
-   <style name="PreviewBubbleStyle">
-       <item name="cornerSizeTopRight">8dp</item>
-       <item name="cornerFamilyTopRight">rounded</item>
-       <item name="cornerSizeTopLeft">8dp</item>
-       <item name="cornerFamilyTopLeft">rounded</item>
-   </style>
+    <style name="PreviewBubbleStyle">
+        <item name="cornerSizeTopRight">8dp</item>
+        <item name="cornerFamilyTopRight">rounded</item>
+        <item name="cornerSizeTopLeft">8dp</item>
+        <item name="cornerFamilyTopLeft">rounded</item>
+    </style>
 
     <style name="ReceiverBubbleStyle">
         <item name="cornerSizeTopRight">16dp</item>
@@ -259,6 +260,11 @@
 
     <style name="Widget.App.TabLayout" parent="Widget.MaterialComponents.TabLayout">
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.TabLayout</item>
+    </style>
+
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">@dimen/sixteen_sp_text</item>
+        <item name="textAllCaps">false</item>
     </style>
 
     <style name="ThemeOverlay.App.TabLayout" parent="">

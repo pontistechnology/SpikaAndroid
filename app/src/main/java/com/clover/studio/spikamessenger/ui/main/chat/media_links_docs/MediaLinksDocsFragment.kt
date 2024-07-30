@@ -51,7 +51,7 @@ class MediaLinksDocsFragment : Fragment() {
     }
 
     private fun initializeViews() {
-        binding.tvTitle.text = if (roomsWithUsers?.room?.type == Const.JsonFields.PRIVATE) {
+        binding.tvTitle.text = if (roomsWithUsers?.room?.type != Const.JsonFields.PRIVATE) {
             roomsWithUsers?.room?.name
         } else {
             roomsWithUsers?.users?.find { it.id != viewModel.getLocalUserId() }?.displayName.toString()

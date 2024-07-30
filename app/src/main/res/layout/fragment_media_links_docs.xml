@@ -42,6 +42,7 @@
         app:tabIndicatorColor="?attr/primaryColor"
         app:tabIndicatorHeight="@dimen/four_dp_margin"
         app:tabMode="fixed"
+        app:tabTextAppearance="@style/TabTextAppearance"
         app:tabTextColor="?attr/primaryTextColor" />
 
     <androidx.viewpager2.widget.ViewPager2
