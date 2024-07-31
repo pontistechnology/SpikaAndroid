@@ -56,7 +56,7 @@ class LinksFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment()
                 viewModel.linksState.collect { state ->
                     when (state) {
                         is MediaScreenState.Success -> {
-                            if (state.media != null) {
+                            if (state.media?.isNotEmpty() == true) {
                                 binding.tvNoLinks.visibility = View.GONE
                                 val groupedMediaList = sortMediaItems(state.media)
                                 mediaAdapter?.submitList(groupedMediaList)

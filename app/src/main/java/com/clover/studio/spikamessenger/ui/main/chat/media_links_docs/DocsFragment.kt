@@ -57,7 +57,7 @@ class DocsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment() 
                 viewModel.filesState.collect { state ->
                     when (state) {
                         is MediaScreenState.Success -> {
-                            if (state.media != null) {
+                            if (state.media?.isNotEmpty() == true) {
                                 binding.tvNoDocs.visibility = View.GONE
                                 val groupedMediaList = Tools.sortMediaItems(state.media)
                                 mediaAdapter?.submitList(groupedMediaList)

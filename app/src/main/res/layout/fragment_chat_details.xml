@@ -63,6 +63,7 @@
                 android:selectAllOnFocus="true"
                 android:maxLength="70"
                 android:inputType="text"
+                android:imeOptions="actionDone"
                 android:maxLines="1"
                 android:padding="@dimen/sixteen_dp_margin"
                 android:textColor="?attr/primaryTextColor" />

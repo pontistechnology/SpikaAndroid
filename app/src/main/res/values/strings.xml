@@ -37,6 +37,8 @@
     <string name="contact_search"><font size="14"> Search for contact</font></string>
     <string name="contact_message_search"><font size="14"> Search for room or message</font></string>
     <string name="contact_groups_search"><font size="14"> Search for contacts or groups</font></string>
+    <string name="failed_to_send_contacts">Failed to send contacts</string>
+    <string name="send_again">Send again</string>
 
     <!--Settings-->
     <string name="settings">Settings</string>
@@ -197,6 +199,9 @@
     <string name="videos">Videos</string>
     <string name="images">Images</string>
     <string name="video_error">Video is too large</string>
+    <string name="no_media_yet">No media yet</string>
+    <string name="no_links_yet">No links yet</string>
+    <string name="no_docs_yet">No docs yet</string>
 
     <!--Emoji-->
     <string name="thumbs_up_emoji">&#x1F44D;</string>
@@ -326,9 +331,4 @@
 
     <!-- Gifs -->
     <string name="preparing_gifs">Preparing gif</string>
-    <string name="failed_to_send_contacts">Failed to send contacts</string>
-    <string name="send_again">Send again</string>
-    <string name="no_media_yet">No media yet</string>
-    <string name="no_links_yet">No links yet</string>
-    <string name="no_docs_yet">No docs yet</string>
 </resources>
