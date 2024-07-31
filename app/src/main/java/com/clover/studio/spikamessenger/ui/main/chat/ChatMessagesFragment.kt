@@ -154,8 +154,8 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     private var scrollYDistance = 0
     private var heightDiff = 0
 
-    private var avatarFileId = 0L
-    private var userName = ""
+    private var avatarFileId: Long? = null
+    private var userName: String? = null
 
     private var isEditing = false
     private var editingMessage: Message? = null
@@ -334,18 +334,22 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
         if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
             user =
                 roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
-            avatarFileId = user?.avatarFileId ?: 0
-            userName = user?.formattedDisplayName.toString()
+            avatarFileId = user?.avatarFileId
+            userName = user?.formattedDisplayName
             chatHeader.tvTitle.text = user?.telephoneNumber
         } else {
-            avatarFileId = roomWithUsers?.room?.avatarFileId ?: 0
-            userName = roomWithUsers?.room?.name.toString()
+            avatarFileId = roomWithUsers?.room?.avatarFileId
+            userName = roomWithUsers?.room?.name
             chatHeader.tvTitle.text =
                 getString(R.string.members_number, roomWithUsers?.users?.size.toString())
         }
 
-        setUserName(userName = userName)
-        setUserAvatar(avatarFileId = avatarFileId)
+        userName?.let {
+            setUserName(userName = it)
+        }
+        avatarFileId?.let {
+            setUserAvatar(avatarFileId = it)
+        }
 
         // Clear notifications for this room
         roomWithUsers?.room?.roomId?.let {
@@ -383,11 +387,13 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                     }
                 }
             } else {
-                val action =
-                    ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
-                        roomWithUsers = roomWithUsers!!
-                    )
-                findNavController().navigate(action, navOptionsBuilder)
+                roomWithUsers?.let {
+                    val action =
+                        ChatMessagesFragmentDirections.actionChatMessagesFragmentToChatDetailsFragment(
+                            roomWithUsers = it
+                        )
+                    findNavController().navigate(action, navOptionsBuilder)
+                }
             }
         }
 
@@ -563,14 +569,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             viewModel.getRoomAndUsers(roomId = it).observe(viewLifecycleOwner) { room ->
                 when (room.status) {
                     Resource.Status.SUCCESS -> {
-                        if (roomWithUsers?.room?.name?.equals(room.responseData?.room?.name) == false) {
+                        if (roomWithUsers?.room?.name?.equals(room.responseData?.room?.name) == false || userName.isNullOrBlank()) {
                             room.responseData?.room?.name?.let { roomName ->
                                 setUserName(userName = roomName)
                                 roomWithUsers?.room?.name = roomName
                             }
                         }
 
-                        if (roomWithUsers?.room?.avatarFileId != room.responseData?.room?.avatarFileId) {
+                        if (roomWithUsers?.room?.avatarFileId != room.responseData?.room?.avatarFileId || avatarFileId == null) {
                             room.responseData?.room?.avatarFileId?.let { avatarId ->
                                 setUserAvatar(avatarFileId = avatarId)
                                 roomWithUsers?.room?.avatarFileId = avatarId
