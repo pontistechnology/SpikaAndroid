@@ -26,10 +26,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:padding="@dimen/ten_dp_margin"
             android:text="@string/username"
             android:textAppearance="@style/CustomTextBody"
-            android:textSize="@dimen/twenty_sp_text" />
+            android:textSize="@dimen/twenty_six_sp_text" />
 
     </LinearLayout>
 
@@ -42,6 +44,7 @@
         app:tabIndicatorColor="?attr/primaryColor"
         app:tabIndicatorHeight="@dimen/four_dp_margin"
         app:tabMode="fixed"
+        app:tabTextAppearance="@style/TabTextAppearance"
         app:tabTextColor="?attr/primaryTextColor" />
 
     <androidx.viewpager2.widget.ViewPager2

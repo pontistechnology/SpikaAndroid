@@ -118,9 +118,12 @@ class MediaDetailsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFra
                 viewModel.mediaState.collect { state ->
                     when (state) {
                         is MediaScreenState.Success -> {
-                            if (state.media != null) {
+                            if (state.media?.isNotEmpty() == true) {
+                                binding.tvNoMedia.visibility = View.GONE
                                 val groupedMediaList = Tools.sortMediaItems(state.media)
                                 mediaAdapter?.submitList(groupedMediaList)
+                            } else {
+                                binding.tvNoMedia.visibility = View.VISIBLE
                             }
                         }
 

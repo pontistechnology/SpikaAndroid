@@ -20,6 +20,7 @@ import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.helpers.FilesHelper
 import kotlinx.coroutines.launch
+
 class DocsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment() {
 
     private lateinit var binding: FragmentDocsBinding
@@ -56,9 +57,12 @@ class DocsFragment(private val roomsWithUsers: RoomWithUsers?) : BaseFragment() 
                 viewModel.filesState.collect { state ->
                     when (state) {
                         is MediaScreenState.Success -> {
-                            if (state.media != null) {
+                            if (state.media?.isNotEmpty() == true) {
+                                binding.tvNoDocs.visibility = View.GONE
                                 val groupedMediaList = Tools.sortMediaItems(state.media)
                                 mediaAdapter?.submitList(groupedMediaList)
+                            } else {
+                                binding.tvNoDocs.visibility = View.VISIBLE
                             }
                         }
 

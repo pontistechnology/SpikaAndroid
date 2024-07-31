@@ -13,6 +13,7 @@ import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -413,20 +414,18 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         }
 
         ivDone.setOnClickListener {
-            val roomName = etEnterGroupName.text.toString()
-            val jsonObject = JsonObject()
-            if (roomName.isNotEmpty()) {
-                jsonObject.addProperty(Const.JsonFields.NAME, roomName)
+            confirmNameChange(roomWithUsers)
+            hideKeyboard(it)
+        }
+
+        etEnterGroupName.setOnEditorActionListener { view, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                confirmNameChange(roomWithUsers)
+                hideKeyboard(view)
+                true
+            } else {
+                false
             }
-
-            jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.CHANGE_GROUP_NAME)
-
-            viewModel.updateRoom(jsonObject = jsonObject, roomId = roomWithUsers.room.roomId)
-
-            ivDone.visibility = View.GONE
-            tilEnterGroupName.visibility = View.GONE
-            tvGroupPlaceholder.visibility = View.VISIBLE
-            tvGroupName.visibility = View.VISIBLE
         }
 
         profilePicture.ivPickAvatar.setOnClickListener {
@@ -452,6 +451,23 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         binding.ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
+    }
+
+    private fun confirmNameChange(roomWithUsers: RoomWithUsers) = with(binding) {
+        val roomName = etEnterGroupName.text.toString()
+        val jsonObject = JsonObject()
+        if (roomName.isNotEmpty()) {
+            jsonObject.addProperty(Const.JsonFields.NAME, roomName)
+        }
+
+        jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.CHANGE_GROUP_NAME)
+
+        viewModel.updateRoom(jsonObject = jsonObject, roomId = roomWithUsers.room.roomId)
+
+        ivDone.visibility = View.GONE
+        tilEnterGroupName.visibility = View.GONE
+        tvGroupPlaceholder.visibility = View.VISIBLE
+        tvGroupName.visibility = View.VISIBLE
     }
 
     private fun goToMediaLinksDocs() {
