@@ -29,7 +29,7 @@
             android:padding="@dimen/ten_dp_margin"
             android:text="@string/username"
             android:textAppearance="@style/CustomTextBody"
-            android:textSize="@dimen/twenty_sp_text" />
+            android:textSize="@dimen/twenty_six_sp_text" />
 
     </LinearLayout>
 

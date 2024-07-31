@@ -138,6 +138,7 @@ class MediaAdapter(
             if (message.body?.thumbnailData?.image?.isNotEmpty() == true) {
                 Glide.with(context)
                     .load(message.body.thumbnailData?.image)
+                    .dontAnimate()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .error(R.drawable.img_image_placeholder)
                     .into(holder.binding.ivPreviewImage)
@@ -168,6 +169,7 @@ class MediaAdapter(
             val imagePath = Tools.getMediaPath(context, message)
             Glide.with(context)
                 .load(imagePath)
+                .dontAnimate()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
                 .error(

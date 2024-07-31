@@ -15,4 +15,19 @@
         tools:listitem="@layout/media_items"
         android:layout_marginStart="@dimen/two_dp_margin"
         android:layout_marginEnd="@dimen/two_dp_margin"/>
+
+    <TextView
+        android:id="@+id/tv_no_media"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/no_media_yet"
+        android:textAppearance="@style/CustomTextHeading"
+        android:textColor="?attr/secondaryTextColor"
+        android:textSize="@dimen/twenty_four_sp_text"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </FrameLayout>

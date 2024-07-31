@@ -47,6 +47,7 @@
     <dimen name="thirty_two_sp_text">32sp</dimen>
     <dimen name="thirty_sp_text">30sp</dimen>
     <dimen name="twenty_eight_sp_text">28sp</dimen>
+    <dimen name="twenty_six_sp_text">26sp</dimen>
     <dimen name="twenty_four_sp_text">24sp</dimen>
     <dimen name="twenty_sp_text">20sp</dimen>
     <dimen name="eighteen_sp_text">18sp</dimen>
@@ -65,5 +66,6 @@
     <dimen name="reply_layout_dimen">128dp</dimen>
     <dimen name="one_hundred_fifty_six">156dp</dimen>
     <dimen name="ten_sp_text">10sp</dimen>
+    <dimen name="ninety_six_dp">96dp</dimen>
 
 </resources>
