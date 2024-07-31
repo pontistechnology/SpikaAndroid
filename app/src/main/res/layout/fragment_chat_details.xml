@@ -62,6 +62,7 @@
                 android:background="@drawable/bg_text_field"
                 android:selectAllOnFocus="true"
                 android:maxLength="70"
+                android:inputType="text"
                 android:maxLines="1"
                 android:padding="@dimen/sixteen_dp_margin"
                 android:textColor="?attr/primaryTextColor" />
