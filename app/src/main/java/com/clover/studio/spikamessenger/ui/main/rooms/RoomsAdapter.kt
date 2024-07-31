@@ -175,7 +175,7 @@ class RoomsAdapter(
                 0
             )
 
-            text = if (sortedList?.body?.file?.mimeType.toString().contains(Const.JsonFields.GIF)){
+            text = if (sortedList?.body?.file?.mimeType.toString().contains(Const.JsonFields.GIF)) {
                 Const.JsonFields.GIF.replaceFirstChar { it.uppercase() }
             } else {
                 sortedList?.type.toString().replaceFirstChar { it.uppercase() }

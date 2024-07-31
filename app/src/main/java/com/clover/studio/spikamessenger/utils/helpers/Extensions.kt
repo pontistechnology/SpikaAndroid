@@ -18,7 +18,7 @@ object Extensions {
             } else {
                 it.roomName?.lowercase()
             }
-        })
+        }).reversed()
     }
 
     fun <T> LiveData<T>.getDistinct(): LiveData<T> {

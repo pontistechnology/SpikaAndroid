@@ -49,6 +49,7 @@ import com.clover.studio.spikamessenger.utils.Tools.getRelativeTimeSpan
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.setViewsVisibility
 import com.clover.studio.spikamessenger.utils.helpers.ChatAdapterHelper.showHideUserInformation
+import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
 import com.vanniktech.emoji.EmojiTextView
 import com.vanniktech.emoji.isOnlyEmojis
 import timber.log.Timber
@@ -241,6 +242,8 @@ class ChatAdapter(
                             replyContainer = holder.binding.flReplyMsgContainer,
                             sender = true
                         )
+
+                        holder.binding.tvMessage.setTextColor(ColorHelper.getPrimaryColor(context))
                     }
 
                     /** Show message preview: */
