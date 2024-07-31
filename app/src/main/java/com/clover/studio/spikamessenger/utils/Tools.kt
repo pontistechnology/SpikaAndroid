@@ -1041,7 +1041,7 @@ object Tools {
         }
     }
 
-    fun sortMediaItems(messages: List<Message>) : MutableList<Message>{
+    fun sortMediaItems(messages: List<Message>): MutableList<Message> {
         val groupedMediaList = mutableListOf<Message>()
 
         messages
