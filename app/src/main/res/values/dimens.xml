@@ -61,11 +61,11 @@
     <!--Images-->
     <dimen name="image_max_width">300dp</dimen>
     <dimen name="thirty_five_dp">35dp</dimen>
+    <dimen name="ninety_six_dp">96dp</dimen>
 
     <!-- Reply layout  -->
     <dimen name="reply_layout_dimen">128dp</dimen>
     <dimen name="one_hundred_fifty_six">156dp</dimen>
     <dimen name="ten_sp_text">10sp</dimen>
-    <dimen name="ninety_six_dp">96dp</dimen>
 
 </resources>
