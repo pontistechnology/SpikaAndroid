@@ -331,11 +331,14 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 View.GONE
             }
 
+        // I guess this logic is here if there is no internet connection for us to get the latest
+        // room and user data. So I will leave this here even though we are doing the same updates
+        // further down.
         if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
             user =
                 roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
             avatarFileId = user?.avatarFileId
-            userName = user?.formattedDisplayName
+            userName = "John Smith"
             chatHeader.tvTitle.text = user?.telephoneNumber
         } else {
             avatarFileId = roomWithUsers?.room?.avatarFileId
@@ -579,11 +582,9 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                             // Room name
                             roomWithUsers?.room?.name?.let { name ->
                                 if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
-                                    data.responseData.users.firstOrNull { user -> user.id != localUserId }?.displayName?.let { displayName ->
-                                        setUserName(
-                                            userName = displayName
-                                        )
-                                    }
+                                    setUserName(
+                                        userName = "John Smith"
+                                    )
                                 } else setUserName(userName = name)
                             }
 
@@ -772,7 +773,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                                 it.message,
                                 null,
                                 getString(R.string.ok),
-                                object : DialogInteraction {
+                                listener = object : DialogInteraction {
                                     override fun onSecondOptionClicked() {
                                         // Ignore
                                     }
@@ -1322,7 +1323,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             getString(R.string.cancel_upload),
             getString(R.string.back),
             getString(R.string.ok),
-            object : DialogInteraction {
+            listener = object : DialogInteraction {
                 override fun onFirstOptionClicked() {
                     // Ignore
                 }

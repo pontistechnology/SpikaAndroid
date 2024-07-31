@@ -794,7 +794,8 @@ object Tools {
     fun setTheme(theme: String): Int {
         return when (theme) {
             Const.Themes.MINT_THEME -> {
-                R.style.Theme_App_LightGreen
+                // R.style.Theme_App_LightGreen
+                R.style.Theme_App_QATheme
             }
 
             Const.Themes.NEON_THEME -> {

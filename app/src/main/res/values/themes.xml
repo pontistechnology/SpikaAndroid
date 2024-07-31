@@ -120,4 +120,31 @@
         <item name="alphaHelperColor">@color/lightThemeAlpha</item>
     </style>
 
+    <!-- QA theme   -->
+    <style name="Theme.App.QATheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowTranslucentStatus">true</item>
+
+        <item name="colorAccent">#9C27B0</item>
+
+        <item name="primaryColor">#CDDC39</item>
+        <item name="secondaryColor">#009688</item>
+        <item name="tertiaryColor">@color/lightGreenTertiaryColor</item>
+        <item name="primaryTextColor">#FF5722</item>
+        <item name="secondaryTextColor">#FFEB3B</item>
+        <item name="tertiaryTextColor">#3F51B5</item>
+        <item name="additionalColor">#00BCD4</item>
+        <item name="secondAdditionalColor">@color/lightGreenSecondAdditionalColor</item>
+        <item name="thirdAdditionalColor">#3F51B5</item>
+        <item name="fourthAdditionalColor">#000000</item>
+
+        <item name="backgroundPrimary">@drawable/bg_main_background</item>
+        <item name="spikaLogo">@drawable/spika_mint_logo</item>
+        <item name="primaryColorDisabled">@color/darkMarinePrimaryColorDisabled</item>
+
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
+        <item name="android:windowAnimationStyle">@style/MyCustomActivityAnimation</item>
+
+        <item name="alphaHelperColor">@color/lightThemeAlpha</item>
+    </style>
+
 </resources>

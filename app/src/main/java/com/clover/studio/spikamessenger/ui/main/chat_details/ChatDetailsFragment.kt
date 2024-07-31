@@ -191,7 +191,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 getString(
                     R.string.exit
                 ),
-                object : DialogInteraction {
+                listener = object : DialogInteraction {
                     override fun onSecondOptionClicked() {
                         roomId?.let { id -> viewModel.leaveRoom(id) }
                         // Remove if admin
@@ -207,7 +207,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 getString(R.string.exit_group_error),
                 null,
                 getString(R.string.ok),
-                object : DialogInteraction {
+                listener = object : DialogInteraction {
                     override fun onSecondOptionClicked() {
                         // Ignore
                     }
@@ -223,7 +223,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
                 R.string.yes
             ),
             getString(R.string.no),
-            object : DialogInteraction {
+            listener = object : DialogInteraction {
                 override fun onFirstOptionClicked() {
                     roomId?.let { id -> viewModel.deleteRoom(id) }
                     activity?.finish()
@@ -255,7 +255,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         avatarFileId = roomWithUsers?.room?.avatarFileId!!
 
         tvMembersNumber.text =
-            getString(R.string.number_of_members, roomWithUsers.users.size)
+            getString(R.string.number_of_members, 3)
 
         // This will stop image file changes while file is uploading via LiveData
         if (!isUploading && ivDone.visibility == View.GONE) {
@@ -368,7 +368,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
     private fun setOptionContainer() {
         val userOptions = UserOptions(requireContext())
-        userOptions.setOptions(optionList)
+        userOptions.setOptions(optionList, true)
         userOptions.setOptionsListener(object : UserOptions.OptionsListener {
             override fun clickedOption(option: Int, optionName: String) {
                 when (optionName) {
@@ -380,7 +380,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             }
 
             override fun switchOption(optionName: String, isSwitched: Boolean) {
-                switchPinMuteOptions(optionName, isSwitched)
+//                switchPinMuteOptions(optionName, isSwitched)
             }
         })
         binding.flOptionsContainer.addView(userOptions)
@@ -653,7 +653,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             getString(R.string.remove_person, user.formattedDisplayName),
             getString(R.string.cancel),
             getString(R.string.ok),
-            object : DialogInteraction {
+            listener = object : DialogInteraction {
                 override fun onSecondOptionClicked() {
                     roomUsers.remove(user)
                     updateRoomUsers(user.id)
@@ -758,7 +758,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             getString(R.string.image_failed_upload, description),
             null,
             getString(R.string.ok),
-            object : DialogInteraction {
+            listener = object : DialogInteraction {
                 override fun onFirstOptionClicked() {
                     // Ignore
                 }

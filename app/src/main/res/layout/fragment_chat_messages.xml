@@ -113,7 +113,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/eight_dp_margin"
                 android:src="@drawable/img_microphone"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@+id/et_message"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/et_message" />

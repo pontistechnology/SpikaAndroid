@@ -60,19 +60,19 @@ class NotesFragment : BaseFragment() {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        binding.ivNewNote.setOnClickListener {
-            if (activity is MainActivity) {
-                findNavController().navigate(
-                    R.id.newNoteFragment,
-                    bundleOf(Const.Navigation.ROOM_ID to roomId),
-                    navOptionsBuilder
-                )
-            } else findNavController().navigate(
-                R.id.newNoteFragment,
-                bundleOf(Const.Navigation.ROOM_ID to roomId),
-                navOptionsBuilder
-            )
-        }
+//        binding.ivNewNote.setOnClickListener {
+//            if (activity is MainActivity) {
+//                findNavController().navigate(
+//                    R.id.newNoteFragment,
+//                    bundleOf(Const.Navigation.ROOM_ID to roomId),
+//                    navOptionsBuilder
+//                )
+//            } else findNavController().navigate(
+//                R.id.newNoteFragment,
+//                bundleOf(Const.Navigation.ROOM_ID to roomId),
+//                navOptionsBuilder
+//            )
+//        }
 
         if (itemTouchHelper == null) {
             val notesSwipeController =
@@ -84,7 +84,7 @@ class NotesFragment : BaseFragment() {
                             getString(R.string.delete_note_description),
                             getString(R.string.no),
                             getString(R.string.yes),
-                            object : DialogInteraction {
+                            listener = object : DialogInteraction {
                                 override fun onSecondOptionClicked() {
                                     val note = adapter.currentList[position]
                                     viewModel.deleteNote(note.id)

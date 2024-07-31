@@ -102,7 +102,7 @@ class GroupInformationFragment : BaseFragment() {
                 getString(R.string.failed_user_data),
                 null,
                 getString(R.string.ok),
-                object : DialogInteraction {})
+                listener = object : DialogInteraction {})
             Timber.d("Failed to fetch user data")
         } else {
             selectedUsers =
@@ -361,7 +361,7 @@ class GroupInformationFragment : BaseFragment() {
             getString(R.string.image_failed_upload, description),
             null,
             getString(R.string.ok),
-            object : DialogInteraction {
+            listener = object : DialogInteraction {
                 override fun onFirstOptionClicked() {
                     // Ignore
                 }
@@ -383,7 +383,7 @@ class GroupInformationFragment : BaseFragment() {
             description,
             null,
             getString(R.string.ok),
-            object : DialogInteraction {
+            listener = object : DialogInteraction {
                 // Ignore
             })
     }

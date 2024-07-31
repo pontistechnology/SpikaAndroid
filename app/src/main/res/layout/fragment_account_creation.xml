@@ -100,7 +100,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/sixteen_dp_margin"
         android:enabled="false"
-        android:text="@string/next"
+        android:text="Dalje"
         app:cornerRadius="@dimen/sixteen_dp_margin"
         app:layout_constraintEnd_toEndOf="@+id/til_enter_username"
         app:layout_constraintStart_toStartOf="@+id/til_enter_username"

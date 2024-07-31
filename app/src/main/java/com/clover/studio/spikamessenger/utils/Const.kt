@@ -309,6 +309,7 @@ class Const {
             const val NEON_THEME = "neon"
             const val BASIC_THEME = "basic"
             const val BASIC_THEME_NIGHT = "basic_night"
+            const val QA_THEME = "qa_theme"
         }
     }
 

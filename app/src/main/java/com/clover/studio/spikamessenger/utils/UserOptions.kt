@@ -1,11 +1,13 @@
 package com.clover.studio.spikamessenger.utils
 
 import android.content.Context
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.res.ResourcesCompat
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.ChatOptionItemBinding
 import com.clover.studio.spikamessenger.databinding.MoreOptionsBinding
@@ -35,7 +37,7 @@ class UserOptions(context: Context) :
         this.listener = listener
     }
 
-    fun setOptions(optionList: MutableList<UserOptionsData>) {
+    fun setOptions(optionList: MutableList<UserOptionsData>, changeFont: Boolean = false) {
         optionList.forEachIndexed { index, item ->
             val isFirstView = index == 0
             val isLastView = index == optionList.size - 1
@@ -108,6 +110,11 @@ class UserOptions(context: Context) :
 
             if (index > 0 && index < optionList.size - 1) {
                 binding.llOptions.addView(newView, index)
+            }
+
+            if (changeFont) {
+                val typeface = ResourcesCompat.getFont(context, R.font.rowdies_bold)
+                textView.typeface = typeface
             }
         }
     }

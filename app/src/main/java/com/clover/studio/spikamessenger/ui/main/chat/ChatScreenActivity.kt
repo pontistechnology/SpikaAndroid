@@ -68,7 +68,7 @@ class ChatScreenActivity : BaseActivity() {
                     getString(R.string.session_expired),
                     null,
                     getString(R.string.ok),
-                    object : DialogInteraction {
+                    listener = object : DialogInteraction {
                         override fun onFirstOptionClicked() {
                             // Ignore
                         }

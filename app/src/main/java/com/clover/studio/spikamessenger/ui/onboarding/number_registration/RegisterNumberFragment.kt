@@ -100,7 +100,6 @@ class RegisterNumberFragment : BaseFragment() {
                         Const.Navigation.DEVICE_ID to deviceId
                     )
                     viewModel.registerFlag(true)
-                    viewModel.writeDeviceId(deviceId.toString())
                     viewModel.writeFirstAppStart()
                     findNavController().navigate(
                         R.id.action_registerNumberFragment_to_verificationFragment,
@@ -116,7 +115,9 @@ class RegisterNumberFragment : BaseFragment() {
                     DialogError.getInstance(requireContext(),
                         getString(R.string.registration_error),
                         "${getString(R.string.registration_error_description)} \n\n ${it.message}",
-                        null, getString(R.string.ok), object : DialogInteraction {
+                        null,
+                        getString(R.string.ok),
+                        listener = object : DialogInteraction {
                             override fun onFirstOptionClicked() {
                                 // Ignore
                             }

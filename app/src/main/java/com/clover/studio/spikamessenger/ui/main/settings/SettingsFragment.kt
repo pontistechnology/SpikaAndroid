@@ -84,10 +84,14 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
                 currentBitmap = bitmap
-                Glide.with(this).load(bitmap).diskCacheStrategy(DiskCacheStrategy.ALL)
+
+                Glide.with(this)
+                    .load(R.drawable.img_mocked)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(binding.profilePicture.ivPickAvatar)
+
                 currentPhotoLocation = bitmapUri
-                updateUserImage()
+                // updateUserImage()
             } else {
                 Timber.d("Gallery error")
             }
@@ -302,7 +306,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
             getString(R.string.data_deletion_warning),
             getString(R.string.cancel),
             getString(R.string.ok),
-            object : DialogInteraction {
+            listener = object : DialogInteraction {
                 override fun onFirstOptionClicked() {
                     // Ignore
                 }
@@ -446,7 +450,7 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
             getString(R.string.image_failed_upload, description),
             null,
             getString(R.string.ok),
-            object : DialogInteraction {
+            listener = object : DialogInteraction {
                 override fun onFirstOptionClicked() {
                     // Ignore
                 }

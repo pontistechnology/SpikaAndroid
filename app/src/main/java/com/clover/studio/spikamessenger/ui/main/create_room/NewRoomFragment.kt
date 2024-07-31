@@ -427,7 +427,7 @@ class NewRoomFragment : BaseFragment() {
             description,
             null,
             getString(R.string.ok),
-            object : DialogInteraction {
+            listener = object : DialogInteraction {
                 // Ignore
             })
     }

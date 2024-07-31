@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cv_qa"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -54,6 +55,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_first_option"
                 style="@style/HalfRightLeft"
+                app:cornerRadius="0dp"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="@dimen/four_dp_margin"
@@ -67,6 +69,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_second_option"
                 style="@style/HalfButtonLeft"
+                app:cornerRadius="0dp"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/four_dp_margin"

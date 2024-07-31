@@ -69,7 +69,7 @@ class ContactDetailsFragment : BaseFragment() {
                 getString(R.string.failed_user_data),
                 null,
                 getString(R.string.ok),
-                object : DialogInteraction {
+                listener = object : DialogInteraction {
                     override fun onFirstOptionClicked() {
                         // Ignore
                     }
@@ -220,18 +220,18 @@ class ContactDetailsFragment : BaseFragment() {
                 )
             }
 
-            ivOpenChat.setOnClickListener {
-                user?.userId?.let { id ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
-                        val roomId = viewModel.checkIfUserInPrivateRoom(id)
-
-                        roomId?.let {
-                            viewModel.getRoomWithUsers(it)
-                        } ?: viewModel.checkIfRoomExists(id)
-                    }
-                }
-            }
+//            ivOpenChat.setOnClickListener {
+//                user?.userId?.let { id ->
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
+//                        val roomId = viewModel.checkIfUserInPrivateRoom(id)
+//
+//                        roomId?.let {
+//                            viewModel.getRoomWithUsers(it)
+//                        } ?: viewModel.checkIfRoomExists(id)
+//                    }
+//                }
+//            }
 
             Glide.with(this@ContactDetailsFragment)
                 .load(user?.avatarId?.let { getFilePathUrl(it) })
@@ -255,7 +255,7 @@ class ContactDetailsFragment : BaseFragment() {
                     getString(R.string.block_user_description),
                     getString(R.string.no),
                     getString(R.string.block),
-                    object : DialogInteraction {
+                    listener = object : DialogInteraction {
                         override fun onSecondOptionClicked() {
                             user?.userId?.let { id -> viewModel.blockUser(id) }
                         }
@@ -266,7 +266,7 @@ class ContactDetailsFragment : BaseFragment() {
                     getString(R.string.unblock_description),
                     getString(R.string.cancel),
                     getString(R.string.yes),
-                    object : DialogInteraction {
+                    listener = object : DialogInteraction {
                         override fun onSecondOptionClicked() {
                             user?.userId?.let { viewModel.deleteBlockForSpecificUser(it) }
                         }
@@ -287,7 +287,7 @@ class ContactDetailsFragment : BaseFragment() {
             }
 
             override fun switchOption(optionName: String, isSwitched: Boolean) {
-                switchPinMuteOptions(optionName, isSwitched)
+//                switchPinMuteOptions(optionName, isSwitched)
             }
         })
         binding.flOptionsContainer.addView(userOptions)

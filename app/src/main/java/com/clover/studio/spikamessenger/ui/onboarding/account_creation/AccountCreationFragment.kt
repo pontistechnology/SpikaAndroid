@@ -130,7 +130,7 @@ class AccountCreationFragment : BaseFragment() {
                     ),
                     getString(R.string.send_again),
                     getString(R.string.ok),
-                    object : DialogInteraction {
+                    listener = object : DialogInteraction {
                         override fun onFirstOptionClicked() {
                             viewModel.sendContacts()
                         }
@@ -216,7 +216,7 @@ class AccountCreationFragment : BaseFragment() {
             getString(R.string.image_failed_upload, description),
             null,
             getString(R.string.ok),
-            object : DialogInteraction {
+            listener = object : DialogInteraction {
                 override fun onFirstOptionClicked() {
                     // ignore
                 }
