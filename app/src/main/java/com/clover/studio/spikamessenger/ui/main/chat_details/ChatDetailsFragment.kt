@@ -534,15 +534,18 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun initializeObservers() {
-        roomId?.let {
-            viewModel.getRoomAndUsers(it).observe(viewLifecycleOwner) { data ->
+        roomId?.let { roomId ->
+            viewModel.getRoomAndUsers(roomId).observe(viewLifecycleOwner) { data ->
                 when (data.status) {
                     Resource.Status.SUCCESS -> {
-                        val roomWithUsers = data.responseData
+                        roomWithUsers = data.responseData
                         if (roomWithUsers != null) {
                             initializeViews(roomWithUsers)
-                            if (Const.JsonFields.GROUP == roomWithUsers.room.type) {
-                                updateRoomUserList(roomWithUsers)
+
+                            roomWithUsers?.let {
+                                if (Const.JsonFields.GROUP == it.room.type) {
+                                    updateRoomUserList(it)
+                                }
                             }
                         }
                     }

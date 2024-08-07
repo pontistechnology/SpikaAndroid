@@ -520,7 +520,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 getString(R.string.yes),
                 object : DialogInteraction {
                     override fun onSecondOptionClicked() {
-                        roomWithUsers?.users!!.firstOrNull { user -> user.id != localUserId }
+                        roomWithUsers?.users?.firstOrNull { user -> user.id != localUserId }
                             ?.let { user -> viewModel.deleteBlockForSpecificUser(user.id) }
                     }
                 })
@@ -565,32 +565,53 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
     }
 
     private fun initializeObservers() {
+        // TODO - remove firstOrNull methods, check user setting in if condition
         roomWithUsers?.room?.roomId?.let {
-            viewModel.getRoomAndUsers(roomId = it).observe(viewLifecycleOwner) { room ->
-                when (room.status) {
+            viewModel.getRoomAndUsers(roomId = it).observe(viewLifecycleOwner) { data ->
+                when (data.status) {
                     Resource.Status.SUCCESS -> {
-                        if (roomWithUsers?.room?.name?.equals(room.responseData?.room?.name) == false || userName.isNullOrBlank()) {
-                            room.responseData?.room?.name?.let { roomName ->
-                                setUserName(userName = roomName)
-                                roomWithUsers?.room?.name = roomName
+                        data.responseData?.room?.let { room ->
+                            roomWithUsers = RoomWithUsers(
+                                room = room,
+                                users = data.responseData.users
+                            )
+
+                            // Room name
+                            roomWithUsers?.room?.name?.let { name ->
+                                if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
+                                    data.responseData.users.firstOrNull { user -> user.id != localUserId }?.displayName?.let { displayName ->
+                                        setUserName(
+                                            userName = displayName
+                                        )
+                                    }
+                                } else setUserName(userName = name)
                             }
-                        }
 
-                        if (roomWithUsers?.room?.avatarFileId != room.responseData?.room?.avatarFileId || avatarFileId == null) {
-                            room.responseData?.room?.avatarFileId?.let { avatarId ->
-                                setUserAvatar(avatarFileId = avatarId)
-                                roomWithUsers?.room?.avatarFileId = avatarId
+                            // Room avatar
+                            if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
+                                data.responseData.users.firstOrNull { user -> user.id != localUserId }?.avatarFileId?.let { avatarId ->
+                                    setUserAvatar(avatarId)
+                                }
+                            } else {
+                                roomWithUsers?.room?.avatarFileId?.let { avatarId ->
+                                    setUserAvatar(
+                                        avatarId
+                                    )
+                                }
                             }
-                        }
 
-                        if (roomWithUsers?.users?.size != room.responseData?.users?.size) {
-                            bindingSetup.chatHeader.tvTitle.text =
-                                getString(
-                                    R.string.members_number,
-                                    room.responseData?.users?.size.toString()
-                                )
-
-                            room.responseData?.users?.let { users -> roomWithUsers?.users = users }
+                            // Room phone number/group members
+                            if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
+                                user =
+                                    roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
+                                bindingSetup.chatHeader.tvTitle.text = user?.telephoneNumber
+                            } else {
+                                bindingSetup.chatHeader.tvTitle.text =
+                                    getString(
+                                        R.string.members_number,
+                                        data.responseData.users.size.toString()
+                                    )
+                            }
                         }
                     }
 
