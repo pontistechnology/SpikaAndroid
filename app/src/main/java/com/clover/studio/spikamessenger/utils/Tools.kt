@@ -962,8 +962,8 @@ object Tools {
 
     fun resizeImage(width: Int?, height: Int?): Pair<Int, Int> {
 
-        val correctedWidth = width ?: MAX_IMAGE_SIZE
-        val correctedHeight = height ?: MAX_IMAGE_SIZE
+        val correctedWidth = (width ?: 0).takeIf { it != 0 } ?: MAX_IMAGE_SIZE
+        val correctedHeight = (height ?: 0).takeIf { it != 0 } ?: MAX_IMAGE_SIZE
 
         val isPortrait = correctedHeight > correctedWidth
         val maxSizeLimit = MAX_IMAGE_SIZE
