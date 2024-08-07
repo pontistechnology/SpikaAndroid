@@ -588,14 +588,17 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                             }
 
                             // Room avatar
-                            val avatarId =
-                                if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
-                                    data.responseData.users.firstOrNull { user -> user.id != localUserId }?.avatarFileId
-                                } else {
-                                    roomWithUsers?.room?.avatarFileId
+                            if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
+                                data.responseData.users.firstOrNull { user -> user.id != localUserId }?.avatarFileId?.let { avatarId ->
+                                    setUserAvatar(avatarId)
                                 }
-
-                            if (avatarId != null) setUserAvatar(avatarFileId = avatarId)
+                            } else {
+                                roomWithUsers?.room?.avatarFileId?.let { avatarId ->
+                                    setUserAvatar(
+                                        avatarId
+                                    )
+                                }
+                            }
 
                             // Room phone number/group members
                             if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
