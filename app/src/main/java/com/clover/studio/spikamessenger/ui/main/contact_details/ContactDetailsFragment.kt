@@ -82,6 +82,7 @@ class ContactDetailsFragment : BaseFragment() {
         } else {
             user = requireArguments().getParcelable(Const.Navigation.USER_PROFILE)
             roomWithUsers = requireArguments().getParcelable(Const.Navigation.ROOM_DATA)
+            roomId = roomWithUsers?.room?.roomId ?: 0
         }
 
         navOptionsBuilder = Tools.createCustomNavOptions()
