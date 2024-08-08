@@ -17,7 +17,6 @@ import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getRoomTime
 import com.vanniktech.emoji.EmojiTextView
-import kotlin.random.Random
 
 const val MAX_UNREAD_MESSAGES = 99
 
@@ -141,7 +140,8 @@ class RoomsAdapter(
                     if (numberOfMessages > MAX_UNREAD_MESSAGES) {
                         binding.tvNewMessages.text = context.getString(R.string.unread_limit)
                     } else {
-                        binding.tvNewMessages.text = "${roomItem.roomWithUsers.room.unreadCount + Random.nextInt(6)}"
+                        binding.tvNewMessages.text =
+                            roomItem.roomWithUsers.room.unreadCount.toString()
                     }
                     binding.tvNewMessages.visibility = View.VISIBLE
                 } else {

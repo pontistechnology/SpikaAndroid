@@ -60,19 +60,19 @@ class NotesFragment : BaseFragment() {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-//        binding.ivNewNote.setOnClickListener {
-//            if (activity is MainActivity) {
-//                findNavController().navigate(
-//                    R.id.newNoteFragment,
-//                    bundleOf(Const.Navigation.ROOM_ID to roomId),
-//                    navOptionsBuilder
-//                )
-//            } else findNavController().navigate(
-//                R.id.newNoteFragment,
-//                bundleOf(Const.Navigation.ROOM_ID to roomId),
-//                navOptionsBuilder
-//            )
-//        }
+        binding.ivNewNote.setOnClickListener {
+            if (activity is MainActivity) {
+                findNavController().navigate(
+                    R.id.newNoteFragment,
+                    bundleOf(Const.Navigation.ROOM_ID to roomId),
+                    navOptionsBuilder
+                )
+            } else findNavController().navigate(
+                R.id.newNoteFragment,
+                bundleOf(Const.Navigation.ROOM_ID to roomId),
+                navOptionsBuilder
+            )
+        }
 
         if (itemTouchHelper == null) {
             val notesSwipeController =

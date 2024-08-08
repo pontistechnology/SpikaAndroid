@@ -124,7 +124,6 @@ class VerificationFragment : BaseFragment() {
                     if (viewModel.isTeamMode()) {
                         binding.ivSpikaVerify.setImageResource(R.drawable.img_spika_logo_centered)
                     }
-                    viewModel.writeDeviceId(deviceId)
                     goToMainActivity()
                 }
 
@@ -132,7 +131,6 @@ class VerificationFragment : BaseFragment() {
                     if (viewModel.isTeamMode()) {
                         binding.ivSpikaVerify.setImageResource(R.drawable.img_spika_logo_centered)
                     }
-                    viewModel.writeDeviceId(deviceId)
                     goToAccountCreation()
                 }
 

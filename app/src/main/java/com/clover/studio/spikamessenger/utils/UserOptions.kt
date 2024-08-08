@@ -37,7 +37,7 @@ class UserOptions(context: Context) :
         this.listener = listener
     }
 
-    fun setOptions(optionList: MutableList<UserOptionsData>, changeFont: Boolean = false) {
+    fun setOptions(optionList: MutableList<UserOptionsData>) {
         optionList.forEachIndexed { index, item ->
             val isFirstView = index == 0
             val isLastView = index == optionList.size - 1
@@ -110,11 +110,6 @@ class UserOptions(context: Context) :
 
             if (index > 0 && index < optionList.size - 1) {
                 binding.llOptions.addView(newView, index)
-            }
-
-            if (changeFont) {
-                val typeface = ResourcesCompat.getFont(context, R.font.rowdies_bold)
-                textView.typeface = typeface
             }
         }
     }

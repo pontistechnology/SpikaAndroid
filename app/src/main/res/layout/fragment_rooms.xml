@@ -81,7 +81,7 @@
                 android:layout_marginEnd="@dimen/four_dp_margin"
                 android:layout_weight="1"
                 android:backgroundTint="?attr/primaryColor"
-                android:text="@string/messages"
+                android:text="@string/chats"
                 android:textAllCaps="false"
                 android:textAppearance="@style/CustomTextBody"
                 android:textColor="?attr/primaryTextColor" />
@@ -95,7 +95,7 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:backgroundTint="?attr/fourthAdditionalColor"
-                android:text="@string/chats"
+                android:text="@string/messages"
                 android:textAllCaps="false"
                 android:textAppearance="@style/CustomTextBody"
                 android:textColor="?attr/primaryTextColor" />
@@ -136,6 +136,6 @@
         android:src="@drawable/img_new_chat"
         app:borderWidth="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:tint="?attr/primaryTextColor" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -31,7 +31,6 @@
         android:layout_marginEnd="@dimen/sixteen_dp_margin"
         android:ellipsize="end"
         android:letterSpacing="0.1"
-        android:textStyle="italic"
         android:maxLines="1"
         android:textAppearance="@style/CustomTitleBold"
         android:textSize="@dimen/fourteen_sp_text"

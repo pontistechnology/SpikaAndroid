@@ -255,7 +255,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
         avatarFileId = roomWithUsers?.room?.avatarFileId!!
 
         tvMembersNumber.text =
-            getString(R.string.number_of_members, 3)
+            getString(R.string.number_of_members, roomWithUsers.users.size)
 
         // This will stop image file changes while file is uploading via LiveData
         if (!isUploading && ivDone.visibility == View.GONE) {
@@ -368,7 +368,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
 
     private fun setOptionContainer() {
         val userOptions = UserOptions(requireContext())
-        userOptions.setOptions(optionList, true)
+        userOptions.setOptions(optionList)
         userOptions.setOptionsListener(object : UserOptions.OptionsListener {
             override fun clickedOption(option: Int, optionName: String) {
                 when (optionName) {
@@ -380,7 +380,7 @@ class ChatDetailsFragment : BaseFragment(), ServiceConnection {
             }
 
             override fun switchOption(optionName: String, isSwitched: Boolean) {
-//                switchPinMuteOptions(optionName, isSwitched)
+                switchPinMuteOptions(optionName, isSwitched)
             }
         })
         binding.flOptionsContainer.addView(userOptions)

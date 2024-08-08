@@ -287,7 +287,7 @@ class ContactDetailsFragment : BaseFragment() {
             }
 
             override fun switchOption(optionName: String, isSwitched: Boolean) {
-//                switchPinMuteOptions(optionName, isSwitched)
+                switchPinMuteOptions(optionName, isSwitched)
             }
         })
         binding.flOptionsContainer.addView(userOptions)
