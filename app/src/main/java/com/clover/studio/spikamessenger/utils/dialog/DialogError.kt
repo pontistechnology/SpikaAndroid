@@ -16,7 +16,6 @@ class DialogError(
     private val description: String?,
     private val firstOption: String?,
     private val secondOption: String,
-    private val changeBorder: Boolean = false,
     private val listener: DialogInteraction
 ) : BaseDialog(context) {
     private var bindingSetup: DialogErrorBinding? = null
@@ -34,7 +33,6 @@ class DialogError(
             description: String?,
             firstOption: String?,
             secondOption: String,
-            changeBorder: Boolean = false,
             listener: DialogInteraction
         ): DialogError = INSTANCE
             ?: DialogError(
@@ -43,7 +41,6 @@ class DialogError(
                 description,
                 firstOption,
                 secondOption,
-                changeBorder,
                 listener
             ).also { INSTANCE = it }.also {
                 it.window?.setBackgroundDrawableResource(android.R.color.transparent)
@@ -61,9 +58,6 @@ class DialogError(
     }
 
     private fun initViews() = with(binding) {
-        if (changeBorder){
-            cvQa.radius = 0F
-        }
 
         tvTextTitle.text = title
 

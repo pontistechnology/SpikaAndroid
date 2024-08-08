@@ -521,7 +521,6 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                 getString(R.string.unblock_description),
                 getString(R.string.cancel),
                 getString(R.string.yes),
-                changeBorder = true,
                 object : DialogInteraction {
                     override fun onSecondOptionClicked() {
                         roomWithUsers?.users?.firstOrNull { user -> user.id != localUserId }

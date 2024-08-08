@@ -85,13 +85,10 @@ class SettingsFragment : BaseFragment(), ServiceConnection {
 
                 currentBitmap = bitmap
 
-                Glide.with(this)
-                    .load(R.drawable.img_mocked)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                Glide.with(this).load(bitmap).diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(binding.profilePicture.ivPickAvatar)
-
                 currentPhotoLocation = bitmapUri
-                // updateUserImage()
+                updateUserImage()
             } else {
                 Timber.d("Gallery error")
             }

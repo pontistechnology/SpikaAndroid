@@ -75,7 +75,7 @@
     </style>
 
     <style name="HalfButtonLeft" parent="CustomButton">
-<!--        <item name="shapeAppearanceOverlay">@style/LeftButtonShapeAppearance</item>-->
+        <item name="shapeAppearanceOverlay">@style/LeftButtonShapeAppearance</item>
     </style>
 
     <style name="LeftButtonShapeAppearance">
@@ -87,7 +87,7 @@
     </style>
 
     <style name="HalfRightLeft" parent="CustomButton">
-<!--        <item name="shapeAppearanceOverlay">@style/RightButtonShapeAppearance</item>-->
+        <item name="shapeAppearanceOverlay">@style/RightButtonShapeAppearance</item>
     </style>
 
     <style name="RightButtonShapeAppearance">

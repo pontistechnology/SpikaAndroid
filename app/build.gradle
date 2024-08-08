@@ -85,7 +85,7 @@ android {
             debuggable true
 
             resValue "string", "APP_NAME", "Spika3 Dev"
-            buildConfigField("String", "SERVER_URL", "\"https://qainternship2024.pontistechnology.com/\"")
+            buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
             buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
 
             signingConfig signingConfigs.debug

@@ -110,42 +110,34 @@ class MediaPagerAdapter(
             onItemClicked.invoke(Const.MediaActions.MEDIA_SHOW_BARS, mediaList[position])
         }
 
-        val size = mediaList[position].body?.file?.size
-        if (size != null && size > 2000000){
-            pbMediaImage.visibility = View.GONE
-            Glide.with(context)
-                .load(R.drawable.img_media_placeholder_error)
-                .into(ivFullImage)
-        } else {
-            val fileId = mediaList[position].body?.fileId
-            Glide.with(context)
-                .load(fileId?.let { Tools.getFilePathUrl(it) })
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .error(AppCompatResources.getDrawable(context, R.drawable.img_media_placeholder_error))
-                .listener(object : RequestListener<Drawable> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Drawable>,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        pbMediaImage.visibility = View.GONE
-                        return false
-                    }
+        val fileId = mediaList[position].body?.fileId
+        Glide.with(context)
+            .load(fileId?.let { Tools.getFilePathUrl(it) })
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .error(AppCompatResources.getDrawable(context, R.drawable.img_media_placeholder_error))
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    pbMediaImage.visibility = View.GONE
+                    return false
+                }
 
-                    override fun onResourceReady(
-                        resource: Drawable,
-                        model: Any,
-                        target: Target<Drawable>?,
-                        dataSource: DataSource,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        pbMediaImage.visibility = View.GONE
-                        return false
-                    }
-                })
-                .into(ivFullImage)
-        }
+                override fun onResourceReady(
+                    resource: Drawable,
+                    model: Any,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    pbMediaImage.visibility = View.GONE
+                    return false
+                }
+            })
+            .into(ivFullImage)
     }
 
     private fun playbackStateListener() = object : Player.Listener {
