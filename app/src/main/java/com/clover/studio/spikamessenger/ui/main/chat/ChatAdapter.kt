@@ -242,8 +242,6 @@ class ChatAdapter(
                             replyContainer = holder.binding.flReplyMsgContainer,
                             sender = true
                         )
-
-                        holder.binding.tvMessage.setTextColor(ColorHelper.getPrimaryColor(context))
                     }
 
                     /** Show message preview: */

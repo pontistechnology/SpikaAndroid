@@ -338,7 +338,7 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
             user =
                 roomWithUsers?.users?.firstOrNull { user -> user.id.toString() != localUserId.toString() }
             avatarFileId = user?.avatarFileId
-            userName = "John Smith"
+            userName = user?.formattedDisplayName
             chatHeader.tvTitle.text = user?.telephoneNumber
         } else {
             avatarFileId = roomWithUsers?.room?.avatarFileId
@@ -582,9 +582,11 @@ class ChatMessagesFragment : BaseFragment(), ServiceConnection {
                             // Room name
                             roomWithUsers?.room?.name?.let { name ->
                                 if (Const.JsonFields.PRIVATE == roomWithUsers?.room?.type) {
-                                    setUserName(
-                                        userName = "John Smith"
-                                    )
+                                    data.responseData.users.firstOrNull { user -> user.id != localUserId }?.displayName?.let { displayName ->
+                                        setUserName(
+                                            userName = displayName
+                                        )
+                                    }
                                 } else setUserName(userName = name)
                             }
 
