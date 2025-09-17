@@ -2,154 +2,119 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="contentDescription"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.create_room.GroupInformationFragment">
+    tools:context=".ui.main.create_room.GroupInformationFragment"
+    tools:ignore="contentDescription">
 
     <TextView
         android:id="@+id/tv_title"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat"
-        android:padding="@dimen/twenty_dp_margin"
+        android:elevation="@dimen/eight_dp_margin"
+        android:paddingTop="@dimen/twenty_dp_margin"
+        android:paddingBottom="@dimen/twenty_dp_margin"
         android:text="@string/name_the_group"
-        android:textSize="@dimen/fourteen_sp_text"
-        app:layout_constraintEnd_toStartOf="@id/tv_create"
-        app:layout_constraintStart_toEndOf="@id/iv_cancel"
+        android:textAppearance="@style/CustomTextBody"
+        android:textSize="@dimen/fifteen_sp_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/iv_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat"
+        android:background="?android:attr/selectableItemBackground"
+        android:textAppearance="@style/CustomTextBody"
         android:padding="@dimen/twenty_dp_margin"
-        android:src="@drawable/img_arrow_back"
+        android:elevation="@dimen/eight_dp_margin"
+        android:src="@drawable/img_arrow_back_chat"
         app:layout_constraintBottom_toBottomOf="@+id/tv_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_title" />
 
-    <TextView
-        android:id="@+id/tv_create"
-        android:layout_width="wrap_content"
+    <include
+        android:id="@+id/profile_picture"
+        layout="@layout/profile_picture"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="false"
-        android:fontFamily="@font/montserrat"
-        android:padding="@dimen/twenty_dp_margin"
-        android:text="@string/create"
-        android:textFontWeight="@string/six_hundred"
-        android:textColor="@color/text_tertiary"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/iv_pick_photo"
-        android:layout_width="@dimen/one_hundred_dp"
-        android:layout_height="@dimen/one_hundred_dp"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:scaleType="center"
-        android:src="@drawable/img_camera"
-        android:background="@drawable/img_selector_background"
-        android:backgroundTint="@color/light_blue"
+        android:elevation="0dp"
         app:layout_constraintBottom_toTopOf="@id/et_enter_username"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title"
-        app:shapeAppearanceOverlay="@style/circle"/>
-
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_progress_screen"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:elevation="@dimen/five_dp_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/iv_pick_photo"
-        app:layout_constraintEnd_toEndOf="@id/iv_pick_photo"
-        app:layout_constraintStart_toStartOf="@id/iv_pick_photo"
-        app:layout_constraintTop_toTopOf="@id/iv_pick_photo">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/img_selector_background"
-            android:backgroundTint="@color/dark_background_transp" />
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="@dimen/seventy_dp"
-            android:layout_height="@dimen/seventy_dp"
-            android:indeterminate="false"
-            android:progress="0"
-            android:progressTint="@color/primary_color"
-            android:progressDrawable="@drawable/custom_circular_progress"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_small_camera_picker"
-        android:layout_width="@dimen/twenty_eight_dp"
-        android:layout_height="@dimen/twenty_eight_dp"
-        android:background="@drawable/img_selector_background"
-        android:elevation="@dimen/five_dp_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/iv_pick_photo"
-        app:layout_constraintEnd_toEndOf="@id/iv_pick_photo">
-
-        <ImageView
-            android:layout_width="@dimen/twelve_dp"
-            android:layout_height="@dimen/twelve_dp"
-            android:src="@drawable/img_camera"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/et_enter_username"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/thirty_dp_margin"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
         android:layout_marginTop="@dimen/twenty_dp_margin"
-        android:layout_marginEnd="@dimen/thirty_dp_margin"
-        android:layout_marginBottom="@dimen/twenty_dp_margin"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:layout_marginBottom="@dimen/sixteen_dp_margin"
         android:background="@drawable/bg_text_field"
-        android:fontFamily="@font/montserrat"
-        android:hint="@string/group_name"
-        android:padding="@dimen/ten_dp_margin"
+        android:backgroundTint="?attr/secondaryColor"
+        android:hint="@string/enter_group_name"
+        android:maxLength="70"
+        android:padding="@dimen/sixteen_dp_margin"
+        android:maxLines="1"
+        android:textAppearance="@style/CustomTextBody"
+        android:textColor="?attr/primaryTextColor"
+        android:textColorHint="?attr/primaryTextColor"
         android:textSize="@dimen/fourteen_sp_text"
+        android:singleLine="true"
         app:layout_constraintBottom_toTopOf="@id/tv_people_selected"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_pick_photo"
-        android:backgroundTint="@color/inputs"/>
+        app:layout_constraintTop_toBottomOf="@id/profile_picture" />
 
     <TextView
         android:id="@+id/tv_people_selected"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:fontFamily="@font/montserrat_bold"
+        android:layout_marginBottom="@dimen/sixteen_dp_margin"
+        android:textAppearance="@style/CustomTitleBold"
+        android:textColor="?attr/primaryTextColor"
         android:text="@string/s_people_selected"
         android:textSize="@dimen/sixteen_sp_text"
         app:layout_constraintBottom_toTopOf="@id/rv_contacts"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/et_enter_username"
         app:layout_constraintTop_toBottomOf="@id/et_enter_username" />
+
+    <ImageView
+        android:id="@+id/iv_add_more_users"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@id/et_enter_username"
+        app:layout_constraintBottom_toTopOf="@id/rv_contacts"
+        app:layout_constraintTop_toBottomOf="@id/et_enter_username"
+        android:src="@drawable/img_add"
+        app:tint="@color/primary_color" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_contacts"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/et_enter_username"
         app:layout_constraintStart_toStartOf="@+id/tv_people_selected"
         app:layout_constraintTop_toBottomOf="@id/tv_people_selected" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/twenty_four_dp_margin"
+        android:layout_marginBottom="@dimen/twenty_four_dp_margin"
+        android:backgroundTint="?attr/primaryColor"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/img_checkmark"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
+

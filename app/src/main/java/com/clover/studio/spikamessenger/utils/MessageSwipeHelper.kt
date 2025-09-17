@@ -2,6 +2,7 @@ package com.clover.studio.spikamessenger.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.view.HapticFeedbackConstants
@@ -15,7 +16,6 @@ import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import kotlin.math.abs
 
-const val HALF_SCREEN = 100
 const val SHOW_LIMIT = 30
 const val MAX_ALPHA = 255
 const val MAX_SCALE = 1F
@@ -23,8 +23,8 @@ const val MIN_ALPHA = 0
 const val MIN_SCALE = 0f
 const val SMALL_MESSAGE_POSITIVE_SIZE_1 = 80
 const val SMALL_MESSAGE_POSITIVE_SIZE_2 = 250
-const val SMALL_MESSAGE_NEGATIVE_SIZE_1 = -10
-const val SMALL_MESSAGE_NEGATIVE_SIZE_2 = -150
+const val SMALL_MESSAGE_NEGATIVE_SIZE_1 = -90
+const val SMALL_MESSAGE_NEGATIVE_SIZE_2 = -260
 
 class MessageSwipeController(
     private val context: Context,
@@ -38,10 +38,10 @@ class MessageSwipeController(
 
     private var currentItemViewHolder: ViewHolder? = null
     private lateinit var mView: View
-    private var dX = 0f
     private var swipeBack = false
     private var isVibrate = false
     private var startTracking = false
+    private var halfScreen = 0
 
     private var action: String = ""
 
@@ -53,9 +53,10 @@ class MessageSwipeController(
         replyImage = AppCompatResources.getDrawable(context, R.drawable.img_reply_item)
         infoImage = AppCompatResources.getDrawable(context, R.drawable.img_info_item)
 
-        return if (messageRecords[viewHolder.absoluteAdapterPosition].message.deleted == null
-            || messageRecords[viewHolder.absoluteAdapterPosition].message.deleted == true
-        ) {
+        val width = Resources.getSystem().displayMetrics.widthPixels
+        halfScreen = width / 3
+
+        return if (messageRecords[viewHolder.absoluteAdapterPosition].message.canDelete()) {
             // Disable swipe for deleted messages
             makeMovementFlags(ACTION_STATE_IDLE, 0)
         } else {
@@ -102,11 +103,24 @@ class MessageSwipeController(
             setTouchListener(recyclerView, viewHolder)
         }
 
-        if (mView.translationX < convertToDp(HALF_SCREEN) || dX < this.dX) {
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-            this.dX = dX
-            startTracking = true
-        }
+        var newDx = dX
+        if (Const.UserActions.ACTION_LEFT == action && dX <= -halfScreen / 2) {
+            newDx = (-halfScreen / 2).toFloat()
+        } else if (Const.UserActions.ACTION_RIGHT == action && dX >= halfScreen / 2) newDx =
+            (halfScreen / 2).toFloat()
+
+        super.onChildDraw(
+            c,
+            recyclerView,
+            viewHolder,
+            newDx,
+            dY,
+            actionState,
+            isCurrentlyActive
+        )
+        // Move the section header in the opposite direction to counter the container's movement
+        mView.findViewById<View>(R.id.tv_section_header).translationX = -newDx
+        startTracking = true
         currentItemViewHolder = viewHolder
 
         if (Const.UserActions.ACTION_RIGHT == action) {
@@ -123,14 +137,22 @@ class MessageSwipeController(
                 event.action == MotionEvent.ACTION_CANCEL || event.action == MotionEvent.ACTION_UP
             if (swipeBack) {
                 // Adjust for small messages:
-                if (abs(mView.translationX) >= this@MessageSwipeController.convertToDp(HALF_SCREEN)
+                if (abs(mView.translationX) >= halfScreen
                     || (mView.translationX > SMALL_MESSAGE_POSITIVE_SIZE_1 && mView.translationX < SMALL_MESSAGE_POSITIVE_SIZE_2)
                     || (mView.translationX < SMALL_MESSAGE_NEGATIVE_SIZE_1 && mView.translationX > SMALL_MESSAGE_NEGATIVE_SIZE_2)
                 ) {
                     onSwipeAction.invoke(action, viewHolder.absoluteAdapterPosition)
+                    resetPosition()
                 }
             }
             false
+        }
+    }
+
+    private fun resetPosition() {
+        if (currentItemViewHolder != null) {
+            val view = currentItemViewHolder!!.itemView
+            view.translationX = 0f
         }
     }
 
@@ -171,39 +193,35 @@ class MessageSwipeController(
         replyImage?.alpha = alpha
         if (startTracking) {
             // On half of screen vibrate
-            if (!isVibrate && (mView.translationX >= convertToDp(HALF_SCREEN)
-                        || mView.translationX >= -convertToDp(HALF_SCREEN))
+            if (!isVibrate && (mView.translationX >= halfScreen
+                        || mView.translationX >= -halfScreen)
             ) {
                 mView.performHapticFeedback(
-                    HapticFeedbackConstants.KEYBOARD_TAP,
-                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+                    HapticFeedbackConstants.KEYBOARD_TAP
                 )
                 isVibrate = true
             }
         }
 
         // Calculate where to show icon (x,y)
-        val x: Int = if (action == Const.UserActions.ACTION_RIGHT) {
-            if (mView.translationX > convertToDp(HALF_SCREEN)) {
-                convertToDp(HALF_SCREEN) / 2
+        val x: Int = if (action == Const.UserActions.ACTION_LEFT) {
+            (mView.measuredWidth + mView.translationX / 2).toInt() - convertToDp(16)
+        } else {
+            if (mView.translationX > halfScreen) {
+                halfScreen / 2
             } else {
                 (mView.translationX / 2).toInt()
-            }
-        } else {
-            if (mView.translationX < -convertToDp(SHOW_LIMIT)) {
-                mView.measuredWidth - convertToDp(SHOW_LIMIT) / 2 - convertToDp(16)
-            } else {
-                (mView.measuredWidth - mView.translationX / 2).toInt() - convertToDp(16)
             }
         }
         val y = (mView.top + mView.measuredHeight / 2).toFloat()
 
         // Draw icon
+        val iconSize = (convertToDp(12) * scale)
         icon?.setBounds(
-            (x - convertToDp(12) * scale).toInt(),
-            (y - convertToDp(11) * scale).toInt(),
-            (x + convertToDp(12) * scale).toInt(),
-            (y + convertToDp(10) * scale).toInt()
+            (x - iconSize).toInt(),
+            (y - iconSize).toInt(),
+            (x + iconSize).toInt(),
+            (y + iconSize).toInt()
         )
         icon?.draw(canvas)
         icon?.alpha = MAX_ALPHA

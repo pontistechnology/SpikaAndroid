@@ -3,22 +3,22 @@ package com.clover.studio.spikamessenger.utils.dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
-import androidx.core.content.ContextCompat
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import com.clover.studio.spikamessenger.R
-import com.clover.studio.spikamessenger.databinding.DialogChooserBinding
+import com.clover.studio.spikamessenger.databinding.ChatOptionItemBinding
+import com.clover.studio.spikamessenger.databinding.MoreOptionsBinding
 import com.clover.studio.spikamessenger.utils.extendables.BaseDialog
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 
 class ChooserDialog(
     context: Context?,
-    private val title: String?,
-    private val description: String?,
-    private val firstOption: String?,
-    private val secondOption: String?,
+    private val listChooseOptions: MutableList<String>,
     private val listener: DialogInteraction,
 ) : BaseDialog(context) {
-    private var bindingSetup: DialogChooserBinding? = null
+    private var bindingSetup: MoreOptionsBinding? = null
 
     private val binding get() = bindingSetup!!
 
@@ -29,18 +29,12 @@ class ChooserDialog(
         @Synchronized
         fun getInstance(
             context: Context,
-            title: String?,
-            description: String?,
-            firstOption: String?,
-            secondOption: String?,
+            listChooseOptions: MutableList<String>,
             listener: DialogInteraction
         ): ChooserDialog = INSTANCE
             ?: ChooserDialog(
                 context,
-                title,
-                description,
-                firstOption,
-                secondOption,
+                listChooseOptions,
                 listener
             ).also { INSTANCE = it }.also {
                 it.window?.setBackgroundDrawableResource(android.R.color.transparent)
@@ -51,67 +45,53 @@ class ChooserDialog(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        bindingSetup = DialogChooserBinding.inflate(layoutInflater)
+        bindingSetup = MoreOptionsBinding.inflate(layoutInflater)
         val view = bindingSetup!!.root
         setContentView(view)
 
         initViews()
     }
 
-    private fun initViews() = with(binding) {
-        if (!title.isNullOrEmpty()) {
-            if (context.getString(R.string.delete) == title) {
-                btnFirstOption.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.style_red
-                    )
-                )
-                btnSecondOption.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.style_red
-                    )
-                )
-                btnCancel.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.primary_color
-                    )
-                )
-                tvTextTitle.visibility = View.GONE
+    private fun initViews(){
+        listChooseOptions.forEachIndexed { index, item ->
+            val isFirstView = index == 0
+            val isLastView = index == listChooseOptions.size - 1
+
+            val newView: View =
+                LayoutInflater.from(context).inflate(R.layout.chat_option_item, null)
+
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            )
+
+            val marginInPixels = context.resources.getDimensionPixelSize(R.dimen.four_dp_margin)
+            layoutParams.setMargins(0, marginInPixels, 0, marginInPixels)
+
+            newView.layoutParams = layoutParams
+
+            val newViewBinding = ChatOptionItemBinding.bind(newView)
+
+            val textView =
+                if (isFirstView) binding.tvFirstItem else if (isLastView) binding.tvLastItem else newViewBinding.tvOptionName
+            textView.text = item
+
+            val lp = textView.layoutParams as FrameLayout.LayoutParams
+            lp.gravity = Gravity.CENTER_VERTICAL or Gravity.CENTER_HORIZONTAL
+            newViewBinding.tvOptionName.layoutParams = lp
+
+            val frameLayout =
+                if (isFirstView) binding.flFirstItem else if (isLastView) binding.flLastItem else newViewBinding.flNewItem
+            frameLayout.tag = index
+
+            frameLayout.setOnClickListener {
+                listener.onOptionClicked(item)
+                dismiss()
             }
-            tvTextTitle.text = title
-        } else {
-            tvTextTitle.visibility = View.GONE
-        }
 
-        if (!description.isNullOrEmpty())
-            tvTextDescription.text = description
-        else
-            tvTextDescription.visibility = View.GONE
-
-        if (!secondOption.isNullOrEmpty()) {
-            btnSecondOption.text = secondOption
-            vBorder.visibility = View.VISIBLE
-        } else {
-            btnSecondOption.visibility = View.GONE
-            vBorder.visibility = View.GONE
-        }
-
-        btnFirstOption.text = firstOption
-        btnFirstOption.setOnClickListener {
-            listener.onFirstOptionClicked()
-            dismiss()
-        }
-
-        btnSecondOption.setOnClickListener {
-            listener.onSecondOptionClicked()
-            dismiss()
-        }
-
-        btnCancel.setOnClickListener {
-            dismiss()
+            if (index > 0 && index < listChooseOptions.size - 1) {
+                binding.llOptions.addView(newView, index)
+            }
         }
     }
 

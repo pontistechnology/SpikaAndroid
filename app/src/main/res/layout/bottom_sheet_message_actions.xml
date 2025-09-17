@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_rounded_corners_top"
+    android:backgroundTint="?attr/secondaryColor"
+    android:paddingBottom="@dimen/ten_dp_margin"
+    tools:ignore="contentDescription">
+
+    <FrameLayout
+        android:id="@+id/reactions_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/twenty_four_dp_margin"
+        android:layout_marginTop="@dimen/sixteen_dp_margin"
+        android:layout_marginEnd="@dimen/twenty_four_dp_margin"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/cl_message_options"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/eight_dp_margin"
+        android:layout_marginTop="@dimen/eight_dp_margin"
+        android:layout_marginEnd="@dimen/eight_dp_margin"
+        android:layout_marginBottom="@dimen/sixteen_dp_margin"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reactions_container">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_reply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/secondaryColor"
+            android:outlineProvider="none"
+            android:visibility="visible"
+            app:cardElevation="@dimen/two_dp_margin"
+            app:cardPreventCornerOverlap="true">
+
+            <TextView
+                android:id="@+id/tv_reply"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:drawablePadding="@dimen/sixteen_dp_margin"
+                android:padding="@dimen/ten_dp_margin"
+                android:text="@string/reply"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="?attr/primaryTextColor"
+                android:textSize="@dimen/sixteen_sp_text"
+                android:visibility="visible"
+                app:drawableLeftCompat="@drawable/img_reply" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_forward"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/secondaryColor"
+            android:outlineProvider="none"
+            android:visibility="visible"
+            app:cardElevation="@dimen/two_dp_margin"
+            app:cardPreventCornerOverlap="true">
+
+            <TextView
+                android:id="@+id/tv_forward"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/ten_dp_margin"
+                android:drawablePadding="@dimen/sixteen_dp_margin"
+                android:text="@string/forward"
+                android:textAppearance="@style/CustomTextBody"
+                android:textSize="@dimen/sixteen_sp_text"
+                android:visibility="visible"
+                app:drawableLeftCompat="@drawable/img_forward" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_download"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/secondaryColor"
+            android:outlineProvider="none"
+            android:visibility="visible"
+            app:cardElevation="@dimen/two_dp_margin"
+            app:cardPreventCornerOverlap="true">
+
+            <TextView
+                android:id="@+id/tv_download"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:drawablePadding="@dimen/sixteen_dp_margin"
+                android:padding="@dimen/ten_dp_margin"
+                android:text="@string/download_media"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="?attr/primaryTextColor"
+                android:textSize="@dimen/sixteen_sp_text"
+                android:visibility="gone"
+                app:drawableLeftCompat="@drawable/img_download_small" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_copy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/secondaryColor"
+            android:outlineProvider="none"
+            android:visibility="visible"
+            app:cardElevation="@dimen/two_dp_margin"
+            app:cardPreventCornerOverlap="true">
+
+            <TextView
+                android:id="@+id/tv_copy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/sixteen_dp_margin"
+                android:padding="@dimen/ten_dp_margin"
+                android:text="@string/copy"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="?attr/primaryTextColor"
+                android:textSize="@dimen/sixteen_sp_text"
+                android:visibility="visible"
+                app:drawableLeftCompat="@drawable/img_copy" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_edited"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/secondaryColor"
+            android:outlineProvider="none"
+            android:visibility="visible"
+            app:cardElevation="@dimen/two_dp_margin">
+
+            <TextView
+                android:id="@+id/tv_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:drawablePadding="@dimen/sixteen_dp_margin"
+                android:elevation="@dimen/eight_dp_margin"
+                android:padding="@dimen/ten_dp_margin"
+                android:text="@string/edit"
+                android:textAppearance="@style/CustomTextBody"
+                android:textSize="@dimen/sixteen_sp_text"
+                app:drawableLeftCompat="@drawable/img_edit" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/secondaryColor"
+            android:outlineProvider="none"
+            android:visibility="visible"
+            app:cardElevation="@dimen/two_dp_margin"
+            app:cardPreventCornerOverlap="true">
+
+            <TextView
+                android:id="@+id/tv_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/sixteen_dp_margin"
+                android:padding="@dimen/ten_dp_margin"
+                android:text="@string/details"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="?attr/primaryTextColor"
+                android:textSize="@dimen/sixteen_sp_text"
+                android:visibility="visible"
+                app:drawableLeftCompat="@drawable/img_info" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_favorite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/secondaryColor"
+            android:outlineProvider="none"
+            android:visibility="visible"
+            app:cardElevation="@dimen/two_dp_margin"
+            app:cardPreventCornerOverlap="true">
+
+            <TextView
+                android:id="@+id/tv_favorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/twenty_dp_margin"
+                android:drawablePadding="@dimen/sixteen_dp_margin"
+                android:text="@string/favorite"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="?attr/primaryTextColor"
+                android:textSize="@dimen/sixteen_sp_text"
+                android:visibility="gone"
+                app:drawableLeftCompat="@drawable/img_favorite" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_deleted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/secondaryColor"
+            android:outlineProvider="none"
+            android:visibility="visible"
+            app:cardElevation="@dimen/two_dp_margin"
+            app:cardPreventCornerOverlap="true">
+
+            <TextView
+                android:id="@+id/tv_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:drawablePadding="@dimen/sixteen_dp_margin"
+                android:padding="@dimen/ten_dp_margin"
+                android:text="@string/delete"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="@color/warningColor"
+                android:textSize="@dimen/sixteen_sp_text"
+                app:drawableLeftCompat="@drawable/img_delete"
+                app:drawableTint="@color/warningColor" />
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

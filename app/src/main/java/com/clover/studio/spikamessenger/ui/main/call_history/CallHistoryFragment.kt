@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.databinding.FragmentCallHistoryBinding
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
-import timber.log.Timber
 
 class CallHistoryFragment : BaseFragment() {
     private lateinit var callHistoryAdapter: CallHistoryAdapter
@@ -27,10 +29,9 @@ class CallHistoryFragment : BaseFragment() {
         bindingSetup = FragmentCallHistoryBinding.inflate(inflater, container, false)
 
         setupAdapter()
-        setupSearchView()
+        initializeViews()
 
         if (!this::userList.isInitialized || userList.isEmpty()) {
-            binding.svHistorySearch.visibility = View.GONE
             binding.rvCallHistory.visibility = View.GONE
         } else {
             binding.tvNoCalls.visibility = View.GONE
@@ -55,52 +56,43 @@ class CallHistoryFragment : BaseFragment() {
         }
     }
 
-    private fun setupSearchView() {
+    private fun initializeViews() = with(binding) {
+        topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.search_menu_icon -> {
+                    val searchView = menuItem.actionView as SearchView
+                    Tools.setUpSearchBar(requireContext(), searchView,
+                        getString(R.string.search_contacts))
+                    setupSearchView(searchView)
+
+                    menuItem.expandActionView()
+
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+
+    private fun setupSearchView(searchView: SearchView) {
         // SearchView is immediately acting as if selected
         if (this::userList.isInitialized) {
-            binding.svHistorySearch.setIconifiedByDefault(false)
-            binding.svHistorySearch.setOnQueryTextListener(object :
-                androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            searchView.setIconifiedByDefault(false)
+            searchView.setOnQueryTextListener(object :
+                SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
-                    if (query != null) {
-                        Timber.d("Query: $query")
-                        for (user in userList) {
-                            if (user.formattedDisplayName?.contains(
-                                    query,
-                                    ignoreCase = true
-                                ) == true
-                            ) {
-                                filteredList.add(user)
-                            }
-                        }
-                        Timber.d("Filtered List: $filteredList")
-                        callHistoryAdapter.submitList(ArrayList(filteredList))
-                        filteredList.clear()
-                    }
+                    makeQuery(query)
                     return true
                 }
 
                 override fun onQueryTextChange(query: String?): Boolean {
-                    if (query != null) {
-                        Timber.d("Query: $query")
-                        for (user in userList) {
-                            if (user.formattedDisplayName?.contains(
-                                    query,
-                                    ignoreCase = true
-                                ) == true
-                            ) {
-                                filteredList.add(user)
-                            }
-                        }
-                        Timber.d("Filtered List: $filteredList")
-                        callHistoryAdapter.submitList(ArrayList(filteredList))
-                        filteredList.clear()
-                    }
+                    makeQuery(query)
                     return true
                 }
             })
         }
-        binding.svHistorySearch.setOnFocusChangeListener { view, hasFocus ->
+        searchView.setOnFocusChangeListener { view, hasFocus ->
             run {
                 view.clearFocus()
                 if (!hasFocus) {
@@ -108,5 +100,27 @@ class CallHistoryFragment : BaseFragment() {
                 }
             }
         }
+    }
+
+    fun makeQuery(query: String?) {
+        if (query != null) {
+            for (user in userList) {
+                if (user.formattedDisplayName.contains(
+                        query,
+                        ignoreCase = true
+                    )
+                ) {
+                    filteredList.add(user)
+                }
+            }
+            callHistoryAdapter.submitList(null)
+            callHistoryAdapter.submitList(ArrayList(filteredList))
+            filteredList.clear()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.topAppBar.menu.findItem(R.id.search_menu_icon).collapseActionView()
     }
 }

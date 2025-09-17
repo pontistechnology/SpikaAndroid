@@ -4,33 +4,39 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton
 import android.widget.Toast
-import androidx.core.content.res.ResourcesCompat
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
+import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentContactDetailsBinding
 import com.clover.studio.spikamessenger.ui.main.MainActivity
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
+import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -41,13 +47,18 @@ import timber.log.Timber
 class ContactDetailsFragment : BaseFragment() {
     private val viewModel: MainViewModel by activityViewModels()
 
-    private var user: User? = null
+    private var user: PrivateGroupChats? = null
+    private var roomWithUsers: RoomWithUsers? = null
 
     private var roomId = 0
 
     private var bindingSetup: FragmentContactDetailsBinding? = null
-
     private val binding get() = bindingSetup!!
+    private var optionList: MutableList<UserOptionsData> = mutableListOf()
+    private var pinSwitch: Drawable? = null
+    private var muteSwitch: Drawable? = null
+
+    private var navOptionsBuilder: NavOptions? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,8 +81,11 @@ class ContactDetailsFragment : BaseFragment() {
             Timber.d("Failed to fetch user data")
         } else {
             user = requireArguments().getParcelable(Const.Navigation.USER_PROFILE)
-            roomId = requireArguments().getInt(Const.Navigation.ROOM_ID)
+            roomWithUsers = requireArguments().getParcelable(Const.Navigation.ROOM_DATA)
+            roomId = roomWithUsers?.room?.roomId ?: 0
         }
+
+        navOptionsBuilder = Tools.createCustomNavOptions()
     }
 
     override fun onCreateView(
@@ -81,30 +95,20 @@ class ContactDetailsFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentContactDetailsBinding.inflate(inflater, container, false)
 
-        initializeViews()
         initializeObservers()
+        initializeViews()
         return binding.root
     }
 
     private fun initializeObservers() {
-        viewModel.getRoomByIdLiveData(roomId).observe(viewLifecycleOwner) {
-            if (it.responseData != null) {
-                // Set room muted or not muted on switch
-                binding.swMute.isChecked = it.responseData.muted
-
-                // Set room pinned or not pinned on switch
-                binding.swPinChat.isChecked = it.responseData.pinned
-            }
-        }
-
         viewModel.roomWithUsersListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     activity?.let { parent ->
-                        it.responseData?.room?.roomId?.let { roomId ->
+                        it.responseData?.let { roomWithUsers ->
                             startChatScreenActivity(
                                 parent,
-                                roomId
+                                roomWithUsers
                             )
                         }
                     }
@@ -128,21 +132,15 @@ class ContactDetailsFragment : BaseFragment() {
                 Resource.Status.ERROR -> {
                     Timber.d("Room not found, creating new one")
                     val jsonObject = JsonObject()
-
-//                    val avatarUrlArray = JsonArray()
-//                    avatarUrlArray.add("fakeUrl")
-//
                     val userIdsArray = JsonArray()
-                    userIdsArray.add(user?.id)
-//                    userIdsArray.add(5)
-//
-//                    val adminUserIds = JsonArray()
-//                    adminUserIds.add(3)
+                    userIdsArray.add(user?.userId)
 
-                    jsonObject.addProperty(Const.JsonFields.NAME, user?.formattedDisplayName)
-                    jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, user?.avatarFileId)
+                    jsonObject.addProperty(Const.JsonFields.NAME, user?.userName)
+                    jsonObject.addProperty(
+                        Const.JsonFields.AVATAR_FILE_ID,
+                        user?.avatarId
+                    )
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
-//                    jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
                     jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
 
                     viewModel.createNewRoom(jsonObject)
@@ -181,7 +179,7 @@ class ContactDetailsFragment : BaseFragment() {
                 Resource.Status.SUCCESS -> {
                     if (it.responseData != null) {
                         val containsElement =
-                            it.responseData.any { blockedUser -> blockedUser.id == user?.id }
+                            it.responseData.any { blockedUser -> blockedUser.id == user?.userId }
                         if (containsElement) {
                             binding.tvBlocked.text = getString(R.string.unblock)
                         } else binding.tvBlocked.text = getString(R.string.block)
@@ -196,59 +194,54 @@ class ContactDetailsFragment : BaseFragment() {
 
     private fun initializeViews() = with(binding) {
         if (user != null) {
-            tvUsername.text = user?.formattedDisplayName
-            tvPageName.text = user?.formattedDisplayName
-            tvNumber.text = user?.telephoneNumber
+            tvUsername.text = user?.userName
+            tvNumber.text = user?.phoneNumber
 
-            tvNumber.setOnClickListener {
-                ChooserDialog.getInstance(requireContext(),
-                    getString(R.string.contacts),
-                    null,
-                    getString(R.string.copy),
-                    getString(R.string.save_contact),
+            ivAddContact.setOnClickListener {
+                val listOptions = mutableListOf(
+                    getString(R.string.copy) to { copyNumber(user?.phoneNumber.toString()) },
+                    getString(R.string.save_contact) to {
+                        saveContactToPhone(
+                            phoneNumber = user?.phoneNumber.toString(),
+                            phoneName = user?.userName.toString()
+                        )
+                    },
+                    getString(R.string.cancel) to {}
+                )
+
+                ChooserDialog.getInstance(
+                    context = requireContext(),
+                    listChooseOptions = listOptions.map { it.first }.toMutableList(),
                     object : DialogInteraction {
-                        override fun onFirstOptionClicked() {
-                            copyNumber(user?.telephoneNumber.toString())
+                        override fun onOptionClicked(optionName: String) {
+                            listOptions.find { it.first == optionName }?.second?.invoke()
                         }
-
-                        override fun onSecondOptionClicked() {
-                            saveContactToPhone(
-                                user?.telephoneNumber.toString(),
-                                user?.displayName.toString()
-                            )
-                        }
-                    })
+                    }
+                )
             }
 
-            ivChat.setOnClickListener {
-                user?.id?.let { id ->
-                    run {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
-                            val roomId = viewModel.checkIfUserInPrivateRoom(id)
-                            if (roomId != null) {
-                                viewModel.getRoomWithUsers(roomId)
-                            } else {
-                                viewModel.checkIfRoomExists(id)
-                            }
-                        }
+            ivOpenChat.setOnClickListener {
+                user?.userId?.let { id ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
+                        val roomId = viewModel.checkIfUserInPrivateRoom(id)
+
+                        roomId?.let {
+                            viewModel.getRoomWithUsers(it)
+                        } ?: viewModel.checkIfRoomExists(id)
                     }
                 }
             }
 
             Glide.with(this@ContactDetailsFragment)
-                .load(user?.avatarFileId?.let { getFilePathUrl(it) })
-                .placeholder(
-                    ResourcesCompat.getDrawable(
-                        requireContext().resources,
-                        R.drawable.img_user_placeholder,
-                        null
-                    )
-                )
+                .load(user?.avatarId?.let { getFilePathUrl(it) })
+                .placeholder(R.drawable.img_user_avatar)
+                .error(R.drawable.img_user_avatar)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(ivPickAvatar)
-            flProgressScreen.visibility = View.GONE
+                .into(profilePicture.ivPickAvatar)
+
+            profilePicture.flProgressScreen.visibility = View.GONE
         }
 
         ivBack.setOnClickListener {
@@ -264,46 +257,133 @@ class ContactDetailsFragment : BaseFragment() {
                     getString(R.string.block),
                     object : DialogInteraction {
                         override fun onSecondOptionClicked() {
-                            user?.id?.let { id -> viewModel.blockUser(id) }
+                            user?.userId?.let { id -> viewModel.blockUser(id) }
                         }
                     })
             } else {
                 DialogError.getInstance(requireContext(),
                     getString(R.string.unblock_user),
-                    getString(R.string.unblock_description, user?.formattedDisplayName),
-                    getString(R.string.no),
-                    getString(R.string.unblock),
+                    getString(R.string.unblock_description),
+                    getString(R.string.cancel),
+                    getString(R.string.yes),
                     object : DialogInteraction {
                         override fun onSecondOptionClicked() {
-                            user?.id?.let { id -> viewModel.deleteBlockForSpecificUser(id) }
+                            user?.userId?.let { viewModel.deleteBlockForSpecificUser(it) }
                         }
                     })
             }
         }
 
-        // Check if private room with user exists. Hide pin, mute and notes layouts if no room exists
-        val isVisible = roomId != 0
-        flMute.visibility = if (isVisible) View.VISIBLE else View.GONE
-        flPinChat.visibility = if (isVisible) View.VISIBLE else View.GONE
-        flNotes.visibility = if (isVisible) View.VISIBLE else View.GONE
+        setOptionList()
 
-
-        flNotes.setOnClickListener {
-            if (activity is MainActivity) {
-                findNavController().navigate(
-                    R.id.notesFragment,
-                    bundleOf(Const.Navigation.ROOM_ID to roomId)
-                )
-            } else {
-                findNavController().navigate(
-                    R.id.notesFragment,
-                    bundleOf(Const.Navigation.ROOM_ID to roomId)
-                )
+        val userOptions = UserOptions(requireContext())
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(option: Int, optionName: String) {
+                when (optionName) {
+                    getString(R.string.media_links_docs) -> goToMediaLinksDocs()
+                    getString(R.string.notes) -> goToNotes()
+                }
             }
-        }
 
-        swMute.setOnCheckedChangeListener(multiListener)
-        swPinChat.setOnCheckedChangeListener(multiListener)
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
+                switchPinMuteOptions(optionName, isSwitched)
+            }
+        })
+        binding.flOptionsContainer.addView(userOptions)
+    }
+
+    private fun switchPinMuteOptions(optionName: String, isSwitched: Boolean) {
+        if (optionName == getString(R.string.pin_chat)) {
+            viewModel.handleRoomPin(roomId, isSwitched)
+        } else {
+            viewModel.handleRoomMute(roomId, isSwitched)
+        }
+    }
+
+    private fun goToMediaLinksDocs() {
+        roomWithUsers?.let {
+            findNavController().navigate(
+                R.id.action_contactDetailsFragment_to_mediaLinksDocsFragment,
+                bundleOf(Const.Navigation.ROOM_DATA to roomWithUsers),
+                navOptionsBuilder
+            )
+        }
+    }
+
+    private fun goToNotes() {
+        if (activity is MainActivity) {
+            findNavController().navigate(
+                R.id.notesFragment,
+                bundleOf(Const.Navigation.ROOM_ID to roomId),
+                navOptionsBuilder
+            )
+        } else {
+            findNavController().navigate(
+                R.id.notesFragment,
+                bundleOf(Const.Navigation.ROOM_ID to roomId),
+                navOptionsBuilder
+            )
+        }
+    }
+
+    private fun setOptionList() {
+        val pinId =
+            if (roomWithUsers?.room?.pinned == true) R.drawable.img_switch else R.drawable.img_switch_left
+        val muteId =
+            if (roomWithUsers?.room?.muted == true) R.drawable.img_switch else R.drawable.img_switch_left
+
+        pinSwitch = AppCompatResources.getDrawable(requireContext(), pinId)
+        muteSwitch = AppCompatResources.getDrawable(requireContext(), muteId)
+
+        optionList = mutableListOf(
+            UserOptionsData(
+                option = getString(R.string.media_links_docs),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_media_links_docs
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_arrow_forward
+                ),
+                switchOption = false,
+                isSwitched = false,
+            ),
+            UserOptionsData(
+                option = getString(R.string.notes),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_notes
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_arrow_forward
+                ),
+                switchOption = false,
+                isSwitched = false
+            ),
+            UserOptionsData(
+                option = getString(R.string.pin_chat),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_pin
+                ),
+                secondDrawable = pinSwitch,
+                switchOption = true,
+                isSwitched = roomWithUsers?.room?.pinned == true,
+            ),
+            UserOptionsData(
+                option = getString(R.string.mute),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_mute
+                ),
+                secondDrawable = muteSwitch,
+                switchOption = true,
+                isSwitched = roomWithUsers?.room?.muted == true,
+            )
+        )
     }
 
     private fun copyNumber(telephoneNumber: String) {
@@ -329,32 +409,6 @@ class ContactDetailsFragment : BaseFragment() {
 
         startActivity(intent)
     }
-
-    // Listener which handles switch events and sends event to specific switch
-    private val multiListener: CompoundButton.OnCheckedChangeListener =
-        CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-            when (buttonView.id) {
-                binding.swPinChat.id -> {
-                    if (buttonView.isPressed) {
-                        if (isChecked) {
-                            viewModel.handleRoomPin(roomId, true)
-                        } else {
-                            viewModel.handleRoomPin(roomId, false)
-                        }
-                    }
-                }
-
-                binding.swMute.id -> {
-                    if (buttonView.isPressed) {
-                        if (isChecked) {
-                            viewModel.handleRoomMute(roomId, true)
-                        } else {
-                            viewModel.handleRoomMute(roomId, false)
-                        }
-                    }
-                }
-            }
-        }
 
     override fun onResume() {
         super.onResume()

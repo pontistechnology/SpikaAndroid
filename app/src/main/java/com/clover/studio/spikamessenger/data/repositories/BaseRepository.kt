@@ -33,6 +33,7 @@ interface BaseRepository {
         sharedPrefs: SharedPreferencesRepository,
         baseDataSource: BaseDataSource
     ): Resource<ContactsSyncResponse> {
+        val localId = sharedPrefs.readUserId()
         if (!sharedPrefs.isTeamMode()) {
             if (shouldRefresh || sharedPrefs.readContactSyncTimestamp() == 0L || System.currentTimeMillis() < (sharedPrefs.readContactSyncTimestamp() + Const.Time.DAY)) {
                 val contacts = Tools.fetchPhonebookContacts(
@@ -47,7 +48,7 @@ interface BaseRepository {
                     ).toList()
 
                     // Beginning offset is always 0
-                    syncNextBatch(userDao, phoneNumbersHashed, 0, ArrayList(), baseDataSource)
+                    syncNextBatch(userDao, phoneNumbersHashed, 0, ArrayList(), baseDataSource, localId)
                 } else Resource<ContactsSyncResponse>(
                     Resource.Status.ERROR,
                     null,
@@ -74,7 +75,8 @@ interface BaseRepository {
         contacts: List<String>,
         offset: Int,
         contactList: MutableList<User>,
-        baseDataSource: BaseDataSource
+        baseDataSource: BaseDataSource,
+        localId: Int?
     ): Resource<ContactsSyncResponse> {
         val endIndex = (offset + CONTACTS_BATCH).coerceAtMost(contacts.size)
         val batchedList = contacts.subList(offset, endIndex)
@@ -93,7 +95,11 @@ interface BaseRepository {
                     it.data?.list?.let { users -> contactList.addAll(users) }
                     userDao.upsert(contactList)
                     contactList.map { user -> user.id }
-                        .let { users -> userDao.removeSpecificUsers(users) }
+                        .let { users ->
+                            if (localId != null) {
+                                userDao.removeSpecificUsers(users, localId)
+                            }
+                        }
                 } else {
                     it.data?.list?.let { users -> contactList.addAll(users) }
                 }
@@ -107,7 +113,8 @@ interface BaseRepository {
                     contacts,
                     offset + CONTACTS_BATCH,
                     contactList,
-                    baseDataSource
+                    baseDataSource,
+                    localId
                 )
             } else return response
         } else return response

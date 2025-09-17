@@ -41,13 +41,13 @@ interface ChatService {
     suspend fun postReaction(
         @HeaderMap headers: Map<String, String?>,
         @Body jsonObject: JsonObject
-    ) : Response<MessageResponse>
+    ): Response<MessageResponse>
 
-    /* @DELETE(Const.Networking.API_DELETE_REACTION)
+    @DELETE(Const.Networking.API_DELETE_REACTION)
     suspend fun deleteReaction(
         @HeaderMap headers: Map<String, String?>,
-        @Path(Const.Networking.ID) id: Int
-    ) */
+        @Path(Const.Networking.ID) id: Long
+    ): Response<MessageResponse>
     // End Reaction section
 
     // Room section
@@ -132,4 +132,10 @@ interface ChatService {
     suspend fun getUnreadCount(
         @HeaderMap headers: Map<String, String?>
     ): Response<UnreadCountResponse>
+
+    @GET(Const.Networking.API_GET_PAGE_METADATA)
+    suspend fun getPageMetadata(
+        @HeaderMap headers: Map<String, String?>,
+        @Query(Const.Networking.URL) url: String
+    ): Response<ThumbnailDataResponse>
 }

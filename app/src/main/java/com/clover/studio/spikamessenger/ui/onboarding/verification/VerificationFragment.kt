@@ -10,6 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.clover.studio.spikamessenger.R
@@ -96,7 +98,12 @@ class VerificationFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        requireActivity().registerReceiver(smsReceiver, intentFilter)
+        ContextCompat.registerReceiver(
+            requireContext(),
+            smsReceiver,
+            intentFilter,
+            RECEIVER_EXPORTED
+        )
     }
 
     override fun onPause() {
@@ -110,30 +117,27 @@ class VerificationFragment : BaseFragment() {
                 Resource.Status.LOADING -> {
                     binding.clInputUi.visibility = View.GONE
                     binding.ivSpikaVerify.visibility = View.VISIBLE
+                    binding.btnNext.isEnabled = false
                 }
 
                 Resource.Status.SUCCESS -> {
                     if (viewModel.isTeamMode()) {
-                        binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
-                        binding.ivCheckmark.visibility = View.VISIBLE
+                        binding.ivSpikaVerify.setImageResource(R.drawable.img_spika_logo_centered)
                     }
-                    viewModel.writeDeviceId(deviceId)
                     goToMainActivity()
                 }
 
                 Resource.Status.NEW_USER -> {
                     if (viewModel.isTeamMode()) {
-                        binding.ivSpikaVerify.setImageResource(R.drawable.img_logo_empty)
-                        binding.ivCheckmark.visibility = View.VISIBLE
+                        binding.ivSpikaVerify.setImageResource(R.drawable.img_spika_logo_centered)
                     }
-                    viewModel.writeDeviceId(deviceId)
                     goToAccountCreation()
                 }
 
                 Resource.Status.ERROR -> {
                     binding.ivSpikaVerify.visibility = View.GONE
                     binding.clInputUi.visibility = View.VISIBLE
-                    binding.tvIncorrectCode.visibility = View.VISIBLE
+                    binding.cvIncorrectCode.visibility = View.VISIBLE
                 }
 
                 else -> Timber.d("Something went wrong")
@@ -143,7 +147,7 @@ class VerificationFragment : BaseFragment() {
 
     private fun setClickListeners() {
         binding.btnNext.setOnClickListener {
-            viewModel.sendCodeVerification(getVerificationJsonObject())
+            if (binding.btnNext.isEnabled) viewModel.sendCodeVerification(getVerificationJsonObject())
         }
 
         binding.tvResendCode.setOnClickListener {
@@ -171,18 +175,18 @@ class VerificationFragment : BaseFragment() {
         return jsonObject
     }
 
-    private fun initBroadCast() {
+    private fun initBroadCast() = with(binding.verificationInputFields) {
         intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
         smsReceiver = SmsReceiver()
         smsReceiver.bindListener(object : SmsListener {
             override fun messageReceived(messageText: String?) {
                 Timber.d("MESSAGE received $messageText")
-                binding.etInputOne.setText(messageText?.get(0).toString())
-                binding.etInputTwo.setText(messageText?.get(1).toString())
-                binding.etInputThree.setText(messageText?.get(2).toString())
-                binding.etInputFour.setText(messageText?.get(3).toString())
-                binding.etInputFive.setText(messageText?.get(4).toString())
-                binding.etInputSix.setText(messageText?.get(5).toString())
+                etInputOne.setText(messageText?.get(0).toString())
+                etInputTwo.setText(messageText?.get(1).toString())
+                etInputThree.setText(messageText?.get(2).toString())
+                etInputFour.setText(messageText?.get(3).toString())
+                etInputFive.setText(messageText?.get(4).toString())
+                etInputSix.setText(messageText?.get(5).toString())
             }
         })
     }
@@ -213,113 +217,129 @@ class VerificationFragment : BaseFragment() {
         timer.start()
     }
 
-    private fun setupTextWatchers() {
+    private fun setupTextWatchers() = with(binding.verificationInputFields) {
         //GenericTextWatcher here works only for moving to next EditText when a number is entered
         //first parameter is the current EditText and second parameter is next EditText
-        binding.etInputOne.addTextChangedListener(
+        etInputOne.addTextChangedListener(
             GenericTextWatcher(
-                binding.etInputOne,
-                binding.etInputTwo
+                etInputOne,
+                etInputTwo
             )
         )
-        binding.etInputTwo.addTextChangedListener(
+        etInputTwo.addTextChangedListener(
             GenericTextWatcher(
-                binding.etInputTwo,
-                binding.etInputThree
+                etInputTwo,
+                etInputThree
             )
         )
-        binding.etInputThree.addTextChangedListener(
+        etInputThree.addTextChangedListener(
             GenericTextWatcher(
-                binding.etInputThree,
-                binding.etInputFour
+                etInputThree,
+                etInputFour
             )
         )
-        binding.etInputFour.addTextChangedListener(
+        etInputFour.addTextChangedListener(
             GenericTextWatcher(
-                binding.etInputFour,
-                binding.etInputFive
+                etInputFour,
+                etInputFive
             )
         )
-        binding.etInputFive.addTextChangedListener(
+        etInputFive.addTextChangedListener(
             GenericTextWatcher(
-                binding.etInputFive,
-                binding.etInputSix
+                etInputFive,
+                etInputSix
             )
         )
-        binding.etInputSix.addTextChangedListener(GenericTextWatcher(binding.etInputSix, null))
+        etInputSix.addTextChangedListener(
+            GenericTextWatcher(
+                etInputSix,
+                null
+            )
+        )
 
-        //GenericKeyEvent here works for deleting the element and to switch back to previous EditText
-        //first parameter is the current EditText and second parameter is previous EditText
-        binding.etInputOne.setOnKeyListener(GenericKeyEvent(binding.etInputOne, null))
-        binding.etInputTwo.setOnKeyListener(GenericKeyEvent(binding.etInputTwo, binding.etInputOne))
-        binding.etInputThree.setOnKeyListener(
+        // GenericKeyEvent here works for deleting the element and to switch back to previous EditText
+        // first parameter is the current EditText and second parameter is previous EditText
+        etInputOne.setOnKeyListener(
             GenericKeyEvent(
-                binding.etInputThree,
-                binding.etInputTwo
+                etInputOne,
+                null
             )
         )
-        binding.etInputFour.setOnKeyListener(
+        etInputTwo.setOnKeyListener(
             GenericKeyEvent(
-                binding.etInputFour,
-                binding.etInputThree
+                etInputTwo,
+                etInputOne
             )
         )
-        binding.etInputFive.setOnKeyListener(
+        etInputThree.setOnKeyListener(
             GenericKeyEvent(
-                binding.etInputFive,
-                binding.etInputFour
+                etInputThree,
+                etInputTwo
             )
         )
-        binding.etInputSix.setOnKeyListener(
+        etInputFour.setOnKeyListener(
             GenericKeyEvent(
-                binding.etInputSix,
-                binding.etInputFive
+                etInputFour,
+                etInputThree
+            )
+        )
+        etInputFive.setOnKeyListener(
+            GenericKeyEvent(
+                etInputFive,
+                etInputFour
             )
         )
 
-        binding.etInputOne.setOnFocusChangeListener { view, hasFocus ->
+        etInputSix.setOnKeyListener(
+            GenericKeyEvent(
+                etInputSix,
+                etInputFive
+            )
+        )
+
+        etInputOne.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
+                if (!hasFocus && !etInputTwo.hasFocus() && !etInputThree.hasFocus() && !etInputFour.hasFocus() && !etInputFive.hasFocus() && !etInputSix.hasFocus()) {
                     hideKeyboard(view)
                 }
             }
         }
 
-        binding.etInputTwo.setOnFocusChangeListener { view, hasFocus ->
+        etInputTwo.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
+                if (!hasFocus && !etInputOne.hasFocus() && !etInputThree.hasFocus() && !etInputFour.hasFocus() && !etInputFive.hasFocus() && !etInputSix.hasFocus()) {
                     hideKeyboard(view)
                 }
             }
         }
 
-        binding.etInputThree.setOnFocusChangeListener { view, hasFocus ->
+        etInputThree.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
+                if (!hasFocus && !etInputOne.hasFocus() && !etInputTwo.hasFocus() && !etInputFour.hasFocus() && !etInputFive.hasFocus() && !etInputSix.hasFocus()) {
                     hideKeyboard(view)
                 }
             }
         }
 
-        binding.etInputFour.setOnFocusChangeListener { view, hasFocus ->
+        etInputFour.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFive.hasFocus() && !binding.etInputSix.hasFocus()) {
+                if (!hasFocus && !etInputOne.hasFocus() && !etInputTwo.hasFocus() && !etInputThree.hasFocus() && !etInputFive.hasFocus() && !etInputSix.hasFocus()) {
                     hideKeyboard(view)
                 }
             }
         }
 
-        binding.etInputFive.setOnFocusChangeListener { view, hasFocus ->
+        etInputFive.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputSix.hasFocus()) {
+                if (!hasFocus && !etInputOne.hasFocus() && !etInputTwo.hasFocus() && !etInputThree.hasFocus() && !etInputFour.hasFocus() && !etInputSix.hasFocus()) {
                     hideKeyboard(view)
                 }
             }
         }
 
-        binding.etInputSix.setOnFocusChangeListener { view, hasFocus ->
+        etInputSix.setOnFocusChangeListener { view, hasFocus ->
             run {
-                if (!hasFocus && !binding.etInputOne.hasFocus() && !binding.etInputTwo.hasFocus() && !binding.etInputThree.hasFocus() && !binding.etInputFour.hasFocus() && !binding.etInputFive.hasFocus()) {
+                if (!hasFocus && !etInputOne.hasFocus() && !etInputTwo.hasFocus() && !etInputThree.hasFocus() && !etInputFour.hasFocus() && !etInputFive.hasFocus()) {
                     hideKeyboard(view)
                 }
             }
@@ -349,19 +369,20 @@ class VerificationFragment : BaseFragment() {
         }
     }
 
-    private fun getVerificationCode(): String = binding.etInputOne.text.toString() +
-            binding.etInputTwo.text.toString() +
-            binding.etInputThree.text.toString() +
-            binding.etInputFour.text.toString() +
-            binding.etInputFive.text.toString() +
-            binding.etInputSix.text.toString()
+    private fun getVerificationCode(): String =
+        binding.verificationInputFields.etInputOne.text.toString() +
+                binding.verificationInputFields.etInputTwo.text.toString() +
+                binding.verificationInputFields.etInputThree.text.toString() +
+                binding.verificationInputFields.etInputFour.text.toString() +
+                binding.verificationInputFields.etInputFive.text.toString() +
+                binding.verificationInputFields.etInputSix.text.toString()
 
     inner class GenericKeyEvent internal constructor(
         private val currentView: EditText,
         private val previousView: EditText?
     ) : View.OnKeyListener {
         override fun onKey(p0: View?, keyCode: Int, event: KeyEvent?): Boolean {
-            if (event?.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DEL && currentView.id != binding.etInputOne.id && currentView.text.isEmpty()) {
+            if (event?.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DEL && currentView.id != binding.verificationInputFields.etInputOne.id && currentView.text.isEmpty()) {
                 //If current is empty then previous EditText's number will also be deleted
                 previousView?.text = null
                 previousView?.requestFocus()
@@ -371,22 +392,32 @@ class VerificationFragment : BaseFragment() {
         }
     }
 
+    private fun setUpNextButton() = with(binding.verificationInputFields) {
+        binding.btnNext.isEnabled = etInputOne.text.isNotEmpty() &&
+                etInputTwo.text.isNotEmpty() &&
+                etInputThree.text.isNotEmpty() &&
+                etInputFour.text.isNotEmpty() &&
+                etInputFive.text.isNotEmpty() &&
+                etInputSix.text.isNotEmpty()
+    }
+
     inner class GenericTextWatcher internal constructor(
         private val currentView: View,
         private val nextView: View?
     ) :
         TextWatcher {
-        override fun afterTextChanged(editable: Editable) {
+        override fun afterTextChanged(editable: Editable) = with(binding.verificationInputFields) {
             val text = editable.toString()
+            setUpNextButton()
             when (currentView.id) {
-                binding.etInputOne.id -> if (text.length == 1) nextView!!.requestFocus()
-                binding.etInputTwo.id -> if (text.length == 1) nextView!!.requestFocus()
-                binding.etInputThree.id -> if (text.length == 1) nextView!!.requestFocus()
-                binding.etInputFour.id -> if (text.length == 1) nextView!!.requestFocus()
-                binding.etInputFive.id -> if (text.length == 1) nextView!!.requestFocus()
-                binding.etInputSix.id -> if (text.length == 1) {
+                etInputOne.id -> if (text.length == 1) nextView!!.requestFocus()
+                etInputTwo.id -> if (text.length == 1) nextView!!.requestFocus()
+                etInputThree.id -> if (text.length == 1) nextView!!.requestFocus()
+                etInputFour.id -> if (text.length == 1) nextView!!.requestFocus()
+                etInputFive.id -> if (text.length == 1) nextView!!.requestFocus()
+                etInputSix.id -> if (text.length == 1) {
 
-                    hideKeyboard(binding.etInputSix)
+                    hideKeyboard(etInputSix)
                     val timer = object : CountDownTimer(500, 100) {
                         override fun onTick(millisUntilFinished: Long) {
                             Timber.d("Timer tick $millisUntilFinished")
@@ -410,11 +441,20 @@ class VerificationFragment : BaseFragment() {
         }
 
         override fun onTextChanged(
-            arg0: CharSequence,
+            sequence: CharSequence,
             arg1: Int,
             arg2: Int,
             arg3: Int
-        ) { // TODO Auto-generated method stub
+        ) = with(binding.verificationInputFields) {
+            // This logic handles copying codes from clipboard and pasting them into the code field.
+            if (sequence.length > 1) {
+                etInputOne.setText(sequence[0].toString())
+                etInputTwo.setText(sequence[1].toString())
+                etInputThree.setText(sequence[2].toString())
+                etInputFour.setText(sequence[3].toString())
+                etInputFive.setText(sequence[4].toString())
+                etInputSix.setText(sequence[5].toString())
+            }
         }
     }
 

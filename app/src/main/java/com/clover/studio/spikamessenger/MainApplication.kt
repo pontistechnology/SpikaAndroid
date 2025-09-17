@@ -36,7 +36,11 @@ class MainApplication : Application(), LifecycleEventObserver {
 
     override fun onCreate() {
         super.onCreate()
-        if (BuildConfig.BUILD_TYPE == "debug" || BuildConfig.BUILD_TYPE == "dev" || BuildConfig.BUILD_TYPE == "releaseDebug" || BuildConfig.BUILD_TYPE == "messengerDebug") {
+        if (BuildConfig.BUILD_TYPE == "debug" ||
+            BuildConfig.BUILD_TYPE == "dev" ||
+            BuildConfig.BUILD_TYPE == "releaseDebug" ||
+            BuildConfig.BUILD_TYPE == "messengerDebug"
+        ) {
             Timber.plant(Timber.DebugTree())
         }
         // TODO release tree implementation
@@ -74,15 +78,22 @@ class MainApplication : Application(), LifecycleEventObserver {
         when (event) {
             Lifecycle.Event.ON_START -> {
                 CoroutineScope(Dispatchers.IO).launch {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        if (sharedPrefs.readToken()?.isNotEmpty() == true) {
+                            sseManager.checkJobAndContinue()
+                        }
+                    }
+                    isInForeground = true
+                }
+            }
+
+            Lifecycle.Event.ON_CREATE -> {
+                CoroutineScope(Dispatchers.IO).launch {
                     if (sharedPrefs.readToken()?.isNotEmpty() == true) {
                         sseManager.startSSEStream()
                     }
                 }
                 isInForeground = true
-            }
-
-            Lifecycle.Event.ON_CREATE -> {
-                // ignore
             }
 
             Lifecycle.Event.ON_RESUME -> {

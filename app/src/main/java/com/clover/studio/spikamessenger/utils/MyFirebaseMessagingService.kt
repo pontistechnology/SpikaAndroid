@@ -1,19 +1,26 @@
 package com.clover.studio.spikamessenger.utils
 
+import android.Manifest
 import android.app.Notification
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_MUTABLE
 import android.app.TaskStackBuilder
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.text.TextUtils
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.RemoteInput
 import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.responses.FirebaseResponse
-import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.ChatRepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.main.MainActivity
+import com.clover.studio.spikamessenger.ui.main.chat.ChatScreenActivity
 import com.clover.studio.spikamessenger.utils.helpers.GsonProvider
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -34,7 +41,7 @@ private val notificationMap = mutableMapOf<Int, Notification>()
 @AndroidEntryPoint
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     @Inject
-    lateinit var chatRepo: ChatRepositoryImpl
+    lateinit var chatRepo: ChatRepository
 
     @Inject
     lateinit var sharedPrefs: SharedPreferencesRepository
@@ -86,53 +93,41 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
                     // Filter message if its from my user, don't show notification for it
                     if (sharedPrefs.readUserId() != null && sharedPrefs.readUserId() != response.message.fromUserId && !response.roomAttributes.muted && !MainApplication.isInForeground) {
-                        val title: String
-                        val content: String
-                        if (response.messageAttributes.groupName.isNullOrEmpty()) {
-                            content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
-                                getString(
-                                    R.string.generic_shared,
-                                    response.message.type.toString()
-                                        .replaceFirstChar { it.uppercase() })
-                            } else {
-                                response.message.body?.text.toString()
-                            }
-                            title = response.messageAttributes.fromUserName
-                        } else {
-                            content = if (response.message.type != Const.JsonFields.TEXT_TYPE) {
-                                response.messageAttributes.fromUserName + ": " + getString(
-                                    R.string.generic_shared,
-                                    response.message.type.toString()
-                                        .replaceFirstChar { it.uppercase() })
-                            } else {
-                                response.messageAttributes.fromUserName + ": " + response.message.body?.text.toString()
-                            }
-                            title = response.messageAttributes.groupName.toString()
+                        val notificationBody = setNotificationContent(response)
+                        val title = notificationBody.first
+                        val content = notificationBody.second
+
+                        val data = response.message.roomId?.let { chatRepo.getRoomUsers(it) }
+                        val replyAction = setNotificationReplyAction(data)
+                        val intent = Intent(baseContext, MainActivity::class.java)
+
+                        val chatActivityIntent = Intent(baseContext, ChatScreenActivity::class.java)
+                        chatActivityIntent.putExtra(
+                            Const.IntentExtras.ROOM_ID_EXTRA,
+                            data
+                        )
+
+                        val stackBuilder = TaskStackBuilder.create(baseContext).apply {
+                            addParentStack(MainActivity::class.java)
+                            addNextIntent(intent)
+                            addNextIntent(chatActivityIntent)
                         }
 
-                        Timber.d("Extras: ${response.message.roomId}")
-                        val intent = Intent(baseContext, MainActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            putExtra(Const.IntentExtras.ROOM_ID_EXTRA, response.message.roomId)
-                        }
-                        val resultPendingIntent: PendingIntent? =
-                            TaskStackBuilder.create(baseContext).run {
-                                addNextIntentWithParentStack(intent)
-                                response.message.roomId?.let {
-                                    getPendingIntent(
-                                        it,
-                                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-                                    )
-                                }
-                            }
+                        val pendingIntent =
+                            stackBuilder.getPendingIntent(
+                                response.message.roomId!!,
+                                PendingIntent.FLAG_UPDATE_CURRENT or FLAG_MUTABLE
+                            )
+
                         val builder = NotificationCompat.Builder(baseContext, CHANNEL_ID)
-                            .setSmallIcon(R.drawable.img_spika_push_black)
+                            .setSmallIcon(R.drawable.spika_base_logo)
                             .setContentTitle(title)
                             .setContentText(content)
                             .setPriority(NotificationCompat.PRIORITY_MAX)
-                            .setContentIntent(resultPendingIntent)
+                            .setContentIntent(pendingIntent)
                             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                             .setAutoCancel(true)
+                            .addAction(replyAction)
 
                         // Check if there's an existing notification for this conversation.
                         if (notificationMap.containsKey(response.message.roomId)) {
@@ -184,7 +179,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             }
 
                             // Update the notification in the map.
-                            notificationMap[response.message.roomId!!] = builder.build()
+                            notificationMap[response.message.roomId] = builder.build()
+                            Timber.d("Notification map: ${data?.room?.roomId.hashCode()}")
+
                         } else {
                             // If there's no existing notification for this conversation, create a new one.
                             val inboxStyle = NotificationCompat.InboxStyle()
@@ -192,11 +189,25 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                             inboxStyle.setBigContentTitle(title)
                             builder.setStyle(inboxStyle)
                             builder.setNumber(1)
-                            notificationMap[response.message.roomId!!] = builder.build()
+                            notificationMap[response.message.roomId] = builder.build()
                         }
 
                         with(NotificationManagerCompat.from(baseContext)) {
                             // notificationId is a unique int for each notification that you must define
+                            if (ActivityCompat.checkSelfPermission(
+                                    baseContext,
+                                    Manifest.permission.POST_NOTIFICATIONS
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                // TODO: Consider calling
+                                //    ActivityCompat#requestPermissions
+                                // here to request the missing permissions, and then overriding
+                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                //                                          int[] grantResults)
+                                // to handle the case where the user grants the permission. See the documentation
+                                // for ActivityCompat#requestPermissions for more details.
+                                return@launch
+                            }
                             notify(
                                 response.message.roomId.hashCode(),
                                 notificationMap[response.message.roomId]!!
@@ -212,4 +223,60 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
+    private fun setNotificationContent(response: FirebaseResponse): Pair<String, String> {
+        val content: String
+        val title: String
+        if (response.messageAttributes.groupName.isNullOrEmpty()) {
+            content =
+                if (Const.JsonFields.TEXT_TYPE != response.message.type && Const.JsonFields.SYSTEM_TYPE != response.message.type) {
+                    getString(
+                        R.string.generic_shared,
+                        response.message.type.toString()
+                            .replaceFirstChar { it.uppercase() })
+                } else {
+                    response.message.body?.text.toString()
+                }
+            title = response.messageAttributes.fromUserName
+        } else {
+            content = if (Const.JsonFields.SYSTEM_TYPE == response.message.type) {
+                response.message.body?.text.toString()
+            } else if (response.message.type != Const.JsonFields.TEXT_TYPE) {
+                response.messageAttributes.fromUserName + ": " + getString(
+                    R.string.generic_shared,
+                    response.message.type.toString()
+                        .replaceFirstChar { it.uppercase() })
+            } else {
+                response.messageAttributes.fromUserName + ": " + response.message.body?.text.toString()
+            }
+            title = response.messageAttributes.groupName.toString()
+        }
+
+        return Pair(title, content)
+    }
+
+    private fun setNotificationReplyAction(data: RoomWithUsers?): NotificationCompat.Action {
+        val remoteInput = RemoteInput.Builder(Const.PrefsData.NOTIFICATION_REPLY_KEY)
+            .setLabel(baseContext.getString(R.string.reply))
+            .build()
+
+        val replyPendingIntent: PendingIntent? =
+            data?.room?.roomId?.let {
+                PendingIntent.getBroadcast(
+                    baseContext,
+                    it,
+                    Intent(baseContext, NotificationReplyReceiver::class.java)
+                        .putExtra(Const.PrefsData.NOTIFICATION_REPLY_DATA, data),
+                    PendingIntent.FLAG_UPDATE_CURRENT or FLAG_MUTABLE
+                )
+            }
+
+        return NotificationCompat.Action.Builder(
+            R.drawable.img_reply,
+            baseContext.getString(R.string.reply),
+            replyPendingIntent
+        )
+            .addRemoteInput(remoteInput)
+            .build()
+
+    }
 }

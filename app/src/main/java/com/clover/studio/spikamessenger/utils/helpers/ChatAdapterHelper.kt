@@ -1,19 +1,17 @@
 package com.clover.studio.spikamessenger.utils.helpers
 
-import android.animation.ObjectAnimator
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
 import android.view.View
-import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -24,19 +22,14 @@ import com.bumptech.glide.request.target.Target
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
-import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.ui.main.chat.ChatAdapter
 import com.clover.studio.spikamessenger.utils.Const
-import com.clover.studio.spikamessenger.utils.Tools
 import com.google.android.material.imageview.ShapeableImageView
-import com.vanniktech.emoji.EmojiTextView
+import com.google.android.material.shape.CornerFamily
+import com.google.android.material.shape.ShapeAppearanceModel
 import timber.log.Timber
 
 const val MAX_REACTIONS = 3
-private const val TEXT_SIZE_BIG = 11
-private const val TEXT_SIZE_SMALL = 5
-const val MAX_HEIGHT = 300
-const val MIN_HEIGHT = 256
 
 object ChatAdapterHelper {
 
@@ -46,19 +39,22 @@ object ChatAdapterHelper {
     fun setViewsVisibility(viewToShow: View, holder: RecyclerView.ViewHolder) {
         val viewsToHide = listOf<View>(
             holder.itemView.findViewById<TextView>(R.id.tv_message),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.cl_image_chat),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.file_layout),
-            holder.itemView.findViewById<FrameLayout>(R.id.video_layout),
-            holder.itemView.findViewById<CardView>(R.id.cv_audio),
-            holder.itemView.findViewById<ConstraintLayout>(R.id.cl_reply_message)
+            holder.itemView.findViewById<CardView>(R.id.cv_media),
+            holder.itemView.findViewById<FrameLayout>(R.id.fl_reply_msg_container),
+            holder.itemView.findViewById<FrameLayout>(R.id.fl_preview_msg_container)
         )
 
-        for (view in viewsToHide) {
-            if (view == viewToShow) {
-                view.visibility = View.VISIBLE
-            } else {
-                view.visibility = View.GONE
-            }
+        viewsToHide.forEach {
+            it.visibility = if (it == viewToShow) View.VISIBLE else View.GONE
+        }
+
+        val containerIds = listOf(
+            R.id.fl_reply_msg_container,
+            R.id.fl_media_container,
+            R.id.fl_preview_msg_container
+        )
+        containerIds.forEach {
+            holder.itemView.findViewById<FrameLayout>(it).removeAllViews()
         }
     }
 
@@ -70,69 +66,76 @@ object ChatAdapterHelper {
     fun loadMedia(
         context: Context,
         mediaPath: String,
-        mediaImage: ImageView,
-        loadingImage: ImageView?,
+        mediaImage: ShapeableImageView,
+        loadingProgress: ProgressBar?,
         height: Int,
-        playButton: ImageView?
+        width: Int,
+        playButton: ImageView? = null,
+        sender: Boolean
     ) {
-        val maxHeight = convertToDp(context, MAX_HEIGHT)
-        val newHeight: Int = if (height <= 100) {
-            convertToDp(context, MIN_HEIGHT)
-        } else {
-            if (convertToDp(context, height) > maxHeight) {
-                maxHeight
-            } else {
-                height
-            }
-        }
-
         val params = mediaImage.layoutParams
-        params.height = newHeight
+        params.height = convertToDp(context, height)
+        params.width = convertToDp(context, width)
         mediaImage.layoutParams = params
 
-        var rotationAnimator: ObjectAnimator? = null
-        if (loadingImage != null && loadingImage.visibility == View.VISIBLE) {
-            rotationAnimator = ObjectAnimator.ofFloat(loadingImage, "rotation", 0f, 360f)
-            rotationAnimator.apply {
-                repeatCount = ObjectAnimator.INFINITE
-                duration = 2000
-                interpolator = LinearInterpolator()
-                start()
-            }
+        val color = if (sender) {
+            ColorHelper.getSecondaryColor(context)
+        } else {
+            ColorHelper.getPrimaryColor(context)
         }
+
+        loadingProgress?.indeterminateTintList = ColorStateList.valueOf(color)
+
+        setAppearanceModel(imageView = mediaImage, context = context, sender = sender)
 
         Glide.with(context)
             .load(mediaPath)
-            .dontTransform()
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
-                    target: Target<Drawable>?,
+                    target: Target<Drawable>,
                     isFirstResource: Boolean
                 ): Boolean {
-                    Timber.d("Load Failed")
                     return false
                 }
 
                 override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource?,
+                    resource: Drawable,
+                    model: Any,
+                    target: Target<Drawable>,
+                    dataSource: DataSource,
                     isFirstResource: Boolean
                 ): Boolean {
-                    loadingImage?.visibility = View.GONE
+                    loadingProgress?.visibility = View.GONE
                     mediaImage.visibility = View.VISIBLE
                     if (playButton != null) {
                         playButton.visibility = View.VISIBLE
                     }
-                    rotationAnimator?.end()
                     return false
                 }
             })
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(mediaImage)
+    }
+
+    private fun setAppearanceModel(
+        imageView: ShapeableImageView,
+        context: Context,
+        sender: Boolean
+    ) {
+        val shape = ShapeAppearanceModel().toBuilder()
+
+        val cornerRadius = context.resources.getDimension(R.dimen.eight_dp_margin)
+        shape.setAllCorners(CornerFamily.ROUNDED, cornerRadius)
+
+        if (sender) {
+            shape.setBottomRightCornerSize(0f)
+        } else {
+            shape.setBottomLeftCornerSize(0f)
+        }
+
+        imageView.shapeAppearanceModel = shape.build()
     }
 
     private fun convertToDp(context: Context, dp: Int): Int {
@@ -219,140 +222,6 @@ object ChatAdapterHelper {
         return reactionText.trim()
     }
 
-    /** A method that displays reply messages for all types of message types */
-    fun bindReply(
-        context: Context,
-        users: List<User>,
-        chatMessage: MessageAndRecords,
-        ivReplyImage: ShapeableImageView,
-        tvReplyMedia: TextView,
-        tvMessageReply: EmojiTextView,
-        clReplyMessage: ConstraintLayout,
-        clContainer: ConstraintLayout,
-        tvUsername: TextView,
-        sender: Boolean,
-    ) {
-        ivReplyImage.visibility = View.GONE
-        tvReplyMedia.visibility = View.GONE
-        tvMessageReply.visibility = View.GONE
-
-        val params =
-            clReplyMessage.layoutParams as ConstraintLayout.LayoutParams
-        params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-        var original = chatMessage.message.body?.text?.length
-        clReplyMessage.visibility = View.VISIBLE
-        val firstLineStart = chatMessage.message.body?.text?.lines()?.get(0)
-        if (firstLineStart?.length!! < TEXT_SIZE_SMALL) {
-            original = firstLineStart.length
-        }
-        val username = tvUsername.text.length
-
-        if (sender) {
-            clContainer.setBackgroundResource(R.drawable.bg_message_send)
-        } else {
-            clContainer.setBackgroundResource(R.drawable.bg_message_received)
-        }
-
-        tvUsername.text =
-            users.firstOrNull { it.id == chatMessage.message.body.referenceMessage?.fromUserId }?.formattedDisplayName
-
-        when (chatMessage.message.body.referenceMessage?.type) {
-            /**Image or video type*/
-            Const.JsonFields.IMAGE_TYPE, Const.JsonFields.VIDEO_TYPE -> {
-                if (original!! >= TEXT_SIZE_BIG) {
-                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                }
-
-                if (chatMessage.message.body.referenceMessage?.type == Const.JsonFields.IMAGE_TYPE) {
-                    tvReplyMedia.text = context.getString(
-                        R.string.media,
-                        context.getString(R.string.photo)
-                    )
-                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_camera_reply,
-                        0,
-                        0,
-                        0
-                    )
-                } else {
-                    tvReplyMedia.text = context.getString(
-                        R.string.media,
-                        context.getString(R.string.video)
-                    )
-                    tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.img_video_reply,
-                        0,
-                        0,
-                        0
-                    )
-                }
-
-                tvMessageReply.visibility = View.GONE
-                ivReplyImage.visibility = View.VISIBLE
-                tvReplyMedia.visibility = View.VISIBLE
-
-                val imagePath =
-                    chatMessage.message.body.referenceMessage?.body?.thumbId?.let { imagePath ->
-                        Tools.getFilePathUrl(
-                            imagePath
-                        )
-                    }
-                Glide.with(context)
-                    .load(imagePath)
-                    .into(ivReplyImage)
-            }
-            /** Audio type */
-            Const.JsonFields.AUDIO_TYPE -> {
-                if (original!! >= TEXT_SIZE_SMALL) {
-                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                }
-                tvMessageReply.visibility = View.GONE
-                ivReplyImage.visibility = View.GONE
-                tvReplyMedia.visibility = View.VISIBLE
-                tvReplyMedia.text =
-                    context.getString(R.string.media, context.getString(R.string.audio))
-                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_audio_reply,
-                    0,
-                    0,
-                    0
-                )
-            }
-            /** File type */
-            Const.JsonFields.FILE_TYPE -> {
-                if (original!! >= TEXT_SIZE_SMALL) {
-                    params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                }
-                tvMessageReply.visibility = View.GONE
-                tvReplyMedia.visibility = View.VISIBLE
-                tvReplyMedia.text =
-                    context.getString(R.string.media, context.getString(R.string.file))
-                tvReplyMedia.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.img_file_reply,
-                    0,
-                    0,
-                    0
-                )
-            }
-            /** Text type */
-            else -> {
-                tvMessageReply.visibility = View.VISIBLE
-                ivReplyImage.visibility = View.GONE
-                tvReplyMedia.visibility = View.GONE
-
-                val replyText = chatMessage.message.body.referenceMessage?.body?.text
-                tvMessageReply.text = replyText
-                val reply = replyText?.length
-
-                if (original != null && reply != null) {
-                    if (original >= reply && original >= TEXT_SIZE_SMALL && username < original) {
-                        params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-                    }
-                }
-            }
-        }
-    }
-
     /** The method that displays the status of the message for the sender only - sending, sent, delivered */
     fun showMessageStatus(
         chatMessage: MessageAndRecords?,
@@ -380,24 +249,6 @@ object ChatAdapterHelper {
         }
     }
 
-    /** A method that displays a file icon depending on the file type */
-    fun addFiles(context: Context, ivFileType: ImageView, fileExtension: String) {
-        val drawableResId = when (fileExtension) {
-            Const.FileExtensions.PDF -> R.drawable.img_pdf_black
-            Const.FileExtensions.ZIP, Const.FileExtensions.RAR -> R.drawable.img_folder_zip
-            Const.FileExtensions.MP3, Const.FileExtensions.WAW -> R.drawable.img_audio_file
-            else -> R.drawable.img_file_black
-        }
-
-        ivFileType.setImageDrawable(
-            ResourcesCompat.getDrawable(
-                context.resources,
-                drawableResId,
-                null
-            )
-        )
-    }
-
     /** A method that shows/does not show the name and picture of another user if the messages are
      *  sent in sequence
      *  @param position - Position of current message
@@ -409,31 +260,32 @@ object ChatAdapterHelper {
         holder: ChatAdapter.ReceivedMessageHolder,
         currentList: MutableList<MessageAndRecords>,
     ) {
-        if (position > 0) {
-            try {
-                val nextItem = currentList[position + 1].message.fromUserId
-                val previousItem = currentList[position - 1].message.fromUserId
-                val currentItem = currentList[position].message.fromUserId
+        try {
+            val currentMessage = currentList[position].message
+            val nextMessage =
+                if (position + 1 < currentList.size) currentList[position + 1].message else null
+            val previousMessage = if (position - 1 >= 0) currentList[position - 1].message else null
 
-                if (previousItem == currentItem) {
-                    holder.binding.ivUserImage.visibility = View.INVISIBLE
-                } else {
+            if (Const.JsonFields.SYSTEM_TYPE == currentMessage.type) {
+                // For system messages, don't display username or user image
+                holder.binding.tvUsername.visibility = View.GONE
+                holder.binding.ivUserImage.visibility = View.GONE
+            } else {
+                // Regular user messages handling
+                if (position == 0 || (previousMessage != null && (previousMessage.fromUserId != currentMessage.fromUserId || Const.JsonFields.SYSTEM_TYPE == previousMessage.type))) {
                     holder.binding.ivUserImage.visibility = View.VISIBLE
+                } else {
+                    holder.binding.ivUserImage.visibility = View.INVISIBLE
                 }
 
-                if (nextItem == currentItem) {
+                if (nextMessage != null && nextMessage.fromUserId == currentMessage.fromUserId && Const.JsonFields.SYSTEM_TYPE != nextMessage.type) {
                     holder.binding.tvUsername.visibility = View.GONE
                 } else {
                     holder.binding.tvUsername.visibility = View.VISIBLE
                 }
-            } catch (ex: IndexOutOfBoundsException) {
-                Tools.checkError(ex)
-                holder.binding.tvUsername.visibility = View.VISIBLE
-                holder.binding.ivUserImage.visibility = View.VISIBLE
             }
-        } else {
-            holder.binding.tvUsername.visibility = View.VISIBLE
-            holder.binding.ivUserImage.visibility = View.VISIBLE
+        } catch (e: Exception) {
+            Timber.d("Exception: $e")
         }
     }
 }

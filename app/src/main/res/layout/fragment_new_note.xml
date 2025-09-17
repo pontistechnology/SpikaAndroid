@@ -4,14 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.chat_details.notes.NewNoteFragment">
+    tools:context=".ui.main.chat_details.notes.NewNoteFragment"
+    tools:ignore="contentDescription">
 
     <ImageView
         android:id="@+id/iv_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/twenty_dp_margin"
-        android:src="@drawable/img_arrow_back"
+        android:src="@drawable/img_arrow_back_chat"
         app:layout_constraintBottom_toBottomOf="@id/tv_save"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/tv_save" />
@@ -27,17 +28,19 @@
         app:layout_constraintEnd_toStartOf="@id/tv_save"
         app:layout_constraintTop_toTopOf="@id/tv_save" />
 
-    <TextView
+    <ImageView
         android:id="@+id/tv_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat"
+        android:fontFamily="@font/roboto_bold"
         android:padding="20dp"
         android:text="@string/save"
-        android:textColor="@color/primary_color"
+        android:textColor="?attr/primaryColor"
         android:textSize="@dimen/fourteen_sp_text"
+        android:src="@drawable/img_checkmark"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/tertiaryColor" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -52,20 +55,22 @@
             android:id="@+id/ll_note_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/ten_dp_margin"
-            android:layout_marginEnd="@dimen/ten_dp_margin"
             android:orientation="vertical">
 
             <EditText
                 android:id="@+id/et_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/twenty_dp_margin"
-                android:layout_marginEnd="@dimen/twenty_dp_margin"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/montserrat"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="@dimen/sixteen_dp_margin"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/roboto_bold"
                 android:hint="@string/enter_title"
+                android:textColor="?attr/primaryTextColor"
+                android:background="@drawable/bg_input"
                 android:maxLength="135"
+                android:padding="@dimen/sixteen_dp_margin"
+                android:textColorHint="?attr/secondaryTextColor"
                 android:textSize="@dimen/eighteen_sp_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -75,13 +80,18 @@
                 android:id="@+id/et_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/twenty_dp_margin"
-                android:layout_marginTop="@dimen/thirty_dp_margin"
-                android:layout_marginEnd="@dimen/twenty_dp_margin"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="@dimen/twenty_four_dp_margin"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="@dimen/twenty_dp_margin"
-                android:background="@android:color/transparent"
+                android:background="@drawable/bg_input"
                 android:gravity="top"
-                android:hint="@string/enter_description"
+                android:minHeight="@dimen/two_hundred_fifty_six_dp"
+                android:hint="@string/enter_body"
+                android:padding="@dimen/sixteen_dp_margin"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="?attr/primaryTextColor"
+                android:textColorHint="?attr/secondaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

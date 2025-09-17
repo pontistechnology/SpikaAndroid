@@ -4,18 +4,21 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.clover.studio.spikamessenger.R
+import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
 import com.clover.studio.spikamessenger.databinding.ItemChatRoomBinding
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
-import com.clover.studio.spikamessenger.utils.Tools.getRelativeTimeSpan
+import com.clover.studio.spikamessenger.utils.Tools.getRoomTime
+import com.vanniktech.emoji.EmojiTextView
+
+const val MAX_UNREAD_MESSAGES = 99
 
 class RoomsAdapter(
     private val context: Context,
@@ -34,95 +37,112 @@ class RoomsAdapter(
     override fun onBindViewHolder(holder: RoomsViewHolder, position: Int) {
         with(holder) {
             getItem(position).let { roomItem ->
-                val userName: String
-                val avatarFileId: Long
-                //Timber.d("Room data = $roomItem, ${roomItem.roomWithUsers.room.name}")
-                if (Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type) {
-                    val roomUser = roomItem.roomWithUsers.users.find { it.id.toString() != myUserId }
-                    if (roomUser != null) {
-                        userName = roomUser.formattedDisplayName
-                        avatarFileId = roomUser.avatarFileId!!
-                    } else {
-                        userName = roomItem.roomWithUsers.users.first().formattedDisplayName
-                        avatarFileId = roomItem.roomWithUsers.users.first().avatarFileId!!
-                    }
-                } else {
-                    userName = roomItem.roomWithUsers.room.name.toString()
-                    avatarFileId = roomItem.roomWithUsers.room.avatarFileId!!
-                }
-                binding.tvRoomName.text = userName
+                val isPrivateRoom = Const.JsonFields.PRIVATE == roomItem.roomWithUsers.room.type
+
+                val roomUser =
+                    if (isPrivateRoom) roomItem.roomWithUsers.users.find { it.id.toString() != myUserId } else null
+                val roomName = if (isPrivateRoom) roomUser?.formattedDisplayName
+                    ?: "" else roomItem.roomWithUsers.room.name.toString()
+                val avatarFileId =
+                    if (isPrivateRoom) roomUser?.avatarFileId
+                        ?: 0L else roomItem.roomWithUsers.room.avatarFileId ?: 0L
+
+                binding.tvRoomName.text = roomName
 
                 // Check if room is muted and add mute icon to the room item
-                if (roomItem.roomWithUsers.room.muted) {
-                    binding.ivMuted.visibility = View.VISIBLE
-                } else binding.ivMuted.visibility = View.GONE
+                binding.ivMuted.visibility = if (roomItem.roomWithUsers.room.muted) {
+                    View.VISIBLE
+                } else View.GONE
 
                 // Check if room is pinned and add pin icon to the room item
-                if (roomItem.roomWithUsers.room.pinned) {
-                    binding.ivPinned.visibility = View.VISIBLE
-                } else binding.ivPinned.visibility = View.GONE
+                binding.ivPinned.visibility = if (roomItem.roomWithUsers.room.pinned) {
+                    View.VISIBLE
+                } else View.GONE
 
-                if (avatarFileId != 0L) {
-                    Glide.with(context)
-                        .load(Tools.getFilePathUrl(avatarFileId))
-                        .placeholder(R.drawable.img_user_placeholder)
-                        .centerCrop()
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(binding.ivRoomImage)
-                } else binding.ivRoomImage.setImageDrawable(
-                    AppCompatResources.getDrawable(
-                        context,
-                        R.drawable.img_user_placeholder
-                    )
+                val placeholderDrawable = Tools.getPlaceholderImage(
+                    roomItem.roomWithUsers.room.type!!
                 )
+
+                Glide.with(context)
+                    .load(Tools.getFilePathUrl(avatarFileId))
+                    .placeholder(placeholderDrawable)
+                    .centerCrop()
+                    .error(placeholderDrawable)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(binding.ivRoomImage)
+
 
                 if (roomItem.message != null) {
                     val sortedList = roomItem.message
                     val lastMessage = sortedList.body
-                    var textUserName = ""
 
-                    if (Const.JsonFields.GROUP == roomItem.roomWithUsers.room.type) {
-                        for (user in roomItem.roomWithUsers.users) {
-                            if (sortedList.fromUserId == user.id) {
-                                textUserName = user.formattedDisplayName + ": "
-                                break
-                            }
-                        }
-                    }
-                    if (lastMessage?.text.isNullOrEmpty()) {
-                        binding.tvLastMessage.text = buildString {
-                            append(textUserName)
-                            append(
-                                context.getString(
-                                    R.string.generic_shared,
-                                    sortedList.type.toString()
-                                        .replaceFirstChar { it.uppercase() })
+                    val user =
+                        roomItem.roomWithUsers.users.firstOrNull { it.id == sortedList.fromUserId }
+
+                    if (Const.JsonFields.SYSTEM_TYPE == sortedList.type) {
+                        // We need to hide the username since it is prefixed to the last message
+                        binding.tvUsername.visibility = View.GONE
+                    } else {
+                        binding.tvUsername.text = if (user?.id.toString() == myUserId) {
+                            context.getString(
+                                R.string.username_message,
+                                context.getString(R.string.you).trim()
+                            )
+                        } else {
+                            context.getString(
+                                R.string.username_message,
+                                user?.formattedDisplayName?.trim()
                             )
                         }
-                    } else binding.tvLastMessage.text = buildString {
-                        append(textUserName)
-                        append(lastMessage?.text.toString())
+                        // RV fallback, so it doesn't recycle username hiding
+                        binding.tvUsername.visibility = View.VISIBLE
+                    }
+
+                    if (lastMessage?.text.isNullOrEmpty()) {
+                        setMediaItemText(sortedList, binding.tvLastMessage)
+                    } else {
+                        binding.tvLastMessage.text = lastMessage?.text.toString()
+                        binding.tvLastMessage.setCompoundDrawablesWithIntrinsicBounds(
+                            0,
+                            0,
+                            0,
+                            0
+                        )
                     }
 
                     val time = roomItem.message.createdAt?.let {
-                        getRelativeTimeSpan(it)
+                        getRoomTime(it)
                     }
 
                     // Check for the first digit in the relative time span, if it is a '0' we will
                     // write "Now" instead of the returned time value
-                    if (time?.firstOrNull { it.isDigit() }?.equals('0') == true) {
+                    if (time.toString() == context.getString(R.string.zero_minutes_ago)) {
                         binding.tvMessageTime.text = context.getString(R.string.now)
                     } else {
                         binding.tvMessageTime.text = time
                     }
                 } else {
-                    binding.tvLastMessage.text = ""
+                    binding.tvUsername.text = ""
                     binding.tvMessageTime.text = ""
+                    binding.tvLastMessage.text = ""
+                    binding.tvLastMessage.setCompoundDrawablesWithIntrinsicBounds(
+                        0,
+                        0,
+                        0,
+                        0
+                    )
                     binding.tvNewMessages.visibility = View.GONE
                 }
 
                 if (roomItem.roomWithUsers.room.unreadCount > 0 && roomItem.message != null) {
-                    binding.tvNewMessages.text = roomItem.roomWithUsers.room.unreadCount.toString()
+                    val numberOfMessages = roomItem.roomWithUsers.room.unreadCount
+
+                    if (numberOfMessages > MAX_UNREAD_MESSAGES) {
+                        binding.tvNewMessages.text = context.getString(R.string.unread_limit)
+                    } else {
+                        binding.tvNewMessages.text =
+                            roomItem.roomWithUsers.room.unreadCount.toString()
+                    }
                     binding.tvNewMessages.visibility = View.VISIBLE
                 } else {
                     binding.tvNewMessages.visibility = View.GONE
@@ -137,6 +157,31 @@ class RoomsAdapter(
         }
     }
 
+    private fun setMediaItemText(sortedList: Message?, tvLastMessage: EmojiTextView) {
+        tvLastMessage.apply {
+            val mimeType = sortedList?.body?.file?.mimeType
+            val drawableResId = when {
+                mimeType?.contains(Const.JsonFields.GIF_TYPE) == true -> R.drawable.img_gif_small
+                mimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true -> R.drawable.img_camera_small
+                mimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true -> R.drawable.img_video_small
+                mimeType?.contains(Const.JsonFields.AUDIO_TYPE) == true -> R.drawable.img_microphone_small
+                else -> R.drawable.img_file_small
+            }
+
+            setCompoundDrawablesWithIntrinsicBounds(
+                drawableResId,
+                0,
+                0,
+                0
+            )
+
+            text = if (sortedList?.body?.file?.mimeType.toString().contains(Const.JsonFields.GIF)){
+                Const.JsonFields.GIF.replaceFirstChar { it.uppercase() }
+            } else {
+                sortedList?.type.toString().replaceFirstChar { it.uppercase() }
+            }
+        }
+    }
 
     private class RoomsDiffCallback : DiffUtil.ItemCallback<RoomWithMessage>() {
 

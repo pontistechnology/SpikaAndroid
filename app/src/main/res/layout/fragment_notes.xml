@@ -4,14 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.chat_details.notes.NotesFragment">
+    tools:context=".ui.main.chat_details.notes.NotesFragment"
+    tools:ignore="contentDescription">
 
     <ImageView
         android:id="@+id/iv_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/twenty_dp_margin"
-        android:src="@drawable/img_arrow_back"
+        android:src="@drawable/img_arrow_back_chat"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -19,12 +20,13 @@
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/twenty_dp_margin"
-        android:fontFamily="@font/montserrat"
         android:text="@string/notes"
-        android:textSize="@dimen/fourteen_sp_text"
+        android:textAppearance="@style/CustomTitleBold"
+        android:textColor="?attr/primaryTextColor"
+
         app:layout_constraintBottom_toBottomOf="@id/iv_back"
-        app:layout_constraintStart_toEndOf="@id/iv_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/iv_back" />
 
     <ImageView
@@ -41,26 +43,33 @@
         android:id="@+id/rv_notes"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/thirty_dp_margin"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
+        android:layout_marginTop="@dimen/thirty_two_dp_margin"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:layout_marginBottom="@dimen/sixteen_dp_margin"
         android:fillViewport="true"
         android:visibility="visible"
         android:windowSoftInputMode="adjustResize"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_back"
+        tools:listitem="@layout/notes_option" />
 
     <TextView
         android:id="@+id/tv_no_notes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:fontFamily="@font/montserrat"
-        android:text="@string/no_notes_here"
-        android:visibility="gone"
         android:gravity="center"
-        android:textColor="@color/text_tertiary"
-        android:textSize="@dimen/fourteen_sp_text"/>
+        android:text="@string/no_notes_here"
+        android:textAppearance="@style/CustomTitleBold"
+        android:textColor="?attr/secondaryTextColor"
+        android:textSize="@dimen/twenty_four_sp_text"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

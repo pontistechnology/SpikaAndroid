@@ -1,56 +1,70 @@
 package com.clover.studio.spikamessenger.ui.main.chat
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.liveData
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
-import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
-import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.NewNote
+import com.clover.studio.spikamessenger.data.models.networking.responses.ForwardMessagesResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.MessageResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.NotesResponse
-import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
-import com.clover.studio.spikamessenger.data.repositories.ChatRepositoryImpl
-import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
+import com.clover.studio.spikamessenger.data.models.networking.responses.ThumbnailDataResponse
+import com.clover.studio.spikamessenger.data.repositories.ChatRepository
+import com.clover.studio.spikamessenger.data.repositories.MainRepository
 import com.clover.studio.spikamessenger.utils.Event
-import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.SSEListener
 import com.clover.studio.spikamessenger.utils.SSEManager
 import com.clover.studio.spikamessenger.utils.Tools
-import com.clover.studio.spikamessenger.utils.UploadDownloadManager
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import javax.inject.Inject
 
+const val MEDIA_LIMIT = 50
+const val MESSAGE_LIMIT = 20
+
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val repository: ChatRepositoryImpl,
-    private val mainRepository: MainRepositoryImpl,
+    private val repository: ChatRepository,
+    private val mainRepository: MainRepository,
     sseManager: SSEManager,
-    private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel(), SSEListener {
     val messageSendListener = MutableLiveData<Event<Resource<MessageResponse?>>>()
-    val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
-    val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
-    val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
     val noteCreationListener = MutableLiveData<Event<Resource<NotesResponse?>>>()
     val noteDeletionListener = MutableLiveData<Event<NoteDeletion>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
-    val newMessageReceivedListener = MutableLiveData<Message?>()
-    val roomInfoUpdated = MutableLiveData<Event<Resource<RoomResponse?>>>()
-    private val liveDataLimit = MutableLiveData(20)
+    val forwardListener = MutableLiveData<Event<Resource<ForwardMessagesResponse?>>>()
+    private val liveDataLimit = MutableLiveData(MESSAGE_LIMIT)
+    private val mediaItemsLimit = MutableLiveData(MEDIA_LIMIT)
+    val messageNotFound = MutableLiveData(false)
     val messagesReceived = MutableLiveData<List<Message>>()
+    val searchMessageId = MutableLiveData(0)
+    val roomWithUsers = MutableLiveData<RoomWithUsers>()
+    val thumbnailData = MutableLiveData<Event<Resource<ThumbnailDataResponse?>>>()
+
+    private val _mediaState: MutableStateFlow<MediaScreenState> =
+        MutableStateFlow(MediaScreenState.Loading)
+    val mediaState = _mediaState.asStateFlow()
+
+    private val _linksState: MutableStateFlow<MediaScreenState> =
+        MutableStateFlow(MediaScreenState.Loading)
+    val linksState = _linksState.asStateFlow()
+
+    private val _filesState: MutableStateFlow<MediaScreenState> =
+        MutableStateFlow(MediaScreenState.Loading)
+    val filesState = _filesState.asStateFlow()
 
     init {
         sseManager.setupListener(this)
@@ -58,14 +72,11 @@ class ChatViewModel @Inject constructor(
 
     private fun updateCounterLimit() {
         val currentLimit = liveDataLimit.value ?: 0
-        Timber.d("Current limit = $currentLimit")
-
         liveDataLimit.postValue(currentLimit + 1)
     }
 
     fun storeMessageLocally(message: Message) = CoroutineScope(Dispatchers.IO).launch {
         repository.storeMessageLocally(message)
-
         updateCounterLimit()
     }
 
@@ -79,14 +90,12 @@ class ChatViewModel @Inject constructor(
                 currentMessages.add(message)
                 messagesReceived.value = currentMessages
             }
-            Timber.d("Messages received: $messagesReceived")
         }
     }
 
     fun clearMessages() {
         viewModelScope.launch {
             messagesReceived.value = emptyList()
-            Timber.d("Messages received cleared: ${messagesReceived.value}")
         }
     }
 
@@ -112,10 +121,6 @@ class ChatViewModel @Inject constructor(
         return userId
     }
 
-    fun deleteLocalMessages(messages: List<Message>) = viewModelScope.launch {
-        repository.deleteLocalMessages(messages)
-    }
-
     fun deleteLocalMessage(message: Message) = viewModelScope.launch {
         repository.deleteLocalMessage(message)
     }
@@ -124,13 +129,9 @@ class ChatViewModel @Inject constructor(
         repository.sendMessagesSeen(roomId)
     }
 
-    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
-        CoroutineScope(Dispatchers.IO).launch {
-            resolveResponseStatus(
-                roomInfoUpdated,
-                repository.updateRoom(jsonObject, roomId, userId)
-            )
-        }
+    fun updateRoom(jsonObject: JsonObject, roomId: Int) = viewModelScope.launch {
+        repository.updateRoom(jsonObject, roomId)
+    }
 
     fun isUserAdmin(roomId: Int, userId: Int): Boolean {
         var isAdmin = false
@@ -146,30 +147,19 @@ class ChatViewModel @Inject constructor(
         return isAdmin
     }
 
+    suspend fun getRoomUsers(roomId: Int): RoomWithUsers? = repository.getRoomUsers(roomId)
+
     fun getRoomAndUsers(roomId: Int) = repository.getRoomWithUsersLiveData(roomId)
 
-//    fun getPushNotificationStream(listener: SSEListener): Flow<Message> = flow {
-//        viewModelScope.launch {
-//            try {
-//                sseManager.startSSEStream(listener)
-//            } catch (ex: Exception) {
-//                Tools.checkError(ex)
-//                return@launch
-//            }
-//        }
-//    }
-
-    fun getMessageAndRecords(roomId: Int) = Transformations.switchMap(liveDataLimit) {
-        Timber.d("Limit check ${liveDataLimit.value}")
+    fun getMessageAndRecords(roomId: Int) = liveDataLimit.switchMap {
         repository.getMessagesAndRecords(roomId, it, 0)
     }
 
     fun fetchNextSet(roomId: Int) {
         val currentLimit = liveDataLimit.value ?: 0
-        Timber.d("Current limit = $currentLimit")
-
         if (getMessageCount(roomId = roomId) > currentLimit)
-            liveDataLimit.value = currentLimit + 20
+            liveDataLimit.value = currentLimit + MESSAGE_LIMIT
+        else messageNotFound.value = true
     }
 
     private fun getMessageCount(roomId: Int): Int {
@@ -178,27 +168,8 @@ class ChatViewModel @Inject constructor(
         runBlocking {
             messageCount = repository.getMessageCount(roomId)
         }
-        Timber.d("Message count = $messageCount")
+
         return messageCount
-    }
-
-    fun getChatRoomAndMessageAndRecordsById(roomId: Int) =
-        repository.getChatRoomAndMessageAndRecordsById(roomId)
-
-    fun getSingleRoomData(roomId: Int) = viewModelScope.launch {
-        resolveResponseStatus(roomDataListener, repository.getSingleRoomData(roomId))
-    }
-
-    fun getRoomWithUsers(roomId: Int, message: Message) = viewModelScope.launch {
-        roomNotificationListener.postValue(
-            Event(
-                RoomNotificationData(
-                    repository.getRoomWithUsers(
-                        roomId
-                    ), message
-                )
-            )
-        )
     }
 
     /**
@@ -223,6 +194,10 @@ class ChatViewModel @Inject constructor(
 
     fun sendReaction(jsonObject: JsonObject) = viewModelScope.launch {
         repository.sendReaction(jsonObject)
+    }
+
+    fun deleteReaction(messageRecordId: Long) = viewModelScope.launch {
+        repository.deleteReaction(messageRecordId)
     }
 
     fun deleteRoom(roomId: Int) = viewModelScope.launch {
@@ -251,6 +226,10 @@ class ChatViewModel @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             repository.updateLocalUri(localId, uri)
         }
+    }
+
+    fun updateThumbUri(localId: String, uri: String) = viewModelScope.launch {
+        repository.updateThumbUri(localId, uri)
     }
 
     fun editMessage(messageId: Int, jsonObject: JsonObject) =
@@ -293,15 +272,6 @@ class ChatViewModel @Inject constructor(
         mainRepository.getBlockedList()
     }
 
-// Block methods
-//    fun blockUser(blockedId: Int) = viewModelScope.launch {
-//        mainRepository.blockUser(blockedId)
-//    }
-//
-//    fun deleteBlock(userId: Int) = viewModelScope.launch {
-//        mainRepository.deleteBlock(userId)
-//    }
-
     fun deleteBlockForSpecificUser(userId: Int) = viewModelScope.launch {
         resolveResponseStatus(
             blockedListListener,
@@ -317,78 +287,88 @@ class ChatViewModel @Inject constructor(
         mainRepository.updateUnreadCount(roomId)
     }
 
+    fun forwardMessage(jsonObject: JsonObject, singleChat: Boolean) =
+        CoroutineScope(Dispatchers.IO).launch {
+            if (singleChat) {
+                resolveResponseStatus(forwardListener, mainRepository.forwardMessages(jsonObject))
+            } else {
+                mainRepository.forwardMessages(jsonObject)
+            }
+        }
 
     fun cancelUploadFile(messageId: String) = viewModelScope.launch {
         mainRepository.cancelUpload(messageId)
     }
 
-    fun uploadFile(
-        fileData: FileData
-    ) =
-        viewModelScope.launch {
-            try {
-                uploadDownloadManager.uploadFile(
-                    fileData,
-                    object : FileUploadListener {
-                        override fun filePieceUploaded() {
-                            resolveResponseStatus(
-                                fileUploadListener,
-                                Resource(Resource.Status.LOADING, null, "")
-                            )
-                        }
+    fun getAllMediaItemsWithOffset(roomId: Int, mediaType: MediaType) = viewModelScope.launch {
+        val response = mainRepository.getAllMediaWithOffset(roomId, mediaItemsLimit.value ?: 0, 0, mediaType)
 
-                        override fun fileUploadError(description: String) {
-                            resolveResponseStatus(
-                                fileUploadListener,
-                                Resource(Resource.Status.ERROR, null, description)
-                            )
-                        }
-
-                        override fun fileUploadVerified(
-                            path: String,
-                            mimeType: String,
-                            thumbId: Long,
-                            fileId: Long,
-                            fileType: String,
-                            messageBody: MessageBody?
-                        ) {
-                            val response =
-                                FileUploadVerified(
-                                    path,
-                                    mimeType,
-                                    thumbId,
-                                    fileId,
-                                    fileType,
-                                    messageBody,
-                                    false
-                                )
-                            resolveResponseStatus(
-                                fileUploadListener,
-                                Resource(Resource.Status.SUCCESS, response, "")
-                            )
-                        }
-
-                        override fun fileCanceledListener(messageId: String?) {
-                            // Ignore
-                        }
-                    })
-            } catch (ex: Exception) {
-                resolveResponseStatus(
-                    fileUploadListener,
-                    Resource(Resource.Status.ERROR, null, ex.message.toString())
-                )
+        when (response.status) {
+            Resource.Status.SUCCESS -> {
+                when (mediaType) {
+                    MediaType.MEDIA -> _mediaState.value = MediaScreenState.Success(response.responseData)
+                    MediaType.LINKS -> _linksState.value = MediaScreenState.Success(response.responseData)
+                    MediaType.FILES -> _filesState.value = MediaScreenState.Success(response.responseData)
+                }
             }
+            Resource.Status.ERROR -> {
+                when (mediaType) {
+                    MediaType.MEDIA -> _mediaState.value = MediaScreenState.Error(response.message)
+                    MediaType.LINKS -> _linksState.value = MediaScreenState.Error(response.message)
+                    MediaType.FILES -> _filesState.value = MediaScreenState.Error(response.message)
+                }
+            }
+            Resource.Status.LOADING -> {
+                when (mediaType) {
+                    MediaType.MEDIA -> _mediaState.value = MediaScreenState.Loading
+                    MediaType.LINKS -> _linksState.value = MediaScreenState.Loading
+                    MediaType.FILES -> _filesState.value = MediaScreenState.Loading
+                }
+            }
+            else -> Timber.d("Other error")
         }
+    }
+
+    fun fetchNextMediaSet(roomId: Int, mediaType: MediaType) {
+        val currentLimit = mediaItemsLimit.value ?: 0
+        if (getMediaCount(roomId) > currentLimit) mediaItemsLimit.value = currentLimit + MEDIA_LIMIT
+
+        getAllMediaItemsWithOffset(roomId = roomId, mediaType = mediaType)
+    }
+
+    private fun getMediaCount(roomId: Int): Int {
+        var mediaCount: Int
+
+        runBlocking {
+            mediaCount = mainRepository.getMediaCount(roomId)
+        }
+
+        return mediaCount
+    }
+
+    fun getPageMetadata(url: String) = viewModelScope.launch {
+        val response = repository.getPageMetadata(url)
+        resolveResponseStatus(thumbnailData, response)
+    }
 }
 
-class RoomNotificationData(val response: Resource<RoomWithUsers>, val message: Message)
 class NoteDeletion(val response: Resource<NotesResponse>)
 class FileUploadVerified(
     val path: String,
     val mimeType: String,
     val thumbId: Long,
     val fileId: Long,
-    val fileType: String,
     val messageBody: MessageBody?,
-    val isThumbnail: Boolean
 )
+
+enum class MediaType {
+    MEDIA,
+    LINKS,
+    FILES
+}
+
+sealed class MediaScreenState {
+    data object Loading : MediaScreenState()
+    data class Success(val media: List<Message>?) : MediaScreenState()
+    data class Error(val message: String?) : MediaScreenState()
+}

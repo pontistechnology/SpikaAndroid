@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="primaryColor" format="reference|color" />
+    <attr name="secondaryColor" format="reference|color" />"
+    <attr name="tertiaryColor" format="reference|color" />"
+
+    <attr name="primaryTextColor" format="reference|color" />
+    <attr name="secondaryTextColor" format="reference|color" />
+    <attr name="tertiaryTextColor" format="reference|color" />
+
+    <attr name="additionalColor" format="reference|color" />
+    <attr name="secondAdditionalColor" format="reference|color" />
+    <attr name="thirdAdditionalColor" format="reference|color" />
+    <attr name="fourthAdditionalColor" format="reference|color" />
+
+    <attr name="primaryColorDisabled" format="reference|color" />
+
+    <attr name="backgroundPrimary" format="reference" />
+    <attr name="backgroundPrimaryColor" format="reference" />
+    <attr name="backgroundSecondaryColor" format="reference" />
+    <attr name="backgroundColorTertiary" format="reference" />
+    <attr name="backgroundColorAdditional" format="reference" />
+
+    <attr name="spikaLogo" format="reference" />
+
+<!-- Helpers -->
+    <attr name="alphaHelperColor" format="color|reference" />
+
+</resources>

@@ -52,19 +52,14 @@ class RegisterNumberFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         bindingSetup = FragmentRegisterNumberBinding.inflate(inflater, container, false)
 
         checkUser()
         checkMultiplePermissions()
-//        checkContactsPermission()
-//        checkNotificationPermission()
         setTextListener()
         setClickListeners()
         setObservers()
-//
-//        // Log check if token is present in shared prefs
-//        viewModel.registerFlag(false)
+
         viewModel.readToken()
 
         return binding.root
@@ -81,9 +76,8 @@ class RegisterNumberFragment : BaseFragment() {
                 binding.etPhoneNumber.visibility = View.GONE
                 binding.tvDefaultPhoneNumber.visibility = View.VISIBLE
                 binding.tvDefaultPhoneNumber.text = phoneNumber
+                binding.btnNext.isEnabled = true
             }
-
-            binding.btnNext.isEnabled = true
         }
         binding.tvCountryCode.text = countryCode
     }
@@ -106,6 +100,7 @@ class RegisterNumberFragment : BaseFragment() {
                         Const.Navigation.DEVICE_ID to deviceId
                     )
                     viewModel.registerFlag(true)
+                    viewModel.writeDeviceId(deviceId.toString())
                     viewModel.writeFirstAppStart()
                     findNavController().navigate(
                         R.id.action_registerNumberFragment_to_verificationFragment,
@@ -120,7 +115,7 @@ class RegisterNumberFragment : BaseFragment() {
                 Resource.Status.ERROR -> {
                     DialogError.getInstance(requireContext(),
                         getString(R.string.registration_error),
-                        getString(R.string.registration_error_description),
+                        "${getString(R.string.registration_error_description)} \n\n ${it.message}",
                         null, getString(R.string.ok), object : DialogInteraction {
                             override fun onFirstOptionClicked() {
                                 // Ignore
@@ -162,6 +157,7 @@ class RegisterNumberFragment : BaseFragment() {
                 viewModel.writePhoneAndCountry(phoneNumber, countryCode)
             }
             viewModel.sendNewUserData(getJsonObject())
+            binding.btnNext.isEnabled = false
         }
     }
 
@@ -176,10 +172,7 @@ class RegisterNumberFragment : BaseFragment() {
             }
 
             override fun afterTextChanged(s: Editable) {
-                if (s.isNotEmpty()) {
-                    binding.btnNext.isEnabled = s.isNotEmpty()
-                }
-
+                binding.btnNext.isEnabled = s.isNotEmpty()
             }
         })
 

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/ten_dp_margin"
-    app:cardCornerRadius="@dimen/ten_dp_margin"
+    android:backgroundTint="?attr/secondaryColor"
+    app:cardCornerRadius="@dimen/sixteen_dp_margin"
     app:cardElevation="0dp"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
@@ -21,66 +22,81 @@
             android:id="@+id/tv_text_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat_bold"
+            android:layout_marginTop="@dimen/sixteen_dp_margin"
+            android:layout_marginBottom="@dimen/sixteen_dp_margin"
             android:gravity="center"
-            android:padding="@dimen/twenty_dp_margin"
             android:text="@string/placeholder_title"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/fourteen_sp_text" />
+            android:textAppearance="@style/CustomTextHeading"
+            android:textColor="@color/warningColor"
+            android:textSize="@dimen/twenty_sp_text" />
 
         <TextView
             android:id="@+id/tv_text_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat"
+            android:layout_marginBottom="@dimen/sixteen_dp_margin"
             android:gravity="center"
-            android:padding="@dimen/twenty_dp_margin"
+            android:lineSpacingExtra="@dimen/one_dp_margin"
             android:text="@string/placeholder_title"
-            android:textColor="@color/text_tertiary"
-            android:textSize="@dimen/twelve_sp_text" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:background="@color/guideline" />
+            android:textAppearance="@style/CustomTextBody"
+            android:textSize="@dimen/fifteen_sp_text" />
 
         <LinearLayout
+            android:id="@+id/ll_two_options"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/eight_dp_margin"
+            android:layout_marginEnd="@dimen/eight_dp_margin"
+            android:layout_marginBottom="@dimen/eight_dp_margin"
             android:orientation="horizontal"
             android:weightSum="2">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_first_option"
-                style="?android:attr/borderlessButtonStyle"
+                style="@style/HalfRightLeft"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="@dimen/four_dp_margin"
                 android:layout_weight="1"
-                android:backgroundTint="@color/white"
-                android:fontFamily="@font/montserrat"
+                android:elevation="0dp"
                 android:gravity="center"
-                android:minHeight="0dp"
-                android:padding="@dimen/ten_dp_margin"
                 android:text="@string/action"
                 android:textAllCaps="false"
-                android:textColor="@color/text_tertiary"
                 android:textSize="@dimen/fifteen_sp_text" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_second_option"
-                style="?android:attr/borderlessButtonStyle"
+                style="@style/HalfButtonLeft"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/four_dp_margin"
                 android:layout_weight="1"
-                android:backgroundTint="@color/white"
-                android:fontFamily="@font/montserrat"
+                android:backgroundTint="?attr/primaryColor"
+                android:elevation="0dp"
+                android:fontFamily="@font/roboto"
                 android:gravity="center"
-                android:minHeight="0dp"
-                android:padding="@dimen/ten_dp_margin"
+                android:letterSpacing="0.1"
                 android:text="@string/action"
                 android:textAllCaps="false"
-                android:textColor="@color/primary_color"
+                android:textAppearance="@style/CustomTextHeading"
                 android:textSize="@dimen/fifteen_sp_text" />
         </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_one_option"
+            style="@style/CustomButton"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/eight_dp_margin"
+            android:layout_marginEnd="@dimen/eight_dp_margin"
+            android:layout_marginBottom="@dimen/eight_dp_margin"
+            android:layout_weight="1"
+            android:elevation="0dp"
+            android:gravity="center"
+            android:text="@string/action"
+            android:textAllCaps="false"
+            android:textAppearance="@style/CustomTextHeading"
+            android:visibility="gone"
+            app:cornerRadius="@dimen/sixteen_dp_margin" />
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

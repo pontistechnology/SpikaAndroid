@@ -3,6 +3,7 @@ package com.clover.studio.spikamessenger.data.daos
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
+import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
@@ -51,6 +52,7 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("DELETE FROM room")
     suspend fun removeRooms()
 
+    @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
         "SELECT room.*, message.* FROM room\n" +
@@ -59,6 +61,29 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
                 "ON message.room_id_message = room.room_id AND message.created_at_message = latestMessageTime.max_created_at\n"
     )
     fun getAllRoomsWithLatestMessageAndRecord(): LiveData<List<RoomWithMessage>>
+
+    @RewriteQueriesToDropUnusedColumns
+    @Transaction
+    @Query(
+        "SELECT room.*, message.* FROM room LEFT JOIN (SELECT room_id_message, MAX(created_at_message) AS max_created_at FROM message GROUP BY room_id_message) \n" +
+                "AS latestMessageTime ON room.room_id = latestMessageTime.room_id_message LEFT JOIN message\n" +
+                "ON message.room_id_message = room.room_id AND message.created_at_message = latestMessageTime.max_created_at \n" +
+                "WHERE type = 'private' ORDER BY message.created_at_message DESC LIMIT 3"
+    )
+    fun getRecentContacts(): List<RoomWithUsers>
+
+    @Transaction
+    @Query(
+        "SELECT room.* FROM room LEFT JOIN (SELECT room_id_message, MAX(created_at_message) AS max_created_at FROM message GROUP BY room_id_message) \n" +
+                "AS latestMessageTime ON room.room_id = latestMessageTime.room_id_message LEFT JOIN message\n" +
+                "ON message.room_id_message = room.room_id AND message.created_at_message = latestMessageTime.max_created_at \n" +
+                "WHERE type = 'group' ORDER BY message.created_at_message DESC LIMIT 3"
+    )
+    fun getRecentGroups(): List<RoomWithUsers>
+
+    @Transaction
+    @Query("SELECT * FROM room WHERE type = 'group' ORDER BY name COLLATE UNICODE ASC")
+    fun getAllGroups(): List<RoomWithUsers>
 
     @Transaction
     @Query("SELECT * FROM room")
@@ -81,6 +106,10 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
 
     @Transaction
     @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
+    fun getRoomUsers(roomId: Int): RoomWithUsers
+
+    @Transaction
+    @Query("SELECT * FROM room WHERE room_id LIKE :roomId LIMIT 1")
     fun getRoomAndUsersLiveData(roomId: Int): LiveData<RoomWithUsers>
 
     @Query("UPDATE room SET unread_count = 0 WHERE room_id LIKE :roomId")
@@ -92,10 +121,29 @@ interface ChatRoomDao : BaseDao<ChatRoom> {
     @Query("UPDATE room SET deleted =:deleted WHERE room_id LIKE :roomId")
     suspend fun updateRoomDeleted(roomId: Int, deleted: Boolean)
 
+    // TODO we need to remove searching through reply messages {reference_messages: {text: ...
+    @RewriteQueriesToDropUnusedColumns
+    @Transaction
     @Query(
         "SELECT * FROM message " +
                 "INNER JOIN user ON from_user_id = user.user_id " +
-                "WHERE message.body LIKE '%' || :text || '%'"
+                "WHERE message.body LIKE '%' || '{\"text\":\"%' || :text || '%' " +
+                "AND type_message = 'text'"
     )
     suspend fun getSearchMessages(text: String): List<MessageWithRoom>
+
+    @Query(
+        "SELECT * FROM message WHERE message.room_id_message = :roomId AND (type_message = 'image' OR type_message = 'video') " +
+                "LIMIT :limit OFFSET :offset"
+    )
+    fun getAllMediaWithOffset(roomId: Int, limit: Int, offset: Int): List<Message>
+
+    @Query("SELECT * FROM message WHERE message.room_id_message = :roomId AND type_message = 'text' AND message.body LIKE '%\"thumbnailData\"%' LIMIT :limit OFFSET :offset")
+    fun getAllLinksWithOffset(roomId: Int, limit: Int, offset: Int): List<Message>
+
+    @Query("SELECT * FROM message WHERE message.room_id_message = :roomId AND type_message = 'file' LIMIT :limit OFFSET :offset")
+    fun getAllFilesWithOffset(roomId: Int, limit: Int, offset: Int): List<Message>
+
+    @Query("SELECT COUNT(*) FROM message WHERE room_id_message= :roomId AND (type_message = 'image' OR type_message = 'video')")
+    suspend fun getMediaCount(roomId: Int): Int
 }

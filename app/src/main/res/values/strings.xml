@@ -2,32 +2,43 @@
     <!--Initial screens-->
     <string name="channel_description">Spika App</string>
     <string name="spika">Spika</string>
-    <string name="app_version">Version</string>
+    <string name="app_version">Version %s %s</string>
     <string name="no_calls_yet">No calls yet.</string>
     <string name="call_history">Call history</string>
     <string name="call_history_search_hint"><font size="14">Search for contact, message, file…</font></string>
     <string name="outgoing">Outgoing</string>
     <string name="chat">Chat</string>
     <string name="no_chats_yet">No chats yet.</string>
-    <string name="pin_chat">Pin Chat</string>
+    <string name="pin_chat">Pin chat</string>
     <string name="chat_search">Chat Search</string>
     <string name="privacy_explanation">See and share when messages have been read. This applies to all chats.</string>
     <string name="no_username">No Username</string>
     <string name="username">Username</string>
-    <string name="notifications">Notifications</string>
     <string name="search">Search</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="show_notifications">Show Notifications</string>
     <string name="favourite_messages">Favourite Messages</string>
-    <string name="type_here">Type here…</string>
+    <string name="type_here">message…</string>
+
+    <!--Notification-->
+    <string name="notifications">Notifications</string>
+    <string name="show_notifications">Show Notifications</string>
 
     <!--Contacts-->
     <string name="contacts">Contacts</string>
-    <string name="save_contact">Save contact</string>
+    <string name="save_contact">Add to contacts</string>
     <string name="contact">Contact</string>
     <string name="number_copied">Telephone number copied</string>
+    <string name="private_contact_label">Private contact</string>
+    <string name="group_label">Group</string>
+    <string name="groups_label">Groups</string>
+    <string name="recent_chats">Recent chats</string>
+    <string name="no_results">No results</string>
+    <string name="no_groups_yet">No groups yet</string>
     <string name="contact_search"><font size="14"> Search for contact</font></string>
     <string name="contact_message_search"><font size="14"> Search for room or message</font></string>
+    <string name="contact_groups_search"><font size="14"> Search for contacts or groups</font></string>
+    <string name="failed_to_send_contacts">Failed to send contacts</string>
+    <string name="send_again">Send again</string>
 
     <!--Settings-->
     <string name="settings">Settings</string>
@@ -47,8 +58,9 @@
 
     <!--Register-->
     <string name="enter_username">Enter username</string>
+    <string name="enter_username_with_exclamation_mark">Enter username!</string>
     <string name="select_photo_my_profile">Select a photo for your profile</string>
-    <string name="enter_number_to_use">Enter your phone number to start using Spika</string>
+    <string name="enter_number_to_use">Enter your phone number to \n start using Spika</string>
     <string name="phone_number">Phone number</string>
     <string name="number_example">Eg. 98726546</string>
     <string name="all_countries">All Countries</string>
@@ -74,6 +86,7 @@
     <string name="documents">Documents</string>
     <string name="gallery">Gallery</string>
     <string name="photo">Photo</string>
+    <string name="gif">Gif</string>
     <string name="media">%s</string>
     <string name="files">Files</string>
     <string name="file">File</string>
@@ -90,9 +103,16 @@
     <string name="save_to_camera_roll">Save to Camera Roll</string>
     <string name="media_auto_download">Media auto-download</string>
     <string name="files_mb_text"> MB</string>
-    <string name="generic_shared">%s shared</string>
+    <string name="generic_shared">%s</string>
+    <string name="username_message">%s:</string>
+    <string name="you">You</string>
     <string name="storage_permission">Please add storage permission manually</string>
     <string name="saved_to_gallery">Saved to gallery</string>
+    <string name="media_error">Unable to fetch images</string>
+    <string name="media_links_docs">Media, Links and Docs</string>
+    <string name="media_items">Media</string>
+    <string name="link_items">Links</string>
+    <string name="doc_items">Docs</string>
 
     <!--Chat creation-->
     <string name="select_members">Select members</string>
@@ -103,7 +123,7 @@
     <string name="new_chat">New chat</string>
 
     <!--Chat settings-->
-    <string name="mute">Mute</string>
+    <string name="mute">Mute chat</string>
     <string name="block">Block</string>
     <string name="report">Report</string>
     <string name="exit">Exit</string>
@@ -127,7 +147,10 @@
     <string name="new_group_chat">New group chat</string>
     <string name="name_the_group">Name the group</string>
     <string name="group_name">Group name…</string>
+    <string name="enter_group_name">Enter group name</string>
     <string name="report_group">Report group</string>
+    <string name="remove_from_group">Remove from group</string>
+    <string name="remove_person">Are you sure you want to remove %s</string>
     <string name="exit_group">Exit group</string>
     <string name="make_group_admin">Make group admin</string>
     <string name="admin">Admin</string>
@@ -140,6 +163,7 @@
     <string name="no_messages_yet">No messages yet.</string>
     <string name="some_message">Some message</string>
     <string name="resend_message">Resend message</string>
+    <string name="message_not_found">Message not found</string>
 
     <!--Files - upload, cancel, resend-->
     <string name="uploading_files">Uploading files</string>
@@ -155,7 +179,7 @@
     <string name="failed_room_creation">Failed to create room</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="error_room_exists">Error while checking if room exists</string>
-    <string name="delete_chat">Delete Chat</string>
+    <string name="delete_chat">Delete chat</string>
     <string name="delete_chat_description">Are you sure you want to delete this conversation?</string>
     <string name="exit_group_description">Are you sure you want to exit group?</string>
     <string name="exit_group_error">Can\'t leave group where you are only admin.</string>
@@ -171,8 +195,13 @@
     <string name="user_sent_on">%s sent on %s</string>
     <string name="more">MORE</string>
     <string name="audio_duration">00:00</string>
+    <string name="video_duration">0 s</string>
     <string name="videos">Videos</string>
     <string name="images">Images</string>
+    <string name="video_error">Video is too large</string>
+    <string name="no_media_yet">No media yet</string>
+    <string name="no_links_yet">No links yet</string>
+    <string name="no_docs_yet">No docs yet</string>
 
     <!--Emoji-->
     <string name="thumbs_up_emoji">&#x1F44D;</string>
@@ -185,6 +214,8 @@
     <!--Message options-->
     <string name="reply">Reply</string>
     <string name="forward">Forward</string>
+    <string name="forwarded">forwarded</string>
+    <string name="forward_messages">Forward messages</string>
     <string name="copy">Copy</string>
     <string name="edit">Edit</string>
     <string name="details">Details</string>
@@ -193,14 +224,15 @@
     <string name="delete">Delete</string>
     <string name="delete_for_everyone">Delete for everyone</string>
     <string name="delete_for_me">Delete for me</string>
-    <string name="message_deleted_text">This message is deleted</string>
+    <string name="message_deleted_text"><i>This message is deleted</i></string>
     <string name="deleted_message">Deleted message</string>
     <string name="save">Save</string>
     <string name="edited">edited</string>
     <string name="text_copied">Text copied</string>
+    <string name="tap_to_remove">Tap to remove</string>
 
     <string name="enter_title">Enter title</string>
-    <string name="enter_description">Enter description</string>
+    <string name="enter_body">Enter body</string>
     <string name="zero_minutes_ago">0 minutes ago</string>
     <string name="in_zero_minutes">In 0 minutes</string>
     <string name="registration_error">Registration error</string>
@@ -209,12 +241,12 @@
     <string name="failed_room_update">Failed to update room</string>
 
     <!--Message details-->
-    <string name="read_by">Read by</string>
-    <string name="delivered_to">Delivered to</string>
+    <string name="read_by">Read</string>
+    <string name="delivered_to">Delivered</string>
     <string name="date">Date</string>
     <string name="message_sent_at">Message sent at: %s</string>
     <string name="message_edited_at">Message edited at: %s</string>
-    <string name="sender_actions">Sender actions</string>
+    <string name="sender_actions">Sent</string>
     <string name="all">ALL</string>
 
     <!--Notes-->
@@ -224,13 +256,16 @@
     <string name="note_creation_failed">Failed to create note, please try again.</string>
     <string name="delete_note">Delete Note</string>
     <string name="delete_note_description">Are you sure you want to delete this note?</string>
+    <string name="note_edited_at">Edited: %s</string>
+    <string name="note_created_at">Created: %s</string>
+
 
     <!--Block-->
     <string name="contact_blocked">You blocked this contact</string>
     <string name="block_user">Block user</string>
     <string name="block_user_description">Do you want to block this user?</string>
     <string name="unblock_user">Unblock user</string>
-    <string name="unblock_description">Are you sure you want to unblock %s</string>
+    <string name="unblock_description">Are you sure you want to unblock this contact?</string>
     <string name="blocked_users">Blocked Users</string>
     <string name="unblock">Unblock</string>
     <string name="block_contact_description">Do you want to receive messages from this contact?</string>
@@ -239,18 +274,61 @@
     <string name="five_hundred">500</string>
     <string name="six_hundred">600</string>
     <string name="seven_hundred">700</string>
+
     <string name="failed_to_delete_block_for_user">Failed to delete block for user</string>
     <string name="failed_delete_note">Failed to delete note, please try again.</string>
     <string name="unknown_user">Unknown user</string>
+    <string name="deleted_user">Deleted user</string>
     <string name="data_deletion_warning">Your user and all his data will be deleted</string>
     <string name="terms_description">To proceed into the app, please accept our terms and conditions.</string>
     <string name="help">Help</string>
     <string name="terms_and_conditions">Terms and Conditions</string>
-    <string name="welcome_to_spika">Welcome to Spika Messenger</string>
-    <string name="welcome_description"><![CDATA[Tap Agree & Continue to accept the Terms and Conditions]]></string>
+    <string name="welcome_to_spika"><font size="16">Welcome to\n</font><font size="32">Spika Messenger</font></string>
+    <string name="welcome_description"><![CDATA[Tap Agree & Continue to accept the \n Terms and Conditions]]></string>
     <string name="agree_and_continue"><![CDATA[Agree & Continue]]></string>
     <string name="rooms">Rooms</string>
+    <string name="chats">Chats</string>
     <string name="messages">Messages</string>
     <string name="failed_to_load_room_data">Failed to load room data</string>
     <string name="other_error">Other error</string>
+    <string name="members">" members"</string>
+    <string name="members_number">"%s members"</string>
+
+    <!-- Themes   -->
+    <string name="theme_dark_marine">Dark marine</string>
+    <string name="theme_light_marine">Light Marine</string>
+    <string name="theme_neon">Neon</string>
+    <string name="theme_neon_light">Neon Light</string>
+    <string name="theme_light_green">Light Green</string>
+    <string name="removed_group_user">Removed group user</string>
+    <string name="search_contacts">Search contacts</string>
+    <string name="unread_limit">99+</string>
+
+    <!-- System messages-->
+    <!-- Notes -->
+    <string name="updated_note">updated note</string>
+    <string name="created_note">created note</string>
+    <string name="deleted_note">deleted note</string>
+
+    <!-- Groups -->
+    <string name="created_group">created group</string>
+    <string name="updated_group">updated the group</string>
+    <string name="updated_group_name">changed the name of group to</string>
+    <string name="updated_group_avatar">updated the avatar of group</string>
+    <string name="user_left_group">left the group</string>
+    <string name="from_the_group">from the group</string>
+    <string name="to_the_group">to the group</string>
+    <string name="as_group_admin">as group admin</string>
+
+    <!-- Users -->
+    <string name="added_group_admins">added</string>
+    <string name="added_group_members">added</string>
+    <string name="removed_group_admins">removed</string>
+    <string name="removed_group_members">removed</string>
+    <string name="updated_group_admins">updated admin status of</string>
+    <string name="updated_group_members">updated group member/s</string>
+    <string name="dismiss_as_admin">Dismiss as admin</string>
+
+    <!-- Gifs -->
+    <string name="preparing_gifs">Preparing gif</string>
 </resources>

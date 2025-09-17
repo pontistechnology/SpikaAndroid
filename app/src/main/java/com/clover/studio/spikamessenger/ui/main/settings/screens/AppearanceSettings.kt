@@ -1,21 +1,27 @@
 package com.clover.studio.spikamessenger.ui.main.settings.screens
 
-import android.app.UiModeManager
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.activityViewModels
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.databinding.FragmentAppearanceSettingsBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
+import com.clover.studio.spikamessenger.utils.Const
+import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
+import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
+import timber.log.Timber
 
 class AppearanceSettings : BaseFragment() {
     private var bindingSetup: FragmentAppearanceSettingsBinding? = null
 
     private val binding get() = bindingSetup!!
+
+    private var themeOptions: Map<Int, String>? = null
+    private var optionList: MutableList<UserOptionsData> = mutableListOf()
 
     private val viewModel: MainViewModel by activityViewModels()
 
@@ -25,68 +31,67 @@ class AppearanceSettings : BaseFragment() {
     ): View {
         bindingSetup = FragmentAppearanceSettingsBinding.inflate(inflater, container, false)
 
+        themeOptions = mapOf(
+            0 to Const.Themes.BASIC_THEME_NIGHT,
+            1 to Const.Themes.BASIC_THEME,
+            2 to Const.Themes.NEON_THEME,
+            3 to Const.Themes.MINT_THEME
+        )
+
+        optionList = mutableListOf(
+            UserOptionsData(getString(R.string.theme_dark_marine)),
+            UserOptionsData(getString(R.string.theme_light_marine)),
+            UserOptionsData(getString(R.string.theme_neon)),
+            UserOptionsData(getString(R.string.theme_light_green))
+        )
+
         initializeViews()
-        initializeListeners()
 
         return binding.root
     }
 
-
-    private fun initializeViews() {
-        binding.ivBack.setOnClickListener {
+    private fun initializeViews() = with(binding) {
+        ivBack.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        when (viewModel.getUserTheme()) {
-            AppCompatDelegate.MODE_NIGHT_NO -> {
-                binding.ivLightCheckmark.visibility = View.VISIBLE
-                binding.ivNightCheckmark.visibility = View.GONE
-                binding.ivSystemCheckmark.visibility = View.GONE
+        getActiveTheme()
+        val userOptions = UserOptions(requireContext())
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(option: Int, optionName: String) {
+                themeOptions?.get(option)?.let { theme ->
+                    viewModel.writeUserTheme(theme)
+                    activity?.recreate()
+                } ?: run {
+                    Timber.d("Not implemented theme option: $option")
+                }
             }
-            AppCompatDelegate.MODE_NIGHT_YES -> {
-                binding.ivLightCheckmark.visibility = View.GONE
-                binding.ivNightCheckmark.visibility = View.VISIBLE
-                binding.ivSystemCheckmark.visibility = View.GONE
+
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
+                // Ignore
             }
-            else -> {
-                binding.ivLightCheckmark.visibility = View.GONE
-                binding.ivNightCheckmark.visibility = View.GONE
-                binding.ivSystemCheckmark.visibility = View.VISIBLE
-            }
-        }
+        })
+
+        binding.flOptionsContainer.addView(userOptions)
     }
 
-    private fun initializeListeners() {
-        binding.clLightTheme.setOnClickListener {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            binding.ivLightCheckmark.visibility = View.VISIBLE
-            binding.ivNightCheckmark.visibility = View.GONE
-            binding.ivSystemCheckmark.visibility = View.GONE
-            viewModel.writeUserTheme(AppCompatDelegate.MODE_NIGHT_NO)
+    private fun getActiveTheme() {
+        val theme = when (viewModel.getUserTheme()) {
+            Const.Themes.MINT_THEME -> getString(R.string.theme_light_green)
+            Const.Themes.NEON_THEME -> getString(R.string.theme_neon)
+            Const.Themes.BASIC_THEME_NIGHT -> getString(R.string.theme_dark_marine)
+            Const.Themes.BASIC_THEME -> getString(R.string.theme_light_marine)
+            else -> getString(R.string.theme_light_marine)
         }
 
-        binding.clNightTheme.setOnClickListener {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            binding.ivLightCheckmark.visibility = View.GONE
-            binding.ivNightCheckmark.visibility = View.VISIBLE
-            binding.ivSystemCheckmark.visibility = View.GONE
-            viewModel.writeUserTheme(AppCompatDelegate.MODE_NIGHT_YES)
-        }
+        Timber.d("Theme: $theme")
 
-        binding.clSystemTheme.setOnClickListener {
-            val uiModeManager = context?.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
-            when (uiModeManager.nightMode) {
-                UiModeManager.MODE_NIGHT_YES -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                }
-                else -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                }
+        optionList.forEach {
+            if (it.option == theme) {
+                it.secondDrawable =
+                    AppCompatResources.getDrawable(requireContext(), R.drawable.img_checkmark)
             }
-            viewModel.writeUserTheme(AppCompatDelegate.MODE_NIGHT_UNSPECIFIED)
-            binding.ivLightCheckmark.visibility = View.GONE
-            binding.ivNightCheckmark.visibility = View.GONE
-            binding.ivSystemCheckmark.visibility = View.VISIBLE
         }
     }
 }

@@ -15,6 +15,7 @@ class Const {
             const val NOTE_ID = "noteId"
             const val NOTES_DETAILS = "notesDetails"
             const val NOTES_NAME = "notesName"
+            const val SEARCH_MESSAGE_ID = "searchMessageId"
         }
     }
 
@@ -35,23 +36,31 @@ class Const {
             const val DELETE_MESSAGE_ME = "user"
             const val DELETE_MESSAGE_ALL = "all"
             const val DOWNLOAD_FILE = "download_file"
-            const val DOWNLOAD_CANCEL = "download_cancel"
+            const val CANCEL_UPLOAD = "upload_cancel"
             const val MESSAGE_ACTION = "action"
             const val MESSAGE_REPLY = "reply"
+            const val MESSAGE_PREVIEW = "preview"
             const val RESEND_MESSAGE = "resend"
             const val USER_REMOVE = "remove_user"
             const val USER_OPTIONS = "user_options"
             const val SHOW_MESSAGE_REACTIONS = "show_message_reactions"
             const val NAVIGATE_TO_MEDIA_FRAGMENT = "navigate_to_media_fragment"
+            const val NAVIGATE_TO_USER_DETAILS = "navigate_to_user_details"
             const val ACTION_LEFT = "left"
             const val ACTION_RIGHT = "right"
+        }
+    }
+
+    class MediaActions {
+        companion object {
+            const val MEDIA_SHOW_BARS = "media_show_bars"
+            const val MEDIA_DOWNLOAD = "media_download"
         }
     }
 
     class IntentExtras {
         companion object {
             const val ROOM_ID_EXTRA = "room_id_extra"
-            const val FILES_EXTRA = "files"
         }
     }
 
@@ -63,6 +72,7 @@ class Const {
             const val MP3 = "mp3"
             const val WAW = "waw"
             const val JPG = "jpg"
+            const val GIF = "gif"
             const val AUDIO = "audio/mpeg"
         }
     }
@@ -75,7 +85,6 @@ class Const {
             const val TELEPHONE_NUMBER_HASHED = "telephoneNumberHashed"
             const val COUNTRY_CODE = "countryCode"
             const val PUSH_TOKEN = "pushToken"
-            const val TEMPORARY_FILE_ID = 1L
 
             // Mute/Unmute
             const val SUCCESS = "success"
@@ -105,8 +114,12 @@ class Const {
             const val VIDEO_TYPE = "video"
             const val TEXT_TYPE = "text"
             const val IMAGE_TYPE = "image"
+            const val GIF_TYPE = "image/gif"
+            const val GIF = "gif"
+            const val SYSTEM_TYPE = "system"
             const val SVG_TYPE = "svg"
             const val AVI_TYPE = "avi"
+            const val MOV_TYPE = "quicktime"
 
             // File upload
             const val CHUNK = "chunk"
@@ -128,15 +141,26 @@ class Const {
 
             // Chat
             const val ROOM_ID = "roomId"
+            const val ROOM_IDS = "roomIds"
             const val NAME = "name"
             const val AVATAR_FILE_ID = "avatarFileId"
             const val USER_IDS = "userIds"
+            const val ACTION = "action"
             const val ADMIN_USER_IDS = "adminUserIds"
             const val PRIVATE = "private"
             const val GROUP = "group"
             const val BODY = "body"
-            const val MESSAGE_IDS = "messagesIds"
+            const val MESSAGE_IDS = "messageIds"
             const val REACTION = "reaction"
+            const val THUMBNAIL_DATA = "thumbnailData"
+
+            // Room actions
+            const val ADD_GROUP_USERS = "addGroupUsers"
+            const val REMOVE_GROUP_USERS = "removeGroupUsers"
+            const val ADD_GROUP_ADMINS = "addGroupAdmins"
+            const val REMOVE_GROUP_ADMINS = "removeGroupAdmins"
+            const val CHANGE_GROUP_NAME = "changeGroupName"
+            const val CHANGE_GROUP_AVATAR = "changeGroupAvatar"
 
             // Reply
             const val REPLY_ID = "replyId"
@@ -150,6 +174,8 @@ class Const {
 
     class Networking {
         companion object {
+            const val TIMEOUT_SECONDS: Long = 30
+
             // Sync Data
             const val API_SYNC_MESSAGES = "api/messenger/messages/sync/{lastUpdate}"
             const val API_SYNC_MESSAGE_RECORDS = "api/messenger/message-records/sync/{lastUpdate}"
@@ -158,6 +184,7 @@ class Const {
 
             // Reactions
             const val API_POST_REACTION = "api/messenger/message-records"
+            const val API_DELETE_REACTION = "api/messenger/message-records/{id}"
 
             // User settings
             const val API_AUTH = "api/messenger/auth"
@@ -166,7 +193,6 @@ class Const {
             const val API_UPDATE_USER = "api/messenger/me" // Fix
             const val API_SSE_STREAM = "api/sse"
             const val API_UPDATE_TOKEN = "api/messenger/device"
-            const val API_GET_SETTINGS = "api/messenger/me/settings"
 
             // Files
             const val API_GET_FILE_FROM_ID = "api/upload/files/"
@@ -176,6 +202,7 @@ class Const {
             // Messages
             const val API_POST_MESSAGE = "api/messenger/messages"
             const val API_MESSAGE_DELIVERED = "api/messenger/messages/delivered" // Fix
+            const val API_GET_PAGE_METADATA = "api/messenger/messages/get-thumbnail"
 
             // Room
             const val API_GET_ROOM_BY_ID = "api/messenger/rooms/users/{userId}"
@@ -187,6 +214,7 @@ class Const {
             const val API_UNPIN_ROOM = "api/messenger/rooms/{roomId}/unpin"
             const val API_MESSAGES_SEEN = "api/messenger/messages/{roomId}/seen"
             const val API_UNREAD_COUNT = "api/messenger/rooms/unread-count"
+            const val API_FORWARD = "api/messenger/messages/forward"
             const val API_USER_SETTINGS = "api/messenger/me/settings"
             const val API_UPDATE_MESSAGE = "api/messenger/messages/{id}"
             const val API_LEAVE_ROOM = "api/messenger/rooms/{id}/leave"
@@ -199,7 +227,6 @@ class Const {
             const val API_BLOCK = "api/messenger/blocks"
             const val API_DELETE_BLOCK = "api/messenger/blocks/{id}"
             const val API_DELETE_BLOCK_FOR_USER = "api/messenger/blocks/userId/{userId}"
-            const val API_ROOM_BLOCKS = "api/messenger/blocks/rooms/{roomId}"
             const val API_SETTINGS = "api/messenger/settings"
 
             // Queries
@@ -210,9 +237,9 @@ class Const {
             const val LAST_UPDATE = "lastUpdate"
             const val ID = "id"
             const val TARGET = "target"
-            const val AVATAR_ID = "avatarFileId"
             const val IS_LAST_PAGE = "isLastPage"
             const val PAGE = "page"
+            const val URL = "url"
         }
     }
 
@@ -256,7 +283,10 @@ class Const {
             const val CONTACT_SYNC = "contact_sync"
 
             // Theme
-            const val THEME = "theme"
+            const val THEMES = "themes"
+
+            const val NOTIFICATION_REPLY_KEY = "key_text_reply"
+            const val NOTIFICATION_REPLY_DATA = "reply_data"
         }
     }
 
@@ -270,6 +300,39 @@ class Const {
     class Urls {
         companion object {
             const val TERMS_AND_CONDITIONS = "https://clover.studio/projects/spika/spika-messenger-terms-and-coditions/"
+        }
+    }
+
+    class Themes {
+        companion object {
+            const val MINT_THEME = "mint"
+            const val NEON_THEME = "neon"
+            const val BASIC_THEME = "basic"
+            const val BASIC_THEME_NIGHT = "basic_night"
+        }
+    }
+
+    class SystemMessages {
+        companion object {
+            const val CREATED_NOTE = "created_note"
+            const val UPDATED_NOTE = "updated_note"
+            const val DELETED_NOTE = "deleted_note"
+
+            const val CREATED_GROUP = "created_group"
+            const val USER_LEFT_GROUP = "user_left_group"
+            const val UPDATED_GROUP_NAME = "updated_group_name"
+            const val UPDATED_GROUP_AVATAR = "updated_group_avatar"
+            const val UPDATED_GROUP_MEMBERS = "updated_group_members"
+            const val ADDED_GROUP_MEMBERS = "added_group_members"
+            const val REMOVED_GROUP_MEMBERS = "removed_group_members"
+            const val ADDED_GROUP_ADMINS = "added_group_admins"
+            const val REMOVED_GROUP_ADMINS = "removed_group_admins"
+        }
+    }
+
+    class Giphy {
+        companion object {
+            const val GIPHY_BOTTOM_SHEET_TAG = "gifs_dialog"
         }
     }
 }

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.clover.studio.spikamessenger.BaseViewModel
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
 import com.clover.studio.spikamessenger.data.models.networking.responses.AuthResponse
-import com.clover.studio.spikamessenger.data.repositories.OnboardingRepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.OnboardingRepository
 import com.clover.studio.spikamessenger.utils.Event
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.helpers.Resource
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val onboardingRepository: OnboardingRepositoryImpl,
+    private val onboardingRepository: OnboardingRepository,
 ) : BaseViewModel() {
 
     var codeVerificationListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
@@ -32,7 +32,9 @@ class OnboardingViewModel @Inject constructor(
     fun sendNewUserData(
         jsonObject: JsonObject
     ) = viewModelScope.launch {
-        resolveResponseStatus(registrationListener, onboardingRepository.sendUserData(jsonObject))
+        resolveResponseStatus(registrationListener, Resource(Resource.Status.LOADING, null, ""))
+        val response = onboardingRepository.sendUserData(jsonObject)
+        resolveResponseStatus(registrationListener, response)
     }
 
     fun sendCodeVerification(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
@@ -90,9 +92,14 @@ class OnboardingViewModel @Inject constructor(
                 return@launch
             }
             Timber.d("$contacts")
-            resolveResponseStatus(
+            contacts?.let {
+                resolveResponseStatus(
+                    accountCreationListener,
+                    onboardingRepository.sendUserContacts(contacts)
+                )
+            } ?: resolveResponseStatus(
                 accountCreationListener,
-                onboardingRepository.sendUserContacts(contacts!!)
+                Resource(Resource.Status.ERROR, null, "")
             )
         }
     }

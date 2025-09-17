@@ -59,6 +59,10 @@ class ChatRemoteDataSource @Inject constructor(
         retrofitService.postReaction(getHeaderMap(sharedPrefs.readToken()), jsonObject)
     }
 
+    suspend fun deleteReaction(messageRecordId: Long) = getResult {
+        retrofitService.deleteReaction(getHeaderMap(sharedPrefs.readToken()), messageRecordId)
+    }
+
     suspend fun getRoomNotes(roomId: Int) = getResult {
         retrofitService.getRoomNotes(getHeaderMap(sharedPrefs.readToken()), roomId)
     }
@@ -85,6 +89,10 @@ class ChatRemoteDataSource @Inject constructor(
 
     suspend fun getUnreadCount() = getResult {
         retrofitService.getUnreadCount(getHeaderMap(sharedPrefs.readToken()))
+    }
+
+    suspend fun getPageMetadata(url: String) = getResult {
+        retrofitService.getPageMetadata(getHeaderMap(sharedPrefs.readToken()), url)
     }
 
     override suspend fun syncContacts(

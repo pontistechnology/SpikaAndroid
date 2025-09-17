@@ -1,19 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <color name="main">#121212</color>
-    <color name="primary_color">#4696F0</color>
-
-    <color name="message_me">#4696F0</color>
-    <color name="message_other">#3D3D3D</color>
-    <color name="icons">#FFFFFF</color>
-    <color name="inputs">#3D3D3D</color>
-    <color name="files">#3D3D3D</color>
-    <color name="border">#00000000</color>
-
-    <!--Text colors-->
-    <color name="text_primary">#FFFFFF</color>
-
-    <!--Link Colors-->
-    <color name="link_primary_color">#FFFFFF</color>
+    <color name="selected_text">#FEFEFE</color>
 </resources>

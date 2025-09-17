@@ -1,59 +1,80 @@
 package com.clover.studio.spikamessenger.ui.main.settings
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.graphics.Bitmap
+import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.IBinder
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.clover.studio.spikamessenger.BuildConfig
+import com.clover.studio.spikamessenger.MainApplication
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
-import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.databinding.FragmentSettingsBinding
 import com.clover.studio.spikamessenger.ui.main.MainFragmentDirections
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.utils.Const
-import com.clover.studio.spikamessenger.utils.FileUploadListener
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.Tools.getFilePathUrl
-import com.clover.studio.spikamessenger.utils.UploadDownloadManager
+import com.clover.studio.spikamessenger.utils.UserOptions
 import com.clover.studio.spikamessenger.utils.dialog.ChooserDialog
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
 import com.clover.studio.spikamessenger.utils.getChunkSize
+import com.clover.studio.spikamessenger.utils.helpers.UploadService
+import com.clover.studio.spikamessenger.utils.helpers.UserOptionsData
 import com.google.gson.JsonObject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class SettingsFragment : BaseFragment() {
-    // TODO move this to viewModel
-    @Inject
-    lateinit var uploadDownloadManager: UploadDownloadManager
-
+class SettingsFragment : BaseFragment(), ServiceConnection {
     private val viewModel: MainViewModel by activityViewModels()
     private var bindingSetup: FragmentSettingsBinding? = null
     private var currentPhotoLocation: Uri = Uri.EMPTY
-    private var progress: Long = 1L
     private var avatarId: Long? = 0L
+    private var uploadPieces: Int = 0
+    private var avatarData: FileData? = null
+    private var currentBitmap: Bitmap? = null
+
+    private var navOptionsBuilder: NavOptions? = null
+    private var optionList: MutableList<UserOptionsData> = mutableListOf()
 
     private val binding get() = bindingSetup!!
+
+    private lateinit var fileUploadService: UploadService
+    private var bound = false
+
+    private var progressAnimation: AnimationDrawable? = null
+    private var uploadingInProgress = false
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -62,8 +83,9 @@ class SettingsFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                currentBitmap = bitmap
+                Glide.with(this).load(bitmap).diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateUserImage()
             } else {
@@ -82,8 +104,8 @@ class SettingsFragment : BaseFragment() {
                     )
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                currentBitmap = bitmap
+                Glide.with(this).load(bitmap).into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateUserImage()
             } else {
@@ -97,21 +119,21 @@ class SettingsFragment : BaseFragment() {
     ): View {
         bindingSetup = FragmentSettingsBinding.inflate(inflater, container, false)
 
+        navOptionsBuilder = Tools.createCustomNavOptions()
+
         setupClickListeners()
-        initializeObservers()
         initializeViews()
+        initializeObservers()
         addTextListeners()
 
         // Display version code on bottom of the screen
         val packageInfo =
             requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
-        // Bug fix for older devices
-        binding.tvVersionNumber.text =
-            "${getString(R.string.app_version)} ${packageInfo.versionName} ${
-                PackageInfoCompat.getLongVersionCode(
-                    packageInfo
-                )
-            }"
+        binding.tvVersionNumber.text = requireContext().getString(
+            R.string.app_version,
+            packageInfo.versionName.toString(),
+            PackageInfoCompat.getLongVersionCode(packageInfo).toString()
+        )
 
         return binding.root
     }
@@ -119,18 +141,18 @@ class SettingsFragment : BaseFragment() {
     private fun addTextListeners() {
         binding.etEnterUsername.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                // ignore
+                // Ignore
             }
 
             override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if (!text.isNullOrEmpty()) {
-                    binding.tvDone.isEnabled = true
+                    binding.ivDone.isEnabled = true
                 }
             }
 
             override fun afterTextChanged(text: Editable?) {
                 if (!text.isNullOrEmpty()) {
-                    binding.tvDone.isEnabled = true
+                    binding.ivDone.isEnabled = true
                 }
             }
         })
@@ -144,123 +166,182 @@ class SettingsFragment : BaseFragment() {
         }
     }
 
-    private fun initializeObservers() {
+    private fun initializeObservers() = with(binding) {
         viewModel.getLocalUser().observe(viewLifecycleOwner) {
             val response = it.responseData
             if (response != null) {
-                binding.tvUsername.text = response.formattedDisplayName
-                binding.tvPhoneNumber.text = response.telephoneNumber
+                binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+                progressAnimation?.start()
+                tvUsername.text = response.formattedDisplayName
+                tvPhoneNumber.text = response.telephoneNumber
                 avatarId = response.avatarFileId
 
-                Glide.with(requireActivity())
-                    .load(response.avatarFileId?.let { fileId -> getFilePathUrl(fileId) })
-                    .placeholder(R.drawable.img_user_placeholder)
-                    .centerCrop()
-                    .into(binding.ivPickPhoto)
-            }
-        }
+                if (!uploadingInProgress) {
+                    response.avatarFileId?.let { fileId ->
+                        Glide.with(requireActivity())
+                            .load(getFilePathUrl(fileId))
+                            .thumbnail(Glide.with(requireContext()).load(currentBitmap))
+                            .centerCrop()
+                            .listener(object : RequestListener<Drawable> {
+                                override fun onLoadFailed(
+                                    e: GlideException?,
+                                    model: Any?,
+                                    target: Target<Drawable>,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    binding.profilePicture.flProgressScreen.visibility = View.GONE
+                                    progressAnimation?.stop()
+                                    return false
+                                }
 
-        /*viewModel.userUpdateListener.observe(viewLifecycleOwner, EventObserver {
-            when (it) {
-                UserUpdated -> {
-                    showUserDetails()
+                                override fun onResourceReady(
+                                    resource: Drawable,
+                                    model: Any,
+                                    target: Target<Drawable>?,
+                                    dataSource: DataSource,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    binding.profilePicture.flProgressScreen.visibility = View.GONE
+                                    progressAnimation?.stop()
+                                    return false
+                                }
+                            })
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .into(profilePicture.ivPickAvatar)
+                    }
                 }
-                UserUpdateFailed -> Timber.d("User update failed")
-                else -> Timber.d("Other error")
             }
-        })*/
-    }
-
-    private fun showUserDetails() {
-        binding.tvUsername.visibility = View.VISIBLE
-        binding.tvPhoneNumber.visibility = View.VISIBLE
-        binding.etEnterUsername.visibility = View.INVISIBLE
-        binding.tvDone.visibility = View.GONE
-    }
-
-    private fun initializeViews() {
-        when (viewModel.getUserTheme()) {
-            AppCompatDelegate.MODE_NIGHT_NO -> binding.tvActiveTheme.text =
-                getString(R.string.light_theme)
-
-            AppCompatDelegate.MODE_NIGHT_YES -> binding.tvActiveTheme.text =
-                getString(R.string.dark_theme)
-
-            else -> binding.tvActiveTheme.text = getString(R.string.system_theme)
         }
     }
 
-    private fun setupClickListeners() {
+    private fun showUserDetails() = with(binding) {
+        tvUsername.visibility = View.VISIBLE
+        tvPhoneNumber.visibility = View.VISIBLE
+        tilEnterUsername.visibility = View.GONE
+        ivDone.visibility = View.GONE
+    }
 
-        // Removed and waiting for each respective screen to be implemented
-        binding.clPrivacy.setOnClickListener {
-            goToPrivacySettings()
+    private fun initializeViews() = with(binding) {
+        profilePicture.ivProgressBar.apply {
+            setBackgroundResource(R.drawable.drawable_progress_animation)
+            progressAnimation = background as AnimationDrawable
         }
 
-        binding.flHelp.setOnClickListener {
-            goToHelp()
-        }
-//
-//        binding.clChat.setOnClickListener {
-//            goToChatSettings()
-//        }
-//
-//        binding.clNotifications.setOnClickListener {
-//            goToNotificationSettings()
-//        }
-//
-//        binding.clMediaDownload.setOnClickListener {
-//            goToDownloadSettings()
-//        }
+        setOptionList()
 
-        binding.ivPickPhoto.setOnClickListener {
-            ChooserDialog.getInstance(requireContext(),
-                getString(R.string.placeholder_title),
-                null,
-                getString(R.string.choose_from_gallery),
-                getString(R.string.take_photo),
+        val userOptions = UserOptions(requireContext())
+        userOptions.setOptions(optionList)
+        userOptions.setOptionsListener(object : UserOptions.OptionsListener {
+            override fun clickedOption(option: Int, optionName: String) {
+                when (optionName) {
+                    getString(R.string.appearance) -> {
+                        goToAppearanceSettings()
+                    }
+
+                    getString(R.string.privacy) -> {
+                        goToPrivacySettings()
+                    }
+
+                    getString(R.string.delete) -> {
+                        deleteAccount()
+                    }
+                }
+            }
+
+            override fun switchOption(optionName: String, isSwitched: Boolean) {
+                // Ignore
+            }
+        })
+        flOptionsContainer.addView(userOptions)
+    }
+
+    private fun setOptionList() {
+        optionList = mutableListOf(
+            UserOptionsData(
+                option = getString(R.string.appearance),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.iv_edit_settings
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_arrow_forward
+                ),
+                switchOption = false,
+                isSwitched = false
+            ),
+            UserOptionsData(
+                option = getString(R.string.privacy),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.iv_privacy
+                ),
+                secondDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.img_arrow_forward
+                ),
+                switchOption = false,
+                isSwitched = false
+            ),
+            UserOptionsData(
+                option = getString(R.string.delete),
+                firstDrawable = AppCompatResources.getDrawable(
+                    requireContext(),
+                    R.drawable.iv_delete_settings
+                ),
+                secondDrawable = null,
+                switchOption = false,
+                isSwitched = false
+            ),
+        )
+    }
+
+    private fun deleteAccount() {
+        DialogError.getInstance(requireContext(),
+            getString(R.string.warning),
+            getString(R.string.data_deletion_warning),
+            getString(R.string.cancel),
+            getString(R.string.ok),
+            object : DialogInteraction {
+                override fun onFirstOptionClicked() {
+                    // Ignore
+                }
+
+                override fun onSecondOptionClicked() {
+                    viewModel.deleteUser()
+                }
+            })
+    }
+
+    private fun setupClickListeners() = with(binding) {
+        profilePicture.ivPickAvatar.setOnClickListener {
+            val listOptions = mutableListOf(
+                getString(R.string.choose_from_gallery) to { chooseImage() },
+                getString(R.string.take_photo) to { takePhoto() },
+                getString(R.string.cancel) to {}
+            )
+
+            ChooserDialog.getInstance(
+                context = requireContext(),
+                listChooseOptions = listOptions.map { it.first }.toMutableList(),
                 object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        chooseImage()
+                    override fun onOptionClicked(optionName: String) {
+                        listOptions.find { it.first == optionName }?.second?.invoke()
                     }
-
-                    override fun onSecondOptionClicked() {
-                        takePhoto()
-                    }
-                })
+                }
+            )
         }
 
-        binding.tvUsername.setOnClickListener {
+        tvUsername.setOnClickListener {
             showUsernameUpdate()
         }
 
-        binding.tvPhoneNumber.setOnClickListener {
+        tvPhoneNumber.setOnClickListener {
             showUsernameUpdate()
         }
 
-        binding.tvDone.setOnClickListener {
+        ivDone.setOnClickListener {
             updateUsername()
-        }
-
-        binding.clAppearance.setOnClickListener {
-            goToAppearanceSettings()
-        }
-
-        binding.clDeleteUser.setOnClickListener {
-            DialogError.getInstance(requireContext(),
-                getString(R.string.warning),
-                getString(R.string.data_deletion_warning),
-                getString(R.string.cancel),
-                getString(R.string.ok),
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        // Ignore
-                    }
-
-                    override fun onSecondOptionClicked() {
-                        viewModel.deleteUser()
-                    }
-                })
         }
     }
 
@@ -273,80 +354,52 @@ class SettingsFragment : BaseFragment() {
                 inputStream!!,
                 activity?.contentResolver?.getType(currentPhotoLocation)!!
             )
-            val uploadPieces =
+
+            uploadPieces =
                 if ((fileStream.length() % getChunkSize(fileStream.length())).toInt() != 0)
                     (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-            binding.progressBar.max = uploadPieces
-            Timber.d("File upload start")
-            CoroutineScope(Dispatchers.IO).launch {
-                uploadDownloadManager.uploadFile(
-                    FileData(
-                        currentPhotoLocation,
-                        Const.JsonFields.AVATAR_TYPE,
-                        uploadPieces,
-                        fileStream,
-                        null,
-                        false,
-                        null,
-                        0,
-                        null,
-                        null
-                    ),
-                    object :
-                        FileUploadListener {
-                        override fun filePieceUploaded() {
-                            if (progress <= uploadPieces) {
-                                binding.progressBar.secondaryProgress = progress.toInt()
-                                progress++
-                            } else progress = 0
-                        }
 
-                        override fun fileUploadError(description: String) {
-                            Timber.d("Upload Error")
-                            requireActivity().runOnUiThread {
-                                showUploadError(description)
-                            }
-                        }
+            avatarData = FileData(
+                fileUri = currentPhotoLocation,
+                fileType = Const.JsonFields.AVATAR_TYPE,
+                filePieces = uploadPieces,
+                file = fileStream,
+                messageBody = null,
+                isThumbnail = false,
+                localId = null,
+                roomId = 0,
+                messageStatus = null,
+                metadata = null
+            )
 
-                        override fun fileUploadVerified(
-                            path: String,
-                            mimeType: String,
-                            thumbId: Long,
-                            fileId: Long,
-                            fileType: String,
-                            messageBody: MessageBody?
-                        ) {
-                            Timber.d("Upload verified")
-                            requireActivity().runOnUiThread {
-                                binding.clProgressScreen.visibility = View.GONE
-                            }
+            binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+            progressAnimation?.start()
+            uploadingInProgress = true
+            inputStream.close()
 
-                            val jsonObject = JsonObject()
-                            jsonObject.addProperty(Const.UserData.AVATAR_FILE_ID, fileId)
-//                            val userData = hashMapOf(
-//                                Const.UserData.AVATAR_FILE_ID to fileId
-//                            )
-                            viewModel.updateUserData(jsonObject)
-                        }
-
-                        override fun fileCanceledListener(messageId: String?) {
-                            // Ignore
-                        }
-
-                    })
+            if (bound) {
+                CoroutineScope(Dispatchers.Default).launch {
+                    avatarData?.let {
+                        fileUploadService.uploadAvatar(
+                            fileData = it,
+                            isGroup = false
+                        )
+                    }
+                }
+            } else {
+                startUploadService()
             }
-            binding.clProgressScreen.visibility = View.VISIBLE
         }
     }
 
-    private fun updateUsername() {
-        if (binding.etEnterUsername.text.toString().isNotEmpty()) {
+    private fun updateUsername() = with(binding) {
+        if (etEnterUsername.text.toString().isNotEmpty()) {
             val jsonObject = JsonObject()
             jsonObject.addProperty(
                 Const.UserData.DISPLAY_NAME,
-                binding.etEnterUsername.text.toString()
+                etEnterUsername.text.toString()
             )
             jsonObject.addProperty(
                 Const.JsonFields.AVATAR_FILE_ID,
@@ -354,15 +407,23 @@ class SettingsFragment : BaseFragment() {
             )
             viewModel.updateUserData(jsonObject)
         }
-        binding.etEnterUsername.visibility = View.GONE
-        binding.tvUsername.visibility = View.VISIBLE
+        tilEnterUsername.visibility = View.GONE
+        tvUsername.visibility = View.VISIBLE
+        tvPhoneNumber.visibility = View.VISIBLE
+        ivDone.visibility = View.GONE
     }
 
-    private fun showUsernameUpdate() {
-        binding.tvUsername.visibility = View.INVISIBLE
-        binding.tvPhoneNumber.visibility = View.INVISIBLE
-        binding.etEnterUsername.visibility = View.VISIBLE
-        binding.tvDone.visibility = View.VISIBLE
+    private fun showUsernameUpdate() = with(binding) {
+        tvUsername.visibility = View.GONE
+        tvPhoneNumber.visibility = View.GONE
+        tilEnterUsername.visibility = View.VISIBLE
+        ivDone.visibility = View.VISIBLE
+
+        if (tvUsername.text.isNotEmpty()) {
+            etEnterUsername.setText(tvUsername.text)
+        }
+
+        showKeyboard(etEnterUsername)
     }
 
     private fun chooseImage() {
@@ -379,7 +440,7 @@ class SettingsFragment : BaseFragment() {
         takePhotoContract.launch(currentPhotoLocation)
     }
 
-    private fun showUploadError(description: String) {
+    private fun showUploadError(description: String) = with(binding) {
         DialogError.getInstance(requireActivity(),
             getString(R.string.error),
             getString(R.string.image_failed_upload, description),
@@ -387,54 +448,89 @@ class SettingsFragment : BaseFragment() {
             getString(R.string.ok),
             object : DialogInteraction {
                 override fun onFirstOptionClicked() {
-                    // ignore
+                    // Ignore
                 }
 
                 override fun onSecondOptionClicked() {
-                    // ignore
+                    // Ignore
                 }
             })
-        binding.clProgressScreen.visibility = View.GONE
-        binding.progressBar.secondaryProgress = 0
+        profilePicture.flProgressScreen.visibility = View.GONE
+        progressAnimation?.stop()
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this).clear(binding.ivPickPhoto)
-        binding.ivPickPhoto.setImageDrawable(
-            ContextCompat.getDrawable(
-                requireContext(),
-                R.drawable.img_camera
-            )
-        )
-        binding.clSmallCameraPicker.visibility = View.GONE
+        Glide.with(this@SettingsFragment).clear(profilePicture.ivPickAvatar)
     }
 
-    // Below navigation methods are unused until we implement all other functionality of settings
-    // screens
+
     private fun goToPrivacySettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToPrivacySettingsFragment())
+        findNavController().navigate(
+            MainFragmentDirections.actionMainFragmentToPrivacySettingsFragment(),
+            navOptionsBuilder
+        )
     }
 
     private fun goToAppearanceSettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToAppearanceSettings())
+        findNavController().navigate(
+            MainFragmentDirections.actionMainFragmentToAppearanceSettings(),
+            navOptionsBuilder
+        )
     }
 
-    private fun goToHelp() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToHelpFragment())
-    }
-
-    private fun goToChatSettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToChatSettingsFragment())
-    }
-
-    private fun goToNotificationSettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToNotificationSettingsFragment())
-    }
-
-    private fun goToDownloadSettings() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToDownloadSettingsFragment())
+    /** Upload service */
+    private fun startUploadService() {
+        val intent = Intent(MainApplication.appContext, UploadService::class.java)
+        MainApplication.appContext.startService(intent)
+        activity?.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onPause() {
-        super.onPause()
         showUserDetails()
+        if (!bound) uploadingInProgress = false
+        super.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (bound) {
+            requireActivity().unbindService(serviceConnection)
+        }
+        bound = false
+    }
+
+    private val serviceConnection = this
+    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        bound = true
+
+        val binder = service as UploadService.UploadServiceBinder
+        fileUploadService = binder.getService()
+        fileUploadService.setCallbackListener(object : UploadService.FileUploadCallback {
+            override fun uploadError(description: String) {
+                Timber.d("Upload Error")
+                requireActivity().runOnUiThread {
+                    showUploadError(description)
+                    Glide.with(this@SettingsFragment)
+                        .load(R.drawable.img_user_avatar)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(binding.profilePicture.ivPickAvatar)
+                    uploadingInProgress = false
+                }
+            }
+
+            override fun avatarUploadFinished(fileId: Long) {
+                requireActivity().runOnUiThread {
+                    binding.profilePicture.flProgressScreen.visibility = View.GONE
+                    progressAnimation?.stop()
+                    uploadingInProgress = false
+                }
+            }
+        })
+
+        CoroutineScope(Dispatchers.Default).launch {
+            avatarData?.let { fileUploadService.uploadAvatar(fileData = it, isGroup = false) }
+        }
+    }
+
+    override fun onServiceDisconnected(name: ComponentName?) {
+        Timber.d("Service disconnected")
     }
 }

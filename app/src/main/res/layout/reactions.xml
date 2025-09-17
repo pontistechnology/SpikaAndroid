@@ -1,106 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cl_emoji"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
+    android:backgroundTint="?attr/secondaryColor"
     android:longClickable="true"
-    android:backgroundTint="@color/inputs">
+    android:weightSum="7"
+    tools:ignore="contentDescription">
 
     <com.vanniktech.emoji.EmojiTextView
         android:id="@+id/tv_thumbs_up_emoji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/eight_dp_margin"
-        android:layout_marginEnd="@dimen/eight_dp_margin"
+        android:layout_weight="1"
         android:background="?attr/selectableItemBackground"
         android:focusable="true"
+        android:gravity="center"
         android:padding="@dimen/five_dp_margin"
         android:text="@string/thumbs_up_emoji"
-        android:textSize="@dimen/twenty_sp_text"
-        app:emojiSize="@dimen/thirty_dp_margin"
-        app:layout_constraintEnd_toStartOf="@+id/tv_heart_emoji"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="@dimen/twenty_four_sp_text" />
 
     <com.vanniktech.emoji.EmojiTextView
         android:id="@+id/tv_heart_emoji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/eight_dp_margin"
-        android:layout_marginEnd="@dimen/eight_dp_margin"
+        android:layout_weight="1"
         android:background="?attr/selectableItemBackground"
         android:focusable="true"
+        android:gravity="center"
         android:padding="@dimen/five_dp_margin"
         android:text="@string/heart_emoji"
-        android:textSize="@dimen/twenty_sp_text"
-        app:emojiSize="@dimen/thirty_dp_margin"
-        app:layout_constraintEnd_toStartOf="@+id/tv_crying_emoji"
-        app:layout_constraintStart_toEndOf="@+id/tv_thumbs_up_emoji"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="@dimen/twenty_four_sp_text" />
 
     <com.vanniktech.emoji.EmojiTextView
         android:id="@+id/tv_crying_emoji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/eight_dp_margin"
-        android:layout_marginEnd="@dimen/eight_dp_margin"
+        android:layout_weight="1"
         android:background="?attr/selectableItemBackground"
         android:focusable="true"
+        android:gravity="center"
         android:padding="@dimen/five_dp_margin"
         android:text="@string/crying_face_emoji"
-        android:textSize="@dimen/twenty_sp_text"
-        app:emojiSize="@dimen/thirty_dp_margin"
-        app:layout_constraintEnd_toStartOf="@+id/tv_astonished_emoji"
-        app:layout_constraintStart_toEndOf="@+id/tv_heart_emoji"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="@dimen/twenty_four_sp_text" />
 
     <com.vanniktech.emoji.EmojiTextView
         android:id="@+id/tv_astonished_emoji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/eight_dp_margin"
-        android:layout_marginEnd="@dimen/eight_dp_margin"
+        android:layout_weight="1"
         android:background="?attr/selectableItemBackground"
         android:focusable="true"
+        android:gravity="center"
         android:padding="@dimen/five_dp_margin"
         android:text="@string/astonished_emoji"
-        android:textSize="@dimen/twenty_sp_text"
-        app:emojiSize="@dimen/thirty_dp_margin"
-        app:layout_constraintEnd_toStartOf="@+id/tv_disappointed_relieved_emoji"
-        app:layout_constraintStart_toEndOf="@+id/tv_crying_emoji"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="@dimen/twenty_four_sp_text" />
 
     <com.vanniktech.emoji.EmojiTextView
         android:id="@+id/tv_disappointed_relieved_emoji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/eight_dp_margin"
-        android:layout_marginEnd="@dimen/eight_dp_margin"
+        android:layout_weight="1"
         android:background="?attr/selectableItemBackground"
         android:focusable="true"
+        android:gravity="center"
         android:padding="@dimen/five_dp_margin"
         android:text="@string/disappointed_relieved_emoji"
-        android:textSize="@dimen/twenty_sp_text"
-        app:emojiSize="@dimen/thirty_dp_margin"
-        app:layout_constraintEnd_toStartOf="@+id/tv_praying_hands_emoji"
-        app:layout_constraintStart_toEndOf="@+id/tv_astonished_emoji"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="@dimen/twenty_four_sp_text" />
 
     <com.vanniktech.emoji.EmojiTextView
         android:id="@+id/tv_praying_hands_emoji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/eight_dp_margin"
+        android:layout_weight="1"
         android:background="?attr/selectableItemBackground"
         android:focusable="true"
+        android:gravity="center"
         android:padding="@dimen/five_dp_margin"
         android:text="@string/praying_hands_emoji"
-        android:textSize="@dimen/twenty_sp_text"
-        app:emojiSize="@dimen/thirty_dp_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tv_disappointed_relieved_emoji"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:textSize="@dimen/twenty_four_sp_text" />
+
+    <ImageView
+        android:id="@+id/iv_add_reaction"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:focusable="true"
+        android:gravity="center"
+        android:padding="@dimen/five_dp_margin"
+        android:src="@drawable/img_add" />
+</LinearLayout>

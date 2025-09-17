@@ -9,9 +9,9 @@
         android:id="@+id/tv_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat_bold"
+        android:fontFamily="@font/roboto_bold"
         android:text="@string/placeholder_title"
-        android:textColor="@color/messages_states"
+        android:textAppearance="@style/CustomTextBody"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -20,8 +20,10 @@
         android:id="@+id/tv_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat_bold"
+        android:fontFamily="@font/roboto_bold"
         android:text="@string/placeholder_title"
+        android:textAppearance="@style/CustomTextBody"
+        android:textColor="?attr/primaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_header" />
 
@@ -29,8 +31,10 @@
         android:id="@+id/tv_message_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat_bold"
+        android:fontFamily="@font/roboto_bold"
         android:text="@string/placeholder_number"
+        android:textAppearance="@style/CustomTextBody"
+        android:textColor="?attr/primaryTextColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_header" />
 
@@ -38,8 +42,9 @@
         android:id="@+id/tv_message_content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat"
+        android:textAppearance="@style/CustomTextBody"
         android:text="@string/placeholder_description"
+        android:textColor="?attr/primaryTextColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -9,14 +9,17 @@
         android:id="@+id/chatSettingsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.ChatSettingsFragment"
         android:label="ChatSettingsFragment" />
+
     <fragment
         android:id="@+id/downloadSettingsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.DownloadSettingsFragment"
         android:label="DownloadSettingsFragment" />
+
     <fragment
         android:id="@+id/notificationSettingsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.NotificationSettingsFragment"
         android:label="NotificationSettingsFragment" />
+
     <fragment
         android:id="@+id/privacySettingsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.privacy.PrivacySettingsFragment"
@@ -26,6 +29,7 @@
             android:id="@+id/action_privacySettingsFragment_to_contactDetailsFragment"
             app:destination="@id/contactDetailsFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.MainFragment"
@@ -33,57 +37,27 @@
         tools:layout="@layout/fragment_main">
         <action
             android:id="@+id/action_mainFragment_to_privacySettingsFragment"
-            app:destination="@id/privacySettingsFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/privacySettingsFragment" />
         <action
             android:id="@+id/action_mainFragment_to_chatSettingsFragment"
-            app:destination="@id/chatSettingsFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/chatSettingsFragment" />
         <action
             android:id="@+id/action_mainFragment_to_notificationSettingsFragment"
-            app:destination="@id/notificationSettingsFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/notificationSettingsFragment" />
         <action
             android:id="@+id/action_mainFragment_to_downloadSettingsFragment"
-            app:destination="@id/downloadSettingsFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/downloadSettingsFragment" />
         <action
             android:id="@+id/action_mainFragment_to_contactDetailsFragment"
-            app:destination="@id/contactDetailsFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/contactDetailsFragment" />
         <action
             android:id="@+id/action_mainFragment_to_newRoomFragment"
-            app:destination="@id/newRoomFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/newRoomFragment" />
         <action
             android:id="@+id/action_mainFragment_to_appearanceSettings"
             app:destination="@id/appearanceSettings" />
-        <action
-            android:id="@+id/action_mainFragment_to_helpFragment"
-            app:destination="@id/helpFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
+
     <fragment
         android:id="@+id/contactDetailsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.contact_details.ContactDetailsFragment"
@@ -93,6 +67,7 @@
             android:id="@+id/action_contactDetailsFragment_to_notesFragment"
             app:destination="@id/notesFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/newRoomFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.create_room.NewRoomFragment"
@@ -100,23 +75,15 @@
         tools:layout="@layout/fragment_new_room">
         <action
             android:id="@+id/action_newRoomFragment_to_groupInformationFragment"
-            app:destination="@id/groupInformationFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/groupInformationFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/groupInformationFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.create_room.GroupInformationFragment"
         android:label="fragment_group_information"
-        tools:layout="@layout/fragment_group_information">
-        <action
-            android:id="@+id/action_groupInformationFragment_to_mainFragment"
-            app:destination="@id/mainFragment"
-            app:popUpTo="@id/mainFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_group_information"/>
+
     <fragment
         android:id="@+id/notesFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NotesFragment"
@@ -133,35 +100,31 @@
             android:defaultValue="0"
             app:argType="integer" />
     </fragment>
+
     <fragment
         android:id="@+id/notesDetailsFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NotesDetailsFragment"
-        android:label="NotesDetailsFragment">
-        <action
-            android:id="@+id/action_notesDetailsFragment_to_notesFragment"
-            app:destination="@id/notesFragment" />
-    </fragment>
+        android:label="NotesDetailsFragment"/>
+
     <fragment
         android:id="@+id/newNoteFragment"
         android:name="com.clover.studio.spikamessenger.ui.main.chat_details.notes.NewNoteFragment"
         android:label="fragment_new_note"
         tools:layout="@layout/fragment_new_note">
-        <action
-            android:id="@+id/action_newNoteFragment_to_notesFragment"
-            app:destination="@id/notesFragment" />
         <argument
             android:name="roomId"
             android:defaultValue="0"
             app:argType="integer" />
     </fragment>
+
     <fragment
         android:id="@+id/appearanceSettings"
         android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.AppearanceSettings"
         android:label="fragment_appearance_settings"
         tools:layout="@layout/fragment_appearance_settings" />
     <fragment
-        android:id="@+id/helpFragment"
-        android:name="com.clover.studio.spikamessenger.ui.main.settings.screens.HelpFragment"
-        android:label="fragment_help"
-        tools:layout="@layout/fragment_help" />
+        android:id="@+id/chatMessagesFragment2"
+        android:name="com.clover.studio.spikamessenger.ui.main.chat.ChatMessagesFragment"
+        android:label="fragment_chat_messages"
+        tools:layout="@layout/fragment_chat_messages" />
 </navigation>

@@ -5,6 +5,7 @@ import androidx.room.*
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
+import com.clover.studio.spikamessenger.data.models.entity.ReferenceMessage
 
 @Dao
 interface MessageDao : BaseDao<Message> {
@@ -13,7 +14,7 @@ interface MessageDao : BaseDao<Message> {
         "UPDATE message SET id = :id, from_user_id = :fromUserId, total_user_count = :totalUserCount," +
                 " delivered_count = :deliveredCount, seen_count = :seenCount, type_message = :type, body = :body," +
                 " created_at_message = :createdAt, modified_at_message = :modifiedAt, deleted_message = :deleted," +
-                " reply_id = :replyId, message_status=:status WHERE local_id = :localId"
+                " reply_id = :replyId, reference_message = :referenceMessage, message_status=:status WHERE local_id = :localId"
     )
     suspend fun updateMessage(
         id: Int,
@@ -23,6 +24,7 @@ interface MessageDao : BaseDao<Message> {
         seenCount: Int,
         type: String,
         body: MessageBody,
+        referenceMessage: ReferenceMessage?,
         createdAt: Long,
         modifiedAt: Long,
         deleted: Boolean,
@@ -31,6 +33,7 @@ interface MessageDao : BaseDao<Message> {
         status: String
     )
 
+    @Transaction
     @Query("SELECT * FROM message WHERE room_id_message= :roomId ORDER BY created_at_message DESC LIMIT :limit OFFSET :offset")
     fun getMessagesAndRecords(
         roomId: Int,
@@ -41,9 +44,11 @@ interface MessageDao : BaseDao<Message> {
     @Query("SELECT COUNT(*) FROM message WHERE room_id_message= :roomId")
     suspend fun getMessageCount(roomId: Int): Int
 
-    @Transaction
     @Query("SELECT * FROM message WHERE id=:messageId LIMIT 1")
     suspend fun getMessage(messageId: Long): Message
+
+    @Query("SELECT * FROM message WHERE local_id=:localId LIMIT 1")
+    suspend fun getMessageByLocalId(localId: String): Message
 
     @Transaction
     @Query("UPDATE message SET seen_count=:seenCount WHERE id=:messageId")
@@ -70,4 +75,7 @@ interface MessageDao : BaseDao<Message> {
 
     @Query("UPDATE message SET uri=:uri WHERE local_id=:localId ")
     suspend fun updateLocalUri(localId: String, uri: String)
+
+    @Query("UPDATE message SET thumb_uri=:uri WHERE local_id=:localId ")
+    suspend fun updateThumbUri(localId: String, uri: String)
 }

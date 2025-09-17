@@ -2,19 +2,21 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_message_reply"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/main"
     android:paddingBottom="@dimen/ten_dp_margin"
-    tools:ignore="contentDescription">
+    tools:ignore="contentDescription"
+    android:background="?attr/secondAdditionalColor">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_reply_container"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/eight_dp_margin"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/sixteen_dp_margin"
         android:layout_marginTop="@dimen/eight_dp_margin"
         android:background="@drawable/bg_message_received"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/iv_remove"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,37 +26,15 @@
             android:id="@+id/tv_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/eight_dp_margin"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
             android:layout_marginTop="@dimen/eight_dp_margin"
-            android:fontFamily="@font/montserrat"
+            android:fontFamily="@font/roboto_bold"
             android:text="@string/username"
-            android:textFontWeight="600"
-            android:textSize="@dimen/twelve_sp_text"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryTextColor"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <com.vanniktech.emoji.EmojiTextView
-            android:id="@+id/tv_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/eight_dp_margin"
-            android:layout_marginTop="@dimen/eight_dp_margin"
-            android:layout_marginEnd="@dimen/eight_dp_margin"
-            android:layout_marginBottom="@dimen/eight_dp_margin"
-            android:autoLink="all"
-            android:ellipsize="end"
-            android:fontFamily="@font/montserrat"
-            android:gravity="center|start"
-            android:maxLines="1"
-            android:text="@string/some_message"
-            android:textColorLink="@color/link_primary_color"
-            android:textSize="@dimen/eleven_sp_text"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_username" />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_reply_image"
@@ -75,21 +55,25 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_reply_media"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/eight_dp_margin"
-            android:layout_marginEnd="@dimen/eight_dp_margin"
+            android:layout_marginStart="@dimen/sixteen_dp_margin"
+            android:layout_marginTop="@dimen/four_dp_margin"
+            android:layout_marginEnd="@dimen/sixteen_dp_margin"
             android:layout_marginBottom="@dimen/eight_dp_margin"
-            android:drawableStart="@drawable/img_camera_reply"
-            android:drawablePadding="@dimen/two_dp_margin"
-            android:fontFamily="@font/montserrat"
+            android:drawableStart="@drawable/img_camera"
+            android:drawablePadding="@dimen/eight_dp_margin"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:padding="@dimen/four_dp_margin"
             android:text="@string/media"
-            android:textSize="@dimen/eleven_sp_text"
+            android:textAppearance="@style/CustomTextBody"
+            android:textSize="@dimen/fourteen_sp_text"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/iv_reply_image"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/tv_username"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_username" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -98,9 +82,12 @@
         android:id="@+id/iv_remove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/twenty_five_dp_margin"
+        android:layout_marginEnd="@dimen/eight_dp_margin"
+        android:padding="@dimen/eight_dp_margin"
         android:src="@drawable/img_close"
+        app:layout_constraintBottom_toBottomOf="@+id/cl_reply_container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/cl_reply_container"
+        app:tint="?attr/primaryColor" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

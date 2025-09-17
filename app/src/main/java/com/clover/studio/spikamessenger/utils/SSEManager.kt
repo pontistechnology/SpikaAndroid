@@ -12,7 +12,7 @@ import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageRecords
 import com.clover.studio.spikamessenger.data.models.entity.RecordMessage
 import com.clover.studio.spikamessenger.data.models.networking.responses.StreamingResponse
-import com.clover.studio.spikamessenger.data.repositories.SSERepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.SSERepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.utils.helpers.GsonProvider
 import kotlinx.coroutines.*
@@ -25,21 +25,32 @@ import javax.inject.Inject
 import javax.net.ssl.HttpsURLConnection
 
 class SSEManager @Inject constructor(
-    private val repo: SSERepositoryImpl,
+    private val repo: SSERepository,
     private val sharedPrefs: SharedPreferencesRepository,
 ) {
     private var job: Job? = null
     private var listener: SSEListener? = null
+    private lateinit var url: String
 
     fun setupListener(listener: SSEListener) {
         this.listener = listener
     }
 
     suspend fun startSSEStream() {
-        val url =
+        url =
             BuildConfig.SERVER_URL + Const.Networking.API_SSE_STREAM + "?accesstoken=" + sharedPrefs.readToken()
 
         openConnectionAndFetchEvents(url)
+    }
+
+    // Called only in the application class. It will check if the job is completed or cancelled
+    // after some downtime and restart the connection if needed.
+    suspend fun checkJobAndContinue() {
+        Timber.d("SSE Job status: ${job?.isActive}, ${job?.isCompleted}, ${job?.isCancelled}")
+        if (job?.isCompleted == true || job?.isCancelled == true) {
+            Timber.d("Launching connection")
+            openConnectionAndFetchEvents(url)
+        }
     }
 
     private suspend fun openConnectionAndFetchEvents(url: String) {
@@ -87,7 +98,7 @@ class SSEManager @Inject constructor(
                     sharedPrefs.writeFirstSSELaunch()
                 }
 
-                // run while the coroutine is active
+                // Run while the coroutine is active
                 while (isActive) {
                     val line =
                         inputReader.readLine() // Blocking function. Read stream until \n is found
@@ -117,7 +128,6 @@ class SSEManager @Inject constructor(
                                 Timber.d("Response type: ${response.data?.type}")
                                 when (response.data?.type) {
                                     Const.JsonFields.NEW_MESSAGE -> {
-                                        response.data?.message?.let { repo.writeMessages(it) }
                                         response.data?.message?.id?.let {
                                             repo.sendMessageDelivered(
                                                 it
@@ -129,15 +139,13 @@ class SSEManager @Inject constructor(
                                             )
                                         }
                                         repo.getUnreadCount()
-                                    }
 
-                                    Const.JsonFields.UPDATE_MESSAGE -> {
                                         response.data?.message?.let { repo.writeMessages(it) }
                                     }
 
-                                    Const.JsonFields.DELETE_MESSAGE -> {
+                                    Const.JsonFields.UPDATE_MESSAGE, Const.JsonFields.DELETE_MESSAGE -> {
                                         // We replace old message with new one displaying "Deleted
-                                        // message" in its text field
+                                        // message" or  we add "edited" in its text field
                                         response.data?.message?.let { repo.writeMessages(it) }
                                     }
 
@@ -152,12 +160,13 @@ class SSEManager @Inject constructor(
                                                     reaction = it.messageRecord.reaction,
                                                     modifiedAt = it.messageRecord.modifiedAt,
                                                     createdAt = it.messageRecord.createdAt,
+                                                    isDeleted = it.messageRecord.isDeleted,
                                                     recordMessage = RecordMessage(
                                                         id = it.messageRecord.messageId.toLong(),
                                                         totalUserCount = it.totalUserCount ?: 0,
                                                         deliveredCount = it.deliveredCount ?: 0,
                                                         seenCount = it.seenCount ?: 0,
-                                                        roomId = it.messageRecord.roomId
+                                                        roomId = it.messageRecord.roomId,
                                                     )
                                                 )
                                                 repo.writeMessageRecord(record)

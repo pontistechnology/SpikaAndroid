@@ -8,7 +8,7 @@ import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.UploadFile
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
-import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.MainRepository
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import timber.log.Timber
 import java.io.BufferedInputStream
@@ -27,7 +27,7 @@ const val ONE_GB = 1024 * 1024 * 1024
  * can update the status based on pieces sent or final file verification.
  */
 class UploadDownloadManager constructor(
-    private val repository: MainRepositoryImpl
+    private val repository: MainRepository
 ) {
     private var chunkCount = 0
     private var cancelUpload = false
@@ -42,10 +42,14 @@ class UploadDownloadManager constructor(
         fileData: FileData,
         fileUploadListener: FileUploadListener,
     ) {
-        var mimeType = MainApplication.appContext.contentResolver.getType(fileData.fileUri)!!
+        var mimeType: String = MainApplication.appContext.contentResolver.getType(fileData.fileUri)
+            ?.takeIf { it.isNotEmpty() }
+            ?: if (fileData.fileUri.toString().contains(Const.JsonFields.GIF)) Const.JsonFields.IMAGE_TYPE else null
+            ?: return
+
         cancelUpload = false
 
-        if (mimeType.contains(Const.JsonFields.AVI_TYPE)) {
+        if (Tools.forbiddenMimeTypes(mimeType)) {
             mimeType = Const.JsonFields.FILE_TYPE
         }
 
@@ -84,12 +88,12 @@ class UploadDownloadManager constructor(
 
                 Timber.d("Chunk count $chunkCount")
                 startUploadAPI(
-                    uploadFile,
-                    mimeType,
-                    fileData.filePieces,
-                    fileData.isThumbnail,
-                    fileData.messageBody,
-                    fileUploadListener,
+                    uploadFile = uploadFile,
+                    mimeType = mimeType,
+                    chunks = fileData.filePieces,
+                    isThumbnail = fileData.isThumbnail,
+                    messageBody = fileData.messageBody,
+                    fileUploadListener = fileUploadListener,
                 )
                 piece++
             }
@@ -140,24 +144,28 @@ class UploadDownloadManager constructor(
             Timber.d("Mime type = $mimeType")
             if (file != null) {
                 if (isThumbnail) file.path?.let {
-                    fileUploadListener.fileUploadVerified(
-                        it,
-                        mimeType,
-                        file.id.toLong(),
-                        0,
-                        file.type!!,
-                        messageBody
-                    )
+                    file.type?.let { type ->
+                        fileUploadListener.fileUploadVerified(
+                            path = it,
+                            mimeType = mimeType,
+                            thumbId = file.id.toLong(),
+                            fileId = 0,
+                            fileType = type,
+                            messageBody = messageBody
+                        )
+                    }
                 }
                 else file.path?.let {
-                    fileUploadListener.fileUploadVerified(
-                        it,
-                        mimeType,
-                        0,
-                        file.id.toLong(),
-                        file.type!!,
-                        messageBody
-                    )
+                    file.type?.let { type ->
+                        fileUploadListener.fileUploadVerified(
+                            path = it,
+                            mimeType = mimeType,
+                            thumbId = 0,
+                            fileId = file.id.toLong(),
+                            fileType = type,
+                            messageBody = messageBody
+                        )
+                    }
                 }
             } else fileUploadListener.fileUploadError("Some error")
 

@@ -8,15 +8,16 @@ import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
-import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
+import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
 import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.models.networking.responses.AuthResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.DeleteUserResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
-import com.clover.studio.spikamessenger.data.repositories.MainRepositoryImpl
-import com.clover.studio.spikamessenger.data.repositories.SSERepositoryImpl
+import com.clover.studio.spikamessenger.data.repositories.MainRepository
+import com.clover.studio.spikamessenger.data.repositories.SSERepository
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepository
 import com.clover.studio.spikamessenger.ui.main.chat.FileUploadVerified
 import com.clover.studio.spikamessenger.utils.Event
@@ -31,6 +32,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -38,27 +41,41 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: MainRepositoryImpl,
+    private val repository: MainRepository,
     private val sharedPrefsRepo: SharedPreferencesRepository,
     private val sseManager: SSEManager,
-    private val sseRepository: SSERepositoryImpl,
+    private val sseRepository: SSERepository,
     private val uploadDownloadManager: UploadDownloadManager
 ) : BaseViewModel(), SSEListener {
     val usersListener = MutableLiveData<Event<Resource<AuthResponse?>>>()
     val checkRoomExistsListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
     val createRoomListener = MutableLiveData<Event<Resource<RoomResponse?>>>()
     val roomWithUsersListener = MutableLiveData<Event<Resource<RoomWithUsers?>>>()
-    val roomDataListener = MutableLiveData<Event<Resource<RoomAndMessageAndRecords?>>>()
     val roomNotificationListener = MutableLiveData<Event<RoomNotificationData>>()
     val blockedListListener = MutableLiveData<Event<Resource<List<User>?>>>()
     val fileUploadListener = MutableLiveData<Event<Resource<FileUploadVerified?>>>()
     val newMessageReceivedListener = MutableLiveData<Event<Resource<Message?>>>()
     val contactSyncListener = MutableLiveData<Event<Resource<ContactsSyncResponse?>>>()
     val deleteUserListener = MutableLiveData<Event<Resource<DeleteUserResponse?>>>()
-    val searchedMessageListener = MutableLiveData<Event<Resource<List<MessageWithRoom>?>>>()
+    val searchedMessageListener =
+        MutableLiveData<Event<Pair<Resource<List<MessageWithRoom>?>, String>>>()
+    val contactListener = MutableLiveData<Event<Resource<List<UserAndPhoneUser>?>>>()
+    val recentContacts = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
+    val allGroupsListener = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
+    val recentGroupsListener = MutableLiveData<Event<Resource<List<RoomWithUsers>?>>>()
+    val roomUsers: MutableList<PrivateGroupChats> = ArrayList()
+
+    private val _isRoomRefreshing = MutableSharedFlow<Boolean>()
+    val isRoomRefreshing = _isRoomRefreshing.asSharedFlow()
 
     init {
         sseManager.setupListener(this)
+    }
+
+    fun setIsRoomRefreshing(isActive: Boolean) {
+        viewModelScope.launch {
+            _isRoomRefreshing.emit(isActive)
+        }
     }
 
     fun getLocalUser() = liveData {
@@ -87,6 +104,10 @@ class MainViewModel @Inject constructor(
         )
     }
 
+    fun saveSelectedUsers(users: MutableList<PrivateGroupChats>) {
+        roomUsers.addAll(users.toMutableSet())
+    }
+
     fun getLocalUserId(): Int? {
         var userId: Int? = null
 
@@ -104,7 +125,6 @@ class MainViewModel @Inject constructor(
 
     fun checkIfRoomExists(userId: Int) = viewModelScope.launch {
         resolveResponseStatus(checkRoomExistsListener, repository.getRoomById(userId))
-//        checkRoomExistsListener.postValue(Event(repository.getRoomById(userId)))
     }
 
     fun createNewRoom(jsonObject: JsonObject) = CoroutineScope(Dispatchers.IO).launch {
@@ -125,23 +145,30 @@ class MainViewModel @Inject constructor(
     }
 
     fun getSearchedMessages(query: String) = viewModelScope.launch {
-        resolveResponseStatus(searchedMessageListener, repository.getSearchedMessages(query))
+        searchedMessageListener.postValue(Event(Pair(repository.getSearchedMessages(query), query)))
     }
 
-    fun getUserAndPhoneUser(localId: Int) = repository.getUserAndPhoneUser(localId)
+    fun getUserAndPhoneUserLiveData(localId: Int) = repository.getUserAndPhoneUserLiveData(localId)
 
-    fun getChatRoomAndMessageAndRecords() = repository.getChatRoomAndMessageAndRecords()
+    fun getUserAndPhoneUser(localId: Int) = viewModelScope.launch {
+        resolveResponseStatus(contactListener, repository.getUserAndPhoneUser(localId))
+    }
 
     fun getChatRoomsWithLatestMessage() = repository.getChatRoomsWithLatestMessage()
 
+    fun getRecentContacts() = viewModelScope.launch {
+        resolveResponseStatus(recentContacts, repository.getRecentContacts())
+    }
+
+    fun getRecentGroups() = viewModelScope.launch {
+        resolveResponseStatus(recentGroupsListener, repository.getRecentGroups())
+    }
+
+    fun getAllGroups() = viewModelScope.launch {
+        resolveResponseStatus(allGroupsListener, repository.getAllGroups())
+    }
+
     fun getRoomsLiveData() = repository.getRoomsUnreadCount()
-
-    fun getRoomByIdLiveData(roomId: Int) = repository.getRoomByIdLiveData(roomId)
-
-    fun getSingleRoomData(roomId: Int) =
-        viewModelScope.launch {
-            resolveResponseStatus(roomDataListener, repository.getSingleRoomData(roomId))
-        }
 
     fun getRoomWithUsers(roomId: Int) =
         viewModelScope.launch {
@@ -172,14 +199,14 @@ class MainViewModel @Inject constructor(
         resolveResponseStatus(usersListener, repository.updateUserData(jsonObject))
     }
 
-    fun updateRoom(jsonObject: JsonObject, roomId: Int, userId: Int) =
-        CoroutineScope(Dispatchers.IO).launch {
-            Timber.d("RoomDataCalled")
+    fun updateRoom(jsonObject: JsonObject, roomId: Int) = viewModelScope.launch {
+        CoroutineScope(Dispatchers.Default).launch {
             resolveResponseStatus(
                 createRoomListener,
-                repository.updateRoom(jsonObject, roomId, userId)
+                repository.updateRoom(jsonObject = jsonObject, roomId = roomId)
             )
         }
+    }
 
     fun unregisterSharedPrefsReceiver() = viewModelScope.launch {
         sharedPrefsRepo.unregisterSharedPrefsReceiver()
@@ -264,17 +291,16 @@ class MainViewModel @Inject constructor(
                             mimeType,
                             thumbId,
                             fileId,
-                            fileType,
                             messageBody,
-                            fileData.isThumbnail
                         )
                         resolveResponseStatus(
                             fileUploadListener,
                             Resource(Resource.Status.SUCCESS, response, "")
                         )
                     }
-                    override fun fileCanceledListener(messageId: String?) {
 
+                    override fun fileCanceledListener(messageId: String?) {
+                        // ignore
                     }
                 })
         } catch (ex: Exception) {
@@ -285,15 +311,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getUserTheme(): Int? {
-        var theme: Int? = null
-        viewModelScope.launch {
-            theme = sharedPrefsRepo.readUserTheme()
-        }
-        return theme
-    }
-
-    fun writeUserTheme(userTheme: Int) = viewModelScope.launch {
+    fun writeUserTheme(userTheme: String) = viewModelScope.launch {
         sharedPrefsRepo.writeUserTheme(userTheme)
     }
 

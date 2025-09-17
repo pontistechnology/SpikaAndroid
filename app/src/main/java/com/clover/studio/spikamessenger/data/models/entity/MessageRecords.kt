@@ -33,6 +33,10 @@ data class MessageRecords @JvmOverloads constructor(
     @ColumnInfo(name = "created_at")
     val createdAt: Long,
 
+    @ColumnInfo(name ="is_deleted")
+    @SerializedName("isDeleted")
+    val isDeleted: Boolean,
+
     @ColumnInfo(name = "record_message")
     @SerializedName("message")
     @TypeConverters(TypeConverter::class)

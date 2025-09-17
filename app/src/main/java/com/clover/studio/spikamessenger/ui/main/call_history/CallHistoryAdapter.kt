@@ -30,10 +30,6 @@ class CallHistoryAdapter(
         with(holder) {
             getItem(position).let { userItem ->
                 binding.tvUsername.text = userItem.formattedDisplayName
-//                binding.tvCallDirection = // TODO set direction text
-//                binding.ivCallIcon.setImageDrawable() // TODO set image for call icon
-//                binding.tvCallTime.text = // TODO set call time
-//                binding.ivCallType.setImageDrawable() // TODO set image for call type
 
                 Glide.with(context).load(userItem.avatarFileId?.let { getFilePathUrl(it) })
                     .into(binding.ivPickPhoto)

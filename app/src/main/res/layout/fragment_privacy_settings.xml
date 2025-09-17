@@ -4,57 +4,41 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.settings.screens.privacy.PrivacySettingsFragment">
+    tools:context=".ui.main.settings.screens.privacy.PrivacySettingsFragment"
+    tools:ignore="contentDescription">
 
     <ImageView
         android:id="@+id/iv_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/twenty_dp_margin"
-        android:src="@drawable/img_arrow_back"
-        app:layout_constraintEnd_toStartOf="@id/tv_page_name"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="@dimen/twenty_dp_margin"
+        android:src="@drawable/img_arrow_back_chat"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_page_name"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/twenty_dp_margin"
-        android:fontFamily="@font/montserrat"
         android:text="@string/privacy"
-        android:textSize="@dimen/fourteen_sp_text"
+        android:textAppearance="@style/CustomTitleBold"
+        android:textSize="@dimen/thirty_two_sp_text"
         app:layout_constraintBottom_toBottomOf="@id/iv_back"
-        app:layout_constraintStart_toEndOf="@id/iv_back"
-        app:layout_constraintTop_toTopOf="@id/iv_back" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_blocked_users"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/ten_dp_margin"
-        android:padding="@dimen/twenty_dp_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_back">
+        app:layout_constraintTop_toTopOf="@id/iv_back" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat"
-            android:text="@string/blocked_users"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/img_arrow_forward"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <FrameLayout
+        android:id="@+id/fl_options_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/one_hundred_twenty_eight"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_back" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_blocked_users"
@@ -66,45 +50,4 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_back" />
-
-    <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
-    <!--        android:id="@+id/cl_pin_chat"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_margin="@dimen/twenty_dp_margin"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/iv_back">-->
-
-    <!--        <TextView-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:fontFamily="@font/montserrat"-->
-    <!--            android:text="@string/pin_chat"-->
-    <!--            android:textSize="@dimen/fourteen_sp_text"-->
-    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--            app:layout_constraintStart_toStartOf="parent"-->
-    <!--            app:layout_constraintTop_toTopOf="parent" />-->
-
-    <!--        <com.google.android.material.switchmaterial.SwitchMaterial-->
-    <!--            android:id="@+id/sw_pin_chat"-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            app:layout_constraintEnd_toEndOf="parent"-->
-    <!--            app:layout_constraintTop_toTopOf="parent" />-->
-    <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
-
-    <!--    <TextView-->
-    <!--        android:layout_width="0dp"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginStart="@dimen/twenty_dp_margin"-->
-    <!--        android:layout_marginEnd="@dimen/twenty_dp_margin"-->
-    <!--        android:fontFamily="@font/montserrat"-->
-    <!--        android:text="@string/privacy_explanation"-->
-    <!--        android:textColor="@color/text_secondary"-->
-    <!--        android:textSize="@dimen/nine_sp_text"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/cl_pin_chat" />-->
-
 </androidx.constraintlayout.widget.ConstraintLayout>

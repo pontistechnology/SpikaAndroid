@@ -1,0 +1,45 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@android:color/transparent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="contentDescription">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_pick_avatar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/three_hundred_ninety_five"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_user_avatar"
+        app:layout_constraintBottom_toTopOf="@id/tv_group_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/big_profile_picture" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/fl_progress_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/dark_background_transp"
+        android:backgroundTint="@color/background_80_transp"
+        android:elevation="@dimen/five_dp_margin"
+        android:visibility="gone"
+        app:cardPreventCornerOverlap="false"
+        app:layout_constraintBottom_toBottomOf="@id/iv_pick_avatar"
+        app:layout_constraintEnd_toEndOf="@id/iv_pick_avatar"
+        app:layout_constraintStart_toStartOf="@id/iv_pick_avatar"
+        app:layout_constraintTop_toTopOf="@id/iv_pick_avatar"
+        app:shapeAppearanceOverlay="@style/big_profile_picture">
+
+        <ImageView
+            android:id="@+id/iv_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            android:elevation="@dimen/eight_dp_margin" />
+
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

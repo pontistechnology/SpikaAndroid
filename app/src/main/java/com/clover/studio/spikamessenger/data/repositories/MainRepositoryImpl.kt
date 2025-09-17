@@ -7,6 +7,7 @@ import com.clover.studio.spikamessenger.data.daos.ChatRoomDao
 import com.clover.studio.spikamessenger.data.daos.RoomUserDao
 import com.clover.studio.spikamessenger.data.daos.UserDao
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
+import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageWithRoom
 import com.clover.studio.spikamessenger.data.models.entity.RoomAndMessageAndRecords
 import com.clover.studio.spikamessenger.data.models.entity.RoomWithMessage
@@ -18,9 +19,11 @@ import com.clover.studio.spikamessenger.data.models.networking.responses.AuthRes
 import com.clover.studio.spikamessenger.data.models.networking.responses.ContactsSyncResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.DeleteUserResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.FileResponse
+import com.clover.studio.spikamessenger.data.models.networking.responses.ForwardMessagesResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.RoomResponse
 import com.clover.studio.spikamessenger.data.models.networking.responses.Settings
 import com.clover.studio.spikamessenger.data.repositories.data_sources.MainRemoteDataSource
+import com.clover.studio.spikamessenger.ui.main.chat.MediaType
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.clover.studio.spikamessenger.utils.helpers.RestOperations.performRestOperation
 import com.clover.studio.spikamessenger.utils.helpers.RestOperations.queryDatabase
@@ -29,7 +32,6 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
@@ -73,7 +75,7 @@ class MainRepositoryImpl @Inject constructor(
                 CoroutineScope(Dispatchers.IO).launch {
                     val users: MutableList<User> = ArrayList()
                     val roomUsers: MutableList<RoomUser> = ArrayList()
-                    for (user in response.responseData?.data?.room?.users!!) {
+                    response.responseData?.data?.room?.users?.forEach { user ->
                         user.user?.let { users.add(it) }
                         roomUsers.add(
                             RoomUser(
@@ -95,8 +97,13 @@ class MainRepositoryImpl @Inject constructor(
         return response
     }
 
-    override fun getUserAndPhoneUser(localId: Int) =
+    override fun getUserAndPhoneUserLiveData(localId: Int) =
         queryDatabase(
+            databaseQuery = { userDao.getUserAndPhoneUserLiveData(localId) }
+        )
+
+    override suspend fun getUserAndPhoneUser(localId: Int) =
+        queryDatabaseCoreData(
             databaseQuery = { userDao.getUserAndPhoneUser(localId) }
         )
 
@@ -120,7 +127,7 @@ class MainRepositoryImpl @Inject constructor(
             databaseQuery = { chatRoomDao.getDistinctRoomsUnreadCount() }
         )
 
-    suspend fun syncContacts(shouldRefresh: Boolean): Resource<ContactsSyncResponse> {
+    override suspend fun syncContacts(shouldRefresh: Boolean): Resource<ContactsSyncResponse> {
         return syncContacts(
             userDao,
             shouldRefresh,
@@ -137,6 +144,21 @@ class MainRepositoryImpl @Inject constructor(
     override fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithMessage>>> =
         queryDatabase(
             databaseQuery = { chatRoomDao.getAllRoomsWithLatestMessageAndRecord() }
+        )
+
+    override suspend fun getRecentContacts() =
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.getRecentContacts() }
+        )
+
+    override suspend fun getRecentGroups() =
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.getRecentGroups() }
+        )
+
+    override suspend fun getAllGroups() =
+        queryDatabaseCoreData(
+            databaseQuery = { chatRoomDao.getAllGroups() }
         )
 
 
@@ -170,7 +192,6 @@ class MainRepositoryImpl @Inject constructor(
                     }
                     roomsToUpdate.add(room)
                 }
-                // Timber.d("Rooms to update: $roomsToUpdate")
                 queryDatabaseCoreData(
                     databaseQuery = { chatRoomDao.upsert(roomsToUpdate) }
                 )
@@ -213,6 +234,35 @@ class MainRepositoryImpl @Inject constructor(
         return data
     }
 
+    override suspend fun forwardMessages(jsonObject: JsonObject): Resource<ForwardMessagesResponse> {
+        val data = performRestOperation(
+            networkCall = { mainRemoteDataSource.forwardMessages(jsonObject) },
+            saveCallResult = {
+                val roomUsers = mutableListOf<RoomUser>()
+                it.data.newRooms.flatMap { chatRoom ->
+                    chatRoom.users.map { roomUser ->
+                        roomUsers.add(
+                            RoomUser(
+                                userId = roomUser.userId,
+                                roomId = chatRoom.roomId,
+                                isAdmin = roomUser.isAdmin,
+                            )
+                        )
+                    }
+                }
+
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.upsert(it.data.newRooms) }
+                )
+
+                queryDatabaseCoreData(
+                    databaseQuery = { roomUserDao.upsert(roomUsers) }
+                )
+            }
+        )
+        return data
+    }
+
     override suspend fun uploadFiles(jsonObject: JsonObject): Resource<FileResponse> {
         val response: Resource<FileResponse> = if (uploadCanceled.value?.second == false) {
             performRestOperation(
@@ -226,9 +276,35 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun cancelUpload(messageId: String) {
-        Timber.d("Message id: $messageId")
         uploadCanceled.postValue(Pair(messageId, true))
     }
+
+    override suspend fun getAllMediaWithOffset(
+        roomId: Int,
+        limit: Int,
+        offset: Int,
+        mediaType: MediaType
+    ): Resource<List<Message>> {
+        return when (mediaType) {
+            MediaType.MEDIA -> {
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.getAllMediaWithOffset(roomId, limit, offset)}
+                )
+            }
+            MediaType.LINKS -> {
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.getAllLinksWithOffset(roomId, limit, offset)}
+                )
+            }
+            MediaType.FILES -> {
+                queryDatabaseCoreData(
+                    databaseQuery = { chatRoomDao.getAllFilesWithOffset(roomId, limit, offset)}
+                )
+            }
+        }
+    }
+
+    override suspend fun getMediaCount(roomId: Int) = chatRoomDao.getMediaCount(roomId)
 
     override suspend fun getSearchedMessages(query: String) =
         queryDatabaseCoreData(
@@ -242,8 +318,7 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun updateRoom(
         jsonObject: JsonObject,
-        roomId: Int,
-        userId: Int
+        roomId: Int
     ): Resource<RoomResponse> {
         val response = performRestOperation(
             networkCall = { mainRemoteDataSource.updateRoom(jsonObject, roomId) },
@@ -252,11 +327,6 @@ class MainRepositoryImpl @Inject constructor(
 
         if (response.responseData?.data?.room != null) {
             val room = response.responseData.data.room
-
-            // Delete Room User if id has been passed through
-            if (userId != 0) {
-                roomUserDao.delete(RoomUser(roomId, userId, false))
-            }
 
             CoroutineScope(Dispatchers.IO).launch {
                 appDatabase.runInTransaction {
@@ -344,17 +414,16 @@ class MainRepositoryImpl @Inject constructor(
         )
     }
 
-
     override suspend fun handleRoomMute(roomId: Int, doMute: Boolean) {
         if (doMute) {
             performRestOperation(
                 networkCall = { mainRemoteDataSource.muteRoom(roomId) },
-                saveCallResult = { chatRoomDao.updateRoomPinned(true, roomId) }
+                saveCallResult = { chatRoomDao.updateRoomMuted(true, roomId) }
             )
         } else {
             performRestOperation(
                 networkCall = { mainRemoteDataSource.unmuteRoom(roomId) },
-                saveCallResult = { chatRoomDao.updateRoomPinned(false, roomId) }
+                saveCallResult = { chatRoomDao.updateRoomMuted(false, roomId) }
             )
         }
     }
@@ -379,7 +448,9 @@ interface MainRepository : BaseRepository {
     suspend fun getUserByID(id: Int): LiveData<Resource<User>>
     suspend fun getRoomById(roomId: Int): Resource<RoomResponse>
     suspend fun updateUserData(jsonObject: JsonObject): Resource<AuthResponse>
-    fun getUserAndPhoneUser(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
+    suspend fun forwardMessages(jsonObject: JsonObject): Resource<ForwardMessagesResponse>
+    fun getUserAndPhoneUserLiveData(localId: Int): LiveData<Resource<List<UserAndPhoneUser>>>
+    suspend fun getUserAndPhoneUser(localId: Int): Resource<List<UserAndPhoneUser>>
     suspend fun deleteUser(): Resource<DeleteUserResponse>
 
     // Rooms calls
@@ -394,10 +465,14 @@ interface MainRepository : BaseRepository {
     fun getChatRoomAndMessageAndRecords(): LiveData<Resource<List<RoomAndMessageAndRecords>>>
     fun getRoomWithUsersLiveData(roomId: Int): LiveData<Resource<RoomWithUsers>>
     fun getChatRoomsWithLatestMessage(): LiveData<Resource<List<RoomWithMessage>>>
+    suspend fun getRecentContacts(): Resource<List<RoomWithUsers>>
+    suspend fun getRecentGroups(): Resource<List<RoomWithUsers>>
+    suspend fun getAllGroups(): Resource<List<RoomWithUsers>>
+    suspend fun getAllMediaWithOffset(roomId: Int, limit: Int, offset: Int, mediaType: MediaType): Resource<List<Message>>
+    suspend fun getMediaCount(roomId: Int): Int
     suspend fun updateRoom(
         jsonObject: JsonObject,
-        roomId: Int,
-        userId: Int
+        roomId: Int
     ): Resource<RoomResponse>
 
     suspend fun getUnreadCount()
@@ -422,4 +497,7 @@ interface MainRepository : BaseRepository {
 
     // Search calls
     suspend fun getSearchedMessages(query: String): Resource<List<MessageWithRoom>>
+
+    // Sync calls
+    suspend fun syncContacts(shouldRefresh: Boolean): Resource<ContactsSyncResponse>
 }

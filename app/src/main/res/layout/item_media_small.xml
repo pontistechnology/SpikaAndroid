@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/v_selected_media"
+        android:layout_width="@dimen/fifty_six_dp"
+        android:layout_height="@dimen/fifty_six_dp"
+        android:background="@color/white"
+        android:visibility="visible"
+        app:shapeAppearanceOverlay="@style/round" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_small_media"
+        android:layout_width="@dimen/forty_eight_dp_margin"
+        android:layout_height="@dimen/forty_eight_dp_margin"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/two_dp_margin"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/round"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <ProgressBar
+        android:id="@+id/pb_small_media"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="@dimen/forty_dp_margin"
+        android:layout_height="@dimen/forty_dp_margin"
+        android:layout_gravity="center" />
+</FrameLayout>

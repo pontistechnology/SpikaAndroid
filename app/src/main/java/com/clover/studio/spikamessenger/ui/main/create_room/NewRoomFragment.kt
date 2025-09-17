@@ -2,9 +2,10 @@ package com.clover.studio.spikamessenger.ui.main.create_room
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -12,18 +13,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.entity.ChatRoom
-import com.clover.studio.spikamessenger.data.models.entity.User
-import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.databinding.FragmentNewRoomBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
-import com.clover.studio.spikamessenger.ui.main.contacts.ContactsAdapter
+import com.clover.studio.spikamessenger.ui.main.contacts.UsersGroupsAdapter
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.EventObserver
+import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.dialog.DialogError
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
 import com.clover.studio.spikamessenger.utils.extendables.DialogInteraction
-import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortUsersByLocale
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortChats
 import com.clover.studio.spikamessenger.utils.helpers.Resource
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -31,23 +32,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.Arrays
-import kotlin.streams.toList
 
 class NewRoomFragment : BaseFragment() {
     private var args: NewRoomFragmentArgs? = null
     private val viewModel: MainViewModel by activityViewModels()
-    private lateinit var contactsAdapter: ContactsAdapter
-    private lateinit var selectedContactsAdapter: SelectedContactsAdapter
-    private lateinit var userList: MutableList<UserAndPhoneUser>
-    private var selectedUsers: MutableList<UserAndPhoneUser> = ArrayList()
-    private var filteredList: MutableList<UserAndPhoneUser> = ArrayList()
-    private var user: User? = null
+    private var contactsAdapter: UsersGroupsAdapter? = null
+    private var selectedContactsAdapter: UsersGroupsSelectedAdapter? = null
+    private var userList: MutableList<PrivateGroupChats> = mutableListOf()
+    private var selectedUsers: MutableList<PrivateGroupChats> = ArrayList()
+    private var filteredList: MutableList<PrivateGroupChats> = ArrayList()
+    private var user: PrivateGroupChats? = null
     private var isRoomUpdate = false
     private var newGroupFlag = false
 
     private var bindingSetup: FragmentNewRoomBinding? = null
-
     private val binding get() = bindingSetup!!
 
     private var localId: Int = 0
@@ -64,24 +62,33 @@ class NewRoomFragment : BaseFragment() {
         else null
 
         localId = viewModel.getLocalUserId()!!
+
+        if (viewModel.roomUsers.isNotEmpty() && args?.userIds == null) {
+            selectedUsers = viewModel.roomUsers
+            selectedContactsAdapter?.submitList(selectedUsers)
+            handleGroupChat()
+            handleNextTextView()
+        } else {
+            setupAdapter(false)
+        }
+
         initializeObservers()
-        setupAdapter(false)
         initializeViews()
-        setupSearchView()
 
         return binding.root
     }
 
-    private fun initializeViews() {
-        // SearchView is immediately acting as if selected
-
+    private fun initializeViews() = with(binding) {
         // Behave like group chat if adding user from ChatDetails.
         if (args?.userIds?.isNotEmpty() == true) handleGroupChat()
 
-        binding.svContactsSearch.setIconifiedByDefault(false)
-
-        binding.tvNext.setOnClickListener {
+        fabNext.setOnClickListener {
             val bundle = bundleOf(Const.Navigation.SELECTED_USERS to selectedUsers)
+            if (selectedUsers != viewModel.roomUsers) {
+                viewModel.saveSelectedUsers(selectedUsers)
+            }
+
+            binding.topAppBar.menu.findItem(R.id.search_menu_icon).collapseActionView()
 
             if (args?.roomId != null && args?.roomId != 0) {
                 updateRoom()
@@ -92,12 +99,49 @@ class NewRoomFragment : BaseFragment() {
             )
         }
 
-        binding.ivCancel.setOnClickListener {
+        ivCancel.setOnClickListener {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        binding.tvNewGroupChat.setOnClickListener {
+        tvNewGroupChat.setOnClickListener {
             handleGroupChat()
+        }
+
+        topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.search_menu_icon -> {
+                    ivCancel.visibility = View.GONE
+                    val searchView = menuItem.actionView as SearchView
+                    searchView.let {
+                        Tools.setUpSearchBar(
+                            requireContext(),
+                            it,
+                            getString(R.string.search_contacts)
+                        )
+                    }
+
+                    setupSearchView(searchView)
+
+                    menuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+                        override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                            return true
+                        }
+
+                        override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                            ivCancel.visibility = View.VISIBLE
+                            rvContacts.visibility = View.VISIBLE
+                            return true
+                        }
+
+                    })
+
+                    menuItem.expandActionView()
+
+                    true
+                }
+
+                else -> false
+            }
         }
     }
 
@@ -106,145 +150,139 @@ class NewRoomFragment : BaseFragment() {
         val userIds = JsonArray()
 
         for (data in selectedUsers) {
-            userIds.add(data.user.id)
+            userIds.add(data.userId)
         }
 
-        val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
-        if (userIdsInRoom?.isNotEmpty() == true) {
-            for (id in userIdsInRoom) {
-                userIds.add(id)
-            }
-        }
-
-        if (userIds.size() > 0)
+        if (userIds.size() > 0) {
+            jsonObject.addProperty(Const.JsonFields.ACTION, Const.JsonFields.ADD_GROUP_USERS)
             jsonObject.add(Const.JsonFields.USER_IDS, userIds)
+        }
 
-        args?.roomId?.let { viewModel.updateRoom(jsonObject, it, 0) }
+        args?.roomId?.let { viewModel.updateRoom(jsonObject, it) }
     }
 
-    private fun handleGroupChat() {
-        // Clear data if old data is still present
-        selectedUsers.clear()
-        binding.clSelectedContacts.visibility = View.VISIBLE
-        binding.tvSelectedNumber.text = getString(R.string.users_selected, selectedUsers.size)
-        binding.tvNewGroupChat.visibility = View.GONE
-        binding.tvNext.visibility = View.VISIBLE
-        binding.tvTitle.text = getString(R.string.select_members)
+    private fun handleGroupChat() = with(binding) {
+        clSelectedContacts.visibility = View.VISIBLE
+        tvSelectedNumber.text = getString(R.string.users_selected, selectedUsers.size)
+        tvNewGroupChat.visibility = View.GONE
+        fabNext.visibility = View.GONE
+        topAppBar.title = getString(R.string.select_members)
 
         newGroupFlag = true
 
-        setupAdapter(true)
         initializeObservers()
+        setupAdapter(true)
     }
 
-    private fun setupAdapter(isGroupCreation: Boolean) {
-        // Contacts Adapter
-
+    private fun setupAdapter(isGroupCreation: Boolean) = with(binding) {
         // Check if there are some userIds already in Room if we are adding Room users
         // This is only for adding users to Room
-        val userIdsInRoom = args?.userIds?.let { Arrays.stream(it).boxed().toList() }
+        val userIdsInRoom = args?.userIds?.map { it }
 
-        contactsAdapter = ContactsAdapter(requireContext(), isGroupCreation, userIdsInRoom) {
-            if (binding.tvNewGroupChat.visibility == View.GONE) {
-                if (selectedUsers.contains(it)) {
-                    selectedUsers.remove(it)
-                    binding.tvSelectedNumber.text =
-                        getString(R.string.users_selected, selectedUsers.size)
+        contactsAdapter =
+            UsersGroupsAdapter(
+                requireContext(),
+                isGroupCreation,
+                userIdsInRoom,
+                isForward = false
+            ) {
+                if (tvNewGroupChat.visibility == View.GONE) {
+                    if (selectedUsers.any { user -> user.userId == it.userId }) {
+                        selectedUsers.remove(selectedUsers.first { user -> user.userId == it.userId })
+                        tvSelectedNumber.text =
+                            getString(R.string.users_selected, selectedUsers.size)
+                    } else {
+                        selectedUsers.add(it)
+                        tvSelectedNumber.text =
+                            getString(R.string.users_selected, selectedUsers.size)
+                    }
+
+                    selectedContactsAdapter?.notifyDataSetChanged()
+
+                    handleNextTextView()
+                    handleSelectedUserList(it)
                 } else {
-                    selectedUsers.add(it)
-                    binding.tvSelectedNumber.text =
-                        getString(R.string.users_selected, selectedUsers.size)
-                }
-                selectedContactsAdapter.submitList(selectedUsers)
-                selectedContactsAdapter.notifyDataSetChanged()
-
-                handleNextTextView()
-                handleSelectedUserList(it)
-            } else {
-                user = it.user
-                showProgress(false)
-                it.user.id.let { id ->
-                    run {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
-                            val roomId = viewModel.checkIfUserInPrivateRoom(id)
-                            if (roomId != null) {
-                                viewModel.getRoomWithUsers(roomId)
-                            } else {
-                                viewModel.checkIfRoomExists(id)
+                    user = it
+                    showProgress(false)
+                    it.userId.let { id ->
+                        run {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                Timber.d("Checking room id: ${viewModel.checkIfUserInPrivateRoom(id)}")
+                                val roomId = viewModel.checkIfUserInPrivateRoom(id)
+                                if (roomId != null) {
+                                    viewModel.getRoomWithUsers(roomId)
+                                } else {
+                                    viewModel.checkIfRoomExists(id)
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
         binding.rvContacts.adapter = contactsAdapter
         binding.rvContacts.layoutManager =
             LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
-        // Contacts Selected Adapter
-        selectedContactsAdapter = SelectedContactsAdapter(requireContext()) {
-            if (selectedUsers.contains(it)) {
-                selectedUsers.remove(it)
-                selectedContactsAdapter.submitList(selectedUsers)
-                binding.tvSelectedNumber.text =
-                    getString(R.string.users_selected, selectedUsers.size)
-                selectedContactsAdapter.notifyDataSetChanged()
-            }
+        setUpSelectedContactsAdapter()
 
-            handleNextTextView()
-            handleSelectedUserList(it)
-        }
-
+        selectedContactsAdapter?.submitList(selectedUsers)
         binding.rvSelected.adapter = selectedContactsAdapter
         binding.rvSelected.layoutManager =
             LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
     }
 
-    private fun handleSelectedUserList(userItem: UserAndPhoneUser) {
-        for (user in userList) {
-            if (user == userItem) {
-                user.user.selected = !user.user.selected
+    private fun setUpSelectedContactsAdapter() {
+        selectedContactsAdapter = UsersGroupsSelectedAdapter(requireContext()) {
+            if (selectedUsers.any { user -> user.userId == it.userId }) {
+                selectedUsers.remove(it)
+                selectedContactsAdapter?.submitList(selectedUsers)
+                binding.tvSelectedNumber.text =
+                    getString(R.string.users_selected, selectedUsers.size)
+                selectedContactsAdapter?.notifyDataSetChanged()
             }
+
+            handleNextTextView()
+            handleSelectedUserList(it)
+        }
+    }
+
+    private fun handleSelectedUserList(userItem: PrivateGroupChats) {
+        userList.find { it.userId == userItem.userId }?.apply {
+            selected = !selected
         }
 
-        contactsAdapter.submitList(userList)
-        contactsAdapter.notifyDataSetChanged()
+        contactsAdapter?.submitList(userList)
+        contactsAdapter?.notifyDataSetChanged()
     }
 
     private fun handleNextTextView() {
-        if (selectedUsers.size > 0) {
-            binding.tvNext.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.primary_color
-                )
-            )
-            binding.tvNext.isClickable = true
+        binding.fabNext.visibility = if (selectedUsers.size > 0) {
+            View.VISIBLE
         } else {
-            binding.tvNext.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.text_tertiary
-                )
-            )
-            binding.tvNext.isClickable = false
+            View.GONE
         }
     }
 
     private fun initializeObservers() {
-        viewModel.getUserAndPhoneUser(localId).observe(viewLifecycleOwner) {
+        viewModel.getUserAndPhoneUserLiveData(localId).observe(viewLifecycleOwner) {
             if (it.responseData != null) {
-                userList = it.responseData.toMutableList()
+                userList = Tools.transformPrivateList(requireContext(), it.responseData)
 
                 if (newGroupFlag) {
-                    userList.removeIf { userData -> userData.user.isBot }
+                    userList.removeIf { userData -> userData.isBot }
                 }
 
-                val users = userList.sortUsersByLocale(requireContext())
+                val users = userList.sortChats(requireContext())
+                users.forEach { user ->
+                    val isSelected = selectedUsers.any { selectedUser ->
+                        user.userId == selectedUser.userId
+                    }
+                    user.selected = isSelected
+                }
+
                 userList = users.toMutableList()
-                contactsAdapter.submitList(users)
+                contactsAdapter?.submitList(userList)
             }
         }
 
@@ -257,10 +295,12 @@ class NewRoomFragment : BaseFragment() {
                         isRoomUpdate = false
                     } else {
                         activity?.let { parent ->
-                            startChatScreenActivity(
-                                parent,
-                                it.responseData?.room?.roomId!!
-                            )
+                            it.responseData?.let { roomWithUsers ->
+                                startChatScreenActivity(
+                                    parent,
+                                    roomWithUsers
+                                )
+                            }
                         }
                         findNavController().popBackStack(R.id.mainFragment, false)
                     }
@@ -286,10 +326,10 @@ class NewRoomFragment : BaseFragment() {
                     val jsonObject = JsonObject()
 
                     val userIdsArray = JsonArray()
-                    userIdsArray.add(user?.id)
+                    userIdsArray.add(user?.userId)
 
-                    jsonObject.addProperty(Const.JsonFields.NAME, user?.formattedDisplayName)
-                    jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, user?.avatarFileId)
+                    jsonObject.addProperty(Const.JsonFields.NAME, user?.userName)
+                    jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, user?.avatarId)
                     jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
                     jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.PRIVATE)
 
@@ -330,68 +370,48 @@ class NewRoomFragment : BaseFragment() {
         viewModel.getRoomWithUsers(chatRoom.roomId)
     }
 
-    private fun setupSearchView() {
+    private fun setupSearchView(searchView: SearchView) {
         // SearchView is immediately acting as if selected
-        binding.svContactsSearch.setIconifiedByDefault(false)
-        binding.svContactsSearch.setOnQueryTextListener(object :
-            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+        searchView.setIconifiedByDefault(false)
+        searchView.setOnQueryTextListener(object :
+            SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null) {
-                    Timber.d("Query: $query")
-                    if (::userList.isInitialized) {
-                        for (user in userList) {
-                            if (user.phoneUser?.name?.lowercase()?.contains(
-                                    query,
-                                    ignoreCase = true
-                                ) ?: user.user.formattedDisplayName.lowercase()
-                                    .contains(query, ignoreCase = true)
-                            ) {
-                                filteredList.add(user)
-                            }
-                        }
-                        Timber.d("Filtered List: $filteredList")
-                        val users = filteredList.sortUsersByLocale(requireContext())
-                        contactsAdapter.submitList(ArrayList(users)) {
-                            binding.rvContacts.scrollToPosition(0)
-                        }
-                        filteredList.clear()
-                    }
-                }
+                makeQuery(query)
                 return true
             }
 
             override fun onQueryTextChange(query: String?): Boolean {
-                if (query != null) {
-                    Timber.d("Query: $query")
-                    if (::userList.isInitialized) {
-                        for (user in userList) {
-                            if (user.phoneUser?.name?.lowercase()?.contains(
-                                    query,
-                                    ignoreCase = true
-                                ) ?: user.user.formattedDisplayName.lowercase()
-                                    .contains(query, ignoreCase = true)
-                            ) {
-                                filteredList.add(user)
-                            }
-                        }
-                        Timber.d("Filtered List: $filteredList")
-                        val users = filteredList.sortUsersByLocale(requireContext())
-                        contactsAdapter.submitList(ArrayList(users)) {
-                            binding.rvContacts.scrollToPosition(0)
-                        }
-                        filteredList.clear()
-                    }
-                }
+                makeQuery(query)
                 return true
             }
         })
 
-        binding.svContactsSearch.setOnFocusChangeListener { view, hasFocus ->
+        searchView.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
                     hideKeyboard(view)
+                    binding.ivCancel.visibility = View.VISIBLE
                 }
             }
+        }
+    }
+
+    fun makeQuery(query: String?) {
+        if (query != null) {
+            for (user in userList) {
+                if (user.userName?.lowercase()
+                        ?.contains(query, ignoreCase = true) == true
+                    || user.userPhoneName?.lowercase()?.contains(query, ignoreCase = true) == true
+                ) {
+                    filteredList.add(user)
+                }
+            }
+            val users = filteredList.sortChats(requireContext())
+            contactsAdapter?.submitList(null)
+            contactsAdapter?.submitList(ArrayList(users)) {
+                binding.rvContacts.scrollToPosition(0)
+            }
+            filteredList.clear()
         }
     }
 
@@ -408,7 +428,7 @@ class NewRoomFragment : BaseFragment() {
             null,
             getString(R.string.ok),
             object : DialogInteraction {
-                // ignore
+                // Ignore
             })
     }
 }

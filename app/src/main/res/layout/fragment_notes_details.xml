@@ -11,115 +11,120 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/twenty_dp_margin"
-        android:src="@drawable/img_arrow_back"
+        android:src="@drawable/img_arrow_back_chat"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/ll_delete_noteø"
+    <ImageView
+        android:id="@+id/iv_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@id/tv_edit"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/iv_delete"
-            android:layout_width="@dimen/twenty_dp_margin"
-            android:layout_height="@dimen/twenty_dp_margin"
-            android:layout_margin="@dimen/twenty_dp_margin"
-            android:src="@drawable/img_delete" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/tv_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:fontFamily="@font/roboto_bold"
         android:padding="@dimen/twenty_dp_margin"
+        android:src="@drawable/iv_edit_settings"
         android:text="@string/edit"
-        android:textColor="@color/primary_color"
         app:layout_constraintBottom_toBottomOf="@id/iv_back"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/iv_back" />
 
     <ImageView
-        android:id="@+id/iv_attachment"
+        android:id="@+id/iv_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/ten_dp_margin"
-        android:src="@drawable/img_attach_file"
+        android:layout_marginEnd="@dimen/sixteen_dp_margin"
+        android:fontFamily="@font/roboto_bold"
+        android:padding="@dimen/twenty_dp_margin"
+        android:src="@drawable/img_checkmark"
+        android:text="@string/edit"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/ll_delete_noteø"
-        app:layout_constraintEnd_toStartOf="@id/ll_delete_noteø"
-        app:layout_constraintTop_toTopOf="@id/ll_delete_noteø" />
+        app:layout_constraintBottom_toBottomOf="@id/iv_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/iv_back" />
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_back"
-        tools:context=".ui.main.chat_details.notes.NotesDetailsFragment">
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/twenty_dp_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_back"
+        android:layout_marginBottom="@dimen/twenty_four_dp_margin">
 
         <LinearLayout
             android:id="@+id/ll_note_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/ten_dp_margin"
-            android:layout_marginEnd="@dimen/ten_dp_margin"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/twenty_four_dp_margin">
 
             <TextView
                 android:id="@+id/tv_title"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/montserrat"
-                android:padding="@dimen/ten_dp_margin"
+                android:background="@drawable/bg_input"
+                android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/notes"
-                android:textSize="@dimen/eighteen_sp_text"
-                app:layout_constraintBottom_toBottomOf="@id/iv_back"
-                app:layout_constraintStart_toEndOf="@id/iv_back"
-                app:layout_constraintTop_toTopOf="@id/iv_back" />
+                android:textAppearance="@style/CustomTitleBold"
+                android:textColor="?attr/secondaryTextColor"
+                android:textSize="@dimen/fourteen_sp_text" />
 
             <TextView
                 android:id="@+id/tv_notes_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/montserrat"
-                android:padding="@dimen/ten_dp_margin"
+                android:layout_marginTop="@dimen/eight_dp_margin"
+                android:background="@drawable/bg_input"
+                android:minHeight="@dimen/two_hundred_fifty_six_dp"
+                android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/placeholder_description"
-                android:textColor="@color/text_tertiary"
-                android:textColorLink="@color/link_primary_color"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="?attr/secondaryTextColor"
+                android:textColorLink="?attr/tertiaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text" />
 
             <EditText
                 android:id="@+id/et_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/montserrat"
+                android:background="@drawable/bg_input"
                 android:maxLength="135"
-                android:padding="@dimen/ten_dp_margin"
+                android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/notes"
-                android:textSize="@dimen/eighteen_sp_text"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/iv_back"
-                app:layout_constraintStart_toEndOf="@id/iv_back"
-                app:layout_constraintTop_toTopOf="@id/iv_back" />
+                android:textAppearance="@style/CustomTitleBold"
+                android:textColor="?attr/primaryTextColor"
+                android:textSize="@dimen/fourteen_sp_text"
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/et_description"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/montserrat"
-                android:padding="@dimen/ten_dp_margin"
+                android:gravity="top"
+                android:layout_marginTop="@dimen/eight_dp_margin"
+                android:background="@drawable/bg_input"
+                android:inputType="textMultiLine"
+                android:isScrollContainer="true"
+                android:minHeight="@dimen/two_hundred_fifty_six_dp"
+                android:padding="@dimen/sixteen_dp_margin"
                 android:text="@string/placeholder_description"
-                android:textColor="@color/text_tertiary"
+                android:textAppearance="@style/CustomTextBody"
+                android:textColor="?attr/primaryTextColor"
                 android:textSize="@dimen/fourteen_sp_text"
+                android:lineSpacingMultiplier="1.2"
                 android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
 

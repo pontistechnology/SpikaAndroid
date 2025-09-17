@@ -1,12 +1,19 @@
 package com.clover.studio.spikamessenger.utils.helpers
 
+import android.app.DownloadManager
 import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
+import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Environment
+import android.widget.Toast
+import androidx.core.content.FileProvider
+import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
+import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
 import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.entity.Message
@@ -15,13 +22,62 @@ import com.clover.studio.spikamessenger.data.models.entity.MessageFile
 import com.clover.studio.spikamessenger.utils.Const
 import com.clover.studio.spikamessenger.utils.Tools
 import com.clover.studio.spikamessenger.utils.getChunkSize
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.io.OutputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 object FilesHelper {
+
+    fun convertVideoItem(context: Context, uri: Uri): Bitmap? {
+        var thumbnail : Bitmap? = null
+        val mmr = MediaMetadataRetriever()
+        mmr.setDataSource(context, uri)
+
+        val duration =
+            mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
+        val bitRate =
+            mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toLong() ?: 0
+
+        if (Tools.getVideoSize(duration, bitRate)) {
+            Toast.makeText(context, context.getString(R.string.video_error), Toast.LENGTH_LONG)
+                .show()
+            return null
+        }
+
+        val bitmap =  mmr.frameAtTime
+        mmr.release()
+
+        bitmap?.let {
+            thumbnail =
+                ThumbnailUtils.extractThumbnail(bitmap, bitmap.width, bitmap.height)
+        }
+
+        return thumbnail
+    }
+
+    fun generateFilePath(context: Context, uri: Uri) : Uri{
+        val fileName = "VIDEO-${System.currentTimeMillis()}.mp4"
+        val file =
+            File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES), fileName)
+
+        file.createNewFile()
+
+        val filePath = file.absolutePath
+
+        Tools.genVideoUsingMuxer(uri, filePath)
+        return FileProvider.getUriForFile(
+            MainApplication.appContext,
+            BuildConfig.APPLICATION_ID + ".fileprovider",
+            file
+        )
+    }
 
     fun uploadFile(
         isThumbnail: Boolean,
@@ -29,16 +85,28 @@ object FilesHelper {
         localId: String,
         roomId: Int,
         metadata: FileMetadata?
-    ): FileData {
+    ): FileData? {
 
-        val messageBody = MessageBody(null, "", 0, 0, null, null)
+        val messageBody = MessageBody(
+            referenceMessage = null,
+            text = "",
+            fileId = 0,
+            thumbId = 0,
+            file = null,
+            thumb = null,
+            subjectId = null,
+            objectIds = null,
+            type = "",
+            objects = null,
+            subject = ""
+        )
         val inputStream =
-            MainApplication.appContext.contentResolver.openInputStream(uri)
+            MainApplication.appContext.contentResolver.openInputStream(uri) ?: return null
 
         val fileName = Tools.getFileNameFromUri(uri)
         val fileStream = Tools.copyStreamToFile(
-            inputStream = inputStream!!,
-            extension = Tools.getFileMimeType(MainApplication.appContext, uri)!!,
+            inputStream = inputStream,
+            extension = Tools.getFileMimeType(MainApplication.appContext, uri),
             fileName = fileName
         )
         val uploadPieces =
@@ -77,12 +145,14 @@ object FilesHelper {
         if (type == Const.JsonFields.FILE_TYPE) {
             val inputStream =
                 MainApplication.appContext.contentResolver.openInputStream(uri)
-            size = Tools.copyStreamToFile(
-                inputStream!!,
-                MainApplication.appContext.contentResolver.getType(uri)!!,
-                fileName
-            ).length()
-            inputStream.close()
+            if (inputStream != null){
+                size = Tools.copyStreamToFile(
+                    inputStream = inputStream,
+                    extension = Tools.getFileMimeType(MainApplication.appContext, uri),
+                    fileName = fileName
+                ).length()
+                inputStream.close()
+            }
         }
 
         val typeMedia =
@@ -95,34 +165,29 @@ object FilesHelper {
             Tools.getMetadata(uri, type, true)
         Timber.d("File metadata: $fileMetadata")
 
-        val tempMessage = Tools.createTemporaryMessage(
-            id = getUniqueRandomId(unsentMessages),
-            localUserId = localUserId,
+        val file = MessageFile(
+            id = 1,
+            fileName = fileName,
+            mimeType = "",
+            size = size,
+            metaData = fileMetadata,
+            uri = uri.toString()
+        )
+
+        val tempMessage = MessageHelper.createTempFileMessage(
             roomId = roomId,
+            localUserId = localUserId,
             messageType = typeMedia,
-            messageBody = MessageBody(
-                referenceMessage = null,
-                text = null,
-                fileId = 1,
-                thumbId = 1,
-                file = MessageFile(
-                    id = 1,
-                    fileName = fileName,
-                    mimeType = "",
-                    size = size,
-                    metaData = fileMetadata,
-                    uri = uri.toString()
-                ),
-                thumb = null
-            )
+            unsentMessages = unsentMessages,
+            file = file
         )
 
         if (typeMedia == Const.JsonFields.IMAGE_TYPE || typeMedia == Const.JsonFields.VIDEO_TYPE) {
             saveMediaToStorage(
-                MainApplication.appContext,
-                MainApplication.appContext.contentResolver,
-                uri,
-                tempMessage.localId
+                context = MainApplication.appContext,
+                contentResolver = MainApplication.appContext.contentResolver,
+                mediaUri = uri,
+                id = tempMessage.localId
             )
         }
 
@@ -180,4 +245,77 @@ object FilesHelper {
         return imagePath
     }
 
+    suspend fun saveGifToStorage(context: Context, urlString: String) : File? {
+        var file : File? = null
+
+        try {
+            val url = URL(urlString)
+            val connection = withContext(Dispatchers.IO) {
+                url.openConnection()
+            } as HttpURLConnection
+
+            connection.doInput = true
+
+            withContext(Dispatchers.IO) {
+                connection.connect()
+            }
+
+            val inputStream: InputStream = connection.inputStream
+
+            val gifName = "gif_${System.currentTimeMillis()}.gif"
+
+            file = saveFile(context, inputStream, gifName)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return file
+    }
+
+    private fun saveFile(context: Context, inputStream: InputStream, fileName: String): File {
+        val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val file = File(directory, fileName)
+
+        FileOutputStream(file).use { output ->
+            val buffer = ByteArray(4 * 1024)
+            var read: Int
+            while (inputStream.read(buffer).also { read = it } != -1) {
+                output.write(buffer, 0, read)
+            }
+            output.flush()
+        }
+
+        return file
+    }
+
+    fun downloadFile(context: Context, message: Message) {
+        try {
+            val tmp = message.body?.fileId?.let { Tools.getFilePathUrl(it) }
+            val request = DownloadManager.Request(Uri.parse(tmp))
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+            request.setTitle(
+                message.body?.file?.fileName ?: "${
+                    MainApplication.appContext.getString(
+                        R.string.spika
+                    )
+                }.jpg"
+            )
+            request.setDescription(context.getString(R.string.file_is_downloading))
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS,
+                message.body?.file!!.fileName
+            )
+            val manager =
+                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            manager.enqueue(request)
+            Toast.makeText(
+                context,
+                context.getString(R.string.file_is_downloading),
+                Toast.LENGTH_LONG
+            ).show()
+        } catch (e: Exception) {
+            Timber.d("$e")
+        }
+    }
 }

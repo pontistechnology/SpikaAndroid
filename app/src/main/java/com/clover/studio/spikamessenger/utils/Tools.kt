@@ -3,11 +3,13 @@ package com.clover.studio.spikamessenger.utils
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.DownloadManager
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.database.Cursor
 import android.database.DatabaseUtils
 import android.graphics.Bitmap
@@ -21,15 +23,22 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.TextUtils
 import android.text.format.DateUtils
+import android.text.style.StyleSpan
 import android.util.TypedValue
+import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.collection.ArraySet
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
+import androidx.navigation.NavOptions
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.MainApplication
@@ -39,9 +48,17 @@ import com.clover.studio.spikamessenger.data.models.FileMetadata
 import com.clover.studio.spikamessenger.data.models.entity.Message
 import com.clover.studio.spikamessenger.data.models.entity.MessageBody
 import com.clover.studio.spikamessenger.data.models.entity.PhoneUser
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
+import com.clover.studio.spikamessenger.data.models.entity.User
+import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
+import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.data.repositories.SharedPreferencesRepositoryImpl
 import com.clover.studio.spikamessenger.ui.onboarding.startOnboardingActivity
-import com.clover.studio.spikamessenger.utils.helpers.Resource
+import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
+import com.clover.studio.spikamessenger.utils.helpers.Extensions.sortChats
+import com.giphy.sdk.ui.themes.GPHCustomTheme
+import com.vanniktech.emoji.EmojiTheming
+import com.vanniktech.emoji.emojisCount
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.*
@@ -58,10 +75,17 @@ import kotlin.random.Random
 
 const val TO_MEGABYTE = 1000000
 const val TO_KILOBYTE = 1000
+const val TO_BYTES = 8
+const val TO_HOURS = 3600
+const val TO_MINUTES = 60
+const val VIDEO_SIZE_LIMIT = 128
 const val TOKEN_EXPIRED_CODE = 401
-//const val BITMAP_WIDTH = 512
-//const val BITMAP_HEIGHT = 512
-//const val TOKEN_INVALID_CODE = 403
+
+const val BIG_EMOJI_SIZE = 144
+const val MEDIUM_EMOJI_SIZE = 104
+const val SMALL_EMOJI_SIZE = 80
+
+const val MAX_IMAGE_SIZE = 256
 
 object Tools {
 
@@ -320,13 +344,39 @@ object Tools {
         )
     }
 
+    fun getRoomTime(startDate: Long): CharSequence? {
+        val currentTimeMillis = System.currentTimeMillis()
+        val timeDifference = currentTimeMillis - startDate
+
+        return when {
+            timeDifference >= DateUtils.WEEK_IN_MILLIS -> {
+                SimpleDateFormat("dd.MM.", Locale.getDefault()).format(startDate)
+            }
+
+            timeDifference >= DateUtils.DAY_IN_MILLIS -> {
+                DateUtils.formatDateTime(
+                    MainApplication.appContext,
+                    startDate,
+                    DateUtils.FORMAT_SHOW_WEEKDAY
+                )
+            }
+
+            else -> {
+                DateUtils.getRelativeTimeSpanString(
+                    startDate,
+                    currentTimeMillis,
+                    DateUtils.MINUTE_IN_MILLIS
+                )
+            }
+        }
+    }
+
     fun generateRandomId(): String {
         return UUID.randomUUID().toString().substring(0, 13)
     }
 
     fun convertDurationMillis(time: Long): String {
         val millis: Long = time
-        //val hour = TimeUnit.MILLISECONDS.toHours(millis)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(
             TimeUnit.MILLISECONDS.toHours(
                 time
@@ -341,29 +391,29 @@ object Tools {
         return String.format("%02d:%02d", minutes, seconds)
     }
 
-    fun generateRandomInt(): Int {
-        return Random.nextInt(Int.MIN_VALUE, 0)
+    fun convertDurationInSeconds(context: Context, time: Long?): String {
+        return if (time == null) {
+            context.getString(R.string.video_duration)
+        } else {
+            val hours = time / TO_HOURS
+            val minutes = (time % TO_HOURS) / TO_MINUTES
+            val seconds = time % TO_MINUTES
+
+            when {
+                hours > 0 -> String.format("%2d h %2d min", hours, minutes)
+                minutes > 0 -> String.format("%2d min", minutes)
+                else -> String.format("%2d s", seconds)
+            }
+        }
     }
 
-    fun downloadFile(context: Context, message: Message) {
-        try {
-            val tmp = this.getFilePathUrl(message.body!!.fileId!!)
-            val request = DownloadManager.Request(Uri.parse(tmp))
-            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-            request.setTitle(message.body.file?.fileName ?: "${MainApplication.appContext.getString(R.string.spika)}.jpg")
-            request.setDescription(context.getString(R.string.file_is_downloading))
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            request.setDestinationInExternalPublicDir(
-                Environment.DIRECTORY_DOWNLOADS,
-                message.body.file!!.fileName
-            )
-            val manager =
-                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            manager.enqueue(request)
-            Toast.makeText(context, context.getString(R.string.file_is_downloading), Toast.LENGTH_LONG).show()
-        } catch (e: Exception) {
-            Timber.d("$e")
-        }
+    fun getVideoSize(duration: Long, bitRate: Long): Boolean {
+        val videoSIze = (duration / TO_KILOBYTE) * bitRate / TO_BYTES
+        return videoSIze / TO_MEGABYTE > VIDEO_SIZE_LIMIT
+    }
+
+    fun generateRandomInt(): Int {
+        return Random.nextInt(Int.MIN_VALUE, 0)
     }
 
     fun navigateToAppSettings() {
@@ -373,34 +423,8 @@ object Tools {
         MainApplication.appContext.startActivity(intent)
     }
 
-    fun createTemporaryMessage(
-        id: Int,
-        localUserId: Int?,
-        roomId: Int,
-        messageType: String,
-        messageBody: MessageBody
-    ): Message {
-        return Message(
-            id,
-            localUserId,
-            0,
-            -1,
-            0,
-            roomId,
-            messageType,
-            messageBody,
-            System.currentTimeMillis(),
-            null,
-            null,
-            null,
-            generateRandomId(),
-            Resource.Status.LOADING.toString(),
-            null
-        )
-    }
-
     fun fullDateFormat(dateTime: Long): String? {
-        val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy. HH:mm aa", Locale.getDefault())
+        val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy. HH:mm", Locale.getDefault())
         return simpleDateFormat.format(dateTime)
     }
 
@@ -578,19 +602,69 @@ object Tools {
 
     }
 
+    fun getMediaPath(context: Context, message: Message): String {
+        return if (message.body?.file?.mimeType?.contains(Const.JsonFields.GIF) == true ||
+            Const.JsonFields.GIF_TYPE == message.type
+        ) {
+            getGifFile(context, message)
+        } else {
+            getMediaFile(context, message)
+        }
+    }
+
     fun getMediaFile(context: Context, message: Message): String {
         val directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.JPG}"
+
         val file = File(mediaPath)
         if (!file.exists()) {
-            mediaPath = message.body?.thumb?.id?.let { imagePath ->
-                getFilePathUrl(
-                    imagePath
-                )
-            }.toString()
+            mediaPath = if (message.body?.thumb != null) {
+                message.body.thumb?.id?.let { imagePath ->
+                    getFilePathUrl(
+                        imagePath
+                    )
+                }.toString()
+            } else {
+                message.body?.fileId?.let { fileId ->
+                    getFilePathUrl(fileId)
+                }.toString()
+            }
         }
         return mediaPath
     }
+
+    private fun getGifFile(context: Context?, message: Message): String {
+        val directory = context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        var mediaPath = "$directory/${message.localId}.${Const.FileExtensions.GIF}"
+
+        val file = File(mediaPath)
+        if (!file.exists()) {
+            mediaPath = message.body?.fileId?.let {
+                getFilePathUrl(it)
+            }.toString()
+        }
+
+        return mediaPath
+    }
+
+    fun renameGif(uri: Uri, localId: String, type: String): Uri? {
+        val filePath = uri.path
+
+        if (filePath != null) {
+            val originalFile = File(filePath)
+            val newFile = File(originalFile.parent, "${localId}.gif")
+            if (originalFile.renameTo(newFile)) {
+                return FileProvider.getUriForFile(
+                    MainApplication.appContext,
+                    BuildConfig.APPLICATION_ID + ".fileprovider",
+                    newFile
+                )
+            }
+        }
+
+        return null
+    }
+
 
     fun deleteTemporaryMedia(context: Context) {
         val imagesDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -619,7 +693,7 @@ object Tools {
 
         val fileStream = copyStreamToFile(
             inputStream = inputStream!!,
-            getFileMimeType(MainApplication.appContext, mediaUri)!!
+            getFileMimeType(MainApplication.appContext, mediaUri)
         )
 
         if (mimeType.contains(Const.JsonFields.IMAGE_TYPE) || isThumbnail) {
@@ -635,7 +709,7 @@ object Tools {
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(MainApplication.appContext, mediaUri)
             time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
-                .toInt()
+                .toInt() / 1000
             width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
                 .toInt()
             height =
@@ -668,20 +742,32 @@ object Tools {
 
     fun getFileType(uri: Uri): String {
         val mimeType = getFileMimeType(MainApplication.appContext, uri)
-
         return when {
-            mimeType?.contains(Const.JsonFields.SVG_TYPE) == true -> Const.JsonFields.FILE_TYPE
-            mimeType?.contains(Const.JsonFields.AVI_TYPE) == true -> Const.JsonFields.FILE_TYPE
-            mimeType?.contains(Const.JsonFields.IMAGE_TYPE) == true -> Const.JsonFields.IMAGE_TYPE
-            mimeType?.contains(Const.JsonFields.VIDEO_TYPE) == true -> Const.JsonFields.VIDEO_TYPE
-            mimeType?.contains(Const.JsonFields.AUDIO_TYPE) == true -> Const.JsonFields.AUDIO_TYPE
+            mimeType.contains(Const.JsonFields.SVG_TYPE) -> Const.JsonFields.FILE_TYPE
+            mimeType.contains(Const.JsonFields.AVI_TYPE) -> Const.JsonFields.FILE_TYPE
+            mimeType.contains(Const.JsonFields.MOV_TYPE) -> Const.JsonFields.FILE_TYPE
+            mimeType.contains(Const.JsonFields.IMAGE_TYPE) -> Const.JsonFields.IMAGE_TYPE
+            mimeType.contains(Const.JsonFields.VIDEO_TYPE) -> Const.JsonFields.VIDEO_TYPE
+            mimeType.contains(Const.JsonFields.AUDIO_TYPE) -> Const.JsonFields.AUDIO_TYPE
             else -> Const.JsonFields.FILE_TYPE
         }
     }
 
-    fun getFileMimeType(context: Context?, uri: Uri): String? {
-        val cR: ContentResolver = context!!.contentResolver
-        return cR.getType(uri)
+    fun forbiddenMimeTypes(fileMimeType: String): Boolean {
+        return (fileMimeType.contains(Const.JsonFields.SVG_TYPE) ||
+                fileMimeType.contains(Const.JsonFields.AVI_TYPE)) ||
+                fileMimeType.contains(Const.JsonFields.MOV_TYPE)
+    }
+
+    fun getFileMimeType(context: Context, uri: Uri): String {
+        val type = if (uri.toString().contains(Const.JsonFields.GIF)) {
+            Const.JsonFields.GIF_TYPE
+        } else {
+            val cR: ContentResolver = context.contentResolver
+            cR.getType(uri).toString()
+        }
+
+        return type
     }
 
     fun getFileNameFromUri(uri: Uri): String {
@@ -694,5 +780,324 @@ object Tools {
             }
         }
         return ""
+    }
+
+    fun createCustomNavOptions(): NavOptions {
+        return NavOptions.Builder()
+            .setEnterAnim(R.anim.nav_slide_in_right)
+            .setExitAnim(R.anim.nav_slide_out_left)
+            .setPopEnterAnim(R.anim.nav_slide_in_left)
+            .setPopExitAnim(R.anim.nav_slide_out_right)
+            .build()
+    }
+
+    fun setTheme(theme: String): Int {
+        return when (theme) {
+            Const.Themes.MINT_THEME -> {
+                R.style.Theme_App_LightGreen
+            }
+
+            Const.Themes.NEON_THEME -> {
+                R.style.Theme_App_Neon
+            }
+
+            Const.Themes.BASIC_THEME_NIGHT -> {
+                R.style.Theme_App_DarkMarine
+            }
+
+            else -> {
+                R.style.Theme_ExampleApp
+            }
+        }
+    }
+
+    fun handleCopyAction(text: String) {
+        val clipboard =
+            MainApplication.appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip: ClipData = ClipData.newPlainText("", text)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(
+            MainApplication.appContext,
+            MainApplication.appContext.getString(R.string.text_copied),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    fun getPlaceholderImage(roomType: String): Int {
+        return if (roomType == Const.JsonFields.GROUP) {
+            R.drawable.img_group_avatar
+        } else {
+            R.drawable.img_user_avatar
+        }
+    }
+
+    fun setEmojiViewTheme(context: Context): EmojiTheming {
+        return EmojiTheming(
+            primaryColor = ColorHelper.getPrimaryColor(context),
+            secondaryColor = ColorHelper.getPrimaryTextColor(context),
+            backgroundColor = ColorHelper.getSecondaryColor(context),
+            textColor = ColorHelper.getPrimaryTextColor(context)
+
+        )
+    }
+
+    fun getEmojiSize(messageText: String): Int {
+        return when (messageText.emojisCount()) {
+            1 -> {
+                BIG_EMOJI_SIZE
+            }
+
+            in 2..3 -> {
+                MEDIUM_EMOJI_SIZE
+            }
+
+            else -> {
+                SMALL_EMOJI_SIZE
+            }
+        }
+    }
+
+    fun transformPrivateList(
+        context: Context,
+        list: List<UserAndPhoneUser>
+    ): MutableList<PrivateGroupChats> {
+        return list.map {
+            PrivateGroupChats(
+                userId = it.user.id,
+                roomId = null,
+                userName = it.user.formattedDisplayName,
+                userPhoneName = it.phoneUser?.name,
+                roomName = null,
+                avatarId = it.user.avatarFileId ?: 0L,
+                phoneNumber = it.user.telephoneNumber ?: "",
+                isRecent = false,
+                selected = false,
+                isBot = false
+            )
+        }.toMutableList().sortChats(context).toMutableList()
+    }
+
+    fun transformGroupList(
+        context: Context,
+        list: List<RoomWithUsers>
+    ): MutableList<PrivateGroupChats> {
+        return list.map {
+            transformRoomToPrivateGroupChat(it)
+        }.toMutableList().sortChats(context).toMutableList()
+    }
+
+    fun transformRecentContacts(
+        localUserId: Int?,
+        context: Context,
+        list: List<RoomWithUsers>
+    ): MutableList<PrivateGroupChats> {
+        return list.flatMap { room ->
+            room.users.filter {
+                it.id != localUserId && !it.formattedDisplayName.contains(
+                    context.getString(
+                        R.string.deleted_user
+                    )
+                )
+            }.map { user -> transformUserToPrivateGroupChat(user) }
+        }.toMutableList().sortChats(context).toMutableList()
+    }
+
+    fun transformUserToPrivateGroupChat(user: User): PrivateGroupChats {
+        return PrivateGroupChats(
+            userId = user.id,
+            userPhoneName = user.displayName ?: "",
+            avatarId = user.avatarFileId ?: 0L,
+            userName = user.formattedDisplayName,
+            phoneNumber = user.telephoneNumber ?: "",
+            roomId = null,
+            roomName = null,
+            isBot = user.isBot,
+            isRecent = false,
+            selected = false
+        )
+    }
+
+    private fun transformRoomToPrivateGroupChat(roomWithUsers: RoomWithUsers): PrivateGroupChats {
+        return PrivateGroupChats(
+            userId = 0,
+            roomId = roomWithUsers.room.roomId,
+            avatarId = roomWithUsers.room.avatarFileId ?: 0L,
+            phoneNumber = null,
+            userName = null,
+            userPhoneName = null,
+            roomName = roomWithUsers.room.name,
+            isRecent = false,
+            isBot = false,
+            selected = false
+        )
+    }
+
+    fun setUpSearchBar(
+        context: Context,
+        searchView: androidx.appcompat.widget.SearchView,
+        hint: String
+    ) {
+        searchView.apply {
+            queryHint = hint
+            setBackgroundResource(R.drawable.bg_input)
+            backgroundTintList =
+                ColorStateList.valueOf(ColorHelper.getFourthAdditionalColorWithAlpha(context))
+            setIconifiedByDefault(false)
+
+            val searchPlate =
+                this.findViewById<View>(androidx.appcompat.R.id.search_plate)
+            searchPlate.setBackgroundColor(
+                ContextCompat.getColor(
+                    context,
+                    android.R.color.transparent
+                )
+            )
+
+            val closeImageView =
+                this.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+            closeImageView.imageTintList =
+                ColorStateList.valueOf(ColorHelper.getPrimaryTextColor(context))
+        }
+    }
+
+    fun resizeImage(width: Int?, height: Int?): Pair<Int, Int> {
+
+        val correctedWidth = (width ?: 0).takeIf { it != 0 } ?: MAX_IMAGE_SIZE
+        val correctedHeight = (height ?: 0).takeIf { it != 0 } ?: MAX_IMAGE_SIZE
+
+        val isPortrait = correctedHeight > correctedWidth
+        val maxSizeLimit = MAX_IMAGE_SIZE
+        val sizeIncreasePercentage = 1.25
+
+        val isWidthAboveLimit = correctedWidth > (maxSizeLimit * sizeIncreasePercentage)
+        val isHeightAboveLimit = correctedHeight > (maxSizeLimit * sizeIncreasePercentage)
+
+        if (isWidthAboveLimit && isHeightAboveLimit) {
+            // Both dimensions are more than 25% above the limit of 512, resize both while maintaining aspect ratio
+            val ratio = correctedWidth.toDouble() / correctedHeight.toDouble()
+
+            val newWidth = minOf(maxSizeLimit, correctedWidth)
+            val newHeight = (newWidth / ratio).toInt()
+
+            if (newHeight > maxSizeLimit) {
+                // If new height is still above the limit, resize height and update width accordingly
+                val adjustedHeight = minOf(maxSizeLimit, correctedHeight)
+                val adjustedWidth = (adjustedHeight * ratio).toInt()
+                return Pair(adjustedWidth, adjustedHeight)
+            }
+
+            return Pair(newWidth, newHeight)
+        }
+
+        return if (isPortrait) {
+            // Resize for portrait, keeping original aspect ratio
+            val ratio = correctedWidth.toDouble() / correctedHeight.toDouble()
+            val newHeight =
+                if (isHeightAboveLimit) maxSizeLimit else minOf(maxSizeLimit, correctedHeight)
+            val newWidth = (ratio * newHeight).toInt()
+            Pair(newWidth, newHeight)
+        } else {
+            // Resize for landscape, keeping original aspect ratio
+            val ratio = correctedHeight.toDouble() / correctedWidth.toDouble()
+            val newWidth =
+                if (isWidthAboveLimit) maxSizeLimit else minOf(maxSizeLimit, correctedWidth)
+            val newHeight = (ratio * newWidth).toInt()
+            Pair(newWidth, newHeight)
+        }
+    }
+
+    fun applyStyleSpan(text: SpannableString, target: String, style: Int) {
+        val lowerCaseText = text.toString().lowercase(Locale.ROOT)
+        val lowerCaseTarget = target.lowercase(Locale.ROOT)
+
+        var index = lowerCaseText.indexOf(lowerCaseTarget)
+        while (index != -1) {
+            text.setSpan(
+                StyleSpan(style),
+                index,
+                index + target.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            index = lowerCaseText.indexOf(lowerCaseTarget, index + 1)
+        }
+    }
+
+    fun giphyTheme(context: Context) {
+        GPHCustomTheme.apply {
+            backgroundColor = ColorHelper.getSecondaryColor(context)
+            handleBarColor = ColorHelper.getThirdAdditionalColor(context)
+            searchBarBackgroundColor = ColorHelper.getThirdAdditionalColor(context)
+            searchButtonIcon = AppCompatResources.getDrawable(context, R.drawable.img_search)
+            searchPlaceholderTextColor = ColorHelper.getSecondaryTextColor(context)
+            suggestionCellTextColor = ColorHelper.getPrimaryTextColor(context)
+            tabBarSwitchSelectedColor = ColorHelper.getPrimaryTextColor(context)
+            tabBarSwitchDefaultColor = ColorHelper.getPrimaryColor(context)
+            searchTextColor = ColorHelper.getPrimaryTextColor(context)
+            suggestionCellBackgroundColor = ColorHelper.getThirdAdditionalColor(context)
+            defaultTextColor = ColorHelper.getPrimaryTextColor(context)
+            searchBackButtonColor = ColorHelper.getPrimaryColor(context)
+            retryButtonTextColor = ColorHelper.getPrimaryTextColor(context)
+            retryButtonBackgroundColor = ColorHelper.getPrimaryColor(context)
+        }
+    }
+
+    fun sortMediaItems(messages: List<Message>) : MutableList<Message>{
+        val groupedMediaList = mutableListOf<Message>()
+
+        messages
+            .sortedByDescending { it.createdAt }
+            .groupBy { getMonthFromTimestamp(it.createdAt ?: 0) }
+            .forEach { (month, mediaItems) ->
+                groupedMediaList.add(makeDateMessage(month))
+                groupedMediaList.addAll(mediaItems)
+            }
+
+        return groupedMediaList
+    }
+
+    private fun makeDateMessage(month: String): Message {
+        return Message(
+            id = 0,
+            fromUserId = null,
+            totalUserCount = null,
+            deliveredCount = null,
+            seenCount = null,
+            roomId = null,
+            type = Const.JsonFields.TEXT_TYPE,
+            body = MessageBody(
+                referenceMessage = null,
+                text = month,
+                thumbId = null,
+                fileId = null,
+                file = null,
+                thumb = null,
+                thumbnailData = null,
+                type = Const.JsonFields.TEXT_TYPE,
+                subject = null,
+                subjectId = null,
+                objectIds = null,
+                objects = null
+            ),
+            referenceMessage = null,
+            createdAt = null,
+            modifiedAt = null,
+            deleted = null,
+            replyId = null,
+            localId = null,
+            messageStatus = null,
+            uri = null,
+            thumbUri = null,
+            unreadCount = 0,
+            userName = "",
+            isForwarded = false
+        )
+    }
+
+    private fun getMonthFromTimestamp(timestamp: Long): String {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timestamp
+        val month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())
+        val year = calendar.get(Calendar.YEAR)
+        return "$month $year"
     }
 }

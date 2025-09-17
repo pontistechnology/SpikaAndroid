@@ -18,7 +18,7 @@ import com.clover.studio.spikamessenger.utils.Tools
 
 class MessageDetailsAdapter(
     private val context: Context,
-    private val roomWithUsers: RoomWithUsers,
+    private val roomWithUsers: RoomWithUsers?,
 ) :
     ListAdapter<MessageRecords, MessageDetailsAdapter.MessageDetailsViewHolder>(ContactsDiffCallback()) {
 
@@ -46,21 +46,15 @@ class MessageDetailsAdapter(
                     )
                     // Show edited information about sender:
                     if (messageRecord.createdAt != messageRecord.modifiedAt) {
-                        binding.ivNoEditedTime.visibility = View.GONE
                         binding.tvEditedTime.text = Tools.fullDateFormat(messageRecord.modifiedAt!!)
-                        binding.ivEditedTime.visibility = View.VISIBLE
                         binding.tvEditedTime.visibility = View.VISIBLE
                     } else {
-                        binding.ivEditedTime.visibility = View.VISIBLE
-                        binding.ivNoEditedTime.visibility = View.VISIBLE
                         binding.tvEditedTime.visibility = View.GONE
                     }
                 } else if (Const.JsonFields.SEEN == messageRecord.type) {
                     binding.tvDetailsHeader.text = context.getString(R.string.read_by)
                     binding.ivMessageState.setImageResource(R.drawable.img_seen)
                     binding.tvEditedTime.visibility = View.GONE
-                    binding.ivEditedTime.visibility = View.GONE
-                    binding.ivNoEditedTime.visibility = View.GONE
                     binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
                         0,
                         0,
@@ -71,8 +65,6 @@ class MessageDetailsAdapter(
                     binding.tvDetailsHeader.text = context.getString(R.string.delivered_to)
                     binding.ivMessageState.setImageResource(R.drawable.img_delivered)
                     binding.tvEditedTime.visibility = View.GONE
-                    binding.ivEditedTime.visibility = View.GONE
-                    binding.ivNoEditedTime.visibility = View.GONE
                     binding.tvUserTime.setCompoundDrawablesWithIntrinsicBounds(
                         0,
                         0,
@@ -81,15 +73,16 @@ class MessageDetailsAdapter(
                     )
                 }
 
-                for (user in roomWithUsers.users) {
+                for (user in roomWithUsers!!.users) {
                     if (messageRecord.userId == user.id) {
                         binding.tvSeenUsername.text = user.formattedDisplayName
+                        binding.tvPlaceholder.text = user.telephoneNumber
                         Glide.with(context)
                             .load(user.avatarFileId?.let { Tools.getFilePathUrl(it) })
                             .placeholder(
                                 AppCompatResources.getDrawable(
                                     context,
-                                    R.drawable.img_user_placeholder
+                                    R.drawable.img_user_avatar
                                 )
                             )
                             .centerCrop()

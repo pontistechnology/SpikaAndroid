@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.clover.studio.spikamessenger">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -20,20 +19,23 @@
         android:name="com.clover.studio.spikamessenger.MainApplication"
         android:allowBackup="false"
         android:fullBackupContent="false"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_app_icon"
         android:label="@string/APP_NAME"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_app_icon"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ExampleApp"
+        android:theme="@style/Theme.App.DarkMarine"
         tools:replace="android:allowBackup, android:label">
         <activity
             android:name="com.clover.studio.spikamessenger.ui.main.chat.ChatScreenActivity"
             android:configChanges="orientation|screenSize"
+            android:excludeFromRecents="true"
             android:exported="false"
             android:parentActivityName="com.clover.studio.spikamessenger.ui.main.MainActivity"
             android:screenOrientation="portrait"
+            android:taskAffinity=""
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name="com.clover.studio.spikamessenger.ui.splash.SplashActivity"
             android:exported="true"
@@ -41,20 +43,22 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="com.clover.studio.spikamessenger.ui.onboarding.OnboardingActivity"
             android:exported="false"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+
         <activity
             android:name="com.clover.studio.spikamessenger.ui.main.MainActivity"
             android:exported="false"
             android:finishOnTaskLaunch="true"
             android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait" />
 
         <provider
@@ -85,6 +89,16 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name="com.clover.studio.spikamessenger.utils.NotificationReplyReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="com.clover.studio.spikamessenger.permission.REPLY_PERMISSION">
+            <intent-filter>
+                <action android:name="com.clover.studio.spikamessenger.REPLY_ACTION" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".utils.helpers.PhonebookService"
             android:enabled="true"
@@ -93,7 +107,12 @@
         <service
             android:name=".utils.helpers.UploadService"
             android:enabled="true"
+            android:foregroundServiceType="dataSync"
             android:exported="false" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>

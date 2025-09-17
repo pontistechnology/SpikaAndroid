@@ -1,6 +1,7 @@
 package com.clover.studio.spikamessenger.ui.onboarding.account_creation
 
 import android.app.Activity
+import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -49,7 +50,8 @@ class AccountCreationFragment : BaseFragment() {
 
     private val viewModel: OnboardingViewModel by activityViewModels()
     private var currentPhotoLocation: Uri = Uri.EMPTY
-    private var progress: Long = 1L
+
+    private var progressAnimation: AnimationDrawable? = null
 
     private val chooseImageContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -58,8 +60,11 @@ class AccountCreationFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this)
+                    .load(bitmap)
+                    .placeholder(R.drawable.img_user_avatar)
+                    .centerCrop()
+                    .into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
             } else {
                 Timber.d("Gallery error")
@@ -78,10 +83,9 @@ class AccountCreationFragment : BaseFragment() {
                 val bitmapUri = convertBitmapToUri(requireActivity(), bitmap!!)
 
                 Glide.with(this).load(bitmap)
-                    .placeholder(R.drawable.img_user_placeholder)
+                    .placeholder(R.drawable.img_user_avatar)
                     .centerCrop()
-                    .into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                    .into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
             } else {
                 Timber.d("Photo error")
@@ -99,19 +103,38 @@ class AccountCreationFragment : BaseFragment() {
         // Inflate the layout for this fragment
         bindingSetup = FragmentAccountCreationBinding.inflate(inflater, container, false)
 
+        initializeViews()
         addTextListeners()
         addClickListeners()
-        addObservers()
+        initializeObservers()
 
         viewModel.sendContacts()
         return binding.root
     }
 
-    private fun addObservers() {
+    private fun initializeViews() {
+        binding.profilePicture.ivProgressBar.apply {
+            setBackgroundResource(R.drawable.drawable_progress_animation)
+            progressAnimation = background as AnimationDrawable
+        }
+    }
+
+    private fun initializeObservers() {
         viewModel.accountCreationListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.SUCCESS -> Timber.d("Contacts sent successfully")
-                Resource.Status.ERROR -> Timber.d("Failed to send contacts")
+                Resource.Status.ERROR -> DialogError.getInstance(requireContext(),
+                    getString(R.string.error),
+                    getString(
+                        R.string.failed_to_send_contacts
+                    ),
+                    getString(R.string.send_again),
+                    getString(R.string.ok),
+                    object : DialogInteraction {
+                        override fun onFirstOptionClicked() {
+                            viewModel.sendContacts()
+                        }
+                    })
                 else -> Timber.d("Other error")
             }
         })
@@ -138,41 +161,42 @@ class AccountCreationFragment : BaseFragment() {
             checkUsername()
         }
 
-        binding.ivPickPhoto.setOnClickListener {
-            ChooserDialog.getInstance(requireContext(),
-                getString(R.string.placeholder_title),
-                null,
-                getString(R.string.choose_from_gallery),
-                getString(R.string.take_photo),
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        chooseImage()
-                    }
+        binding.profilePicture.ivPickAvatar.setOnClickListener {
+            val listOptions = mutableListOf(
+                getString(R.string.choose_from_gallery) to { chooseImage() },
+                getString(R.string.take_photo) to { takePhoto() },
+                getString(R.string.cancel) to {}
+            )
 
-                    override fun onSecondOptionClicked() {
-                        takePhoto()
+            ChooserDialog.getInstance(
+                context = requireContext(),
+                listChooseOptions = listOptions.map { it.first }.toMutableList(),
+                object : DialogInteraction {
+                    override fun onOptionClicked(optionName: String) {
+                        listOptions.find { it.first == optionName }?.second?.invoke()
                     }
-                })
+                }
+            )
         }
     }
 
     private fun addTextListeners() {
         binding.etEnterUsername.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                // ignore
+                // Ignore
             }
 
             override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if (!text.isNullOrEmpty()) {
                     binding.btnNext.isEnabled = true
-                    binding.clUsernameError.visibility = View.INVISIBLE
+                    binding.cvUsernameError.visibility = View.INVISIBLE
                 }
             }
 
             override fun afterTextChanged(text: Editable?) {
                 if (!text.isNullOrEmpty()) {
                     binding.btnNext.isEnabled = true
-                    binding.clUsernameError.visibility = View.INVISIBLE
+                    binding.cvUsernameError.visibility = View.INVISIBLE
                 }
             }
         })
@@ -201,28 +225,27 @@ class AccountCreationFragment : BaseFragment() {
                     // ignore
                 }
             })
-        binding.clProgressScreen.visibility = View.GONE
-        binding.progressBar.secondaryProgress = 0
+        binding.profilePicture.flProgressScreen.visibility = View.GONE
+        progressAnimation?.stop()
+
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this).clear(binding.ivPickPhoto)
-        binding.ivPickPhoto.setImageDrawable(
+        Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
+        binding.profilePicture.ivPickAvatar.setImageDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
                 R.drawable.img_camera
             )
         )
-        binding.clSmallCameraPicker.visibility = View.GONE
     }
 
     private fun checkUsername() {
         if (binding.etEnterUsername.text.isNullOrEmpty()) {
             binding.btnNext.isEnabled = false
-            binding.clUsernameError.visibility = View.VISIBLE
+            binding.cvUsernameError.visibility = View.VISIBLE
         } else {
             if (currentPhotoLocation != Uri.EMPTY) {
                 val inputStream =
                     requireActivity().contentResolver.openInputStream(currentPhotoLocation)
-
                 val fileStream = Tools.copyStreamToFile(
                     inputStream!!,
                     activity?.contentResolver?.getType(currentPhotoLocation)!!
@@ -232,7 +255,7 @@ class AccountCreationFragment : BaseFragment() {
                         (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                     else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-                binding.progressBar.max = uploadPieces
+
                 Timber.d("File upload start")
                 CoroutineScope(Dispatchers.IO).launch {
                     uploadDownloadManager.uploadFile(
@@ -250,10 +273,7 @@ class AccountCreationFragment : BaseFragment() {
                         ),
                         object : FileUploadListener {
                             override fun filePieceUploaded() {
-                                if (progress <= uploadPieces) {
-                                    binding.progressBar.secondaryProgress = progress.toInt()
-                                    progress++
-                                } else progress = 0
+                                Timber.d("File piece uploaded")
                             }
 
                             override fun fileUploadError(description: String) {
@@ -272,7 +292,8 @@ class AccountCreationFragment : BaseFragment() {
                                 messageBody: MessageBody?
                             ) {
                                 requireActivity().runOnUiThread {
-                                    binding.clProgressScreen.visibility = View.GONE
+                                    binding.profilePicture.flProgressScreen.visibility = View.GONE
+                                    progressAnimation?.stop()
                                 }
 
                                 val jsonObject = JsonObject()
@@ -290,7 +311,8 @@ class AccountCreationFragment : BaseFragment() {
                             }
                         })
                 }
-                binding.clProgressScreen.visibility = View.VISIBLE
+                binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+                progressAnimation?.start()
             } else {
                 val jsonObject = JsonObject()
                 jsonObject.addProperty(

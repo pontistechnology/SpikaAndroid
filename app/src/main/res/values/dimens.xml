@@ -1,10 +1,13 @@
 <resources>
     <!-- Layout -->
+    <dimen name="five_hundred_twelve">512dp</dimen>
+    <dimen name="three_hundred_ninety_five">395dp</dimen>
     <dimen name="two_hundred_seventy_two_dp">272dp</dimen>
     <dimen name="two_hundred_fifty_six_dp">256dp</dimen>
     <dimen name="two_hundred_fourteen_dp">214dp</dimen>
     <dimen name="two_hundred">200dp</dimen>
     <dimen name="one_hundred_seventy_dp">170dp</dimen>
+    <dimen name="one_hundred_fifty_two_dp">152dp</dimen>
     <dimen name="one_hundred_twenty_eight">128dp</dimen>
     <dimen name="one_hundred_dp">100dp</dimen>
     <dimen name="eighty_eight_dp_margin">88dp</dimen>
@@ -12,6 +15,8 @@
     <dimen name="seventy_five_dp">75dp</dimen>
     <dimen name="seventy_dp">70dp</dimen>
     <dimen name="sixty_four_dp">64dp</dimen>
+    <dimen name="fifty_eight_dp">58dp</dimen>
+    <dimen name="fifty_six_dp">56dp</dimen>
     <dimen name="fifty_two_dp">52dp</dimen>
     <dimen name="fifty_dp_margin">50dp</dimen>
     <dimen name="forty_eight_dp_margin">48dp</dimen>
@@ -39,8 +44,11 @@
 
     <!-- Text -->
     <dimen name="thirty_eight_sp_text">38sp</dimen>
+    <dimen name="thirty_two_sp_text">32sp</dimen>
     <dimen name="thirty_sp_text">30sp</dimen>
     <dimen name="twenty_eight_sp_text">28sp</dimen>
+    <dimen name="twenty_six_sp_text">26sp</dimen>
+    <dimen name="twenty_four_sp_text">24sp</dimen>
     <dimen name="twenty_sp_text">20sp</dimen>
     <dimen name="eighteen_sp_text">18sp</dimen>
     <dimen name="sixteen_sp_text">16sp</dimen>
@@ -53,5 +61,11 @@
     <!--Images-->
     <dimen name="image_max_width">300dp</dimen>
     <dimen name="thirty_five_dp">35dp</dimen>
+    <dimen name="ninety_six_dp">96dp</dimen>
+
+    <!-- Reply layout  -->
+    <dimen name="reply_layout_dimen">128dp</dimen>
+    <dimen name="one_hundred_fifty_six">156dp</dimen>
+    <dimen name="ten_sp_text">10sp</dimen>
 
 </resources>

@@ -47,8 +47,7 @@ data class User(
     var isBot: Boolean = false,
 
     @ColumnInfo(name = "deleted")
-    val deleted: Boolean
-
+    val deleted: Boolean,
 ) : Parcelable {
     @Ignore
     @IgnoredOnParcel

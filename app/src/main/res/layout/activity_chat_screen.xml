@@ -4,7 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.chat.ChatScreenActivity">
+    tools:context=".ui.main.chat.ChatScreenActivity"
+    android:background="?attr/backgroundPrimary"
+    android:elevation="@dimen/one_dp_margin"
+    android:fitsSystemWindows="true">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_chat_container"
@@ -18,9 +21,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/chat_nav_graph" />
 
-    <include
-        android:id="@+id/cv_notification"
-        android:visibility="gone"
-        layout="@layout/dialog_notification" />
+<!--    <include-->
+<!--        android:id="@+id/cv_notification"-->
+<!--        android:visibility="gone"-->
+<!--        layout="@layout/dialog_notification" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 package com.clover.studio.spikamessenger.ui.main.create_room
 
+import android.graphics.drawable.AnimationDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,8 +19,10 @@ import com.bumptech.glide.Glide
 import com.clover.studio.spikamessenger.BuildConfig
 import com.clover.studio.spikamessenger.R
 import com.clover.studio.spikamessenger.data.models.FileData
+import com.clover.studio.spikamessenger.data.models.entity.PrivateGroupChats
 import com.clover.studio.spikamessenger.data.models.entity.User
 import com.clover.studio.spikamessenger.data.models.entity.UserAndPhoneUser
+import com.clover.studio.spikamessenger.data.models.junction.RoomWithUsers
 import com.clover.studio.spikamessenger.databinding.FragmentGroupInformationBinding
 import com.clover.studio.spikamessenger.ui.main.MainViewModel
 import com.clover.studio.spikamessenger.ui.main.chat.startChatScreenActivity
@@ -44,15 +47,15 @@ class GroupInformationFragment : BaseFragment() {
     @Inject
     lateinit var uploadDownloadManager: UploadDownloadManager
 
+    private var bindingSetup: FragmentGroupInformationBinding? = null
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var adapter: GroupInformationAdapter
-    private var selectedUsers: MutableList<UserAndPhoneUser> = ArrayList()
+    private var selectedUsers: MutableList<PrivateGroupChats> = ArrayList()
     private var currentPhotoLocation: Uri = Uri.EMPTY
-    private var progress: Long = 1L
     private var uploadPieces: Int = 0
     private var avatarFileId: Long? = null
 
-    private var bindingSetup: FragmentGroupInformationBinding? = null
+    private var progressAnimation: AnimationDrawable? = null
 
     private val binding get() = bindingSetup!!
 
@@ -63,8 +66,7 @@ class GroupInformationFragment : BaseFragment() {
                     Tools.handleSamplingAndRotationBitmap(requireActivity(), it, false)
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this).load(bitmap).centerCrop().into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
             } else {
@@ -83,8 +85,7 @@ class GroupInformationFragment : BaseFragment() {
                     )
                 val bitmapUri = Tools.convertBitmapToUri(requireActivity(), bitmap!!)
 
-                Glide.with(this).load(bitmap).centerCrop().into(binding.ivPickPhoto)
-                binding.clSmallCameraPicker.visibility = View.VISIBLE
+                Glide.with(this).load(bitmap).centerCrop().into(binding.profilePicture.ivPickAvatar)
                 currentPhotoLocation = bitmapUri
                 updateGroupImage()
             } else {
@@ -101,15 +102,7 @@ class GroupInformationFragment : BaseFragment() {
                 getString(R.string.failed_user_data),
                 null,
                 getString(R.string.ok),
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        // ignore
-                    }
-
-                    override fun onSecondOptionClicked() {
-                        // ignore
-                    }
-                })
+                object : DialogInteraction {})
             Timber.d("Failed to fetch user data")
         } else {
             selectedUsers =
@@ -130,54 +123,39 @@ class GroupInformationFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun initializeViews() {
-        binding.tvCreate.setOnClickListener {
-            val jsonObject = JsonObject()
-
-            val userIdsArray = JsonArray()
-            for (user in selectedUsers) {
-                userIdsArray.add(user.user.id)
-            }
-            val adminUserIds = JsonArray()
-            adminUserIds.add(viewModel.getLocalUserId())
-
-            jsonObject.addProperty(
-                Const.JsonFields.NAME,
-                binding.etEnterUsername.text.toString()
-            )
-            jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarFileId)
-            jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
-            jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
-            jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.GROUP)
-
-            showProgress(false)
-            viewModel.createNewRoom(jsonObject)
+    private fun initializeViews() = with(binding) {
+        profilePicture.ivProgressBar.apply {
+            setBackgroundResource(R.drawable.drawable_progress_animation)
+            progressAnimation = background as AnimationDrawable
         }
 
-        binding.tvPeopleSelected.text = getString(R.string.s_people_selected, selectedUsers.size)
+        profilePicture.ivPickAvatar.setImageDrawable(
+            ContextCompat.getDrawable(
+                requireContext(),
+                R.drawable.img_group_avatar
+            )
+        )
+        setUpDoneButton(uploading = false)
+
+        tvPeopleSelected.text = getString(R.string.s_people_selected, selectedUsers.size)
         adapter.submitList(selectedUsers)
 
-        binding.etEnterUsername.addTextChangedListener {
-            if (binding.etEnterUsername.text.isNotEmpty()) {
-                binding.tvCreate.isClickable = true
-                binding.tvCreate.setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.primary_color
-                    )
-                )
+        etEnterUsername.addTextChangedListener {
+            fabDone.visibility = if (etEnterUsername.text.isNotEmpty()) {
+                View.VISIBLE
             } else {
-                binding.tvCreate.isClickable = false
-                binding.tvCreate.setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.text_tertiary
-                    )
-                )
+                View.GONE
+            }
+
+            // Set title of the screen to room name if not empty.
+            tvTitle.text = if (etEnterUsername.text.isNotEmpty()) {
+                etEnterUsername.text.toString()
+            } else {
+                getString(R.string.name_the_group)
             }
         }
 
-        binding.etEnterUsername.setOnFocusChangeListener { view, hasFocus ->
+        etEnterUsername.setOnFocusChangeListener { view, hasFocus ->
             run {
                 if (!hasFocus) {
                     hideKeyboard(view)
@@ -185,25 +163,63 @@ class GroupInformationFragment : BaseFragment() {
             }
         }
 
-        binding.ivPickPhoto.setOnClickListener {
-            ChooserDialog.getInstance(requireContext(),
-                getString(R.string.placeholder_title),
-                null,
-                getString(R.string.choose_from_gallery),
-                getString(R.string.take_photo),
-                object : DialogInteraction {
-                    override fun onFirstOptionClicked() {
-                        chooseImage()
-                    }
+        profilePicture.ivPickAvatar.setOnClickListener {
+            val listOptions = mutableListOf(
+                getString(R.string.choose_from_gallery) to { chooseImage() },
+                getString(R.string.take_photo) to { takePhoto() },
+                getString(R.string.cancel) to {}
+            )
 
-                    override fun onSecondOptionClicked() {
-                        takePhoto()
+            ChooserDialog.getInstance(
+                context = requireContext(),
+                listChooseOptions = listOptions.map { it.first }.toMutableList(),
+                object : DialogInteraction {
+                    override fun onOptionClicked(optionName: String) {
+                        listOptions.find { it.first == optionName }?.second?.invoke()
                     }
-                })
+                }
+            )
         }
 
-        binding.ivCancel.setOnClickListener {
-            activity?.onBackPressedDispatcher?.onBackPressed()
+        ivCancel.setOnClickListener {
+            goBack()
+        }
+
+        ivAddMoreUsers.setOnClickListener {
+            goBack()
+        }
+    }
+
+    private fun setUpDoneButton(uploading: Boolean) = with(binding) {
+        fabDone.isEnabled = !uploading
+        if (uploading) fabDone.alpha = 0.5f else fabDone.alpha = 1f
+
+        Timber.d("Is enabled: ${fabDone.isEnabled}")
+
+        if (fabDone.isEnabled) {
+            fabDone.setOnClickListener {
+                val jsonObject = JsonObject()
+
+                val userIdsArray = JsonArray()
+                for (user in selectedUsers) {
+                    userIdsArray.add(user.userId)
+                }
+                val adminUserIds = JsonArray()
+                adminUserIds.add(viewModel.getLocalUserId())
+
+                jsonObject.addProperty(
+                    Const.JsonFields.NAME,
+                    etEnterUsername.text.toString().trim()
+                )
+                jsonObject.addProperty(Const.JsonFields.AVATAR_FILE_ID, avatarFileId)
+                jsonObject.add(Const.JsonFields.USER_IDS, userIdsArray)
+                jsonObject.add(Const.JsonFields.ADMIN_USER_IDS, adminUserIds)
+                jsonObject.addProperty(Const.JsonFields.TYPE, Const.JsonFields.GROUP)
+
+                showProgress(false)
+                viewModel.createNewRoom(jsonObject)
+                viewModel.roomUsers.clear()
+            }
         }
     }
 
@@ -217,10 +233,11 @@ class GroupInformationFragment : BaseFragment() {
                         roomUser.user?.let { user -> users.add(user) }
                     }
 
+                    val roomWithUsers = RoomWithUsers(it.responseData.data.room, users)
                     activity?.let { parent ->
                         startChatScreenActivity(
                             parent,
-                            it.responseData.data.room.roomId
+                            roomWithUsers
                         )
                     }
                     findNavController().popBackStack(R.id.mainFragment, false)
@@ -243,18 +260,17 @@ class GroupInformationFragment : BaseFragment() {
         viewModel.fileUploadListener.observe(viewLifecycleOwner, EventObserver {
             when (it.status) {
                 Resource.Status.LOADING -> {
-                    if (progress <= uploadPieces) {
-                        binding.progressBar.secondaryProgress = progress.toInt()
-                        progress++
-                    } else progress = 0
+                    setUpDoneButton(uploading = true)
                 }
 
                 Resource.Status.SUCCESS -> {
                     Timber.d("Upload verified")
                     requireActivity().runOnUiThread {
-                        binding.clProgressScreen.visibility = View.GONE
+                        binding.profilePicture.flProgressScreen.visibility = View.GONE
+                        progressAnimation?.stop()
                     }
                     avatarFileId = it.responseData?.fileId
+                    setUpDoneButton(uploading = false)
                 }
 
                 Resource.Status.ERROR -> {
@@ -262,6 +278,7 @@ class GroupInformationFragment : BaseFragment() {
                     requireActivity().runOnUiThread {
                         showUploadError(it.message!!)
                     }
+                    setUpDoneButton(uploading = false)
                 }
 
                 else -> Toast.makeText(
@@ -280,6 +297,7 @@ class GroupInformationFragment : BaseFragment() {
             binding.tvPeopleSelected.text =
                 getString(R.string.s_people_selected, selectedUsers.size)
             adapter.notifyDataSetChanged()
+            viewModel.roomUsers.remove(it)
         }
 
         binding.rvContacts.adapter = adapter
@@ -302,6 +320,7 @@ class GroupInformationFragment : BaseFragment() {
     }
 
     private fun updateGroupImage() {
+        setUpDoneButton(uploading = true)
         if (currentPhotoLocation != Uri.EMPTY) {
             val inputStream =
                 requireActivity().contentResolver.openInputStream(currentPhotoLocation)
@@ -315,7 +334,6 @@ class GroupInformationFragment : BaseFragment() {
                     (fileStream.length() / getChunkSize(fileStream.length()) + 1).toInt()
                 else (fileStream.length() / getChunkSize(fileStream.length())).toInt()
 
-            binding.progressBar.max = uploadPieces
             Timber.d("File upload start")
             viewModel.uploadMedia(
                 FileData(
@@ -331,7 +349,9 @@ class GroupInformationFragment : BaseFragment() {
                     null
                 )
             )
-            binding.clProgressScreen.visibility = View.VISIBLE
+            binding.profilePicture.flProgressScreen.visibility = View.VISIBLE
+            progressAnimation?.start()
+            inputStream.close()
         }
     }
 
@@ -343,24 +363,17 @@ class GroupInformationFragment : BaseFragment() {
             getString(R.string.ok),
             object : DialogInteraction {
                 override fun onFirstOptionClicked() {
-                    // ignore
+                    // Ignore
                 }
 
                 override fun onSecondOptionClicked() {
-                    // ignore
+                    // Ignore
                 }
             })
-        binding.clProgressScreen.visibility = View.GONE
-        binding.progressBar.secondaryProgress = 0
+        binding.profilePicture.flProgressScreen.visibility = View.GONE
+        progressAnimation?.stop()
         currentPhotoLocation = Uri.EMPTY
-        Glide.with(this).clear(binding.ivPickPhoto)
-        binding.ivPickPhoto.setImageDrawable(
-            ContextCompat.getDrawable(
-                requireContext(),
-                R.drawable.img_camera
-            )
-        )
-        binding.clSmallCameraPicker.visibility = View.GONE
+        Glide.with(this).clear(binding.profilePicture.ivPickAvatar)
     }
 
     private fun showRoomCreationError(description: String) {
@@ -371,7 +384,11 @@ class GroupInformationFragment : BaseFragment() {
             null,
             getString(R.string.ok),
             object : DialogInteraction {
-                // ignore
+                // Ignore
             })
+    }
+
+    private fun goBack() {
+        activity?.onBackPressedDispatcher?.onBackPressed()
     }
 }

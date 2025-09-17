@@ -13,17 +13,20 @@ import com.clover.studio.spikamessenger.ui.main.contacts.ContactsFragment
 import com.clover.studio.spikamessenger.ui.main.rooms.RoomsFragment
 import com.clover.studio.spikamessenger.ui.main.settings.SettingsFragment
 import com.clover.studio.spikamessenger.utils.extendables.BaseFragment
+import com.clover.studio.spikamessenger.utils.helpers.ColorHelper
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+
 
 class MainFragment : BaseFragment() {
     private var bindingSetup: FragmentMainBinding? = null
     private val viewModel: MainViewModel by activityViewModels()
     private var count: Int = 0
-    val icons = arrayOf(
-        R.drawable.nav_chat_states,
-        R.drawable.nav_call_history_states,
-        R.drawable.nav_contact_states,
-        R.drawable.nav_settings_states
+    private val icons = arrayOf(
+        R.drawable.img_chat_default,
+        R.drawable.img_account_default,
+        R.drawable.img_phone,
+        R.drawable.img_settings_default
     )
 
     private val binding get() = bindingSetup!!
@@ -54,8 +57,8 @@ class MainFragment : BaseFragment() {
     private fun initializePager() {
         val fragmentList = arrayListOf(
             RoomsFragment(),
-            CallHistoryFragment(),
             ContactsFragment(),
+            CallHistoryFragment(),
             SettingsFragment()
         )
 
@@ -76,8 +79,7 @@ class MainFragment : BaseFragment() {
             if (count != 0) {
                 if (position == 0) {
                     val badge = tab.orCreateBadge
-                    tab.badge?.backgroundColor =
-                        ContextCompat.getColor(requireContext(), R.color.style_red)
+                    tab.badge?.backgroundColor = ColorHelper.getPrimaryColor(requireContext())
                     tab.badge?.badgeTextColor =
                         ContextCompat.getColor(requireContext(), R.color.white)
                     badge.number = count
@@ -90,5 +92,20 @@ class MainFragment : BaseFragment() {
         for (i in icons.indices) {
             binding.tabLayout.getTabAt(i)?.setIcon(icons[i])
         }
+
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                // Ignore
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+                // Ignore
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                val position = tab?.position ?: return
+                viewModel.setIsRoomRefreshing(position == 0)
+            }
+        })
     }
 }

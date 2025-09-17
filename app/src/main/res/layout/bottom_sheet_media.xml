@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_rounded_corners_top"
+    android:backgroundTint="?attr/secondaryColor"
+    android:paddingBottom="@dimen/twenty_dp_margin"
+    tools:ignore="contentDescription">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto_bold"
+        android:padding="@dimen/twenty_dp_margin"
+        android:text="@string/more_actions"
+        android:textColor="?attr/primaryTextColor"
+        android:textSize="@dimen/sixteen_sp_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/twenty_five_dp_margin"
+        android:src="@drawable/img_close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ten_dp_margin"
+        android:gravity="center|center_vertical"
+        android:orientation="horizontal"
+        android:weightSum="4"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_remove">
+
+        <Button
+            android:id="@+id/btn_files"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/img_empty_file"
+            android:drawableTint="?attr/primaryTextColor"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/files"
+            android:textAllCaps="false"
+            android:textAppearance="@style/CustomTitleBold"
+            android:textColor="?attr/primaryTextColor"
+            android:textSize="@dimen/twelve_sp_text" />
+
+        <Button
+            android:id="@+id/btn_library"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/img_library"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/library"
+            android:textAllCaps="false"
+            android:textAppearance="@style/CustomTitleBold"
+            android:textColor="?attr/primaryTextColor"
+            android:textSize="@dimen/twelve_sp_text" />
+
+
+        <Button
+            android:id="@+id/btn_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/img_location"
+            android:drawableTint="?attr/primaryTextColor"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/location"
+            android:textAllCaps="false"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryColor"
+            android:textSize="@dimen/twelve_sp_text"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_contact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/img_contact"
+            android:drawableTint="?attr/primaryTextColor"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/contact"
+            android:textAllCaps="false"
+            android:textAppearance="@style/CustomTextBody"
+            android:textColor="?attr/primaryColor"
+            android:textSize="@dimen/twelve_sp_text"
+            android:visibility="gone" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+

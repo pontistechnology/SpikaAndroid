@@ -5,7 +5,6 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
-import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,17 +42,7 @@ class TermsAndConditions : Fragment() {
                 Tools.openTermsAndConditions(requireActivity())
             }
         }
-        spannable.setSpan(
-            ForegroundColorSpan(
-                resources.getColor(
-                    R.color.primary_color,
-                    null
-                )
-            ),
-            textToSpan.indexOf(getString(R.string.terms_and_conditions)),
-            textToSpan.length,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+
         spannable.setSpan(
             clickableSpan,
             textToSpan.indexOf(getString(R.string.terms_and_conditions)),

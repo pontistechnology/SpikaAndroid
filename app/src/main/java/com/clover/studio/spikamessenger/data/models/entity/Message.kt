@@ -4,6 +4,8 @@ import android.os.Parcelable
 import androidx.room.*
 import com.clover.studio.spikamessenger.data.AppDatabase
 import com.clover.studio.spikamessenger.data.models.FileMetadata
+import com.clover.studio.spikamessenger.data.models.networking.responses.ThumbnailData
+import com.clover.studio.spikamessenger.utils.Const
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
@@ -13,19 +15,11 @@ data class Message @JvmOverloads constructor(
 
     @PrimaryKey
     @ColumnInfo(name = AppDatabase.TablesInfo.ID)
-    val id: Int,
+    var id: Int,
 
     @SerializedName("fromUserId")
     @ColumnInfo(name = "from_user_id")
     val fromUserId: Int?,
-
-//    @SerializedName("fromDeviceId")
-//    @ColumnInfo(name = "from_device_id")
-//    val fromDeviceId: Int?,
-//
-//    @SerializedName("totalDeviceCount")
-//    @ColumnInfo(name = "total_device_count")
-//    val totalDeviceCount: Int?,
 
     @SerializedName("totalUserCount")
     @ColumnInfo(name = "total_user_count")
@@ -52,6 +46,10 @@ data class Message @JvmOverloads constructor(
     @TypeConverters(TypeConverter::class)
     val body: MessageBody?,
 
+    @ColumnInfo("reference_message")
+    @TypeConverters(TypeConverter::class)
+    var referenceMessage: ReferenceMessage?,
+
     @SerializedName("createdAt")
     @ColumnInfo(name = "created_at_message")
     val createdAt: Long?,
@@ -76,7 +74,10 @@ data class Message @JvmOverloads constructor(
     var messageStatus: String?,
 
     @ColumnInfo("uri")
-    var originalUri: String?,
+    var uri: String?,
+
+    @ColumnInfo("thumb_uri")
+    val thumbUri: String?,
 
     @Ignore
     val unreadCount: Int = 0,
@@ -85,6 +86,10 @@ data class Message @JvmOverloads constructor(
     @Ignore
     @SerializedName("fromUserName")
     val userName: String = "",
+
+    @SerializedName("isForwarded")
+    @ColumnInfo("is_forwarded")
+    val isForwarded: Boolean,
 
     @Ignore
     val groupName: String? = "",
@@ -103,7 +108,24 @@ data class Message @JvmOverloads constructor(
 
     // @Ignore
     // var roomUser: String = ""
-) : Parcelable
+) : Parcelable {
+    init {
+        handleReferenceMessage()
+    }
+
+    fun canDelete(): Boolean {
+        return deleted == null || deleted == true || Const.JsonFields.SYSTEM_TYPE == type
+    }
+
+    fun handleReferenceMessage(): Message {
+        if (body?.referenceMessage != null) {
+            referenceMessage = body.referenceMessage
+            body.referenceMessage = null
+        }
+
+        return this@Message
+    }
+}
 
 @Parcelize
 data class MessageBody(
@@ -113,6 +135,12 @@ data class MessageBody(
     var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?,
+    val type: String?,
+    val subjectId: Int?,
+    val subject: String?,
+    val objectIds: List<Int>?,
+    val objects: List<String>?,
+    var thumbnailData: ThumbnailData? = null
 ) : Parcelable
 
 @Parcelize
@@ -128,7 +156,7 @@ data class ReferenceMessage(
     var createdAt: Long?,
     val modifiedAt: Long?,
     val deleted: Boolean?,
-    val reply: Boolean?,
+    val reply: Boolean?
 ) : Parcelable
 
 @Parcelize
@@ -138,6 +166,7 @@ data class ReplyBody(
     var thumbId: Long?,
     var file: MessageFile?,
     var thumb: MessageFile?,
+    var thumbnailData: ThumbnailData?
 ) : Parcelable
 
 @Parcelize
