@@ -73,7 +73,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika3 Dev"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
-            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
+            buildConfigField("String", "GIPHY_API_KEY", localProperties['giphyApiKey'])
 
             signingConfig signingConfigs.debug
         }
@@ -86,7 +86,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika3 Dev"
             buildConfigField("String", "SERVER_URL", "\"https://dev3.spika.chat/\"")
-            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
+            buildConfigField("String", "GIPHY_API_KEY", localProperties['giphyApiKey'])
 
             signingConfig signingConfigs.debug
         }
@@ -100,7 +100,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
-            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
+            buildConfigField("String", "GIPHY_API_KEY", localProperties['giphyApiKey'])
 
             signingConfig signingConfigs.debug
         }
@@ -115,7 +115,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika3"
             buildConfigField("String", "SERVER_URL", "\"https://clover.spika.chat/\"")
-            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
+            buildConfigField("String", "GIPHY_API_KEY", localProperties['giphyApiKey'])
 
             signingConfig signingConfigs.release
         }
@@ -129,7 +129,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika Messenger Dev"
             buildConfigField("String", "SERVER_URL", "\"https://messenger.spika.chat/\"")
-            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
+            buildConfigField("String", "GIPHY_API_KEY", localProperties['giphyApiKey'])
 
             signingConfig signingConfigs.debug
         }
@@ -144,7 +144,7 @@ android {
 
             resValue "string", "APP_NAME", "Spika"
             buildConfigField("String", "SERVER_URL", "\"https://messenger.spika.chat/\"")
-            buildConfigField("String", "GIPHY_API_KEY", "\"oJma2SztceQbLEhAnWtbvOLPAwvJLT7d\"")
+            buildConfigField("String", "GIPHY_API_KEY", localProperties['giphyApiKey'])
 
             signingConfig signingConfigs.messenger
         }
