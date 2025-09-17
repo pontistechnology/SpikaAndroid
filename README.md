@@ -32,11 +32,25 @@
     ```
 2.  **Open project**
     Open the project in Android Studio.
-3.  **Sync project**
+3.  **Setup local.properties file**
+    ```bash
+    	sdk.dir=PATH_TO_SDK
+	debugKeystorePath= PATH_TO_DEBUG_KEYSTORE
+	messengerKeystoreKeyAlias=MESSENGER_KEYSORE_KEY
+	messengerKeystoreKeyPassword=MESSENGER_KEYSORE_KEY_PASSWORD
+	messengerKeystorePassword=MESSENGER_KEYSORE_PASSWORD
+	messengerKeystorePath=PATH_TO_MESSENGER_KEYSTORE
+	releaseKeystoreKeyAlias=RELEASE_KEYSORE_KEY
+	releaseKeystoreKeyPassword=RELEASE_KEYSORE_KEY_PASSWORD
+	releaseKeystorePassword=RELEASE_KEYSORE_PASSWORD
+	releaseKeystorePath=PATH_TO_RELEASE_KEYSTORE
+	giphyApiKey="GIPHY_API_KEY"
+    ```
+4.  **Sync project**
     Let Gradle sync the project.
-4.  **Open the project in Xcode:**
+5.  **Open the project in Xcode:**
     Double-click the `.xcworkspace` file.
-5.  **Run the application:**
+6.  **Run the application:**
     Select the :app module and run project.
     
 ---
