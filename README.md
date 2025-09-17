@@ -48,9 +48,7 @@
     ```
 4.  **Sync project**
     Let Gradle sync the project.
-5.  **Open the project in Xcode:**
-    Double-click the `.xcworkspace` file.
-6.  **Run the application:**
+5.  **Run the application:**
     Select the :app module and run project.
     
 ---
