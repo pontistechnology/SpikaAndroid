@@ -34,7 +34,7 @@
     Open the project in Android Studio.
 3.  **Setup local.properties file**
     ```bash
-    	sdk.dir=PATH_TO_SDK
+    sdk.dir=PATH_TO_SDK
 	debugKeystorePath= PATH_TO_DEBUG_KEYSTORE
 	messengerKeystoreKeyAlias=MESSENGER_KEYSORE_KEY
 	messengerKeystoreKeyPassword=MESSENGER_KEYSORE_KEY_PASSWORD
@@ -53,7 +53,7 @@
     
 ---
 
-## 🤝 Contributing
+## Contributing
 
 If you're open to contributions, this section provides guidelines for potential collaborators.
 
@@ -62,7 +62,7 @@ If you're open to contributions, this section provides guidelines for potential 
 
 ---
 
-## 📄 License
+## License
 
 Specify the license under which your project is released. This is important for both users and contributors.
 
