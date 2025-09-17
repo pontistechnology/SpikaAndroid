@@ -7,7 +7,7 @@
 ## Table of Contents
 
 - [Requirements](#requirements)  
-- [Installation](#installation)  
+- [Installation](#🚀 Installation)  
 - [Contributing](#contributing)  
 - [License](#license)  
 
