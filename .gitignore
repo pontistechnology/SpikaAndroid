@@ -14,3 +14,14 @@
 .cxx
 local.properties
 /.idea/.name
+/.idea/AndroidProjectSystem.xml
+/.idea/compiler.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/gradle.xml
+/.idea/graphql-settings.xml
+/.idea/misc.xml
+/.idea/runConfigurations.xml
+
+
+
+
