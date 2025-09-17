@@ -22,7 +22,7 @@
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Getting Started
 
@@ -34,7 +34,7 @@
     Open the project in Android Studio.
 3.  **Setup local.properties file**
     ```bash
-    	sdk.dir=PATH_TO_SDK
+    sdk.dir=PATH_TO_SDK
 	debugKeystorePath= PATH_TO_DEBUG_KEYSTORE
 	messengerKeystoreKeyAlias=MESSENGER_KEYSORE_KEY
 	messengerKeystoreKeyPassword=MESSENGER_KEYSORE_KEY_PASSWORD
@@ -48,14 +48,12 @@
     ```
 4.  **Sync project**
     Let Gradle sync the project.
-5.  **Open the project in Xcode:**
-    Double-click the `.xcworkspace` file.
-6.  **Run the application:**
+5.  **Run the application:**
     Select the :app module and run project.
     
 ---
 
-## 🤝 Contributing
+## Contributing
 
 If you're open to contributions, this section provides guidelines for potential collaborators.
 
@@ -64,7 +62,7 @@ If you're open to contributions, this section provides guidelines for potential 
 
 ---
 
-## 📄 License
+## License
 
 Specify the license under which your project is released. This is important for both users and contributors.
 
